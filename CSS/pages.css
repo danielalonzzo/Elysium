@@ -1,0 +1,244 @@
+/* Pages CSS */
+
+/* Home Page Specifics */
+.process-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-md);
+    position: relative;
+    margin-top: var(--space-lg);
+}
+
+.process-step {
+    position: relative;
+    padding: var(--space-md);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    transition: transform var(--transition-medium);
+}
+
+.process-step:hover {
+    transform: translateY(-5px);
+    background: var(--glass-bg-hover);
+}
+
+.step-number {
+    font-family: var(--font-heading);
+    font-size: 4rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.05);
+    /* Very subtle watermark */
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    line-height: 1;
+}
+
+.step-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Contact Form */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.form-control {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    /* Smooth rounding for inputs */
+    padding: 1.2rem;
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: all var(--transition-fast);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 4px rgba(41, 151, 255, 0.1);
+}
+
+textarea.form-control {
+    min-height: 160px;
+    resize: vertical;
+}
+
+/* Research Listing */
+.research-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.research-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all var(--transition-fast);
+}
+
+.research-item:hover {
+    background: var(--glass-bg-hover);
+    transform: scale(1.01);
+}
+
+.research-meta {
+    font-size: 0.85rem;
+    color: var(--color-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    background: rgba(41, 151, 255, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-pill);
+}
+
+/* Process Page Phases (process.html) */
+.process-phase {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 3rem;
+    backdrop-filter: blur(20px);
+}
+
+.process-phase h2 {
+    font-size: 2rem;
+}
+
+/* Our Developers - expandable cards */
+.developers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.developer-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.developer-card.is-expanded {
+    border-color: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.developer-card-trigger {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    font-family: inherit;
+    font-size: 1rem;
+    text-align: left;
+    transition: background 0.2s;
+}
+
+.developer-card-trigger:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.developer-card-trigger .developer-name {
+    flex: 1;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.developer-card-arrow {
+    font-size: 0.7rem;
+    opacity: 0.6;
+    transition: transform 0.3s;
+}
+
+.developer-card.is-expanded .developer-card-arrow {
+    transform: rotate(180deg);
+}
+
+.developer-photo {
+    flex-shrink: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(41, 151, 255, 0.25), rgba(225, 225, 229, 0.15));
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.developer-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.developer-initials {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    letter-spacing: 0.02em;
+}
+
+.developer-card-detail {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease-out;
+}
+
+.developer-card.is-expanded .developer-card-detail {
+    grid-template-rows: 1fr;
+}
+
+.developer-card-detail-inner {
+    overflow: hidden;
+    min-height: 0;
+}
+
+.developer-card-detail-inner p {
+    margin: 0 1.5rem 1rem 1.5rem;
+    padding: 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+}
+
+.developer-card-detail-inner p:first-child {
+    padding-top: 0.25rem;
+}
+
+.developer-card-detail-inner p:last-child {
+    margin-bottom: 1.5rem;
+}

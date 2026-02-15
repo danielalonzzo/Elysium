@@ -1,0 +1,251 @@
+/* Base CSS - Variables, Reset, Typography */
+
+:root {
+    /* Color Palette - Midnight Blue & Platinum */
+    --color-bg-primary: #020410;
+    /* Deepest Midnight Blue */
+    --color-bg-secondary: #051025;
+    /* Rich Navy */
+
+    /* Text */
+    --color-text-primary: #E1E1E5;
+    /* Cool Platinum White */
+    --color-text-secondary: #A0A5B5;
+    /* Muted Blue-Grey */
+    --color-text-muted: #6B7280;
+    /* Dark Slate */
+
+    /* Accents */
+    --color-accent: #2997ff;
+    /* Vivid Electric Blue */
+    --color-accent-glow: rgba(41, 151, 255, 0.5);
+    --color-platinum: #E1E1E5;
+    /* Silver/Platinum Highlight */
+    --color-gold: #D4AF37;
+    /* Subtle Gold Reflection */
+
+    /* Glassmorphism System */
+    --glass-bg: rgba(10, 20, 40, 0.4);
+    /* Tinted Blue Glass */
+    --glass-bg-hover: rgba(20, 30, 60, 0.5);
+    --glass-border: rgba(225, 225, 229, 0.15);
+    /* Platinum Border */
+    --glass-border-highlight: rgba(225, 225, 229, 0.4);
+    /* Brighter Shine */
+    --glass-shadow: 0 8px 32px 0 rgba(0, 5, 20, 0.5);
+    --backdrop-blur: blur(20px);
+
+    /* Gradients */
+    --gradient-glow: radial-gradient(circle at 50% 50%, rgba(41, 151, 255, 0.15), transparent 60%);
+    --gradient-metallic: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.4) 100%);
+
+    /* Typography */
+    /* System fonts stack that mimics Apple's San Francisco */
+    --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* Spacing Scale */
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 2rem;
+    --space-lg: 4rem;
+    --space-xl: 8rem;
+
+    /* Layout */
+    --container-width: 1200px;
+    --header-height: 70px;
+
+    /* Radius */
+    --radius-sm: 12px;
+    --radius-md: 24px;
+    --radius-lg: 32px;
+    --radius-pill: 9999px;
+
+    /* Transitions */
+    --transition-fast: 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+    --transition-medium: 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+    --transition-bounce: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+    height: 100%;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+
+    /* Liquid Alloy - Intense Flow */
+    background: linear-gradient(300deg,
+            #020410,
+            /* Deep Navy */
+            #0a1a3f,
+            /* Mid Blue */
+            #1c4e8c,
+            /* Electric/Metallic Blue */
+            #051025,
+            /* Midnight */
+            #020410
+            /* Loop */
+        );
+    background-size: 300% 300%;
+    animation: liquidAlloy 12s ease infinite;
+    /* Liquid Alloy - Intense Flow (Fast Intro -> Slow Loop) */
+    background: linear-gradient(300deg,
+            #020410,
+            /* Deep Navy */
+            #0a1a3f,
+            /* Mid Blue */
+            #1c4e8c,
+            /* Electric/Metallic Blue */
+            #051025,
+            /* Midnight */
+            #020410
+            /* Loop */
+        );
+    background-size: 300% 300%;
+    /* 
+       1. First iteration: 12s ease-in-out (Fast/Impactful)
+       2. Loop: 24s ease-in-out infinite, starts after 12s (Relaxed/Breathing)
+    */
+    animation:
+        liquidAlloy 12s ease-in-out 1,
+        liquidAlloy 24s ease-in-out infinite 12s;
+    background-attachment: fixed;
+}
+
+@keyframes liquidAlloy {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+    color: var(--color-text-primary);
+    line-height: 1.1;
+    margin-bottom: var(--space-sm);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    /* Subtle depth */
+}
+
+h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+h2 {
+    font-size: 3rem;
+    letter-spacing: -0.025em;
+}
+
+h3 {
+    font-size: 2rem;
+}
+
+p {
+    margin-bottom: var(--space-sm);
+    color: var(--color-text-secondary);
+    font-size: 1.05rem;
+    font-weight: 400;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition-fast);
+}
+
+ul {
+    list-style: none;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+    border-radius: var(--radius-md);
+}
+
+/* Utilities */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mb-sm {
+    margin-bottom: var(--space-sm);
+}
+
+.mb-md {
+    margin-bottom: var(--space-md);
+}
+
+.mb-lg {
+    margin-bottom: var(--space-lg);
+}
+
+/* Focus States for Accessibility */
+:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(41, 151, 255, 0.3);
+    /* Blue tinted scrollbar */
+    border-radius: var(--radius-pill);
+    border: 3px solid var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}
