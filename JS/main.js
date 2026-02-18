@@ -27,6 +27,33 @@ document.addEventListener('DOMContentLoaded', () => {
         menu.addEventListener('click', (e) => e.stopPropagation());
     }
 
+    // Mobile Navigation Toggle
+    const mobileToggle = document.querySelector('.mobile-toggle');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (mobileToggle && navLinks) {
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            // Toggle icon between hamburger and close
+            if (navLinks.classList.contains('active')) {
+                mobileToggle.textContent = '✕';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+            } else {
+                mobileToggle.textContent = '☰';
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Close menu when clicking a link
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                mobileToggle.textContent = '☰';
+                document.body.style.overflow = '';
+            });
+        });
+    }
+
     // Navbar Scroll Effect
     const navbar = document.querySelector('.navbar');
 
