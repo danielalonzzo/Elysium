@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
        2. Sticky / Glassy Header on Scroll
     ----------------------------------------------------------- */
     const header = document.getElementById('header');
-    
+
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
             header.classList.add('scrolled');
@@ -66,8 +66,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const parallaxImgs = document.querySelectorAll('.parallax-img');
 
     window.addEventListener('scroll', () => {
+        // Disable parallax on mobile
+        if (window.innerWidth <= 768) return;
+
         let scrollY = window.scrollY;
-        
+
         // Hero background moves slower
         if (parallaxBg && scrollY < window.innerHeight) {
             parallaxBg.style.transform = `translateY(${scrollY * 0.4}px) scale(1.05)`;
@@ -76,9 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Slight parallax for product images
         parallaxImgs.forEach(img => {
             const rect = img.getBoundingClientRect();
-            if(rect.top < window.innerHeight && rect.bottom > 0) {
-                 const diff = (window.innerHeight - rect.top) * 0.05;
-                 img.style.transform = `translateY(-${diff}px) scale(1.1)`;
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                const diff = (window.innerHeight - rect.top) * 0.05;
+                img.style.transform = `translateY(-${diff}px) scale(1.1)`;
             }
         });
     });
@@ -108,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.addEventListener('click', (e) => {
             const targetTab = card.getAttribute('data-tab');
             const segmentToClick = document.querySelector(`.segment[data-target="${targetTab}"]`);
-            if(segmentToClick) {
+            if (segmentToClick) {
                 segmentToClick.click();
             }
         });

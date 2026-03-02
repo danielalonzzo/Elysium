@@ -275,6 +275,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle all scroll-based parallax in one listener for performance
     window.addEventListener('scroll', () => {
+        // Disable parallax on mobile for performance and usability
+        if (window.innerWidth <= 768) return;
+
         const scrolled = window.scrollY;
 
         // Header Parallax logic

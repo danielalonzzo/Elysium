@@ -1275,3 +1275,10 @@ a {
         flex-direction: row;
     }
 }
+
+/* Disable parallax effects on mobile */
+@media (max-width: 768px) {
+    .product-card:hover .card-img-wrapper img {
+        transform: none !important;
+    }
+}
