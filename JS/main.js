@@ -320,3 +320,22 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     document.head.appendChild(styleSheet);
 });
+
+    // Accordion interaction
+    document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const accordionItem = header.parentElement;
+            
+            // Toggle current item
+            accordionItem.classList.toggle('is-expanded');
+            
+            // Optional: Close other items (uncomment if you want accordion behavior)
+            /*
+            document.querySelectorAll('.accordion-item').forEach(item => {
+                if(item !== accordionItem) {
+                    item.classList.remove('is-expanded');
+                }
+            });
+            */
+        });
+    });
