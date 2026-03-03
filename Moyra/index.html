@@ -136,7 +136,8 @@
         <section id="about-brief" class="section reveal">
             <div class="container text-center">
                 <p class="lead-text glass-text">
-                    Moyra es un food studio en La Aurora, Heredia. Hacemos comida artesanal — dulce y salada — para
+                    Moyra es un food studio en <a href="https://maps.app.goo.gl/C9kTFtissQzUmBtG9?g_st=ic"
+                        target="_blank">La Aurora, Heredia</a>. Hacemos comida artesanal — dulce y salada — para
                     llevar o pedir en línea. Todo se prepara con detalle, para que vos solo elijás y disfrutés.
                 </p>
             </div>
@@ -257,7 +258,7 @@
             <div class="container">
                 <div class="glass-card instructions-card">
                     <h2>CÓMO PEDIR</h2>
-                    <div class="steps-container">
+                    <div class="steps-container" style="max-width: 600px; margin: 2rem auto;">
                         <div class="step">
                             <div class="step-num">1</div>
                             <h4>Elegí</h4>
@@ -279,11 +280,15 @@
                     <div class="order-apps">
                         <button class="cta-button uber" onclick="openOrderModal()">Uber Eats</button>
                         <button class="cta-button glovo" onclick="openOrderModal()">Glovo</button>
+                        <button class="cta-button split-brand contact-split" onclick="openContactModal()">
+                            <span class="brand-half left">Maps</span>
+                            <span class="brand-half right">WhatsApp</span>
+                        </button>
                     </div>
                     <div class="info-band">
-                        <span>L - V: 8:00am - 7:00pm</span>
+                        <span>Todos los días: 6:00am - 10:00pm</span>
                         <span>•</span>
-                        <span>Zona: La Aurora, Heredia (+5km)</span>
+                        <span>Heredia y <a href="#encargos">Encargos en todo el pais</a></span>
                     </div>
                 </div>
             </div>
@@ -305,6 +310,7 @@
                     <button class="segment" data-target="reposteria">Repostería</button>
                     <button class="segment" data-target="desayunos">Desayunos</button>
                     <button class="segment" data-target="almuerzos">Almuerzos</button>
+                    <button class="segment" data-target="cenas">Cenas</button>
                 </div>
 
                 <!-- Menu Content Panaderia -->
@@ -391,6 +397,24 @@
                     </div>
                 </div>
 
+                <!-- Menu Content Cenas -->
+                <div class="menu-tab-content" id="tab-cenas">
+                    <div class="menu-grid">
+                        <div class="menu-item glass-card">
+                            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=400&auto=format&fit=crop"
+                                alt="Cena">
+                            <div class="item-info">
+                                <h4>Pasta Artesanal</h4>
+                                <p>Salsa de tomate casera y albahaca fresca.</p>
+                                <div class="item-footer">
+                                    <span class="price">Consultar en app</span>
+                                    <button class="cta-button small" onclick="openOrderModal()">Ordenar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -404,6 +428,8 @@
                         <div class="big-order-buttons">
                             <button class="cta-button uber large" onclick="openOrderModal()">Uber Eats</button>
                             <button class="cta-button glovo large" onclick="openOrderModal()">Glovo</button>
+                            <a href="https://maps.app.goo.gl/C9kTFtissQzUmBtG9?g_st=ic" target="_blank"
+                                class="cta-button maps large">Llegar con Maps</a>
                         </div>
                     </div>
                 </div>
@@ -411,11 +437,12 @@
                 <div class="faq-grid mt-4">
                     <div class="faq-item glass-panel">
                         <h4>¿Se puede retirar en el local?</h4>
-                        <p>Sí, ofrecemos modalidad takeaway. Pasá por tu pedido cuando esté listo.</p>
+                        <p>Sí, ofrecemos modalidad takeaway. Pasá por tu pedido cuando esté listo o <a
+                                href="https://wa.me/50662343024" target="_blank">escribinos al WhatsApp.</a></p>
                     </div>
                     <div class="faq-item glass-panel">
                         <h4>¿Hacen pedidos por encargo?</h4>
-                        <p>Claro, para eventos especiales escribinos al <a href="#">WhatsApp</a>.</p>
+                        <p>Claro, para eventos especiales llena el <a href="#encargos">formulario</a>.</p>
                     </div>
                 </div>
             </div>
@@ -534,16 +561,18 @@
             </div>
             <div class="footer-info">
                 <h4>Ubicación</h4>
-                <p>La Aurora, Heredia<br>Costa Rica</p>
-                <p>Lunes a Viernes: 8:00am - 7:00pm</p>
+                <p><a href="https://maps.app.goo.gl/C9kTFtissQzUmBtG9?g_st=ic" target="_blank">La Aurora,
+                        Heredia<br>Costa Rica</a></p>
+                <p>Todos los días: 6:00am - 10:00pm</p>
             </div>
             <div class="footer-links">
                 <h4>Contacto</h4>
-                <a href="#">hola@moyrafood.com</a>
-                <a href="#">+506 8888 8888</a>
+                <a href="mailto:info@moyra.cr">info@moyra.cr</a>
+                <a href="https://wa.me/50662343024" target="_blank">+506 6234 3024</a>
                 <div class="social-links mt-2">
-                    <a href="#">Instagram</a>
-                    <a href="#">WhatsApp</a>
+                    <a href="https://www.instagram.com/moyra_0719?igsh=MWQ4dWJuM2h5bXU5bw=="
+                        target="_blank">Instagram</a>
+                    <a href="https://wa.me/50662343024" target="_blank">WhatsApp</a>
                 </div>
             </div>
         </div>
@@ -569,6 +598,25 @@
             </div>
         </div>
     </div>
+
+    <!-- CONTACT MODAL -->
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-card glass-card">
+            <button class="close-modal" aria-label="Cerrar modal" onclick="closeContactModal()">&times;</button>
+            <h3>¿Deseas pedir por Whatsapp y recoger en el local?</h3>
+            <div class="modal-actions">
+                <a href="https://wa.me/50662343024" target="_blank"
+                    class="cta-button whatsapp-modal-btn block">Continuar en Whatsapp</a>
+                <a href="https://maps.app.goo.gl/C9kTFtissQzUmBtG9?g_st=ic" target="_blank"
+                    class="cta-button maps-modal-btn block">Continuar en Google Maps</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/50662343024" target="_blank" class="floating-whatsapp glass-card" aria-label="WhatsApp">
+        <img src="Images/whatsapp.png" alt="WhatsApp" class="wa-icon">
+    </a>
 
     <script src="script.js"></script>
 </body>

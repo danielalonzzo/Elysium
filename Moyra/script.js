@@ -28,13 +28,25 @@ document.addEventListener('DOMContentLoaded', () => {
        2. Sticky / Glassy Header on Scroll
     ----------------------------------------------------------- */
     const header = document.getElementById('header');
+    let lastScrollY = window.scrollY;
 
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
+        const currentScrollY = window.scrollY;
+
+        if (currentScrollY > 50) {
             header.classList.add('scrolled');
         } else {
             header.classList.remove('scrolled');
         }
+
+        // Hide header on scroll down, show on scroll up
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+            header.classList.add('header-hidden');
+        } else {
+            header.classList.remove('header-hidden');
+        }
+
+        lastScrollY = currentScrollY;
     });
 
     /* -----------------------------------------------------------
@@ -142,9 +154,31 @@ function closeOrderModal() {
     document.body.style.overflow = '';
 }
 
-// Close modal when clicking outside the card
+// Close order modal when clicking outside the card
 document.getElementById('orderModal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('orderModal')) {
         closeOrderModal();
+    }
+});
+
+/* -----------------------------------------------------------
+   8. Contact Modal (WhatsApp / Maps)
+----------------------------------------------------------- */
+function openContactModal() {
+    const modal = document.getElementById('contactModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeContactModal() {
+    const modal = document.getElementById('contactModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Close contact modal when clicking outside the card
+document.getElementById('contactModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('contactModal')) {
+        closeContactModal();
     }
 });

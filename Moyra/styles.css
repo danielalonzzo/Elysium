@@ -160,7 +160,7 @@ body {
     z-index: -10;
     overflow: hidden;
     pointer-events: none;
-    background: linear-gradient(-45deg, #F9F2F7, #FADDE7, #F9F2F7, #FADDE7);
+    background: linear-gradient(-45deg, #E13EA4, #FBD8E3, #E13EA4, #FBD8E3);
     background-size: 400% 400%;
     animation: flowAnimation 15s ease infinite;
 }
@@ -254,6 +254,11 @@ p {
     font-weight: 500;
     line-height: 1.4;
     letter-spacing: -0.01em;
+}
+
+.lead-text a {
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
 }
 
 a {
@@ -378,6 +383,23 @@ a {
 
 .cta-button.split-brand .brand-half.right {
     background-color: #FFCE27;
+}
+
+/* Custom colors for Maps/WhatsApp split button */
+.cta-button.contact-split .brand-half {
+    color: #FFFFFF;
+    /* Default for better visibility on blue/green */
+}
+
+.cta-button.contact-split .brand-half.left {
+    background-color: #4285F4;
+    color: #FFFFFF;
+}
+
+.cta-button.contact-split .brand-half.right {
+    background-color: #57F971;
+    color: #050930;
+    /* Navy for better contrast on bright green */
 }
 
 .cta-button.split-brand:hover {
@@ -825,7 +847,10 @@ a {
 }
 
 .uber,
-.glovo {
+.glovo,
+.maps,
+.whatsapp-modal-btn,
+.maps-modal-btn {
     color: var(--text-black);
     border: none;
     background: var(--navy-blue);
@@ -838,6 +863,21 @@ a {
 .glovo {
     background: #FFCE27;
     color: var(--text-black);
+}
+
+.maps {
+    background: #4285F4;
+    color: #FFFFFF;
+}
+
+.whatsapp-modal-btn {
+    background: #25D366;
+    color: #FFFFFF;
+}
+
+.maps-modal-btn {
+    background: #4285F4;
+    color: #FFFFFF;
 }
 
 .info-band {
@@ -1206,6 +1246,37 @@ a {
     display: block;
 }
 
+/* Floating WhatsApp Button */
+.floating-whatsapp {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    color: #25D366;
+    /* WhatsApp Brand Color */
+    padding: 0;
+    background: transparent;
+    /* Reuse glass card transitions but boost the hover */
+    transition: transform 0.4s var(--spring), box-shadow 0.4s var(--spring), color 0.3s ease;
+}
+
+.floating-whatsapp:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 0 30px rgba(87, 249, 113, 0.6), 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+.floating-whatsapp .wa-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
 /* Desktop Enhancements */
 @media (min-width: 768px) {
     .header-actions .menu-toggle {
@@ -1237,8 +1308,9 @@ a {
 
     .steps-container {
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: center;
         align-items: flex-start;
+        gap: 1rem;
     }
 
     .step-divider {
@@ -1283,5 +1355,9 @@ a {
 @media (max-width: 768px) {
     .product-card:hover .card-img-wrapper img {
         transform: none !important;
+    }
+
+    .glass-header.header-hidden {
+        transform: translateY(-100%);
     }
 }
