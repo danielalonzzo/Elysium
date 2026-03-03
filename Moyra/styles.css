@@ -359,6 +359,7 @@ a {
     overflow: hidden;
     display: inline-flex;
     width: auto;
+    align-items: stretch;
 }
 
 .cta-button.split-brand .brand-half {
@@ -581,7 +582,8 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 80px;
+    padding-top: 240px;
+    padding-bottom: 60px;
     overflow: hidden;
 }
 
@@ -1226,6 +1228,7 @@ a {
     .hero-ctas {
         flex-direction: row;
         justify-content: center;
+        align-items: center;
     }
 
     .categories-grid {
