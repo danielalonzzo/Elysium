@@ -275,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, revealObserverOptions);
 
     document.querySelectorAll('.reveal-item').forEach(el => revealObserver.observe(el));
+    document.querySelectorAll('.reveal-step').forEach(el => revealObserver.observe(el));
 
     // 3. Glass Parallax Cards
     const glassCards = document.querySelectorAll('.card-parallax');
@@ -327,21 +328,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.head.appendChild(styleSheet);
 });
 
-    // Accordion interaction
-    document.querySelectorAll('.accordion-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const accordionItem = header.parentElement;
-            
-            // Toggle current item
-            accordionItem.classList.toggle('is-expanded');
-            
-            // Optional: Close other items (uncomment if you want accordion behavior)
-            /*
-            document.querySelectorAll('.accordion-item').forEach(item => {
-                if(item !== accordionItem) {
-                    item.classList.remove('is-expanded');
-                }
-            });
-            */
+// Accordion interaction
+document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const accordionItem = header.parentElement;
+
+        // Toggle current item
+        accordionItem.classList.toggle('is-expanded');
+
+        // Optional: Close other items (uncomment if you want accordion behavior)
+        /*
+        document.querySelectorAll('.accordion-item').forEach(item => {
+            if(item !== accordionItem) {
+                item.classList.remove('is-expanded');
+            }
         });
+        */
     });
+});

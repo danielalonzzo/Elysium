@@ -3,45 +3,72 @@
 /* Home Page Specifics */
 .process-steps {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-md);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
     position: relative;
     margin-top: var(--space-lg);
 }
 
 .process-step {
-    text-align: center;
+    text-align: left;
+    /* Better readability for longer descriptions */
     position: relative;
-    padding: var(--space-md);
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    backdrop-filter: blur(10px);
-    transition: transform var(--transition-medium);
+    padding: 2.5rem;
+    /* Increased padding */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+    /* Apple-like glass gradient */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    /* More rounded, modern corners */
+    backdrop-filter: blur(20px);
+    /* Stronger blur */
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), background 0.4s ease;
 }
 
 .process-step:hover {
-    transform: translateY(-5px);
-    background: var(--glass-bg-hover);
+    transform: translateY(-8px) scale(1.02);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .step-number {
     font-family: var(--font-heading);
-    font-size: 4rem;
+    font-size: 5rem;
+    /* Larger */
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.05);
-    /* Very subtle watermark */
+    color: rgba(255, 255, 255, 0.03);
+    /* More subtle */
     position: absolute;
-    top: 10px;
-    right: 20px;
+    top: 5px;
+    right: 15px;
     line-height: 1;
+    pointer-events: none;
+    /* Make sure it doesn't block clicks */
 }
 
 .step-title {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
     position: relative;
     z-index: 1;
+    color: var(--color-text-primary);
+}
+
+/* New Process Step Animations (Apple-style reveal) */
+.reveal-step {
+    opacity: 0;
+    transform: translateY(60px);
+    /* Start lower */
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Elegant easing */
+}
+
+.reveal-step.is-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Contact Form */
