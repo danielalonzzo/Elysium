@@ -140,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const indicators = indicatorsContainer.querySelectorAll('.indicator');
 
         function updateTestimonial() {
-            // Fade out
-            testimonialContent.classList.add('fade-out');
+            // Slide out
+            testimonialContent.classList.add('slide-out');
 
             setTimeout(() => {
                 // Update content
@@ -154,9 +154,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     else ind.classList.remove('active');
                 });
 
-                // Fade in
-                testimonialContent.classList.remove('fade-out');
-            }, 600); // Wait for fade out transition (0.6s matches CSS)
+                // Slide in
+                testimonialContent.classList.remove('slide-out');
+                testimonialContent.classList.add('slide-in');
+
+                setTimeout(() => {
+                    testimonialContent.classList.remove('slide-in');
+                }, 500); // Cleanup slide-in class
+
+            }, 500); // Wait for slide out transition (0.5s)
         }
 
         function nextTestimonial() {
