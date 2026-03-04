@@ -270,3 +270,15 @@ textarea.form-control {
 .developer-card-detail-inner p:last-child {
     margin-bottom: 1.5rem;
 }
+/* Guiding Principles Grid */
+.guiding-principles-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .guiding-principles-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
