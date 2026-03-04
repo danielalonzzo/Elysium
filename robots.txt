@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /JS/
+
+Sitemap: https://elysiumdr.eu/sitemap.xml

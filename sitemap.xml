@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- English pages -->
+  <url>
+    <loc>https://elysiumdr.eu/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://elysiumdr.eu/services.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/services.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/services.html"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/services.html"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://elysiumdr.eu/portfolio.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/portfolio.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/portfolio.html"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/portfolio.html"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://elysiumdr.eu/research.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research.html"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research.html"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://elysiumdr.eu/about.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/about.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/about.html"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/about.html"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://elysiumdr.eu/contact.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/contact.html"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/contact.html"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/contact.html"/>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Spanish pages -->
+  <url><loc>https://elysiumdr.eu/es/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://elysiumdr.eu/es/services.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://elysiumdr.eu/es/portfolio.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://elysiumdr.eu/es/research.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/es/about.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/es/contact.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+  <!-- Portuguese pages -->
+  <url><loc>https://elysiumdr.eu/pt/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/services.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/portfolio.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/research.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/about.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/contact.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+
+</urlset>
