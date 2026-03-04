@@ -694,6 +694,26 @@ section {
     background: white;
 }
 
+/* Mobile fallback: hide iframes (crash risk on iOS), show screenshot images */
+.browser-mockup .mobile-preview {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .browser-mockup iframe {
+        display: none;
+    }
+
+    .browser-mockup .mobile-preview {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        border-radius: 0;
+    }
+}
+
 /* Removed preview loading indicator styling */
 /* Footer */
 footer {
