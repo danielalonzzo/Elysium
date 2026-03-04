@@ -1,3 +1,25 @@
+// Preloader removal logic on full page load
+const preloaderStartTime = Date.now();
+document.body.style.overflow = 'hidden'; // Lock scroll during loading
+window.addEventListener('load', () => {
+    const minDuration = 1000; // Minimum 1 second
+    const elapsedTime = Date.now() - preloaderStartTime;
+    const remainingTime = Math.max(0, minDuration - elapsedTime);
+
+    setTimeout(() => {
+        const preloader = document.getElementById('elysium-preloader');
+        if (preloader) {
+            preloader.classList.add('is-loaded');
+
+            // Remove from DOM after fade-out transition completes (0.8s)
+            setTimeout(() => {
+                preloader.remove();
+                document.body.style.overflow = ''; // Re-enable scroll
+            }, 800);
+        }
+    }, remainingTime);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     // Developer cards - expand/collapse on click
     document.querySelectorAll('[data-developer-card]').forEach(trigger => {
@@ -25,6 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
             trigger.setAttribute('aria-expanded', 'false');
         });
         menu.addEventListener('click', (e) => e.stopPropagation());
+
+        // Set language override when manually selecting a language
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                localStorage.setItem('langOverride', 'true');
+            });
+        });
     }
 
     // Mobile Navigation Toggle
@@ -100,81 +129,83 @@ document.addEventListener('DOMContentLoaded', () => {
     // Testimonial Carousel
     const testimonialContent = document.querySelector('.testimonial-content');
     if (testimonialContent) {
-        const testimonials = [
-            {
-                quote: "Elysium brought a level of rigor and professionalism we hadn't seen before. The result is immaculate.",
-                author: "— CEO, FinTech Zurich"
-            },
-            {
-                quote: "Precise execution. They understood our need for a serious, high-performance platform.",
-                author: "— Director, Logistics Berlin"
-            },
-            {
-                quote: "A perfect blend of aesthetics and engineering. The new dashboard improved our workflow efficiency by 40%.",
-                author: "— CTO, DataSystems Munich"
-            },
-            {
-                quote: "Their research-first approach saved us months of development time. Truly European excellence.",
-                author: "— Founder, AI Startup Paris"
+        // Empty array ready for real testimonials
+        const testimonials = [];
+
+        if (testimonials.length > 0) {
+            let currentIndex = 0;
+
+            // Re-create DOM elements if they were cleared
+            let quoteEl = testimonialContent.querySelector('.testimonial-quote');
+            if (!quoteEl) {
+                quoteEl = document.createElement('p');
+                quoteEl.className = 'testimonial-quote';
+                testimonialContent.appendChild(quoteEl);
+                quoteEl.textContent = `"${testimonials[0].quote}"`;
             }
-        ];
 
-        let currentIndex = 0;
-        const quoteEl = testimonialContent.querySelector('.testimonial-quote');
-        const authorEl = testimonialContent.querySelector('.testimonial-author');
-        const indicatorsContainer = document.querySelector('.testimonial-indicators');
+            let authorEl = testimonialContent.querySelector('.testimonial-author');
+            if (!authorEl) {
+                authorEl = document.createElement('h5');
+                authorEl.className = 'testimonial-author';
+                testimonialContent.appendChild(authorEl);
+                authorEl.textContent = testimonials[0].author;
+            }
 
-        // Create Indicators
-        testimonials.forEach((_, index) => {
-            const indicator = document.createElement('div');
-            indicator.classList.add('indicator');
-            if (index === 0) indicator.classList.add('active');
-            indicator.addEventListener('click', () => {
-                currentIndex = index;
-                updateTestimonial();
-                resetInterval();
-            });
-            indicatorsContainer.appendChild(indicator);
-        });
+            const indicatorsContainer = document.querySelector('.testimonial-indicators');
 
-        const indicators = indicatorsContainer.querySelectorAll('.indicator');
-
-        function updateTestimonial() {
-            // Slide out
-            testimonialContent.classList.add('slide-out');
-
-            setTimeout(() => {
-                // Update content
-                quoteEl.textContent = `"${testimonials[currentIndex].quote}"`;
-                authorEl.textContent = testimonials[currentIndex].author;
-
-                // Update indicators
-                indicators.forEach((ind, i) => {
-                    if (i === currentIndex) ind.classList.add('active');
-                    else ind.classList.remove('active');
+            // Create Indicators
+            testimonials.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.classList.add('indicator');
+                if (index === 0) indicator.classList.add('active');
+                indicator.addEventListener('click', () => {
+                    currentIndex = index;
+                    updateTestimonial();
+                    resetInterval();
                 });
+                indicatorsContainer.appendChild(indicator);
+            });
 
-                // Slide in
-                testimonialContent.classList.remove('slide-out');
-                testimonialContent.classList.add('slide-in');
+            const indicators = indicatorsContainer.querySelectorAll('.indicator');
+
+            function updateTestimonial() {
+                // Slide out
+                testimonialContent.classList.add('slide-out');
 
                 setTimeout(() => {
-                    testimonialContent.classList.remove('slide-in');
-                }, 500); // Cleanup slide-in class
+                    // Update content
+                    quoteEl.textContent = `"${testimonials[currentIndex].quote}"`;
+                    authorEl.textContent = testimonials[currentIndex].author;
 
-            }, 500); // Wait for slide out transition (0.5s)
-        }
+                    // Update indicators
+                    indicators.forEach((ind, i) => {
+                        if (i === currentIndex) ind.classList.add('active');
+                        else ind.classList.remove('active');
+                    });
 
-        function nextTestimonial() {
-            currentIndex = (currentIndex + 1) % testimonials.length;
-            updateTestimonial();
-        }
+                    // Slide in
+                    testimonialContent.classList.remove('slide-out');
+                    testimonialContent.classList.add('slide-in');
 
-        let interval = setInterval(nextTestimonial, 5000);
+                    setTimeout(() => {
+                        testimonialContent.classList.remove('slide-in');
+                    }, 500); // Cleanup slide-in class
 
-        function resetInterval() {
-            clearInterval(interval);
-            interval = setInterval(nextTestimonial, 5000);
+                }, 500); // Wait for slide out transition (0.5s)
+            }
+
+            function nextTestimonial() {
+                currentIndex = (currentIndex + 1) % testimonials.length;
+                updateTestimonial();
+            }
+
+            let interval = setInterval(nextTestimonial, 5000);
+
+            function resetInterval() {
+                clearInterval(interval);
+                interval = setInterval(nextTestimonial, 5000);
+            }
         }
     }
 

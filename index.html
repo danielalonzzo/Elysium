@@ -19,9 +19,33 @@
     <link rel="stylesheet" href="CSS/base.css">
     <link rel="stylesheet" href="CSS/components.css">
     <link rel="stylesheet" href="CSS/pages.css">
+
+    <!-- Language Auto-Redirection -->
+    <script>
+        (function () {
+            if (!localStorage.getItem('langOverride')) {
+                var userLang = navigator.language || navigator.userLanguage;
+                if (userLang.startsWith('es')) {
+                    window.location.replace('/es/index.html');
+                } else if (userLang.startsWith('pt')) {
+                    window.location.replace('/pt/index.html');
+                }
+            }
+        })();
+    </script>
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 
 <body>
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
 
     <!-- Navigation -->
     <nav class="navbar">
@@ -285,17 +309,22 @@
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
                 <div class="animate-on-scroll" style="flex: 1; min-width: 300px; padding-right: 2rem;">
                     <h2>Research & Innovation</h2>
-                    <p class="mb-md">A European hub where human-centred technology meets practical innovation—helping
-                        SMEs cross the digital gap with dignity, security and clarity.</p>
-                    <a href="research.html" class="btn btn-primary">Visit The Lab</a>
+                    <p class="mb-md" style="text-align: justify;">Elysium Development & Research operates as an
+                        independent laboratory where software
+                        engineering, artificial intelligence, and applied research converge to develop human-centred
+                        technological solutions.<br><br>From Europe, we explore how artificial intelligence, data
+                        science, and digital architecture can help small and medium-sized enterprises close the
+                        technological gap with transparent, efficient, and ethically responsible systems.<br><br>Our
+                        goal is to transform research into real prototypes, combining scientific thinking, advanced web
+                        development, and technological experimentation.</p>
+                    <a href="research.html" class="btn btn-primary">Research Lab</a>
                 </div>
                 <div class="animate-on-scroll delay-1"
                     style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
-                    <h4>Latest Insight</h4>
-                    <p style="font-style: italic; margin-bottom: 1rem;">"A digital Europe that respects dignity and
-                        fraternity—one page at a time, united in diversity."</p>
-                    <small style="text-transform: uppercase; color: var(--color-text-secondary);">Feb 2026 • Research
-                        Paper</small>
+                    <h4>Mission Statement</h4>
+                    <p style="margin-bottom: 0;">Our mission is to explore the intersection of
+                        artificial intelligence, data science and intelligent systems through applied research,
+                        experimentation and open knowledge.</p>
                 </div>
             </div>
         </div>
@@ -304,12 +333,10 @@
     <!-- Testimonials -->
     <section class="testimonials section" style="border-top: 1px solid var(--color-border);">
         <div class="container animate-on-scroll">
-            <h2 class="text-center mb-lg">Client Verification</h2>
+            <h2 class="text-center mb-lg">Testimonials from individuals and businesses</h2>
             <div class="testimonial-carousel">
                 <div class="testimonial-content">
-                    <p class="testimonial-quote">"Elysium brought a level of rigor and professionalism we hadn't seen
-                        before. The result is immaculate."</p>
-                    <h5 class="testimonial-author">— CEO, FinTech Zurich</h5>
+                    <!-- Ready for new testimonials -->
                 </div>
                 <div class="testimonial-indicators">
                     <!-- Indicators will be injected by JS -->

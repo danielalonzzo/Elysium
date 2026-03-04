@@ -229,23 +229,3 @@ img {
     outline-offset: 4px;
     border-radius: 4px;
 }
-
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--color-bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-    background: rgba(41, 151, 255, 0.3);
-    /* Blue tinted scrollbar */
-    border-radius: var(--radius-pill);
-    border: 3px solid var(--color-bg-primary);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--color-accent);
-}

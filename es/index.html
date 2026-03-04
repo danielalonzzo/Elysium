@@ -19,29 +19,39 @@
     <link rel="stylesheet" href="../CSS/base.css">
     <link rel="stylesheet" href="../CSS/components.css">
     <link rel="stylesheet" href="../CSS/pages.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 </head>
 
 <body>
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
 
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
-            <a href="/index.html" class="nav-brand">
+            <a href="index.html" class="nav-brand">
                 <span class="brand-symbol">λ</span> ELYSIUM
             </a>
             <div class="nav-links">
-                <a href="/services.html" class="nav-link">Servicios</a>
-                <a href="/portfolio.html" class="nav-link">Portafolio</a>
-                <a href="/research.html" class="nav-link">Investigación</a>
-                <a href="/about.html" class="nav-link">Nosotros</a>
-                <a href="/contact.html" class="btn btn-primary">Contacto</a>
+                <a href="services.html" class="nav-link">Servicios</a>
+                <a href="portfolio.html" class="nav-link">Portafolio</a>
+                <a href="research.html" class="nav-link">Investigación</a>
+                <a href="about.html" class="nav-link">Nosotros</a>
+                <a href="contact.html" class="btn btn-primary">Contacto</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
                         aria-label="Seleccionar idioma"><span class="lang-current-label">ES</span> 🇨🇷 <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
                         <a href="../index.html" role="menuitem">English 🇬🇧</a>
-                        <a href="/index.html" role="menuitem">Español 🇨🇷</a>
+                        <a href="index.html" role="menuitem">Español 🇨🇷</a>
                         <a href="../pt/index.html" role="menuitem">Português 🇵🇹</a>
                     </div>
                 </div>
@@ -57,8 +67,8 @@
             <p class="hero-subtitle">Desarrollo e Investigación</p>
             <h1>Sitios web profesionales para pymes europeas.</h1>
             <div class="hero-cta">
-                <a href="/contact.html" class="btn btn-primary">Iniciar un proyecto</a>
-                <a href="/services.html" class="btn">Ver servicios</a>
+                <a href="contact.html" class="btn btn-primary">Iniciar un proyecto</a>
+                <a href="services.html" class="btn">Ver servicios</a>
             </div>
         </div>
     </header>
@@ -223,7 +233,7 @@
             </div>
 
             <div class="text-center" style="margin-top: 3rem;">
-                <a href="/services.html" class="btn">Explorar todos los servicios</a>
+                <a href="services.html" class="btn">Explorar todos los servicios</a>
             </div>
         </div>
     </section>
@@ -284,18 +294,23 @@
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
                 <div class="animate-on-scroll" style="flex: 1; min-width: 300px; padding-right: 2rem;">
                     <h2>Investigación e innovación</h2>
-                    <p class="mb-md">Un hub europeo donde la tecnología centrada en las personas se encuentra con la
-                        innovación práctica: ayudando a las pymes a cruzar la brecha digital con dignidad, seguridad y
-                        claridad.</p>
-                    <a href="/research.html" class="btn btn-primary">Visitar el laboratorio</a>
+                    <p class="mb-md" style="text-align: justify;">Elysium Development & Research funciona como un
+                        laboratorio independiente donde la
+                        ingeniería de software, la inteligencia artificial y la investigación aplicada convergen para
+                        desarrollar soluciones tecnológicas centradas en las personas.<br><br>Desde Europa, exploramos
+                        cómo la inteligencia artificial, la ciencia de datos y la arquitectura digital pueden ayudar a
+                        pequeñas y medianas empresas a cerrar la brecha tecnológica con sistemas transparentes,
+                        eficientes y éticamente responsables.<br><br>Nuestro objetivo es transformar la investigación en
+                        prototipos reales, combinando pensamiento científico, desarrollo web avanzado y experimentación
+                        tecnológica.</p>
+                    <a href="research.html" class="btn btn-primary">Research Lab</a>
                 </div>
                 <div class="animate-on-scroll delay-1"
                     style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
-                    <h4>Última reflexión</h4>
-                    <p style="font-style: italic; margin-bottom: 1rem;">"Una Europa digital que respeta la dignidad y la
-                        fraternidad: una página a la vez, unidos en la diversidad."</p>
-                    <small style="text-transform: uppercase; color: var(--color-text-secondary);">Feb 2026 • Documento
-                        de investigación</small>
+                    <h4>Declaración de Misión</h4>
+                    <p style="margin-bottom: 0;">Nuestra misión es explorar la intersección de la
+                        inteligencia artificial, la ciencia de datos y los sistemas inteligentes a través de la
+                        investigación aplicada, la experimentación y el conocimiento abierto.</p>
                 </div>
             </div>
         </div>
@@ -304,12 +319,10 @@
     <!-- Testimonials -->
     <section class="testimonials section" style="border-top: 1px solid var(--color-border);">
         <div class="container animate-on-scroll">
-            <h2 class="text-center mb-lg">Verificación de clientes</h2>
+            <h2 class="text-center mb-lg">Testimonios de particulares y empresas</h2>
             <div class="testimonial-carousel">
                 <div class="testimonial-content">
-                    <p class="testimonial-quote">"Elysium aportó un nivel de rigor y profesionalismo que no habíamos
-                        visto antes. El resultado es impecable."</p>
-                    <h5 class="testimonial-author">— CEO, FinTech Zurich</h5>
+                    <!-- Ready for new testimonials -->
                 </div>
                 <div class="testimonial-indicators"></div>
             </div>
@@ -321,7 +334,7 @@
         <div class="container animate-on-scroll">
             <h2 class="mb-md">Eleve su presencia digital</h2>
             <p class="mb-lg">Presencia web profesional para su empresa. Construida sobre valores europeos.</p>
-            <a href="/contact.html" class="btn btn-primary">Agendar consulta</a>
+            <a href="contact.html" class="btn btn-primary">Agendar consulta</a>
         </div>
     </section>
 
@@ -330,7 +343,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
-                    <a href="/index.html" class="nav-brand mb-sm" style="display:inline-block;">
+                    <a href="index.html" class="nav-brand mb-sm" style="display:inline-block;">
                         <span class="brand-symbol">λ</span> ELYSIUM
                     </a>
                     <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, Unión Europea</p>
@@ -339,18 +352,18 @@
                 <div class="footer-col">
                     <h4>Empresa</h4>
                     <ul class="footer-links">
-                        <li><a href="/about.html">Nosotros</a></li>
-                        <li><a href="/services.html">Servicios</a></li>
-                        <li><a href="/research.html">Investigación</a></li>
-                        <li><a href="/portfolio.html">Portafolio</a></li>
-                        <li><a href="/contact.html">Contacto</a></li>
+                        <li><a href="about.html">Nosotros</a></li>
+                        <li><a href="services.html">Servicios</a></li>
+                        <li><a href="research.html">Investigación</a></li>
+                        <li><a href="portfolio.html">Portafolio</a></li>
+                        <li><a href="contact.html">Contacto</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Legal</h4>
                     <ul class="footer-links">
-                        <li><a href="/privacy.html">Política de privacidad</a></li>
-                        <li><a href="/terms.html">Términos de servicio</a></li>
+                        <li><a href="privacy.html">Política de privacidad</a></li>
+                        <li><a href="terms.html">Términos de servicio</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
