@@ -766,7 +766,8 @@ footer {
     }
 
     .footer-grid .footer-col:nth-child(2),
-    .footer-bottom span:nth-child(2) {
+    .footer-bottom span:nth-child(2),
+    .footer-lambda {
         display: none !important;
     }
 
