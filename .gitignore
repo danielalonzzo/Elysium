@@ -1,0 +1,10 @@
+.git/
+.github/
+.vscode/
+.DS_Store
+*.pxd
+node_modules/
+.wrangler/
+.tmp/
+*.py
+/tmp/
