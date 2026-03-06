@@ -32,29 +32,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Language switcher dropdown
-    const langDropdown = document.querySelector('.lang-switcher-dropdown');
-    if (langDropdown) {
+    // Language switcher dropdowns
+    const langDropdowns = document.querySelectorAll('.lang-switcher-dropdown');
+    langDropdowns.forEach(langDropdown => {
         const trigger = langDropdown.querySelector('.lang-switcher-trigger');
         const menu = langDropdown.querySelector('.lang-switcher-menu');
-        trigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            langDropdown.classList.toggle('is-open');
-            trigger.setAttribute('aria-expanded', langDropdown.classList.contains('is-open'));
-        });
-        document.addEventListener('click', () => {
-            langDropdown.classList.remove('is-open');
-            trigger.setAttribute('aria-expanded', 'false');
-        });
-        menu.addEventListener('click', (e) => e.stopPropagation());
 
-        // Set language override when manually selecting a language
-        menu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                localStorage.setItem('langOverride', 'true');
+        if (trigger && menu) {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                langDropdown.classList.toggle('is-open');
+                trigger.setAttribute('aria-expanded', langDropdown.classList.contains('is-open'));
             });
-        });
-    }
+
+            document.addEventListener('click', () => {
+                langDropdown.classList.remove('is-open');
+                trigger.setAttribute('aria-expanded', 'false');
+            });
+
+            menu.addEventListener('click', (e) => e.stopPropagation());
+
+            // Set language override when manually selecting a language
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    localStorage.setItem('langOverride', 'true');
+                });
+            });
+        }
+    });
 
     // Mobile Navigation Toggle
     const mobileToggle = document.querySelector('.mobile-toggle');
