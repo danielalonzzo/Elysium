@@ -1173,6 +1173,16 @@ footer {
         text-align: center;
     }
 
+    /* Fix iOS Safari background-attachment: fixed rendering bug and parallax overflow */
+    body {
+        background-attachment: scroll;
+    }
+
+    .parallax-lambda {
+        display: none;
+        /* Hides the oversized decorative lambda to prevent horizontal overflow on mobile */
+    }
+
     .hero h1 {
         font-size: 3rem;
         line-height: 1.1;

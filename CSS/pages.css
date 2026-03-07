@@ -832,7 +832,8 @@ textarea.form-control {
 }
 
 /* Mobile Optimizations for Profile CV */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+
     .cv-bottom-grid {
         gap: 1.5rem;
     }
