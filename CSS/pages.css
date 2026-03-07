@@ -912,6 +912,20 @@ textarea.form-control {
     white-space: nowrap;
 }
 
+/* On truly small screens, allow wrapping to prevent horizontal overflow */
+@media (max-width: 480px) {
+
+    .developer-name,
+    .developer-title {
+        white-space: normal;
+    }
+
+    .developer-card {
+        overflow: hidden;
+        /* Contain the photo glow on mobile */
+    }
+}
+
 .developer-link-indicator {
     font-size: 0.9rem;
     font-weight: 500;
