@@ -236,7 +236,10 @@ textarea.form-control {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+    /* Changed to allow glow to bleed out */
     background: linear-gradient(135deg, rgba(41, 151, 255, 0.25), rgba(225, 225, 229, 0.15));
     border: 2px solid rgba(255, 255, 255, 0.1);
     display: flex;
@@ -245,10 +248,24 @@ textarea.form-control {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+.developer-photo::before {
+    content: '';
+    position: absolute;
+    inset: -15px;
+    background: radial-gradient(circle, rgba(40, 151, 255, 0.45) 0%, transparent 75%);
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(15px);
+    opacity: 0.7;
+    animation: glowPulse 3s ease-in-out infinite alternate;
+}
+
 .developer-photo img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
+    /* Ensure image stays circular since photo is now overflow visible */
     display: block;
 }
 
@@ -316,9 +333,70 @@ textarea.form-control {
     .profile-hero {
         flex-direction: row;
         align-items: flex-start;
-        text-align: left;
         gap: 3rem;
     }
+}
+
+/* Glow-only Premium Profile */
+.profile-hero-img-wrapper {
+    position: relative;
+    padding: 0;
+    /* Remove border space */
+    border-radius: 50%;
+    background: transparent;
+    /* Remove colored border */
+
+    /* Bloom effect around the photo */
+    box-shadow:
+        0 0 30px rgba(40, 151, 255, 0.4),
+        0 0 60px rgba(40, 151, 255, 0.2);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.profile-hero-img-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -30px;
+    /* Wider glow area */
+    background: radial-gradient(circle, rgba(40, 151, 255, 0.5) 0%, transparent 75%);
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(30px);
+    opacity: 0.8;
+    animation: glowPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+    from {
+        transform: scale(0.95);
+        opacity: 0.5;
+    }
+
+    to {
+        transform: scale(1.15);
+        opacity: 0.9;
+    }
+}
+
+.profile-hero-img-wrapper:hover::before {
+    opacity: 1;
+    inset: -45px;
+    background: radial-gradient(circle, rgba(40, 151, 255, 0.7) 0%, transparent 80%);
+}
+
+.profile-hero-img-wrapper:hover {
+    transform: scale(1.08);
+    box-shadow:
+        0 0 30px rgba(40, 151, 255, 0.8),
+        0 0 60px rgba(40, 151, 255, 0.6),
+        0 0 100px rgba(40, 151, 255, 0.4);
 }
 
 .profile-hero-img {
@@ -326,9 +404,28 @@ textarea.form-control {
     height: 200px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--glass-border);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    flex-shrink: 0;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Inner rim highlight */
+}
+
+.profile-hero-img-wrapper:hover .profile-hero-img {
+    transform: scale(1.02);
+}
+
+@keyframes premiumBorderMove {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
 }
 
 @media (min-width: 768px) {
@@ -432,11 +529,31 @@ textarea.form-control {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
+    position: relative;
+    /* Base for glow pseudo-elements */
+    z-index: 1;
 }
 
-.cv-card:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.2);
+/* Discrete Glow for the About Card */
+.cv-about-card {
+    overflow: visible;
+    /* Allow glow to bleed out */
+}
+
+.cv-about-card::before {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle at 20% 30%, rgba(40, 151, 255, 0.08) 0%, transparent 60%);
+    border-radius: inherit;
+    z-index: -1;
+    filter: blur(20px);
+    pointer-events: none;
+}
+
+.cv-about-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(40, 151, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 /* Timeline */
@@ -456,56 +573,64 @@ textarea.form-control {
 }
 
 .cv-timeline-item {
-    position: sticky;
-    top: 160px;
+    position: relative;
+    /* Default for mobile: no stacking */
     margin-bottom: 0.75rem;
 }
 
-/* Stacking top offsets for sticky timeline (up to 8 items) */
-.cv-timeline-item:nth-child(1) {
-    top: 160px;
-    z-index: 10;
-}
+/* Stacking effect only for desktop */
+@media (min-width: 768px) {
+    .cv-timeline-item {
+        position: sticky;
+        top: 160px;
+    }
 
-.cv-timeline-item:nth-child(2) {
-    top: 180px;
-    z-index: 20;
-}
+    /* Stacking top offsets for sticky timeline (up to 8 items) */
+    .cv-timeline-item:nth-child(1) {
+        top: 160px;
+        z-index: 10;
+    }
 
-.cv-timeline-item:nth-child(3) {
-    top: 200px;
-    z-index: 30;
-}
+    .cv-timeline-item:nth-child(2) {
+        top: 180px;
+        z-index: 20;
+    }
 
-.cv-timeline-item:nth-child(4) {
-    top: 220px;
-    z-index: 40;
-}
+    .cv-timeline-item:nth-child(3) {
+        top: 200px;
+        z-index: 30;
+    }
 
-.cv-timeline-item:nth-child(5) {
-    top: 240px;
-    z-index: 50;
-}
+    .cv-timeline-item:nth-child(4) {
+        top: 220px;
+        z-index: 40;
+    }
 
-.cv-timeline-item:nth-child(6) {
-    top: 260px;
-    z-index: 60;
-}
+    .cv-timeline-item:nth-child(5) {
+        top: 240px;
+        z-index: 50;
+    }
 
-.cv-timeline-item:nth-child(7) {
-    top: 280px;
-    z-index: 70;
-}
+    .cv-timeline-item:nth-child(6) {
+        top: 260px;
+        z-index: 60;
+    }
 
-.cv-timeline-item:nth-child(8) {
-    top: 300px;
-    z-index: 80;
-}
+    .cv-timeline-item:nth-child(7) {
+        top: 280px;
+        z-index: 70;
+    }
 
-.cv-timeline-item .cv-card {
-    /* Much more opaque glass to hide stacked text underneath */
-    background: rgba(5, 10, 25, 0.92);
-    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+    .cv-timeline-item:nth-child(8) {
+        top: 300px;
+        z-index: 80;
+    }
+
+    .cv-timeline-item .cv-card {
+        /* Much more opaque glass to hide stacked text underneath */
+        background: rgba(5, 10, 25, 0.92);
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+    }
 }
 
 .cv-timeline-item:last-child {
@@ -759,6 +884,12 @@ textarea.form-control {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
 }
 
+.developer-card-link:hover .developer-photo::before {
+    opacity: 1;
+    inset: -22px;
+    background: radial-gradient(circle, rgba(40, 151, 255, 0.6) 0%, transparent 80%);
+}
+
 .developer-info {
     flex: 1;
     display: flex;
@@ -771,12 +902,14 @@ textarea.form-control {
     font-weight: 600;
     color: var(--color-text-primary);
     margin-bottom: 0.35rem;
+    white-space: nowrap;
 }
 
 .developer-title {
     font-size: 0.95rem;
     color: var(--color-text-secondary);
     line-height: 1.4;
+    white-space: nowrap;
 }
 
 .developer-link-indicator {

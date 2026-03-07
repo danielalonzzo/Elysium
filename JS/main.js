@@ -59,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mobileToggle && navLinks) {
         mobileToggle.addEventListener('click', () => {
             navLinks.classList.toggle('active');
+            document.body.classList.toggle('mobile-menu-open');
+
             // Toggle icon between hamburger and close
             if (navLinks.classList.contains('active')) {
                 mobileToggle.textContent = '✕';
@@ -73,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
+                document.body.classList.remove('mobile-menu-open');
                 mobileToggle.textContent = '☰';
                 document.body.style.overflow = '';
             });

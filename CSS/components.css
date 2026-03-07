@@ -1153,6 +1153,41 @@ footer {
         }
     }
 
+    /* Crystal Overlay Effect */
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(2, 4, 16, 0.4);
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s ease;
+        z-index: 998;
+        /* Just below nav-links */
+        pointer-events: none;
+    }
+
+    body.mobile-menu-open::after {
+        opacity: 1;
+        visibility: visible;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        pointer-events: auto;
+    }
+
+    /* Soften the main content when menu is open */
+    body.mobile-menu-open .page-content,
+    body.mobile-menu-open footer,
+    body.mobile-menu-open .hero {
+        filter: blur(2px);
+        transition: filter 0.4s ease;
+    }
+
     .mobile-toggle {
         display: block;
         /* Show hamburger */
