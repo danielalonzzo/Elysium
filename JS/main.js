@@ -21,16 +21,7 @@ window.addEventListener('load', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Developer cards - expand/collapse on click
-    document.querySelectorAll('[data-developer-card]').forEach(trigger => {
-        trigger.addEventListener('click', () => {
-            const card = trigger.closest('.developer-card');
-            const isExpanded = card.classList.toggle('is-expanded');
-            trigger.setAttribute('aria-expanded', isExpanded);
-            const detail = document.getElementById(trigger.getAttribute('aria-controls'));
-            if (detail) detail.setAttribute('aria-hidden', !isExpanded);
-        });
-    });
+    // Developer cards - now handled entirely via CSS/HTML links
 
     // Language switcher dropdowns
     const langDropdowns = document.querySelectorAll('.lang-switcher-dropdown');

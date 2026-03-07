@@ -447,6 +447,15 @@
     filter: drop-shadow(0 0 10px rgba(41, 151, 255, 0.3));
 }
 
+/* Research Teaser Flex Layout */
+.research-teaser-flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
 /* Section General */
 section {
     padding: var(--space-xl) 0;
@@ -744,7 +753,7 @@ footer {
     backdrop-filter: blur(20px);
     padding: var(--space-xl) 0 var(--space-lg);
     border-top: 1px solid var(--glass-border);
-    margin-top: var(--space-xl);
+    margin-top: 0;
 }
 
 .footer-grid {
@@ -1058,7 +1067,7 @@ footer {
 
 /* Mobile Optimization - iPhone Pro Max & General Mobile */
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 
     /* --- Base CSS Overrides --- */
     :root {
@@ -1177,13 +1186,19 @@ footer {
 
     .hero-cta {
         flex-direction: column;
+        align-items: center;
+        /* Center the buttons */
         gap: 1.25rem;
         padding: 0 1rem;
     }
 
     .hero-cta .btn {
-        width: 100%;
+        width: auto;
+        /* Fit to text instead of 100% */
         margin-right: 0 !important;
+        padding: 0.8rem 3.5rem;
+        /* Increased horizontal padding further by 40% */
+        font-size: 0.9rem;
     }
 
     /* Cards & Grids */
@@ -1219,6 +1234,12 @@ footer {
     .logos-slide .logo-item img {
         height: 40px;
         width: 40px;
+    }
+
+    /* Research Teaser spacing fix */
+    .research-teaser-flex {
+        gap: 4rem;
+        /* Increased spacing between research teaser elements on mobile */
     }
 
     /* Footer - mobile specifics already handled in 950px media query above */

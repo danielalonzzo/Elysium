@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Web Systems for SMEs — Elysium Research</title>
+    <meta name="description"
+        content="Research paper exploring how artificial intelligence can enhance digital platforms for SMEs through adaptive interfaces and automated decision support.">
+    <meta name="robots" content="index, follow">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../CSS/base.css">
+    <link rel="stylesheet" href="../CSS/components.css">
+    <link rel="stylesheet" href="../CSS/pages.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+
+    <style>
+        .paper-container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            align-items: center;
+        }
+
+        .paper-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .paper-badge.secondary {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .paper-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+        }
+
+        .paper-authors {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-affiliation {
+            font-size: 0.85rem;
+            opacity: 0.45;
+            font-style: italic;
+            margin-bottom: 2.5rem;
+        }
+
+        .paper-divider {
+            border: none;
+            border-top: 1px solid var(--color-border);
+            margin: 2.5rem 0;
+        }
+
+        .paper-section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            opacity: 0.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .paper-section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+        }
+
+        .paper-body {
+            font-size: 1rem;
+            line-height: 1.85;
+            opacity: 0.85;
+        }
+
+        .paper-body p {
+            margin-bottom: 1.1rem;
+        }
+
+        .rq-block {
+            border-left: 2px solid var(--color-accent);
+            padding: 0.75rem 1.25rem;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .rq-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 0.3rem;
+        }
+
+        .rq-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .references-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: ref-counter;
+        }
+
+        .references-list li {
+            counter-increment: ref-counter;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            opacity: 0.6;
+            margin-bottom: 0.75rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .references-list li::before {
+            content: "[" counter(ref-counter) "]";
+            position: absolute;
+            left: 0;
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            opacity: 0.5;
+            text-decoration: none;
+            color: inherit;
+            margin-bottom: 2rem;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .research-item-link {
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .research-item-link:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        @media (max-width: 640px) {
+            .paper-container {
+                padding: 2rem 1.25rem 4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../index.html" class="nav-brand">
+                <span class="brand-symbol">λ</span> ELYSIUM
+            </a>
+            <div class="nav-links">
+                <a href="../services.html" class="nav-link">Services</a>
+                <a href="../portfolio.html" class="nav-link">Portfolio</a>
+                <a href="../research.html" class="nav-link active">Research</a>
+                <a href="../about.html" class="nav-link">About</a>
+                <a href="../contact.html" class="btn btn-primary">Contact</a>
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select language"><span class="lang-current-label">EN</span> 🇬🇧 <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="intelligent-web-systems.html" role="menuitem">English 🇬🇧</a>
+                        <a href="../es/research/intelligent-web-systems.html" role="menuitem">Español 🇨🇷</a>
+                        <a href="../pt/research/intelligent-web-systems.html" role="menuitem">Português 🇵🇹</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
+
+    <!-- Paper Content -->
+    <main>
+        <div class="paper-container animate-on-scroll">
+
+            <a href="../research.html" class="back-link">← Back to Research</a>
+
+            <div class="paper-meta">
+                <span class="paper-badge">Pilot Study</span>
+                <span class="paper-badge secondary">Intelligent Systems · Web Engineering</span>
+                <span class="paper-badge secondary">2026</span>
+            </div>
+
+            <h1 class="paper-title">Intelligent Web Systems for Small and Medium-Sized Enterprises</h1>
+            <p class="paper-authors">Daniel A. Morales Ávila</p>
+            <p class="paper-affiliation">Elysium λ Development & Research — Portugal, European Union</p>
+
+            <hr class="paper-divider">
+
+            <!-- Abstract -->
+            <div>
+                <p class="paper-section-label">Abstract</p>
+                <div class="paper-body">
+                    <p><strong>Keywords:</strong> intelligent web systems, SME digitalisation, adaptive interfaces,
+                        automated decision support, applied AI, human-computer interaction.</p>
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 1. Research Problem -->
+            <div>
+                <p class="paper-section-label">I.</p>
+                <p class="paper-section-title">Research Problem & Motivation</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 2. Theoretical Framework -->
+            <div>
+                <p class="paper-section-label">II.</p>
+                <p class="paper-section-title">Theoretical Framework</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 3. Research Questions -->
+            <div>
+                <p class="paper-section-label">III.</p>
+                <p class="paper-section-title">Research Questions</p>
+                <div class="paper-body">
+                    <p>The following research questions guide this pilot study:</p>
+
+                    <div class="rq-block">
+                        <p class="rq-label">RQ1</p>
+                        <p class="rq-text">To what extent can adaptive, AI-augmented web interfaces improve task
+                            completion efficiency and user satisfaction among non-specialist SME personnel relative to
+                            conventional static web systems?</p>
+                    </div>
+
+                    <div class="rq-block">
+                        <p class="rq-label">RQ2</p>
+                        <p class="rq-text">What minimum data requirements and architectural configurations are
+                            sufficient to enable meaningful automated decision-support functionality within
+                            resource-constrained SME web environments?</p>
+                    </div>
+
+                    <div class="rq-block">
+                        <p class="rq-label">RQ3</p>
+                        <p class="rq-text">How do SME operators perceive the transparency, trustworthiness, and
+                            interpretability of AI-generated outputs integrated into their operational web platforms?
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 4. Methodology -->
+            <div>
+                <p class="paper-section-label">IV.</p>
+                <p class="paper-section-title">Methodology</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 5. Data -->
+            <div>
+                <p class="paper-section-label">V.</p>
+                <p class="paper-section-title">Data Sources & Collection Protocol</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 6. Preliminary Results -->
+            <div>
+                <p class="paper-section-label">VI.</p>
+                <p class="paper-section-title">Preliminary Observations</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 7. Limitations -->
+            <div>
+                <p class="paper-section-label">VII.</p>
+                <p class="paper-section-title">Limitations</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- 8. Future Work -->
+            <div>
+                <p class="paper-section-label">VIII.</p>
+                <p class="paper-section-title">Future Work</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <!-- References -->
+            <div>
+                <p class="paper-section-label">References</p>
+                <ul class="references-list">
+                    <li>Brusilovsky, P., & Millán, E. (2007). User models for adaptive hypermedia and adaptive
+                        educational systems. <em>The Adaptive Web</em>, 4321, 3–53. Springer.</li>
+                    <li>Brooke, J. (1996). SUS: A quick and dirty usability scale. <em>Usability Evaluation in
+                            Industry</em>, 189(194), 4–7.</li>
+                    <li>Davis, F. D. (1989). Perceived usefulness, perceived ease of use, and user acceptance of
+                        information technology. <em>MIS Quarterly</em>, 13(3), 319–340.</li>
+                    <li>Dietvorst, B. J., Logg, J. M., & Logg, J. (2015). Algorithm aversion: People erroneously avoid
+                        algorithms after seeing them err. <em>Journal of Experimental Psychology: General</em>, 144(1),
+                        114–126.</li>
+                    <li>European Commission. (2021). <em>SME Strategy for a Sustainable and Digital Europe</em>.
+                        Publications Office of the EU.</li>
+                    <li>ISO 9241-210:2019. (2019). <em>Ergonomics of human-system interaction — Part 210: Human-centred
+                            design for interactive systems</em>. International Organisation for Standardisation.</li>
+                    <li>Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). "Why should I trust you?": Explaining the
+                        predictions of any classifier. <em>Proceedings of KDD 2016</em>, 1135–1144.</li>
+                    <li>Braun, V., & Clarke, V. (2006). Using thematic analysis in psychology. <em>Qualitative Research
+                            in Psychology</em>, 3(2), 77–101.</li>
+                </ul>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-bottom">
+                <span>&copy; 2026 Elysium λ Development & Research. All rights reserved.</span>
+                <span class="brand-symbol footer-lambda">λ</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../JS/main.js"></script>
+</body>
+
+</html>

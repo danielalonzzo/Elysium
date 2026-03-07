@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es-CR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inteligencia para PYMES Basada en Datos — Elysium Research</title>
+    <meta name="description"
+        content="Investigación sobre cómo el aprendizaje automático puede ayudar a las PYMES a extraer conocimientos accionables de sus datos digitales operativos.">
+    <meta name="robots" content="index, follow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="../../CSS/base.css">
+    <link rel="stylesheet" href="../../CSS/components.css">
+    <link rel="stylesheet" href="../../CSS/pages.css">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+
+    <style>
+        .paper-container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+            align-items: center;
+        }
+
+        .paper-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .paper-badge.secondary {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .paper-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 1rem;
+        }
+
+        .paper-authors {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-affiliation {
+            font-size: 0.85rem;
+            opacity: 0.45;
+            font-style: italic;
+            margin-bottom: 2.5rem;
+        }
+
+        .paper-divider {
+            border: none;
+            border-top: 1px solid var(--color-border);
+            margin: 2.5rem 0;
+        }
+
+        .paper-section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            opacity: 0.4;
+            margin-bottom: 0.75rem;
+        }
+
+        .paper-section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--color-text-primary);
+        }
+
+        .paper-body {
+            font-size: 1rem;
+            line-height: 1.85;
+            opacity: 0.85;
+        }
+
+        .paper-body p {
+            margin-bottom: 1.1rem;
+        }
+
+        .rq-block {
+            border-left: 2px solid var(--color-accent);
+            padding: 0.75rem 1.25rem;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .rq-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: 0.3rem;
+        }
+
+        .rq-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .references-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: ref-counter;
+        }
+
+        .references-list li {
+            counter-increment: ref-counter;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            opacity: 0.6;
+            margin-bottom: 0.75rem;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .references-list li::before {
+            content: "[" counter(ref-counter) "]";
+            position: absolute;
+            left: 0;
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            opacity: 0.5;
+            text-decoration: none;
+            color: inherit;
+            margin-bottom: 2rem;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 640px) {
+            .paper-container {
+                padding: 2rem 1.25rem 4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="elysium-preloader">
+        <div class="preloader-content"><span class="preloader-lambda">λ</span></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="../../es/index.html" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
+            <div class="nav-links">
+                <a href="../services.html" class="nav-link">Servicios</a>
+                <a href="../portfolio.html" class="nav-link">Portafolio</a>
+                <a href="../research.html" class="nav-link active">Investigación</a>
+                <a href="../about.html" class="nav-link">Nosotros</a>
+                <a href="../contact.html" class="btn btn-primary">Contacto</a>
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Seleccionar idioma"><span class="lang-current-label">ES</span> 🇨🇷 <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="../../research/data-driven-sme-intelligence.html" role="menuitem">English 🇬🇧</a>
+                        <a href="data-driven-sme-intelligence.html" role="menuitem">Español 🇨🇷</a>
+                        <a href="../../pt/research/data-driven-sme-intelligence.html" role="menuitem">Português 🇵🇹</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="paper-container animate-on-scroll">
+
+            <a href="../research.html" class="back-link">← Volver a Investigación</a>
+
+            <div class="paper-meta">
+                <span class="paper-badge">Fase de Concepto</span>
+                <span class="paper-badge secondary">Aprendizaje Automático · Análisis de Datos · Estrategia PYME</span>
+                <span class="paper-badge secondary">2026</span>
+            </div>
+
+            <h1 class="paper-title">Inteligencia para PYMES Basada en Datos: Aplicación del Aprendizaje Automático para
+                la Extracción de Conocimiento Operativo en Pequeñas y Medianas Empresas</h1>
+            <p class="paper-authors">Daniel A. Morales Ávila</p>
+            <p class="paper-affiliation">Elysium λ Development & Research — Portugal, Unión Europea</p>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">Resumen</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">I.</p>
+                <p class="paper-section-title">Problema de Investigación y Motivación</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">II.</p>
+                <p class="paper-section-title">Marco Teórico</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">III.</p>
+                <p class="paper-section-title">Preguntas de Investigación</p>
+                <div class="paper-body">
+                    <div class="rq-block">
+                        <p class="rq-label">PI1</p>
+                        <p class="rq-text">¿Cuáles son los umbrales mínimos de volumen y calidad de datos necesarios
+                            para que los modelos de aprendizaje automático generen información operativa confiable en
+                            entornos digitales típicos de PYMES?</p>
+                    </div>
+                    <div class="rq-block">
+                        <p class="rq-label">PI2</p>
+                        <p class="rq-text">¿Qué metodologías de aprendizaje automático —clasificación supervisada,
+                            clustering, detección de anomalías o predicción de series temporales— producen los
+                            resultados más accionables e interpretables para operadores de PYMES no especializados?</p>
+                    </div>
+                    <div class="rq-block">
+                        <p class="rq-label">PI3</p>
+                        <p class="rq-text">¿En qué medida la provisión de explicaciones en lenguaje natural junto con
+                            los resultados del modelo de ML aumenta la confianza del operador de PYMES en, y la adopción
+                            de, las recomendaciones basadas en datos?</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">IV.</p>
+                <p class="paper-section-title">Metodología</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">V.</p>
+                <p class="paper-section-title">Fuentes de Datos y Protocolo de Recolección</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">VI.</p>
+                <p class="paper-section-title">Observaciones Preliminares</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">VII.</p>
+                <p class="paper-section-title">Limitaciones</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">VIII.</p>
+                <p class="paper-section-title">Trabajo Futuro</p>
+                <div class="paper-body">
+                </div>
+            </div>
+
+            <hr class="paper-divider">
+
+            <div>
+                <p class="paper-section-label">Referencias</p>
+                <ul class="references-list">
+                    <li>Argyris, C., & Schön, D. A. (1978). <em>Organizational Learning: A Theory of Action
+                            Perspective</em>. Addison-Wesley.</li>
+                    <li>Arrieta, A. B., et al. (2020). Explainable artificial intelligence (XAI): Concepts, taxonomies,
+                        opportunities and challenges toward responsible AI. <em>Information Fusion</em>, 58, 82–115.
+                    </li>
+                    <li>Doshi-Velez, F., & Kim, B. (2017). Towards a rigorous science of interpretable machine learning.
+                        <em>arXiv preprint</em> arXiv:1702.08608.
+                    </li>
+                    <li>Fayyad, U., Piatetsky-Shapiro, G., & Smyth, P. (1996). From data mining to knowledge discovery
+                        in databases. <em>AI Magazine</em>, 17(3), 37–54.</li>
+                    <li>Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design science in information systems
+                        research. <em>MIS Quarterly</em>, 28(1), 75–105.</li>
+                    <li>Mikalef, P., et al. (2020). Big data analytics and firm performance. <em>Journal of Business
+                            Research</em>, 114, 261–272.</li>
+                    <li>Senge, P. M. (1990). <em>The Fifth Discipline</em>. Doubleday.</li>
+                    <li>Comisión Europea. (2021). <em>Estrategia para las PYMES en favor de una Europa sostenible y
+                            digital</em>. Oficina de Publicaciones de la UE.</li>
+                </ul>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-bottom">
+                <span>&copy; 2026 Elysium λ Development & Research. Todos los derechos reservados.</span>
+                <span class="brand-symbol footer-lambda">λ</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../../JS/main.js"></script>
+</body>
+
+</html>
