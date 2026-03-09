@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Desarrollo web profesional, diseño, mantenimiento y soporte para pymes europeas. Precios flexibles y transparentes. Portugal, Unión Europea.">
+        content="Desarrollo web profesional, diseño, mantenimiento y soporte para pymes. Precios flexibles y transparentes. Portugal, Unión Europea.">
     <title>Servicios</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -54,25 +54,42 @@
     <header class="page-header">
         <div class="parallax-lambda">λ</div>
         <div class="container animate-on-scroll">
-            <h1 style="font-size: 3rem;">Oferta técnica</h1>
+            <h1 style="font-size: 3rem;">Servicios</h1>
             <p class="hero-subtitle">Development & Research</p>
         </div>
     </header>
+
+    <!-- Currency Switcher -->
+    <div class="currency-switcher-container">
+        <div class="currency-toggle">
+            <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
+                <span class="currency-flag">🇪🇺</span> EUR
+            </button>
+            <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
+                <span class="currency-flag">🇺🇸</span> USD
+            </button>
+            <button class="currency-btn" data-currency="CRC" aria-label="Colón Costarricense">
+                <span class="currency-flag">🇨🇷</span> CRC
+            </button>
+        </div>
+    </div>
+
     <section class="section">
         <div class="container">
             <div class="service-block animate-on-scroll" style="margin-bottom: 4rem;">
                 <div class="section-header">
-                    <h2>Diseñando experiencias</h2>
+                    <h2>Diseñando Experiencias</h2>
                 </div>
                 <div class="card-grid">
                     <div class="card card-parallax reveal-item">
-                        <h3>Design & Development</h3>
+                        <h3>Diseño y Desarrollo</h3>
                         <p>Desarrollamos increíbles experiencias web a golpe de código para pequeñas y medianas empresas
                             y también para particulares:</p>
                         <ul style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
-                            <li>• Páginas web desde los 100€</li>
-                            <li>• Aplicaciones web completas desde los 649€</li>
-                            <li>• Dominio & Hosting desde los 99€ anuales</li>
+                            <li>• Páginas web desde los <span class="dynamic-price" data-base-price="100">100€</span></li>
+                            <li>• Aplicaciones web completas desde los <span class="dynamic-price" data-base-price="649">649€</span> <s
+                                    style="opacity: 0.5; margin-left: 0.4rem;"><span class="dynamic-price" data-base-price="1207">1.207€</span></s></li>
+                            <li>• Dominio & Hosting desde los <span class="dynamic-price" data-base-price="99">99€</span> anuales</li>
                         </ul>
                     </div>
                     <div class="card card-parallax reveal-item delay-1">
@@ -80,9 +97,9 @@
                         <p>Además de desarrollar aplicaciones web desde cero y rediseñar páginas ya existentes, también
                             brindamos mantenimiento profesional y altamente personalizado.</p>
                         <ul style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
-                            <li>• Paquete de mantenimiento básico desde 59€/mensuales</li>
-                            <li>• Paquete de mantenimiento preferencial desde 80€/mensuales</li>
-                            <li>• Paquete de mantenimiento premium desde 120€/mensuales</li>
+                            <li>• Paquete de mantenimiento básico desde <span class="dynamic-price" data-base-price="59">59€</span>/mensuales</li>
+                            <li>• Paquete de mantenimiento preferencial desde <span class="dynamic-price" data-base-price="80">80€</span>/mensuales</li>
+                            <li>• Paquete de mantenimiento premium desde <span class="dynamic-price" data-base-price="120">120€</span>/mensuales</li>
                         </ul>
                     </div>
                 </div>
@@ -109,7 +126,7 @@
                                     <li>Enlaces a Redes Sociales</li>
                                     <li>Optimización de Velocidad</li>
                                 </ul>
-                                <span class="accordion-price">100€ / por página</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="100">100€</span> / por página</span>
                                 <span class="accordion-note">* No incluye Dominio ni Hosting</span>
                             </div>
                         </div>
@@ -131,7 +148,7 @@
                                     <li>Certificado SSL de seguridad</li>
                                     <li>Gestión de DNS y Renovaciones</li>
                                 </ul>
-                                <span class="accordion-price">99€ / anuales</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="99">99€</span> / anuales</span>
                                 <span class="accordion-note">* No incluye el desarrollo web</span>
                             </div>
                         </div>
@@ -153,8 +170,8 @@
                                     <li>Verificación de renovacion de dominio y hosting</li>
                                     <li>Resolución de errores criticos</li>
                                 </ul>
-                                <span class="accordion-price">59€ / mensuales</span>
-                                <span class="accordion-note">Cada hora adicional de desarrollo: 30€</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="59">59€</span> / mensuales</span>
+                                <span class="accordion-note">Cada hora adicional de desarrollo: <span class="dynamic-price" data-base-price="30">30€</span></span>
                             </div>
                         </div>
                     </div>
@@ -174,8 +191,8 @@
                                     <li>Optimización de SEO Local</li>
                                     <li>1h al mes para desarrollos</li>
                                 </ul>
-                                <span class="accordion-price">80€ / mensuales</span>
-                                <span class="accordion-note">Cada hora extra adicional: 30€</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="80">80€</span> / mensuales</span>
+                                <span class="accordion-note">Cada hora extra adicional: <span class="dynamic-price" data-base-price="30">30€</span></span>
                             </div>
                         </div>
                     </div>
@@ -195,8 +212,8 @@
                                     <li>Licencia Zoho Incluida</li>
                                     <li>Capacitación Basica</li>
                                 </ul>
-                                <span class="accordion-price">120€ / mensuales</span>
-                                <span class="accordion-note">Cada hora extra adicional: 30€</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="120">120€</span> / mensuales</span>
+                                <span class="accordion-note">Cada hora extra adicional: <span class="dynamic-price" data-base-price="30">30€</span></span>
                             </div>
                         </div>
                     </div>
@@ -219,7 +236,7 @@
                                     <li>Autogestión</li>
                                     <li>Capacitacion de uso</li>
                                 </ul>
-                                <span class="accordion-price">80€ / por página</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="80">80€</span> / por página</span>
                                 <span class="accordion-note">* No incluye Dominio ni Hosting</span>
                             </div>
                         </div>
@@ -237,13 +254,13 @@
                         <li>Plan de Mantenimiento Basico gratis por un año</li>
                     </ul>
                     <div class="pro-package-price-wrap">
-                        <span class="pro-package-price">Pago Único: 649€ <span
+                        <span class="pro-package-price">Pago Único: <span class="dynamic-price" data-base-price="649">649€</span> <span
                                 style="font-size:0.8em; font-weight:normal; color:var(--color-text-secondary);">(pago de
                                 contado)</span> <span
                                 style="text-decoration: line-through; color: var(--color-text-muted); font-size: 0.8em; margin-left: 10px;">Precio
-                                real: 1.207€</span></span>
-                        <span class="pro-package-subprice">Pago fraccionado: 49€/mensual (en 12 meses + entrada de
-                            252€)</span>
+                                real: <span class="dynamic-price" data-base-price="1207">1.207€</span></span></span>
+                        <span class="pro-package-subprice">Pago fraccionado: <span class="dynamic-price" data-base-price="49">49€</span>/mensual (en 12 meses + entrada de
+                            <span class="dynamic-price" data-base-price="252">252€</span>)</span>
                         <span class="pro-package-note">* Pasado un año usted debe asumir los costos de Dominio, Hosting
                             y
                             Mantenimiento</span>
@@ -267,7 +284,7 @@
                                 <li>Adaptación Móvil "Next-Gen"</li>
                             </ul>
                             <div class="pro-package-price-wrap">
-                                <span class="pro-package-price">Inversión desde: 99€ / por página</span>
+                                <span class="pro-package-price">Inversión desde: <span class="dynamic-price" data-base-price="99">99€</span> / por página</span>
 
                             </div>
                         </div>
@@ -283,7 +300,7 @@
                                 <li>Backup profundo</li>
                             </ul>
                             <div class="pro-package-price-wrap">
-                                <span class="pro-package-price">Inversión desde: 79€ / por página</span>
+                                <span class="pro-package-price">Inversión desde: <span class="dynamic-price" data-base-price="79">79€</span> / por página</span>
 
                             </div>
                         </div>

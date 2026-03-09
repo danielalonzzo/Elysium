@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Professional web development, design, maintenance and support for European SMEs — flexible, transparent pricing. Portugal, European Union.">
+        content="Professional web development, design, maintenance and support for SMEs — flexible, transparent pricing. Portugal, European Union.">
     <title>Services</title>
 
     <!-- Fonts -->
@@ -64,10 +64,25 @@
     <header class="page-header">
         <div class="parallax-lambda">λ</div>
         <div class="container animate-on-scroll">
-            <h1 style="font-size: 3rem;">Technical Offerings</h1>
+            <h1 style="font-size: 3rem;">Services</h1>
             <p class="hero-subtitle">Development & Research</p>
         </div>
     </header>
+
+    <!-- Currency Switcher -->
+    <div class="currency-switcher-container">
+        <div class="currency-toggle">
+            <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
+                <span class="currency-flag">🇪🇺</span> EUR
+            </button>
+            <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
+                <span class="currency-flag">🇺🇸</span> USD
+            </button>
+            <button class="currency-btn" data-currency="CRC" aria-label="Costa Rican Colon">
+                <span class="currency-flag">🇨🇷</span> CRC
+            </button>
+        </div>
+    </div>
 
     <!-- Services List -->
     <section class="section">
@@ -83,9 +98,10 @@
                         <p>We develop incredible web experiences through code for small and medium-sized businesses and
                             also for individuals:</p>
                         <ul style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
-                            <li>• Websites from 100€</li>
-                            <li>• Full web applications from 649€</li>
-                            <li>• Domain & Hosting from 99€ annually</li>
+                            <li>• Websites from <span class="dynamic-price" data-base-price="100">100€</span></li>
+                            <li>• Full web applications from <span class="dynamic-price" data-base-price="649">649€</span> <s
+                                    style="opacity: 0.5; margin-left: 0.4rem;"><span class="dynamic-price" data-base-price="1207">€1,207</span></s></li>
+                            <li>• Domain & Hosting from <span class="dynamic-price" data-base-price="99">99€</span> annually</li>
                         </ul>
                     </div>
                     <div class="card card-parallax reveal-item delay-1">
@@ -93,9 +109,9 @@
                         <p>In addition to developing web applications from scratch and redesigning existing pages, we
                             also provide professional and highly personalized maintenance.</p>
                         <ul style="margin-top: 1rem; opacity: 0.8; font-size: 0.9rem;">
-                            <li>• Basic maintenance package from 59€/month</li>
-                            <li>• Preferred maintenance package from 80€/month</li>
-                            <li>• Premium maintenance package from 120€/month</li>
+                            <li>• Basic maintenance package from <span class="dynamic-price" data-base-price="59">59€</span>/month</li>
+                            <li>• Preferred maintenance package from <span class="dynamic-price" data-base-price="80">80€</span>/month</li>
+                            <li>• Premium maintenance package from <span class="dynamic-price" data-base-price="120">120€</span>/month</li>
                         </ul>
                     </div>
                 </div>
@@ -123,7 +139,7 @@
                                     <li>Social Media Links</li>
                                     <li>Speed Optimization</li>
                                 </ul>
-                                <span class="accordion-price">€100 / per page</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="100">€100</span> / per page</span>
                                 <span class="accordion-note">* Domain & Hosting not included</span>
                             </div>
                         </div>
@@ -145,7 +161,7 @@
                                     <li>SSL security certificate</li>
                                     <li>DNS Management & Renewals</li>
                                 </ul>
-                                <span class="accordion-price">€99 / annually</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="99">€99</span> / annually</span>
                                 <span class="accordion-note">* Web development not included</span>
                             </div>
                         </div>
@@ -167,8 +183,8 @@
                                     <li>Domain and hosting renewal verification</li>
                                     <li>Resolution of critical errors</li>
                                 </ul>
-                                <span class="accordion-price">€59 / monthly</span>
-                                <span class="accordion-note">Each additional hour of development: €30</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="59">€59</span> / monthly</span>
+                                <span class="accordion-note">Each additional hour of development: <span class="dynamic-price" data-base-price="30">€30</span></span>
                             </div>
                         </div>
                     </div>
@@ -188,8 +204,8 @@
                                     <li>Local SEO optimization</li>
                                     <li>1h per month for development</li>
                                 </ul>
-                                <span class="accordion-price">€80 / monthly</span>
-                                <span class="accordion-note">Additional hourly rate: €30</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="80">€80</span> / monthly</span>
+                                <span class="accordion-note">Additional hourly rate: <span class="dynamic-price" data-base-price="30">€30</span></span>
                             </div>
                         </div>
                     </div>
@@ -209,8 +225,8 @@
                                     <li>Zoho License Included</li>
                                     <li>Basic Training</li>
                                 </ul>
-                                <span class="accordion-price">€120 / monthly</span>
-                                <span class="accordion-note">Additional hourly rate: €30</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="120">€120</span> / monthly</span>
+                                <span class="accordion-note">Additional hourly rate: <span class="dynamic-price" data-base-price="30">€30</span></span>
                             </div>
                         </div>
                     </div>
@@ -233,7 +249,7 @@
                                     <li>Self-management</li>
                                     <li>Training for use</li>
                                 </ul>
-                                <span class="accordion-price">€80 / per page</span>
+                                <span class="accordion-price"><span class="dynamic-price" data-base-price="80">€80</span> / per page</span>
                                 <span class="accordion-note">* Domain & Hosting not included</span>
                             </div>
                         </div>
@@ -252,12 +268,12 @@
                         <li>Free Basic Maintenance plan for one year</li>
                     </ul>
                     <div class="pro-package-price-wrap">
-                        <span class="pro-package-price">One-time Payment: €649 <span
+                        <span class="pro-package-price">One-time Payment: <span class="dynamic-price" data-base-price="649">€649</span> <span
                                 style="font-size:0.8em; font-weight:normal; color:var(--color-text-secondary);">(upfront
                                 payment)</span> <span
                                 style="text-decoration: line-through; color: var(--color-text-muted); font-size: 0.8em; margin-left: 10px;">Real
-                                price: €1,207</span></span>
-                        <span class="pro-package-subprice">Installment plan: €49/monthly (for 12 months + €252 down
+                                price: <span class="dynamic-price" data-base-price="1207">€1,207</span></span></span>
+                        <span class="pro-package-subprice">Installment plan: <span class="dynamic-price" data-base-price="49">€49</span>/monthly (for 12 months + <span class="dynamic-price" data-base-price="252">€252</span> down
                             payment)</span>
                         <span class="pro-package-note">* After one year you must cover Domain, Hosting and Maintenance
                             costs</span>
@@ -281,7 +297,7 @@
                                 <li>"Next-Gen" Mobile Adaptation</li>
                             </ul>
                             <div class="pro-package-price-wrap">
-                                <span class="pro-package-price">Investment from: €99 / per page</span>
+                                <span class="pro-package-price">Investment from: <span class="dynamic-price" data-base-price="99">€99</span> / per page</span>
 
                             </div>
                         </div>
@@ -297,7 +313,7 @@
                                 <li>Deep Backup</li>
                             </ul>
                             <div class="pro-package-price-wrap">
-                                <span class="pro-package-price">Investment from: €79 / per page</span>
+                                <span class="pro-package-price">Investment from: <span class="dynamic-price" data-base-price="79">€79</span> / per page</span>
 
                             </div>
                         </div>

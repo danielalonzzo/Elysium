@@ -109,6 +109,20 @@ textarea.form-control {
     resize: vertical;
 }
 
+/* Contact Grid Layout */
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+}
+
 /* Research Listing */
 .research-list {
     display: flex;
@@ -169,6 +183,44 @@ textarea.form-control {
 
 .process-phase h2 {
     font-size: 2rem;
+}
+
+/* Our Story Read More Toggle */
+.read-more-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.read-more-content.is-expanded {
+    display: block;
+    opacity: 1;
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.read-more-btn {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-text-secondary);
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.read-more-btn:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: rgba(41, 151, 255, 0.05);
 }
 
 /* Our Developers - expandable cards */
@@ -578,59 +630,59 @@ textarea.form-control {
     margin-bottom: 0.75rem;
 }
 
-/* Stacking effect only for desktop */
-@media (min-width: 768px) {
-    .cv-timeline-item {
-        position: sticky;
-        top: 160px;
-    }
+.cv-timeline-item {
+    position: sticky;
+    top: 100px;
+    /* Reduced from 160px for mobile/global better fit */
+}
 
-    /* Stacking top offsets for sticky timeline (up to 8 items) */
-    .cv-timeline-item:nth-child(1) {
-        top: 160px;
-        z-index: 10;
-    }
+/* Stacking top offsets for sticky timeline (up to 8 items) */
+.cv-timeline-item:nth-child(1) {
+    top: 100px;
+    z-index: 10;
+}
 
-    .cv-timeline-item:nth-child(2) {
-        top: 180px;
-        z-index: 20;
-    }
+.cv-timeline-item:nth-child(2) {
+    top: 120px;
+    z-index: 20;
+}
 
-    .cv-timeline-item:nth-child(3) {
-        top: 200px;
-        z-index: 30;
-    }
+.cv-timeline-item:nth-child(3) {
+    top: 140px;
+    z-index: 30;
+}
 
-    .cv-timeline-item:nth-child(4) {
-        top: 220px;
-        z-index: 40;
-    }
+.cv-timeline-item:nth-child(4) {
+    top: 160px;
+    z-index: 40;
+}
 
-    .cv-timeline-item:nth-child(5) {
-        top: 240px;
-        z-index: 50;
-    }
+.cv-timeline-item:nth-child(5) {
+    top: 180px;
+    z-index: 50;
+}
 
-    .cv-timeline-item:nth-child(6) {
-        top: 260px;
-        z-index: 60;
-    }
+.cv-timeline-item:nth-child(6) {
+    top: 200px;
+    z-index: 60;
+}
 
-    .cv-timeline-item:nth-child(7) {
-        top: 280px;
-        z-index: 70;
-    }
+.cv-timeline-item:nth-child(7) {
+    top: 220px;
+    z-index: 70;
+}
 
-    .cv-timeline-item:nth-child(8) {
-        top: 300px;
-        z-index: 80;
-    }
+.cv-timeline-item:nth-child(8) {
+    top: 240px;
+    z-index: 80;
+}
 
-    .cv-timeline-item .cv-card {
-        /* Much more opaque glass to hide stacked text underneath */
-        background: rgba(5, 10, 25, 0.92);
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
-    }
+.cv-timeline-item .cv-card {
+    /* Much more opaque glass to hide stacked text underneath */
+    background: rgba(5, 10, 25, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
 }
 
 .cv-timeline-item:last-child {

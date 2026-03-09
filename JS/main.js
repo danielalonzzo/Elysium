@@ -376,3 +376,139 @@ document.querySelectorAll('.accordion-header').forEach(header => {
         */
     });
 });
+
+// Currency Switcher Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const currencyBtns = document.querySelectorAll('.currency-btn');
+    const dynamicPrices = document.querySelectorAll('.dynamic-price');
+
+    if (currencyBtns.length === 0 || dynamicPrices.length === 0) return;
+
+    let exchangeRates = { EUR: 1, USD: 1.05, CRC: 540 }; // Fallback rates
+    let currentCurrency = 'EUR';
+
+    // Fetch live rates
+    async function fetchRates() {
+        try {
+            // Using a free, reliable API for public exchange rates (Base EUR)
+            const response = await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+
+            if (data && data.rates) {
+                exchangeRates.USD = data.rates.USD || exchangeRates.USD;
+                exchangeRates.CRC = data.rates.CRC || exchangeRates.CRC;
+            }
+        } catch (error) {
+            console.error('Failed to fetch exchange rates, using fallbacks:', error);
+        }
+    }
+
+    // Format price based on currency
+    function formatPrice(basePrice, currency) {
+        const rate = exchangeRates[currency] || 1;
+        let converted = Math.round(basePrice * rate);
+
+        if (currency === 'EUR') {
+            return `€${basePrice.toLocaleString('es-ES')}`;
+        } else if (currency === 'USD') {
+            return `$${converted.toLocaleString('en-US')}`;
+        } else if (currency === 'CRC') {
+            // Round up to the nearest thousand (e.g. 55121 -> 56000)
+            const roundedCRC = Math.ceil(converted / 1000) * 1000;
+            return `₡${roundedCRC.toLocaleString('es-CR')}`;
+        }
+        return `€${basePrice}`;
+    }
+
+    // Update all prices on the page
+    function updatePrices(targetCurrency) {
+        currentCurrency = targetCurrency;
+
+        dynamicPrices.forEach(el => {
+            const baseStr = el.getAttribute('data-base-price');
+            // Remove any existing separators from the data attribute just in case
+            const cleanBaseStr = baseStr.replace(/[^0-9.-]+/g, "");
+            const basePrice = parseFloat(cleanBaseStr);
+
+            if (!isNaN(basePrice)) {
+                el.innerText = formatPrice(basePrice, targetCurrency);
+            }
+        });
+
+        // Update active button state
+        currencyBtns.forEach(btn => {
+            if (btn.getAttribute('data-currency') === targetCurrency) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
+    // Setup event listeners
+    currencyBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const selectedCurrency = btn.getAttribute('data-currency');
+            if (selectedCurrency !== currentCurrency) {
+                updatePrices(selectedCurrency);
+            }
+        });
+    });
+
+    // Initialize
+    fetchRates().then(() => {
+        // We default to EUR, but we can re-render just to be sure layout is correct
+        updatePrices('EUR');
+    });
+});
+
+// Read More Toggle Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const readMoreBtns = document.querySelectorAll('.read-more-btn');
+
+    readMoreBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('aria-controls');
+            if (!targetId) return;
+
+            const content = document.getElementById(targetId);
+            if (!content) return;
+
+            const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+
+            // Toggle Logic
+            if (isExpanded) {
+                // Collapse
+                content.classList.remove('is-expanded');
+                btn.setAttribute('aria-expanded', 'false');
+
+                // Switch text based on language via text content check
+                if (btn.innerText.includes('Leer más') || btn.innerText.includes('Leer menos')) {
+                    btn.innerText = 'Leer más ↓';
+                } else if (btn.innerText.includes('Read more') || btn.innerText.includes('Show less')) {
+                    btn.innerText = 'Read more ↓';
+                } else if (btn.innerText.includes('Ler mais') || btn.innerText.includes('Ler menos')) {
+                    btn.innerText = 'Ler mais ↓';
+                } else {
+                    btn.innerText = 'Read more ↓'; // Fallback
+                }
+            } else {
+                // Expand
+                content.classList.add('is-expanded');
+                btn.setAttribute('aria-expanded', 'true');
+
+                // Switch text based on language via text content check
+                if (btn.innerText.includes('Leer más') || btn.innerText.includes('Leer menos')) {
+                    btn.innerText = 'Leer menos ↑';
+                } else if (btn.innerText.includes('Read more') || btn.innerText.includes('Show less')) {
+                    btn.innerText = 'Show less ↑';
+                } else if (btn.innerText.includes('Ler mais') || btn.innerText.includes('Ler menos')) {
+                    btn.innerText = 'Ler menos ↑';
+                } else {
+                    btn.innerText = 'Show less ↑'; // Fallback
+                }
+            }
+        });
+    });
+});
