@@ -512,3 +512,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Discrete Text Carousel Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const discreteCarousels = document.querySelectorAll('.discrete-text-carousel');
+    discreteCarousels.forEach(carousel => {
+        const items = carousel.querySelectorAll('.discrete-item');
+        if (items.length <= 1) return;
+
+        let currentIndex = 0;
+
+        function nextItem() {
+            const current = items[currentIndex];
+            if (!current) return;
+            
+            currentIndex = (currentIndex + 1) % items.length;
+            const next = items[currentIndex];
+
+            current.classList.remove('active');
+            current.classList.add('exit');
+
+            setTimeout(() => {
+                current.classList.remove('exit');
+            }, 800);
+
+            if (next) next.classList.add('active');
+        }
+
+        setInterval(nextItem, 4000);
+    });
+});
