@@ -284,29 +284,78 @@
             </div>
 
             <div class="process-steps animate-on-scroll">
-                <div class="process-step reveal-step" style="transition-delay: 0s;">
+                <!-- SVG Guide Lines -->
+                <div class="process-guide-lines">
+                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width: 100%; height: 100%;">
+                        <!-- MOBILE PATH (Spine on Col 1, Branches on Col 2) -->
+                        <g class="mobile-only">
+                            <!-- Spine 01->02-03-05-07-09-10 -->
+                            <line x1="25" y1="5" x2="25" y2="95" class="process-line" vector-effect="non-scaling-stroke" />
+                            <!-- Horizontal branches to Col 2: 04, 06, 08 -->
+                            <line x1="25" y1="35" x2="60" y2="35" class="process-line" vector-effect="non-scaling-stroke" />
+                            <line x1="25" y1="55" x2="60" y2="55" class="process-line" vector-effect="non-scaling-stroke" />
+                            <line x1="25" y1="75" x2="60" y2="75" class="process-line" vector-effect="non-scaling-stroke" />
+                        </g>
+
+                        <!-- DESKTOP PATH (Original image layout) -->
+                        <g class="desktop-only">
+                            <!-- Horizontal: 01 to 02 -->
+                            <line x1="15" y1="12" x2="20" y2="12" class="process-line" vector-effect="non-scaling-stroke" />
+                            
+                            <!-- Vertical spine: 02-03-05-07 -->
+                            <line x1="30" y1="20" x2="30" y2="80" class="process-line" vector-effect="non-scaling-stroke" />
+
+                            <!-- Horizontal branches: 03->04, 05->06, 07->08->09->10 -->
+                            <line x1="35" y1="37" x2="40" y2="37" class="process-line" vector-effect="non-scaling-stroke" />
+                            <line x1="35" y1="62" x2="40" y2="62" class="process-line" vector-effect="non-scaling-stroke" />
+                            <line x1="35" y1="87" x2="90" y2="87" class="process-line" vector-effect="non-scaling-stroke" />
+
+                            <!-- Return Path (Image logic) -->
+                            <line x1="90" y1="87" x2="90" y2="37" class="process-line" vector-effect="non-scaling-stroke" />
+                            <line x1="90" y1="37" x2="55" y2="37" class="process-line" vector-effect="non-scaling-stroke" />
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="process-step reveal-step step-01" style="transition-delay: 0s;">
                     <div class="step-number">01</div>
-                    <h3 class="step-title">Context and Diagnosis</h3>
+                    <h3 class="step-title">Background</h3>
                 </div>
-                <div class="process-step reveal-step" style="transition-delay: 0.15s;">
+                <div class="process-step reveal-step step-02" style="transition-delay: 0.1s;">
                     <div class="step-number">02</div>
-                    <h3 class="step-title">Project Design</h3>
+                    <h3 class="step-title">What is known?</h3>
                 </div>
-                <div class="process-step reveal-step" style="transition-delay: 0.3s;">
+                <div class="process-step reveal-step step-03" style="transition-delay: 0.2s;">
                     <div class="step-number">03</div>
-                    <h3 class="step-title">Strategic Timeline</h3>
+                    <h3 class="step-title">What is unknown?</h3>
                 </div>
-                <div class="process-step reveal-step" style="transition-delay: 0.45s;">
+                <div class="process-step reveal-step step-04" style="transition-delay: 0.3s;">
                     <div class="step-number">04</div>
-                    <h3 class="step-title">Project Development</h3>
+                    <h3 class="step-title">Research Question</h3>
                 </div>
-                <div class="process-step reveal-step" style="transition-delay: 0.6s;">
+                <div class="process-step reveal-step step-05" style="transition-delay: 0.4s;">
                     <div class="step-number">05</div>
-                    <h3 class="step-title">Review and QA</h3>
+                    <h3 class="step-title">Why should it be known?</h3>
                 </div>
-                <div class="process-step reveal-step" style="transition-delay: 0.75s;">
+                <div class="process-step reveal-step step-06" style="transition-delay: 0.5s;">
                     <div class="step-number">06</div>
-                    <h3 class="step-title">Publishing and Distribution</h3>
+                    <h3 class="step-title">Hypothesis</h3>
+                </div>
+                <div class="process-step reveal-step step-07" style="transition-delay: 0.6s;">
+                    <div class="step-number">07</div>
+                    <h3 class="step-title">Available Methods</h3>
+                </div>
+                <div class="process-step reveal-step step-08" style="transition-delay: 0.7s;">
+                    <div class="step-number">08</div>
+                    <h3 class="step-title">Experimental Design</h3>
+                </div>
+                <div class="process-step reveal-step step-09" style="transition-delay: 0.8s;">
+                    <div class="step-number">09</div>
+                    <h3 class="step-title">Experiments and QA</h3>
+                </div>
+                <div class="process-step reveal-step step-10" style="transition-delay: 0.9s;">
+                    <div class="step-number">10</div>
+                    <h3 class="step-title">Conclusions and Publication</h3>
                 </div>
             </div>
         </div>
@@ -410,7 +459,7 @@
                 <div class="footer-col">
                     <h4>Connect</h4>
                     <ul class="footer-links">
-                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="https://www.linkedin.com/company/elysiumdr" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
                         <li><a href="https://x.com/elysiumdr?s=21">Twitter</a></li>
                         <li><a
                                 href="https://www.instagram.com/elysium.dr?igsh=YmFhNnlqbWttM3h0&utm_source=qr">Instagram</a>

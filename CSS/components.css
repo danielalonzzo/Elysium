@@ -1578,6 +1578,39 @@ footer {
     overflow: hidden;
 }
 
+.discrete-text-carousel.inline {
+    display: inline-block;
+    margin: 0;
+    vertical-align: middle;
+    text-align: left;
+    height: 1.4em;
+    width: 320px; /* Expanded to fit longer names like 'Países Angloparlantes' */
+    overflow: hidden;
+    position: relative;
+    margin-left: 5px;
+    top: -1px; /* Optical adjustment */
+}
+
+.discrete-text-carousel.inline .discrete-item {
+    width: 100%;
+    white-space: nowrap;
+    opacity: 0;
+    font-size: 1rem;
+    color: var(--color-accent);
+    transform: translateY(5px); /* Reduced movement */
+    line-height: 1.4em;
+}
+
+.discrete-text-carousel.inline .discrete-item.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.discrete-text-carousel.inline .discrete-item.exit {
+    opacity: 0;
+    transform: translateY(-5px); /* Reduced movement */
+}
+
 .discrete-carousel-track {
     position: relative;
     height: 100%;

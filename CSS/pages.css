@@ -3,10 +3,112 @@
 /* Home Page Specifics */
 .process-steps {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--space-lg);
+    grid-template-columns: 1fr 1fr; /* 2 Column layout for mobile to mirror the spine logic */
+    gap: 1.5rem;
     position: relative;
     margin-top: var(--space-lg);
+}
+
+/* Guide lines container */
+.process-guide-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Mobile specific grid positions */
+.step-01 { grid-column: 1 / span 2; } /* Full width header */
+.step-02 { grid-column: 1; } /* The Spine starts on Col 1 in mobile */
+.step-03 { grid-column: 1; }
+.step-04 { grid-column: 2; } /* Branch on Col 2 */
+.step-05 { grid-column: 1; }
+.step-06 { grid-column: 2; } /* Branch on Col 2 */
+.step-07 { grid-column: 1; }
+.step-08 { grid-column: 2; } /* Branch on Col 2 */
+.step-09 { grid-column: 1 / span 2; } /* Final steps full width or stack */
+.step-10 { grid-column: 1 / span 2; }
+
+@media (max-width: 1199px) {
+    .process-guide-lines svg .desktop-only { display: none; }
+    .process-guide-lines svg .mobile-only { display: block; }
+    .process-step { padding: 1.5rem; }
+    .process-step .step-number { font-size: 2.5rem; }
+}
+
+@media (min-width: 1200px) {
+    .process-guide-lines svg .mobile-only { display: none; }
+    .process-guide-lines svg .desktop-only { display: block; }
+}
+
+.process-guide-lines svg {
+    width: 100%;
+    height: 100%;
+}
+
+.process-line {
+    stroke: rgba(255, 255, 255, 0.2);
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+    fill: none;
+}
+
+.process-arrow {
+    fill: rgba(255, 255, 255, 0.2);
+}
+
+@media (min-width: 1200px) {
+    .process-steps {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(4, auto);
+        gap: 2rem;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .process-guide-lines {
+        display: block;
+    }
+
+    /* Column positioning based on the image provided */
+    .step-01 { grid-column: 1; grid-row: 1; }
+    
+    .step-02 { grid-column: 2; grid-row: 1; }
+    .step-03 { grid-column: 2; grid-row: 2; }
+    .step-05 { grid-column: 2; grid-row: 3; }
+    .step-07 { grid-column: 2; grid-row: 4; }
+    
+    .step-04 { grid-column: 3; grid-row: 2; }
+    .step-06 { grid-column: 3; grid-row: 3; }
+    .step-08 { grid-column: 3; grid-row: 4; }
+
+    .step-09 { grid-column: 4; grid-row: 4; }
+    .step-10 { grid-column: 5; grid-row: 4; }
+
+    .process-step {
+        z-index: 1;
+        padding: 1.5rem; /* Smaller padding for better fit */
+        min-height: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .process-step .step-title {
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+    }
+
+    .process-step .step-number {
+        font-size: 3rem;
+        top: 2px;
+        right: 10px;
+    }
 }
 
 .process-step {
