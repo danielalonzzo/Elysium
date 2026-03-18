@@ -1,93 +1,82 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Elysium — Seed Licenses (Admin Only)</title>
+    <title>License Seeder - Elysium</title>
     <style>
-        body { font-family: monospace; background: #020410; color: #E1E1E5; padding: 2rem; }
-        h1 { color: #2997ff; margin-bottom: 1rem; }
-        button { background: #2997ff; color: white; border: none; padding: 1rem 2rem; font-size: 1rem; cursor: pointer; border-radius: 8px; margin-bottom: 1rem; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        #log { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px; max-height: 500px; overflow-y: auto; font-size: 0.85rem; line-height: 1.8; }
-        .success { color: #34d399; }
-        .error { color: #f87171; }
-        .info { color: #A0A5B5; }
-        .warning { color: #fbbf24; font-size: 1.1rem; margin-bottom: 0.5rem; }
+        body { font-family: sans-serif; padding: 20px; background: #020410; color: white; }
+        .container { max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; }
+        button { padding: 10px 20px; cursor: pointer; background: #ffcc00; border: none; font-weight: bold; border-radius: 6px; }
+        #status { margin-top: 20px; white-space: pre-wrap; font-family: monospace; }
+        .license-list { height: 200px; overflow-y: scroll; background: #000; padding: 10px; margin-top: 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-    <h1>λ Elysium — License Seeder</h1>
-    <p class="warning">⚠️ Esta página es de uso único. Bórrala o no la compartas tras ejecutar el script.</p>
-    <p class="info">Este script generará 100 licencias únicas en formato <strong>ELY-XXXX-XXXX-XXXX</strong> y las subirá a Firestore.</p>
-    <br>
-    <button id="seedBtn" onclick="seedLicenses()">🚀 Generar y subir 100 licencias</button>
-    <div id="log"></div>
+    <div class="container">
+        <h1>Elysium License Seeder</h1>
+        <p>This script will generate 100 license codes and upload them to Firestore.</p>
+        <button id="seedBtn">Generate & Seed 100 Licenses</button>
+        <div id="status">Ready...</div>
+        <div id="licenses" class="license-list"></div>
+    </div>
 
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getFirestore, collection, doc, setDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+        import { db } from './JS/firebase-config.js';
+        import { collection, doc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyABcv1SqIHF78JqU5QVkLd3I94pI2YNPoE",
-            authDomain: "elysiumdr-eu.firebaseapp.com",
-            projectId: "elysiumdr-eu",
-            storageBucket: "elysiumdr-eu.firebasestorage.app",
-            messagingSenderId: "392918383359",
-            appId: "1:392918383359:web:b4c661f025f9162d4d6aca"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        function log(msg, type = 'info') {
-            const div = document.getElementById('log');
-            div.innerHTML += `<div class="${type}">${msg}</div>`;
-            div.scrollTop = div.scrollHeight;
-        }
+        const seedBtn = document.getElementById('seedBtn');
+        const statusDiv = document.getElementById('status');
+        const licensesDiv = document.getElementById('licenses');
 
         function generateCode() {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            const rand = (n) => Array.from({length: n}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-            return `ELY-${rand(4)}-${rand(4)}-${rand(4)}`;
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid ambiguous chars
+            let result = 'ELY-';
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 4; j++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                if (i < 2) result += '-';
+            }
+            return result;
         }
 
-        window.seedLicenses = async function() {
-            const btn = document.getElementById('seedBtn');
-            btn.disabled = true;
-            log('Iniciando generación de licencias...', 'info');
-
-            // Check if licenses already exist
-            const existing = await getDocs(collection(db, 'licenses'));
-            if (existing.size > 0) {
-                log(`⚠️ Ya existen ${existing.size} licencias en la base de datos. Abortando para evitar duplicados.`, 'warning');
-                log('Si quieres volver a generar, borra la colección "licenses" en la consola de Firebase primero.', 'warning');
-                btn.disabled = false;
-                return;
+        seedBtn.addEventListener('click', async () => {
+            seedBtn.disabled = true;
+            statusDiv.textContent = 'Generating codes...';
+            
+            const licenses = [];
+            for (let i = 0; i < 100; i++) {
+                licenses.push(generateCode());
             }
 
-            const codes = new Set();
-            while (codes.size < 100) codes.add(generateCode());
+            licensesDiv.innerHTML = licenses.join('<br>');
+            statusDiv.textContent = 'Uploading to Firestore (batches of 500)...';
 
-            let count = 0;
-            for (const code of codes) {
-                try {
-                    await setDoc(doc(collection(db, 'licenses'), code), {
-                        code,
+            try {
+                const batch = writeBatch(db);
+                const licensesCol = collection(db, 'licenses');
+
+                for (const code of licenses) {
+                    const docRef = doc(licensesCol, code);
+                    batch.set(docRef, {
+                        code: code,
                         status: 'active',
                         assignedTo: null,
                         usedAt: null,
-                        createdAt: new Date().toISOString()
+                        createdAt: new Date()
                     });
-                    count++;
-                    log(`✅ [${count}/100] ${code}`, 'success');
-                } catch (err) {
-                    log(`❌ Error con ${code}: ${err.message}`, 'error');
                 }
-            }
 
-            log(`\n🎉 ¡Completado! ${count} licencias generadas y subidas a Firestore.`, 'success');
-            log('Puedes cerrar esta página y borrarla del proyecto.', 'info');
-        };
+                await batch.commit();
+                statusDiv.textContent = 'SUCCESS! 100 licenses seeded successfully.';
+                statusDiv.style.color = '#00ff00';
+            } catch (error) {
+                console.error(error);
+                statusDiv.textContent = 'ERROR: ' + error.message;
+                statusDiv.style.color = '#ff4444';
+                seedBtn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>

@@ -1,646 +1,256 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en-GB">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portal de Socios — Elysium λ Development & Research. Accede a tu cuenta con tu licencia de socio.">
-    <title>Portal de Socios — Elysium λ</title>
-    <meta name="robots" content="noindex, nofollow">
-
+    <title>Account - Elysium λ</title>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/pages.css">
 
     <!-- Favicon -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-
+    
     <style>
-        :root {
-            --color-bg-primary: #020410;
-            --color-bg-secondary: #051025;
-            --color-text-primary: #E1E1E5;
-            --color-text-secondary: #A0A5B5;
-            --color-accent: #2997ff;
-            --color-accent-glow: rgba(41, 151, 255, 0.4);
-            --color-gold: #D4AF37;
-            --color-error: #f87171;
-            --color-success: #34d399;
-            --glass-bg: rgba(10, 20, 40, 0.5);
-            --glass-border: rgba(225, 225, 229, 0.12);
-            --glass-border-highlight: rgba(225, 225, 229, 0.35);
-            --radius-md: 24px;
-            --radius-lg: 32px;
-            --transition-fast: 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-            --transition-medium: 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        html { font-size: 16px; height: 100%; }
-
-        body {
-            font-family: 'Manrope', -apple-system, sans-serif;
-            background-color: var(--color-bg-primary);
-            color: var(--color-text-primary);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem 1rem;
-            -webkit-font-smoothing: antialiased;
-            background: linear-gradient(300deg, #020410, #0a1a3f, #1c4e8c, #051025, #020410);
-            background-size: 300% 300%;
-            animation: liquidAlloy 12s ease-in-out 1, liquidAlloy 24s ease-in-out infinite 12s;
-            background-attachment: fixed;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        @keyframes liquidAlloy {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Ambient glow */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60vw;
-            height: 60vw;
-            background: radial-gradient(circle, rgba(41, 151, 255, 0.08) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Back link */
-        .back-link {
-            position: fixed;
-            top: 1.5rem;
-            left: 2rem;
-            color: var(--color-text-secondary);
-            font-size: 0.85rem;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: var(--transition-fast);
-            z-index: 10;
-        }
-        .back-link:hover { color: var(--color-text-primary); }
-
-        /* Brand */
-        .brand {
-            display: block;
-            text-align: center;
-            font-size: 1.3rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            color: var(--color-text-primary);
-            margin-bottom: 0.5rem;
-            text-decoration: none;
-            position: relative;
-            z-index: 1;
-        }
-        .brand-symbol {
-            color: var(--color-accent);
-            font-family: 'Playfair Display', serif;
-        }
-        .brand-tagline {
-            text-align: center;
-            font-size: 0.7rem;
-            letter-spacing: 0.2em;
-            color: var(--color-text-secondary);
-            text-transform: uppercase;
-            margin-bottom: 2.5rem;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Card */
-        .auth-card {
-            width: 100%;
-            max-width: 480px;
+        .auth-container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 2rem;
             background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: var(--radius-lg);
-            padding: 2.5rem;
-            backdrop-filter: blur(40px);
-            -webkit-backdrop-filter: blur(40px);
-            box-shadow: 0 8px 60px rgba(0, 5, 20, 0.6), inset 0 1px 0 var(--glass-border-highlight);
-            position: relative;
-            z-index: 1;
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(24px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Tabs */
-        .auth-tabs {
-            display: flex;
-            gap: 0;
-            margin-bottom: 2rem;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-            padding: 4px;
-        }
-        .auth-tab {
-            flex: 1;
-            padding: 0.6rem 1rem;
-            border: none;
-            background: transparent;
-            color: var(--color-text-secondary);
-            font-family: 'Manrope', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: var(--transition-fast);
-        }
-        .auth-tab.active {
-            background: var(--color-accent);
-            color: white;
-            box-shadow: 0 2px 12px var(--color-accent-glow);
-        }
-
-        /* Form */
-        .auth-view { display: none; }
-        .auth-view.active { display: block; }
-
-        .auth-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--color-text-primary);
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.02em;
-        }
-        .auth-subtitle {
-            font-size: 0.85rem;
-            color: var(--color-text-secondary);
-            margin-bottom: 1.75rem;
-        }
-
-        .form-group { margin-bottom: 1.1rem; }
-        .form-label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--color-text-secondary);
-            margin-bottom: 0.4rem;
-        }
-        .form-control {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--color-text-primary);
-            font-family: 'Manrope', sans-serif;
-            font-size: 0.95rem;
-            transition: var(--transition-fast);
-            outline: none;
-        }
-        .form-control:focus {
-            border-color: var(--color-accent);
-            box-shadow: 0 0 0 3px var(--color-accent-glow);
-        }
-        .form-control::placeholder { color: rgba(160, 165, 181, 0.4); }
-
-        /* License input special styling */
-        .license-input-wrapper { position: relative; }
-        .license-input-wrapper .form-control { padding-left: 3rem; font-family: 'Courier New', monospace; letter-spacing: 0.05em; }
-        .license-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--color-gold);
-            font-size: 1rem;
-        }
-
-        .form-hint {
-            font-size: 0.72rem;
-            color: var(--color-text-secondary);
-            margin-top: 0.35rem;
-            opacity: 0.7;
-        }
-
-        /* Divider */
-        .form-divider { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.75rem; margin: 1.25rem 0; }
-        .form-divider::before, .form-divider::after { content: ''; height: 1px; background: var(--glass-border); }
-        .form-divider span { font-size: 0.75rem; color: var(--color-text-secondary); white-space: nowrap; }
-
-        /* Button */
-        .btn-primary {
-            width: 100%;
-            padding: 0.9rem 1.5rem;
-            background: linear-gradient(135deg, #2997ff 0%, #1a6fd8 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-family: 'Manrope', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            letter-spacing: 0.02em;
-            box-shadow: 0 4px 20px rgba(41, 151, 255, 0.3);
-            margin-top: 0.5rem;
-        }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(41, 151, 255, 0.45); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        /* Status Message */
-        .status-msg {
-            display: none;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            margin-top: 1rem;
-            font-weight: 500;
-        }
-        .status-msg.error { display: block; background: rgba(248, 113, 113, 0.12); border: 1px solid rgba(248, 113, 113, 0.3); color: var(--color-error); }
-        .status-msg.success { display: block; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); color: var(--color-success); }
-
-        /* Welcome screen */
-        #welcomeView {
-            display: none;
+        
+        .auth-header {
             text-align: center;
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            margin-bottom: 2rem;
         }
-        .welcome-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        .welcome-title {
-            font-size: 1.5rem;
-            font-weight: 700;
+        
+        .auth-header h2 {
+            font-size: 2rem;
+            color: var(--color-platinum);
             margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
         }
-        .welcome-subtitle {
+        
+        .auth-toggle {
+            text-align: center;
+            margin-top: 1.5rem;
             font-size: 0.9rem;
             color: var(--color-text-secondary);
-            margin-bottom: 1.5rem;
         }
-        .member-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1.2rem;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(212, 175, 55, 0.05));
-            border: 1px solid rgba(212, 175, 55, 0.35);
-            border-radius: 9999px;
-            color: var(--color-gold);
-            font-size: 0.8rem;
+        
+        .auth-toggle a {
+            color: var(--color-accent);
+            text-decoration: none;
             font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 2rem;
         }
-        .member-info {
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 1.25rem;
-            text-align: left;
+        
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #error-message {
+            background: rgba(255, 68, 68, 0.1);
+            color: #ff4444;
+            padding: 1rem;
+            border-radius: 8px;
             margin-bottom: 1.5rem;
-        }
-        .member-info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--glass-border);
-            font-size: 0.875rem;
-        }
-        .member-info-row:last-child { border-bottom: none; }
-        .member-info-row span:first-child { color: var(--color-text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
-        .member-info-row span:last-child { color: var(--color-text-primary); font-weight: 500; }
-
-        .btn-logout {
-            background: transparent;
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--color-text-secondary);
-            font-family: 'Manrope', sans-serif;
-            font-size: 0.85rem;
-            padding: 0.65rem 1.5rem;
-            cursor: pointer;
-            transition: var(--transition-fast);
-        }
-        .btn-logout:hover { border-color: var(--color-error); color: var(--color-error); }
-
-        /* Footer */
-        .auth-footer {
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 68, 68, 0.2);
             text-align: center;
-            font-size: 0.72rem;
-            color: var(--color-text-secondary);
-            margin-top: 2rem;
-            opacity: 0.6;
-            position: relative;
-            z-index: 1;
+        }
+        
+        .profile-view {
+            text-align: center;
+        }
+        
+        .profile-card {
+            background: var(--glass-bg);
+            padding: 3rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--glass-border);
         }
 
-        @media (max-width: 520px) {
-            .auth-card { padding: 1.75rem 1.25rem; }
+        .welcome-lambda {
+            font-size: 4rem;
+            color: var(--color-accent);
+            margin-bottom: 1rem;
+            display: block;
         }
     </style>
 </head>
 
 <body>
-    <a href="index.html" class="back-link">← Volver al sitio</a>
-
-    <a href="index.html" class="brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
-    <p class="brand-tagline">Portal de Socios</p>
-
-    <div class="auth-card">
-
-        <!-- Auth Tabs -->
-        <div class="auth-tabs" id="authTabs">
-            <button class="auth-tab active" onclick="switchTab('login')">Iniciar sesión</button>
-            <button class="auth-tab" onclick="switchTab('signup')">Crear cuenta</button>
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
         </div>
-
-        <!-- LOGIN VIEW -->
-        <div class="auth-view active" id="loginView">
-            <h2 class="auth-title">Bienvenido de nuevo</h2>
-            <p class="auth-subtitle">Accede a tu cuenta de socio Elysium.</p>
-            <form id="loginForm" autocomplete="on">
-                <div class="form-group">
-                    <label class="form-label" for="loginEmail">Correo electrónico</label>
-                    <input type="email" id="loginEmail" name="email" class="form-control" placeholder="tu@empresa.com" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="loginPassword">Contraseña</label>
-                    <input type="password" id="loginPassword" name="password" class="form-control" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-primary" id="loginBtn">Iniciar sesión</button>
-                <div class="status-msg" id="loginMsg"></div>
-            </form>
-        </div>
-
-        <!-- SIGNUP VIEW -->
-        <div class="auth-view" id="signupView">
-            <h2 class="auth-title">Crear cuenta de socio</h2>
-            <p class="auth-subtitle">Introduce tu número de licencia para registrarte.</p>
-            <form id="signupForm" autocomplete="on">
-                <div class="form-group">
-                    <label class="form-label" for="signupName">Nombre completo <span style="color:#f87171;">*</span></label>
-                    <input type="text" id="signupName" name="name" class="form-control" placeholder="Daniel Morales" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="signupCompany">Nombre de la empresa</label>
-                    <input type="text" id="signupCompany" name="company" class="form-control" placeholder="Mi Empresa S.A. (opcional)">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="signupEmail">Correo electrónico <span style="color:#f87171;">*</span></label>
-                    <input type="email" id="signupEmail" name="email" class="form-control" placeholder="tu@empresa.com" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="signupPassword">Contraseña <span style="color:#f87171;">*</span></label>
-                    <input type="password" id="signupPassword" name="password" class="form-control" placeholder="Mínimo 8 caracteres" minlength="8" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="signupLicense">🔑 Número de licencia <span style="color:#f87171;">*</span></label>
-                    <div class="license-input-wrapper">
-                        <span class="license-icon">λ</span>
-                        <input type="text" id="signupLicense" name="license" class="form-control" placeholder="ELY-XXXX-XXXX-XXXX" maxlength="19" required>
-                    </div>
-                    <p class="form-hint">Proporcionado por Elysium al firmar el acuerdo de socio.</p>
-                </div>
-                <button type="submit" class="btn-primary" id="signupBtn">Crear cuenta</button>
-                <div class="status-msg" id="signupMsg"></div>
-            </form>
-        </div>
-
-        <!-- WELCOME VIEW (after login/signup) -->
-        <div id="welcomeView">
-            <div class="welcome-icon">🎉</div>
-            <h2 class="welcome-title">¡Bienvenido, <span id="welcomeName"></span>!</h2>
-            <p class="welcome-subtitle">Tu cuenta de socio está activa.</p>
-            <div class="member-badge">⬡ Socio Elysium λ</div>
-            <div class="member-info">
-                <div class="member-info-row">
-                    <span>Nombre</span>
-                    <span id="infoName">—</span>
-                </div>
-                <div class="member-info-row">
-                    <span>Empresa</span>
-                    <span id="infoCompany">—</span>
-                </div>
-                <div class="member-info-row">
-                    <span>Email</span>
-                    <span id="infoEmail">—</span>
-                </div>
-                <div class="member-info-row">
-                    <span>Número de licencia</span>
-                    <span id="infoLicense" style="font-family: monospace; font-size:0.8rem;">—</span>
-                </div>
-            </div>
-            <p style="font-size:0.8rem; color:var(--color-text-secondary); margin-bottom:1.5rem;">
-                Las funciones de socios avanzadas estarán disponibles próximamente. Elysium te notificará por email.
-            </p>
-            <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
-        </div>
-
     </div>
 
-    <p class="auth-footer">© 2026 Elysium λ Development & Research · Portugal, Unión Europea</p>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
+            <div class="nav-links">
+                <a href="services.html" class="nav-link">Services</a>
+                <a href="portfolio.html" class="nav-link">Portfolio</a>
+                <a href="research.html" class="nav-link">Research</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="profiles.html" class="nav-link active">Account</a>
+                <a href="contact.html" class="btn btn-primary">Contact</a>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-        import { getFirestore, doc, getDoc, updateDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+    <header class="page-header">
+        <div class="parallax-lambda">λ</div>
+        <div class="container animate-on-scroll">
+            <h1>Partner Portal</h1>
+            <p class="hero-subtitle">Exclusive access for Elysium partners</p>
+        </div>
+    </header>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyABcv1SqIHF78JqU5QVkLd3I94pI2YNPoE",
-            authDomain: "elysiumdr-eu.firebaseapp.com",
-            projectId: "elysiumdr-eu",
-            storageBucket: "elysiumdr-eu.firebasestorage.app",
-            messagingSenderId: "392918383359",
-            appId: "1:392918383359:web:b4c661f025f9162d4d6aca"
-        };
+    <section class="section">
+        <div class="container">
+            
+            <!-- Auth Section -->
+            <div id="auth-section">
+                <div class="auth-container animate-on-scroll">
+                    <div id="error-message" class="hidden"></div>
+                    
+                    <!-- Login Form -->
+                    <div id="login-view">
+                        <div class="auth-header">
+                            <h2>Login</h2>
+                            <p>Enter your credentials to access</p>
+                        </div>
+                        <form id="login-form">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" id="login-email" class="form-control" required placeholder="name@company.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password</label>
+                                <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+                        </form>
+                        <div class="auth-toggle">
+                            Don't have an account? <a href="#" id="show-signup">Create one</a>
+                        </div>
+                    </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+                    <!-- Signup Form -->
+                    <div id="signup-view" class="hidden">
+                        <div class="auth-header">
+                            <h2>Join Elysium</h2>
+                            <p>Register with your partner license</p>
+                        </div>
+                        <form id="signup-form">
+                            <div class="form-group">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" id="signup-name" class="form-control" required placeholder="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Company Name</label>
+                                <input type="text" id="signup-company" class="form-control" placeholder="Acme Corp">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email Address *</label>
+                                <input type="email" id="signup-email" class="form-control" required placeholder="name@company.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">License Number *</label>
+                                <input type="text" id="signup-license" class="form-control" required placeholder="ELY-XXXX-XXXX-XXXX">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Password *</label>
+                                <input type="password" id="signup-password" class="form-control" required placeholder="Min. 6 characters">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Register</button>
+                        </form>
+                        <div class="auth-toggle">
+                            Already have an account? <a href="#" id="show-login">Sign in</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        // ── UI Helpers ──────────────────────────────────────────────
-        function showMsg(id, msg, type) {
-            const el = document.getElementById(id);
-            el.textContent = msg;
-            el.className = `status-msg ${type}`;
-        }
+            <!-- Profile Section -->
+            <div id="profile-section" class="hidden">
+                <div class="profile-view animate-on-scroll">
+                    <div class="profile-card">
+                        <span class="welcome-lambda">λ</span>
+                        <h2 id="welcome-name" style="font-size: 2.5rem; color: var(--color-platinum); margin-bottom: 1rem;">Welcome, Partner</h2>
+                        <p id="partner-company" style="font-size: 1.15rem; color: var(--color-text-secondary); margin-bottom: 2rem;">Company Name</p>
+                        <div style="max-width: 600px; margin: 0 auto; line-height: 1.6; color: var(--color-text-secondary); margin-bottom: 3rem;">
+                            You have successfully accessed the Elysium Partner Portal. Advanced features and tools for partners will be available here soon.
+                        </div>
+                        <button id="logoutBtn" class="btn">Sign Out</button>
+                    </div>
+                </div>
+            </div>
 
-        function setLoading(btnId, loading, originalText) {
-            const btn = document.getElementById(btnId);
-            btn.disabled = loading;
-            btn.textContent = loading ? 'Procesando...' : originalText;
-        }
+        </div>
+    </section>
 
-        function showWelcome(memberData) {
-            document.getElementById('authTabs').style.display = 'none';
-            document.getElementById('loginView').classList.remove('active');
-            document.getElementById('signupView').classList.remove('active');
-            document.getElementById('welcomeView').style.display = 'block';
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand-wrapper">
+                        <a href="index.html" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
+                    </div>
+                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, European Union</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="services.html">Services</a></li>
+                        <li><a href="portfolio.html">Portfolio</a></li>
+                        <li><a href="research.html">Research</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Elysium λ Development & Research. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
 
-            const firstName = (memberData.name || '').split(' ')[0];
-            document.getElementById('welcomeName').textContent = firstName;
-            document.getElementById('infoName').textContent = memberData.name || '—';
-            document.getElementById('infoCompany').textContent = memberData.company || 'No especificada';
-            document.getElementById('infoEmail').textContent = memberData.email || '—';
-            document.getElementById('infoLicense').textContent = memberData.license || '—';
-        }
-
-        // ── Tab Switcher ─────────────────────────────────────────────
-        window.switchTab = function(tab) {
-            document.querySelectorAll('.auth-tab').forEach((t, i) => {
-                t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'signup' && i === 1));
-            });
-            document.getElementById('loginView').classList.toggle('active', tab === 'login');
-            document.getElementById('signupView').classList.toggle('active', tab === 'signup');
-        };
-
-        // ── Auto-format license input ────────────────────────────────
-        document.getElementById('signupLicense').addEventListener('input', function () {
-            let val = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            let formatted = '';
-            if (val.length > 0) formatted = val.substring(0, 3);
-            if (val.length >= 4) formatted = 'ELY-' + val.substring(3, 7);
-            if (val.length >= 8) formatted += '-' + val.substring(7, 11);
-            if (val.length >= 12) formatted += '-' + val.substring(11, 15);
-            // Keep ELY prefix always
-            if (this.value.startsWith('ELY') || this.value === '') {
-                this.value = formatted || this.value;
-            }
-        });
-
-        // ── Auth State Observer ──────────────────────────────────────
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const memberDoc = await getDoc(doc(db, 'members', user.uid));
-                if (memberDoc.exists()) {
-                    showWelcome(memberDoc.data());
-                }
-            }
-        });
-
-        // ── Login ────────────────────────────────────────────────────
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            setLoading('loginBtn', true, 'Iniciar sesión');
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // onAuthStateChanged will handle the welcome screen
-            } catch (err) {
-                let msg = 'Error al iniciar sesión. Verifica tus credenciales.';
-                if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
-                    msg = 'Correo electrónico o contraseña incorrectos.';
-                } else if (err.code === 'auth/too-many-requests') {
-                    msg = 'Demasiados intentos fallidos. Intenta más tarde.';
-                }
-                showMsg('loginMsg', msg, 'error');
-                setLoading('loginBtn', false, 'Iniciar sesión');
-            }
-        });
-
-        // ── Signup ───────────────────────────────────────────────────
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            setLoading('signupBtn', true, 'Crear cuenta');
-
-            const name = document.getElementById('signupName').value.trim();
-            const company = document.getElementById('signupCompany').value.trim();
-            const email = document.getElementById('signupEmail').value.trim();
-            const password = document.getElementById('signupPassword').value;
-            const license = document.getElementById('signupLicense').value.trim().toUpperCase();
-
-            // Validate license format
-            const licenseRegex = /^ELY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-            if (!licenseRegex.test(license)) {
-                showMsg('signupMsg', 'Formato de licencia inválido. Debe ser: ELY-XXXX-XXXX-XXXX', 'error');
-                setLoading('signupBtn', false, 'Crear cuenta');
-                return;
-            }
-
-            try {
-                // 1. Check license exists and is active
-                const licenseRef = doc(db, 'licenses', license);
-                const licenseDoc = await getDoc(licenseRef);
-
-                if (!licenseDoc.exists()) {
-                    showMsg('signupMsg', 'Licencia no encontrada. Contacta con Elysium en info@elysiumdr.eu', 'error');
-                    setLoading('signupBtn', false, 'Crear cuenta');
-                    return;
-                }
-
-                const licenseData = licenseDoc.data();
-                if (licenseData.status !== 'active') {
-                    showMsg('signupMsg', 'Esta licencia ya ha sido utilizada. Cada licencia es de uso único.', 'error');
-                    setLoading('signupBtn', false, 'Crear cuenta');
-                    return;
-                }
-
-                // 2. Create Firebase Auth user
-                const credential = await createUserWithEmailAndPassword(auth, email, password);
-                const uid = credential.user.uid;
-
-                // 3. Mark license as used
-                await updateDoc(licenseRef, {
-                    status: 'used',
-                    assignedTo: email,
-                    usedAt: serverTimestamp()
-                });
-
-                // 4. Create member document
-                const memberData = { name, company, email, license, uid, joinedAt: serverTimestamp(), role: 'member' };
-                await setDoc(doc(db, 'members', uid), memberData);
-
-                // 5. Show welcome
-                showWelcome(memberData);
-
-            } catch (err) {
-                let msg = 'Error al crear la cuenta. Inténtalo de nuevo.';
-                if (err.code === 'auth/email-already-in-use') {
-                    msg = 'Este correo ya está registrado. Prueba a iniciar sesión.';
-                } else if (err.code === 'auth/weak-password') {
-                    msg = 'La contraseña debe tener al menos 8 caracteres.';
-                } else if (err.code === 'auth/invalid-email') {
-                    msg = 'El formato del correo electrónico no es válido.';
-                }
-                showMsg('signupMsg', msg, 'error');
-                setLoading('signupBtn', false, 'Crear cuenta');
-            }
-        });
-
-        // ── Logout ───────────────────────────────────────────────────
-        window.logout = async function () {
-            await signOut(auth);
-            document.getElementById('authTabs').style.display = 'flex';
-            document.getElementById('welcomeView').style.display = 'none';
-            document.getElementById('loginView').classList.add('active');
-            document.getElementById('signupView').classList.remove('active');
-            document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
-        };
-    </script>
+    <script src="JS/main.js"></script>
+    <script type="module" src="JS/profiles.js"></script>
 </body>
 
 </html>
