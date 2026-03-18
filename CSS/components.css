@@ -599,15 +599,15 @@ section {
     flex-shrink: 0;
 }
 
-/* Specific styles for logo images - small uniform circles */
+/* Specific styles for logo images - small uniform rounded squares */
 .logos-slide .logo-item img {
-    height: 54px;
-    width: 54px;
+    height: 64px;
+    width: 64px;
     object-fit: contain;
-    padding: 10px;
+    padding: 8px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
+    border-radius: 14px;
     display: block;
     filter: brightness(0.9) grayscale(0.2);
     transition: all var(--transition-fast);
