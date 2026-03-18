@@ -196,11 +196,48 @@
         </div>
     </footer>
     <script src="../JS/main.js"></script>
-    <script>
-        document.getElementById('contactForm').addEventListener('submit', function (e) {
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABcv1SqIHF78JqU5QVkLd3I94pI2YNPoE",
+            authDomain: "elysiumdr-eu.firebaseapp.com",
+            projectId: "elysiumdr-eu",
+            storageBucket: "elysiumdr-eu.firebasestorage.app",
+            messagingSenderId: "392918383359",
+            appId: "1:392918383359:web:b4c661f025f9162d4d6aca"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const form = document.getElementById('contactForm');
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            alert('Obrigado. A sua consulta foi recebida. Responderemos no prazo de 24 horas.');
-            this.reset();
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'A enviar...';
+
+            try {
+                await addDoc(collection(db, 'contacts'), {
+                    name: form.name.value,
+                    email: form.email.value,
+                    service: form.service.value,
+                    message: form.message.value,
+                    lang: 'pt',
+                    submittedAt: serverTimestamp()
+                });
+                alert('Obrigado! A sua consulta foi recebida. Responderemos em 24 horas.');
+                form.reset();
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao enviar: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
         });
     </script>
 </body>

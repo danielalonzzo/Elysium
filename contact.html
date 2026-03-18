@@ -208,13 +208,48 @@
     </footer>
 
     <script src="JS/main.js"></script>
-    <script>
-        // Simple client-side validation logic for demo purposes
-        document.getElementById('contactForm').addEventListener('submit', function (e) {
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyABcv1SqIHF78JqU5QVkLd3I94pI2YNPoE",
+            authDomain: "elysiumdr-eu.firebaseapp.com",
+            projectId: "elysiumdr-eu",
+            storageBucket: "elysiumdr-eu.firebasestorage.app",
+            messagingSenderId: "392918383359",
+            appId: "1:392918383359:web:b4c661f025f9162d4d6aca"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const form = document.getElementById('contactForm');
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // In a real app, this would send data to a backend
-            alert('Thank you. Your inquiry has been received. We will respond within 24 hours.');
-            this.reset();
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                await addDoc(collection(db, 'contacts'), {
+                    name: form.name.value,
+                    email: form.email.value,
+                    service: form.service.value,
+                    message: form.message.value,
+                    lang: 'en',
+                    submittedAt: serverTimestamp()
+                });
+                alert('Thank you! Your inquiry has been received. We will respond within 24 hours.');
+                form.reset();
+            } catch (err) {
+                console.error(err);
+                alert('Error sending form: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
         });
     </script>
 </body>
