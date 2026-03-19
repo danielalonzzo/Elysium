@@ -50,43 +50,56 @@ function showError(text) {
 // Authentication State Observer
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Prevent redirect loop if already on onboarding page
         const isPageOnboarding = window.location.pathname.includes('onboarding.html');
         
-        // Fetch additional user data from Firestore
         try {
-            const memberDoc = await getDoc(doc(db, 'members', user.uid));
-            if (memberDoc.exists()) {
-                const data = memberDoc.data();
-                
-                // Mandatory Onboarding Check
-                if (data.role === 'partner' && !data.onboardingCompleted && !isPageOnboarding) {
-                    // Determine redirect path based on current language context
-                    if (window.location.pathname.includes('/es/')) {
-                        window.location.href = 'onboarding.html';
-                    } else if (window.location.pathname.includes('/pt/')) {
-                        window.location.href = 'onboarding.html';
-                    } else {
-                        window.location.href = 'onboarding.html';
-                    }
-                    return;
-                }
+            const memberRef = doc(db, 'members', user.uid);
+            const memberDoc = await getDoc(memberRef);
+            
+            let onboardingCompleted = false;
+            let userData = null;
 
-                if (!isPageOnboarding) {
-                    authSection.classList.add('hidden');
-                    profileSection.classList.remove('hidden');
-                    document.getElementById('welcome-name').textContent = `Welcome, ${data.name || 'Partner'}`;
-                    document.getElementById('partner-company').textContent = data.company || '';
-                }
+            if (memberDoc.exists()) {
+                userData = memberDoc.data();
+                onboardingCompleted = userData.onboardingCompleted === true;
             } else {
-                if (!isPageOnboarding) {
-                    authSection.classList.add('hidden');
-                    profileSection.classList.remove('hidden');
-                    document.getElementById('welcome-name').textContent = `Welcome, ${user.displayName || 'Partner'}`;
-                }
+                // If the document doesn't exist for a logged-in user, create it (auto-fix for legacy users)
+                userData = {
+                    name: user.displayName || 'Partner',
+                    email: user.email,
+                    role: 'partner',
+                    onboardingCompleted: false,
+                    createdAt: serverTimestamp()
+                };
+                await setDoc(memberRef, userData);
+                onboardingCompleted = false;
             }
+
+            // Global Block: Force completion of onboarding
+            if (!onboardingCompleted && !isPageOnboarding) {
+                // Redirect to localized onboarding
+                const pathParts = window.location.pathname.split('/');
+                const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
+                
+                if (isLocalized) {
+                    window.location.href = 'onboarding.html';
+                } else {
+                    window.location.href = 'onboarding.html';
+                }
+                return;
+            }
+
+            // If we are on profiles.html and onboarding IS completed, show the portal
+            if (!isPageOnboarding && authSection && profileSection) {
+                authSection.classList.add('hidden');
+                profileSection.classList.remove('hidden');
+                document.getElementById('welcome-name').textContent = `Welcome, ${userData.name || 'Partner'}`;
+                const companyEl = document.getElementById('partner-company');
+                if (companyEl) companyEl.textContent = userData.company || '';
+            }
+
         } catch (error) {
-            console.error("Error fetching member data:", error);
+            console.error("Error in auth state handling:", error);
         }
     } else {
         if (authSection && profileSection) {
