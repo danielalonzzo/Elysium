@@ -83,6 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let isValid = true;
 
         requiredInputs.forEach(input => {
+            // Skip validation for hidden or ancestor-hidden elements
+            if (input.offsetParent === null && input.type !== 'hidden') return;
+
             if (input.type === 'checkbox' || input.type === 'radio') {
                 const name = input.getAttribute('name');
                 const checked = activeStep.querySelector(`input[name="${name}"]:checked`);
