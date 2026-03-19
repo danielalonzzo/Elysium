@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Elysium λ</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/pages.css">
+
+    <link rel="icon" href="favicon.svg" type="image/xml+svg">
+</head>
+<body>
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">
+                <span class="brand-symbol">λ</span> ELYSIUM
+            </a>
+            <div class="nav-links">
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select language"><span class="lang-current-label">EN</span> <span class="lang-current-flag">🇬🇧</span> <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="#" class="lang-select" data-lang="en" role="menuitem">English 🇬🇧</a>
+                        <a href="#" class="lang-select" data-lang="es" role="menuitem">Español 🇨🇷</a>
+                        <a href="#" class="lang-select" data-lang="pt" role="menuitem">Português 🇵🇹</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
+
+    <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+            <div class="nav-item active" data-target="overview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span>Overview</span>
+            </div>
+            <div class="nav-item" data-target="clients">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Clients</span>
+            </div>
+            <div class="nav-item" data-target="licenses">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span>Licenses</span>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logoutBtn" class="btn btn-sm btn-outline" style="width: 100%;">Logout</button>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <section id="overview" class="admin-section active">
+            <div class="dashboard-header">
+                <h1>Dashboard</h1>
+                <p class="color-text-secondary">Welcome back, Super Admin.</p>
+            </div>
+            <div class="clients-grid" id="stats-overview">
+                <!-- Stat cards will be injected here -->
+            </div>
+        </section>
+
+        <section id="clients" class="admin-section">
+            <div class="dashboard-header">
+                <h1>Clients</h1>
+                <p class="color-text-secondary">Manage and view all registered partners.</p>
+            </div>
+            <div class="clients-grid" id="clients-list">
+                <div class="loader-container"><div class="premium-loader"></div></div>
+            </div>
+        </section>
+
+        <section id="licenses" class="admin-section">
+            <div class="dashboard-header">
+                <h1>Licenses</h1>
+                <p class="color-text-secondary">Overview of all generated and available licenses.</p>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Used At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="licenses-list">
+                        <!-- Licenses will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Client Detail Overlay -->
+    <div class="detail-overlay" id="client-detail-overlay">
+        <div class="detail-panel">
+            <button class="close-detail" id="close-detail">&times;</button>
+            <div id="detail-content">
+                <!-- Content will be injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="JS/admin.js"></script>
+</body>
+</html>

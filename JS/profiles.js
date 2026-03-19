@@ -75,6 +75,24 @@ onAuthStateChanged(auth, async (user) => {
                 onboardingCompleted = false;
             }
 
+            // Special Case: Super Admin Redirect
+            if (user.email === 'danielalonzzo@icloud.com') {
+                if (!window.location.pathname.includes('admin.html')) {
+                    const pathParts = window.location.pathname.split('/');
+                    const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
+                    
+                    // Capture and persist current language context
+                    if (isLocalized) {
+                        const langCode = pathParts.find(p => p === 'es' || p === 'pt');
+                        localStorage.setItem('elysium_lang', langCode);
+                        localStorage.setItem('langOverride', 'true');
+                    }
+                    
+                    window.location.href = isLocalized ? '../admin.html' : 'admin.html';
+                }
+                return;
+            }
+
             // Global Block: Force completion of onboarding
             if (!onboardingCompleted && !isPageOnboarding) {
                 // Redirect to localized onboarding
