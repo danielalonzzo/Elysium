@@ -6,27 +6,100 @@
     <style>
         body { font-family: sans-serif; padding: 20px; background: #020410; color: white; }
         .container { max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.05); padding: 30px; border-radius: 12px; }
+        .auth-box { background: rgba(255,255,255,0.1); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; background: #222; color: #fff; }
         button { padding: 10px 20px; cursor: pointer; background: #ffcc00; border: none; font-weight: bold; border-radius: 6px; }
         #status { margin-top: 20px; white-space: pre-wrap; font-family: monospace; }
+        .hidden { display: none; }
         .license-list { height: 200px; overflow-y: scroll; background: #000; padding: 10px; margin-top: 10px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Elysium License Seeder</h1>
-        <p>This script will generate 100 license codes and upload them to Firestore.</p>
-        <button id="seedBtn">Generate & Seed 100 Licenses</button>
+        
+        <!-- Login to comply with request.auth != null -->
+        <div id="loginSection" class="auth-box">
+            <h3>Admin Login Required</h3>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Sign in with your admin account to grant Firestore write permissions.</p>
+            <input type="email" id="email" placeholder="Admin Email">
+            <input type="password" id="password" placeholder="Password">
+            <button id="loginBtn">Login</button>
+            <button id="signupBtn" style="background: #444; color: #fff; margin-top: 10px;">Create Admin Account</button>
+        </div>
+
+        <div id="seederSection" class="hidden">
+            <p>Authenticated. You can now generate licenses.</p>
+            <button id="seedBtn">Generate & Seed 100 Licenses</button>
+        </div>
+
         <div id="status">Ready...</div>
-        <div id="licenses" class="license-list"></div>
+        <div id="licenses" class="license-list hidden"></div>
     </div>
 
     <script type="module">
-        import { db } from './JS/firebase-config.js';
-        import { collection, doc, setDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { db, auth } from './JS/firebase-config.js';
+        import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { collection, doc, writeBatch, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
         const seedBtn = document.getElementById('seedBtn');
         const statusDiv = document.getElementById('status');
         const licensesDiv = document.getElementById('licenses');
+        const loginSection = document.getElementById('loginSection');
+        const seederSection = document.getElementById('seederSection');
+
+        // Track authentication status
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginSection.classList.add('hidden');
+                seederSection.classList.remove('hidden');
+                statusDiv.textContent = `Authenticated as: ${user.email}`;
+            } else {
+                loginSection.classList.remove('hidden');
+                seederSection.classList.add('hidden');
+                statusDiv.textContent = 'Please login first.';
+            }
+        });
+
+        // Login Logic
+        loginBtn.addEventListener('click', async () => {
+            const emailInput = document.getElementById('email').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+            
+            try {
+                await signInWithEmailAndPassword(auth, emailInput, passwordInput);
+            } catch (error) {
+                statusDiv.textContent = 'Login Error: ' + error.message;
+                statusDiv.style.color = '#ff4444';
+            }
+        });
+
+        // Signup Logic (for initial creation)
+        signupBtn.addEventListener('click', async () => {
+            const emailInput = document.getElementById('email').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+            
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
+                const user = userCredential.user;
+
+                // Create document in members collection with Supreme Admin role
+                await setDoc(doc(db, 'members', user.uid), {
+                    name: "Daniel Alonzzo",
+                    email: emailInput,
+                    role: 'supreme_admin',
+                    createdAt: serverTimestamp()
+                });
+
+                statusDiv.textContent = 'Supreme Admin account created and authenticated!';
+                statusDiv.style.color = '#00ff00';
+            } catch (error) {
+                statusDiv.textContent = 'Signup Error: ' + error.message;
+                statusDiv.style.color = '#ff4444';
+            }
+        });
 
         function generateCode() {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid ambiguous chars
@@ -42,7 +115,8 @@
 
         seedBtn.addEventListener('click', async () => {
             seedBtn.disabled = true;
-            statusDiv.textContent = 'Generating codes...';
+            statusDiv.textContent = 'Generating codes and uploading to Firestore...';
+            statusDiv.style.color = 'white';
             
             const licenses = [];
             for (let i = 0; i < 100; i++) {
@@ -50,7 +124,7 @@
             }
 
             licensesDiv.innerHTML = licenses.join('<br>');
-            statusDiv.textContent = 'Uploading to Firestore (batches of 500)...';
+            licensesDiv.classList.remove('hidden');
 
             try {
                 const batch = writeBatch(db);
@@ -80,3 +154,4 @@
     </script>
 </body>
 </html>
+

@@ -50,25 +50,54 @@ function showError(text) {
 // Authentication State Observer
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        authSection.classList.add('hidden');
-        profileSection.classList.remove('hidden');
+        // Prevent redirect loop if already on onboarding page
+        const isPageOnboarding = window.location.pathname.includes('onboarding.html');
         
         // Fetch additional user data from Firestore
         try {
             const memberDoc = await getDoc(doc(db, 'members', user.uid));
             if (memberDoc.exists()) {
                 const data = memberDoc.data();
-                document.getElementById('welcome-name').textContent = `Welcome, ${data.name || 'Partner'}`;
-                document.getElementById('partner-company').textContent = data.company || '';
+                
+                // Mandatory Onboarding Check
+                if (data.role === 'partner' && !data.onboardingCompleted && !isPageOnboarding) {
+                    // Determine redirect path based on current language context
+                    if (window.location.pathname.includes('/es/')) {
+                        window.location.href = 'onboarding.html';
+                    } else if (window.location.pathname.includes('/pt/')) {
+                        window.location.href = 'onboarding.html';
+                    } else {
+                        window.location.href = 'onboarding.html';
+                    }
+                    return;
+                }
+
+                if (!isPageOnboarding) {
+                    authSection.classList.add('hidden');
+                    profileSection.classList.remove('hidden');
+                    document.getElementById('welcome-name').textContent = `Welcome, ${data.name || 'Partner'}`;
+                    document.getElementById('partner-company').textContent = data.company || '';
+                }
             } else {
-                document.getElementById('welcome-name').textContent = `Welcome, ${user.displayName || 'Partner'}`;
+                if (!isPageOnboarding) {
+                    authSection.classList.add('hidden');
+                    profileSection.classList.remove('hidden');
+                    document.getElementById('welcome-name').textContent = `Welcome, ${user.displayName || 'Partner'}`;
+                }
             }
         } catch (error) {
             console.error("Error fetching member data:", error);
         }
     } else {
-        authSection.classList.remove('hidden');
-        profileSection.classList.add('hidden');
+        if (authSection && profileSection) {
+            authSection.classList.remove('hidden');
+            profileSection.classList.add('hidden');
+        }
+        
+        // If logged out and on onboarding page, redirect to profiles
+        if (window.location.pathname.includes('onboarding.html')) {
+            window.location.href = 'profiles.html';
+        }
     }
 });
 
@@ -133,6 +162,7 @@ signupForm.addEventListener('submit', async (e) => {
             email: email,
             licenseCode: licenseCode,
             role: 'partner',
+            onboardingCompleted: false, // New field for mandatory onboarding
             createdAt: serverTimestamp()
         });
 

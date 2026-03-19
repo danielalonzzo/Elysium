@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en-GB">
+<html lang="pt-PT">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account - Elysium λ</title>
+    <title>Conta - Elysium λ</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,12 +12,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="CSS/base.css">
-    <link rel="stylesheet" href="CSS/components.css">
-    <link rel="stylesheet" href="CSS/pages.css">
+    <link rel="stylesheet" href="../CSS/base.css">
+    <link rel="stylesheet" href="../CSS/components.css">
+    <link rel="stylesheet" href="../CSS/pages.css">
 
     <!-- Favicon -->
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     
     <style>
         .auth-container {
@@ -107,20 +107,20 @@
         <div class="container">
             <a href="index.html" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
             <div class="nav-links">
-                <a href="services.html" class="nav-link">Services</a>
-                <a href="portfolio.html" class="nav-link">Portfolio</a>
-                <a href="research.html" class="nav-link">Research</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="profiles.html" class="nav-link active">Account</a>
-                <a href="contact.html" class="btn btn-primary">Contact</a>
+                <a href="services.html" class="nav-link">Serviços</a>
+                <a href="portfolio.html" class="nav-link">Portefólio</a>
+                <a href="research.html" class="nav-link">Investigação</a>
+                <a href="about.html" class="nav-link">Sobre nós</a>
+                <a href="profiles.html" class="nav-link active">Conta</a>
+                <a href="contact.html" class="btn btn-primary">Contacto</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Select language"><span class="lang-current-label">EN</span> 🇬🇧 <span
+                        aria-label="Selecionar idioma"><span class="lang-current-label">PT</span> 🇵🇹 <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
-                        <a href="profiles.html" role="menuitem">English 🇬🇧</a>
-                        <a href="es/profiles.html" role="menuitem">Español 🇨🇷</a>
-                        <a href="pt/profiles.html" role="menuitem">Português 🇵🇹</a>
+                        <a href="../profiles.html" role="menuitem">English 🇬🇧</a>
+                        <a href="../es/profiles.html" role="menuitem">Español 🇨🇷</a>
+                        <a href="profiles.html" role="menuitem">Português 🇵🇹</a>
                     </div>
                 </div>
             </div>
@@ -131,8 +131,8 @@
     <header class="page-header">
         <div class="parallax-lambda">λ</div>
         <div class="container animate-on-scroll">
-            <h1>Partner Portal</h1>
-            <p class="hero-subtitle">Exclusive access for Elysium partners</p>
+            <h1>Portal de Parceiros</h1>
+            <p class="hero-subtitle">Acesso exclusivo para parceiros da Elysium</p>
         </div>
     </header>
 
@@ -147,56 +147,56 @@
                     <!-- Login Form -->
                     <div id="login-view">
                         <div class="auth-header">
-                            <h2>Login</h2>
-                            <p>Enter your credentials to access</p>
+                            <h2>Iniciar Sessão</h2>
+                            <p>Introduza as suas credenciales para aceder</p>
                         </div>
                         <form id="login-form">
                             <div class="form-group">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" id="login-email" class="form-control" required placeholder="name@company.com">
+                                <label class="form-label">Endereço de E-mail</label>
+                                <input type="email" id="login-email" class="form-control" required placeholder="nome@empresa.com">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Password</label>
+                                <label class="form-label">Palavra-passe</label>
                                 <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Entrar</button>
                         </form>
                         <div class="auth-toggle">
-                            Don't have an account? <a href="#" id="show-signup">Create one</a>
+                            Não tem una conta? <a href="#" id="show-signup">Crie uma</a>
                         </div>
                     </div>
 
                     <!-- Signup Form -->
                     <div id="signup-view" class="hidden">
                         <div class="auth-header">
-                            <h2>Join Elysium</h2>
-                            <p>Register with your partner license</p>
+                            <h2>Junte-se à Elysium</h2>
+                            <p>Registe-se com a sua licença de parceiro</p>
                         </div>
                         <form id="signup-form">
                             <div class="form-group">
-                                <label class="form-label">Full Name *</label>
-                                <input type="text" id="signup-name" class="form-control" required placeholder="John Doe">
+                                <label class="form-label">Nome Completo *</label>
+                                <input type="text" id="signup-name" class="form-control" required placeholder="João Silva">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Company Name</label>
+                                <label class="form-label">Nome da Empresa</label>
                                 <input type="text" id="signup-company" class="form-control" placeholder="Acme Corp">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Email Address *</label>
-                                <input type="email" id="signup-email" class="form-control" required placeholder="name@company.com">
+                                <label class="form-label">Endereço de E-mail *</label>
+                                <input type="email" id="signup-email" class="form-control" required placeholder="nome@empresa.com">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">License Number *</label>
+                                <label class="form-label">Número de Licença *</label>
                                 <input type="text" id="signup-license" class="form-control" required placeholder="ELY-XXXX-XXXX-XXXX">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Password *</label>
-                                <input type="password" id="signup-password" class="form-control" required placeholder="Min. 6 characters">
+                                <label class="form-label">Palavra-passe *</label>
+                                <input type="password" id="signup-password" class="form-control" required placeholder="Mín. 6 caracteres">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Register</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Registar</button>
                         </form>
                         <div class="auth-toggle">
-                            Already have an account? <a href="#" id="show-login">Sign in</a>
+                            Já tem una conta? <a href="#" id="show-login">Inicie sessão</a>
                         </div>
                     </div>
                 </div>
@@ -207,12 +207,12 @@
                 <div class="profile-view animate-on-scroll">
                     <div class="profile-card">
                         <span class="welcome-lambda">λ</span>
-                        <h2 id="welcome-name" style="font-size: 2.5rem; color: var(--color-platinum); margin-bottom: 1rem;">Welcome, Partner</h2>
-                        <p id="partner-company" style="font-size: 1.15rem; color: var(--color-text-secondary); margin-bottom: 2rem;">Company Name</p>
+                        <h2 id="welcome-name" style="font-size: 2.5rem; color: var(--color-platinum); margin-bottom: 1rem;">Bem-vindo, Parceiro</h2>
+                        <p id="partner-company" style="font-size: 1.15rem; color: var(--color-text-secondary); margin-bottom: 2rem;">Nome da Empresa</p>
                         <div style="max-width: 600px; margin: 0 auto; line-height: 1.6; color: var(--color-text-secondary); margin-bottom: 3rem;">
-                            You have successfully accessed the Elysium Partner Portal. Advanced features and tools for partners will be available here soon.
+                            Acedeu com sucesso ao Portal de Parceiros da Elysium. Funcionalidades avançadas e ferramentas para parceiros estarão disponíveis aqui em breve.
                         </div>
-                        <button id="logoutBtn" class="btn">Sign Out</button>
+                        <button id="logoutBtn" class="btn">Sair</button>
                     </div>
                 </div>
             </div>
@@ -228,50 +228,52 @@
                         <a href="index.html" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
                         <div class="lang-switcher-dropdown footer-lang-switcher">
                             <button type="button" class="lang-switcher-trigger" aria-expanded="false"
-                                aria-haspopup="true" aria-label="Select language"><span
-                                    class="lang-current-label">EN</span> 🇬🇧 <span class="lang-arrow"
+                                aria-haspopup="true" aria-label="Selecionar idioma"><span
+                                    class="lang-current-label">PT</span> 🇵🇹 <span class="lang-arrow"
                                     aria-hidden="true">▼</span></button>
                             <div class="lang-switcher-menu" role="menu">
-                                <a href="index.html" role="menuitem">English 🇬🇧</a>
-                                <a href="es/index.html" role="menuitem">Español 🇨🇷</a>
-                                <a href="pt/index.html" role="menuitem">Português 🇵🇹</a>
+                                <a href="../index.html" role="menuitem">English 🇬🇧</a>
+                                <a href="../es/index.html" role="menuitem">Español 🇨🇷</a>
+                                <a href="index.html" role="menuitem">Português 🇵🇹</a>
                             </div>
                         </div>
                     </div>
-                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, European Union</p>
+                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, União Europeia</p>
+                    <p class="footer-service-note">Também no Brasil e noutros países lusófonos.</p>
                 </div>
                 <div class="footer-col">
-                    <h4>Company</h4>
+                    <h4>Empresa</h4>
                     <ul class="footer-links">
-                        <li><a href="about.html">About</a></li>
-                        <li><a href="services.html">Services</a></li>
-                        <li><a href="portfolio.html">Portfolio</a></li>
-                        <li><a href="research.html">Research</a></li>
-                        <li><a href="contact.html">Contact</a></li>
+                        <li><a href="about.html">Sobre nós</a></li>
+                        <li><a href="services.html">Serviços</a></li>
+                        <li><a href="portfolio.html">Portefólio</a></li>
+                        <li><a href="research.html">Investigação</a></li>
+                        <li><a href="contact.html">Contacto</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Legal</h4>
                     <ul class="footer-links">
-                        <li><a href="privacy.html">Privacy Policy</a></li>
-                        <li><a href="terms.html">Terms of Service</a></li>
+                        <li><a href="privacy.html">Política de Privacidade</a></li>
+                        <li><a href="terms.html">Termos de Serviço</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Connect</h4>
+                    <h4>Conectar</h4>
                     <ul class="footer-links">
                         <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>&copy; 2026 Elysium λ Development & Research. All rights reserved.</span>
+                <span>&copy; 2026 Elysium λ Development & Research. Todos los derechos reservados.</span>
+                <span class="brand-symbol footer-lambda">λ</span>
             </div>
         </div>
     </footer>
 
-    <script src="JS/main.js"></script>
-    <script type="module" src="JS/profiles.js"></script>
+    <script src="../JS/main.js"></script>
+    <script type="module" src="../JS/profiles.js"></script>
 </body>
 
 </html>
