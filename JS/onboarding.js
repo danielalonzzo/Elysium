@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/fi
 import { 
     doc, 
     updateDoc, 
+    setDoc, 
     collection, 
     addDoc, 
     serverTimestamp 
@@ -316,12 +317,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 submittedAt: serverTimestamp()
             });
 
-            // 2. Update member profile to mark as completed
+            // 2. Update member profile to mark as completed (using setDoc with merge for robustness)
             const memberRef = doc(db, 'members', currentUser.uid);
-            await updateDoc(memberRef, {
+            await setDoc(memberRef, {
                 onboardingCompleted: true,
-                onboardingCompletedAt: serverTimestamp()
-            });
+                onboardingCompletedAt: serverTimestamp(),
+                lastUpdated: serverTimestamp()
+            }, { merge: true });
 
             // Clear local storage on success
             localStorage.removeItem('onboarding_data');
@@ -329,8 +331,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             window.location.href = 'thank-you.html';
         } catch (error) {
-            console.error("Error submitting onboarding:", error);
-            alert("Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.");
+            console.error("Detailed error submitting onboarding:", error);
+            alert("No se pudo enviar el formulario: " + (error.message || "Error desconocido") + ". Por favor, contacte a soporte si el problema persiste.");
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Enviar Onboarding';
