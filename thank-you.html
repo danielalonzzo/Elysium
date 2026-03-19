@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thank You - Elysium λ</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/pages.css">
+
+    <style>
+        .thank-you-wrapper {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .success-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 4rem 2rem;
+            max-width: 600px;
+            width: 100%;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: var(--color-accent);
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+
+        .success-card h1 {
+            font-family: var(--font-primary);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--color-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .success-card p {
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">
+                <span class="brand-symbol">λ</span> ELYSIUM
+            </a>
+        </div>
+    </nav>
+
+    <main class="thank-you-wrapper">
+        <div class="success-card">
+            <div class="success-icon">✓</div>
+            <h1>Onboarding Completed</h1>
+            <p>Thank you for sharing your project details with us. Our team of specialists will review your requirements and get back to you shortly to define the next steps.</p>
+            <a href="profiles.html" class="btn btn-primary">Go to Partner Portal</a>
+        </div>
+    </main>
+
+    <footer style="margin-top: 2rem;">
+        <div class="container text-center">
+            <p class="micro-copy">&copy; 2026 Elysium λ Development & Research. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="JS/main.js"></script>
+</body>
+</html>
