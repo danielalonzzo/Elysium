@@ -7,7 +7,8 @@ import {
     getDoc, 
     query, 
     where, 
-    orderBy 
+    orderBy,
+    updateDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
@@ -65,6 +66,11 @@ const translations = {
         worries: "Worries",
         trust: "Trust Factors",
         integrations: "Integrations",
+        project_link: "Project Link",
+        save_link: "Save Link",
+        download_pdf: "Download PDF",
+        saving: "Saving...",
+        saved: "Saved!",
         flag: "🇬🇧"
     },
     es: {
@@ -119,6 +125,11 @@ const translations = {
         worries: "Preocupaciones",
         trust: "Factores de Confianza",
         integrations: "Integraciones",
+        project_link: "Enlace del Proyecto",
+        save_link: "Guardar Enlace",
+        download_pdf: "Descargar PDF",
+        saving: "Guardando...",
+        saved: "¡Guardado!",
         flag: "🇨🇷"
     },
     pt: {
@@ -173,6 +184,11 @@ const translations = {
         worries: "Preocupações",
         trust: "Fatores de Confiança",
         integrations: "Integrações",
+        project_link: "Link do Projeto",
+        save_link: "Salvar Link",
+        download_pdf: "Baixar PDF",
+        saving: "Salvando...",
+        saved: "Salvo!",
         flag: "🇵🇹"
     }
 };
@@ -199,6 +215,36 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTranslations();
         initDashboard();
     });
+
+    // Mobile Navigation Toggle
+    const mobileToggle = document.querySelector('.mobile-toggle');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (mobileToggle && navLinks) {
+        mobileToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            document.body.classList.toggle('mobile-menu-open');
+
+            // Toggle icon between hamburger and close
+            if (navLinks.classList.contains('active')) {
+                mobileToggle.textContent = '✕';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+            } else {
+                mobileToggle.textContent = '☰';
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Close menu when clicking a language select
+        document.querySelectorAll('.lang-select').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                document.body.classList.remove('mobile-menu-open');
+                mobileToggle.textContent = '☰';
+                document.body.style.overflow = '';
+            });
+        });
+    }
 
     // Language switcher
     const langTrigger = document.querySelector('.lang-switcher-trigger');
@@ -352,7 +398,7 @@ async function loadStats() {
         `;
     } catch (error) {
         console.error("Error loading stats:", error);
-        statsContainer.innerHTML = `<p class="color-text-error">${t.error_stats}</p>`;
+        statsContainer.innerHTML = `<p class="color-text-error">${t.error_stats}<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
     }
 }
 
@@ -385,7 +431,7 @@ async function loadClients() {
         });
     } catch (error) {
         console.error("Error loading clients:", error);
-        clientsList.innerHTML = `<p class="color-text-error">${t.error_clients}</p>`;
+        clientsList.innerHTML = `<p class="color-text-error">${t.error_clients}<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
     }
 }
 
@@ -414,7 +460,7 @@ async function loadLicenses() {
         });
     } catch (error) {
         console.error("Error loading licenses:", error);
-        licensesList.innerHTML = `<tr><td colspan="4" class="color-text-error">${t.error_licenses}</td></tr>`;
+        licensesList.innerHTML = `<tr><td colspan="4" class="color-text-error">${t.error_licenses}<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></td></tr>`;
     }
 }
 
@@ -433,14 +479,14 @@ async function showClientDetail(userId, memberData) {
             onboardingData = submissionSnap.docs[0].data().formData;
         }
 
-        renderDetail(memberData, onboardingData);
+        renderDetail(memberData, onboardingData, userId);
     } catch (error) {
         console.error("Error showing client detail:", error);
-        detailContent.innerHTML = '<p class="color-text-error">Error loading client detail.</p>';
+        detailContent.innerHTML = `<p class="color-text-error">Error loading client detail.<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
     }
 }
 
-function renderDetail(member, onboarding) {
+function renderDetail(member, onboarding, userId) {
     const detailContent = document.getElementById('detail-content');
     const t = translations[currentLang];
     
@@ -454,86 +500,196 @@ function renderDetail(member, onboarding) {
     const f = (val) => val || '-';
 
     detailContent.innerHTML = `
-        <div class="dashboard-header" style="margin-bottom: 4rem;">
-            <h1 style="font-size: 3rem;">${member.name}</h1>
-            <p class="color-text-secondary">${member.company || t.no_company}</p>
+        <div class="dashboard-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <h1 style="font-size: 3rem;">${member.name}</h1>
+                <p class="color-text-secondary">${member.company || t.no_company}</p>
+            </div>
+            <button id="btn-download-pdf" class="btn btn-outline" style="min-width: 140px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                ${t.download_pdf}
+            </button>
         </div>
 
-        <div class="detail-section">
-            <h3>${t.user_profile}</h3>
-            <div class="info-grid">
-                <div class="info-item"><label>${t.contact_name}</label><span>${f(member.name)}</span></div>
-                <div class="info-item"><label>${t.email}</label><span>${member.email}</span></div>
-                <div class="info-item"><label>${t.phone}</label><span>${f(onboarding?.contact_phone)}</span></div>
-                <div class="info-item"><label>${t.role}</label><span>${f(onboarding?.contact_role)}</span></div>
-                <div class="info-item"><label>${t.country}</label><span>${f(onboarding?.contact_country)}</span></div>
-                <div class="info-item"><label>${t.license_code}</label><span>${f(member.licenseCode)}</span></div>
+        <div class="detail-section" style="background: rgba(41, 151, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(41, 151, 255, 0.2);">
+            <h3 style="margin-bottom: 1rem; color: var(--color-accent);">${t.project_link}</h3>
+            <div style="display: flex; gap: 1rem;">
+                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${member.projectUrl || ''}" style="flex: 1;">
+                <button id="btn-save-project" class="btn btn-primary">${t.save_link}</button>
             </div>
-            
-            <div style="margin-top: 2rem;">
-                <div class="info-item">
-                    <label>${t.company_context}</label>
-                    <p>${f(onboarding?.company_description)}</p>
-                </div>
-            </div>
-            
-            <div class="info-grid" style="margin-top: 1.5rem;">
-                <div class="info-item"><label>${t.sector}</label><span>${f(onboarding?.company_sector)}</span></div>
-                <div class="info-item"><label>${t.size}</label><span>${f(onboarding?.company_size)}</span></div>
-                <div class="info-item"><label>${t.website}</label><span>${f(onboarding?.company_website)}</span></div>
-            </div>
+            <p id="project-save-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;"></p>
         </div>
 
-        <div class="detail-section">
-            <h3>${t.work_info}</h3>
-            <div class="info-item" style="margin-bottom: 2rem;">
-                <label>${t.needs_services}</label>
-                ${renderTags(onboarding?.interests)}
-            </div>
-
-            <div class="info-grid" style="margin-bottom: 2rem;">
-                <div class="info-item">
-                    <label>${t.main_need}</label>
-                    <p>${f(onboarding?.main_need)}</p>
+        <div id="pdf-content-wrapper">
+            <div class="detail-section">
+                <h3>${t.user_profile}</h3>
+                <div class="info-grid">
+                    <div class="info-item"><label>${t.contact_name}</label><span>${f(member.name)}</span></div>
+                    <div class="info-item"><label>${t.email}</label><span>${member.email}</span></div>
+                    <div class="info-item"><label>${t.phone}</label><span>${f(onboarding?.contact_phone)}</span></div>
+                    <div class="info-item"><label>${t.role}</label><span>${f(onboarding?.contact_role)}</span></div>
+                    <div class="info-item"><label>${t.country}</label><span>${f(onboarding?.contact_country)}</span></div>
+                    <div class="info-item"><label>${t.license_code}</label><span>${f(member.licenseCode)}</span></div>
                 </div>
-                <div class="info-item">
-                    <label>${t.current_stage}</label>
-                    <p>${f(onboarding?.project_stage)}</p>
+                
+                <div style="margin-top: 2rem;">
+                    <div class="info-item">
+                        <label>${t.company_context}</label>
+                        <p>${f(onboarding?.company_description)}</p>
+                    </div>
                 </div>
-            </div>
-
-            <div class="info-item" style="margin-bottom: 2rem;">
-                <label>${t.core_objectives}</label>
-                <p><strong>${t.goal}:</strong> ${f(onboarding?.goal_description)}</p>
-                <p style="margin-top: 0.5rem;"><strong>${t.problem}:</strong> ${f(onboarding?.problem_description)}</p>
-            </div>
-
-            <div class="info-grid" style="margin-bottom: 2rem;">
-                <div class="info-item">
-                    <label>${t.main_priority}</label>
-                    <p>${f(onboarding?.main_priority)}</p>
-                </div>
-                <div class="info-item">
-                    <label>${t.investment}</label>
-                    <p>${f(onboarding?.budget_range)}</p>
-                </div>
-                <div class="info-item">
-                    <label>${t.timeline}</label>
-                    <p>${f(onboarding?.start_time)}</p>
-                </div>
-                <div class="info-item">
-                    <label>${t.urgency}</label>
-                    <p>${f(onboarding?.urgency)}</p>
+                
+                <div class="info-grid" style="margin-top: 1.5rem;">
+                    <div class="info-item"><label>${t.sector}</label><span>${f(onboarding?.company_sector)}</span></div>
+                    <div class="info-item"><label>${t.size}</label><span>${f(onboarding?.company_size)}</span></div>
+                    <div class="info-item"><label>${t.website}</label><span>${f(onboarding?.company_website)}</span></div>
                 </div>
             </div>
 
-            <div class="info-item">
-                <label>${t.requirements}</label>
-                <p style="margin-bottom: 1rem;"><strong>${t.frustrations}:</strong> ${renderTags(onboarding?.frustrations)}</p>
-                <p style="margin-bottom: 1rem;"><strong>${t.worries}:</strong> ${f(onboarding?.project_worries)}</p>
-                <p style="margin-bottom: 1rem;"><strong>${t.trust}:</strong> ${f(onboarding?.trust_factor)}</p>
-                <p><strong>${t.integrations}:</strong> ${f(onboarding?.integration_desc)}</p>
+            <div class="detail-section">
+                <h3>${t.work_info}</h3>
+                <div class="info-item" style="margin-bottom: 2rem;">
+                    <label>${t.needs_services}</label>
+                    ${renderTags(onboarding?.interests)}
+                </div>
+
+                <div class="info-grid" style="margin-bottom: 2rem;">
+                    <div class="info-item">
+                        <label>${t.main_need}</label>
+                        <p>${f(onboarding?.main_need)}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>${t.current_stage}</label>
+                        <p>${f(onboarding?.project_stage)}</p>
+                    </div>
+                </div>
+
+                <div class="info-item" style="margin-bottom: 2rem;">
+                    <label>${t.core_objectives}</label>
+                    <p><strong>${t.goal}:</strong> ${f(onboarding?.goal_description)}</p>
+                    <p style="margin-top: 0.5rem;"><strong>${t.problem}:</strong> ${f(onboarding?.problem_description)}</p>
+                </div>
+
+                <div class="info-grid" style="margin-bottom: 2rem;">
+                    <div class="info-item">
+                        <label>${t.main_priority}</label>
+                        <p>${f(onboarding?.main_priority)}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>${t.investment}</label>
+                        <p>${f(onboarding?.budget_range)}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>${t.timeline}</label>
+                        <p>${f(onboarding?.start_time)}</p>
+                    </div>
+                    <div class="info-item">
+                        <label>${t.urgency}</label>
+                        <p>${f(onboarding?.urgency)}</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <label>${t.requirements}</label>
+                    <p style="margin-bottom: 1rem;"><strong>${t.frustrations}:</strong> ${renderTags(onboarding?.frustrations)}</p>
+                    <p style="margin-bottom: 1rem;"><strong>${t.worries}:</strong> ${f(onboarding?.project_worries)}</p>
+                    <p style="margin-bottom: 1rem;"><strong>${t.trust}:</strong> ${f(onboarding?.trust_factor)}</p>
+                    <p><strong>${t.integrations}:</strong> ${f(onboarding?.integration_desc)}</p>
+                </div>
             </div>
         </div>
     `;
+
+    // Attach Event Listeners
+    const saveBtn = document.getElementById('btn-save-project');
+    const msgLabel = document.getElementById('project-save-msg');
+    
+    saveBtn.addEventListener('click', async () => {
+        const url = document.getElementById('project-url-input').value.trim();
+        saveBtn.disabled = true;
+        saveBtn.textContent = t.saving;
+        msgLabel.style.display = 'none';
+        
+        try {
+            await updateDoc(doc(db, 'members', userId), { projectUrl: url });
+            msgLabel.textContent = t.saved;
+            msgLabel.style.color = '#4CAF50';
+            msgLabel.style.display = 'block';
+            member.projectUrl = url; // update local cache
+        } catch (error) {
+            console.error(error);
+            msgLabel.textContent = error.message;
+            msgLabel.style.color = '#f44336';
+            msgLabel.style.display = 'block';
+        }
+        
+        saveBtn.disabled = false;
+        saveBtn.textContent = t.save_link;
+        setTimeout(() => { msgLabel.style.display = 'none'; }, 3000);
+    });
+
+    document.getElementById('btn-download-pdf').addEventListener('click', () => {
+        generateClientPDF(member, onboarding, t);
+    });
+}
+
+function generateClientPDF(member, onboarding, t) {
+    // Check if html2pdf is available
+    if (typeof html2pdf === 'undefined') {
+        alert("PDF Generator library is loading or failed to load. Please try again.");
+        return;
+    }
+
+    // Create a temporary detached container for the PDF layout
+    const clone = document.createElement('div');
+    clone.style.padding = '40px';
+    clone.style.background = '#ffffff';
+    clone.style.color = '#000000';
+    clone.style.fontFamily = "'Manrope', sans-serif";
+    
+    // We clone the inner content of the PDF wrapper
+    const contentHtml = document.getElementById('pdf-content-wrapper').innerHTML;
+
+    clone.innerHTML = `
+        <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #2997ff; padding-bottom: 20px;">
+            <div style="font-size: 40px; color: #2997ff; font-weight: bold; margin-bottom: 10px;">λ</div>
+            <h1 style="margin: 0; font-size: 24px; color: #1d1d1f; font-family: 'Playfair Display', serif;">ELYSIUM</h1>
+            <p style="margin: 5px 0 0 0; color: #86868b; font-size: 12px; text-transform: uppercase;">Development & Research</p>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+            <h2 style="margin: 0; font-size: 28px; color: #1d1d1f;">${member.name}</h2>
+            <p style="margin: 5px 0 0 0; color: #86868b; font-size: 16px;">${member.company || t.no_company}</p>
+        </div>
+
+        <div style="font-size: 14px; line-height: 1.6;">
+            ${contentHtml}
+        </div>
+        
+        <div style="margin-top: 50px; text-align: center; border-top: 1px solid #e5e5e5; padding-top: 20px; color: #86868b; font-size: 10px;">
+            <p>&copy; ${new Date().getFullYear()} Elysium Development & Research. Confidential Internal Document.</p>
+            <p>Generated on: ${new Date().toLocaleString()}</p>
+        </div>
+    `;
+
+    // Apply PDF-specific styles to strip out dark mode artifacts
+    const style = document.createElement('style');
+    style.innerHTML = `
+        * { color: #1d1d1f !important; }
+        .tag { background: #f5f5f7 !important; color: #1d1d1f !important; border: 1px solid #d2d2d7 !important; display: inline-block; padding: 4px 8px; border-radius: 4px; margin: 2px; font-size: 12px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .info-item label { color: #86868b !important; font-size: 12px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        h3 { color: #2997ff !important; margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid #e5e5e5; padding-bottom: 5px; }
+    `;
+    clone.appendChild(style);
+
+    const opt = {
+        margin:       0,
+        filename:     `Elysium_Client_${member.name.replace(/\s+/g, '_')}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(clone).save();
 }

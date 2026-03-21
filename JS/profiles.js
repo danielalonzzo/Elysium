@@ -114,6 +114,35 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('welcome-name').textContent = `Welcome, ${userData.name || 'Partner'}`;
                 const companyEl = document.getElementById('partner-company');
                 if (companyEl) companyEl.textContent = userData.company || '';
+                
+                if (userData.projectUrl) {
+                    let projectBtnContainer = document.getElementById('project-access-container');
+                    if (!projectBtnContainer) {
+                        projectBtnContainer = document.createElement('div');
+                        projectBtnContainer.id = 'project-access-container';
+                        projectBtnContainer.style.marginBottom = '2.5rem';
+                        
+                        const isEs = window.location.pathname.includes('/es/');
+                        const isPt = window.location.pathname.includes('/pt/');
+                        let btnText = 'Access My Project';
+                        if (isEs) btnText = 'Acceder a mi Proyecto';
+                        if (isPt) btnText = 'Acessar meu Projeto';
+
+                        projectBtnContainer.innerHTML = `
+                            <a id="project-access-btn" href="${userData.projectUrl}" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; border: none !important; margin-top: -1rem;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 1.2rem; height: 1.2rem;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                ${btnText}
+                            </a>
+                        `;
+                        const logoutBtn = document.getElementById('logoutBtn');
+                        if (logoutBtn) {
+                            logoutBtn.parentNode.insertBefore(projectBtnContainer, logoutBtn);
+                        }
+                    } else {
+                        document.getElementById('project-access-btn').href = userData.projectUrl;
+                        projectBtnContainer.style.display = 'block';
+                    }
+                }
             }
 
         } catch (error) {
