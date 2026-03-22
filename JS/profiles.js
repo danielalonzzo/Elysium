@@ -14,6 +14,8 @@ import {
     serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+let isSigningUp = false;
+
 const loginView = document.getElementById('login-view');
 const signupView = document.getElementById('signup-view');
 const authSection = document.getElementById('auth-section');
@@ -49,6 +51,8 @@ function showError(text) {
 
 // Authentication State Observer
 onAuthStateChanged(auth, async (user) => {
+    if (isSigningUp) return; // Prevent interference during registration
+
     if (user) {
         const isPageOnboarding = window.location.pathname.includes('onboarding.html');
         
@@ -64,14 +68,21 @@ onAuthStateChanged(auth, async (user) => {
                 onboardingCompleted = userData.onboardingCompleted === true;
             } else {
                 // If the document doesn't exist for a logged-in user, create it (auto-fix for legacy users)
-                userData = {
-                    name: user.displayName || 'Partner',
-                    email: user.email,
-                    role: 'partner',
-                    onboardingCompleted: false,
-                    createdAt: serverTimestamp()
-                };
-                await setDoc(memberRef, userData);
+                // Skip if user was just created to prevent race conditions even on cross-tab
+                const isNewUser = Date.now() - new Date(user.metadata.creationTime).getTime() < 60000;
+                
+                if (!isNewUser) {
+                    userData = {
+                        name: user.displayName || 'Partner',
+                        email: user.email,
+                        role: 'partner',
+                        onboardingCompleted: false,
+                        createdAt: serverTimestamp()
+                    };
+                    await setDoc(memberRef, userData);
+                } else {
+                    return; // Wait for registration block to finish it
+                }
                 onboardingCompleted = false;
             }
 
@@ -177,14 +188,23 @@ loginForm.addEventListener('submit', async (e) => {
 // Signup Logic with License Validation
 signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    isSigningUp = true;
     const name = document.getElementById('signup-name').value;
     const company = document.getElementById('signup-company').value;
     const email = document.getElementById('signup-email').value;
     const licenseCode = document.getElementById('signup-license').value.trim();
     const password = document.getElementById('signup-password').value;
+    const repeatPassword = document.getElementById('signup-password-repeat').value;
 
     if (password.length < 6) {
         showError("Password must be at least 6 characters.");
+        isSigningUp = false;
+        return;
+    }
+
+    if (password !== repeatPassword) {
+        showError("Passwords do not match.");
+        isSigningUp = false;
         return;
     }
 
@@ -195,12 +215,14 @@ signupForm.addEventListener('submit', async (e) => {
 
         if (!licenseSnap.exists()) {
             showError("Invalid license code. Please contact Elysium to receive one.");
+            isSigningUp = false;
             return;
         }
 
         const licenseData = licenseSnap.data();
         if (licenseData.status !== 'active') {
             showError("This license has already been used or is inactive.");
+            isSigningUp = false;
             return;
         }
 
@@ -208,14 +230,7 @@ signupForm.addEventListener('submit', async (e) => {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // 3. Mark License as Used
-        await updateDoc(licenseRef, {
-            status: 'used',
-            assignedTo: email,
-            usedAt: serverTimestamp()
-        });
-
-        // 4. Save Member Data
+        // 3. Save Member Data First
         await setDoc(doc(db, 'members', user.uid), {
             name: name,
             company: company,
@@ -226,10 +241,33 @@ signupForm.addEventListener('submit', async (e) => {
             createdAt: serverTimestamp()
         });
 
-        // 5. Update Profile
+        // 4. Update Profile
         await updateProfile(user, { displayName: name });
 
+        // 5. Mark License as Used Last
+        try {
+            await updateDoc(licenseRef, {
+                status: 'used',
+                assignedTo: email,
+                usedAt: serverTimestamp()
+            });
+        } catch (licenseError) {
+            console.warn("License update failed (check Firestore rules):", licenseError);
+            // We don't throw here so the user can still proceed since the account is already created
+        }
+
+        // Redirect manually on successful signup
+        const pathParts = window.location.pathname.split('/');
+        const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
+        
+        if (isLocalized) {
+            window.location.href = 'onboarding.html';
+        } else {
+            window.location.href = 'onboarding.html';
+        }
+
     } catch (error) {
+        isSigningUp = false;
         console.error(error);
         if (error.code === 'auth/email-already-in-use') {
             showError("This email is already registered.");

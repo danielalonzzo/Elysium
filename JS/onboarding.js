@@ -2,6 +2,7 @@ import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     doc, 
+    getDoc,
     updateDoc, 
     setDoc, 
     collection, 
@@ -23,13 +24,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalSteps = steps.length;
     let currentUser = null;
 
-    // Check Auth State
-    onAuthStateChanged(auth, (user) => {
+    // Check Auth State — pre-fills name/company from Firestore (always overrides, registration data wins)
+    onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            // If user logs out or session expires, redirect to login
             window.location.href = 'profiles.html';
         } else {
             currentUser = user;
+            try {
+                const memberRef = doc(db, 'members', user.uid);
+                const memberSnap = await getDoc(memberRef);
+
+                if (memberSnap.exists()) {
+                    const userData = memberSnap.data();
+                    const nameInput = document.querySelector('input[name="contact_name"]');
+                    const companyInput = document.querySelector('input[name="company_name"]');
+
+                    // Always set name from Firestore — registration data takes priority
+                    if (nameInput && userData.name) {
+                        nameInput.value = userData.name;
+                        nameInput.dispatchEvent(new Event('change'));
+                    }
+                    if (companyInput && userData.company) {
+                        companyInput.value = userData.company;
+                        companyInput.dispatchEvent(new Event('change'));
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching member data for pre-fill:", error);
+            }
         }
     });
 
@@ -50,16 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
         progressFill.style.width = `${progressPercentage}%`;
 
-        // Update Buttons
+        // Update Buttons — use only style.display (no classList 'hidden') to avoid !important conflicts
         prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
 
         if (currentStep === totalSteps) {
-            nextBtn.classList.add('hidden');
-            submitBtn.classList.remove('hidden');
-            submitBtn.style.display = 'block'; // Explicitly set display if hidden class is CSS-based
+            nextBtn.style.display = 'none';
+            submitBtn.style.display = 'block';
         } else {
-            nextBtn.classList.remove('hidden');
-            submitBtn.classList.add('hidden');
+            nextBtn.style.display = 'block';
             submitBtn.style.display = 'none';
         }
 
@@ -160,8 +180,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // Previous Provider
         const prevProviderSelect = document.getElementById('prev-provider-select');
         const prevProviderDetail = document.getElementById('prev-provider-detail');
-        if (prevProviderSelect && prevProviderDetail) {
-            prevProviderDetail.classList.toggle('visible', prevProviderSelect.value === 'yes');
+        const whyNoProviderDetail = document.getElementById('why-no-provider-detail');
+        
+        if (prevProviderSelect) {
+            if (prevProviderDetail) prevProviderDetail.classList.toggle('visible', prevProviderSelect.value === 'yes');
+            if (whyNoProviderDetail) whyNoProviderDetail.classList.toggle('visible', prevProviderSelect.value === 'no');
+            
+            // Required attribute toggle
+            if (prevProviderDetail) {
+                const requiredInputs = prevProviderDetail.querySelectorAll('input, select, textarea');
+                requiredInputs.forEach(input => input.required = prevProviderSelect.value === 'yes');
+            }
+            if (whyNoProviderDetail) {
+                const whyNoInput = whyNoProviderDetail.querySelector('textarea');
+                if (whyNoInput) whyNoInput.required = prevProviderSelect.value === 'no';
+            }
         }
 
         // Service Specific Details
@@ -192,6 +225,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 deadlineInput.required = deadlineSelect.value === 'yes';
             }
         }
+
+        // Conditional Text Inputs for "Other" Options
+        const toggles = [
+            { checkboxId: 'priority-other-checkbox', sectionId: 'priority-other-text', inputName: 'priority_other' },
+            { checkboxId: 'feature-other-checkbox', sectionId: 'feature-other-text', inputName: 'feature_other' },
+            { checkboxId: 'brand-other-checkbox', sectionId: 'brand-other-text', inputName: 'brand_feeling_other' },
+            { checkboxId: 'integration-other-checkbox', sectionId: 'integration-other-text', inputName: 'integration_other' },
+            { checkboxId: 'decision-makers-other-checkbox', sectionId: 'decision-makers-other-text', inputName: 'decision_makers_other' }
+        ];
+
+        toggles.forEach(toggle => {
+            const checkbox = document.getElementById(toggle.checkboxId);
+            const section = document.getElementById(toggle.sectionId);
+            if (checkbox && section) {
+                section.classList.toggle('visible', checkbox.checked);
+                const input = section.querySelector(`input[name="${toggle.inputName}"]`);
+                if (input) {
+                    input.required = checkbox.checked;
+                }
+            }
+        });
+
+        // "None" option logic for checkboxes
+        const noneGroups = [
+            { noneId: 'past-problems-none-checkbox', groupName: 'past_problems' },
+            { noneId: 'integrations-none-checkbox', groupName: 'integrations' }
+        ];
+
+        noneGroups.forEach(group => {
+            const noneCheckbox = document.getElementById(group.noneId);
+            if (noneCheckbox) {
+                const groupCheckboxes = document.querySelectorAll(`input[name="${group.groupName}"]`);
+                
+                // If None is checked, uncheck and disable others
+                if (noneCheckbox.checked) {
+                    groupCheckboxes.forEach(cb => {
+                        if (cb !== noneCheckbox) {
+                            cb.checked = false;
+                            cb.parentElement.classList.remove('selected');
+                            // cb.disabled = true; // Optional: visually disable them
+                        }
+                    });
+                } else {
+                    // Re-enable if None is unchecked
+                    // groupCheckboxes.forEach(cb => { cb.disabled = false; });
+                }
+            }
+        });
     }
 
     // Country Code Auto-population
@@ -276,8 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (savedStep) {
             currentStep = parseInt(savedStep);
-            updateFormUI(false);
         }
+
+        handleConditionals();
     }
 
     // Save on every change
@@ -304,10 +386,47 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = Object.fromEntries(formData.entries());
             
             // Collect multi-selects manually since Object.fromEntries only gets one
-            const multiSelects = ['interests', 'target_audience', 'features', 'web_sections', 'app_users', 'frustrations', 'current_assets', 'brand_feeling', 'integrations', 'tech_priorities', 'past_problems', 'decision_makers'];
+            const multiSelects = ['interests', 'main_need', 'project_stage', 'main_priority', 'target_audience', 'features', 'web_sections', 'app_users', 'frustrations', 'current_assets', 'brand_feeling', 'integrations', 'tech_priorities', 'past_problems', 'payment_pref', 'decision_makers'];
             multiSelects.forEach(key => {
                 data[key] = Array.from(formData.getAll(key));
             });
+
+            // Clean up conditional data if main option is not selected
+            if (!data.previous_provider || data.previous_provider === 'no') {
+                delete data.provider_name;
+                delete data.provider_rating;
+                delete data.provider_good;
+                delete data.provider_bad;
+            } else {
+                delete data.why_no_provider;
+            }
+
+            if (!data.main_priority || !data.main_priority.includes('other')) {
+                delete data.priority_other;
+            }
+
+            if (!data.features || !data.features.includes('other')) {
+                delete data.feature_other;
+            }
+
+            if (!data.brand_feeling || !data.brand_feeling.includes('other')) {
+                delete data.brand_feeling_other;
+            }
+
+            if (!data.integrations || !data.integrations.includes('other')) {
+                delete data.integration_other;
+            }
+
+            if (!data.decision_makers || !data.decision_makers.includes('other')) {
+                delete data.decision_makers_other;
+            }
+
+            // Clean up past_problems "none" interactions (if none is selected, remove others)
+            if (data.past_problems && data.past_problems.includes('none')) {
+                data.past_problems = ['none'];
+            }
+
+            // Clean up support_interest "none" (if "none" is already handled by radio, no special cleanup needed)
 
             // 1. Save Submissions to a dedicated collection
             await addDoc(collection(db, 'onboarding_submissions'), {
@@ -341,6 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial Load
     loadProgress();
+    // Ensure UI (buttons, steps) is correct regardless of async operations
+    updateFormUI(false);
 
     // Final check for option-card focus (standardizing UI)
     document.querySelectorAll('.option-card').forEach(card => {

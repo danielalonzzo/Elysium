@@ -175,6 +175,10 @@
             color: #ff4444;
             margin-left: 2px;
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -226,23 +230,18 @@
                         <p class="step-description">Díganos quién lidera esta solicitud y cómo contactarle.</p>
                         
                         <div class="form-group">
-                            <label class="form-label">Nombre completo <span class="required-star">*</span></label>
-                            <input type="text" name="contact_name" class="form-control" required placeholder="Juan Pérez" required>
+                            <label class="form-label">Nombre completo (el que usted puso en registro) <span class="required-star">*</span></label>
+                            <input type="text" name="contact_name" class="form-control" required placeholder="Juan Pérez">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Cargo o rol en la empresa <span class="required-star">*</span></label>
-                            <input type="text" name="contact_role" class="form-control" required placeholder="Ej.: fundador, gerente, coordinador..." required>
+                            <input type="text" name="contact_role" class="form-control" required placeholder="Ej.: fundador, gerente, coordinador...">
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label">Correo electrónico corporativo <span class="required-star">*</span></label>
-                            <input type="email" name="contact_email" class="form-control" required placeholder="nombre@empresa.com" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Número de teléfono / WhatsApp (Incluya código de país) <span class="required-star">*</span></label>
-                            <input type="tel" name="contact_phone" class="form-control" required placeholder="+34 600 000 000" pattern="^\+.*" title="Por favor incluya su código de país empezando por +" required>
+                            <label class="form-label">Correo electrónico corporativo (si no posee escriba el deseado) <span class="required-star">*</span></label>
+                            <input type="email" name="contact_email" class="form-control" required placeholder="nombre@empresa.com">
                         </div>
 
                         <div class="form-group">
@@ -250,14 +249,203 @@
                             <select name="contact_country" class="form-control" required>
                                 <option value="">Seleccione un país</option>
                                 <option value="Portugal">Portugal</option>
-                                <option value="España">España</option>
                                 <option value="Costa Rica">Costa Rica</option>
+                                <option value="España">España</option>
+                                <option disabled>──────────</option>
+                                <option value="Afganistán">Afganistán</option>
+                                <option value="Albania">Albania</option>
+                                <option value="Alemania">Alemania</option>
+                                <option value="Andorra">Andorra</option>
+                                <option value="Angola">Angola</option>
+                                <option value="Antigua y Barbuda">Antigua y Barbuda</option>
+                                <option value="Arabia Saudita">Arabia Saudita</option>
+                                <option value="Argelia">Argelia</option>
                                 <option value="Argentina">Argentina</option>
-                                <option value="México">México</option>
-                                <option value="Colombia">Colombia</option>
+                                <option value="Armenia">Armenia</option>
+                                <option value="Australia">Australia</option>
+                                <option value="Austria">Austria</option>
+                                <option value="Azerbaiyán">Azerbaiyán</option>
+                                <option value="Bahamas">Bahamas</option>
+                                <option value="Bangladés">Bangladés</option>
+                                <option value="Barbados">Barbados</option>
+                                <option value="Baréin">Baréin</option>
+                                <option value="Bélgica">Bélgica</option>
+                                <option value="Belice">Belice</option>
+                                <option value="Benín">Benín</option>
+                                <option value="Bielorrusia">Bielorrusia</option>
+                                <option value="Birmania (Myanmar)">Birmania (Myanmar)</option>
+                                <option value="Bolivia">Bolivia</option>
+                                <option value="Bosnia y Herzegovina">Bosnia y Herzegovina</option>
+                                <option value="Botsuana">Botsuana</option>
+                                <option value="Brasil">Brasil</option>
+                                <option value="Brunéi">Brunéi</option>
+                                <option value="Bulgaria">Bulgaria</option>
+                                <option value="Burkina Faso">Burkina Faso</option>
+                                <option value="Burundi">Burundi</option>
+                                <option value="Cabo Verde">Cabo Verde</option>
+                                <option value="Camboya">Camboya</option>
+                                <option value="Camerún">Camerún</option>
+                                <option value="Canadá">Canadá</option>
+                                <option value="Catar">Catar</option>
+                                <option value="Chad">Chad</option>
                                 <option value="Chile">Chile</option>
-                                <option value="Otro">Otro</option>
+                                <option value="China">China</option>
+                                <option value="Chipre">Chipre</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Comoras">Comoras</option>
+                                <option value="Corea del Norte">Corea del Norte</option>
+                                <option value="Corea del Sur">Corea del Sur</option>
+                                <option value="Costa de Marfil">Costa de Marfil</option>
+                                <option value="Croacia">Croacia</option>
+                                <option value="Cuba">Cuba</option>
+                                <option value="Dinamarca">Dinamarca</option>
+                                <option value="Dominica">Dominica</option>
+                                <option value="Ecuador">Ecuador</option>
+                                <option value="Egipto">Egipto</option>
+                                <option value="El Salvador">El Salvador</option>
+                                <option value="Emiratos Árabes Unidos">Emiratos Árabes Unidos</option>
+                                <option value="Eritrea">Eritrea</option>
+                                <option value="Eslovaquia">Eslovaquia</option>
+                                <option value="Eslovenia">Eslovenia</option>
+                                <option value="Estados Unidos">Estados Unidos</option>
+                                <option value="Estonia">Estonia</option>
+                                <option value="Esuatini">Esuatini</option>
+                                <option value="Etiopía">Etiopía</option>
+                                <option value="Filipinas">Filipinas</option>
+                                <option value="Finlandia">Finlandia</option>
+                                <option value="Fiyi">Fiyi</option>
+                                <option value="Francia">Francia</option>
+                                <option value="Gabón">Gabón</option>
+                                <option value="Gambia">Gambia</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Ghana">Ghana</option>
+                                <option value="Granada">Granada</option>
+                                <option value="Grecia">Grecia</option>
+                                <option value="Guatemala">Guatemala</option>
+                                <option value="Guyana">Guyana</option>
+                                <option value="Guinea">Guinea</option>
+                                <option value="Guinea-Bisáu">Guinea-Bisáu</option>
+                                <option value="Guinea Ecuatorial">Guinea Ecuatorial</option>
+                                <option value="Haití">Haití</option>
+                                <option value="Honduras">Honduras</option>
+                                <option value="Hungría">Hungría</option>
+                                <option value="India">India</option>
+                                <option value="Indonesia">Indonesia</option>
+                                <option value="Irak">Irak</option>
+                                <option value="Irán">Irán</option>
+                                <option value="Irlanda">Irlanda</option>
+                                <option value="Islandia">Islandia</option>
+                                <option value="Islas Marshall">Islas Marshall</option>
+                                <option value="Islas Salomón">Islas Salomón</option>
+                                <option value="Israel">Israel</option>
+                                <option value="Italia">Italia</option>
+                                <option value="Jamaica">Jamaica</option>
+                                <option value="Japón">Japón</option>
+                                <option value="Jordania">Jordania</option>
+                                <option value="Kazajistán">Kazajistán</option>
+                                <option value="Kenia">Kenia</option>
+                                <option value="Kirguistán">Kirguistán</option>
+                                <option value="Kiribati">Kiribati</option>
+                                <option value="Kuwait">Kuwait</option>
+                                <option value="Laos">Laos</option>
+                                <option value="Lesoto">Lesoto</option>
+                                <option value="Letonia">Letonia</option>
+                                <option value="Líbano">Líbano</option>
+                                <option value="Liberia">Liberia</option>
+                                <option value="Libia">Libia</option>
+                                <option value="Liechtenstein">Liechtenstein</option>
+                                <option value="Lituania">Lituania</option>
+                                <option value="Luxemburgo">Luxemburgo</option>
+                                <option value="Madagascar">Madagascar</option>
+                                <option value="Malasia">Malasia</option>
+                                <option value="Malaui">Malaui</option>
+                                <option value="Maldivas">Maldivas</option>
+                                <option value="Malí">Malí</option>
+                                <option value="Malta">Malta</option>
+                                <option value="Marruecos">Marruecos</option>
+                                <option value="Mauricio">Mauricio</option>
+                                <option value="Mauritania">Mauritania</option>
+                                <option value="México">México</option>
+                                <option value="Micronesia">Micronesia</option>
+                                <option value="Moldavia">Moldavia</option>
+                                <option value="Mónaco">Mónaco</option>
+                                <option value="Mongolia">Mongolia</option>
+                                <option value="Montenegro">Montenegro</option>
+                                <option value="Mozambique">Mozambique</option>
+                                <option value="Namibia">Namibia</option>
+                                <option value="Nauru">Nauru</option>
+                                <option value="Nepal">Nepal</option>
+                                <option value="Nicaragua">Nicaragua</option>
+                                <option value="Níger">Níger</option>
+                                <option value="Nigeria">Nigeria</option>
+                                <option value="Noruega">Noruega</option>
+                                <option value="Nueva Zelanda">Nueva Zelanda</option>
+                                <option value="Omán">Omán</option>
+                                <option value="Países Bajos">Países Bajos</option>
+                                <option value="Pakistán">Pakistán</option>
+                                <option value="Palaos">Palaos</option>
+                                <option value="Palestina">Palestina</option>
+                                <option value="Panamá">Panamá</option>
+                                <option value="Papúa Nueva Guinea">Papúa Nueva Guinea</option>
+                                <option value="Paraguay">Paraguay</option>
+                                <option value="Perú">Perú</option>
+                                <option value="Polonia">Polonia</option>
+                                <option value="Reino Unido">Reino Unido</option>
+                                <option value="República Centroafricana">República Centroafricana</option>
+                                <option value="República Checa">República Checa</option>
+                                <option value="República del Congo">República del Congo</option>
+                                <option value="República Democrática del Congo">República Democrática del Congo</option>
+                                <option value="República Dominicana">República Dominicana</option>
+                                <option value="Ruanda">Ruanda</option>
+                                <option value="Rumanía">Rumanía</option>
+                                <option value="Rusia">Rusia</option>
+                                <option value="Samoa">Samoa</option>
+                                <option value="San Cristóbal y Nieves">San Cristóbal y Nieves</option>
+                                <option value="San Marino">San Marino</option>
+                                <option value="San Vicente y las Granadinas">San Vicente y las Granadinas</option>
+                                <option value="Santa Lucía">Santa Lucía</option>
+                                <option value="Santo Tomé y Príncipe">Santo Tomé y Príncipe</option>
+                                <option value="Senegal">Senegal</option>
+                                <option value="Serbia">Serbia</option>
+                                <option value="Seychelles">Seychelles</option>
+                                <option value="Sierra Leona">Sierra Leona</option>
+                                <option value="Singapur">Singapur</option>
+                                <option value="Siria">Siria</option>
+                                <option value="Somalia">Somalia</option>
+                                <option value="Sri Lanka">Sri Lanka</option>
+                                <option value="Sudáfrica">Sudáfrica</option>
+                                <option value="Sudán">Sudán</option>
+                                <option value="Sudán del Sur">Sudán del Sur</option>
+                                <option value="Suecia">Suecia</option>
+                                <option value="Suiza">Suiza</option>
+                                <option value="Tailandia">Tailandia</option>
+                                <option value="Tanzania">Tanzania</option>
+                                <option value="Tayikistán">Tayikistán</option>
+                                <option value="Timor Oriental">Timor Oriental</option>
+                                <option value="Togo">Togo</option>
+                                <option value="Tonga">Tonga</option>
+                                <option value="Trinidad y Tobago">Trinidad y Tobago</option>
+                                <option value="Túnez">Túnez</option>
+                                <option value="Turkmenistán">Turkmenistán</option>
+                                <option value="Turquía">Turquía</option>
+                                <option value="Tuvalu">Tuvalu</option>
+                                <option value="Ucrania">Ucrania</option>
+                                <option value="Uganda">Uganda</option>
+                                <option value="Uruguay">Uruguay</option>
+                                <option value="Uzbekistán">Uzbekistán</option>
+                                <option value="Vanuatu">Vanuatu</option>
+                                <option value="Venezuela">Venezuela</option>
+                                <option value="Vietnam">Vietnam</option>
+                                <option value="Yemen">Yemen</option>
+                                <option value="Yibuti">Yibuti</option>
+                                <option value="Zambia">Zambia</option>
+                                <option value="Zimbabue">Zimbabue</option>
                             </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Número de teléfono / WhatsApp (Incluya código de país) <span class="required-star">*</span></label>
+                            <input type="tel" name="contact_phone" class="form-control" required placeholder="+34 600 000 000" pattern="^\+.*" title="Por favor incluya su código de país empezando por +">
                         </div>
                     </div>
 
@@ -267,13 +455,13 @@
                         <p class="step-description">Detalles básicos sobre su organización.</p>
                         
                         <div class="form-group">
-                            <label class="form-label">Empresa u organización <span class="required-star">*</span></label>
-                            <input type="text" name="company_name" class="form-control" required placeholder="Acme Inc." required>
+                            <label class="form-label">Empresa u organización (la que usted puso en el registro) <span class="required-star">*</span></label>
+                            <input type="text" name="company_name" class="form-control" required placeholder="Acme Inc.">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Sitio web actual o activos (si tiene) <span class="required-star">*</span></label>
-                            <input type="url" name="company_website" class="form-control" required placeholder="https://www.empresa.com" required>
+                            <label class="form-label">Sitio web actual (si no posee, escriba la dirección que desea tener) <span class="required-star">*</span></label>
+                            <input type="url" name="company_website" class="form-control" required placeholder="https://www.empresa.com">
                         </div>
 
                         <div class="form-group">
@@ -282,33 +470,33 @@
                                 <option value="">Seleccione sector</option>
                                 <option value="Salud">Salud</option>
                                 <option value="Educación">Educación</option>
-                                <option value="Retail">Retail / Comercio</option>
-                                <option value="Servicios profesionales">Servicios profesionales</option>
-                                <option value="Hospitalidad">Restaurante / Hospitalidad</option>
-                                <option value="Construcción">Construcción / Inmobiliario</option>
+                                <option value="Retail">Retail</option>
+                                <option value="Servicios profesionales">Servicios Profesionales</option>
+                                <option value="Hospitalidad">Hostelería</option>
+                                <option value="Inmobiliaria">Inmobiliaria</option>
                                 <option value="Tecnología">Tecnología</option>
                                 <option value="Consultoría">Consultoría</option>
-                                <option value="Deporte">Deporte / Fitness</option>
+                                <option value="Fitness">Fitness</option>
                                 <option value="Investigación">Investigación</option>
-                                <option value="ONG">ONG / Asociación</option>
-                                <option value="Otro">Otro</option>
+                                <option value="ONG">ONG</option>
+                                <option value="Otro">Otros (describa el sector en la siguiente pregunta)</option>
                             </select>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Tamaño de la organización <span class="required-star">*</span></label>
                             <div class="radio-group">
-                                <label class="option-card"><input type="radio" name="company_size" value="Autónomo" required> Autónomo</label>
-                                <label class="option-card"><input type="radio" name="company_size" value="1-9" required> Microempresa (1–9 personas)</label>
-                                <label class="option-card"><input type="radio" name="company_size" value="10-49" required> Pequeña (10–49)</label>
-                                <label class="option-card"><input type="radio" name="company_size" value="50-249" required> Mediana (50–249)</label>
-                                <label class="option-card"><input type="radio" name="company_size" value="Otra" required> Otra</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="Autónomo/Independiente" required> Autónomo/Independiente</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="Micro (1-9)" required> Micro (1-9)</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="Pequeña (10-49)" required> Pequeña (10-49)</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="Mediana (50-249)" required> Mediana (50-249)</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="Otros" required> Otros</label>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Breve descripción de su empresa <span class="required-star">*</span></label>
-                            <textarea name="company_description" class="form-control" required placeholder="¿Qué hacen, a quién ayudan y qué les diferencia?" required></textarea>
+                            <label class="form-label">Breve descripción de su negocio <span class="required-star">*</span></label>
+                            <textarea name="company_description" class="form-control" required placeholder="Texto libre sobre qué hacen y qué les diferencia."></textarea>
                         </div>
                     </div>
 
@@ -333,17 +521,16 @@
                         
                         <div class="form-group" style="margin-top: 2rem;">
                             <label class="form-label">¿Cuál describe mejor su necesidad principal? <span class="required-star">*</span></label>
-                            <select name="main_need" class="form-control" required>
-                                <option value="">Seleccione una</option>
-                                <option value="launch_new">Necesito lanzar algo nuevo</option>
-                                <option value="improve_existing">Ya tengo algo y quiero mejorarlo</option>
-                                <option value="fix_problems">Tengo problemas técnicos que resolver</option>
-                                <option value="automate">Quiero automatizar procesos</option>
-                                <option value="get_clients">Quiero captar más clientes</option>
-                                <option value="internal_order">Necesito orden interno y mejor operación</option>
-                                <option value="research_idea">Quiero investigar o validar una idea</option>
-                                <option value="unsure">No estoy seguro aún</option>
-                            </select>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="main_need" value="launch_new" required> Necesito lanzar algo nuevo</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="improve_existing" required> Ya tengo algo y quiero mejorarlo</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="fix_problems" required> Tengo problemas técnicos que resolver</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="automate" required> Quiero automatizar procesos</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="get_clients" required> Quiero captar más clientes</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="internal_order" required> Necesito orden interno y mejor operación</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="research_idea" required> Quiero investigar o validar una idea</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="unsure" required> No estoy seguro aún</label>
+                            </div>
                         </div>
                     </div>
 
@@ -353,12 +540,12 @@
                         <p class="step-description">¿En qué punto se encuentra actualmente?</p>
                         
                         <div class="form-group">
-                            <div class="radio-group">
-                                <label class="option-card"><input type="radio" name="project_stage" value="exploring" required> Solo estoy explorando ideas</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="clear_need" required> Necesidad clara, sin solución aún</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="ready_to_start" required> Sé lo que quiero y estoy listo</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="improving" required> Ya existe un sistema y quiero mejorarlo</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="urgent" required> Ayuda urgente con un problema</label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="exploring" required> Solo estoy explorando ideas</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="clear_need" required> Necesidad clara, sin solución aún</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="ready_to_start" required> Sé lo que quiero y estoy listo</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="improving" required> Ya existe un sistema y quiero mejorarlo</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="urgent" required> Ayuda urgente con un problema</label>
                             </div>
                         </div>
 
@@ -370,8 +557,16 @@
                             </select>
                         </div>
 
+                        <div id="prev-provider-no-detail" class="conditional-section">
+                            <label class="form-label">¿Por qué no ha trabajado con un proveedor antes? <span class="required-star">*</span></label>
+                            <textarea name="no_previous_provider_reason" class="form-control" placeholder="Ej.: primera vez que necesito esto, solíamos hacerlo internamente..." required></textarea>
+                        </div>
+
                         <div id="prev-provider-detail" class="conditional-section">
-                            <label class="form-label">Cuéntenos qué ocurrió <span class="required-star">*</span></label>
+                            <label class="form-label">¿Cuál es el nombre del proveedor? <span class="required-star">*</span></label>
+                            <input type="text" name="provider_name" class="form-control" placeholder="Nombre de la agencia o freelancer anterior" required>
+                            
+                            <label class="form-label" style="margin-top: 1rem;">Cuéntenos qué ocurrió <span class="required-star">*</span></label>
                             <textarea name="previous_experience" class="form-control" required></textarea>
                             <label class="form-label" style="margin-top: 1rem;">¿Qué le gustaría que saliera mejor esta vez?</label>
                             <textarea name="improvement_wishes" class="form-control" required></textarea>
@@ -384,6 +579,16 @@
                         <p class="step-description">Ayúdenos a entender la causa raíz y el resultado esperado.</p>
                         
                         <div class="form-group">
+                            <label class="form-label">¿Cuál es la Visión de su proyecto/empresa? <span class="required-star">*</span></label>
+                            <textarea name="company_vision" class="form-control" placeholder="¿Dónde ve a la empresa en el futuro?" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">¿Cuál es la Misión de su proyecto/empresa? <span class="required-star">*</span></label>
+                            <textarea name="company_mission" class="form-control" placeholder="¿Cuál es su propósito o razón de ser?" required></textarea>
+                        </div>
+
+                        <div class="form-group">
                             <label class="form-label">¿Qué problema quiere resolver? <span class="required-star">*</span></label>
                             <textarea name="problem_description" class="form-control" required placeholder="Explíquelo con sus palabras. ¿Qué no funciona hoy?" required></textarea>
                         </div>
@@ -395,18 +600,20 @@
 
                         <div class="form-group">
                             <label class="form-label">Prioridad Principal <span class="required-star">*</span></label>
-                            <select name="main_priority" class="form-control" required>
-                                <option value="">Seleccione prioridad</option>
-                                <option value="get_clients">Conseguir más clientes</option>
-                                <option value="brand_image">Mejorar imagen y confianza</option>
-                                <option value="save_time">Ahorrar tiempo operativo</option>
-                                <option value="automation">Automatizar procesos</option>
-                                <option value="data_control">Más control de la información</option>
-                                <option value="error_reduction">Reducir errores</option>
-                                <option value="modernization">Modernizar un sistema antiguo</option>
-                                <option value="new_service">Lanzar un nuevo servicio digital</option>
-                                <option value="other">Otro</option>
-                            </select>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="get_clients" required> Conseguir más clientes</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="brand_image" required> Mejorar imagen y confianza</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="save_time" required> Ahorrar tiempo operativo</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="automation" required> Automatizar procesos</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="data_control" required> Más control de la información</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="error_reduction" required> Reducir errores</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="modernization" required> Modernizar un sistema antiguo</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="new_service" required> Lanzar un nuevo servicio digital</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="other" required id="priority-other-checkbox"> Otro</label>
+                            </div>
+                            <div id="priority-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                                <input type="text" name="main_priority_other" class="form-control" placeholder="Especifique por favor">
+                            </div>
                         </div>
                     </div>
 
@@ -425,22 +632,29 @@
                             </select>
                         </div>
 
-                        <div class="checkbox-group" style="margin-top: 2rem;">
-                            <label class="option-card"><input type="checkbox" name="current_assets" value="domain" required> Dominio propio</label>
-                            <label class="option-card"><input type="checkbox" name="current_assets" value="hosting" required> Hosting activo</label>
-                            <label class="option-card"><input type="checkbox" name="current_assets" value="email" required> Correo corporativo</label>
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">¿Qué tiene actualmente? (Seleccione todo lo que aplique) <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="domain" required> Dominio propio</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="hosting" required> Hosting activo</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="email" required> Correo corporativo</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="logo" required> Logotipo</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="brand_manual" required> Manual de marca</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="crm" required> CRM (Hubspot, Salesforce, etc.)</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="none" required id="assets-none-checkbox"> Ninguna de las anteriores</label>
+                            </div>
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
-                            <label class="form-label">¿Qué le frustra más de su situación digital? <span class="required-star">*</span></label>
+                            <label class="form-label">¿Qué le frustra más de su situación digital actual? <span class="required-star">*</span></label>
                             <div class="checkbox-group">
                                 <label class="option-card"><input type="checkbox" name="frustrations" value="old_design" required> Diseño antiguo</label>
                                 <label class="option-card"><input type="checkbox" name="frustrations" value="slow" required> Sitio lento</label>
-                                <label class="option-card"><input type="checkbox" name="frustrations" value="bad_mobile" required> Mala exp. móvil</label>
-                                <label class="option-card"><input type="checkbox" name="frustrations" value="hard_update" required> Difícil actualizar</label>
+                                <label class="option-card"><input type="checkbox" name="frustrations" value="bad_mobile" required> Mala experiencia móvil</label>
+                                <label class="option-card"><input type="checkbox" name="frustrations" value="hard_update" required> Difícil de actualizar</label>
                                 <label class="option-card"><input type="checkbox" name="frustrations" value="no_leads" required> No genera clientes</label>
-                                <label class="option-card"><input type="checkbox" name="frustrations" value="no_trust" required> No da confianza</label>
-                                <label class="option-card"><input type="checkbox" name="frustrations" value="manual" required> Muchos pasos manuales</label>
+                                <label class="option-card"><input type="checkbox" name="frustrations" value="no_trust" required> No transmite confianza</label>
+                                <label class="option-card"><input type="checkbox" name="frustrations" value="manual" required> Demasiados pasos manuales</label>
                             </div>
                         </div>
                     </div>
@@ -458,11 +672,13 @@
                         <div class="form-group">
                             <label class="form-label">¿A qué público quiere llegar con más fuerza? <span class="required-star">*</span></label>
                             <div class="checkbox-group">
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="new_clients" required> Nuevos Clientes</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="recurring" required> Clientes recurrentes</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b" required> Empresas (B2B)</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c" required> Consumidor final (B2C)</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="international" required> Público internacional</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c_local" required> B2C (Consumidor final - Local)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c_national" required> B2C (Consumidor final - Nacional)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c_international" required> B2C (Consumidor final - Internacional)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b_local" required> B2B (Otras empresas - Local)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b_national" required> B2B (Otras empresas - Nacional)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b_international" required> B2B (Otras empresas - Internacional)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="government" required> B2G (Gobierno/Entidades Públicas)</label>
                             </div>
                         </div>
                     </div>
@@ -476,12 +692,16 @@
                             <label class="option-card"><input type="checkbox" name="features" value="show_services" required> Mostrar servicios</label>
                             <label class="option-card"><input type="checkbox" name="features" value="portfolio" required> Mostrar portafolio</label>
                             <label class="option-card"><input type="checkbox" name="features" value="bookings" required> Reservas / Citas</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="payments" required> Aceptar pagos</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="ecommerce" required> Vender productos</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="crm_mini" required> Gestionar clientes</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="automation" required> Aut. seguimiento</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="dashboards" required> Paneles y reportes</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="user_mgmt" required> Gestión de usuarios</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="payments" required> Aceptar pagos online</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="ecommerce" required> Vender productos (E-commerce)</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="crm_mini" required> Gestionar clientes (CRM mini)</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="automation" required> Automatizar comunicaciones</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="dashboards" required> Ver métricas / Estadísticas</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="user_mgmt" required> Gestión de usuarios/roles</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="other" required id="features-other-checkbox"> Otro</label>
+                        </div>
+                        <div id="features-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                            <input type="text" name="features_other" class="form-control" placeholder="Especifique por favor">
                         </div>
 
                         <div id="website-extra" class="conditional-section">
@@ -495,6 +715,10 @@
                                     <label class="option-card"><input type="checkbox" name="web_sections" value="faq" required> FAQ</label>
                                     <label class="option-card"><input type="checkbox" name="web_sections" value="blog" required> Blog</label>
                                     <label class="option-card"><input type="checkbox" name="web_sections" value="contact" required> Contacto</label>
+                                    <label class="option-card"><input type="checkbox" name="web_sections" value="other" required id="website-other-checkbox"> Otro</label>
+                                </div>
+                                <div id="website-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                                    <input type="text" name="web_sections_other" class="form-control" placeholder="Especifique por favor">
                                 </div>
                             </div>
                         </div>
@@ -551,14 +775,19 @@
                         <p class="step-description">¿Cómo quiere que se sienta su proyecto?</p>
                         
                         <div class="checkbox-group">
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="pro" required> Profesional</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="modern" required> Moderna</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="premium" required> Premium</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="minimal" required> Minimalista</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="pro" required> Profesional y Corporativo</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="modern" required> Moderna e Innovadora</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="premium" required> Premium y Exclusiva</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="minimal" required> Minimalista y Limpia</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="friendly" required> Amigable y Cercana</label>
                             <label class="option-card"><input type="checkbox" name="brand_feeling" value="tech" required> Tecnológica</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="elegant" required> Elegante</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="scientific" required> Científica</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="elegant" required> Elegante y Clásica</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="scientific" required> Científica y Rigurosa</label>
                             <label class="option-card"><input type="checkbox" name="brand_feeling" value="trust" required> Confiable</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="other" required id="brand-feeling-other-checkbox"> Otro</label>
+                        </div>
+                        <div id="brand-feeling-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                            <input type="text" name="brand_feeling_other" class="form-control" placeholder="Especifique por favor">
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -572,12 +801,19 @@
                         <p class="step-description">Herramientas que deben trabajar juntas.</p>
                         
                         <div class="checkbox-group">
-                            <label class="option-card"><input type="checkbox" name="integrations" value="calendar" required> Google Calendar</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="social_media" required> Redes Sociales (Instagram, LinkedIn, etc.)</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="whatsapp" required> WhatsApp / Chat en vivo</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="email_marketing" required> Email Marketing (Mailchimp, ActiveCampaign, etc.)</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="crm" required> CRM Externo (Hubspot, Salesforce, etc.)</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="analytics" required> Google Analytics / Meta Pixel</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="calendar" required> Calendly / Google Calendar</label>
                             <label class="option-card"><input type="checkbox" name="integrations" value="maps" required> Google Maps</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="whatsapp" required> WhatsApp</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="digital_euros" required> Digital Euros</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="crm" required> CRM Externo</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="none" required> Ninguna / Otra</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="erp" required> ERP / Sistema de Facturación</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="none" required id="integrations-none-checkbox"> Ninguna de las anteriores</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="other" required id="integrations-other-checkbox"> Otro</label>
+                        </div>
+                        <div id="integrations-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                            <input type="text" name="integrations_other" class="form-control" placeholder="Especifique por favor">
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -614,6 +850,7 @@
                         <div class="form-group">
                             <label class="form-label">¿Le interesa soporte continuo? <span class="required-star">*</span></label>
                             <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="support_interest" value="none" required> No, gracias</label>
                                 <label class="option-card"><input type="radio" name="support_interest" value="basic" required> Sí, Básico</label>
                                 <label class="option-card"><input type="radio" name="support_interest" value="preferred" required> Sí, Preferente</label>
                                 <label class="option-card"><input type="radio" name="support_interest" value="premium" required> Sí, Premium</label>
@@ -632,6 +869,8 @@
                             <label class="option-card"><input type="checkbox" name="tech_priorities" value="stability" required> Estabilidad</label>
                             <label class="option-card"><input type="checkbox" name="tech_priorities" value="usability" required> Facilidad de uso</label>
                             <label class="option-card"><input type="checkbox" name="tech_priorities" value="scalability" required> Escalabilidad</label>
+                            <label class="option-card"><input type="checkbox" name="tech_priorities" value="high_security" required> Alta Seguridad / Nivel Bancario</label>
+                            <label class="option-card"><input type="checkbox" name="tech_priorities" value="medical_data" required> Datos Médicos (HIPAA / GDPR estricto)</label>
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -642,6 +881,7 @@
                                 <label class="option-card"><input type="checkbox" name="past_problems" value="spam" required> Spam</label>
                                 <label class="option-card"><input type="checkbox" name="past_problems" value="hacked" required> Hackeo</label>
                                 <label class="option-card"><input type="checkbox" name="past_problems" value="data_loss" required> Pérdida de datos</label>
+                                <label class="option-card"><input type="checkbox" name="past_problems" value="none" required id="past-problems-none-checkbox"> Ninguno</label>
                             </div>
                         </div>
                     </div>
@@ -652,25 +892,12 @@
                         <p class="step-description">¿Cómo quiere que le encuentren?</p>
                         
                         <div class="form-group">
-                            <label class="form-label">¿Depende de búsquedas locales? <span class="required-star">*</span></label>
-                            <select name="is_local" class="form-control" required>
-                                <option value="yes">Sí</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">¿Qué deberían encontrar al buscar su negocio? <span class="required-star">*</span></label>
-                            <textarea name="seo_expectations" class="form-control" required></textarea>
-                        </div>
-
-                        <div class="form-group">
                             <label class="form-label">Prioridad para SEO? <span class="required-star">*</span></label>
                             <select name="seo_priority" class="form-control" required>
-                                <option value="essential">Solo lo esencial</option>
-                                <option value="start">Desde el inicio</option>
-                                <option value="later">Más adelante</option>
-                                <option value="not_priority">No es prioritario</option>
+                                <option value="essential">Solo lo esencial (indexación básica)</option>
+                                <option value="start">Desde el inicio (quiero posicionar rápido)</option>
+                                <option value="later">Más adelante (lo veremos en una fase 2)</option>
+                                <option value="not_priority">No es prioritario (el tráfico llega por otros canales)</option>
                             </select>
                         </div>
                     </div>
@@ -683,11 +910,11 @@
                         <div class="form-group">
                             <label class="form-label">¿Cuándo le gustaría empezar? <span class="required-star">*</span></label>
                             <select name="start_time" class="form-control" required>
-                                <option value="immediately">Inmediatamente</option>
-                                <option value="this_month">Este mes</option>
-                                <option value="1-3_months">En 1-3 meses</option>
-                                <option value="3plus_months">Más de 3 meses</option>
-                                <option value="evaluating">Solo evaluando</option>
+                                <option value="immediately">Lo antes posible / La próxima semana</option>
+                                <option value="this_month">En unos 15-30 días</option>
+                                <option value="1-3_months">De 1 a 3 meses</option>
+                                <option value="3plus_months">En más de 3 meses</option>
+                                <option value="evaluating">No hay fecha definida, solo estoy comparando opciones</option>
                             </select>
                         </div>
 
@@ -742,12 +969,11 @@
 
                         <div class="form-group">
                             <label class="form-label">Modelo de pago preferido <span class="required-star">*</span></label>
-                            <select name="payment_pref" class="form-control" required>
-                                <option value="single">Pago único</option>
-                                <option value="installments">Pago fraccionado</option>
-                                <option value="monthly">Mantenimiento mensual</option>
-                                <option value="combination">Combinación</option>
-                            </select>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="payment_pref" value="single" required> 100% por adelantado (Mejor precio)</label>
+                                <label class="option-card"><input type="checkbox" name="payment_pref" value="two_parts" required> 50% inicio / 50% entrega</label>
+                                <label class="option-card"><input type="checkbox" name="payment_pref" value="monthly_rent" required> Alquiler mensual (Modelo suscripción/SaaS)</label>
+                            </div>
                         </div>
                     </div>
 
@@ -763,12 +989,22 @@
                                 <label class="option-card"><input type="checkbox" name="decision_makers" value="partner" required> Socio/a</label>
                                 <label class="option-card"><input type="checkbox" name="decision_makers" value="board" required> Dirección</label>
                                 <label class="option-card"><input type="checkbox" name="decision_makers" value="tech" required> Equipo técnico</label>
+                                <label class="option-card"><input type="checkbox" name="decision_makers" value="other" required id="decision-makers-other-checkbox"> Otro</label>
+                            </div>
+                            <div id="decision-makers-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                                <input type="text" name="decision_makers_other" class="form-control" placeholder="Especifique por favor">
                             </div>
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
-                            <label class="form-label">¿Qué sería decisivo para confiar en Elysium? <span class="required-star">*</span></label>
-                            <textarea name="trust_factor" class="form-control" required></textarea>
+                            <label class="form-label">¿Cómo nos conoció? <span class="required-star">*</span></label>
+                            <select name="referral_source" class="form-control" required>
+                                <option value="google">Búsqueda en Google</option>
+                                <option value="social_media">Redes Sociales (LinkedIn, Instagram)</option>
+                                <option value="referral">Por recomendación</option>
+                                <option value="clutch">Clutch o sitio de reseñas</option>
+                                <option value="other">Otro</option>
+                            </select>
                         </div>
                     </div>
 
@@ -819,8 +1055,8 @@
 
                     <div class="form-actions">
                         <button type="button" id="prev-btn" class="btn" style="visibility: hidden;">Atrás</button>
-                        <button type="button" id="next-btn" class="btn btn-primary">Siguiente</button>
-                        <button type="submit" id="submit-btn" class="btn btn-primary hidden">Enviar Onboarding</button>
+                        <button type="button" id="next-btn" class="btn btn-primary" style="display: block;">Siguiente</button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary" style="display: none;">Enviar Onboarding</button>
                     </div>
 
                 </form>

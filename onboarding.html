@@ -176,6 +176,10 @@
             color: #ff4444;
             margin-left: 2px;
         }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -228,22 +232,17 @@
                         
                         <div class="form-group">
                             <label class="form-label">Full Name <span class="required-star">*</span></label>
-                            <input type="text" name="contact_name" class="form-control" required placeholder="John Doe" required>
+                            <input type="text" name="contact_name" class="form-control" required placeholder="John Doe">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Position or Role <span class="required-star">*</span></label>
-                            <input type="text" name="contact_role" class="form-control" required placeholder="e.g., Founder, CEO, Marketing Manager" required>
+                            <input type="text" name="contact_role" class="form-control" required placeholder="e.g., Founder, CEO, Marketing Manager">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Corporate Email <span class="required-star">*</span></label>
-                            <input type="email" name="contact_email" class="form-control" required placeholder="john@company.com" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">WhatsApp / Phone Number (Include Country Code) <span class="required-star">*</span></label>
-                            <input type="tel" name="contact_phone" class="form-control" required placeholder="+1 234 567 890" pattern="^\+.*" title="Please include your country code starting with +" required>
+                            <input type="email" name="contact_email" class="form-control" required placeholder="john@company.com">
                         </div>
 
                         <div class="form-group">
@@ -260,6 +259,11 @@
                                 <option value="Other">Other</option>
                             </select>
                         </div>
+
+                        <div class="form-group">
+                            <label class="form-label">WhatsApp / Phone Number (Include Country Code) <span class="required-star">*</span></label>
+                            <input type="tel" name="contact_phone" class="form-control" required placeholder="+1 234 567 890" pattern="^\+.*" title="Please include your country code starting with +">
+                        </div>
                     </div>
 
                     <!-- 2. Company Information -->
@@ -269,7 +273,7 @@
                         
                         <div class="form-group">
                             <label class="form-label">Company or Organization Name <span class="required-star">*</span></label>
-                            <input type="text" name="company_name" class="form-control" required placeholder="Acme Inc." required>
+                            <input type="text" name="company_name" class="form-control" required placeholder="Acme Inc.">
                         </div>
 
                         <div class="form-group">
@@ -335,17 +339,16 @@
                         
                         <div class="form-group" style="margin-top: 2rem;">
                             <label class="form-label">Which best describes your main need? <span class="required-star">*</span></label>
-                            <select name="main_need" class="form-control" required>
-                                <option value="">Select one</option>
-                                <option value="launch_new">I need to launch something new</option>
-                                <option value="improve_existing">I have something and want to improve it</option>
-                                <option value="fix_problems">I have technical problems to solve</option>
-                                <option value="automate">I want to automate processes</option>
-                                <option value="get_clients">I want to capture more clients</option>
-                                <option value="internal_order">I need internal order and better operations</option>
-                                <option value="research_idea">I want to research or validate an idea</option>
-                                <option value="unsure">I'm not sure yet</option>
-                            </select>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="main_need" value="launch_new" required> I need to launch something new</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="improve_existing" required> I have something and want to improve it</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="fix_problems" required> I have technical problems to solve</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="automate" required> I want to automate processes</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="get_clients" required> I want to capture more clients</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="internal_order" required> I need internal order and better operations</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="research_idea" required> I want to research or validate an idea</label>
+                                <label class="option-card"><input type="checkbox" name="main_need" value="unsure" required> I'm not sure yet</label>
+                            </div>
                         </div>
                     </div>
 
@@ -355,12 +358,12 @@
                         <p class="step-description">Where are you currently at with this initiative?</p>
                         
                         <div class="form-group">
-                            <div class="radio-group">
-                                <label class="option-card"><input type="radio" name="project_stage" value="exploring" required> Just exploring ideas</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="clear_need" required> Clear need, but no solution yet</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="ready_to_start" required> I know what I want and I'm ready to start</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="improving" required> System already exists, want to improve it</label>
-                                <label class="option-card"><input type="radio" name="project_stage" value="urgent" required> Urgent help needed with a problem</label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="exploring" required> Just exploring ideas</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="clear_need" required> Clear need, but no solution yet</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="ready_to_start" required> I know what I want and I'm ready to start</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="improving" required> System already exists, want to improve it</label>
+                                <label class="option-card"><input type="checkbox" name="project_stage" value="urgent" required> Urgent help needed with a problem</label>
                             </div>
                         </div>
 
@@ -372,8 +375,16 @@
                             </select>
                         </div>
 
+                        <div id="prev-provider-no-detail" class="conditional-section">
+                            <label class="form-label">Why haven't you worked with a provider before? <span class="required-star">*</span></label>
+                            <textarea name="no_previous_provider_reason" class="form-control" placeholder="E.g., first time needing this, used to do it internally..." required></textarea>
+                        </div>
+
                         <div id="prev-provider-detail" class="conditional-section">
-                            <label class="form-label">Tell us what happened <span class="required-star">*</span></label>
+                            <label class="form-label">What is the provider's name? <span class="required-star">*</span></label>
+                            <input type="text" name="provider_name" class="form-control" placeholder="Name of previous agency or freelancer" required>
+                            
+                            <label class="form-label" style="margin-top: 1rem;">Tell us what happened <span class="required-star">*</span></label>
                             <textarea name="previous_experience" class="form-control" required></textarea>
                             <label class="form-label" style="margin-top: 1rem;">What would you like to go better this time?</label>
                             <textarea name="improvement_wishes" class="form-control" required></textarea>
@@ -386,6 +397,16 @@
                         <p class="step-description">Help us understand the root cause and the desired outcome.</p>
                         
                         <div class="form-group">
+                            <label class="form-label">What is the Vision of your project/company? <span class="required-star">*</span></label>
+                            <textarea name="company_vision" class="form-control" placeholder="Where do you see the company in the future?" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">What is the Mission of your project/company? <span class="required-star">*</span></label>
+                            <textarea name="company_mission" class="form-control" placeholder="What is your purpose or reason for being?" required></textarea>
+                        </div>
+
+                        <div class="form-group">
                             <label class="form-label">What problem do you want to solve? <span class="required-star">*</span></label>
                             <textarea name="problem_description" class="form-control" required placeholder="Explain in your own words. What is not working today?" required></textarea>
                         </div>
@@ -397,18 +418,20 @@
 
                         <div class="form-group">
                             <label class="form-label">Main Priority <span class="required-star">*</span></label>
-                            <select name="main_priority" class="form-control" required>
-                                <option value="">Select priority</option>
-                                <option value="get_clients">Getting more clients</option>
-                                <option value="brand_image">Improving image and trust</option>
-                                <option value="save_time">Saving operational time</option>
-                                <option value="automation">Automating processes</option>
-                                <option value="data_control">More control over information</option>
-                                <option value="error_reduction">Reducing errors</option>
-                                <option value="modernization">Modernizing an old system</option>
-                                <option value="new_service">Launching a new digital service</option>
-                                <option value="other">Other</option>
-                            </select>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="get_clients" required> Getting more clients</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="brand_image" required> Improving image and trust</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="save_time" required> Saving operational time</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="automation" required> Automating processes</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="data_control" required> More control over information</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="error_reduction" required> Reducing errors</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="modernization" required> Modernizing an old system</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="new_service" required> Launching a new digital service</label>
+                                <label class="option-card"><input type="checkbox" name="main_priority" value="other" required id="priority-other-checkbox"> Other</label>
+                            </div>
+                            <div id="priority-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                                <input type="text" name="main_priority_other" class="form-control" placeholder="Please specify">
+                            </div>
                         </div>
                     </div>
 
@@ -427,10 +450,17 @@
                             </select>
                         </div>
 
-                        <div class="checkbox-group" style="margin-top: 2rem;">
-                            <label class="option-card"><input type="checkbox" name="current_assets" value="domain" required> Personal Domain</label>
-                            <label class="option-card"><input type="checkbox" name="current_assets" value="hosting" required> Active Hosting</label>
-                            <label class="option-card"><input type="checkbox" name="current_assets" value="email" required> Corporate Email</label>
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">What do you currently have? (Select all that apply) <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="domain" required> Personal Domain</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="hosting" required> Active Hosting</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="email" required> Corporate Email</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="logo" required> Logo</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="brand_manual" required> Brand Manual</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="crm" required> CRM (Hubspot, Salesforce, etc.)</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="none" required id="assets-none-checkbox"> None of the above</label>
+                            </div>
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -438,10 +468,10 @@
                             <div class="checkbox-group">
                                 <label class="option-card"><input type="checkbox" name="frustrations" value="old_design" required> Old Design</label>
                                 <label class="option-card"><input type="checkbox" name="frustrations" value="slow" required> Slow Site</label>
-                                <label class="option-card"><input type="checkbox" name="frustrations" value="bad_mobile" required> Bad mobile exp.</label>
+                                <label class="option-card"><input type="checkbox" name="frustrations" value="bad_mobile" required> Bad mobile experience</label>
                                 <label class="option-card"><input type="checkbox" name="frustrations" value="hard_update" required> Hard to update</label>
-                                <label class="option-card"><input type="checkbox" name="frustrations" value="no_leads" required> Doesn't gen. clients</label>
-                                <label class="option-card"><input type="checkbox" name="frustrations" value="no_trust" required> No trust</label>
+                                <label class="option-card"><input type="checkbox" name="frustrations" value="no_leads" required> Doesn't generate clients</label>
+                                <label class="option-card"><input type="checkbox" name="frustrations" value="no_trust" required> Doesn't generate trust</label>
                                 <label class="option-card"><input type="checkbox" name="frustrations" value="manual" required> Too many manual steps</label>
                             </div>
                         </div>
@@ -460,11 +490,13 @@
                         <div class="form-group">
                             <label class="form-label">Which audience do you want to reach more strongly? <span class="required-star">*</span></label>
                             <div class="checkbox-group">
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="new_clients" required> New Clients</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="recurring" required> Recurring Clients</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b" required> Businesses (B2B)</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c" required> Final Consumer (B2C)</label>
-                                <label class="option-card"><input type="checkbox" name="target_audience" value="international" required> International Public</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c_local" required> B2C (Final consumer - Local)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c_national" required> B2C (Final consumer - National)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2c_international" required> B2C (Final consumer - International)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b_local" required> B2B (Other businesses - Local)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b_national" required> B2B (Other businesses - National)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b_international" required> B2B (Other businesses - International)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="government" required> B2G (Government/Public Entities)</label>
                             </div>
                         </div>
                     </div>
@@ -477,13 +509,17 @@
                         <div class="checkbox-group">
                             <label class="option-card"><input type="checkbox" name="features" value="show_services" required> Show Services</label>
                             <label class="option-card"><input type="checkbox" name="features" value="portfolio" required> Show Portfolio</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="bookings" required> Allow Bookings</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="payments" required> Accept Payments</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="ecommerce" required> Sell Products</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="crm_mini" required> Manage Clients</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="automation" required> Automate Follow-ups</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="dashboards" required> Dashboards & Reports</label>
-                            <label class="option-card"><input type="checkbox" name="features" value="user_mgmt" required> User Management</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="bookings" required> Allow Bookings/Appointments</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="payments" required> Accept Payments Online</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="ecommerce" required> Sell Products (E-commerce)</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="crm_mini" required> Manage Clients (Mini CRM)</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="automation" required> Automate Communications</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="dashboards" required> View Metrics/Statistics</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="user_mgmt" required> Manage Users/Roles</label>
+                            <label class="option-card"><input type="checkbox" name="features" value="other" required id="features-other-checkbox"> Other</label>
+                        </div>
+                        <div id="features-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                            <input type="text" name="features_other" class="form-control" placeholder="Please specify">
                         </div>
 
                         <!-- 8a. If Website selected -->
@@ -498,6 +534,10 @@
                                     <label class="option-card"><input type="checkbox" name="web_sections" value="faq" required> FAQ</label>
                                     <label class="option-card"><input type="checkbox" name="web_sections" value="blog" required> Blog</label>
                                     <label class="option-card"><input type="checkbox" name="web_sections" value="contact" required> Contact</label>
+                                    <label class="option-card"><input type="checkbox" name="web_sections" value="other" required id="website-other-checkbox"> Other</label>
+                                </div>
+                                <div id="website-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                                    <input type="text" name="web_sections_other" class="form-control" placeholder="Please specify">
                                 </div>
                             </div>
                         </div>
@@ -555,14 +595,19 @@
                         <p class="step-description">How should your project feel?</p>
                         
                         <div class="checkbox-group">
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="pro" required> Professional</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="modern" required> Modern</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="premium" required> Premium</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="minimal" required> Minimalist</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="pro" required> Professional & Corporate</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="modern" required> Modern & Innovative</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="premium" required> Premium & Exclusive</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="minimal" required> Minimalist & Clean</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="friendly" required> Friendly & Close</label>
                             <label class="option-card"><input type="checkbox" name="brand_feeling" value="tech" required> Technological</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="elegant" required> Elegant</label>
-                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="scientific" required> Scientific</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="elegant" required> Elegant & Classic</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="scientific" required> Scientific & Rigorous</label>
                             <label class="option-card"><input type="checkbox" name="brand_feeling" value="trust" required> Trustworthy</label>
+                            <label class="option-card"><input type="checkbox" name="brand_feeling" value="other" required id="brand-feeling-other-checkbox"> Other</label>
+                        </div>
+                        <div id="brand-feeling-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                            <input type="text" name="brand_feeling_other" class="form-control" placeholder="Please specify">
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -577,12 +622,19 @@
                         <p class="step-description">Tools that must work together.</p>
                         
                         <div class="checkbox-group">
-                            <label class="option-card"><input type="checkbox" name="integrations" value="calendar" required> Google Calendar</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="social_media" required> Social Media (Instagram, LinkedIn, etc.)</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="whatsapp" required> WhatsApp / Live Chat</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="email_marketing" required> Email Marketing (Mailchimp, ActiveCampaign, etc.)</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="crm" required> External CRM (Hubspot, Salesforce, etc.)</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="analytics" required> Google Analytics / Meta Pixel</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="calendar" required> Calendly / Google Calendar</label>
                             <label class="option-card"><input type="checkbox" name="integrations" value="maps" required> Google Maps</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="whatsapp" required> WhatsApp</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="digital_euros" required> Digital Euros</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="crm" required> External CRM</label>
-                            <label class="option-card"><input type="checkbox" name="integrations" value="none" required> None / Other</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="erp" required> ERP / Billing System</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="none" required id="integrations-none-checkbox"> None of the above</label>
+                            <label class="option-card"><input type="checkbox" name="integrations" value="other" required id="integrations-other-checkbox"> Other</label>
+                        </div>
+                        <div id="integrations-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                            <input type="text" name="integrations_other" class="form-control" placeholder="Please specify">
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -619,6 +671,7 @@
                         <div class="form-group">
                             <label class="form-label">Are you interested in ongoing support? <span class="required-star">*</span></label>
                             <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="support_interest" value="none" required> No, thanks</label>
                                 <label class="option-card"><input type="radio" name="support_interest" value="basic" required> Yes, Basic</label>
                                 <label class="option-card"><input type="radio" name="support_interest" value="preferred" required> Yes, Preferred</label>
                                 <label class="option-card"><input type="radio" name="support_interest" value="premium" required> Yes, Premium</label>
@@ -637,6 +690,8 @@
                             <label class="option-card"><input type="checkbox" name="tech_priorities" value="stability" required> Stability</label>
                             <label class="option-card"><input type="checkbox" name="tech_priorities" value="usability" required> Ease of use</label>
                             <label class="option-card"><input type="checkbox" name="tech_priorities" value="scalability" required> Future growth</label>
+                            <label class="option-card"><input type="checkbox" name="tech_priorities" value="high_security" required> High Security / Bank Level</label>
+                            <label class="option-card"><input type="checkbox" name="tech_priorities" value="medical_data" required> Medical Data (HIPAA / GDPR strict)</label>
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -647,6 +702,7 @@
                                 <label class="option-card"><input type="checkbox" name="past_problems" value="spam" required> Spam</label>
                                 <label class="option-card"><input type="checkbox" name="past_problems" value="hacked" required> Hacked</label>
                                 <label class="option-card"><input type="checkbox" name="past_problems" value="data_loss" required> Data loss</label>
+                                <label class="option-card"><input type="checkbox" name="past_problems" value="none" required id="past-problems-none-checkbox"> None</label>
                             </div>
                         </div>
                     </div>
@@ -657,25 +713,12 @@
                         <p class="step-description">How do you want to be found?</p>
                         
                         <div class="form-group">
-                            <label class="form-label">Do you depend on local searches? <span class="required-star">*</span></label>
-                            <select name="is_local" class="form-control" required>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">What should people find when they search for you? <span class="required-star">*</span></label>
-                            <textarea name="seo_expectations" class="form-control" required></textarea>
-                        </div>
-
-                        <div class="form-group">
                             <label class="form-label">Priority for SEO work? <span class="required-star">*</span></label>
                             <select name="seo_priority" class="form-control" required>
-                                <option value="essential">Essential only</option>
-                                <option value="start">From the start</option>
-                                <option value="later">Later</option>
-                                <option value="not_priority">Not a priority</option>
+                                <option value="essential">Essential only (basic indexation)</option>
+                                <option value="start">From the start (I want to rank well quickly)</option>
+                                <option value="later">Later (We'll focus on this in a phase 2)</option>
+                                <option value="not_priority">Not a priority (Traffic comes from other sources)</option>
                             </select>
                         </div>
                     </div>
@@ -688,11 +731,11 @@
                         <div class="form-group">
                             <label class="form-label">When would you like to start? <span class="required-star">*</span></label>
                             <select name="start_time" class="form-control" required>
-                                <option value="immediately">Immediately</option>
-                                <option value="this_month">This month</option>
+                                <option value="immediately">As soon as possible / Next week</option>
+                                <option value="this_month">Within 15-30 days</option>
                                 <option value="1-3_months">In 1-3 months</option>
-                                <option value="3plus_months">More than 3 months</option>
-                                <option value="evaluating">Just evaluating</option>
+                                <option value="3plus_months">In more than 3 months</option>
+                                <option value="evaluating">No date defined, I'm just comparing options</option>
                             </select>
                         </div>
 
@@ -747,12 +790,11 @@
 
                         <div class="form-group">
                             <label class="form-label">Preferred payment model <span class="required-star">*</span></label>
-                            <select name="payment_pref" class="form-control" required>
-                                <option value="single">Single payment</option>
-                                <option value="installments">Installments</option>
-                                <option value="monthly">Monthly maintenance</option>
-                                <option value="combination">Combination</option>
-                            </select>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="payment_pref" value="single" required> 100% upfront (Best price)</label>
+                                <label class="option-card"><input type="checkbox" name="payment_pref" value="two_parts" required> 50% start / 50% delivery</label>
+                                <label class="option-card"><input type="checkbox" name="payment_pref" value="monthly_rent" required> Monthly rental (Subscription/SaaS model)</label>
+                            </div>
                         </div>
                     </div>
 
@@ -768,7 +810,22 @@
                                 <label class="option-card"><input type="checkbox" name="decision_makers" value="partner" required> Partner</label>
                                 <label class="option-card"><input type="checkbox" name="decision_makers" value="board" required> Board/Direction</label>
                                 <label class="option-card"><input type="checkbox" name="decision_makers" value="tech" required> Tech Team</label>
+                                <label class="option-card"><input type="checkbox" name="decision_makers" value="other" required id="decision-makers-other-checkbox"> Other</label>
                             </div>
+                            <div id="decision-makers-other-text" class="conditional-section" style="margin-top: 1rem; padding: 1rem;">
+                                <input type="text" name="decision_makers_other" class="form-control" placeholder="Please specify">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">How did you hear about us? <span class="required-star">*</span></label>
+                            <select name="referral_source" class="form-control" required>
+                                <option value="google">Google Search</option>
+                                <option value="social_media">Social Media (LinkedIn, Instagram)</option>
+                                <option value="referral">Referred by someone</option>
+                                <option value="clutch">Clutch or review site</option>
+                                <option value="other">Other</option>
+                            </select>
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -824,8 +881,8 @@
 
                     <div class="form-actions">
                         <button type="button" id="prev-btn" class="btn" style="visibility: hidden;">Back</button>
-                        <button type="button" id="next-btn" class="btn btn-primary">Next Step</button>
-                        <button type="submit" id="submit-btn" class="btn btn-primary hidden">Submit Onboarding</button>
+                        <button type="button" id="next-btn" class="btn btn-primary" style="display: block;">Next Step</button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary" style="display: none;">Submit Onboarding</button>
                     </div>
 
                 </form>
