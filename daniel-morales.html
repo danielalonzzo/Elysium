@@ -80,6 +80,9 @@
                         <span class="profile-separator">|</span>
                         <a href="https://turismo.cm-braganca.pt" class="profile-link" target="_blank">Portugal, EU</a>
                     </div>
+                    <a href="portfolio.html" class="btn-portfolio-cta">
+                        View Portfolio <span class="cta-arrow">→</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -113,12 +116,9 @@
                                 <span class="cv-date">15/01/2026 - CURRENT | PORTUGAL</span>
                             </div>
                             <ul class="cv-list">
-                                <li>Developed web applications with a strong focus on <strong>code quality,
-                                        maintainability and scalability</strong>.</li>
-                                <li>Implemented <strong>modular front-end structures</strong> and reusable components.
-                                </li>
-                                <li>Applied <strong>accessibility and performance optimisation techniques</strong> in
-                                    web development projects.</li>
+                                <li>I develop web applications with a strong focus on <strong>code quality, maintainability and scalability</strong>.</li>
+                                <li>I implement <strong>full-stack architectures</strong> in advanced integrated development environments (IDEs) supported by ML-based tools.</li>
+                                <li>I apply <strong>accessibility and optimization best practices</strong> to both existing projects and the development of new web solutions.</li>
                             </ul>
                             <a href="https://elysiumdr.eu" class="cv-ext-link">elysiumdr.eu</a>
                         </div>
@@ -402,6 +402,118 @@
         </div>
     </footer>
 
+    <!-- Premium Vanish Effect for Daniel Morales Profile -->
+    <style>
+        /* Removing old pure CSS vanishing effects */
+        .cv-section-title, 
+        .cv-timeline-item, 
+        .cv-card, 
+        .cv-timeline-dot {
+             will-change: opacity, filter, transform;
+        }
+
+        /* Dynamic masking for the vertical timeline line */
+        .cv-timeline {
+            /* Fallback var if not injected by JS */
+            --line-mask-stop: -200px; 
+        }
+        
+        .cv-timeline::before {
+             -webkit-mask-image: linear-gradient(to bottom, transparent var(--line-mask-stop), black calc(var(--line-mask-stop) + 80px));
+             mask-image: linear-gradient(to bottom, transparent var(--line-mask-stop), black calc(var(--line-mask-stop) + 80px));
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Function to handle the exact fading of elements as they go up
+            const handleScrollBlur = () => {
+                const elementsToBlur = document.querySelectorAll('.cv-timeline-item, .cv-about-card, .cv-card, .cv-timeline-dot');
+                
+                elementsToBlur.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    // Get the actual CSS top constraint (where it naturally sticks)
+                    const computedStyle = window.getComputedStyle(el);
+                    
+                    // If position is sticky, it will rest at 'computedTop'.
+                    // If it is just relative, we assume an arbitrary trigger point right below the title (e.g. 90px)
+                    let stickyRestingPoint = parseInt(computedStyle.top);
+                    if (isNaN(stickyRestingPoint) || computedStyle.position !== 'sticky') {
+                        stickyRestingPoint = 100; // default fallback right under title
+                    }
+                    
+                    // We only want the fade to happen AFTER the element completes its sticky phase and is pushed UP,
+                    // meaning its rect.top becomes LESS than its sticky constraint.
+                    const fadeStartPoint = stickyRestingPoint; 
+                    const fadeDistance = 150; // Increased distance for a much longer, smoother fluid fade
+
+                    if (rect.top < fadeStartPoint) {
+                        // Element is being pushed up past its sticky position
+                        let progress = (fadeStartPoint - rect.top) / fadeDistance;
+                        progress = Math.max(0, Math.min(1, progress));
+                        
+                        el.style.opacity = 1 - progress;
+                        el.style.filter = `blur(${progress * 20}px)`; // Softer max blur
+                        // Removed the translateY transformation so the content flows naturally without rushing up
+                        el.style.pointerEvents = progress > 0.6 ? 'none' : 'auto';
+                    } else {
+                        // Element is resting or lower
+                        el.style.opacity = 1;
+                        el.style.filter = 'blur(0px)';
+                        el.style.pointerEvents = 'auto';
+                    }
+                });
+                
+                // --- Timeline Line Dynamic Cutoff ---
+                // We want the left vertical line to disappear as it passes behind the title.
+                // The title is at top: 90px. Let's start the fade/cut exactly at 100px.
+                document.querySelectorAll('.cv-timeline').forEach(timeline => {
+                    const rect = timeline.getBoundingClientRect();
+                    // Distance from the top of the viewport to the boundary where the title sits (100px)
+                    // If rect.top is < 100px, it means the top part of the timeline is going BEHIND the title.
+                    // We need to mask out '100 - rect.top' amount of pixels from the top of the line.
+                    let maskAmount = 100 - rect.top;
+                    
+                    if (maskAmount > 0) {
+                        // Line is scrolled up behind title, cut it off dynamically
+                        timeline.style.setProperty('--line-mask-stop', `${maskAmount}px`);
+                    } else {
+                        // Line is fully visible below the title
+                        timeline.style.setProperty('--line-mask-stop', `-200px`);
+                    }
+                });
+
+                // Also fade the section titles when they hit the top navbar glass
+                document.querySelectorAll('.cv-section-title').forEach(title => {
+                    const rect = title.getBoundingClientRect();
+                    const restingTop = parseInt(window.getComputedStyle(title).top) || 90;
+                    const fadeStartPoint = restingTop; 
+                    const fadeDistance = 100; // Fluid longer fade for title
+                    
+                    if (rect.top < fadeStartPoint) {
+                        let progress = (fadeStartPoint - rect.top) / fadeDistance;
+                        progress = Math.max(0, Math.min(1, progress));
+                        
+                        title.style.opacity = 1 - progress;
+                        title.style.filter = `blur(${progress * 15}px)`; 
+                        // Removed translate
+                    } else {
+                        title.style.opacity = 1;
+                        title.style.filter = 'blur(0px)';
+                    }
+                });
+            };
+
+            // Run on scroll
+            window.addEventListener('scroll', handleScrollBlur, { passive: true });
+            
+            // Run once on load
+            handleScrollBlur();
+            
+            // Re-run on resize just in case sticky metrics change
+            window.addEventListener('resize', handleScrollBlur, { passive: true });
+        });
+    </script>
     <script src="JS/main.js"></script>
 </body>
 

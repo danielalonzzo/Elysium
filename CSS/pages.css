@@ -607,6 +607,9 @@ textarea.form-control {
     .profile-contact-links {
         justify-content: flex-start;
     }
+    .profile-hero-text {
+        text-align: left;
+    }
 }
 
 .profile-link {
@@ -674,6 +677,8 @@ textarea.form-control {
     border-bottom: 1px solid var(--glass-border);
     color: var(--color-text-primary);
 }
+
+
 
 .cv-card {
     background: var(--glass-bg);
