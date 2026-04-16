@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Elysium λ Prototype - Paulo Morais Digital Transformation UX Analysis.">
+    <title>Protótipo: Paulo Morais | Elysium</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../CSS/base.css">
+    <link rel="stylesheet" href="../CSS/components.css">
+    <link rel="stylesheet" href="../CSS/pages.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+</head>
+
+<body>
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">
+                <span class="brand-symbol">λ</span> ELYSIUM
+            </a>
+            <div class="nav-links">
+                <a href="services.html" class="nav-link">Serviços</a>
+                <a href="portfolio.html" class="nav-link active">Portefólio</a>
+                <a href="research.html" class="nav-link">Investigação</a>
+                <a href="about.html" class="nav-link">Sobre nós</a>
+                <a href="profiles.html" class="nav-link">Conta</a>
+                <a href="contact.html" class="btn btn-primary">Contacto</a>
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Selecionar idioma"><span class="lang-current-label">PT</span> 🇵🇹 <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="../prototype-pmorais.html" role="menuitem">English 🇬🇧</a>
+                        <a href="../es/prototype-pmorais.html" role="menuitem">Español 🇨🇷</a>
+                        <a href="prototype-pmorais.html" role="menuitem">Português 🇵🇹</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header">
+        <div class="parallax-lambda">λ</div>
+        <div class="container animate-on-scroll">
+            <h1 style="font-size: 3rem;">Protótipo</h1>
+            <p class="hero-subtitle">Paulo Morais — Experiência Digital</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="section pt-0">
+        <div class="container">
+            <a href="portfolio.html" class="btn mb-lg" style="background: transparent; border-color: var(--glass-border);">← Voltar ao Portefólio</a>
+
+            <!-- Interactive MacBook Simulator (Hero) -->
+            <div class="animate-on-scroll text-center mb-0">
+                <h2>Simulador Interativo</h2>
+                <p class="lead" style="color: var(--color-text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                    Experimente a página principal tal como se veria nativamente. Faça scroll no interior do ecrã do MacBook abaixo.
+                </p>
+            </div>
+
+            <div class="macbook-simulator animate-on-scroll delay-1">
+                <img src="../Images/mac-frame.png" alt="MacBook Frame" class="mac-frame-img">
+                <div class="mac-screen-container">
+                    <div class="mac-screen-content">
+                        <!-- We load the index page prototype here so it scrolls within the screen -->
+                        <img src="../Images/Portfolio/prototype/pmorais/index.png" alt="Prototype Home Page Interactive">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deep Dive UX Narrative (Zig-Zag Grids) -->
+            <div class="mt-0">
+                <h2 class="text-center mb-lg animate-on-scroll">Análise de Arquitetura e Interface</h2>
+
+                <!-- 1. Sobre Mim -->
+                <div class="case-content-grid mb-xl align-items-center">
+                    <div class="case-text-block animate-on-scroll">
+                        <h3>Sobre Mim</h3>
+                        <p>
+                            <strong>O objetivo:</strong> Estabelecer autoridade e empatia simultaneamente. O design rompe com as grelhas corporativas tradicionais através de emolduramentos assimétricos e de uma tipografia proeminente.
+                        </p>
+                        <p>
+                            Destacamos os seus mais de 20 anos de experiência clínica logo na parte superior, seguidos de uma narrativa pessoal que se conecta com as ansiedades do paciente mesmo antes de marcar uma consulta.
+                        </p>
+                    </div>
+                    <div class="prototype-frame animate-on-scroll delay-1" style="margin: 0;">
+                        <picture>
+                            <source media="(max-width: 768px)" srcset="../Images/Portfolio/prototype/pmorais/sobremim-mobile.png">
+                            <img src="../Images/Portfolio/prototype/pmorais/sobre-mim.png" alt="Protótipo: Sobre Mim">
+                        </picture>
+                    </div>
+                </div>
+
+                <!-- 2. Osteopatia (Reversed layout for zig-zag) -->
+                <div class="case-content-grid mb-xl align-items-center" style="direction: rtl;">
+                    <!-- We use inline styles or just swap ordering to achieve the zig-zag on desktop -->
+                    <div class="case-text-block animate-on-scroll delay-1" style="direction: ltr;">
+                        <h3>Serviços de Osteopatia</h3>
+                        <p>
+                            <strong>O objetivo:</strong> Desmistificar o tratamento. Uma vez que os pacientes chegam frequentemente com dores específicas, a interface atua como um sistema de triagem ágil.
+                        </p>
+                        <p>
+                            Implementámos etiquetas claras para identificar os sintomas tratáveis. A hierarquia visual guia o utilizador fluídamente em direção à chamada para a ação "Marcar Consulta", removendo qualquer fricção do funil de conversão.
+                        </p>
+                    </div>
+                    <div class="prototype-frame animate-on-scroll" style="margin: 0; direction: ltr;">
+                        <picture>
+                            <source media="(max-width: 768px)" srcset="../Images/Portfolio/prototype/pmorais/osteopatia-mobile.png">
+                            <img src="../Images/Portfolio/prototype/pmorais/osteopatia.png" alt="Protótipo: Osteopatia">
+                        </picture>
+                    </div>
+                </div>
+
+                <!-- 3. Profile / Login -->
+                <div class="case-content-grid align-items-center">
+                    <div class="case-text-block animate-on-scroll">
+                        <h3>Portal do Paciente</h3>
+                        <p>
+                            <strong>O objetivo:</strong> Transformar uma simples página web num sistema operativo funcional para o negócio do cliente.
+                        </p>
+                        <p>
+                            A interface de login e registo é desenhada com um perfil minimalista para reduzir a sobrecarga cognitiva. Ao proteger esta área, os pacientes podem gerir as suas consultas, histórico e planos de exercícios, criando um ciclo de retenção e cuidado contínuo.
+                        </p>
+                    </div>
+                    <div class="prototype-frame animate-on-scroll delay-1" style="margin: 0;">
+                        <picture>
+                            <source media="(max-width: 768px)" srcset="../Images/Portfolio/prototype/pmorais/perfil-mobile.png">
+                            <img src="../Images/Portfolio/prototype/pmorais/perfil.png" alt="Protótipo: Perfil e Login">
+                        </picture>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand-wrapper">
+                        <a href="index.html" class="nav-brand " style="display:inline-block;">
+                            <span class="brand-symbol">λ</span> ELYSIUM
+                        </a>
+                        <div class="lang-switcher-dropdown footer-lang-switcher">
+                            <button type="button" class="lang-switcher-trigger" aria-expanded="false"
+                                aria-haspopup="true" aria-label="Selecionar idioma"><span
+                                    class="lang-current-label">PT</span> 🇵🇹 <span class="lang-arrow"
+                                    aria-hidden="true">▼</span></button>
+                            <div class="lang-switcher-menu" role="menu">
+                                <a href="../prototype-pmorais.html" role="menuitem">English 🇬🇧</a>
+                                <a href="../es/prototype-pmorais.html" role="menuitem">Español 🇨🇷</a>
+                                <a href="prototype-pmorais.html" role="menuitem">Português 🇵🇹</a>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, União Europeia</p>
+                    <p class="footer-service-note">Também nas Américas.</p>
+                </div>
+                <!-- Standard footer cols... -->
+                <div class="footer-col">
+                    <h4>Empresa</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">Sobre nós</a></li>
+                        <li><a href="services.html">Serviços</a></li>
+                        <li><a href="portfolio.html">Portefólio</a></li>
+                        <li><a href="research.html">Investigação</a></li>
+                        <li><a href="contact.html">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy.html">Política de Privacidade</a></li>
+                        <li><a href="terms.html">Termos de Serviço</a></li>
+                        <li><a href="https://www.livroreclamacoes.pt/Pedido/Reclamacao" target="_blank"
+                                rel="noopener noreferrer">Livro de Reclamações</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Conectar</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://www.linkedin.com/company/elysiumdr" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                        <li><a href="https://x.com/elysiumdr?s=21">Twitter</a></li>
+                        <li><a href="https://www.instagram.com/elysium.dr?igsh=YmFhNnlqbWttM3h0&utm_source=qr">Instagram</a>
+                        </li>
+                        <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Elysium λ Development & Research. Todos os direitos reservados.</span>
+                <span class="brand-symbol footer-lambda">λ</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../JS/main.js"></script>
+</body>
+
+</html>
