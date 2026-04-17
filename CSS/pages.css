@@ -1775,13 +1775,21 @@ textarea.form-control {
     --screen-height: 45%;
 }
 
-.mac-frame-img {
+.mac-frame-img,
+.iphone-frame-img {
     width: 100%;
     height: auto;
-    display: block;
     position: relative;
     z-index: 10; /* High z-index to stay on top of the scrolling content */
     pointer-events: none;
+}
+
+.mac-frame-img {
+    display: block;
+}
+
+.iphone-frame-img {
+    display: none;
 }
 
 /* The container that aligns with the inner physical screen of the MacBook */
@@ -1822,4 +1830,73 @@ textarea.form-control {
     width: 100%;
     height: auto;
     display: block;
+}
+
+/* Fixes for Mobile Layout - Prototype pages */
+@media (max-width: 768px) {
+    .macbook-simulator {
+        margin: 2rem auto;
+    }
+
+    .macbook-simulator.has-iphone {
+        max-width: none;
+        width: 220%; /* Moderate zoom to balance size and layout */
+        margin-left: -60%; 
+        margin-top: -6rem; /* Pull content closer from top */
+        margin-bottom: -8rem; /* Pull content closer from bottom */
+        --screen-top: 20%;
+        --screen-left: 40%;
+        --screen-width: 20%;
+        --screen-height: 60%;
+    }
+
+    .macbook-simulator.has-iphone .mac-frame-img { 
+        display: none !important; 
+    }
+
+    .macbook-simulator.has-iphone .iphone-frame-img { 
+        display: block !important; 
+    }
+
+    .macbook-simulator.has-iphone .mac-screen-container {
+        border-radius: 31px; /* Set to exactly 31px per user request */
+    }
+
+    .macbook-simulator.has-iphone .mac-screen-content img {
+        border-radius: 31px;
+    }
+}
+
+/* Inner simulator for content sections */
+.macbook-simulator.is-inner {
+    margin: 0 auto;
+    max-width: 100%;
+    direction: ltr; /* Always LTR to handle inner components correctly */
+}
+
+@media (max-width: 768px) {
+    .macbook-simulator.is-inner:not(.has-iphone) {
+        margin: 2rem auto;
+    }
+    
+    .macbook-simulator.is-inner.has-iphone {
+        /* This will inherit the zoom from .macbook-simulator.has-iphone */
+        max-width: none;
+    }
+}
+
+.prototype-frame {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--glass-shadow);
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+}
+
+@media (max-width: 768px) {
+    .prototype-frame {
+        max-width: 300px;
+        margin: 2rem auto !important;
+        border-radius: var(--radius-sm);
+    }
 }
