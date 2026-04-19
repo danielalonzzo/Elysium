@@ -3,12 +3,13 @@
 :root {
   /* Color Palette — Art Gallery Minimalist */
   --color-bg: #171C1C;           /* Fondo principal (Dominante) */
-  --color-primary: #D5C5B8;      /* Tipografía principal y acentos bordes (Acento Primario) */
-  --color-accent: #798B68;       /* Botones y Hover (Botones / CTAs) */
+  --color-primary: #ffffff;      /* Tipografía principal y acentos bordes (Acento Primario) */
+  --color-accent: #FF5E12;       /* Botones y Hover (Botones / CTAs) */
+  --color-spark: #FF5E12;        /* NUEVO: Acento de Alta Intensidad (Contraste y Vida) */
   --color-text-secondary: #8E9292; /* Texto legal / jerarquía menor (Texto Secundario) */
   
   --color-white: #ffffff;
-  --color-border: rgba(213, 197, 184, 0.2); /* Borde sutil basado en el primario */
+  --color-border: rgba(255, 255, 255, 0.2); /* Borde sutil basado en el primario */
   
   /* Typography — Editorial Lux */
   --font-heading: 'Playfair Display', serif;
@@ -26,21 +27,21 @@
   --btn-arrow-bg: rgba(23, 28, 28, 0.9);
   --hero-overlay-top: rgba(23, 28, 28, 0.4);
   --hero-overlay-bottom: rgba(23, 28, 28, 1);
-  --input-bg: rgba(213, 197, 184, 0.03);
-  --input-bg-focus: rgba(213, 197, 184, 0.06);
+  --input-bg: rgba(255, 255, 255, 0.03);
+  --input-bg-focus: rgba(255, 255, 255, 0.06);
 }
 
 /* Light Mode Overrides */
 body.light-mode {
-  --color-bg: #D5C5B8;
+  --color-bg: #ffffff;
   --color-primary: #171C1C;
   --color-text-secondary: #4A4E4E;
   --color-white: #000000;
   --color-border: rgba(23, 28, 28, 0.1);
-  --navbar-bg: rgba(213, 197, 184, 0.9);
-  --btn-arrow-bg: rgba(213, 197, 184, 0.9);
-  --hero-overlay-top: rgba(213, 197, 184, 0.4);
-  --hero-overlay-bottom: rgba(213, 197, 184, 1);
+  --navbar-bg: rgba(255, 255, 255, 0.9);
+  --btn-arrow-bg: rgba(255, 255, 255, 0.9);
+  --hero-overlay-top: rgba(255, 255, 255, 0.4);
+  --hero-overlay-bottom: rgba(255, 255, 255, 1);
   --input-bg: rgba(23, 28, 28, 0.03);
   --input-bg-focus: rgba(23, 28, 28, 0.06);
 }
@@ -248,7 +249,7 @@ img {
 }
 
 .brand-accent {
-  color: var(--color-accent);
+  color: var(--color-spark);
 }
 
 .nav-menu {
@@ -314,7 +315,7 @@ img {
 
 .hero-badge {
   display: inline-block;
-  color: var(--color-accent);
+  color: var(--color-spark);
   font-size: 0.7rem;
   font-weight: 700;
   margin-bottom: 2rem;
@@ -413,7 +414,7 @@ img {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  color: var(--color-accent);
+  color: var(--color-spark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -455,7 +456,12 @@ img {
 }
 
 .service-card:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-spark);
+}
+
+.service-card:hover .service-icon {
+  color: var(--color-spark);
+  transform: scale(1.1);
 }
 
 .service-icon {
@@ -510,14 +516,14 @@ img {
 }
 
 .plan-popular {
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--color-spark);
 }
 
 .popular-badge {
   position: absolute;
   top: 1rem;
   right: 1.5rem;
-  color: var(--color-accent);
+  color: var(--color-spark);
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1166,14 +1172,14 @@ img {
   width: 65px;
   height: 65px;
   border-radius: 50%;
-  background-color: var(--color-accent);
-  color: #171C1C;
+  background-color: var(--color-spark);
+  color: white;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 30px rgba(255, 94, 18, 0.4);
   transition: all var(--transition-normal);
   z-index: 10;
 }
@@ -1329,7 +1335,7 @@ img {
   font-family: var(--font-heading);
   font-weight: 800;
   font-size: clamp(2rem, 8vw, 3.5rem);
-  color: #D5C5B8;
+  color: #ffffff;
   letter-spacing: -1px;
   position: relative;
   overflow: visible;
@@ -1339,7 +1345,7 @@ img {
 }
 
 .loader-logo .brand-accent {
-  color: var(--color-accent);
+  color: var(--color-spark);
 }
 
 /* Shimmer Effect — Applied only to text via background-clip */

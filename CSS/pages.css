@@ -1098,11 +1098,38 @@ textarea.form-control {
 }
 
 .cv-skill-tag:hover {
-    background: rgba(41, 151, 255, 0.2);
-    border-color: rgba(41, 151, 255, 0.6);
-    color: #fff;
+    background: rgba(41, 151, 255, 0.15);
+    border-color: rgba(41, 151, 255, 0.4);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(41, 151, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(41, 151, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+    .cv-about-card::before {
+        inset: 0; /* No bleed on small mobile */
+        opacity: 0.5;
+    }
+    
+    .cv-timeline {
+        padding-left: 1.5rem; /* Back to original but keeping control */
+    }
+    
+    .cv-timeline-dot {
+        left: -1.4rem; /* Inside the 1.5rem padding */
+    }
+
+    .cv-table th, .cv-table td {
+        padding: 0.6rem 0.3rem;
+        font-size: 0.8rem;
+    }
+
+    .cv-card {
+        overflow-x: hidden; /* Prevent internal wide elements like tables from pushing the card width */
+    }
+
+    .cv-section-title {
+        font-size: 1.3rem;
+    }
 }
 
 /* Developer Link Card */

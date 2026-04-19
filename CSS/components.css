@@ -963,6 +963,41 @@ section {
         object-position: top;
         border-radius: 0;
     }
+
+    /* Page Header & Ethos */
+    .page-header {
+        min-height: 35vh;
+    }
+
+    .page-header h1 {
+        font-size: 2.2rem !important;
+        line-height: 1.2;
+    }
+
+    .intro-text {
+        font-size: 1.2rem !important;
+        line-height: 1.5 !important;
+        margin-bottom: 2.5rem !important;
+    }
+
+    .card-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .parallax-lambda {
+        font-size: 80vw;
+        top: 50%;
+    }
+
+    .page-header .parallax-lambda {
+        font-size: 45vw;
+    }
+
+    .read-more-btn {
+        width: 100%;
+        max-width: 280px;
+    }
 }
 
 /* Removed preview loading indicator styling */
