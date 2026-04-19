@@ -7,7 +7,19 @@
     <meta name="description" content="Firma consultora especializada en la optimización de proyectos de alta complejidad mediante ingeniería industrial aplicada. Reducción de costos y control de plazos para la industria en Costa Rica.">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="loading">
+
+    <!-- Loading Page -->
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <div class="loader-logo" data-text="VALTRIX Engineering">VALTRIX <span class="brand-accent">Engineering</span></div>
+        </div>
+    </div>
+    <script>
+        // Immediate scroll prevention
+        document.body.style.overflow = 'hidden';
+    </script>
+
 
     <!-- Navbar -->
     <nav class="navbar">
@@ -19,7 +31,7 @@
                 <li><a href="#servicios" class="nav-link">Servicios</a></li>
                 <li><a href="#planes" class="nav-link">Paquetes</a></li>
                 <li><a href="#nosotros" class="nav-link">Nosotros</a></li>
-                <li><a href="#contacto" class="btn btn-primary nav-btn">Agendar Cita</a></li>
+                <li><a href="#contacto" class="btn btn-primary nav-btn">Agendar Cita <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a></li>
             </ul>
 
             <button class="hamburger">
@@ -35,11 +47,11 @@
         <div class="container">
             <div class="hero-content">
                 <span class="hero-badge">Expertos en Control Operativo</span>
-                <h1 class="hero-title">Ingeniería costarricense optimizando el control y la eficiencia de sus proyectos más complejos</h1>
-                <p class="hero-desc">Reducimos desviaciones de presupuesto, controlamos cronogramas estrictos y garantizamos el cumplimiento normativo en proyectos del sector construcción, logística y manufactura médica.</p>
+                <h1 class="hero-title">Ingeniería costarricense <br> <span class="serif-italic">optimizando el control</span></h1>
+                <p class="hero-desc">Reducimos desviaciones de presupuesto, controlamos cronogramas estrictos y garantizamos el cumplimiento normativo en proyectos del sector construcción.</p>
                 <div class="hero-actions">
-                    <a href="#contacto" class="btn btn-accent">Agendar Diagnóstico Gratuito</a>
-                    <a href="#servicios" class="btn btn-outline-light">Conocer Nuestros Servicios</a>
+                    <a href="#contacto" class="btn btn-accent">Agendar Diagnóstico <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a>
+                    <a href="#servicios" class="btn btn-outline-light">Nuestros Servicios <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a>
                 </div>
             </div>
         </div>
@@ -161,7 +173,7 @@
                         <li>Mapa de ruta con recomendaciones estratégicas</li>
                     </ul>
                     <div class="plan-footer">
-                        <a href="#contacto" class="btn btn-outline-light plan-btn" style="border-color: var(--color-primary); color: var(--color-primary);">Consultar Plan</a>
+                        <a href="#contacto" class="btn btn-outline-light plan-btn">Consultar <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a>
                     </div>
                 </div>
 
@@ -180,7 +192,7 @@
                         <li>Entrega de reportes ejecutivos de avance</li>
                     </ul>
                     <div class="plan-footer">
-                        <a href="#contacto" class="btn btn-primary plan-btn">Consultar Plan</a>
+                        <a href="#contacto" class="btn btn-primary plan-btn">Seleccionar <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a>
                     </div>
                 </div>
 
@@ -198,7 +210,7 @@
                         <li>Implementación y optimización continua</li>
                     </ul>
                     <div class="plan-footer">
-                        <a href="#contacto" class="btn btn-outline-light plan-btn" style="border-color: var(--color-primary); color: var(--color-primary);">Consultar Plan</a>
+                        <a href="#contacto" class="btn btn-outline-light plan-btn">Consultar <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a>
                     </div>
                 </div>
             </div>
@@ -210,7 +222,7 @@
         <div class="container">
             <div class="about-grid">
                 <div class="about-content">
-                    <h3 class="about-title">Liderazgo Técnico y Experiencia Comprobada</h3>
+                    <h3 class="about-title">LIDERAZGO TÉCNICO <br> <span class="serif-italic">y experiencia comprobada.</span></h3>
                     <p class="about-subtitle">Valeria Vargas Ávila - Fundadora</p>
                     <p>VALTRIX Engineering nace con un enfoque claro: elevar la competitividad de las industrias en Costa Rica. Como fundadora y auditora certificada, lidero personalmente cada proyecto estratégico.</p>
                     <p>Cuento con más de 9 años de experiencia comprobada en sectores altamente exigentes liderando mejoras en la industria electrónica, médica (alineación con la FDA), de construcción e infraestructura aeroportuaria civil y electromecánica.</p>
@@ -237,7 +249,7 @@
     <section class="section section-gray" id="contacto">
         <div class="container">
             <div class="contact-section">
-                <h2 class="section-title">Dé el próximo paso hacia un proyecto sin desviaciones</h2>
+                <h2 class="section-title">¿PROYECTO SIN DESVIACIONES? <br> <span class="serif-italic">Valtrix lo asegura.</span></h2>
                 <p class="section-subtitle">Programe una reunión ejecutiva sin compromiso y descubra cómo una Gerencia Externa puede mitigar sus riesgos de inversión operando con eficiencia técnica.</p>
                 
                 <form id="contact-form" class="contact-form">
@@ -271,9 +283,13 @@
                         <label for="message">Explique ampliamente su solicitud *</label>
                         <textarea id="message" name="message" rows="5" placeholder="Describa los desafíos técnicos o necesidades de su proyecto..." required></textarea>
                     </div>
+                    <div class="form-checkbox-group">
+                        <input type="checkbox" id="privacy" name="privacy" required>
+                        <span class="custom-checkbox"></span>
+                        <label for="privacy" style="margin-bottom: 0; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 0.85rem;">He leído y acepto la Política de Privacidad y el procesamiento de mis datos.</label>
+                    </div>
                     <div class="form-footer">
-                        <button type="submit" class="btn btn-primary">Enviar Solicitud de Diagnóstico</button>
-                        <p class="form-privacy">Al enviar este formulario, usted acepta que VALTRIX Engineering procese sus datos para fines profesionales.</p>
+                        <button type="submit" class="btn btn-primary">Enviar Solicitud <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></button>
                     </div>
                 </form>
 
@@ -293,49 +309,79 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
-                    <div class="brand-logo">VALTRIX <span class="brand-accent" style="margin-left: 0.5rem;">Engineering</span></div>
-                    <p class="footer-desc">Ingeniería costarricense impulsando el desarrollo industrial de Centroamérica a través del control riguroso y talento nacional.</p>
+                    <div class="brand-logo">VALTRIX <span>Engineering</span></div>
+                    <p class="footer-desc">Ingeniería costarricense impulsando el desarrollo industrial a través del control riguroso y talento nacional de alto nivel.</p>
                 </div>
                 
                 <div>
                     <h4 class="footer-title">Navegación</h4>
                     <ul class="footer-links">
-                        <li><a href="#solucion">Nuestras Soluciones</a></li>
+                        <li><a href="#solucion">Soluciones</a></li>
                         <li><a href="#servicios">Servicios</a></li>
                         <li><a href="#planes">Paquetes</a></li>
-                        <li><a href="#nosotros">Sobre la Fundadora</a></li>
+                        <li><a href="#nosotros">Sobre Nosotros</a></li>
+                        <li style="color: var(--color-accent); font-weight: 700;">● <a href="#contacto" style="display: inline; margin-left: 0.5rem;">Contacto</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="footer-title">Contacto</h4>
+                    <h4 class="footer-title">Detalles de Contacto</h4>
                     <ul class="footer-meta">
+                        <li>valeria.vargas@valtrix.cr</li>
+                        <li>+506 8488-0406</li>
+                        <li style="margin-top: 1rem; color: var(--color-accent); font-weight: 700;">WhatsApp</li>
                         <li>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                            valeria.vargas@valtrix.cr
-                        </li>
-                        <li>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                            +506 8488-0406
-                        </li>
-                        <li>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            Alajuela, Costa Rica
+                            <a href="https://wa.me/50684880406" target="_blank" style="border: 1px solid var(--color-border); padding: 0.5rem; border-radius: 2px;">
+                                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                            </a>
                         </li>
                     </ul>
                 </div>
             </div>
             
             <div class="footer-bottom">
-                <a href="https://elysiumdr.eu" target="_blank" style="color: inherit; text-decoration: none;">Elysium λ Development & Research</a>
+                <div class="footer-bottom-group">
+                    <div>VALTRIX Engineering © 2026</div>
+                    <div class="footer-bottom-links">
+                        <a href="#">Configuración de Privacidad</a>
+                        <a href="#">Política de Privacidad</a>
+                        <a href="#">Términos & Condiciones</a>
+                    </div>
+                </div>
+                <div class="footer-credits">
+                    <a href="https://elysiumdr.eu" target="_blank" style="color: inherit; text-decoration: none; letter-spacing: 0.05em;">Elysium λ Development & Research</a>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- Botón Whatsapp -->
-    <a href="https://wa.me/50684880406" class="floating-whatsapp" target="_blank" aria-label="Contactar por WhatsApp">
-        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-    </a>
+    <!-- Floating Action Button (FAB) -->
+    <div class="fab-wrapper" id="fab-wrapper">
+        <div class="fab-options">
+            <div class="fab-option-item">
+                <span class="fab-label">WhatsApp</span>
+                <a href="https://wa.me/50684880406" class="fab-option-btn whatsapp-btn" target="_blank" aria-label="WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                </a>
+            </div>
+            <div class="fab-option-item">
+                <span class="fab-label">Email</span>
+                <a href="mailto:valeria.vargas@valtrix.cr" class="fab-option-btn email-btn" aria-label="Email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                </a>
+            </div>
+            <div class="fab-option-item">
+                <span class="fab-label">Tema</span>
+                <button class="fab-option-btn theme-btn" id="theme-toggle" aria-label="Cambiar Tema">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+        </div>
+        <button class="fab-main" id="fab-main" aria-label="Más opciones">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+    </div>
 
     <script src="js/main.js"></script>
 

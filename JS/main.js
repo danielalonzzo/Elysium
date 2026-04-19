@@ -307,6 +307,43 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.reveal-item').forEach(el => revealObserver.observe(el));
     document.querySelectorAll('.reveal-step').forEach(el => revealObserver.observe(el));
 
+    // Methodology Scroll Logic
+    const processWrapper = document.querySelector('.process-scroll-wrapper');
+    const scrollSteps = document.querySelectorAll('.scroll-step');
+
+    if (processWrapper && scrollSteps.length > 0) {
+        window.addEventListener('scroll', () => {
+            const rect = processWrapper.getBoundingClientRect();
+            const scrollDistance = rect.height - window.innerHeight;
+            
+            let progress = 0;
+            if (rect.top > 0) {
+                progress = 0;
+            } else if (rect.bottom < window.innerHeight) {
+                progress = 1;
+            } else {
+                progress = -rect.top / scrollDistance;
+            }
+
+            // Map progress across steps
+            const stepThreshold = 1 / scrollSteps.length;
+            
+            scrollSteps.forEach((step, index) => {
+                // We reveal step `index` shortly after passing its threshold interval
+                const revealPoint = index * stepThreshold;
+                const pathSelector = document.querySelectorAll(`.path-${index + 1}`);
+
+                if (progress >= revealPoint) {
+                    step.classList.add('is-visible');
+                    pathSelector.forEach(p => p.classList.add('is-visible'));
+                } else {
+                    step.classList.remove('is-visible');
+                    pathSelector.forEach(p => p.classList.remove('is-visible'));
+                }
+            });
+        }, { passive: true });
+    }
+
     // 3. Glass Parallax Cards
     const glassCards = document.querySelectorAll('.card-parallax');
 

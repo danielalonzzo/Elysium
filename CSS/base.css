@@ -1,48 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500;1,700&family=Inter:wght@300;400;500;600;700&display=swap');
+
 /* Base CSS - Variables, Reset, Typography */
 
 :root {
-    /* Color Palette - Midnight Blue & Platinum */
-    --color-bg-primary: #020410;
-    /* Deepest Midnight Blue */
-    --color-bg-secondary: #051025;
-    /* Rich Navy */
+    /* Color Palette — Verde Forestal Premium */
+    --color-bg-primary: #1d2d26;
+    /* Verde Forestal Oscuro — dominante */
+    --color-bg-secondary: #152219;
+    /* Verde Bosque Más Profundo */
 
     /* Text */
-    --color-text-primary: #E1E1E5;
-    /* Cool Platinum White */
-    --color-text-secondary: #A0A5B5;
-    /* Muted Blue-Grey */
-    --color-text-muted: #6B7280;
-    /* Dark Slate */
+    --color-text-primary: #f4f1ea;
+    /* Crema — texto claro sobre verde */
+    --color-text-secondary: #b8b09a;
+    /* Arena Dorada Suave */
+    --color-text-muted: #6b8378;
+    /* Salvia — acento verde apagado */
 
-    /* Accents */
-    --color-accent: #2997ff;
-    /* Vivid Electric Blue */
-    --color-accent-glow: rgba(41, 151, 255, 0.5);
-    --color-platinum: #E1E1E5;
-    /* Silver/Platinum Highlight */
-    --color-gold: #D4AF37;
-    /* Subtle Gold Reflection */
+    /* Brand Palette */
+    --color-primary: #9d8c69;
+    /* Dorado Khaki — detalle refinado */
+    --color-primary-dark: #7a6d52;
+    /* Dorado Oscuro Profundo */
+    --color-secondary: #6b8378;
+    /* Salvia — acento verde para botones e iconos */
+    --color-highlight: #c4b08a;
+    /* Dorado Vivo — highlight */
+    --color-neutral-light: #f4f1ea;
+    /* Crema Sólida — secciones de contraste */
+    --color-accent-dark: #1d2d26;
+    /* Verde Forestal como accent oscuro */
+
+    /* Accent (main interactive color: gold-khaki) */
+    --color-accent: #9d8c69;
+    /* Dorado Khaki */
+    --color-accent-glow: rgba(157, 140, 105, 0.5);
+    --color-platinum: #f4f1ea;
+    /* Crema como base platinum */
+    --color-gold: #6b8378;
+    /* Salvia como gold replacement */
 
     /* Glassmorphism System */
-    --glass-bg: rgba(10, 20, 40, 0.4);
-    /* Tinted Blue Glass */
-    --glass-bg-hover: rgba(20, 30, 60, 0.5);
-    --glass-border: rgba(225, 225, 229, 0.15);
-    /* Platinum Border */
-    --glass-border-highlight: rgba(225, 225, 229, 0.4);
-    /* Brighter Shine */
-    --glass-shadow: 0 8px 32px 0 rgba(0, 5, 20, 0.5);
+    --glass-bg: rgba(20, 32, 24, 0.65);
+    /* Verde Forestal Glass */
+    --glass-bg-hover: rgba(13, 22, 17, 0.82);
+    --glass-border: rgba(244, 241, 234, 0.12);
+    /* Crema Border */
+    --glass-border-highlight: rgba(244, 241, 234, 0.28);
+    /* Crema Brillante */
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
     --backdrop-blur: blur(20px);
 
     /* Gradients */
-    --gradient-glow: radial-gradient(circle at 50% 50%, rgba(41, 151, 255, 0.15), transparent 60%);
-    --gradient-metallic: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.4) 100%);
+    --gradient-glow: radial-gradient(circle at 50% 50%, rgba(157, 140, 105, 0.12), transparent 60%);
+    --gradient-metallic: linear-gradient(135deg, rgba(244, 241, 234, 0.25) 0%, rgba(244, 241, 234, 0.05) 50%, rgba(244, 241, 234, 0.25) 100%);
 
-    /* Typography */
-    /* System fonts stack that mimics Apple's San Francisco */
-    --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Typography — Editorial Luxury */
+    --font-heading: 'Playfair Display', 'Didot', 'Bodoni MT', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
     /* Spacing Scale */
     --space-xs: 0.5rem;
@@ -88,33 +103,32 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+}
 
-    /* Liquid Alloy - Intense Flow */
+/* Liquid Alloy - Intense Flow (Fast Intro -> Slow Loop)
+   Moved to ::before to fix mobile Safari background-attachment issues */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    /* Use dynamic viewport height if supported to prevent resizing jumps on scroll */
+    @supports (height: 100dvh) {
+        height: 100dvh;
+    }
+    z-index: -1;
+    pointer-events: none;
+    
     background: linear-gradient(300deg,
-            #020410,
-            /* Deep Navy */
-            #0a1a3f,
-            /* Mid Blue */
-            #1c4e8c,
-            /* Electric/Metallic Blue */
-            #051025,
-            /* Midnight */
-            #020410
-            /* Loop */
-        );
-    background-size: 300% 300%;
-    animation: liquidAlloy 12s ease infinite;
-    /* Liquid Alloy - Intense Flow (Fast Intro -> Slow Loop) */
-    background: linear-gradient(300deg,
-            #020410,
-            /* Deep Navy */
-            #0a1a3f,
-            /* Mid Blue */
-            #1c4e8c,
-            /* Electric/Metallic Blue */
-            #051025,
-            /* Midnight */
-            #020410
+            #1d2d26,
+            /* Verde Forestal */
+            #1a2d22,
+            /* Ligeramente más frío */
+            #202f28,
+            /* Ligeramente más cálido */
+            #1d2d26
             /* Loop */
         );
     background-size: 300% 300%;
@@ -125,7 +139,6 @@ body {
     animation:
         liquidAlloy 12s ease-in-out 1,
         liquidAlloy 24s ease-in-out infinite 12s;
-    background-attachment: fixed;
 }
 
 @keyframes liquidAlloy {
@@ -152,8 +165,8 @@ h6 {
     color: var(--color-text-primary);
     line-height: 1.1;
     margin-bottom: var(--space-sm);
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     /* Subtle depth */
 }

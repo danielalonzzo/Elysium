@@ -252,86 +252,129 @@
     </section>
 
     <!-- Process Section -->
-    <section class="process section" style="background: var(--color-bg-secondary);">
-        <div class="container">
+    <section class="process section process-scroll-wrapper" style="background: var(--color-bg-secondary);">
+        <div class="container process-sticky-content">
             <div class="section-header animate-on-scroll">
                 <h2>Metodología científica</h2>
                 <p>Modelo λ de Desarrollo Framework</p>
             </div>
 
-            <div class="process-steps animate-on-scroll">
+            <div class="process-steps scroll-reveal-group">
                 <!-- SVG Guide Lines -->
                 <div class="process-guide-lines">
-                    <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="width: 100%; height: 100%;">
-                        <!-- MOBILE PATH (Spine on Col 1, Branches on Col 2) -->
+                    <svg style="width: 100%; height: 100%;">
+                        <defs>
+                            <marker id="arrow-down" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
+                                <image href="../Images/flecha-abajo.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
+                            </marker>
+                            <marker id="arrow-up" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
+                                <image href="../Images/flecha-arriba.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
+                            </marker>
+                            <marker id="arrow-right" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
+                                <image href="../Images/flecha-derecha.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
+                            </marker>
+                            <marker id="arrow-left" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
+                                <image href="../Images/flecha-izquierda.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
+                            </marker>
+                        </defs>
+                        <!-- MOBILE PATH (Zigzag flow for pairs) -->
                         <g class="mobile-only">
-                            <!-- Spine 01->02-03-05-07-09-10 -->
-                            <line x1="25" y1="5" x2="25" y2="95" class="process-line" vector-effect="non-scaling-stroke" />
-                            <!-- Horizontal branches to Col 2: 04, 06, 08 -->
-                            <line x1="25" y1="35" x2="60" y2="35" class="process-line" vector-effect="non-scaling-stroke" />
-                            <line x1="25" y1="55" x2="60" y2="55" class="process-line" vector-effect="non-scaling-stroke" />
-                            <line x1="25" y1="75" x2="60" y2="75" class="process-line" vector-effect="non-scaling-stroke" />
+                            <!-- Vertical central spine -->
+                            <line x1="50%" y1="2%" x2="50%" y2="98%" class="process-line path-2" />
+                            
+                            <!-- Horizontal connectors for pairs (approximate row positions) -->
+                            <line x1="25%" y1="10%" x2="75%" y2="10%" class="process-line path-2" marker-end="url(#arrow-right)" />
+                            <line x1="25%" y1="28%" x2="75%" y2="28%" class="process-line path-4" marker-end="url(#arrow-right)" />
+                            <line x1="25%" y1="45%" x2="75%" y2="45%" class="process-line path-6" marker-end="url(#arrow-right)" />
+                            <line x1="25%" y1="62%" x2="75%" y2="62%" class="process-line path-8" marker-end="url(#arrow-right)" />
+                            <line x1="25%" y1="80%" x2="75%" y2="80%" class="process-line path-10" marker-end="url(#arrow-right)" />
                         </g>
 
                         <!-- DESKTOP PATH (Original image layout) -->
                         <g class="desktop-only">
-                            <!-- Horizontal: 01 to 02 -->
-                            <line x1="15" y1="12" x2="20" y2="12" class="process-line" vector-effect="non-scaling-stroke" />
+                            <!-- Direct perfectly centered arrows using mathematically precise CSS Grid fractional gaps -->
+                            <line x1="8.9%" y1="11.0%" x2="19.2%" y2="11.0%" class="process-line path-2" marker-end="url(#arrow-right)" />
+                            <line x1="29.4%" y1="11.0%" x2="29.4%" y2="24.0%" class="process-line path-3" marker-end="url(#arrow-down)" />
+                            <line x1="29.4%" y1="37.0%" x2="39.8%" y2="37.0%" class="process-line path-4" marker-end="url(#arrow-right)" />
                             
-                            <!-- Vertical spine: 02-03-05-07 -->
-                            <line x1="30" y1="20" x2="30" y2="80" class="process-line" vector-effect="non-scaling-stroke" />
+                            <!-- Path 5: 4 -> 5 -->
+                            <line x1="50.0%" y1="37.0%" x2="50.0%" y2="43.5%" class="process-line path-5" marker-end="url(#arrow-down)" />
+                            <line x1="50.0%" y1="50.0%" x2="39.8%" y2="50.0%" class="process-line path-5" marker-end="url(#arrow-left)" />
+                            <line x1="29.4%" y1="50.0%" x2="29.4%" y2="56.5%" class="process-line path-5" marker-end="url(#arrow-down)" />
+                            
+                            <!-- Path 6: 5 -> 6 -->
+                            <line x1="29.4%" y1="63.0%" x2="39.8%" y2="63.0%" class="process-line path-6" marker-end="url(#arrow-right)" />
+                            
+                            <!-- Path 7: 6 -> 7 -->
+                            <line x1="50.0%" y1="63.0%" x2="50.0%" y2="69.5%" class="process-line path-7" marker-end="url(#arrow-down)" />
+                            <line x1="50.0%" y1="76.0%" x2="39.8%" y2="76.0%" class="process-line path-7" marker-end="url(#arrow-left)" />
+                            <line x1="29.4%" y1="76.0%" x2="29.4%" y2="82.5%" class="process-line path-7" marker-end="url(#arrow-down)" />
+                            
+                            <!-- Path 8, 9, 10 -->
+                            <line x1="29.4%" y1="89.0%" x2="39.8%" y2="89.0%" class="process-line path-8" marker-end="url(#arrow-right)" />
+                            <line x1="50.0%" y1="89.0%" x2="60.2%" y2="89.0%" class="process-line path-9" marker-end="url(#arrow-right)" />
+                            <line x1="70.5%" y1="89.0%" x2="80.8%" y2="89.0%" class="process-line path-10" marker-end="url(#arrow-right)" />
 
-                            <!-- Horizontal branches: 03->04, 05->06, 07->08->09->10 -->
-                            <line x1="35" y1="37" x2="40" y2="37" class="process-line" vector-effect="non-scaling-stroke" />
-                            <line x1="35" y1="62" x2="40" y2="62" class="process-line" vector-effect="non-scaling-stroke" />
-                            <line x1="35" y1="87" x2="90" y2="87" class="process-line" vector-effect="non-scaling-stroke" />
-
-                            <!-- Return Path (Image logic) -->
-                            <line x1="90" y1="87" x2="90" y2="37" class="process-line" vector-effect="non-scaling-stroke" />
-                            <line x1="90" y1="37" x2="55" y2="37" class="process-line" vector-effect="non-scaling-stroke" />
+                            <!-- Path 11 returning -->
+                            <line x1="91.0%" y1="89.0%" x2="91.0%" y2="76.0%" class="process-line path-11" marker-end="url(#arrow-up)" />
+                            <line x1="91.0%" y1="63.0%" x2="80.8%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
+                            <line x1="80.8%" y1="63.0%" x2="70.5%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
+                            <line x1="70.5%" y1="63.0%" x2="60.2%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
+                            
+                            <!-- Path 12 returning -->
+                            <line x1="91.0%" y1="63.0%" x2="91.0%" y2="50.0%" class="process-line path-12" marker-end="url(#arrow-up)" />
+                            <line x1="91.0%" y1="37.0%" x2="80.8%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
+                            <line x1="80.8%" y1="37.0%" x2="70.5%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
+                            <line x1="70.5%" y1="37.0%" x2="60.2%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
                         </g>
                     </svg>
                 </div>
 
-                <div class="process-step reveal-step step-01" style="transition-delay: 0s;">
+                <div class="process-step scroll-step step-01">
                     <div class="step-number">01</div>
                     <h3 class="step-title">Antecedentes</h3>
                 </div>
-                <div class="process-step reveal-step step-02" style="transition-delay: 0.1s;">
+                <div class="process-step scroll-step step-02">
                     <div class="step-number">02</div>
                     <h3 class="step-title">¿Qué se sabe?</h3>
                 </div>
-                <div class="process-step reveal-step step-03" style="transition-delay: 0.2s;">
+                <div class="process-step scroll-step step-03">
                     <div class="step-number">03</div>
                     <h3 class="step-title">¿Qué no se sabe?</h3>
                 </div>
-                <div class="process-step reveal-step step-04" style="transition-delay: 0.3s;">
+                <div class="process-step scroll-step step-04">
                     <div class="step-number">04</div>
                     <h3 class="step-title">Pregunta de Investigación</h3>
                 </div>
-                <div class="process-step reveal-step step-05" style="transition-delay: 0.4s;">
+                <div class="process-step scroll-step step-05">
                     <div class="step-number">05</div>
                     <h3 class="step-title">¿Por qué debería saberse?</h3>
                 </div>
-                <div class="process-step reveal-step step-06" style="transition-delay: 0.5s;">
+                <div class="process-step scroll-step step-06">
                     <div class="step-number">06</div>
                     <h3 class="step-title">Hipótesis</h3>
                 </div>
-                <div class="process-step reveal-step step-07" style="transition-delay: 0.6s;">
+                <div class="process-step scroll-step step-07">
                     <div class="step-number">07</div>
                     <h3 class="step-title">¿Qué métodos hay?</h3>
                 </div>
-                <div class="process-step reveal-step step-08" style="transition-delay: 0.7s;">
+                <div class="process-step scroll-step step-08">
                     <div class="step-number">08</div>
                     <h3 class="step-title">Diseño Experimental</h3>
                 </div>
-                <div class="process-step reveal-step step-09" style="transition-delay: 0.8s;">
+                <div class="process-step scroll-step step-09">
                     <div class="step-number">09</div>
                     <h3 class="step-title">Experimentos y QA</h3>
                 </div>
-                <div class="process-step reveal-step step-10" style="transition-delay: 0.9s;">
+                <div class="process-step scroll-step step-10">
                     <div class="step-number">10</div>
                     <h3 class="step-title">Conclusiones y Publicación</h3>
+                </div>
+                <div class="process-step scroll-step step-11 return-node">
+                    <div class="step-number">11</div>
+                </div>
+                <div class="process-step scroll-step step-12 return-node">
+                    <div class="step-number">12</div>
                 </div>
             </div>
         </div>

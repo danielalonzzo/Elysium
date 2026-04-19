@@ -1,4 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 0. Loading Page Logic
+    const startTime = Date.now();
+    const loader = document.getElementById('loader');
+    
+    window.addEventListener('load', () => {
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 2000 - elapsedTime);
+        
+        setTimeout(() => {
+
+            if (loader) {
+                loader.classList.add('fade-out');
+                document.body.style.overflow = ''; // Restore scroll
+                
+                // Remove from DOM after transition
+                setTimeout(() => {
+                    loader.remove();
+                    document.body.classList.remove('loading');
+                }, 800);
+            }
+        }, remainingTime);
+    });
+
+    // 1. Mobile Hamburger Menu Toggle
+
     // 1. Mobile Hamburger Menu Toggle
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
@@ -104,4 +129,77 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1500);
         });
     }
+
+    // 6. FAB & Theme Toggle Logic
+    const fabMain = document.getElementById('fab-main');
+    const fabWrapper = document.getElementById('fab-wrapper');
+    const themeToggle = document.getElementById('theme-toggle');
+    const sunIcon = document.querySelector('.sun-icon');
+    const moonIcon = document.querySelector('.moon-icon');
+
+    // FAB Toggle
+    if (fabMain && fabWrapper) {
+        fabMain.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fabWrapper.classList.toggle('active');
+        });
+
+        // Close FAB when clicking outside
+        document.addEventListener('click', (e) => {
+            if (fabWrapper.classList.contains('active') && !fabWrapper.contains(e.target)) {
+                fabWrapper.classList.remove('active');
+            }
+        });
+    }
+
+    // Theme Switch Function
+    function setTheme(isLight, isManual = false) {
+        if (isLight) {
+            document.body.classList.add('light-mode');
+            if (sunIcon) sunIcon.style.display = 'none';
+            if (moonIcon) moonIcon.style.display = 'block';
+        } else {
+            document.body.classList.remove('light-mode');
+            if (sunIcon) sunIcon.style.display = 'block';
+            if (moonIcon) moonIcon.style.display = 'none';
+        }
+        
+        if (isManual) {
+            localStorage.setItem('theme_preference', isLight ? 'light' : 'dark');
+        }
+    }
+
+    // Automatic theme based on Costa Rica time (UTC-6)
+    function applyAutoTheme() {
+        const savedTheme = localStorage.getItem('theme_preference');
+        if (savedTheme) {
+            setTheme(savedTheme === 'light');
+            return;
+        }
+
+        try {
+            const now = new Date();
+            const crTime = now.toLocaleString("en-US", {timeZone: "America/Costa_Rica", hour12: false, hour: "numeric"});
+            const crHour = parseInt(crTime);
+            
+            // Light Mode: 6am to 3pm (15:00)
+            const isLightTime = crHour >= 6 && crHour < 15;
+            setTheme(isLightTime);
+        } catch (e) {
+            console.error("Error calculating Costa Rica time:", e);
+            setTheme(false); // Default to dark on error
+        }
+    }
+
+    // Theme Toggle Click
+    if (themeToggle) {
+        themeToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isCurrentlyLight = document.body.classList.contains('light-mode');
+            setTheme(!isCurrentlyLight, true);
+        });
+    }
+
+    // Initialize Theme
+    applyAutoTheme();
 });
