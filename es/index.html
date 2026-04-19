@@ -292,37 +292,42 @@
 
                         <!-- DESKTOP PATH (Original image layout) -->
                         <g class="desktop-only">
-                            <!-- Direct perfectly centered arrows using mathematically precise CSS Grid fractional gaps -->
                             <line x1="8.9%" y1="11.0%" x2="19.2%" y2="11.0%" class="process-line path-2" marker-end="url(#arrow-right)" />
+                            
+                            <!-- Path 3: 2 -> 3 -->
                             <line x1="29.4%" y1="11.0%" x2="29.4%" y2="24.0%" class="process-line path-3" marker-end="url(#arrow-down)" />
+                            
+                            <!-- Path 4: 3 -> 4 -->
                             <line x1="29.4%" y1="37.0%" x2="39.8%" y2="37.0%" class="process-line path-4" marker-end="url(#arrow-right)" />
                             
-                            <!-- Path 5: 4 -> 5 -->
-                            <line x1="50.0%" y1="37.0%" x2="50.0%" y2="43.5%" class="process-line path-5" marker-end="url(#arrow-down)" />
-                            <line x1="50.0%" y1="50.0%" x2="39.8%" y2="50.0%" class="process-line path-5" marker-end="url(#arrow-left)" />
-                            <line x1="29.4%" y1="50.0%" x2="29.4%" y2="56.5%" class="process-line path-5" marker-end="url(#arrow-down)" />
+                            <!-- Path 5: 3 -> 5 -->
+                            <line x1="29.4%" y1="37.0%" x2="29.4%" y2="50.0%" class="process-line path-5" marker-end="url(#arrow-down)" />
                             
                             <!-- Path 6: 5 -> 6 -->
                             <line x1="29.4%" y1="63.0%" x2="39.8%" y2="63.0%" class="process-line path-6" marker-end="url(#arrow-right)" />
                             
-                            <!-- Path 7: 6 -> 7 -->
-                            <line x1="50.0%" y1="63.0%" x2="50.0%" y2="69.5%" class="process-line path-7" marker-end="url(#arrow-down)" />
-                            <line x1="50.0%" y1="76.0%" x2="39.8%" y2="76.0%" class="process-line path-7" marker-end="url(#arrow-left)" />
-                            <line x1="29.4%" y1="76.0%" x2="29.4%" y2="82.5%" class="process-line path-7" marker-end="url(#arrow-down)" />
+                            <!-- Path 7: 5 -> 7 -->
+                            <line x1="29.4%" y1="63.0%" x2="29.4%" y2="76.0%" class="process-line path-7" marker-end="url(#arrow-down)" />
                             
-                            <!-- Path 8, 9, 10 -->
+                            <!-- Path 8: 7 -> 8 -->
                             <line x1="29.4%" y1="89.0%" x2="39.8%" y2="89.0%" class="process-line path-8" marker-end="url(#arrow-right)" />
-                            <line x1="50.0%" y1="89.0%" x2="60.2%" y2="89.0%" class="process-line path-9" marker-end="url(#arrow-right)" />
+
+                            <!-- Path 9: 8 -> 9 -->
+                            <line x1="50.0%" y1="89.0%" x2="60.3%" y2="89.0%" class="process-line path-9" marker-end="url(#arrow-right)" />
+                            
+                            <!-- Path 10: 9 -> 10 -->
                             <line x1="70.5%" y1="89.0%" x2="80.8%" y2="89.0%" class="process-line path-10" marker-end="url(#arrow-right)" />
 
-                            <!-- Path 11 returning -->
+                            <!-- Returning paths 10 -> 11 -> 12 -->
                             <line x1="91.0%" y1="89.0%" x2="91.0%" y2="76.0%" class="process-line path-11" marker-end="url(#arrow-up)" />
+                            <line x1="91.0%" y1="63.0%" x2="91.0%" y2="50.0%" class="process-line path-12" marker-end="url(#arrow-up)" />
+                            
+                            <!-- Return Loop 11 -> 6 (Multiple arrows effect) -->
                             <line x1="91.0%" y1="63.0%" x2="80.8%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
                             <line x1="80.8%" y1="63.0%" x2="70.5%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
                             <line x1="70.5%" y1="63.0%" x2="60.2%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
-                            
-                            <!-- Path 12 returning -->
-                            <line x1="91.0%" y1="63.0%" x2="91.0%" y2="50.0%" class="process-line path-12" marker-end="url(#arrow-up)" />
+
+                            <!-- Return Loop 12 -> 4 (Multiple arrows effect) -->
                             <line x1="91.0%" y1="37.0%" x2="80.8%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
                             <line x1="80.8%" y1="37.0%" x2="70.5%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
                             <line x1="70.5%" y1="37.0%" x2="60.2%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
