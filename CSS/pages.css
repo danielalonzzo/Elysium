@@ -786,6 +786,12 @@ textarea.form-control {
     z-index: 1;
 }
 
+@media (max-width: 768px) {
+    .cv-card {
+        padding: 1.5rem;
+    }
+}
+
 /* Discrete Glow for the About Card */
 .cv-about-card {
     overflow: visible;
@@ -954,12 +960,16 @@ textarea.form-control {
 .cv-ext-link {
     display: inline-flex;
     align-items: center;
+    flex-wrap: wrap; /* allow arrow to wrap if necessary */
     gap: 0.4rem;
     font-size: 0.9rem;
     color: var(--color-accent);
     text-decoration: none;
     margin-top: 0.5rem;
     transition: color 0.3s ease;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 .cv-ext-link::after {
@@ -993,7 +1003,7 @@ textarea.form-control {
 /* Bottom Grid (Languages + Skills/Certs) */
 .cv-bottom-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
     align-items: start;
 }
@@ -1012,6 +1022,8 @@ textarea.form-control {
 /* Table */
 .table-responsive {
     overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
 .cv-table {
@@ -1139,18 +1151,39 @@ textarea.form-control {
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease, border-color 0.4s ease;
 }
 
+.cv-tech-stack {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cv-tech-stack strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+}
+
 .developer-card-link .developer-card-content {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1.25rem;
-    padding: 2rem;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    padding: 1.5rem;
 }
 
 @media (min-width: 480px) {
     .developer-card-link .developer-card-content {
         flex-direction: row;
         align-items: center;
+        text-align: left;
         gap: 2rem;
         padding: 2rem 2.5rem;
     }
