@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Perfil profesional de Valeria Vargas Ávila, Fundadora e Ingeniera Industrial en VALTRIX Engineering.">
+    <title>Valeria Vargas Ávila - Perfil</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- CSS -->
+    <style>
+        .profile-header {
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .profile-hero {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            flex-wrap: wrap;
+        }
+        .profile-hero-img-wrapper {
+            flex-shrink: 0;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--color-accent);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+        .profile-hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-hero-text {
+            flex: 1;
+            min-width: 300px;
+        }
+        .profile-contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: var(--color-text-secondary);
+        }
+        .profile-link {
+            color: var(--color-accent);
+            font-weight: 500;
+        }
+        .profile-link:hover {
+            color: var(--color-spark);
+            text-decoration: underline;
+        }
+        .profile-separator {
+            color: var(--color-border);
+        }
+        
+        .cv-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        .cv-section {
+            margin-bottom: 4rem;
+        }
+        
+        .cv-section-title {
+            font-size: 1.1rem;
+            color: var(--color-accent);
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--color-border);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            min-height: 3.5rem;
+            display: flex;
+            align-items: flex-end;
+            line-height: 1.3;
+        }
+
+        .cv-card {
+            background: var(--color-card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: var(--card-blur);
+            -webkit-backdrop-filter: var(--card-blur);
+            position: relative;
+            z-index: 1;
+            transition: all var(--transition-normal);
+            margin-bottom: 2rem;
+        }
+        .cv-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: var(--chrome-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            opacity: 0.3;
+            transition: opacity var(--transition-normal);
+        }
+        .cv-card:hover {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .cv-card:hover::before {
+            opacity: 1;
+        }
+        
+        .cv-timeline {
+            position: relative;
+            padding-left: 2.5rem;
+            --line-mask-stop: -200px; 
+        }
+        .cv-timeline::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--color-border);
+            -webkit-mask-image: linear-gradient(to bottom, transparent var(--line-mask-stop), black calc(var(--line-mask-stop) + 80px));
+            mask-image: linear-gradient(to bottom, transparent var(--line-mask-stop), black calc(var(--line-mask-stop) + 80px));
+        }
+        
+        .cv-timeline-item {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+        .cv-timeline-dot {
+            position: absolute;
+            left: -2.8rem;
+            top: 2rem;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--color-accent);
+            z-index: 3;
+            box-shadow: 0 0 15px var(--color-accent);
+        }
+        
+        .cv-timeline-header h3 {
+            font-size: 1.15rem;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.01em;
+            text-transform: none;
+            min-height: 3.2rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .cv-company {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .cv-date {
+            font-size: 0.85rem;
+            color: var(--color-spark);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+        
+        .cv-list {
+            margin-left: 1.5rem;
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        .cv-list li {
+            margin-bottom: 0.75rem;
+        }
+        
+        .cv-section-title, 
+        .cv-timeline-item, 
+        .cv-card, 
+        .cv-timeline-dot {
+             will-change: opacity, filter, transform;
+        }
+
+        @media (max-width: 768px) {
+            .profile-hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 2rem;
+            }
+            .profile-hero-img-wrapper {
+                width: 200px;
+                height: 200px;
+            }
+            .profile-contact-links {
+                justify-content: center;
+            }
+            .cv-timeline {
+                padding-left: 1.5rem;
+            }
+            .cv-timeline-dot {
+                left: -1.8rem;
+            }
+        }
+        .cv-side-by-side {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 992px) {
+            .cv-side-by-side {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        .pro-link-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            background: var(--color-card-bg);
+            border-radius: 50px;
+            border: 1px solid var(--color-border);
+            text-decoration: none;
+            transition: all var(--transition-normal);
+            color: var(--color-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        .pro-link-badge:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.15);
+            color: var(--color-accent);
+        }
+        .cfia-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            margin-top: 2rem;
+            max-width: 480px;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+        .cfia-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--color-accent);
+            border-radius: 4px 0 0 4px;
+        }
+        .cfia-box:hover {
+            border-color: var(--color-accent);
+            box-shadow: 0 12px 30px rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="loading light-mode">
+
+    <!-- Loading Page -->
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <div class="loader-logo" data-text="VALTRIX Engineering">VALTRIX <span class="brand-accent">Engineering</span></div>
+        </div>
+    </div>
+    <script>
+        document.body.style.overflow = 'hidden';
+    </script>
+
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="index.html" class="brand-logo">VALTRIX <span class="brand-accent">Engineering</span></a>
+            
+            <ul class="nav-menu">
+                <li><a href="soluciones.html" class="nav-link">Soluciones</a></li>
+                <li><a href="servicios.html" class="nav-link">Servicios</a></li>
+                <li><a href="paquetes.html" class="nav-link">Paquetes</a></li>
+                <li><a href="nosotros.html" class="nav-link">Nosotros</a></li>
+                <li><a href="contacto.html" class="btn btn-primary nav-btn">CONTACTO <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a></li>
+            </ul>
+
+            <button class="hamburger">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="page-header profile-header" style="padding: 10rem 0 3rem 0;">
+        <div class="container">
+            <div class="profile-hero">
+                <div class="profile-hero-img-wrapper">
+                    <img src="Images/IMG_6429.jpg" alt="Valeria Vargas Ávila" class="profile-hero-img">
+                </div>
+                <div class="profile-hero-text">
+                    <h1 style="font-size: 3rem; margin-bottom: 0.25rem; color: var(--color-primary); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;">Valeria Vargas Ávila</h1>
+                    <p style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--color-accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                        Ingeniera Industrial & Fundadora
+                    </p>
+                    
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <a href="mailto:vargasavila98@gmail.com" class="pro-link-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            vargasavila98@gmail.com
+                        </a>
+                        <a href="https://wa.me/50684880406" class="pro-link-badge" target="_blank">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            (+506) 8488-0406
+                        </a>
+                    </div>
+                    
+                    <div class="cfia-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px; flex-shrink: 0; margin-top: 0.2rem;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        <div>
+                            <p style="margin: 0; color: var(--color-primary); font-weight: 700; font-size: 1.05rem; margin-bottom: 0.35rem; letter-spacing: -0.01em;">Miembro Activa CFIA</p>
+                            <p style="margin: 0; color: var(--color-text-secondary); font-size: 0.9rem; line-height: 1.6;">Colegiada ante el Colegio Federado de Ingenieros y Arquitectos desde 2025.</p>
+                            <div style="margin-top: 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.05); padding: 0.25rem 0.75rem; border-radius: 6px; border: 1px solid rgba(0,0,0,0.05);">
+                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Carné</span>
+                                <span style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--color-spark); font-size: 1rem;">000000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="page-content section-gray" style="padding: 2.5rem 0;">
+        <div class="container cv-container">
+
+            <!-- Objetivo Profesional -->
+            <section class="cv-section">
+                <h2 class="cv-section-title">Sobre Mí</h2>
+                <div class="cv-card cv-about-card">
+                    <p style="color: var(--color-text-secondary); line-height: 1.8;">Con 9 años de experiencia entre industria electrónica, médica, construcción y aeroportuaria. Busco desarrollar mi carrera y continuar estudiando ya que está en constante innovación, para cada día dar un excelente aporte en los distintos procesos, con el cumplimiento de los objetivos requeridos en altos estándares de calidad, optimización, reducción, entre otros. Para juntos cumplir el mismo objetivo, la continuidad del negocio.</p>
+                </div>
+            </section>
+
+            <!-- Experiencia Laboral -->
+            <section class="cv-section">
+                <h2 class="cv-section-title">Experiencia Laboral</h2>
+                <div class="cv-timeline">
+                    <!-- Item 1 -->
+                    <div class="cv-timeline-item">
+                        <div class="cv-timeline-dot"></div>
+                        <div class="cv-timeline-content cv-card">
+                            <div class="cv-timeline-header">
+                                <h3>Ingeniera Industrial</h3>
+                                <p class="cv-company">AERIS Holding Costa Rica</p>
+                                <span class="cv-date">Ene 2024 – Actualidad</span>
+                            </div>
+                            <ul class="cv-list">
+                                <li>Soporte estratégico en la gestión integral de proyectos de infraestructura aeroportuaria.</li>
+                                <li>Coordinación de equipos multidisciplinarios (ingeniería civil, electromecánica, pavimentos e industrial), asegurando alineación con los objetivos del proyecto.</li>
+                                <li>Planificación, seguimiento y control de cronograma, costos y alcance, garantizando cumplimiento de hitos establecidos.</li>
+                                <li>Elaboración de reportes ejecutivos y análisis de indicadores clave de desempeño para la toma de decisiones gerenciales.</li>
+                                <li>Gestión y control de documentación técnica y contractual, asegurando trazabilidad y cumplimiento normativo.</li>
+                                <li>Implementación y seguimiento de estándares de calidad en obra, verificando cumplimiento de especificaciones técnicas y buenas prácticas constructivas.</li>
+                                <li>Apoyo en procesos de aseguramiento y control de calidad mediante inspecciones, revisión de entregables y validación de actividades ejecutadas.</li>
+                                <li>Articulación entre áreas técnicas y administrativas para optimizar la eficiencia operativa de los proyectos.</li>
+                                <li>Soporte en la supervisión de campo, asegurando cumplimiento de plazos, calidad y requisitos técnicos.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="cv-timeline-item">
+                        <div class="cv-timeline-dot"></div>
+                        <div class="cv-timeline-content cv-card">
+                            <div class="cv-timeline-header">
+                                <h3>Asistente Administrativa</h3>
+                                <p class="cv-company">Grupo SEAR</p>
+                                <span class="cv-date">Jun 2022 - May 2023</span>
+                            </div>
+                            <ul class="cv-list">
+                                <li>Realizar mejora en proceso realizando y controlando documentos bajo la Norma Internacional de Calidad.</li>
+                                <li>Controlar, revisar, archivar, cuestionar y estandarizar documentos tanto digital como físicamente, creando distintos respaldos por cualquier eventualidad en el sistema tecnológico.</li>
+                                <li>Realizar observaciones, seguimiento, cuestionamientos, análisis para establecer idea en la mejora continua de los procesos, con levantamiento de datos, para ser expuestos por medio de indicadores.</li>
+                                <li>Realización de diagrama de flujos, disminución de tiempos de respuesta en los distintos servicios ya sea cliente interno y externo.</li>
+                                <li>Proponer ideas de innovación, eficientes, optimas y confiables en los distintos procesos.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="cv-timeline-item">
+                        <div class="cv-timeline-dot"></div>
+                        <div class="cv-timeline-content cv-card">
+                            <div class="cv-timeline-header">
+                                <h3>Técnico de Procesos y Operaria</h3>
+                                <p class="cv-company">Philips</p>
+                                <span class="cv-date">Jul 2020 - Jul 2022</span>
+                            </div>
+                            <ul class="cv-list">
+                                <li><strong>Técnico de procesos (Jul 2021 - Jun 2022):</strong> Controlar más de 1000 equipos de medición (Tool, reglas, termómetros, hornos, etc.).</li>
+                                <li>Controlar el seguimiento de la calibración y qué tipo de calibración, implicando el orden y cuestionamiento del proceso.</li>
+                                <li>Contar con criterio propio y respuesta inmediata ante situaciones del día a día (cumplimiento regulatorio internacional).</li>
+                                <li>Uso de SAP para la identificación de inventarios, productos, costos, inversión en equipos, verificar fechas y fabricantes.</li>
+                                <li>Seguimiento y realización de documentos controlados con sus respectivas revisiones y mejoras para cumplir la Norma Internacional de Calidad.</li>
+                                <li><strong>Operaria (Jul 2020 - Jul 2021):</strong> Uso de microscopios y soldadoras en líneas de producción, con seguimiento de ayudas visuales, diagramas de flujos y estándares de calidad.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Item 4 -->
+                    <div class="cv-timeline-item">
+                        <div class="cv-timeline-dot"></div>
+                        <div class="cv-timeline-content cv-card">
+                            <div class="cv-timeline-header">
+                                <h3>Técnico de Producción y Operaria</h3>
+                                <p class="cv-company">Trimpot Electrónica</p>
+                                <span class="cv-date">May 2017 - May 2020</span>
+                            </div>
+                            <ul class="cv-list">
+                                <li><strong>Técnico de producción (May 2018 - May 2020):</strong> Seguimiento y control de gráficas con interpretación de variaciones, medias, límites, usando herramientas como SAP, Excel y minitab.</li>
+                                <li>Análisis de recolección de datos de forma precisa y óptima, con programación de tiempos establecidos.</li>
+                                <li>Interpretar los planos y su simbología para tomar decisiones con criterio sólido.</li>
+                                <li>Realización de documentos controlados bajo la Norma Internacional de Calidad.</li>
+                                <li><strong>Operaria (May 2017 - May 2018):</strong> Uso de microscopios y soldadoras. Cumplimiento de metas con análisis crítico visual si el producto pasaba o no pasaba.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="cv-side-by-side">
+                <!-- Educación -->
+                <section class="cv-section">
+                    <h2 class="cv-section-title">FORMACIÓN ACADÉMICA</h2>
+                    <div class="cv-timeline">
+                        <div class="cv-timeline-item">
+                            <div class="cv-timeline-dot"></div>
+                            <div class="cv-timeline-content cv-card">
+                                <div class="cv-timeline-header">
+                                    <h3>Licenciatura en Ingeniería Industrial</h3>
+                                    <span class="cv-date">Universidad Fidélitas | 2026</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="cv-timeline-item">
+                            <div class="cv-timeline-dot"></div>
+                            <div class="cv-timeline-content cv-card">
+                                <div class="cv-timeline-header">
+                                    <h3>Bachillerato en Ingeniería Industrial</h3>
+                                    <span class="cv-date">Universidad Fidélitas | 2023</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cv-timeline-item">
+                            <div class="cv-timeline-dot"></div>
+                            <div class="cv-timeline-content cv-card">
+                                <div class="cv-timeline-header">
+                                    <h3>Ingeniería en Cadena de Suministros y Logística</h3>
+                                    <span class="cv-date">Universidad Fidélitas | 75% malla curricular</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Certificados Parte 1 -->
+                <section class="cv-section">
+                    <h2 class="cv-section-title">CERTIFICACIONES</h2>
+                    <div class="cv-timeline">
+                        <div class="cv-timeline-item">
+                            <div class="cv-timeline-dot"></div>
+                            <div class="cv-timeline-content cv-card">
+                                <div class="cv-timeline-header">
+                                    <h3>Auditor en la Norma Internacional de Calidad 9001-2015</h3>
+                                    <span class="cv-date">SHERPA Consultores | 2023</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="cv-timeline-item">
+                            <div class="cv-timeline-dot"></div>
+                            <div class="cv-timeline-content cv-card">
+                                <div class="cv-timeline-header">
+                                    <h3>Power BI</h3>
+                                    <span class="cv-date">UTN | 2023</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Certificados Parte 2 -->
+                <section class="cv-section">
+                    <h2 class="cv-section-title">HABILIDADES</h2>
+                    <div class="cv-timeline">
+                        <div class="cv-timeline-item">
+                            <div class="cv-timeline-dot"></div>
+                            <div class="cv-timeline-content cv-card">
+                                <div class="cv-timeline-header">
+                                    <h3>Excel Intermedio</h3>
+                                    <span class="cv-date">Universidad Fidélitas | 2022</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cv-timeline-item">
+                            <div class="cv-timeline-dot"></div>
+                            <div class="cv-timeline-content cv-card">
+                                <div class="cv-timeline-header">
+                                    <h3>Inglés Ejecutivo</h3>
+                                    <span class="cv-date">Academia Líder | A2</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Referencias -->
+            <section class="cv-section">
+                <h2 class="cv-section-title">Referencias</h2>
+                <div class="cv-card">
+                    <ul style="list-style: none; padding: 0; color: var(--color-text-secondary); line-height: 1.8;">
+                        <li style="margin-bottom: 1rem;">
+                            <strong style="color: var(--color-primary);">Gabriela Alfaro Gutiérrez</strong> - Jefatura de Recursos Humanos, Grupo SEAR. <br>
+                            Tel: (+506) 8994-5632
+                        </li>
+                        <li style="margin-bottom: 1rem;">
+                            <strong style="color: var(--color-primary);">Ana Yancy Murillo</strong> - Inventory Maintenance Technician. <br>
+                            Tel: (+506) 8523-2362
+                        </li>
+                        <li style="margin-bottom: 1rem;">
+                            <strong style="color: var(--color-primary);">Carlos Rojas Esquivel</strong> - Supervisor Trimpot Electrónicas Ltda. <br>
+                            Tel: (+506) 8834-9080
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand-logo">VALTRIX <span>Engineering</span></div>
+                    <p class="footer-desc">Ingeniería costarricense impulsando el desarrollo industrial a través del control riguroso y talento nacional de alto nivel.</p>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Navegación</h4>
+                    <ul class="footer-links">
+                        <li><a href="soluciones.html">Soluciones</a></li>
+                        <li><a href="servicios.html">Servicios</a></li>
+                        <li><a href="paquetes.html">Paquetes</a></li>
+                        <li><a href="nosotros.html">Sobre Nosotros</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Detalles de Contacto</h4>
+                    <ul class="footer-meta">
+                        <li>valeria.vargas@valtrix.cr</li>
+                        <li>+506 8488-0406</li>
+                        <li style="margin-top: 1rem; color: var(--color-spark); font-weight: 700;">WhatsApp</li>
+                        <li>
+                            <a href="https://wa.me/50684880406" target="_blank" style="padding: 0.5rem;">
+                                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-group">
+                    <div>VALTRIX Engineering © 2026</div>
+                    <div class="footer-bottom-links">
+                        <a href="#">Configuración de Privacidad</a>
+                        <a href="#">Política de Privacidad</a>
+                        <a href="#">Términos & Condiciones</a>
+                    </div>
+                </div>
+                <div class="footer-credits">
+                    <a href="https://elysiumdr.eu" target="_blank" style="color: inherit; text-decoration: none; letter-spacing: 0.05em;">Elysium λ Development & Research</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Action Button (FAB) -->
+    <div class="fab-wrapper" id="fab-wrapper">
+        <div class="fab-options">
+            <div class="fab-option-item">
+                <span class="fab-label">WhatsApp</span>
+                <a href="https://wa.me/50684880406" class="fab-option-btn whatsapp-btn" target="_blank" aria-label="WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                </a>
+            </div>
+            <div class="fab-option-item">
+                <span class="fab-label">Email</span>
+                <a href="mailto:valeria.vargas@valtrix.cr" class="fab-option-btn email-btn" aria-label="Email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                </a>
+            </div>
+            <div class="fab-option-item">
+                <span class="fab-label">Tema</span>
+                <button class="fab-option-btn theme-btn" id="theme-toggle" aria-label="Cambiar Tema">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+        </div>
+        <button class="fab-main" id="fab-main" aria-label="Más opciones">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+    </div>
+
+    <!-- Scroll Blur Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const handleScrollBlur = () => {
+                // Select main logical scroll-aware blocks: sections, cards, and timeline items
+                const elements = Array.from(document.querySelectorAll('.cv-about-card, .cv-timeline-item, section.cv-section > .cv-card'));
+                const midpoint = window.innerHeight / 2;
+                
+                elements.forEach((el) => {
+                    const rect = el.getBoundingClientRect();
+                    // Find the first element that is physically below the current one
+                    const nextEl = elements.find(other => {
+                        const otherRect = other.getBoundingClientRect();
+                        return otherRect.top > rect.top + 50; 
+                    });
+                    
+                    let progress = 0;
+
+                    if (nextEl) {
+                        const nextRect = nextEl.getBoundingClientRect();
+                        
+                        // We start fading when the NEXT element passes the midpoint (center of screen)
+                        if (nextRect.top < midpoint) {
+                            // Fade progress based on next element's approach to its resting point
+                            // It starts at midpoint and finishes when next element hits ~200px from top
+                            const fadeRange = midpoint - 200;
+                            progress = (midpoint - nextRect.top) / fadeRange;
+                        }
+                    } else {
+                        // Last element: use legacy behavior (fades as it hits the top area)
+                        const fadeStartPoint = 150;
+                        const fadeDistance = 150;
+                        if (rect.top < fadeStartPoint) {
+                            progress = (fadeStartPoint - rect.top) / fadeDistance;
+                        }
+                    }
+
+                    progress = Math.max(0, Math.min(1, progress));
+                    
+                    el.style.opacity = 1 - progress;
+                    el.style.filter = `blur(${progress * 20}px)`;
+                    el.style.pointerEvents = progress > 0.6 ? 'none' : 'auto';
+                });
+                
+                // Handle timeline line mask separately
+                document.querySelectorAll('.cv-timeline').forEach(timeline => {
+                    const rect = timeline.getBoundingClientRect();
+                    let maskAmount = 150 - rect.top;
+                    timeline.style.setProperty('--line-mask-stop', maskAmount > 0 ? `${maskAmount}px` : `-200px`);
+                });
+
+                // Handle section titles separately to keep them readable
+                document.querySelectorAll('.cv-section-title').forEach(title => {
+                    const rect = title.getBoundingClientRect();
+                    const restingTop = 90;
+                    if (rect.top < restingTop) {
+                        let progress = (restingTop - rect.top) / 100;
+                        progress = Math.max(0, Math.min(1, progress));
+                        title.style.opacity = 1 - progress;
+                        title.style.filter = `blur(${progress * 15}px)`;
+                    } else {
+                        title.style.opacity = 1;
+                        title.style.filter = 'blur(0px)';
+                    }
+                });
+            };
+
+            window.addEventListener('scroll', handleScrollBlur, { passive: true });
+            handleScrollBlur();
+            window.addEventListener('resize', handleScrollBlur, { passive: true });
+        });
+    </script>
+    <script src="js/main.js"></script>
+</body>
+</html>

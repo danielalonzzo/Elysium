@@ -182,12 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const crTime = now.toLocaleString("en-US", {timeZone: "America/Costa_Rica", hour12: false, hour: "numeric"});
             const crHour = parseInt(crTime);
             
-            // Light Mode: 6am to 3pm (15:00)
-            const isLightTime = crHour >= 6 && crHour < 15;
+            // Light Mode: 6am to 6pm (18:00)
+            const isLightTime = crHour >= 6 && crHour < 18;
             setTheme(isLightTime);
         } catch (e) {
             console.error("Error calculating Costa Rica time:", e);
-            setTheme(false); // Default to dark on error
+            setTheme(true); // Default to light on error
         }
     }
 

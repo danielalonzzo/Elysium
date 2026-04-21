@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nosotros | VALTRIX Engineering</title>
+    <meta name="description" content="Conozca a nuestro equipo y la historia detrás de VALTRIX Engineering.">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+            justify-items: center; /* center items if few */
+        }
+        .team-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: var(--card-blur);
+            -webkit-backdrop-filter: var(--card-blur);
+            transition: all var(--transition-normal);
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .team-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: var(--chrome-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            opacity: 0.3;
+            transition: opacity var(--transition-normal);
+        }
+        .team-card:hover {
+            transform: translateY(-5px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .team-card:hover::before {
+            opacity: 1;
+        }
+        .team-img-wrapper {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--color-accent);
+            margin-bottom: 2rem;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        .team-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .team-name {
+            font-size: 1.6rem;
+            color: var(--color-primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .team-role {
+            font-size: 0.95rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .team-cta {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--color-spark);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .history-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .history-content p {
+            font-size: 1.1rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+        
+        
+        .scroll-indicator-container {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+        .scroll-arrow {
+            color: var(--color-spark);
+            width: 32px;
+            height: 32px;
+            animation: bounce-soft 2.5s ease-in-out infinite;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .scroll-arrow:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            color: var(--color-accent);
+        }
+        @keyframes bounce-soft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(15px); }
+        }
+
+        body::before, body::after {
+            /* Keep existing liquid alloy vibes */
+        }
+    </style>
+</head>
+<body class="loading light-mode">
+
+    <!-- Loading Page -->
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <div class="loader-logo" data-text="VALTRIX Engineering">VALTRIX <span class="brand-accent">Engineering</span></div>
+        </div>
+    </div>
+    <script>
+        // Immediate scroll prevention
+        document.body.style.overflow = 'hidden';
+    </script>
+
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="index.html" class="brand-logo">VALTRIX <span class="brand-accent">Engineering</span></a>
+            
+            <ul class="nav-menu">
+                <li><a href="soluciones.html" class="nav-link">Soluciones</a></li>
+                <li><a href="servicios.html" class="nav-link">Servicios</a></li>
+                <li><a href="paquetes.html" class="nav-link">Paquetes</a></li>
+                <li><a href="nosotros.html" class="nav-link">Nosotros</a></li>
+                <li><a href="contacto.html" class="btn btn-primary nav-btn">CONTACTO <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a></li>
+            </ul>
+
+            <button class="hamburger">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <header class="hero" style="min-height: 60vh; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="container">
+            <div class="hero-content" style="max-width: 100%; text-align: center;">
+                <span class="hero-badge">Conózcanos</span>
+                <h1 class="hero-title">Nuestra Historia</h1>
+            </div>
+        </div>
+        <div class="scroll-indicator-container">
+            <a href="#historia" class="scroll-arrow" aria-label="Desplazarse hacia abajo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <!-- Historia Section -->
+    <section class="section section-light" id="historia">
+        <div class="container">
+            <div class="history-content">
+                <h2 class="section-title">Sobre VALTRIX Engineering</h2>
+                <p>Nacimos con un enfoque claro: elevar la competitividad de las industrias en Costa Rica mediante la optimización rigurosa de procesos técnicos y operativos. En cada proyecto, aportamos gerencia técnica experta sin los altos costos de una nómina fija, logrando mitigar riesgos de inversión para gerentes de proyectos e inversores.</p>
+                <p>Nuestra historia se enmarca en la mejora continua y el control de metodologías de calidad, combinando la ingeniería industrial aplicada con prácticas innovadoras en diversos sectores, desde el médico hasta la infraestructura aeroportuaria y la construcción integral.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Equipo Section -->
+    <section class="section section-gray" id="equipo">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Nuestros Colaboradores</h2>
+                <p class="section-subtitle">Conozca a los profesionales que impulsan el desarrollo industrial y aseguran resultados eficaces.</p>
+            </div>
+
+            <div class="team-grid">
+                <!-- Colaborador 1: Valeria Vargas -->
+                <a href="valeria-vargas.html" class="team-card">
+                    <div class="team-img-wrapper">
+                        <!-- If there's an image of Valeria Vargas, use it. Defaulting to IMG_6429 which might be her from index.html -->
+                        <img src="Images/IMG_6429.jpg" alt="Valeria Vargas Ávila" class="team-img">
+                    </div>
+                    <h3 class="team-name">Valeria Vargas Ávila</h3>
+                    <p class="team-role">Ingeniera Industrial & Fundadora</p>
+                    <span class="team-cta">Ver Perfil <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand-logo">VALTRIX <span>Engineering</span></div>
+                    <p class="footer-desc">Ingeniería costarricense impulsando el desarrollo industrial a través del control riguroso y talento nacional de alto nivel.</p>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Navegación</h4>
+                    <ul class="footer-links">
+                        <li><a href="soluciones.html">Soluciones</a></li>
+                        <li><a href="servicios.html">Servicios</a></li>
+                        <li><a href="paquetes.html">Paquetes</a></li>
+                        <li><a href="nosotros.html">Sobre Nosotros</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-title">Detalles de Contacto</h4>
+                    <ul class="footer-meta">
+                        <li>valeria.vargas@valtrix.cr</li>
+                        <li>+506 8488-0406</li>
+                        <li style="margin-top: 1rem; color: var(--color-spark); font-weight: 700;">WhatsApp</li>
+                        <li>
+                            <a href="https://wa.me/50684880406" target="_blank" style="padding: 0.5rem;">
+                                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-group">
+                    <div>VALTRIX Engineering © 2026</div>
+                    <div class="footer-bottom-links">
+                        <a href="#">Configuración de Privacidad</a>
+                        <a href="#">Política de Privacidad</a>
+                        <a href="#">Términos & Condiciones</a>
+                    </div>
+                </div>
+                <div class="footer-credits">
+                    <a href="https://elysiumdr.eu" target="_blank" style="color: inherit; text-decoration: none; letter-spacing: 0.05em;">Elysium λ Development & Research</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Action Button (FAB) -->
+    <div class="fab-wrapper" id="fab-wrapper">
+        <div class="fab-options">
+            <div class="fab-option-item">
+                <span class="fab-label">WhatsApp</span>
+                <a href="https://wa.me/50684880406" class="fab-option-btn whatsapp-btn" target="_blank" aria-label="WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                </a>
+            </div>
+            <div class="fab-option-item">
+                <span class="fab-label">Email</span>
+                <a href="mailto:valeria.vargas@valtrix.cr" class="fab-option-btn email-btn" aria-label="Email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                </a>
+            </div>
+            <div class="fab-option-item">
+                <span class="fab-label">Tema</span>
+                <button class="fab-option-btn theme-btn" id="theme-toggle" aria-label="Cambiar Tema">
+                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
+            </div>
+        </div>
+        <button class="fab-main" id="fab-main" aria-label="Más opciones">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
