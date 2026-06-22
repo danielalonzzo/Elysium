@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONCORE – Cancer Recovery & Performance Centre</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0B0B0B">
+    <link rel="apple-touch-icon" href="images/logo/apple-touch-icon.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-mode">
+
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-container">
+            <a href="#" class="logo-text">
+                <i data-lucide="activity"></i> ONCORE
+            </a>
+            <nav class="nav-menu">
+                <ul>
+                    <li><a href="#hero">Home</a></li>
+                    <li><a href="#problema">The Challenge</a></li>
+                    <li><a href="#servicos">Services</a></li>
+                    <li><a href="#sobre">Vision</a></li>
+                </ul>
+            </nav>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">
+                <i data-lucide="menu"></i>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Split Section -->
+        <section id="hero" class="hero-split">
+            <div class="hero-split-left">
+                <h1>Recovery<br><strong>begins here.</strong></h1>
+                <p>The first premium centre in Portugal fully dedicated to the integrated recovery of cancer survivors. We do not treat tumours. We treat the recovery of the person.</p>
+                <a href="#problema" class="btn btn-premium-metallic">
+                    Learn More <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
+            <div class="hero-split-right">
+                <!-- Oncology Animated Ribbon -->
+                <svg viewBox="0 0 100 100" class="hero-elegant-svg hero-ribbon-svg">
+                    <defs>
+                        <linearGradient id="ribbonGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="var(--color-primary)" />
+                            <stop offset="50%" stop-color="#EAD4A7" />
+                            <stop offset="100%" stop-color="var(--color-primary)" />
+                        </linearGradient>
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="2" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    
+                    <!-- Background subtle elements -->
+                    <circle cx="50" cy="50" r="45" stroke="var(--color-primary)" stroke-width="0.1" fill="none" stroke-dasharray="1 4" class="rotate-circle" />
+                    <circle cx="50" cy="50" r="35" stroke="var(--color-primary)" stroke-width="0.2" fill="none" stroke-opacity="0.2" />
+                    
+                    <!-- The elegant ribbon -->
+                    <path d="M 32 85 C 50 55, 70 35, 60 15 C 50 0, 30 10, 35 30 C 40 50, 55 65, 68 85" 
+                          stroke="url(#ribbonGrad)" 
+                          stroke-width="1.5" 
+                          fill="none" 
+                          stroke-linecap="round" 
+                          pathLength="100"
+                          class="ribbon-path"
+                          filter="url(#glow)" />
+
+                    <!-- Sparkles/Particles -->
+                    <circle cx="60" cy="15" r="1" fill="#EAD4A7" class="sparkle s1" />
+                    <circle cx="35" cy="30" r="0.8" fill="#EAD4A7" class="sparkle s2" />
+                    <circle cx="50" cy="50" r="1.5" fill="#EAD4A7" class="sparkle s3" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- Problem Section (Redesigned) -->
+        <section id="problema" class="problem-section text-center">
+            <div class="container">
+                <h2 class="section-title text-center">The Post-Cancer Challenge</h2>
+                <div class="problem-content">
+                    <p>Today, thousands of people survive cancer in Portugal. But when treatment ends, a new problem begins: most patients lack structured support to recover their physical, emotional, and functional lives.</p>
+                    <br>
+                    <p>Hospitals treat the disease. But almost no one treats the recovery.</p>
+                    
+                    <h3 class="problem-subtitle">The result is visible.</h3>
+                    <p>Chronic fatigue, loss of mobility, depression, isolation, physical disability, and difficulty returning to normal life.</p>
+                    
+                    <p class="problem-highlight">ONCORE was born to fill this void.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services (Perfil Grid Style) -->
+        <section id="servicos" class="perfil">
+            <div class="container">
+                <h2 class="section-title">The ONCORE Solution</h2>
+                <p class="servicos-intro">
+                    A multidisciplinary space that unites all fundamental capabilities. We do not treat tumours. We treat the recovery of the person.
+                </p>
+                <div class="perfil-grid">
+                    <div class="perfil-card">
+                        <i data-lucide="heart-pulse"></i>
+                        <h3>Clinical Exercise</h3>
+                        <p>Specialised oncology exercise adapted to each patient's condition.</p>
+                    </div>
+                    <div class="perfil-card">
+                        <i data-lucide="activity"></i>
+                        <h3>Physiotherapy</h3>
+                        <p>Physiotherapy focused on mobility rehabilitation and pain reduction.</p>
+                    </div>
+                    <div class="perfil-card">
+                        <i data-lucide="user-plus"></i>
+                        <h3>Osteopathy</h3>
+                        <p>Holistic manual approach for bodily and structural balance.</p>
+                    </div>
+                    <div class="perfil-card">
+                        <i data-lucide="apple"></i>
+                        <h3>Nutrition</h3>
+                        <p>Dietary plan focused on immunity, recovery, and vitality.</p>
+                    </div>
+                    <div class="perfil-card">
+                        <i data-lucide="brain-circuit"></i>
+                        <h3>Psycho-oncology</h3>
+                        <p>Continuous emotional support throughout the entire rehabilitation process.</p>
+                    </div>
+                    <div class="perfil-card">
+                        <i data-lucide="trending-up"></i>
+                        <h3>Performance</h3>
+                        <p>Functional recovery and maximisation of quality of life post-cancer.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vision Split -->
+        <section id="sobre" class="about-section">
+            <div class="testimonials-split container">
+                <div class="testimonials-left">
+                    <h3>Intersection of health and longevity</h3>
+                    <p>Our goal is not just to increase survival. It is to restore functionality, identity, and future.</p>
+                    <p>Because surviving cancer cannot be the end of the journey. It must be the beginning of a new life.</p>
+                </div>
+                <div class="testimonials-right testimonials-right-static">
+                    <div class="testimonial-card-gold testimonial-card-gold-static active">
+                        <h4>Our Vision</h4>
+                        <p>Lisbon offers the ideal conditions: strong oncology centres, premium medical tourism, and a population seeking to recover their quality of life.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container-new">
+            <div class="branding-col">
+                <div class="logo-text footer-logo-text">
+                    <i data-lucide="activity"></i> ONCORE
+                </div>
+                <p class="brand-desc">Cancer Recovery & Performance Centre. The first premium centre in Portugal fully dedicated to the integrated recovery of cancer survivors.</p>
+                <p class="brand-sub">Founder: Paulo Morais</p>
+            </div>
+            <div>
+                <h4 class="footer-heading">Services</h4>
+                <ul class="footer-links-list">
+                    <li><a href="#">Clinical Exercise</a></li>
+                    <li><a href="#">Physiotherapy</a></li>
+                    <li><a href="#">Nutrition</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-heading">Company</h4>
+                <ul class="footer-links-list">
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Our Vision</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="footer-heading">Legal</h4>
+                <ul class="footer-links-list">
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms of Use</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            &copy; 2026 ONCORE. All rights reserved. Developed by Elysium λ Development.
+        </div>
+    </footer>
+
+    <div class="fab-container">
+        <div class="fab-trigger" id="fabTrigger">
+            <i data-lucide="plus"></i>
+        </div>
+        <div class="fab-options">
+            <a href="index.html" class="fab-action-btn" title="Português">
+                <span style="font-weight: 700; font-family: var(--font-heading); font-size: 1rem;">PT</span>
+            </a>
+            <a href="https://wa.me/351000000000" class="fab-action-btn" title="WhatsApp">
+                <i data-lucide="phone"></i>
+            </a>
+            <a href="mailto:info@oncore.pt" class="fab-action-btn" title="Email">
+                <i data-lucide="mail"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/script.js"></script>
+    <script src="js/theme.js"></script>
+</body>
+</html>
