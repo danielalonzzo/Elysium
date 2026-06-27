@@ -177,3 +177,64 @@ if (brandName) {
         brandName.style.backgroundPosition = `center ${scrollPercent}%`;
     });
 }
+
+// Lightbox Modal Logic
+const lightbox = document.getElementById('lightbox-modal');
+const lightboxImg = document.getElementById('lightbox-img');
+const lightboxCaption = document.getElementById('lightbox-caption');
+const lightboxClose = document.querySelector('.lightbox-close');
+
+// Open lightbox on card click
+document.querySelectorAll('.proc-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const img = card.querySelector('img');
+        const title = card.querySelector('h3');
+        if (img) {
+            lightboxImg.src = img.src;
+            lightboxImg.alt = img.alt;
+            if (title) {
+                lightboxCaption.textContent = title.textContent;
+                lightboxCaption.style.display = 'block';
+            } else {
+                lightboxCaption.style.display = 'none';
+            }
+            
+            lightbox.style.display = 'flex';
+            // Force reflow to ensure the transition plays smoothly
+            lightbox.offsetHeight;
+            lightbox.classList.add('active');
+            document.body.classList.add('lightbox-open');
+        }
+    });
+});
+
+// Close lightbox function
+const closeLightbox = () => {
+    lightbox.classList.remove('active');
+    document.body.classList.remove('lightbox-open');
+    setTimeout(() => {
+        if (!lightbox.classList.contains('active')) {
+            lightbox.style.display = 'none';
+        }
+    }, 400); // Matches the transition duration
+};
+
+// Close events
+if (lightboxClose) {
+    lightboxClose.addEventListener('click', closeLightbox);
+}
+if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+        // Close if clicked on the background, close button, or modal overlay area
+        if (e.target === lightbox || e.target.classList.contains('lightbox-content-container')) {
+            closeLightbox();
+        }
+    });
+}
+
+// Close on Escape key press
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox && lightbox.classList.contains('active')) {
+        closeLightbox();
+    }
+});

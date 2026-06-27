@@ -1,27 +1,27 @@
 :root {
     --primary-blue: #0A3161;
     --secondary-blue: #1E5084;
-    --accent-orange: #FF7F50;
+    --accent-orange: #DD6322;
     --text-color: #333333;
-    --bg-color: #f0f4f8;
+    --bg-color: #f8fafc;
     
     /* Glassmorphism Variables */
-    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.65);
     --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-    --glass-blur: blur(16px);
+    --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --glass-blur: saturate(180%) blur(20px);
 }
 
 body.dark-theme {
     --primary-blue: #4FA8FF;
     --secondary-blue: #2A6DB0;
-    --accent-orange: #FF9F7A;
+    --accent-orange: #F27A3A;
     --text-color: #E0E0E0;
     --bg-color: #0A192F;
     
-    --glass-bg: rgba(10, 25, 47, 0.4);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    --glass-bg: rgba(10, 25, 47, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -43,6 +43,7 @@ h1, h2, h3, h4 {
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
     color: var(--primary-blue);
+    letter-spacing: -0.02em;
     transition: color 0.5s ease;
 }
 
@@ -65,64 +66,16 @@ body.dark-theme h1, body.dark-theme h2, body.dark-theme h3, body.dark-theme h4 {
     width: 100vw;
     height: 100vh;
     z-index: -1;
-    background: linear-gradient(120deg, #e0f2fe, #f0f9ff, #e0f2fe);
-    background-size: 300% 300%;
-    animation: flow 15s ease infinite;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
     transition: background 0.5s ease;
-    overflow: hidden;
 }
 
 body.dark-theme .animated-bg {
-    background: linear-gradient(120deg, #0f172a, #1e293b, #0A3161);
-    background-size: 300% 300%;
+    background: linear-gradient(135deg, #0A192F 0%, #061121 100%);
 }
 
 .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.6;
-    animation: float 20s infinite alternate ease-in-out;
-}
-
-.orb-1 {
-    width: 400px;
-    height: 400px;
-    background: var(--primary-blue);
-    top: -100px;
-    left: -100px;
-}
-
-.orb-2 {
-    width: 500px;
-    height: 500px;
-    background: var(--accent-orange);
-    bottom: -150px;
-    right: -150px;
-    animation-delay: -5s;
-    opacity: 0.4;
-}
-
-.orb-3 {
-    width: 300px;
-    height: 300px;
-    background: var(--secondary-blue);
-    top: 40%;
-    left: 40%;
-    animation-delay: -10s;
-    opacity: 0.3;
-}
-
-@keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(100px, 50px) scale(1.2); }
-    100% { transform: translate(-50px, 100px) scale(0.9); }
-}
-
-@keyframes flow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    display: none;
 }
 
 /* Liquid Glass Utilities */
@@ -132,7 +85,7 @@ body.dark-theme .animated-bg {
     -webkit-backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    border-radius: 24px;
+    border-radius: 12px;
     padding: 2rem;
     transition: all 0.3s ease;
 }
@@ -202,24 +155,14 @@ header {
 .brand-name {
     font-family: 'Outfit', sans-serif;
     font-size: 1.5rem;
-    font-weight: 800;
-    background: linear-gradient(to bottom, #fbfcfd 0%, #d1d7e0 25%, #9ca5b5 45%, #4e5668 50%, #c6ceda 55%, #eaeff5 75%, #fbfcfd 100%);
-    background-size: 100% 200%;
-    color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.4));
-    transition: background-position 0.1s ease-out;
-    letter-spacing: 0.5px;
+    font-weight: 700;
+    color: var(--primary-blue);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
 }
 
 body.dark-theme .brand-name {
-    background: linear-gradient(to bottom, #ffffff 0%, #d1d7e0 25%, #828b9e 45%, #2a3242 50%, #b2bdce 55%, #e2e8f0 75%, #ffffff 100%);
-    background-size: 100% 200%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    filter: drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.8));
+    color: var(--text-color);
 }
 
 /* Buttons */
@@ -228,17 +171,17 @@ body.dark-theme .brand-name {
     background-color: var(--accent-orange);
     color: white;
     padding: 0.75rem 1.5rem;
-    border-radius: 30px;
+    border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
     border: none;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(255, 127, 80, 0.4);
+    box-shadow: 0 4px 12px rgba(198, 123, 92, 0.4);
 }
 
 /* Hero Section */
@@ -302,7 +245,7 @@ body.dark-theme .hero-text .slogan {
 }
 
 .item i {
-    font-size: 3rem;
+    font-size: 2rem;
     color: var(--secondary-blue);
     margin-bottom: 1rem;
 }
@@ -314,6 +257,13 @@ body.dark-theme .item i {
 .proc-card {
     padding: 0;
     overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.proc-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--glass-shadow);
 }
 
 .proc-card img {
@@ -509,20 +459,35 @@ body.dark-theme .fab-item {
 /* Media Queries */
 @media (max-width: 767px) {
     #hero {
-        margin-top: 160px; /* Prevent header overlap */
+        margin-top: 90px; /* Reduced from 160px to decrease the huge gap */
     }
     
-    .glass-nav {
-        padding: 0.8rem 1rem;
+    header .glass-nav {
+        width: 94%;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .nav-logo {
+        height: 36px;
     }
     
     .brand-name {
-        font-size: 1.1rem; /* Smaller font on mobile to prevent squishing */
+        font-size: 1rem; /* Smaller font on mobile to prevent squishing */
+        white-space: nowrap;
     }
     
     .glass-nav .btn-primary {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    #procedimientos h2 {
+        position: sticky;
+        top: 72px; /* Sticks right below the header */
+        z-index: 10;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
     }
 
     .grid-procedures {
@@ -542,11 +507,11 @@ body.dark-theme .fab-item {
         box-shadow: 0 -10px 20px rgba(0,0,0,0.4) !important;
     }
 
-    /* Top value adjusted so it sticks below the section title */
-    .proc-card:nth-child(1) { top: 160px; z-index: 1; }
-    .proc-card:nth-child(2) { top: 175px; z-index: 2; }
-    .proc-card:nth-child(3) { top: 190px; z-index: 3; }
-    .proc-card:nth-child(4) { top: 205px; z-index: 4; }
+    /* Top value adjusted so it sticks below the sticky section title */
+    .proc-card:nth-child(1) { top: 130px; z-index: 1; }
+    .proc-card:nth-child(2) { top: 145px; z-index: 2; }
+    .proc-card:nth-child(3) { top: 160px; z-index: 3; }
+    .proc-card:nth-child(4) { top: 175px; z-index: 4; }
     
     .proc-card img {
         height: 140px;
@@ -771,5 +736,130 @@ body.dark-theme .footer-bottom {
 @media (max-width: 768px) {
     .footer-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Lightbox Modal Styles */
+body.lightbox-open {
+    overflow: hidden;
+}
+
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(10, 25, 47, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.lightbox.active {
+    display: flex;
+    opacity: 1;
+}
+
+.lightbox-content-container {
+    position: relative;
+    max-width: 90%;
+    max-height: 85%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: scale(0.9);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.lightbox.active .lightbox-content-container {
+    transform: scale(1);
+}
+
+.lightbox-content {
+    width: 100%;
+    height: auto;
+    max-width: 800px;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-close {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+    z-index: 10002;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-close:hover {
+    color: var(--accent-orange);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.lightbox-caption {
+    margin-top: 1.5rem;
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    animation: lightboxFadeIn 0.4s ease forwards;
+}
+
+@keyframes lightboxFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 767px) {
+    .lightbox-content-container {
+        max-width: 95%;
+    }
+    
+    .lightbox-content {
+        max-height: 60vh;
+    }
+    
+    .lightbox-close {
+        top: 1rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
+    
+    .lightbox-caption {
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
     }
 }
