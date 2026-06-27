@@ -1,0 +1,21 @@
+{
+  "name": "Dr. Johnny Piedra Urología",
+  "short_name": "Urología Piedra",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#0A3161",
+  "description": "Urología de Confianza, Todo en un Solo Lugar",
+  "icons": [
+    {
+      "src": "Images/Logo con Fondo Blanco.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "Images/Logo con Fondo Blanco.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
