@@ -202,12 +202,24 @@ header {
 .brand-name {
     font-family: 'Outfit', sans-serif;
     font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-blue);
+    font-weight: 800;
+    background: linear-gradient(to bottom, #fbfcfd 0%, #d1d7e0 25%, #9ca5b5 45%, #4e5668 50%, #c6ceda 55%, #eaeff5 75%, #fbfcfd 100%);
+    background-size: 100% 200%;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.4));
+    transition: background-position 0.1s ease-out;
+    letter-spacing: 0.5px;
 }
 
 body.dark-theme .brand-name {
-    color: var(--text-color);
+    background: linear-gradient(to bottom, #ffffff 0%, #d1d7e0 25%, #828b9e 45%, #2a3242 50%, #b2bdce 55%, #e2e8f0 75%, #ffffff 100%);
+    background-size: 100% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.8));
 }
 
 /* Buttons */
@@ -496,6 +508,23 @@ body.dark-theme .fab-item {
 
 /* Media Queries */
 @media (max-width: 767px) {
+    #hero {
+        margin-top: 160px; /* Prevent header overlap */
+    }
+    
+    .glass-nav {
+        padding: 0.8rem 1rem;
+    }
+    
+    .brand-name {
+        font-size: 1.1rem; /* Smaller font on mobile to prevent squishing */
+    }
+    
+    .glass-nav .btn-primary {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
     .grid-procedures {
         display: flex;
         flex-direction: column;
@@ -513,10 +542,11 @@ body.dark-theme .fab-item {
         box-shadow: 0 -10px 20px rgba(0,0,0,0.4) !important;
     }
 
-    .proc-card:nth-child(1) { top: 110px; z-index: 1; }
-    .proc-card:nth-child(2) { top: 125px; z-index: 2; }
-    .proc-card:nth-child(3) { top: 140px; z-index: 3; }
-    .proc-card:nth-child(4) { top: 155px; z-index: 4; }
+    /* Top value adjusted so it sticks below the section title */
+    .proc-card:nth-child(1) { top: 160px; z-index: 1; }
+    .proc-card:nth-child(2) { top: 175px; z-index: 2; }
+    .proc-card:nth-child(3) { top: 190px; z-index: 3; }
+    .proc-card:nth-child(4) { top: 205px; z-index: 4; }
     
     .proc-card img {
         height: 140px;
@@ -565,47 +595,7 @@ header {
     transition: all 0.3s ease;
 }
 
-.top-bar {
-    background-color: var(--primary-blue);
-    color: white;
-    font-size: 0.85rem;
-    padding: 0.5rem 0;
-}
 
-body.dark-theme .top-bar {
-    background-color: #051024;
-}
-
-.top-bar-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 2rem;
-}
-
-.top-bar-info {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.top-bar-info a {
-    color: white;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    transition: color 0.3s;
-}
-
-.top-bar-info a:hover {
-    color: var(--accent-orange);
-}
-
-.top-bar-location {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-}
 
 .glass-nav {
     margin-top: 0.5rem;
@@ -665,8 +655,6 @@ body.dark-theme .nav-link {
 
 @media (max-width: 900px) {
     .main-nav { display: none; }
-    .top-bar-location { display: none; }
-    .top-bar-content { justify-content: center; }
 }
 
 /* Footer Upgrades */

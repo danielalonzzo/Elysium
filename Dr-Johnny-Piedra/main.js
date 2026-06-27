@@ -167,3 +167,13 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+
+// Metallic shine effect on scroll for brand-name
+const brandName = document.querySelector('.brand-name');
+if (brandName) {
+    window.addEventListener('scroll', () => {
+        const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+        // Shift background position vertically to simulate realistic horizon reflection
+        brandName.style.backgroundPosition = `center ${scrollPercent}%`;
+    });
+}
