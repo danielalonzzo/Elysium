@@ -1,4 +1,4 @@
-import { auth, db } from './firebase-config.js';
+import { auth, db, storage } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     collection, 
@@ -8,10 +8,80 @@ import {
     query, 
     where, 
     orderBy,
-    updateDoc
+    updateDoc,
+    deleteDoc,
+    setDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { 
+    ref, 
+    uploadBytes,
+    uploadBytesResumable, 
+    getDownloadURL,
+    deleteObject
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+
+// ── Conditional Logger ──────────────────────────────────────────────────────
+// In production (elysiumdr.eu) all logs are silenced to prevent leaking
+// sensitive partner data through the browser console.
+const IS_DEV = ['localhost', '127.0.0.1', 'web.app'].some(h => location.hostname.includes(h));
+const logger = {
+    log:   (...a) => IS_DEV && console.log('[Elysium CRM]', ...a),
+    warn:  (...a) => IS_DEV && console.warn('[Elysium CRM]', ...a),
+    error: (...a) => console.error('[Elysium CRM]', ...a)  // errors always surface
+};
+
+// ── CRM State ───────────────────────────────────────────────────────────────
+// Holds all loaded clients in memory so search/sort never re-hits Firestore.
+let _allClients   = [];
+let _sortAZ       = true;    // true = A→Z, false = newest first
+let _activeFilter = 'all';   // pipeline stage filter on clients tab
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+/**
+ * Classify a partner document into one of 4 pipeline stages.
+ * Prospect   → registered, onboarding not complete
+ * Onboarding → onboarding complete, no projectUrl
+ * Active     → has projectUrl assigned
+ * Delivered  → has deliveredAt field set
+ */
+function getPartnerStage(data) {
+    if (data.deliveredAt)                        return 'delivered';
+    if (data.projectUrl)                         return 'active';
+    if (data.onboardingCompleted)                return 'onboarding';
+    return 'prospect';
+}
+
+/** Human-readable relative time from Firestore timestamp */
+function timeAgo(ts) {
+    if (!ts) return '';
+    const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+    const diff = Date.now() - d.getTime();
+    const mins  = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days  = Math.floor(diff / 86400000);
+    if (mins  <  2) return 'just now';
+    if (mins  < 60) return `${mins}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days  <  2) return 'yesterday';
+    if (days  < 30) return `${days}d ago`;
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+/** Animate a progress bar fill after a paint frame */
+function animateProgress(el, pct) {
+    if (!el) return;
+    requestAnimationFrame(() => {
+        setTimeout(() => { el.style.width = `${Math.min(100, Math.max(0, pct))}%`; }, 60);
+    });
+}
+
+/** Get the first character(s) to use as avatar initials */
+function initials(name) {
+    if (!name) return '?';
+    return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
 
 const translations = {
     en: {
@@ -46,6 +116,28 @@ const translations = {
         error_clients: "Error loading clients list.",
         error_licenses: "Error loading licenses.",
         // Detail View Keys
+        project_link_title: "Project Link",
+        save_link: "Save Link",
+        project_cost: "Project Cost",
+        monthly_fee: "Monthly Maint. Fee",
+        discount: "Discount",
+        status_prospect: "Prospect (No Billing)",
+        status_dev: "In Development",
+        status_free: "Free Tier",
+        status_active: "Active Maintenance",
+        save_financials: "Save Financials",
+        saved: "Saved!",
+        invoices_reports: "Invoices & Reports",
+        no_reports: "No reports uploaded yet.",
+        upload_new: "Upload New Document",
+        title_placeholder: "Title (e.g. Invoice Feb 2026)",
+        amount_placeholder: "Amount",
+        choose_file: "Choose File...",
+        upload_btn: "Upload",
+        uploading: "Uploading...",
+        error_upload: "Error uploading report:",
+        error_title_file: "Title and File are required.",
+        onboarding_empty: "The user has not completed the onboarding for this project.",
         step1_title: "1. Primary Contact Info",
         full_name: "Full Name",
         role_pos: "Position / Role",
@@ -131,6 +223,11 @@ const translations = {
         download_pdf: "Download PDF",
         saving: "Saving...",
         saved: "Saved!",
+        stage_contact: "First Contact",
+        stage_proto: "Prototyping",
+        stage_dev: "Development",
+        stage_delivery: "Delivery & Publication",
+        stage_maint: "Maintenance",
         flag: "🇬🇧"
     },
     es: {
@@ -163,8 +260,31 @@ const translations = {
         no: "No",
         error_stats: "Error al cargar estadísticas.",
         error_clients: "Error al cargar lista de clientes.",
+        error_clients: "Error al cargar lista de clientes.",
         error_licenses: "Error al cargar licencias.",
         // Detail View Keys
+        project_link_title: "Enlace del Proyecto",
+        save_link: "Guardar Enlace",
+        project_cost: "Costo del Proyecto",
+        monthly_fee: "Mensualidad",
+        discount: "Descuento",
+        status_prospect: "Prospecto (Sin Facturación)",
+        status_dev: "En Desarrollo",
+        status_free: "Plan Gratuito",
+        status_active: "Mantenimiento Activo",
+        save_financials: "Guardar Finanzas",
+        saved: "¡Guardado!",
+        invoices_reports: "Facturas y Reportes",
+        no_reports: "Aún no hay reportes subidos.",
+        upload_new: "Subir Nuevo Documento",
+        title_placeholder: "Título (ej. Factura Feb 2026)",
+        amount_placeholder: "Monto",
+        choose_file: "Elegir Archivo...",
+        upload_btn: "Subir",
+        uploading: "Subiendo...",
+        error_upload: "Error al subir reporte:",
+        error_title_file: "Título y Archivo son obligatorios.",
+        onboarding_empty: "El usuario no ha completado el onboarding para este proyecto.",
         step1_title: "1. Información de Contacto Principal",
         full_name: "Nombre Completo",
         role_pos: "Posición / Rol",
@@ -250,6 +370,11 @@ const translations = {
         download_pdf: "Descargar PDF",
         saving: "Guardando...",
         saved: "¡Guardado!",
+        stage_contact: "Primer Contacto",
+        stage_proto: "Prototipado",
+        stage_dev: "Desarrollo",
+        stage_delivery: "Entrega y publicación",
+        stage_maint: "Mantenimiento",
         flag: "🇨🇷"
     },
     pt: {
@@ -284,6 +409,28 @@ const translations = {
         error_clients: "Erro ao carregar lista de clientes.",
         error_licenses: "Erro ao carregar licenças.",
         // Detail View Keys
+        project_link_title: "Link do Projeto",
+        save_link: "Salvar Link",
+        project_cost: "Custo do Projeto",
+        monthly_fee: "Mensalidade",
+        discount: "Desconto",
+        status_prospect: "Prospecto (Sem Faturamento)",
+        status_dev: "Em Desenvolvimento",
+        status_free: "Plano Gratuito",
+        status_active: "Manutenção Ativa",
+        save_financials: "Salvar Finanças",
+        saved: "Salvo!",
+        invoices_reports: "Faturas e Relatórios",
+        no_reports: "Ainda não há relatórios enviados.",
+        upload_new: "Enviar Novo Documento",
+        title_placeholder: "Título (ex. Fatura Fev 2026)",
+        amount_placeholder: "Valor",
+        choose_file: "Escolher Arquivo...",
+        upload_btn: "Enviar",
+        uploading: "Enviando...",
+        error_upload: "Erro ao enviar relatório:",
+        error_title_file: "Título e Arquivo são obrigatórios.",
+        onboarding_empty: "O utilizador não concluiu o onboarding para este projeto.",
         step1_title: "1. Informação de Contacto Principal",
         full_name: "Nome Completo",
         role_pos: "Cargo / Papel",
@@ -369,6 +516,11 @@ const translations = {
         download_pdf: "Baixar PDF",
         saving: "Salvando...",
         saved: "Salvo!",
+        stage_contact: "Primeiro Contacto",
+        stage_proto: "Prototipagem",
+        stage_dev: "Desenvolvimento",
+        stage_delivery: "Entrega e publicação",
+        stage_maint: "Manutenção",
         flag: "🇵🇹"
     }
 };
@@ -462,24 +614,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.admin-section');
 
-    navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const target = item.dataset.target;
-            
-            navItems.forEach(i => i.classList.remove('active'));
-            item.classList.add('active');
+    function navigateTo(target) {
+        navItems.forEach(i => i.classList.remove('active'));
+        document.querySelector(`.nav-item[data-target="${target}"]`)?.classList.add('active');
 
-            sections.forEach(s => {
-                s.classList.remove('active');
-                if (s.id === target) s.classList.add('active');
-            });
-
-            localStorage.setItem('elysium_admin_tab', target);
-
-            if (target === 'overview') loadStats();
-            if (target === 'clients') loadClients();
-            if (target === 'licenses') loadLicenses();
+        sections.forEach(s => {
+            s.classList.remove('active');
+            if (s.id === target) s.classList.add('active');
         });
+
+        localStorage.setItem('elysium_admin_tab', target);
+
+        if (target === 'overview') loadStats();
+        if (target === 'clients') loadClients();
+        if (target === 'pipeline') loadPipeline();
+        if (target === 'licenses') loadLicenses();
+    }
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => navigateTo(item.dataset.target));
+    });
+
+    // "View all" links inside overview panels
+    document.querySelectorAll('[data-target-nav]').forEach(link => {
+        link.addEventListener('click', () => navigateTo(link.dataset.targetNav));
     });
 
     // Logout
@@ -515,21 +673,35 @@ function applyTranslations() {
     const flagEl = document.querySelector('.lang-current-flag');
     if (flagEl) flagEl.textContent = t.flag;
 
-    // Update Sidebar
-    document.querySelector('[data-target="overview"] span').textContent = t.nav_overview;
-    document.querySelector('[data-target="clients"] span').textContent = t.nav_clients;
-    document.querySelector('[data-target="licenses"] span').textContent = t.nav_licenses;
-    document.getElementById('logoutBtn').textContent = t.logout;
+    // Update Sidebar nav labels (each nav-item has an SVG + span, target only the span)
+    const navOverview  = document.querySelector('[data-target="overview"] span:not(.sidebar-badge)');
+    const navPipeline  = document.querySelector('[data-target="pipeline"] span:not(.sidebar-badge)');
+    const navClients   = document.querySelector('[data-target="clients"] span:not(.sidebar-badge)');
+    const navLicenses  = document.querySelector('[data-target="licenses"] span:not(.sidebar-badge)');
+    if (navOverview) navOverview.textContent = t.nav_overview;
+    if (navPipeline) navPipeline.textContent = 'Pipeline';
+    if (navClients)  navClients.textContent  = t.nav_clients;
+    if (navLicenses) navLicenses.textContent = t.nav_licenses;
+
+    // Logout button has SVG + span — only update the span
+    const logoutSpan = document.querySelector('#logoutBtn span');
+    if (logoutSpan) logoutSpan.textContent = t.logout;
 
     // Update section headers (static parts)
-    document.querySelector('#overview h1').textContent = currentLang === 'en' ? 'Dashboard' : (currentLang === 'es' ? 'Tablero' : 'Painel');
-    document.querySelector('#overview p').textContent = t.welcome;
+    const ovH1 = document.querySelector('#overview h1');
+    const ovP  = document.querySelector('#overview p.color-text-secondary');
+    if (ovH1) ovH1.textContent = currentLang === 'en' ? 'Dashboard' : (currentLang === 'es' ? 'Tablero' : 'Painel');
+    if (ovP)  ovP.textContent  = t.welcome;
     
-    document.querySelector('#clients h1').textContent = t.clients_title;
-    document.querySelector('#clients p').textContent = t.clients_desc;
+    const cliH1 = document.querySelector('#clients h1');
+    const cliP  = document.querySelector('#clients p.color-text-secondary');
+    if (cliH1) cliH1.textContent = t.clients_title;
+    if (cliP)  cliP.textContent  = t.clients_desc;
     
-    document.querySelector('#licenses h1').textContent = t.licenses_title;
-    document.querySelector('#licenses p').textContent = t.licenses_desc;
+    const licH1 = document.querySelector('#licenses h1');
+    const licP  = document.querySelector('#licenses p.color-text-secondary');
+    if (licH1) licH1.textContent = t.licenses_title;
+    if (licP)  licP.textContent  = t.licenses_desc;
 
     // Update table headers
     const ths = document.querySelectorAll('.admin-table th');
@@ -543,21 +715,31 @@ function applyTranslations() {
 
 async function initDashboard() {
     const savedTab = localStorage.getItem('elysium_admin_tab') || 'overview';
-    
+
+    // Set dashboard date
+    const dateEl = document.getElementById('dashboard-date');
+    if (dateEl) {
+        const now = new Date();
+        dateEl.innerHTML = now.toLocaleDateString(undefined, {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+    }
+
     // Restore saved tab visually
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.admin-section');
-    
+
     navItems.forEach(i => i.classList.remove('active'));
     document.querySelector(`.nav-item[data-target="${savedTab}"]`)?.classList.add('active');
-    
+
     sections.forEach(s => s.classList.remove('active'));
     document.getElementById(savedTab)?.classList.add('active');
 
     // Load content for the active tab
-    if (savedTab === 'overview') loadStats();
-    if (savedTab === 'clients') loadClients();
-    if (savedTab === 'licenses') loadLicenses();
+    if (savedTab === 'overview')  loadStats();
+    if (savedTab === 'clients')   loadClients();
+    if (savedTab === 'pipeline')  loadPipeline();
+    if (savedTab === 'licenses')  loadLicenses();
 }
 
 async function loadStats() {
@@ -566,69 +748,583 @@ async function loadStats() {
     const t = translations[currentLang];
 
     try {
-        const membersSnap = await getDocs(collection(db, 'members'));
-        const licensesSnap = await getDocs(collection(db, 'licenses'));
+        const membersSnap  = await getDocs(collection(db, 'members'));
         
-        const totalClients = membersSnap.size;
-        const totalLicenses = licensesSnap.size;
-        const activeLicenses = licensesSnap.docs.filter(d => d.data().status === 'active').length;
-        const usedLicenses = licensesSnap.docs.filter(d => d.data().status === 'used').length;
+        let prospectsSnap = null;
+        try {
+            prospectsSnap = await getDocs(collection(db, 'prospects'));
+        } catch (e) {
+            console.warn('Could not load prospects (permission denied or missing collection).', e);
+        }
+        
+        let licensesSnap = null;
+        try {
+            licensesSnap = await getDocs(collection(db, 'licenses'));
+        } catch (e) {
+            console.warn('Could not load licenses.', e);
+        }
 
-        statsContainer.innerHTML = `
-            <div class="client-card" style="cursor: default;">
-                <div class="client-name">${totalClients}</div>
-                <div class="client-company">${t.total_clients}</div>
-            </div>
-            <div class="client-card" style="cursor: default;">
-                <div class="client-name">${totalLicenses}</div>
-                <div class="client-company">${t.total_licenses}</div>
-            </div>
-            <div class="client-card" style="cursor: default;">
-                <div class="client-name">${activeLicenses}</div>
-                <div class="client-company">${t.available_licenses}</div>
-            </div>
-            <div class="client-card" style="cursor: default;">
-                <div class="client-name">${usedLicenses}</div>
-                <div class="client-company">${t.used_licenses}</div>
-            </div>
-        `;
+        // Filter real partners
+        const partnerDocs = membersSnap.docs.filter(d => {
+            const r = d.data().role;
+            return r !== 'admin' && r !== 'root' && d.data().email !== SUPER_ADMIN_EMAIL;
+        });
+
+        // Sync _allClients for pipeline/feed if not yet loaded
+        if (_allClients.length === 0) {
+            _allClients = partnerDocs.map(d => {
+                const data = d.data();
+                
+                // --- Legacy Migration for Projects ---
+                // If they don't have a projects array but have legacy data, create one project from the root fields
+                if (!data.projects) {
+                    data.projects = [];
+                    // Even if they don't have projectUrl, they might have a project in progress (onboarding)
+                    if (data.projectUrl || data.onboardingCompleted || data.financials || data.projectStage) {
+                        data.projects.push({
+                            id: 'project-1',
+                            name: data.company || data.name || 'Proyecto 1',
+                            projectUrl: data.projectUrl || null,
+                            projectStage: data.projectStage || 'first_contact',
+                            financials: data.financials || null,
+                            reports: data.reports || [],
+                            timeline: data.timeline || [],
+                            projectDescription: data.projectDescription || ''
+                        });
+                    }
+                }
+                // One-time auto cleanup logic for duplicated or misnamed projects
+                if (data.projects) {
+                    let needsUpdate = false;
+                    let cleanedProjects = [];
+                    let seenIds = new Set();
+                    data.projects.forEach(p => {
+                        if (p.name === 'Main Project') {
+                            p.name = data.company || data.name || 'Proyecto 1';
+                            needsUpdate = true;
+                        }
+                        if (!seenIds.has(p.id)) {
+                            seenIds.add(p.id);
+                            cleanedProjects.push(p);
+                        } else {
+                            needsUpdate = true; // It's a duplicate
+                        }
+                    });
+                    
+                    if (needsUpdate) {
+                        data.projects = cleanedProjects;
+                        // Fire and forget update to clean the database
+                        updateDoc(doc(db, 'members', d.id), { projects: cleanedProjects }).catch(console.error);
+                    }
+                }
+
+                return { id: d.id, ...data };
+            });
+            
+            // Add prospects to _allClients, giving them a role to identify them
+            if (prospectsSnap) {
+                prospectsSnap.forEach(d => {
+                    _allClients.push({
+                        id: d.id,
+                        role: 'prospect', // mark as prospect specifically
+                        ...d.data()
+                    });
+                });
+            }
+        }
+
+        const totalPartners     = partnerDocs.length;
+        const completedOB       = partnerDocs.filter(d => d.data().onboardingCompleted).length;
+        const onboardingRate    = totalPartners > 0 ? Math.round((completedOB / totalPartners) * 100) : 0;
+        const activeProjects    = partnerDocs.filter(d => d.data().projectUrl).length;
+        const totalLicenses     = licensesSnap ? licensesSnap.size : 0;
+        const usedLicenses      = licensesSnap ? licensesSnap.docs.filter(d => d.data().status === 'used').length : 0;
+        const licenseUtil       = totalLicenses > 0 ? Math.round((usedLicenses / totalLicenses) * 100) : 0;
+
+        // Update sidebar counts
+        const sidebarPartners  = document.getElementById('sidebar-clients-count');
+        const sidebarPipeline  = document.getElementById('sidebar-pipeline-count');
+        if (sidebarPartners)  sidebarPartners.textContent  = totalPartners;
+        if (sidebarPipeline)  sidebarPipeline.textContent  = activeProjects;
+
+        logger.log(`Stats — partners: ${totalPartners}, OB rate: ${onboardingRate}%, active: ${activeProjects}`);
+
+        // ── KPI card builder ────────────────────────────────────────────
+        const kpiCard = ({ id, value, label, sub, colorClass, iconSvg, progress, progressLabel, progressFillClass, trend, trendClass }) => `
+            <div class="kpi-card ${colorClass}">
+                <div class="kpi-card-top">
+                    <div class="kpi-icon icon-${colorClass.replace('kpi-', '')}">
+                        ${iconSvg}
+                    </div>
+                    <span class="kpi-trend ${trendClass}">${trend}</span>
+                </div>
+                <div class="kpi-value">${value}</div>
+                <div class="kpi-label">${label}</div>
+                <div class="kpi-progress-bar"><div class="kpi-progress-fill fill-${colorClass.replace('kpi-', '')}" id="kpi-fill-${id}" style="width:0"></div></div>
+                <div class="kpi-progress-label"><span>${sub}</span><span>${progressLabel}</span></div>
+            </div>`;
+
+        statsContainer.className = 'kpi-grid';
+        statsContainer.innerHTML =
+            kpiCard({
+                id: 'partners', value: totalPartners, label: 'Total Partners',
+                sub: `${completedOB} onboarded`, progressLabel: `${onboardingRate}%`,
+                colorClass: 'kpi-blue', trendClass: 'trend-neutral', trend: 'Partners',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
+            }) +
+            kpiCard({
+                id: 'rate', value: `${onboardingRate}%`, label: 'Onboarding Rate',
+                sub: `${completedOB} of ${totalPartners}`, progressLabel: `${completedOB} done`,
+                colorClass: 'kpi-green', trendClass: onboardingRate >= 80 ? 'trend-up' : 'trend-neutral', trend: onboardingRate >= 80 ? '↑ High' : '→ Mid',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
+            }) +
+            kpiCard({
+                id: 'active', value: activeProjects, label: 'Active Projects',
+                sub: `${totalPartners - activeProjects} awaiting`, progressLabel: `${totalPartners > 0 ? Math.round((activeProjects/totalPartners)*100) : 0}%`,
+                colorClass: 'kpi-gold', trendClass: 'trend-neutral', trend: 'Projects',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
+            }) +
+            kpiCard({
+                id: 'licenses', value: `${licenseUtil}%`, label: 'License Utilization',
+                sub: `${usedLicenses} of ${totalLicenses} used`, progressLabel: `${totalLicenses - usedLicenses} left`,
+                colorClass: licenseUtil > 85 ? 'kpi-red' : 'kpi-blue',
+                trendClass: licenseUtil > 85 ? 'trend-down' : 'trend-neutral',
+                trend: licenseUtil > 85 ? '↑ High' : `${usedLicenses}/${totalLicenses}`,
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
+            });
+
+        // Animate progress bars after render
+        animateProgress(document.getElementById('kpi-fill-partners'), onboardingRate);
+        animateProgress(document.getElementById('kpi-fill-rate'),     onboardingRate);
+        animateProgress(document.getElementById('kpi-fill-active'),   totalPartners > 0 ? (activeProjects / totalPartners) * 100 : 0);
+        animateProgress(document.getElementById('kpi-fill-licenses'), licenseUtil);
+
+        // Load supplementary panels
+        loadRecentActivity();
+        loadPipelineSnapshot();
+        renderGlobalRevenueChart();
+
     } catch (error) {
-        console.error("Error loading stats:", error);
+        logger.error('Error loading stats:', error);
         statsContainer.innerHTML = `<p class="color-text-error">${t.error_stats}<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
     }
 }
 
+// ── RECENT ACTIVITY FEED ─────────────────────────────────────────────────────
+async function loadRecentActivity() {
+    const container = document.getElementById('activity-feed-container');
+    if (!container) return;
+
+    try {
+        // Build event list from _allClients already in memory
+        const events = [];
+
+        _allClients.forEach(c => {
+            if (c.createdAt) {
+                events.push({
+                    type: 'join', ts: c.createdAt,
+                    title: c.name || 'Unknown',
+                    sub: `Joined as partner${c.company ? ' · ' + c.company : ''}`,
+                    dotClass: 'feed-dot-join',
+                    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+                    partner: c
+                });
+            }
+            if (c.projectUrl) {
+                events.push({
+                    type: 'project', ts: c.createdAt, // use createdAt as proxy
+                    title: c.name || 'Unknown',
+                    sub: 'Project URL assigned',
+                    dotClass: 'feed-dot-project',
+                    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+                    partner: c
+                });
+            }
+            if (c.isDeactivated) {
+                events.push({
+                    type: 'suspend', ts: c.createdAt,
+                    title: c.name || 'Unknown',
+                    sub: 'Account suspended',
+                    dotClass: 'feed-dot-suspend',
+                    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
+                    partner: c
+                });
+            }
+        });
+
+        // Sort by timestamp desc, take top 7
+        events.sort((a, b) => {
+            const tsA = a.ts?.seconds ?? 0;
+            const tsB = b.ts?.seconds ?? 0;
+            return tsB - tsA;
+        });
+
+        const top = events.slice(0, 7);
+
+        if (top.length === 0) {
+            container.innerHTML = `<p style="font-size:0.82rem;opacity:0.4;text-align:center;padding:1rem 0;">No recent activity.</p>`;
+            return;
+        }
+
+        container.innerHTML = `<div class="feed-list">${top.map(ev => `
+            <div class="feed-item" style="cursor:pointer;" data-partner-id="${ev.partner.id}">
+                <div class="feed-item-dot ${ev.dotClass}">${ev.icon}</div>
+                <div class="feed-item-body">
+                    <div class="feed-item-title">${ev.title}</div>
+                    <div class="feed-item-sub">${ev.sub}</div>
+                </div>
+                <div class="feed-item-time">${timeAgo(ev.ts)}</div>
+            </div>`).join('')}</div>`;
+
+        // Click opens detail panel
+        container.querySelectorAll('.feed-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const pid = item.dataset.partnerId;
+                const partner = _allClients.find(c => c.id === pid);
+                if (partner) showClientDetail(partner.id, partner);
+            });
+        });
+
+    } catch (error) {
+        logger.error('loadRecentActivity:', error);
+    }
+}
+
+// ── PIPELINE SNAPSHOT (overview panel mini-version) ──────────────────────────
+function loadPipelineSnapshot() {
+    const container = document.getElementById('pipeline-snapshot-container');
+    if (!container) return;
+
+    const t = translations[currentLang];
+    const stages = { prospect: 0, first_contact: 0, prototyping: 0, development: 0, delivery: 0, maintenance: 0 };
+    let total = 0;
+    _allClients.forEach(c => {
+        // If it's a pure prospect (no account yet)
+        if (c.role === 'prospect') {
+            stages['prospect']++;
+            total++;
+            return;
+        }
+
+        if (c.projects && Array.isArray(c.projects)) {
+            c.projects.forEach(p => {
+                const stage = p.projectStage || 'first_contact';
+                if (stages[stage] !== undefined) {
+                    stages[stage]++;
+                } else {
+                    stages['first_contact']++;
+                }
+                total++;
+            });
+        } else {
+            const stage = c.projectStage || 'first_contact';
+            if (stages[stage] !== undefined) {
+                stages[stage]++;
+            } else {
+                stages['first_contact']++;
+            }
+            total++;
+        }
+    });
+    if (total === 0) total = 1;
+
+    const rows = [
+        { key: 'prospect',      label: 'Prospect',                                 cls: 'snap-prospect' },
+        { key: 'first_contact', label: t.stage_contact || 'First Contact',         cls: 'snap-first_contact' },
+        { key: 'prototyping',   label: t.stage_proto || 'Prototyping',             cls: 'snap-prototyping'   },
+        { key: 'development',   label: t.stage_dev || 'Development',               cls: 'snap-development'   },
+        { key: 'delivery',      label: t.stage_delivery || 'Delivery & Pub',       cls: 'snap-delivery'      },
+        { key: 'maintenance',   label: t.stage_maint || 'Maintenance',             cls: 'snap-maintenance'   },
+    ];
+
+    container.innerHTML = `<div class="pipeline-snapshot">${rows.map((r, i) => `
+        <div class="pipeline-snapshot-row ${r.cls}">
+            <div class="pipeline-snapshot-label">${r.label}</div>
+            <div class="pipeline-snapshot-bar"><div class="pipeline-snapshot-fill" id="ps-fill-${i}" style="width:0"></div></div>
+            <div class="pipeline-snapshot-count">${stages[r.key]}</div>
+        </div>`).join('')}</div>`;
+
+    rows.forEach((r, i) => {
+        animateProgress(document.getElementById(`ps-fill-${i}`), (stages[r.key] / total) * 100);
+    });
+}
+
+// ── FULL PIPELINE KANBAN ──────────────────────────────────────────────────────
+async function loadPipeline() {
+    const board = document.getElementById('pipeline-board');
+    if (!board) return;
+
+    // If clients not loaded yet, fetch them first
+    if (_allClients.length === 0) {
+        board.innerHTML = '<div class="premium-loader"></div>';
+        const q = query(collection(db, 'members'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        _allClients = [];
+        snap.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.email === SUPER_ADMIN_EMAIL || data.role === 'admin' || data.role === 'root') return;
+            _allClients.push({ id: docSnap.id, ...data });
+        });
+        
+        try {
+            const prospectsSnap = await getDocs(collection(db, 'prospects'));
+            prospectsSnap.forEach(d => {
+                _allClients.push({
+                    id: d.id,
+                    role: 'prospect',
+                    ...d.data()
+                });
+            });
+        } catch(e) {
+            console.warn("Could not load prospects for pipeline: ", e);
+        }
+    }
+
+    const t = translations[currentLang];
+    const stages = {
+        prospect:      { label: 'Prospect',                                 cls: 'stage-prospect',      clients: [] },
+        first_contact: { label: t.stage_contact || 'First Contact',         cls: 'stage-first_contact', clients: [] },
+        prototyping:   { label: t.stage_proto || 'Prototyping',             cls: 'stage-prototyping',   clients: [] },
+        development:   { label: t.stage_dev || 'Development',               cls: 'stage-development',   clients: [] },
+        delivery:      { label: t.stage_delivery || 'Delivery & Pub',       cls: 'stage-delivery',      clients: [] },
+        maintenance:   { label: t.stage_maint || 'Maintenance',             cls: 'stage-maintenance',   clients: [] },
+    };
+
+    _allClients.forEach(c => {
+        if (c.role === 'prospect') {
+            stages['prospect'].clients.push({ client: c, project: null });
+            return;
+        }
+
+        if (c.projects && Array.isArray(c.projects) && c.projects.length > 0) {
+            c.projects.forEach(p => {
+                const stage = p.projectStage || 'first_contact';
+                if (stages[stage]) {
+                    stages[stage].clients.push({ client: c, project: p });
+                } else {
+                    stages['first_contact'].clients.push({ client: c, project: p });
+                }
+            });
+        } else {
+            const stage = c.projectStage || 'first_contact';
+            if (stages[stage]) {
+                stages[stage].clients.push({ client: c, project: null });
+            } else {
+                stages['first_contact'].clients.push({ client: c, project: null });
+            }
+        }
+    });
+
+    board.innerHTML = Object.values(stages).map(col => `
+        <div class="pipeline-column ${col.cls}">
+            <div class="pipeline-col-header">
+                <div class="pipeline-col-title"><div class="pipeline-col-dot"></div>${col.label}</div>
+                <span class="pipeline-col-count">${col.clients.length}</span>
+            </div>
+            <div class="pipeline-col-cards">
+                ${col.clients.length === 0
+                    ? '<div class="pipeline-col-empty">No projects here</div>'
+                    : col.clients.map(item => {
+                        const c = item.client;
+                        const p = item.project;
+                        const cardName = p ? p.name : (c.name || 'Unnamed');
+                        const cardCompany = c.company || c.email || '';
+                        return `
+                        <div class="pipeline-card" data-partner-id="${c.id}" data-project-id="${p ? p.id : ''}">
+                            <div class="pipeline-card-name">${cardName}</div>
+                            <div class="pipeline-card-company">${cardCompany}</div>
+                        </div>`;
+                    }).join('')
+                }
+            </div>
+        </div>`).join('');
+
+    // Click pipeline card → open detail
+    board.querySelectorAll('.pipeline-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const pid = card.dataset.partnerId;
+            const projId = card.dataset.projectId;
+            const partner = _allClients.find(c => c.id === pid);
+            if (partner) showClientDetail(partner.id, partner, projId);
+        });
+    });
+
+    logger.log('Pipeline loaded:', Object.fromEntries(
+        Object.entries(stages).map(([k, v]) => [k, v.clients.length])
+    ));
+}
+
 async function loadClients() {
     const clientsList = document.getElementById('clients-list');
-    clientsList.innerHTML = '<div class="premium-loader"></div>';
+    const toolbar     = document.getElementById('crm-toolbar');
+    clientsList.innerHTML = '<div class="loader-container"><div class="premium-loader"></div></div>';
+    if (toolbar) toolbar.style.display = 'none';
     const t = translations[currentLang];
 
     try {
         const q = query(collection(db, 'members'), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
-        
-        clientsList.innerHTML = '';
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.email === SUPER_ADMIN_EMAIL) return; // Skip self
 
-            const card = document.createElement('div');
-            card.className = 'client-card';
-            card.innerHTML = `
-                <div class="client-name">${data.name || t.unnamed_client}</div>
-                <div class="client-company">${data.company || t.no_company}</div>
-                <div class="client-meta">
-                    <span>${data.email}</span>
-                    <span>${data.onboardingCompleted ? t.completed : t.pending}</span>
-                </div>
-            `;
-            card.addEventListener('click', () => showClientDetail(doc.id, data));
-            clientsList.appendChild(card);
+        // Filter out admins and self, keep only real partners
+        _allClients = [];
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (
+                data.email === SUPER_ADMIN_EMAIL ||
+                data.role === 'admin' ||
+                data.role === 'root'
+            ) return;
+            _allClients.push({ id: docSnap.id, ...data });
         });
+        
+        try {
+            const prospectsSnap = await getDocs(collection(db, 'prospects'));
+            prospectsSnap.forEach(d => {
+                _allClients.push({
+                    id: d.id,
+                    role: 'prospect', // mark as prospect specifically
+                    ...d.data()
+                });
+            });
+        } catch(e) {
+            console.warn("Could not load prospects for grid: ", e);
+        }
+
+        logger.log(`Loaded ${_allClients.length} partners and prospects from Firestore.`);
+
+        // Show toolbar once data is ready
+        if (toolbar) toolbar.style.display = 'flex';
+
+        // Initial render
+        renderClientGrid(_allClients, t);
+
+        // ── Search handler ────────────────────────────────────────────────
+        const searchInput = document.getElementById('crm-search');
+        if (searchInput) {
+            // Remove any stale listener by replacing the node
+            const fresh = searchInput.cloneNode(true);
+            searchInput.parentNode.replaceChild(fresh, searchInput);
+            fresh.addEventListener('input', () => {
+                const term = fresh.value.trim().toLowerCase();
+                const filtered = term
+                    ? _allClients.filter(c =>
+                        (c.name    || '').toLowerCase().includes(term) ||
+                        (c.company || '').toLowerCase().includes(term) ||
+                        (c.email   || '').toLowerCase().includes(term)
+                    )
+                    : _allClients;
+                renderClientGrid(filtered, t);
+            });
+        }
+
+        // ── Sort handler ──────────────────────────────────────────────────
+        const sortBtn = document.getElementById('crm-sort-btn');
+        if (sortBtn) {
+            const freshBtn = sortBtn.cloneNode(true);
+            sortBtn.parentNode.replaceChild(freshBtn, sortBtn);
+            freshBtn.addEventListener('click', () => {
+                _sortAZ = !_sortAZ;
+                const label = document.getElementById('crm-sort-label');
+                if (label) label.textContent = _sortAZ ? 'A → Z' : 'Newest';
+                freshBtn.classList.toggle('is-active', !_sortAZ);
+                const term = document.getElementById('crm-search')?.value.trim().toLowerCase() || '';
+                const filtered = term
+                    ? _allClients.filter(c =>
+                        (c.name || '').toLowerCase().includes(term) ||
+                        (c.company || '').toLowerCase().includes(term) ||
+                        (c.email   || '').toLowerCase().includes(term)
+                    )
+                    : _allClients;
+                renderClientGrid(filtered, t);
+            });
+        }
+        // ── Filter pills ──────────────────────────────────────────────────
+        const pillContainer = document.getElementById('crm-filter-pills');
+        if (pillContainer) {
+            const freshPills = pillContainer.cloneNode(true);
+            pillContainer.parentNode.replaceChild(freshPills, pillContainer);
+            freshPills.querySelectorAll('.crm-pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    freshPills.querySelectorAll('.crm-pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    _activeFilter = pill.dataset.filter || 'all';
+                    const term = document.getElementById('crm-search')?.value.trim().toLowerCase() || '';
+                    const base = term
+                        ? _allClients.filter(c =>
+                            (c.name    || '').toLowerCase().includes(term) ||
+                            (c.company || '').toLowerCase().includes(term) ||
+                            (c.email   || '').toLowerCase().includes(term)
+                        )
+                        : _allClients;
+                    renderClientGrid(base, t);
+                });
+            });
+        }
+
     } catch (error) {
-        console.error("Error loading clients:", error);
+        logger.error("Error loading clients:", error);
         clientsList.innerHTML = `<p class="color-text-error">${t.error_clients}<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
     }
+}
+
+function renderClientGrid(clients, t) {
+    const clientsList = document.getElementById('clients-list');
+    const countEl     = document.getElementById('crm-results-count');
+    if (!clientsList) return;
+
+    // Apply active pill filter
+    let filtered = clients;
+    if (_activeFilter !== 'all') {
+        filtered = clients.filter(c => getPartnerStage(c) === _activeFilter);
+    }
+
+    // Apply current sort
+    const sorted = [...filtered].sort((a, b) => {
+        if (_sortAZ) return (a.name || '').localeCompare(b.name || '');
+        const tsA = a.createdAt?.seconds ?? 0;
+        const tsB = b.createdAt?.seconds ?? 0;
+        return tsB - tsA;
+    });
+
+    if (countEl) countEl.textContent = `${sorted.length} partner${sorted.length !== 1 ? 's' : ''}`;
+
+    if (sorted.length === 0) {
+        clientsList.innerHTML = `<p style="grid-column:1/-1;text-align:center;opacity:0.4;padding:3rem 0;">
+            No partners found${_activeFilter !== 'all' ? ' in this stage' : ''}.
+        </p>`;
+        return;
+    }
+
+    clientsList.innerHTML = '';
+    sorted.forEach(data => {
+        const isSuspended = data.isDeactivated === true;
+        const stage       = getPartnerStage(data);
+        const stageLabels = { prospect: 'Prospect', onboarding: 'Onboarding', active: 'Active', delivered: 'Delivered' };
+
+        const card = document.createElement('div');
+        card.className = `client-card${isSuspended ? ' is-suspended' : ''}`;
+        card.setAttribute('data-stage', stage);
+        card.innerHTML = `
+            <div class="client-card-header">
+                <div class="client-card-avatar">${initials(data.name)}</div>
+                <span class="client-card-stage-badge stage-badge-${stage}">${stageLabels[stage]}</span>
+            </div>
+            <div class="client-name">${data.name || t.unnamed_client}</div>
+            <div class="client-company">${data.company || t.no_company}</div>
+            ${data.projects && data.projects.length > 0 ? 
+                `<div class="client-projects" style="font-size:0.75rem; color:var(--color-text-secondary); margin-top:8px; margin-bottom:8px;">
+                    ${data.projects.map(p => `<span style="background:var(--glass-bg); padding:2px 6px; border-radius:4px; margin-right:4px; border:1px solid var(--glass-border); display:inline-block; margin-bottom:4px;">${p.name || 'Unnamed Project'}</span>`).join('')}
+                </div>` 
+                : ''}
+            <div class="client-meta" style="margin-top:auto; padding-top:12px;">
+                <span class="client-meta-email" title="${data.email}">${data.email}</span>
+                <span class="client-joined">${timeAgo(data.createdAt)}</span>
+            </div>
+            ${isSuspended ? '<div class="suspended-badge">Suspended</div>' : ''}
+        `;
+        card.addEventListener('click', () => showClientDetail(data.id, data));
+        clientsList.appendChild(card);
+    });
 }
 
 async function loadLicenses() {
@@ -686,31 +1382,57 @@ async function loadLicenses() {
     }
 }
 
-async function showClientDetail(userId, memberData) {
+async function showClientDetail(userId, memberData, selectedProjectId = null) {
     const detailOverlay = document.getElementById('client-detail-overlay');
     const detailContent = document.getElementById('detail-content');
     detailContent.innerHTML = '<div class="premium-loader"></div>';
     detailOverlay.style.display = 'flex';
 
     try {
+        if (!selectedProjectId && memberData.projects && memberData.projects.length > 0) {
+            selectedProjectId = memberData.projects[0].id;
+        }
+
         // Fetch onboarding submission
         const q = query(collection(db, 'onboarding_submissions'), where('userId', '==', userId));
         const submissionSnap = await getDocs(q);
         let onboardingData = null;
+        let submissionTimestamp = null;
+        
         if (!submissionSnap.empty) {
-            onboardingData = submissionSnap.docs[0].data().formData;
+            let subDoc = null;
+            if (selectedProjectId) {
+                const exactMatch = submissionSnap.docs.find(d => d.data().projectId === selectedProjectId);
+                if (exactMatch) {
+                    subDoc = exactMatch.data();
+                } else if (selectedProjectId === 'project-1' || selectedProjectId === 'legacy') {
+                    const legacyMatch = submissionSnap.docs.find(d => !d.data().projectId);
+                    if (legacyMatch) subDoc = legacyMatch.data();
+                }
+            } else {
+                // Should not happen since we default to the first project, but fallback safely
+                subDoc = submissionSnap.docs[0].data();
+            }
+
+            if (subDoc) {
+                onboardingData      = subDoc.formData;
+                submissionTimestamp = subDoc.submittedAt || subDoc.createdAt || null;
+            }
         }
 
-        renderDetail(memberData, onboardingData, userId);
+        logger.log(`Loaded detail for partner: ${memberData.name} (${userId})`);
+
+        renderDetail(memberData, onboardingData, userId, submissionTimestamp, selectedProjectId);
     } catch (error) {
-        console.error("Error showing client detail:", error);
+        logger.error("Error showing client detail:", error);
         detailContent.innerHTML = `<p class="color-text-error">Error loading client detail.<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
     }
 }
 
-function renderDetail(member, onboarding, userId) {
+function renderDetail(member, onboarding, userId, submissionTimestamp = null, selectedProjectId = null) {
     const detailContent = document.getElementById('detail-content');
     const t = translations[currentLang];
+    const isSuspended = member.isDeactivated === true;
     
     // Helper to format list items as tags
     const renderTags = (items) => {
@@ -728,11 +1450,72 @@ function renderDetail(member, onboarding, userId) {
         return f(val);
     };
 
+    // Format Firestore timestamps
+    const fmtDate = (ts) => {
+        if (!ts) return null;
+        const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+    const fmtTime = (ts) => {
+        if (!ts) return '';
+        const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+        return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const registrationDate = fmtDate(member.createdAt);
+    const registrationTime = fmtTime(member.createdAt);
+    const onboardingDate   = fmtDate(submissionTimestamp);
+    const onboardingTime   = fmtTime(submissionTimestamp);
+
+    // ── Find Current Project ──
+    const projects = member.projects || [];
+    let currentProject = projects.find(p => p.id === selectedProjectId);
+    
+    // Fallback to legacy root fields if no project is found (e.g. before migration runs properly)
+    if (!currentProject) {
+        currentProject = {
+            id: 'legacy',
+            name: member.company || member.name || 'Proyecto 1',
+            projectUrl: member.projectUrl,
+            projectStage: member.projectStage,
+            financials: member.financials,
+            reports: member.reports,
+            timeline: member.timeline,
+            projectDescription: member.projectDescription
+        };
+    }
+
+    // ── Prepare Financials & Reports data
+    const fin = currentProject.financials || { projectCost: 0, maintenanceFee: 0, discount: '', status: 'prospect', currency: 'EUR' };
+    const reports = currentProject.reports || [];
+    const customTimeline = currentProject.timeline || [];
+    
+    const currencyMap = { 'EUR': '€', 'USD': '$', 'CRC': '₡' };
+    const curSym = currencyMap[fin.currency] || '€';
+
+    // ── Build suspend button label
+    const suspendBtnLabel = isSuspended
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Reactivate Account`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Suspend Account`;
+
     detailContent.innerHTML = `
+        ${isSuspended ? `
+        <div class="suspended-detail-banner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+            This account has been suspended.
+        </div>` : ''}
         <div class="dashboard-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; padding-right: 80px;">
             <div>
-                <h1 style="font-size: 3rem;">${member.name}</h1>
+                <h1 style="font-size: 3rem;">${member.name}${isSuspended ? '<span class="suspended-title-tag">Suspended</span>' : ''}</h1>
                 <p class="color-text-secondary">${member.company || t.no_company}</p>
+                <div style="margin-top:0.75rem; display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
+                    <span class="onboarding-status ${member.onboardingCompleted ? 'status-done' : 'status-pending'}">
+                        ${member.onboardingCompleted ? t.completed : t.pending}
+                    </span>
+                    <button id="btn-suspend-toggle" class="btn-suspend ${isSuspended ? 'is-active' : ''}">
+                        ${suspendBtnLabel}
+                    </button>
+                </div>
             </div>
             <button id="btn-download-pdf" class="btn btn-outline" style="min-width: 140px; margin-top: 0.5rem;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -740,16 +1523,204 @@ function renderDetail(member, onboarding, userId) {
             </button>
         </div>
 
+        ${member.role === 'prospect' ? `
+        <div class="detail-section" style="background: rgba(255, 171, 0, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(255, 171, 0, 0.2);">
+            <h3 style="color: #ffab00; margin-top:0; margin-bottom: 1rem;">Prospect Details</h3>
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">Project Description</label>
+                <p style="margin:0; line-height: 1.5;">${f(currentProject.projectDescription)}</p>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">Existing License Code (if any)</label>
+                    <input type="text" id="prospect-link-license" class="form-control" value="${member.licenseCode || ''}" placeholder="ELY-XXXX-XXXX-XXXX">
+                </div>
+                <button id="btn-link-prospect" class="btn btn-primary" style="background: #ffab00; color: #000; border-color: #ffab00;">Vincular con Cliente Registrado</button>
+            </div>
+            <p id="prospect-link-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none; color: #00c875;">Linked successfully!</p>
+        </div>
+        ` : ''}
+
+        ${projects.length > 1 ? `
+        <div class="project-tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+            ${projects.map((p, idx) => `
+                <button class="project-tab-btn ${p.id === currentProject.id ? 'active' : ''}" data-project-id="${p.id}" style="background: none; border: none; padding: 0.5rem 1rem; color: ${p.id === currentProject.id ? 'var(--color-accent)' : 'var(--color-text-secondary)'}; cursor: pointer; border-bottom: ${p.id === currentProject.id ? '2px solid var(--color-accent)' : '2px solid transparent'};">
+                    ${p.name || `Proyecto ${idx + 1}`}
+                </button>
+            `).join('')}
+        </div>
+        ` : ''}
+
         <div class="detail-section" style="background: rgba(41, 151, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(41, 151, 255, 0.2);">
-            <h3 style="margin-bottom: 1rem; color: var(--color-accent);">${t.project_link}</h3>
-            <div style="display: flex; gap: 1rem;">
-                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${member.projectUrl || ''}" style="flex: 1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                <h3 style="color: var(--color-accent); margin:0;">${t.project_link_title}</h3>
+                <button id="btn-edit-project" class="report-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+            </div>
+            
+            <div id="project-link-view">
+                ${currentProject.projectUrl ? `<a href="${currentProject.projectUrl}" target="_blank" style="color:#fff; text-decoration:underline; font-size:1.1rem;">${currentProject.projectUrl}</a>` : `<span style="opacity:0.5;">-</span>`}
+            </div>
+
+            <div id="project-link-edit" style="display: none; gap: 1rem;">
+                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${currentProject.projectUrl || ''}" style="flex: 1;">
                 <button id="btn-save-project" class="btn btn-primary">${t.save_link}</button>
             </div>
-            <p id="project-save-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;"></p>
+            <p id="project-save-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;">${t.saved}</p>
+        </div>
+
+        <!-- ── Financials & Reports ── -->
+        <div class="detail-section" style="margin-bottom: 2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                <h3 style="color: var(--color-accent); margin:0;">Financials & Billing</h3>
+                <button id="btn-edit-fin" class="report-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+            </div>
+            
+            <div id="fin-view-mode">
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:1rem; background:rgba(0,0,0,0.15); padding:1rem; border-radius:var(--radius-sm); margin-bottom:2rem;">
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.project_cost}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${fin.projectCost}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.monthly_fee}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${fin.maintenanceFee}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.discount}</div><div style="font-size:1.2rem; font-weight:700;">${fin.discount || '-'}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">Status</div><div style="font-size:1rem; font-weight:500; color:var(--color-accent);">${t['status_' + (fin.status === 'active_maintenance' ? 'active' : fin.status === 'free_tier' ? 'free' : fin.status === 'development' ? 'dev' : 'prospect')] || fin.status}</div></div>
+                </div>
+            </div>
+
+            <div id="fin-edit-mode" style="display:none;">
+                <div class="fin-card-grid">
+                    <div class="fin-card">
+                        <label>${t.project_cost}</label>
+                        <input type="number" id="fin-cost" value="${fin.projectCost}">
+                        <span class="currency-symbol">${curSym}</span>
+                    </div>
+                    <div class="fin-card">
+                        <label>${t.monthly_fee}</label>
+                        <input type="number" id="fin-fee" value="${fin.maintenanceFee}">
+                        <span class="currency-symbol">${curSym}</span>
+                    </div>
+                    <div class="fin-card">
+                        <label>${t.discount}</label>
+                        <input type="text" id="fin-discount" value="${fin.discount || ''}" placeholder="e.g. 40%">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <select id="fin-currency" class="form-control" style="max-width: 120px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">
+                        <option value="EUR" ${(!fin.currency || fin.currency === 'EUR') ? 'selected' : ''}>EUR (€)</option>
+                        <option value="USD" ${fin.currency === 'USD' ? 'selected' : ''}>USD ($)</option>
+                        <option value="CRC" ${fin.currency === 'CRC' ? 'selected' : ''}>CRC (₡)</option>
+                    </select>
+                    <select id="fin-status" class="form-control" style="max-width: 200px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">
+                        <option value="prospect" ${fin.status === 'prospect' ? 'selected' : ''}>${t.status_prospect}</option>
+                        <option value="development" ${fin.status === 'development' ? 'selected' : ''}>${t.status_dev}</option>
+                        <option value="free_tier" ${fin.status === 'free_tier' ? 'selected' : ''}>${t.status_free}</option>
+                        <option value="active_maintenance" ${fin.status === 'active_maintenance' ? 'selected' : ''}>${t.status_active}</option>
+                    </select>
+                    <button id="btn-save-financials" class="btn btn-primary">${t.save_financials}</button>
+                    <span id="fin-save-msg" style="display:none; align-self:center; font-size: 0.85rem; color: #00c875;">${t.saved}</span>
+                </div>
+            </div>
+
+            <h3 style="color: var(--color-accent); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">${t.invoices_reports}</h3>
+            
+            <div class="report-list" id="report-list-container">
+                ${reports.length === 0 ? `<p style="opacity: 0.5; font-size: 0.85rem;">${t.no_reports}</p>` : ''}
+                ${reports.map((r, i) => `
+                    <div class="report-item">
+                        <div class="report-info">
+                            <svg class="report-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <div>
+                                <div class="report-title">${r.title}</div>
+                                <div class="report-date">
+                                    ${r.date} ${r.amount ? `&middot; <strong style="color:var(--color-accent)">${currencyMap[r.currency] || curSym}${r.amount}</strong>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            <a href="${r.url}" target="_blank" class="report-btn" title="View/Download">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>
+                            <button class="report-btn btn-delete btn-delete-report" data-index="${i}" title="Delete">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="report-upload-card">
+                <h4>${t.upload_new}</h4>
+                <div class="report-inputs-grid">
+                    <input type="text" id="report-title-input" placeholder="${t.title_placeholder}">
+                    <input type="date" id="report-date-input" title="Date">
+                    <div style="display:flex; gap:0.25rem;">
+                        <input type="number" id="report-amount-input" placeholder="${t.amount_placeholder}" style="flex:1;">
+                        <select id="report-currency-input" style="width: 60px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 0.65rem 0.25rem; border-radius: var(--radius-sm); color: var(--color-text-primary); font-size: 0.85rem;">
+                            <option value="EUR" ${(!fin.currency || fin.currency === 'EUR') ? 'selected' : ''}>€</option>
+                            <option value="USD" ${fin.currency === 'USD' ? 'selected' : ''}>$</option>
+                            <option value="CRC" ${fin.currency === 'CRC' ? 'selected' : ''}>₡</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="report-upload-footer">
+                    <div class="report-file-input-wrapper">
+                        <input type="file" id="report-file-input" accept="application/pdf,image/*">
+                        <div class="report-file-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <span id="report-file-name-label">${t.choose_file}</span>
+                        </div>
+                    </div>
+                    <button id="btn-add-report" class="btn btn-primary" style="padding: 0.65rem 1.5rem;">${t.upload_btn}</button>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- ── Project Pipeline & Revenue ── -->
+        <div class="detail-section" style="margin-bottom: 2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--color-accent); margin:0;">Activity & Notes (Pipeline & Revenue)</h3>
+            </div>
+            
+            <!-- Pipeline / Stepper -->
+            <div class="project-pipeline-container" style="margin-bottom: 2rem;">
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Current Stage (Click to update)</label>
+                <div class="pipeline-stepper" id="pipeline-stepper-ui">
+                    ${['prospect', 'first_contact', 'prototyping', 'development', 'delivery', 'maintenance'].map((stage, idx, arr) => {
+                        const defaultStage = member.role === 'prospect' ? 'prospect' : 'first_contact';
+                        const currentStageIdx = arr.indexOf(currentProject?.projectStage || member.projectStage || defaultStage);
+                        const isCompleted = idx < currentStageIdx;
+                        const isActive = idx === currentStageIdx;
+                        let statusClass = isActive ? 'active' : (isCompleted ? 'completed' : 'pending');
+                        const labels = {
+                            prospect: 'Prospect',
+                            first_contact: t.stage_contact || 'First Contact',
+                            prototyping: t.stage_proto || 'Prototyping',
+                            development: t.stage_dev || 'Development',
+                            delivery: t.stage_delivery || 'Delivery',
+                            maintenance: t.stage_maint || 'Maintenance'
+                        };
+                        return `
+                        <div class="pipeline-step ${statusClass}" data-stage="${stage}">
+                            <div class="step-circle">${isCompleted ? '✓' : (idx + 1)}</div>
+                            <div class="step-label">${labels[stage]}</div>
+                            ${idx < arr.length - 1 ? '<div class="step-line"></div>' : ''}
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div id="pipeline-save-msg" style="display:none; color:#00c875; font-size:0.85rem; margin-top:0.5rem;">${t.saved}</div>
+            </div>
+
+            <!-- Client Revenue Chart -->
+            <div class="client-revenue-container">
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Income Overview</label>
+                <div style="height: 200px; width: 100%; position: relative;">
+                    <canvas id="clientRevenueChart"></canvas>
+                </div>
+            </div>
         </div>
 
         <div id="pdf-content-wrapper">
+            ${onboarding ? `
             <!-- Step 1: Primary Contact Info -->
             <div class="detail-section">
                 <h3>${t.step1_title}</h3>
@@ -1006,10 +1977,179 @@ function renderDetail(member, onboarding, userId) {
                     <div class="info-item"><label>${t.marketing_consent}</label><span>${onboarding?.marketing_consent ? t.accepted : t.rejected}</span></div>
                 </div>
             </div>
+            ` : `
+                <div style="padding: 2rem; text-align: center; color: var(--color-text-secondary); background: var(--glass-bg); border-radius: var(--radius-md); border: 1px solid var(--glass-border); margin-top: 1rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <p style="font-size: 1.1rem; opacity: 0.8;">${t.onboarding_empty}</p>
+                </div>
+            `}
+        </div>
+
+        </div>
+
+        <!-- ── Admin Notes ─────────────────────────────────────── -->
+        <div class="admin-notes-section">
+            <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:0.6rem; font-weight:600; opacity:0.7;">Internal Notes (admin only)</label>
+            <textarea id="admin-notes-input" class="admin-notes-area" placeholder="Add private notes about this partner…">${member.adminNotes || ''}</textarea>
+            <div class="admin-notes-actions">
+                <button id="btn-save-notes" class="btn btn-primary" style="min-width:120px;">Save Note</button>
+                <span id="notes-save-msg" class="admin-notes-save-msg"></span>
+            </div>
         </div>
     `;
 
-    // Attach Event Listeners
+    // ── Helper to update project fields ──
+    const updateCurrentProjectFields = async (updates) => {
+        if (!member.projects) member.projects = [];
+        
+        Object.assign(currentProject, updates);
+        
+        const projIndex = member.projects.findIndex(p => p.id === currentProject.id);
+        if (projIndex !== -1) {
+            member.projects[projIndex] = currentProject;
+        } else {
+            // Handle legacy project being pushed back
+            member.projects.push(currentProject);
+        }
+
+        await updateDoc(doc(db, 'members', userId), { projects: member.projects });
+        
+        const idx = _allClients.findIndex(c => c.id === userId);
+        if (idx !== -1) _allClients[idx].projects = member.projects;
+    };
+
+    // ── Event Listeners ──────────────────────────────────────────────────────
+
+    // Project Tabs
+    const tabBtns = document.querySelectorAll('.project-tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pid = btn.getAttribute('data-project-id');
+            // Must fetch the specific onboarding submission for the new project
+            showClientDetail(userId, member, pid);
+        });
+    });
+
+    // Prospect Link
+    const btnLinkProspect = document.getElementById('btn-link-prospect');
+    if (btnLinkProspect) {
+        btnLinkProspect.addEventListener('click', async () => {
+            const licenseInput = document.getElementById('prospect-link-license').value.trim();
+            const msgEl = document.getElementById('prospect-link-msg');
+            
+            if (!licenseInput) {
+                msgEl.textContent = 'Please provide a license code.';
+                msgEl.style.color = '#f44336';
+                msgEl.style.display = 'block';
+                return;
+            }
+
+            btnLinkProspect.disabled = true;
+            btnLinkProspect.textContent = 'Linking...';
+
+            try {
+                // 1. Verify license exists
+                const licenseRef = doc(db, 'licenses', licenseInput);
+                const licenseSnap = await getDoc(licenseRef);
+                
+                if (!licenseSnap.exists()) {
+                    throw new Error('Invalid license code.');
+                }
+
+                // 2. Find the auth user who holds this license
+                const membersQuery = query(collection(db, 'members'), where('licenseCode', '==', licenseInput));
+                const targetMembersSnap = await getDocs(membersQuery);
+                
+                if (targetMembersSnap.empty) {
+                    throw new Error('No user found with this license code.');
+                }
+                
+                const targetDoc = targetMembersSnap.docs[0];
+                const targetMemberData = targetDoc.data();
+                
+                // 3. Prepare projects array
+                let targetProjects = targetMemberData.projects || [];
+                if (targetProjects.length === 0 && (targetMemberData.projectUrl || targetMemberData.onboardingCompleted)) {
+                    // Legacy migration for target member if not already done
+                    targetProjects.push({
+                        id: 'project-1',
+                        name: targetMemberData.company || targetMemberData.name || 'Proyecto 1',
+                        projectUrl: targetMemberData.projectUrl || null,
+                        projectStage: targetMemberData.projectStage || 'first_contact',
+                        financials: targetMemberData.financials || null,
+                        reports: targetMemberData.reports || [],
+                        timeline: targetMemberData.timeline || [],
+                        projectDescription: targetMemberData.projectDescription || ''
+                    });
+                }
+                
+                // 4. Create new project from prospect data
+                const newProjectId = 'proj_' + userId;
+                if (!targetProjects.find(p => p.id === newProjectId)) {
+                    const newProject = {
+                        id: newProjectId,
+                        name: member.company || 'New Project',
+                        projectStage: 'prospect',
+                        onboardingCompleted: false,
+                        projectDescription: member.projectDescription || '',
+                        financials: { projectCost: 0, maintenanceFee: 0, discount: '', status: 'prospect', currency: 'EUR' },
+                        reports: [],
+                        timeline: [],
+                        linkedFromProspect: true
+                    };
+                    
+                    targetProjects.push(newProject);
+                }
+                
+                // 5. Update target member
+                await updateDoc(doc(db, 'members', targetDoc.id), { projects: targetProjects });
+                
+                // 6. Delete the prospect document
+                await deleteDoc(doc(db, 'prospects', userId));
+                
+                msgEl.textContent = 'Linked successfully! The prospect has been converted to a project on the target account.';
+                msgEl.style.color = '#00c875';
+                msgEl.style.display = 'block';
+                
+                // 7. Update in-memory & close modal
+                const pIndex = _allClients.findIndex(c => c.id === userId);
+                if (pIndex !== -1) {
+                    _allClients.splice(pIndex, 1); // Remove prospect
+                }
+                
+                const mIndex = _allClients.findIndex(c => c.id === targetDoc.id);
+                if (mIndex !== -1) {
+                    _allClients[mIndex].projects = targetProjects;
+                }
+                
+                setTimeout(() => {
+                    const detailOverlay = document.getElementById('client-detail-overlay');
+                    if (detailOverlay) detailOverlay.style.display = 'none';
+                    loadStats(); // refresh view
+                }, 1500);
+
+            } catch (err) {
+                msgEl.textContent = err.message;
+                msgEl.style.color = '#f44336';
+                msgEl.style.display = 'block';
+            }
+            btnLinkProspect.disabled = false;
+            btnLinkProspect.textContent = 'Vincular con Cliente Registrado';
+        });
+    }
+
+    // Save Project URL
+    const btnEditProject = document.getElementById('btn-edit-project');
+    const projectView = document.getElementById('project-link-view');
+    const projectEdit = document.getElementById('project-link-edit');
+    if (btnEditProject) {
+        btnEditProject.addEventListener('click', () => {
+            projectView.style.display = 'none';
+            projectEdit.style.display = 'flex';
+            btnEditProject.style.display = 'none';
+        });
+    }
+
     const saveBtn = document.getElementById('btn-save-project');
     const msgLabel = document.getElementById('project-save-msg');
     
@@ -1020,13 +2160,17 @@ function renderDetail(member, onboarding, userId) {
         msgLabel.style.display = 'none';
         
         try {
-            await updateDoc(doc(db, 'members', userId), { projectUrl: url });
+            await updateCurrentProjectFields({ projectUrl: url });
             msgLabel.textContent = t.saved;
             msgLabel.style.color = '#4CAF50';
             msgLabel.style.display = 'block';
-            member.projectUrl = url; // update local cache
+            
+            // Re-render to update the view mode
+            setTimeout(() => {
+                showClientDetail(userId, member);
+            }, 500);
         } catch (error) {
-            console.error(error);
+            logger.error('Save project URL:', error);
             msgLabel.textContent = error.message;
             msgLabel.style.color = '#f44336';
             msgLabel.style.display = 'block';
@@ -1037,10 +2181,255 @@ function renderDetail(member, onboarding, userId) {
         setTimeout(() => { msgLabel.style.display = 'none'; }, 3000);
     });
 
+    // ── Financials Handlers ──────────────────────────────────────────────────
+    
+    const btnEditFin = document.getElementById('btn-edit-fin');
+    const finView = document.getElementById('fin-view-mode');
+    const finEdit = document.getElementById('fin-edit-mode');
+    
+    if (btnEditFin) {
+        btnEditFin.addEventListener('click', () => {
+            finView.style.display = 'none';
+            finEdit.style.display = 'block';
+            btnEditFin.style.display = 'none';
+        });
+    }
+
+    const btnSaveFin = document.getElementById('btn-save-financials');
+    if (btnSaveFin) {
+        btnSaveFin.addEventListener('click', async () => {
+            const newFin = {
+                projectCost: parseFloat(document.getElementById('fin-cost').value) || 0,
+                maintenanceFee: parseFloat(document.getElementById('fin-fee').value) || 0,
+                discount: document.getElementById('fin-discount').value.trim(),
+                status: document.getElementById('fin-status').value,
+                currency: document.getElementById('fin-currency').value
+            };
+            
+            btnSaveFin.disabled = true;
+            btnSaveFin.textContent = 'Saving...';
+            try {
+                await updateCurrentProjectFields({ financials: newFin });
+                
+                const msg = document.getElementById('fin-save-msg');
+                msg.textContent = t.saved;
+                msg.style.display = 'inline';
+                msg.style.color = '#00c875';
+                
+                setTimeout(() => {
+                    msg.style.display = 'none';
+                    showClientDetail(userId, member); // Re-render to show read mode
+                }, 500);
+            } catch (err) {
+                alert('Error saving financials: ' + err.message);
+            }
+            btnSaveFin.disabled = false;
+            btnSaveFin.textContent = t.save_financials;
+        });
+    }
+
+    const fileInputEl = document.getElementById('report-file-input');
+    const fileNameLabel = document.getElementById('report-file-name-label');
+    if (fileInputEl && fileNameLabel) {
+        fileInputEl.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Truncate name if it's too long
+                let name = file.name;
+                if (name.length > 25) name = name.substring(0, 22) + '...';
+                fileNameLabel.textContent = name;
+                fileNameLabel.style.color = '#fff';
+            } else {
+                fileNameLabel.textContent = 'Choose File...';
+                fileNameLabel.style.color = '';
+            }
+        });
+    }
+
+    const btnAddReport = document.getElementById('btn-add-report');
+    if (btnAddReport) {
+        btnAddReport.addEventListener('click', async () => {
+            const title = document.getElementById('report-title-input').value.trim();
+            const date = document.getElementById('report-date-input').value;
+            const amount = document.getElementById('report-amount-input').value.trim();
+            const currency = document.getElementById('report-currency-input').value;
+            const fileInput = document.getElementById('report-file-input');
+            const file = fileInput.files[0];
+            
+            if (!title || !file) return alert(t.error_title_file);
+            
+            btnAddReport.disabled = true;
+            btnAddReport.textContent = t.uploading;
+            
+            try {
+                // Upload file to Firebase Storage
+                const timestamp = Date.now();
+                const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+                const filePath = `members/${userId}/reports/${timestamp}_${safeName}`;
+                const storageRef = ref(storage, filePath);
+                
+                // Use uploadBytes instead of uploadBytesResumable to avoid infinite hangs,
+                // and wrap it in a timeout (15 seconds max)
+                const uploadPromise = uploadBytes(storageRef, file);
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error("Upload timed out (15s). Please check your internet connection or Storage Rules.")), 15000);
+                });
+                
+                const uploadTask = await Promise.race([uploadPromise, timeoutPromise]);
+                const downloadURL = await getDownloadURL(uploadTask.ref);
+                
+                // Add to Firestore array
+                const newReports = [...(currentProject.reports || []), { title, date, amount, currency, url: downloadURL, filePath }];
+                await updateCurrentProjectFields({ reports: newReports });
+                
+                // Re-render
+                showClientDetail(userId, member);
+            } catch (err) {
+                alert(t.error_upload + ' ' + err.message);
+                btnAddReport.disabled = false;
+                btnAddReport.textContent = t.upload_btn;
+            }
+        });
+    }
+
+    // Delete Report listeners
+    document.querySelectorAll('.btn-delete-report').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to remove this report?')) return;
+            const idx = parseInt(btn.dataset.index);
+            const reportToDelete = currentProject.reports[idx];
+            const newReports = [...currentProject.reports];
+            newReports.splice(idx, 1);
+            
+            try {
+                // 1. Delete from Storage if filePath exists
+                if (reportToDelete.filePath) {
+                    const storageRef = ref(storage, reportToDelete.filePath);
+                    await deleteObject(storageRef).catch(e => console.warn('Could not delete from storage:', e));
+                }
+                
+                // 2. Delete from Firestore
+                await updateCurrentProjectFields({ reports: newReports });
+                renderDetail(member, onboarding, userId, submissionTimestamp, currentProject.id);
+            } catch (err) {
+                alert('Error deleting report: ' + err.message);
+            }
+        });
+    });
+
+    // Pipeline Stepper listeners
+    const pipelineSteps = document.querySelectorAll('.pipeline-step');
+    const pipelineSaveMsg = document.getElementById('pipeline-save-msg');
+    pipelineSteps.forEach(step => {
+        step.addEventListener('click', async () => {
+            const newStage = step.dataset.stage;
+            if (!newStage || newStage === currentProject.projectStage) return;
+
+            try {
+                await updateCurrentProjectFields({ projectStage: newStage });
+                
+                // Re-render UI to update colors
+                renderDetail(member, onboarding, userId, submissionTimestamp, currentProject.id);
+                
+                // Show saved msg
+                setTimeout(() => {
+                    const msg = document.getElementById('pipeline-save-msg');
+                    if (msg) {
+                        msg.style.display = 'block';
+                        setTimeout(() => msg.style.display = 'none', 3000);
+                    }
+                }, 100);
+            } catch (err) {
+                alert('Error updating stage: ' + err.message);
+            }
+        });
+    });
+
+
+    // Save Admin Notes
+    const notesBtn = document.getElementById('btn-save-notes');
+    const notesMsgEl = document.getElementById('notes-save-msg');
+    if (notesBtn) {
+        notesBtn.addEventListener('click', async () => {
+            const notes = document.getElementById('admin-notes-input')?.value || '';
+            notesBtn.disabled = true;
+            notesBtn.textContent = 'Saving…';
+
+            try {
+                await updateDoc(doc(db, 'members', userId), { adminNotes: notes });
+                member.adminNotes = notes;
+                // Update in-memory cache
+                const idx = _allClients.findIndex(c => c.id === userId);
+                if (idx !== -1) _allClients[idx].adminNotes = notes;
+
+                notesMsgEl.textContent = '✓ Saved';
+                notesMsgEl.style.color = '#00c875';
+                notesMsgEl.classList.add('is-visible');
+                logger.log(`Admin notes saved for ${member.name}`);
+            } catch (error) {
+                logger.error('Save admin notes:', error);
+                notesMsgEl.textContent = error.message;
+                notesMsgEl.style.color = '#ff3b30';
+                notesMsgEl.classList.add('is-visible');
+            }
+
+            notesBtn.disabled = false;
+            notesBtn.textContent = 'Save Note';
+            setTimeout(() => notesMsgEl.classList.remove('is-visible'), 3000);
+        });
+        // Render Revenue Chart
+        setTimeout(() => {
+            renderClientRevenueChart(currentProject);
+        }, 50);
+    }
+
+    // Suspend / Reactivate Toggle
+    const suspendBtn = document.getElementById('btn-suspend-toggle');
+    if (suspendBtn) {
+        suspendBtn.addEventListener('click', async () => {
+            const newState = !member.isDeactivated;
+            const action   = newState ? 'Suspending' : 'Reactivating';
+            suspendBtn.disabled = true;
+            suspendBtn.textContent = `${action}…`;
+
+            try {
+                await updateDoc(doc(db, 'members', userId), { isDeactivated: newState });
+                member.isDeactivated = newState;
+
+                // Update in-memory cache so search/sort stays consistent
+                const idx = _allClients.findIndex(c => c.id === userId);
+                if (idx !== -1) _allClients[idx].isDeactivated = newState;
+
+                logger.log(`Account ${newState ? 'suspended' : 'reactivated'} for ${member.name}`);
+
+                // Re-render detail panel to reflect new state
+                renderDetail(member, onboarding, userId, submissionTimestamp);
+
+                // Refresh client grid in background
+                const term = document.getElementById('crm-search')?.value.trim().toLowerCase() || '';
+                const tCurrent = translations[currentLang];
+                const filtered = term
+                    ? _allClients.filter(c =>
+                        (c.name || '').toLowerCase().includes(term) ||
+                        (c.company || '').toLowerCase().includes(term) ||
+                        (c.email   || '').toLowerCase().includes(term)
+                    )
+                    : _allClients;
+                renderClientGrid(filtered, tCurrent);
+            } catch (error) {
+                logger.error('Suspend toggle:', error);
+                suspendBtn.disabled = false;
+                suspendBtn.textContent = member.isDeactivated ? 'Reactivate Account' : 'Suspend Account';
+                alert('Error updating account status: ' + error.message);
+            }
+        });
+    }
+
+    // Download PDF
     const pdfBtn = document.getElementById('btn-download-pdf');
     if (pdfBtn) {
         pdfBtn.addEventListener('click', () => {
-            console.log("Downloading PDF for", member.name);
+            logger.log('Generating PDF for', member.name);
             generateClientPDF(member, onboarding, t);
         });
     }
@@ -1141,3 +2530,198 @@ function generateClientPDF(member, onboarding, t) {
 
 // Ensure it's globally available
 window.generateClientPDF = generateClientPDF;
+
+// ── REVENUE CHARTS ───────────────────────────────────────────────────────────
+let globalRevenueChartInstance = null;
+let clientRevenueChartInstance = null;
+
+function renderGlobalRevenueChart() {
+    const canvas = document.getElementById('globalRevenueChart');
+    if (!canvas) return;
+    
+    // Process _allClients to get revenue by month and currency
+    const monthlyData = {}; // Format: { 'YYYY-MM': { EUR: 0, USD: 0, CRC: 0 } }
+    
+    // Pre-fill last 6 months so chart always has context even if empty
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        monthlyData[k] = { EUR: 0, USD: 0, CRC: 0 };
+    }
+    
+    _allClients.forEach(client => {
+        const processReports = (reports) => {
+            if (reports && Array.isArray(reports)) {
+                reports.forEach(r => {
+                    if (!r.amount) return;
+                    const amt = parseFloat(r.amount) || 0;
+                    const cur = r.currency || 'EUR';
+                    
+                    let mKey = null;
+                    if (r.date && typeof r.date === 'string' && r.date.length >= 7) {
+                        mKey = r.date.substring(0, 7); // Format: 'YYYY-MM'
+                    } else if (r.timestamp) {
+                        const dateObj = new Date(r.timestamp);
+                        if (!isNaN(dateObj.getTime())) {
+                            mKey = dateObj.getFullYear() + '-' + String(dateObj.getMonth() + 1).padStart(2, '0');
+                        }
+                    }
+                    
+                    if (!mKey) {
+                        const d = new Date();
+                        mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                    }
+                    
+                    if (monthlyData[mKey] !== undefined) {
+                        if (monthlyData[mKey][cur] !== undefined) {
+                            monthlyData[mKey][cur] += amt;
+                        }
+                    }
+                });
+            }
+        };
+
+        if (client.projects && Array.isArray(client.projects)) {
+            client.projects.forEach(p => processReports(p.reports));
+        } else {
+            processReports(client.reports);
+        }
+    });
+
+    const labels = Object.keys(monthlyData).sort();
+    const dataEUR = labels.map(l => monthlyData[l].EUR);
+    const dataUSD = labels.map(l => monthlyData[l].USD);
+    const dataCRC = labels.map(l => monthlyData[l].CRC);
+
+    if (globalRevenueChartInstance) {
+        globalRevenueChartInstance.destroy();
+    }
+
+    const ctx = canvas.getContext('2d');
+    
+    // Set chart.js defaults for dark theme if body has dark mode, but we will use fixed styling for Elysium
+    Chart.defaults.color = 'rgba(255, 255, 255, 0.6)';
+    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+    Chart.defaults.font.family = "'Manrope', sans-serif";
+
+    globalRevenueChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'EUR (€)',
+                    data: dataEUR,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: 'USD ($)',
+                    data: dataUSD,
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                    borderColor: 'rgb(16, 185, 129)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: 'CRC (₡)',
+                    data: dataCRC,
+                    backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                    borderColor: 'rgb(245, 158, 11)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
+
+function renderClientRevenueChart(clientData) {
+    const canvas = document.getElementById('clientRevenueChart');
+    if (!canvas) return;
+
+    if (clientRevenueChartInstance) {
+        clientRevenueChartInstance.destroy();
+    }
+
+    const reports = clientData.reports || [];
+    const validReports = reports.filter(r => r.amount && parseFloat(r.amount) > 0);
+    
+    if (validReports.length === 0) {
+        canvas.parentElement.innerHTML = '<p class="color-text-secondary" style="font-size: 0.9em;">No financial data available yet.</p>';
+        return;
+    }
+
+    // Sort valid reports by date ascending
+    validReports.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+
+    const labels = validReports.map(r => {
+        if (!r.date) return 'Unk';
+        const parts = r.date.split('-');
+        if (parts.length === 3) {
+            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+            return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        }
+        return r.date;
+    });
+    
+    const data = validReports.map(r => parseFloat(r.amount));
+    // Determine main currency
+    const mainCur = validReports[0].currency || 'EUR';
+    let curSymbol = '€';
+    if (mainCur === 'USD') curSymbol = '$';
+    if (mainCur === 'CRC') curSymbol = '₡';
+
+    const ctx = canvas.getContext('2d');
+
+    clientRevenueChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `Revenue (${mainCur})`,
+                data: data,
+                borderColor: 'rgba(59, 130, 246, 1)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                pointRadius: 4,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { 
+                    callbacks: {
+                        label: function(context) {
+                            return curSymbol + ' ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}

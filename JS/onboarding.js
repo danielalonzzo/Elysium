@@ -204,9 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (websiteExtra) {
             const showWebsite = interests.includes('website') || 
-                               interests.includes('redesign_code') || 
-                               interests.includes('redesign_wp') ||
-                               interests.includes('wordpress');
+                               interests.includes('redesign_code');
             websiteExtra.classList.toggle('visible', showWebsite);
         }
         
@@ -428,21 +426,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Clean up support_interest "none" (if "none" is already handled by radio, no special cleanup needed)
 
-            // 1. Save Submissions to a dedicated collection
+            // 1. Get projectId from URL if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('projectId');
+
+            // 2. Save Submissions to a dedicated collection
             await addDoc(collection(db, 'onboarding_submissions'), {
                 userId: currentUser.uid,
                 userEmail: currentUser.email,
+                projectId: projectId || null,
                 formData: data,
                 submittedAt: serverTimestamp()
             });
 
-            // 2. Update member profile to mark as completed (using setDoc with merge for robustness)
+            // 3. Update member profile 
             const memberRef = doc(db, 'members', currentUser.uid);
-            await setDoc(memberRef, {
-                onboardingCompleted: true,
-                onboardingCompletedAt: serverTimestamp(),
-                lastUpdated: serverTimestamp()
-            }, { merge: true });
+            const memberSnap = await getDoc(memberRef);
+            if (memberSnap.exists()) {
+                const memberData = memberSnap.data();
+                
+                if (projectId && memberData.projects) {
+                    // Update specific project
+                    const updatedProjects = memberData.projects.map(p => {
+                        if (p.id === projectId) {
+                            return { ...p, onboardingCompleted: true, projectStage: 'first_contact' };
+                        }
+                        return p;
+                    });
+                    
+                    await updateDoc(memberRef, {
+                        projects: updatedProjects,
+                        lastUpdated: serverTimestamp()
+                    });
+                } else {
+                    // Legacy fallback
+                    await updateDoc(memberRef, {
+                        onboardingCompleted: true,
+                        onboardingCompletedAt: serverTimestamp(),
+                        lastUpdated: serverTimestamp()
+                    });
+                }
+            }
 
             // Clear local storage on success
             localStorage.removeItem('onboarding_data');

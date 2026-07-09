@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Elysium λ</title>
+    <title>Admin CRM — Elysium λ</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +15,9 @@
     <link rel="stylesheet" href="CSS/components.css">
     <link rel="stylesheet" href="CSS/pages.css">
 
-    <link rel="icon" href="favicon.svg" type="image/xml+svg">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <meta name="robots" content="noindex, nofollow">
 </head>
 <body>
     <!-- Premium Preloader -->
@@ -47,51 +49,210 @@
         </div>
     </nav>
 
+    <!-- ═══════════════════════════════════════════════════════
+         PROFESSIONAL SIDEBAR
+    ═══════════════════════════════════════════════════════ -->
     <aside class="admin-sidebar">
+
+        <!-- Admin Identity Header -->
+        <div class="sidebar-admin-header">
+            <div class="sidebar-admin-avatar">λ</div>
+            <div class="sidebar-admin-info">
+                <div class="sidebar-admin-name">Super Admin</div>
+                <div class="sidebar-admin-role">Elysium λ CRM</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
         <nav class="sidebar-nav">
-            <div class="nav-item active" data-target="overview">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            <div class="sidebar-nav-group-label">Workspace</div>
+
+            <div class="nav-item active" data-target="overview" id="nav-overview">
+                <!-- Overview icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
                 <span>Overview</span>
             </div>
-            <div class="nav-item" data-target="clients">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                <span>Clients</span>
+
+            <div class="nav-item" data-target="pipeline" id="nav-pipeline">
+                <!-- Pipeline icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
+                </svg>
+                <span>Pipeline</span>
+                <span class="sidebar-badge" id="sidebar-pipeline-count">0</span>
             </div>
-            <div class="nav-item" data-target="licenses">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+
+            <div class="nav-item" data-target="clients" id="nav-clients">
+                <!-- Clients icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Partners</span>
+                <span class="sidebar-badge" id="sidebar-clients-count">0</span>
+            </div>
+
+            <div class="nav-item" data-target="licenses" id="nav-licenses">
+                <!-- Licenses icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
                 <span>Licenses</span>
             </div>
         </nav>
+
+        <!-- Sidebar Footer -->
         <div class="sidebar-footer">
-            <button id="logoutBtn" class="btn btn-sm btn-outline" style="width: 100%;">Logout</button>
+            <button id="logoutBtn" class="sidebar-logout-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                <span>Logout</span>
+            </button>
         </div>
     </aside>
 
+    <!-- ═══════════════════════════════════════════════════════
+         MAIN CONTENT
+    ═══════════════════════════════════════════════════════ -->
     <main class="admin-main">
+
+        <!-- ─── OVERVIEW ──────────────────────────────────────── -->
         <section id="overview" class="admin-section active">
             <div class="dashboard-header">
-                <h1>Dashboard</h1>
-                <p class="color-text-secondary">Welcome back, Super Admin.</p>
+                <div>
+                    <h1 id="overview-title">Dashboard</h1>
+                    <p class="color-text-secondary" id="overview-subtitle">Welcome back, Super Admin.</p>
+                </div>
+                <div class="dashboard-date" id="dashboard-date"></div>
             </div>
-            <div class="clients-grid" id="stats-overview">
-                <!-- Stat cards will be injected here -->
+
+            <!-- KPI Row -->
+            <div class="kpi-grid" id="stats-overview">
+                <!-- Injected by JS -->
+            </div>
+
+            <!-- Global Revenue Chart -->
+            <div class="overview-panel" style="margin-bottom: 2rem;">
+                <div class="overview-panel-header">
+                    <h3 class="overview-panel-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                            <polyline points="17 6 23 6 23 12"></polyline>
+                        </svg>
+                        Global Revenue (Last 6 Months)
+                    </h3>
+                </div>
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="globalRevenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Two-column layout: Activity Feed + Pipeline Summary -->
+            <div class="overview-bottom-grid">
+
+                <!-- Recent Activity Feed -->
+                <div class="overview-panel">
+                    <div class="overview-panel-header">
+                        <h3 class="overview-panel-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            Recent Activity
+                        </h3>
+                        <span class="overview-panel-link" data-target-nav="clients">View all →</span>
+                    </div>
+                    <div id="activity-feed-container">
+                        <div class="loader-container"><div class="premium-loader"></div></div>
+                    </div>
+                </div>
+
+                <!-- Pipeline Summary -->
+                <div class="overview-panel">
+                    <div class="overview-panel-header">
+                        <h3 class="overview-panel-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                                <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
+                            </svg>
+                            Pipeline Snapshot
+                        </h3>
+                        <span class="overview-panel-link" data-target-nav="pipeline">View full →</span>
+                    </div>
+                    <div id="pipeline-snapshot-container">
+                        <div class="loader-container"><div class="premium-loader"></div></div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
+        <!-- ─── PIPELINE ──────────────────────────────────────── -->
+        <section id="pipeline" class="admin-section">
+            <div class="dashboard-header">
+                <div>
+                    <h1>Pipeline</h1>
+                    <p class="color-text-secondary">Track partner progress across project stages.</p>
+                </div>
+            </div>
+            <div class="pipeline-board" id="pipeline-board">
+                <div class="loader-container"><div class="premium-loader"></div></div>
+            </div>
+        </section>
+
+        <!-- ─── CLIENTS / PARTNERS ────────────────────────────── -->
         <section id="clients" class="admin-section">
             <div class="dashboard-header">
-                <h1>Clients</h1>
-                <p class="color-text-secondary">Manage and view all registered partners.</p>
+                <div>
+                    <h1>Partners</h1>
+                    <p class="color-text-secondary">Manage and view all registered partners.</p>
+                </div>
             </div>
+
+            <!-- CRM Toolbar: Search + Sort + Filters -->
+            <div class="crm-toolbar" id="crm-toolbar" style="display:none;">
+                <div class="crm-search-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="search" id="crm-search" class="crm-search-bar" placeholder="Search by name, company or email…" autocomplete="off">
+                </div>
+                <button id="crm-sort-btn" class="crm-sort-toggle" title="Toggle sort order">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M7 12h10M11 18h2"/>
+                    </svg>
+                    <span id="crm-sort-label">A → Z</span>
+                </button>
+                <!-- Stage filter pills -->
+                <div class="crm-filter-pills" id="crm-filter-pills">
+                    <button class="crm-pill active" data-filter="all">All</button>
+                    <button class="crm-pill" data-filter="prospect">Prospect</button>
+                    <button class="crm-pill" data-filter="onboarding">Onboarding</button>
+                    <button class="crm-pill" data-filter="active">Active</button>
+                    <button class="crm-pill" data-filter="delivered">Delivered</button>
+                </div>
+                <span class="crm-results-count" id="crm-results-count"></span>
+            </div>
+
             <div class="clients-grid" id="clients-list">
                 <div class="loader-container"><div class="premium-loader"></div></div>
             </div>
         </section>
 
+        <!-- ─── LICENSES ──────────────────────────────────────── -->
         <section id="licenses" class="admin-section">
             <div class="dashboard-header">
-                <h1>Licenses</h1>
-                <p class="color-text-secondary">Overview of all generated and available licenses.</p>
+                <div>
+                    <h1>Licenses</h1>
+                    <p class="color-text-secondary">Overview of all generated and available licenses.</p>
+                </div>
             </div>
             <div style="overflow-x: auto;">
                 <table class="admin-table">
@@ -104,11 +265,12 @@
                         </tr>
                     </thead>
                     <tbody id="licenses-list">
-                        <!-- Licenses will be injected here -->
+                        <!-- Licenses injected by JS -->
                     </tbody>
                 </table>
             </div>
         </section>
+
     </main>
 
     <!-- Client Detail Overlay -->
@@ -116,13 +278,15 @@
         <div class="detail-panel">
             <button class="close-detail" id="close-detail">&times;</button>
             <div id="detail-content">
-                <!-- Content will be injected by JS -->
+                <!-- Content injected by JS -->
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="JS/admin.js"></script>
+    <script src="JS/version-modal.js"></script>
 </body>
 </html>

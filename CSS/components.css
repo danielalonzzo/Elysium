@@ -1593,8 +1593,32 @@ footer {
 /* Accordion Grid */
 .accordion-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: var(--space-md);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .accordion-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1100px) {
+    .accordion-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+    .accordion-item:nth-child(1),
+    .accordion-item:nth-child(2),
+    .accordion-item:nth-child(3) {
+        grid-column: span 2;
+    }
+    /* Center the bottom 2 items out of 5 */
+    .accordion-item:nth-child(4) {
+        grid-column: 2 / span 2;
+    }
+    .accordion-item:nth-child(5) {
+        grid-column: 4 / span 2;
+    }
 }
 
 .accordion-item {
@@ -1809,11 +1833,13 @@ footer {
     grid-template-columns: 1fr;
     gap: 2rem;
     margin-top: 3rem;
+    max-width: 1050px;
+    margin-inline: auto;
 }
 
 @media (min-width: 900px) {
     .pro-packages-grid {
-        grid-template-columns: 1fr 1.6fr;
+        grid-template-columns: 1fr 1fr;
     }
 }
 

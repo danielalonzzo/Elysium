@@ -6,7 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Contacte a Elysium λ Development and Research — Portugal, Unión Europea. Email info@elysiumdr.eu para proyectos web y consultas de pymes.">
-    <title>Contacto</title>
+    <title>Contacto — Elysium λ Development & Research</title>
+
+    <!-- Canonical & hreflang -->
+    <link rel="canonical" href="https://elysiumdr.eu/es/contact.html">
+    <link rel="alternate" hreflang="en" href="https://elysiumdr.eu/contact.html">
+    <link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/contact.html">
+    <link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/contact.html">
+    <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/contact.html">
+
+    <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://elysiumdr.eu/es/contact.html">
+    <meta property="og:title" content="Contacto — Elysium λ Development & Research">
+    <meta property="og:description" content="Contacte a Elysium λ Development and Research — Portugal, Unión Europea. Email info@elysiumdr.eu para proyectos web y consultas de pymes.">
+    <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:site_name" content="Elysium λ Development & Research">
+    <meta property="og:locale" content="es_CR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@elysiumdr">
+    <meta name="twitter:title" content="Contacto — Elysium λ Development & Research">
+    <meta name="twitter:description" content="Contacte a Elysium λ Development and Research — Portugal, Unión Europea. Email info@elysiumdr.eu para proyectos web y consultas de pymes.">
+    <meta name="twitter:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+
+    <!-- View Transition -->
+    <meta name="view-transition" content="same-origin">
+
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +48,23 @@
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+
+    <!-- Structured Data: Contact -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ContactPage",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Elysium λ Development & Research",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "info@elysiumdr.eu",
+          "contactType": "customer support"
+        }
+      }
+    }
+    </script>
 </head>
 
 <body>
@@ -131,12 +177,9 @@
                                 <option value="basic-maintenance">Mantenimiento Básico</option>
                                 <option value="preferred-maintenance">Mantenimiento Preferente</option>
                                 <option value="premium-maintenance">Mantenimiento Premium</option>
-                                <option value="wordpress">Wordpress</option>
                                 <option value="full-app">Paquete Profesional de Aplicación Web Completa</option>
                                 <option value="site-redesign-code">Rediseño Profesional de Sitio Existente (Código)
                                 </option>
-                                <option value="site-redesign-wordpress">Rediseño Profesional de Sitio Existente
-                                    (Wordpress)</option>
                                 <option value="investigation">Investigación</option>
                                 <option value="other">Otro</option>
                             </select>
@@ -213,6 +256,7 @@
     </footer>
 
     <script src="../JS/main.js"></script>
+    <script src="../JS/version-modal.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';

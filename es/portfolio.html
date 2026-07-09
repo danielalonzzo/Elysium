@@ -5,7 +5,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Portafolio Elysium λ — Experiencias digitales y investigación técnica.">
-    <title>Portafolio</title>
+    <title>Portafolio — Elysium λ Development & Research</title>
+
+    <!-- Canonical & hreflang -->
+    <link rel="canonical" href="https://elysiumdr.eu/es/portfolio.html">
+    <link rel="alternate" hreflang="en" href="https://elysiumdr.eu/portfolio.html">
+    <link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/portfolio.html">
+    <link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/portfolio.html">
+    <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/portfolio.html">
+
+    <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://elysiumdr.eu/es/portfolio.html">
+    <meta property="og:title" content="Portafolio — Elysium λ Development & Research">
+    <meta property="og:description" content="Portafolio Elysium λ — Experiencias digitales y investigación técnica.">
+    <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:site_name" content="Elysium λ Development & Research">
+    <meta property="og:locale" content="es_CR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@elysiumdr">
+    <meta name="twitter:title" content="Portafolio — Elysium λ Development & Research">
+    <meta name="twitter:description" content="Portafolio Elysium λ — Experiencias digitales y investigación técnica.">
+    <meta name="twitter:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+
+    <!-- View Transition -->
+    <meta name="view-transition" content="same-origin">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -17,6 +46,31 @@
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+
+    <!-- Structured Data: Portfolio -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "url": "https://elysiumdr.eu/case-pmorais.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "url": "https://elysiumdr.eu/case-valtrix.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "url": "https://elysiumdr.eu/case-moyra.html"
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body>
@@ -272,6 +326,7 @@
         </div>
     </footer>
     <script src="../JS/main.js"></script>
+    <script src="../JS/version-modal.js"></script>
 </body>
 
 </html>

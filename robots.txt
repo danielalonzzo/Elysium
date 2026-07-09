@@ -1,5 +1,15 @@
 User-agent: *
 Allow: /
-Disallow: /JS/
+
+# Block private/utility pages
+Disallow: /admin.html
+Disallow: /onboarding.html
+Disallow: /seed-licenses.html
+Disallow: /es/onboarding.html
+Disallow: /pt/onboarding.html
+Disallow: /test-pattern.html
+
+# Block internal JS source (optional but keeps crawl budget lean)
+Disallow: /rewrite_svg.py
 
 Sitemap: https://elysiumdr.eu/sitemap.xml

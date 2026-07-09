@@ -60,6 +60,18 @@
             text-decoration: underline;
         }
         
+        .prospect-link {
+            font-size: 0.75rem;
+            color: var(--color-text-secondary) !important;
+            opacity: 0.5;
+            font-weight: normal !important;
+            transition: opacity 0.2s;
+        }
+        .prospect-link:hover {
+            opacity: 0.9;
+            text-decoration: underline;
+        }
+        
         .hidden {
             display: none;
         }
@@ -93,6 +105,8 @@
             display: block;
         }
     </style>
+
+    <meta name="robots" content="noindex, nofollow">
 </head>
 
 <body>
@@ -201,6 +215,49 @@
                         </form>
                         <div class="auth-toggle">
                             ¿Ya tiene una cuenta? <a href="#" id="show-login">Inicie sesión</a>
+                            <br><br>
+                            <a href="#" id="show-prospect-from-signup" class="prospect-link">Crear cuenta de prospecto</a>
+                        </div>
+                    </div>
+
+                    <!-- Prospect Form -->
+                    <div id="prospect-view" class="hidden">
+                        <div class="auth-header">
+                            <h2>Iniciar un Proyecto</h2>
+                            <p>Regístrese como prospecto para comenzar</p>
+                        </div>
+                        <form id="prospect-form">
+                            <div class="form-group">
+                                <label class="form-label">Nombre Completo *</label>
+                                <input type="text" id="prospect-name" class="form-control" required placeholder="Juan Pérez">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nombre de la Empresa *</label>
+                                <input type="text" id="prospect-company" class="form-control" required placeholder="Acme Corp">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Correo Electrónico *</label>
+                                <input type="email" id="prospect-email" class="form-control" required placeholder="Correo personal">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Breve descripción del proyecto</label>
+                                <textarea id="prospect-description" class="form-control" rows="3" placeholder="¿Qué desea construir?"></textarea>
+                            </div>
+                            <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                                <input type="checkbox" id="prospect-is-client" style="width: auto;">
+                                <label for="prospect-is-client" class="form-label" style="margin-bottom: 0;">¿Ya es cliente?</label>
+                            </div>
+                            <div class="form-group hidden" id="prospect-license-group">
+                                <label class="form-label">Nº de licencia Elysium λ *</label>
+                                <input type="text" id="prospect-license" class="form-control" placeholder="ELY-XXXX-XXXX-XXXX">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Enviar Solicitud</button>
+                            <p id="prospect-success-msg" style="margin-top: 1rem; color: #00c875; display: none; text-align: center;">¡Su solicitud ha sido enviada! Nos pondremos en contacto pronto.</p>
+                        </form>
+                        <div class="auth-toggle">
+                            ¿Ya tiene una cuenta? <a href="#" id="show-login-from-prospect">Inicie sesión</a>
+                            <br><br>
+                            ¿Tiene una licencia? <a href="#" id="show-signup-from-prospect">Registrarse como Cliente</a>
                         </div>
                     </div>
                 </div>
@@ -214,8 +271,9 @@
                         <h2 id="welcome-name" style="font-size: 2.5rem; color: var(--color-platinum); margin-bottom: 1rem;">Bienvenido, Socio</h2>
                         <p id="partner-company" style="font-size: 1.15rem; color: var(--color-text-secondary); margin-bottom: 2rem;">Nombre de la Empresa</p>
                         <div style="max-width: 600px; margin: 0 auto; line-height: 1.6; color: var(--color-text-secondary); margin-bottom: 3rem;">
-                            Ha accedido con éxito al Portal de Socios de Elysium. Próximamente encontrará aquí funciones avanzadas y herramientas para socios.
+                            Has accedido exitosamente al Portal de Socios de Elysium. Las funciones y herramientas avanzadas para socios estarán disponibles aquí pronto.
                         </div>
+                        <div id="client-projects-list" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1rem; align-items: center; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;"></div>
                         <button id="logoutBtn" class="btn">Cerrar Sesión</button>
                     </div>
                 </div>
@@ -277,6 +335,7 @@
     </footer>
 
     <script src="../JS/main.js"></script>
+    <script src="../JS/version-modal.js"></script>
     <script type="module" src="../JS/profiles.js"></script>
 </body>
 
