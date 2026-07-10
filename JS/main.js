@@ -11,6 +11,12 @@ window.addEventListener('load', () => {
         if (preloader) {
             preloader.classList.add('is-loaded');
 
+            // Trigger the lambda reveal animation NOW (while preloader is fading out)
+            const lambdaSymbol = document.querySelector('.hero-symbol-bg');
+            if (lambdaSymbol) {
+                lambdaSymbol.classList.add('lambda-animate');
+            }
+
             // Remove from DOM after fade-out transition completes (0.8s)
             setTimeout(() => {
                 preloader.remove();
@@ -307,38 +313,42 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.reveal-item').forEach(el => revealObserver.observe(el));
     document.querySelectorAll('.reveal-step').forEach(el => revealObserver.observe(el));
 
-    // Methodology Scroll Logic
-    const processWrapper = document.querySelector('.process-scroll-wrapper');
-    const scrollSteps = document.querySelectorAll('.scroll-step');
+    // ─── Methodology Timeline: Scroll Progress & Dot Highlight ───────────
+    const timelineSection = document.querySelector('.timeline-section');
+    const timelineProgress = document.querySelector('.timeline-progress');
+    const timelineItems = document.querySelectorAll('.timeline-section .timeline-item');
 
-    if (processWrapper && scrollSteps.length > 0) {
+    if (timelineSection && timelineProgress) {
         window.addEventListener('scroll', () => {
-            const rect = processWrapper.getBoundingClientRect();
-            const scrollDistance = rect.height - window.innerHeight;
+            const rect = timelineSection.getBoundingClientRect();
+            // Start progressing when the section is a bit below the top of viewport
+            const triggerOffset = window.innerHeight * 0.5; 
+            
+            // Calculamos cuánto hemos scrolleado dentro de la sección
+            const scrollStart = rect.top - triggerOffset;
+            const scrollDistance = rect.height; // approximate
             
             let progress = 0;
-            if (rect.top > 0) {
+            if (scrollStart > 0) {
                 progress = 0;
-            } else if (rect.bottom < window.innerHeight) {
-                progress = 1;
+            } else if (-scrollStart > scrollDistance) {
+                progress = 100;
             } else {
-                progress = -rect.top / scrollDistance;
+                progress = (-scrollStart / scrollDistance) * 100;
             }
 
-            // Map progress across steps
-            const stepThreshold = 1 / scrollSteps.length;
+            // Aceleramos ligeramente el progreso visual para que llegue al 100% a tiempo
+            progress = Math.min(100, Math.max(0, progress * 1.1));
             
-            scrollSteps.forEach((step, index) => {
-                // We reveal step `index` shortly after passing its threshold interval
-                const revealPoint = index * stepThreshold;
-                const pathSelector = document.querySelectorAll(`.path-${index + 1}`);
+            timelineProgress.style.height = `${progress}%`;
 
-                if (progress >= revealPoint) {
-                    step.classList.add('is-visible');
-                    pathSelector.forEach(p => p.classList.add('is-visible'));
+            // Iluminar puntos de la línea de tiempo
+            timelineItems.forEach((item) => {
+                const itemRect = item.getBoundingClientRect();
+                if (itemRect.top < window.innerHeight * 0.7) {
+                    item.classList.add('is-visible');
                 } else {
-                    step.classList.remove('is-visible');
-                    pathSelector.forEach(p => p.classList.remove('is-visible'));
+                    item.classList.remove('is-visible');
                 }
             });
         }, { passive: true });
@@ -577,5 +587,102 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setInterval(nextItem, 4000);
+    });
+});
+
+// Portfolio iOS Search & Filter Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const searchWrapper = document.getElementById('ios-search-wrapper');
+    const searchInput = document.getElementById('portfolio-search');
+    const searchIcon = document.querySelector('.ios-icon');
+    const segmentControl = document.getElementById('ios-segmented-control');
+    const segmentSlider = document.getElementById('ios-segment-slider');
+    const segments = document.querySelectorAll('.ios-segment');
+    const projectCards = document.querySelectorAll('.project-card');
+    
+    if (!segmentControl && !searchInput) return;
+
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    // Initialize Slider Position
+    function updateSlider(activeSegment) {
+        if (!segmentSlider || !activeSegment) return;
+        const leftOffset = activeSegment.offsetLeft;
+        const width = activeSegment.offsetWidth;
+        segmentSlider.style.transform = `translateX(${leftOffset}px)`;
+        segmentSlider.style.width = `${width}px`;
+    }
+
+    // Set initial position
+    const initialActive = document.querySelector('.ios-segment.active');
+    if (initialActive) {
+        setTimeout(() => updateSlider(initialActive), 100);
+    }
+
+    // Filter Logic with stagger
+    function filterProjects() {
+        let delayCounter = 0;
+        
+        projectCards.forEach(card => {
+            const category = card.getAttribute('data-category') || '';
+            const title = (card.querySelector('h3')?.textContent || '').toLowerCase();
+            const desc = (card.querySelector('p')?.textContent || '').toLowerCase();
+            const textMatch = title.includes(searchQuery) || desc.includes(searchQuery);
+            const categoryMatch = currentFilter === 'all' || category === currentFilter;
+
+            if (textMatch && categoryMatch) {
+                card.style.display = 'block';
+                setTimeout(() => {
+                    card.classList.remove('hidden');
+                }, 10 + (delayCounter * 50));
+                delayCounter++;
+            } else {
+                card.classList.add('hidden');
+                setTimeout(() => {
+                    if (card.classList.contains('hidden')) {
+                        card.style.display = 'none';
+                    }
+                }, 400); 
+            }
+        });
+    }
+
+    // Expand search
+    if (searchIcon && searchWrapper && searchInput) {
+        searchIcon.addEventListener('click', () => {
+            searchWrapper.classList.add('expanded');
+            searchInput.focus();
+        });
+
+        searchInput.addEventListener('blur', () => {
+            if (searchInput.value.trim() === '') {
+                searchWrapper.classList.remove('expanded');
+            }
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            filterProjects();
+        });
+    }
+
+    // Segment Clicks
+    segments.forEach(segment => {
+        segment.addEventListener('click', () => {
+            segments.forEach(s => s.classList.remove('active'));
+            segment.classList.add('active');
+            
+            updateSlider(segment);
+            
+            currentFilter = segment.getAttribute('data-filter') || 'all';
+            filterProjects();
+        });
+    });
+
+    // Handle Resize
+    window.addEventListener('resize', () => {
+        const active = document.querySelector('.ios-segment.active');
+        if (active) updateSlider(active);
     });
 });

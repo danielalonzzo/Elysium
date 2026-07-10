@@ -1,269 +1,227 @@
 /* Pages CSS */
 
-/* Home Page Specifics */
-.process-steps {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 Column layout for mobile to mirror the spine logic */
-    gap: 1.5rem;
+/* === Methodology Timeline Section === */
+.timeline-section {
+    padding-top: calc(var(--header-height) + 60px);
+    padding-bottom: 6rem;
     position: relative;
-    margin-top: var(--space-lg);
 }
 
-/* Guide lines container */
-.process-guide-lines {
+.timeline-section .section-header {
+    margin-bottom: 4rem;
+    position: sticky;
+    top: var(--header-height, 80px);
+    z-index: 50;
+    background: var(--color-bg-secondary);
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* optional to give it a nice edge */
+}
+
+.timeline-container {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+/* Línea Central Base */
+.timeline-track {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+/* Línea Central que se ilumina con JS (Progreso) */
+.timeline-progress {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
+    height: 0%; /* JS controlará esto */
+    background: var(--color-accent);
+    box-shadow: 0 0 15px var(--color-accent), 0 0 30px var(--color-accent);
+    border-radius: 2px;
+    transition: height 0.3s ease;
 }
 
-/* Mobile specific grid positions - 2-Column Zigzag */
-.step-01 { grid-column: 1; grid-row: 1; }
-.step-02 { grid-column: 2; grid-row: 1; }
-.step-03 { grid-column: 1; grid-row: 2; }
-.step-04 { grid-column: 2; grid-row: 2; }
-.step-05 { grid-column: 1; grid-row: 3; }
-.step-06 { grid-column: 2; grid-row: 3; }
-.step-07 { grid-column: 1; grid-row: 4; }
-.step-08 { grid-column: 2; grid-row: 4; }
-.step-09 { grid-column: 1; grid-row: 5; }
-.step-10 { grid-column: 2; grid-row: 5; }
-.step-11 { grid-column: 1; grid-row: 6; }
-.step-12 { grid-column: 2; grid-row: 6; }
-
-@media (max-width: 1199px) {
-    .process-guide-lines { display: none !important; }
-    
-    .process-step { 
-        padding: 1.2rem;
-        min-height: 80px; 
-    }
-    .process-step .step-number { font-size: 2rem; }
-    .process-step .step-title { font-size: 0.9rem; margin-top: 0.2rem; }
-
-    .process-sticky-content {
-        padding-top: 100px;
-        padding-bottom: 5rem;
-    }
-
-    .process .section-header {
-        margin-bottom: 2rem !important;
-        padding-top: 0 !important;
-    }
-}
-
-@media (min-width: 1200px) {
-    .process-guide-lines svg .mobile-only { display: none; }
-    .process-guide-lines svg .desktop-only { display: block; }
-}
-
-.process-guide-lines svg {
-    width: 100%;
-    height: 100%;
-}
-
-.process-line {
-    stroke: rgba(255, 255, 255, 0.2);
-    stroke-width: 2;
-    stroke-dasharray: 4 4;
-    fill: none;
-}
-
-.process-arrow {
-    fill: rgba(255, 255, 255, 0.2);
-}
-
-@media (min-width: 1200px) {
-    .process-steps {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(4, auto);
-        gap: 2rem;
-        align-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .process-guide-lines {
-        display: block;
-    }
-
-    /* Column positioning based on the image provided */
-    .step-01 { grid-column: 1; grid-row: 1; }
-    
-    .step-02 { grid-column: 2; grid-row: 1; }
-    .step-03 { grid-column: 2; grid-row: 2; }
-    .step-05 { grid-column: 2; grid-row: 3; }
-    .step-07 { grid-column: 2; grid-row: 4; }
-    
-    .step-04 { grid-column: 3; grid-row: 2; }
-    .step-06 { grid-column: 3; grid-row: 3; }
-    .step-08 { grid-column: 3; grid-row: 4; }
-
-    .step-09 { grid-column: 4; grid-row: 4; }
-    .step-10 { grid-column: 5; grid-row: 4; }
-    .step-11 { grid-column: 5; grid-row: 3; }
-    .step-12 { grid-column: 5; grid-row: 2; }
-
-    .process-step {
-        z-index: 1;
-        padding: 1.5rem; /* Smaller padding for better fit */
-        min-height: 100px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .process-step .step-title {
-        font-size: 1.1rem;
-        margin-top: 0.5rem;
-    }
-
-    .process-step .step-number {
-        font-size: 3rem;
-        top: 2px;
-        right: 10px;
-    }
-}
-
-.process-step {
-    text-align: left;
-    /* Better readability for longer descriptions */
+/* Items individuales (Izquierda y Derecha) */
+.timeline-item {
     position: relative;
-    padding: 2.5rem;
-    /* Increased padding */
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-    /* Apple-like glass gradient */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 24px;
-    /* More rounded, modern corners */
-    backdrop-filter: blur(20px);
-    /* Stronger blur */
-    -webkit-backdrop-filter: blur(20px);
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), background 0.4s ease;
+    width: 50%;
+    padding: 0 3rem;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
 }
 
-.process-step:hover {
-    transform: translateY(-8px) scale(1.02);
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-item.left {
+    left: 0;
+    align-items: flex-end;
+    text-align: right;
+}
+
+/* KEY FIX: use margin-left instead of left so position:sticky can take over */
+.timeline-item.right {
+    margin-left: 50%;
+    align-items: flex-start;
+    text-align: left;
+}
+
+/* Card stacking — Global (Desktop & Mobile) */
+.timeline-section .timeline-container {
+    /* Extra padding at the bottom so the last card has time to stay sticky */
+    padding-bottom: 30vh;
+}
+
+.timeline-section .timeline-item {
+    position: sticky !important;
+    top: calc(var(--header-height, 80px) + 160px) !important;
+}
+
+/* Incremental z-index so newer cards always cover older ones */
+.timeline-item:nth-child(2) { z-index: 2; }
+.timeline-item:nth-child(3) { z-index: 3; }
+.timeline-item:nth-child(4) { z-index: 4; }
+.timeline-item:nth-child(5) { z-index: 5; }
+.timeline-item:nth-child(6) { z-index: 6; }
+.timeline-item:nth-child(7) { z-index: 7; }
+.timeline-item:nth-child(8) { z-index: 8; }
+.timeline-item:nth-child(9) { z-index: 9; }
+.timeline-item:nth-child(10) { z-index: 10; }
+.timeline-item:nth-child(11) { z-index: 11; }
+.timeline-item:nth-child(12) { z-index: 12; }
+
+/* Fix CSS collision from activity timeline */
+.timeline-section .timeline-item::before {
+    display: none !important;
+}
+
+/* Punto indicador iluminado */
+.timeline-dot {
+    position: absolute;
+    top: 30px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-bg-primary);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    z-index: 2;
+    transition: all 0.5s ease;
+}
+
+.timeline-item.left .timeline-dot {
+    right: -8px;
+}
+
+.timeline-item.right .timeline-dot {
+    left: -8px;
+}
+
+/* Efecto cuando el punto entra en pantalla (.is-visible desde JS) */
+.timeline-item.is-visible .timeline-dot {
+    background: var(--color-accent);
+    border-color: #fff;
+    box-shadow: 0 0 15px var(--color-accent);
+}
+
+/* Tarjeta Glassmorphic */
+.timeline-content {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem 2rem !important; /* !important to fix collision with activity-timeline */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 140px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.3);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .step-number {
     font-family: var(--font-heading);
-    font-size: 5rem;
-    /* Larger */
+    font-size: 4rem;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.03);
-    /* More subtle */
+    color: rgba(255, 255, 255, 0.05);
     position: absolute;
-    top: 5px;
-    right: 15px;
+    top: 0;
+    right: 20px;
     line-height: 1;
     pointer-events: none;
-    /* Make sure it doesn't block clicks */
+}
+
+.timeline-item.left .step-number {
+    right: auto;
+    left: 20px;
 }
 
 .step-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-primary);
     position: relative;
     z-index: 1;
-    color: var(--color-text-primary);
 }
 
-/* New Process Step Animations (Apple-style reveal) */
-.reveal-step, .scroll-step {
-    opacity: 0;
-    transform: translateY(60px);
-    /* Start lower */
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    /* Elegant easing */
-}
-
-.reveal-step.is-visible, .scroll-step.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.process .section-header {
-    padding-top: 2rem; 
-    margin-bottom: 4rem;
-}
-
-.process-scroll-wrapper {
-    height: 400vh;
+.step-desc {
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
     position: relative;
-    padding: var(--space-xl) 0 !important; /* This expands the 'blue box' background */
-    background: var(--color-bg-secondary);
+    z-index: 1;
 }
 
-.process-sticky-content {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
-}
+/* MOBILE RESPONSIVE (Línea al borde izquierdo) */
+@media (max-width: 900px) {
+    .timeline-track {
+        left: 20px;
+        transform: none;
+    }
+    
+    .timeline-item {
+        width: 100%;
+        padding-left: 60px;
+        padding-right: 0;
+        align-items: flex-start !important;
+        text-align: left !important;
+        left: 0 !important;
+        margin-left: 0 !important; /* Fix for mobile to override desktop right margin */
+    }
+    
+    .timeline-item.left .timeline-dot,
+    .timeline-item.right .timeline-dot {
+        left: 12px;
+        right: auto;
+    }
 
-.scroll-reveal-group {
-    height: 100%;
-    position: relative;
-    max-width: var(--container-width);
-    margin: 0 auto;
-    width: 100%;
-}
+    .step-number {
+        right: 20px !important;
+        left: auto !important;
+    }
 
-.return-node {
-    justify-self: center;
-    align-self: center;
-    background: none !important;
-    border: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    min-height: auto !important;
-    width: auto !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-}
-
-.return-node .step-number {
-    position: static !important;
-    font-size: 5rem !important;
-    color: rgba(255, 255, 255, 0.03) !important;
-    font-weight: 800 !important;
-    line-height: 1;
-}
-
-.process-line {
-    stroke: transparent;
-    stroke-width: 2;
-    stroke-dasharray: 2000;
-    stroke-dashoffset: 2000;
-    transition: stroke-dashoffset 0.8s ease;
-    fill: none;
-    opacity: 0.15;
-}
-
-.process-line.is-visible {
-    stroke-dashoffset: 0;
-    opacity: 1; /* Keep markers fully visible even if line is transparent */
-}
-
-/* Hide return nodes 11 and 12 on mobile - placed here to override .return-node flex */
-@media (max-width: 1199px) {
-    .step-11, .step-12 { 
-        display: none !important; 
+    .timeline-content {
+        max-width: 100%;
     }
 }
 

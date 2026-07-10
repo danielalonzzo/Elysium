@@ -115,13 +115,32 @@
     <section class="section">
         <div class="container">
 
-            <div class="project-grid-preview">
+            <div class="ios-filter-container animate-on-scroll">
+                <div class="ios-filter-capsule">
+                    <div class="ios-search-wrapper" id="ios-search-wrapper">
+                        <svg class="ios-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z"/>
+                        </svg>
+                        <input type="text" class="ios-search-input" id="portfolio-search" placeholder="Buscar...">
+                    </div>
+                    <div class="ios-divider"></div>
+                    <div class="ios-segmented-control" id="ios-segmented-control">
+                        <div class="ios-segment-slider" id="ios-segment-slider"></div>
+                        <button class="ios-segment active" data-filter="all">Todos</button>
+                        <button class="ios-segment" data-filter="health">Salud</button>
+                        <button class="ios-segment" data-filter="tech">Tech</button>
+                        <button class="ios-segment" data-filter="food">Gastro</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-grid-preview" id="portfolio-grid">
                 <!-- Project: pmorais.pt -->
-                <div class="project-card animate-on-scroll">
+                <div class="project-card animate-on-scroll" data-category="health">
                     <a href="https://pmorais.pt" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="https://pmorais.pt" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="../Images/Portfolio/pmorais.jpg" alt="Paulo Morais preview"
+                            <img class="mobile-preview" src="../Images/Portfolio/paulo-morais.png" alt="Paulo Morais preview"
                                 loading="lazy">
                         </div>
                         <div class="project-overlay">
@@ -140,7 +159,7 @@
                 </div>
 
                 <!-- Project: ONCORE -->
-                <div class="project-card animate-on-scroll delay-1">
+                <div class="project-card animate-on-scroll delay-1" data-category="health">
                     <a href="../ONCORE/index.html" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="../ONCORE/index.html" loading="lazy"></iframe>
@@ -155,64 +174,39 @@
                         <h3>ONCORE <span class="project-location">PORTUGAL</span></h3>
                         <p>Cancer Recovery & Performance Center. Recuperación clínica, física y emocional integrada para sobrevivientes de cáncer.</p>
                         <div class="project-tags">
-                            <span>Centro Clínico</span>
-                            <span>Oncología</span>
-                            <span>Recuperación</span>
+                            <span>Historia</span>
+                            <span>Prototipo</span>
+                            <span>Reseña</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Project: Dr. Johnny Piedra -->
-                <div class="project-card animate-on-scroll">
-                    <a href="../Dr-Johnny-Piedra/index.html" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                <!-- Project: VALTRIX -->
+                <div class="project-card animate-on-scroll" data-category="tech">
+                    <a href="../VALTRIX%20Engineering/index.html" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
-                            <iframe src="../Dr-Johnny-Piedra/index.html" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="../Dr-Johnny-Piedra/Images/Dr.-Johnny-Piedra-Aguilera-Especialista-en-UrologIa.jpg" alt="Vista previa del Dr. Johnny Piedra"
+                            <iframe src="../VALTRIX%20Engineering/index.html" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="../Images/Portfolio/valtrix.png" alt="VALTRIX preview"
                                 loading="lazy">
                         </div>
                         <div class="project-overlay">
-                            <span>Visitar Dr. Johnny Piedra</span>
+                            <span id="visit-valtrix-es">Visitar VALTRIX</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>Dr. Johnny Piedra <span class="project-location">COSTA RICA</span></h3>
-                        <p>Urología Avanzada y Cirugía Mini-invasiva. Atención médica integral y de confianza en Costa Rica.</p>
+                        <h3>VALTRIX <span class="project-location">COSTA RICA</span></h3>
+                        <p>Ingeniería costarricense impulsando el desarrollo industrial de Centroamérica</p>
                         <div class="project-tags">
-                            <span>Urología Avanzada</span>
-                            <span>Cirugía</span>
-                            <span>Centro Médico</span>
+                            <a href="case-valtrix.html">Historia</a>
+                            <a href="prototype-valtrix.html">Prototipo</a>
+                            <button type="button">Reseña</button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Project: SMF360 -->
-                <!-- 
-                <a href="https://smf360.com" target="_blank" class="project-card animate-on-scroll delay-1"
-                    style="display: block; text-decoration: none; color: inherit;">
-                    <div class="project-image-wrapper">
-                        <div class="project-image browser-mockup">
-                            <iframe src="https://smf360.com" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="../Images/Portfolio/smf360.jpg" alt="SMF360 preview"
-                                loading="lazy">
-                        </div>
-                        <div class="project-overlay">
-                            <span>Visitar sitio web del cliente</span>
-                        </div>
-                    </div>
-                    <div class="project-info">
-                        <h3>SMF360</h3>
-                        <p>SMF360 Ingenio Futuro</p>
-                        <div class="project-tags">
-                            <span>Consulting</span>
-                            <span>CRM</span>
-                            <span>United States</span>
-                        </div>
-                    </div>
-                </a>
-                -->
                 <!-- Project: Moyra -->
                 <!-- Project: Moyra -->
-                <div class="project-card animate-on-scroll delay-1">
+                <div class="project-card animate-on-scroll delay-1" data-category="food">
                     <a href="https://moyracr.com" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="https://moyracr.com" loading="lazy"></iframe>
@@ -234,25 +228,25 @@
                     </div>
                 </div>
 
-                <!-- Project: VALTRIX -->
-                <div class="project-card animate-on-scroll">
-                    <a href="../VALTRIX%20Engineering/index.html" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                <!-- Project: Dr. Johnny Piedra -->
+                <div class="project-card animate-on-scroll" data-category="health">
+                    <a href="../Dr-Johnny-Piedra/index.html" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
-                            <iframe src="../VALTRIX%20Engineering/index.html" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="../VALTRIX%20Engineering/Images/IMG_6425.jpg" alt="VALTRIX preview"
+                            <iframe src="../Dr-Johnny-Piedra/index.html" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="../Images/Portfolio/dr-johnny.png" alt="Vista previa del Dr. Johnny Piedra"
                                 loading="lazy">
                         </div>
                         <div class="project-overlay">
-                            <span id="visit-valtrix-es">Visitar VALTRIX</span>
+                            <span>Visitar Dr. Johnny Piedra</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>VALTRIX <span class="project-location">COSTA RICA</span></h3>
-                        <p>Ingeniería costarricense impulsando el desarrollo industrial de Centroamérica</p>
+                        <h3>Dr. Johnny Piedra <span class="project-location">COSTA RICA</span></h3>
+                        <p>Urología Avanzada y Cirugía Mini-invasiva. Atención médica integral y de confianza en Costa Rica.</p>
                         <div class="project-tags">
-                            <a href="case-valtrix.html">Historia</a>
-                            <a href="prototype-valtrix.html">Prototipo</a>
-                            <button type="button">Reseña</button>
+                            <span>Historia</span>
+                            <span>Prototipo</span>
+                            <span>Reseña</span>
                         </div>
                     </div>
                 </div>

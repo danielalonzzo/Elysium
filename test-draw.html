@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  .draw-text {
+    font-size: 500px;
+    font-family: -apple-system, sans-serif;
+    font-weight: 100;
+    fill: transparent;
+    stroke: gold;
+    stroke-width: 4px;
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: draw 3s forwards, fill 1s 3s forwards;
+  }
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes fill {
+    50% { fill: rgba(255,215,0,0.5); filter: drop-shadow(0 0 20px gold); }
+    to { fill: rgba(255,215,0,0.1); stroke: rgba(255,215,0,0.2); filter: drop-shadow(0 0 10px gold); }
+  }
+</style>
+</head>
+<body style="background: black;">
+  <svg width="600" height="600" viewBox="0 0 600 600">
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" class="draw-text">λ</text>
+  </svg>
+</body>
+</html>

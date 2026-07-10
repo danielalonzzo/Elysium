@@ -148,6 +148,7 @@
 
     <!-- Hero Section -->
     <header class="hero">
+        <!-- Animated Lambda (premium text-reveal effect) -->
         <div class="hero-symbol-bg">λ</div>
         <div class="hero-content animate-on-scroll">
             <p class="hero-subtitle">Development & Research</p>
@@ -207,18 +208,12 @@
                         <img src="Images/OUR TOOLS/Firebase.png" alt="Firebase" />
                         <span>Firebase</span>
                     </div>
-                    <div class="logo-item">
-                        <img src="Images/OUR TOOLS/Fonts.png" alt="Fonts" />
-                        <span>Google Fonts</span>
-                    </div>
+
                     <div class="logo-item">
                         <img src="Images/OUR TOOLS/Git.png" alt="Git" />
                         <span>Git</span>
                     </div>
-                    <div class="logo-item">
-                        <img src="Images/OUR TOOLS/LucideIcons.png" alt="Lucide" />
-                        <span>Lucide</span>
-                    </div>
+
                     <div class="logo-item">
                         <img src="Images/OUR TOOLS/NPM.png" alt="NPM" />
                         <span>NPM</span>
@@ -227,10 +222,7 @@
                         <img src="Images/OUR TOOLS/Node.js.png" alt="Node.js" />
                         <span>Node.js</span>
                     </div>
-                    <div class="logo-item">
-                        <img src="Images/OUR TOOLS/QuillEditor.png" alt="Quill" />
-                        <span>Quill</span>
-                    </div>
+
                     <div class="logo-item">
                         <img src="Images/OUR TOOLS/cPanel.png" alt="cPanel" />
                         <span>cPanel</span>
@@ -274,18 +266,12 @@
                         <img src="Images/OUR TOOLS/Firebase.png" alt="Firebase" />
                         <span>Firebase</span>
                     </div>
-                    <div class="logo-item">
-                        <img src="Images/OUR TOOLS/Fonts.png" alt="Fonts" />
-                        <span>Google Fonts</span>
-                    </div>
+
                     <div class="logo-item">
                         <img src="Images/OUR TOOLS/Git.png" alt="Git" />
                         <span>Git</span>
                     </div>
-                    <div class="logo-item">
-                        <img src="Images/OUR TOOLS/LucideIcons.png" alt="Lucide" />
-                        <span>Lucide</span>
-                    </div>
+
                     <div class="logo-item">
                         <img src="Images/OUR TOOLS/NPM.png" alt="NPM" />
                         <span>NPM</span>
@@ -294,10 +280,7 @@
                         <img src="Images/OUR TOOLS/Node.js.png" alt="Node.js" />
                         <span>Node.js</span>
                     </div>
-                    <div class="logo-item">
-                        <img src="Images/OUR TOOLS/QuillEditor.png" alt="Quill" />
-                        <span>Quill</span>
-                    </div>
+
                     <div class="logo-item">
                         <img src="Images/OUR TOOLS/cPanel.png" alt="cPanel" />
                         <span>cPanel</span>
@@ -310,18 +293,70 @@
     <!-- Services Teaser -->
     <section class="services section">
         <div class="container">
+            <div class="section-header animate-on-scroll">
+                <h2>Core Competencies</h2>
+                <p>Fundamental pillars of development and infrastructure.</p>
+            </div>
             <div class="card-grid">
-                <div class="card animate-on-scroll delay-1">
-                    <div class="card-icon">🎨</div>
-                    <h3>Interface Design Centered on Human Development</h3>
+                <div class="card animate-on-scroll delay-1" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">01</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Digital interface design based on cognitive ergonomics and empirical user behaviour.</p>
+                        <div class="expand-indicator" style="display: none;">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Visual Response Optimization:</strong> Rendering architectures that guarantee interaction with no perceived latency on screen, eliminating friction and load times during transactions or navigation.</li>
+                            <li><strong>Workflow Engineering:</strong> Structuring complex operational processes (dynamic forms, appointment scheduling) into modular algorithmic sequences to reduce fatigue and human error.</li>
+                            <li><strong>Standardization and Universal Accessibility:</strong> Construction under international standards (W3C / WCAG 2.1) with native system typography and environmental contrast adaptability, ensuring operational viability on any device.</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="card animate-on-scroll delay-2">
-                    <div class="card-icon">💻</div>
-                    <h3>Web Application Engineering and Intelligent Systems</h3>
+                <div class="card animate-on-scroll delay-2" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">02</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Deployment of modular and scalable cloud infrastructures.</p>
+                        <div class="expand-indicator" style="display: none;">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Serverless Infrastructure:</strong> Replacement of static servers with event-driven ecosystems that dynamically adapt to traffic volume, guaranteeing high availability without service outages.</li>
+                            <li><strong>Concurrent Data Synchronization:</strong> Implementation of continuous communication protocols that allow instant propagation and updating of information across the platform for all users simultaneously.</li>
+                            <li><strong>Interoperability and Orchestration:</strong> Programmatic integration (via APIs) with third-party ecosystems—such as corporate calendars or financial gateways—for the automatic execution of workflows without human intervention.</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="card animate-on-scroll delay-3">
-                    <div class="card-icon">🛡️</div>
-                    <h3>Sustainable System Monitoring and Optimization</h3>
+                <div class="card animate-on-scroll delay-3" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">03</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Custom CRM and Enterprise Management System Architecture</p>
+                        <div class="expand-indicator" style="display: none;">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Unrestricted Functional Engineering:</strong> Software layer development without dependencies on pre-built platforms. This allows programming specific modules (financial management, automated document generation, billing) tailored to the exact rules of your business.</li>
+                            <li><strong>Process Modeling and Data Pipelines:</strong> Construction of dynamic operational funnels that reflect, automate, and audit the real lifecycle of clients or projects, from initial interaction to final service delivery.</li>
+                            <li><strong>Centralization and Operational Traceability:</strong> Unification of all business telemetry into a single high-concurrency dashboard. Guarantees that critical information is always updated, structured, and immediately available to authorized personnel.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card animate-on-scroll delay-4" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">04</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Construction of systems under the Security-by-Design paradigm, integrating cryptographic barriers and data governance protocols.</p>
+                        <div class="expand-indicator">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Cryptographic Information Defense:</strong> Application of encryption standards and mathematical validation (secure hashes) to protect sensitive data transfers and transactional communications against interception.</li>
+                            <li><strong>Strict Privilege and Access Control (RBAC):</strong> Database architecture that validates the authorization level of each individual before any interaction, preventing privilege escalation and unauthorized access to administration panels.</li>
+                            <li><strong>Alignment with International Legal Frameworks (Compliance):</strong> Design of auditing and data collection mechanisms that explicitly isolate user consent, complying with the technical rigor of the European GDPR and local privacy regulations.</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -331,135 +366,109 @@
         </div>
     </section>
 
-    <!-- Process Section -->
-    <section class="process section process-scroll-wrapper" style="background: var(--color-bg-secondary);">
-        <div class="container process-sticky-content">
+    <!-- Methodology Timeline Section -->
+    <section id="metodologia" class="timeline-section section" style="background: var(--color-bg-secondary); position: relative;">
+        <div class="container">
             <div class="section-header animate-on-scroll">
                 <h2>Scientific Methodology</h2>
                 <p>λ Development Framework Model</p>
             </div>
 
-            <div class="process-steps scroll-reveal-group">
-                <!-- SVG Guide Lines -->
-                <div class="process-guide-lines">
-                    <svg style="width: 100%; height: 100%;">
-                        <defs>
-                            <marker id="arrow-down" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
-                                <image href="Images/flecha-abajo.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
-                            </marker>
-                            <marker id="arrow-up" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
-                                <image href="Images/flecha-arriba.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
-                            </marker>
-                            <marker id="arrow-right" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
-                                <image href="Images/flecha-derecha.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
-                            </marker>
-                            <marker id="arrow-left" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="0" markerUnits="userSpaceOnUse">
-                                <image href="Images/flecha-izquierda.png" width="8" height="8" preserveAspectRatio="xMidYMid meet" />
-                            </marker>
-                        </defs>
-                        <!-- MOBILE PATH (Zigzag flow for pairs) -->
-                        <g class="mobile-only">
-                            <!-- Vertical central spine -->
-                            <line x1="50%" y1="2%" x2="50%" y2="98%" class="process-line path-2" />
-                            
-                            <!-- Horizontal connectors for pairs (approximate row positions) -->
-                            <line x1="25%" y1="10%" x2="75%" y2="10%" class="process-line path-2" marker-end="url(#arrow-right)" />
-                            <line x1="25%" y1="28%" x2="75%" y2="28%" class="process-line path-4" marker-end="url(#arrow-right)" />
-                            <line x1="25%" y1="45%" x2="75%" y2="45%" class="process-line path-6" marker-end="url(#arrow-right)" />
-                            <line x1="25%" y1="62%" x2="75%" y2="62%" class="process-line path-8" marker-end="url(#arrow-right)" />
-                            <line x1="25%" y1="80%" x2="75%" y2="80%" class="process-line path-10" marker-end="url(#arrow-right)" />
-                        </g>
-
-                        <!-- DESKTOP PATH (Original image layout) -->
-                        <g class="desktop-only">
-                            <line x1="8.9%" y1="11.0%" x2="19.2%" y2="11.0%" class="process-line path-2" marker-end="url(#arrow-right)" />
-                            
-                            <!-- Path 3: 2 -> 3 -->
-                            <line x1="29.4%" y1="11.0%" x2="29.4%" y2="24.0%" class="process-line path-3" marker-end="url(#arrow-down)" />
-                            
-                            <!-- Path 4: 3 -> 4 -->
-                            <line x1="29.4%" y1="37.0%" x2="39.8%" y2="37.0%" class="process-line path-4" marker-end="url(#arrow-right)" />
-                            
-                            <!-- Path 5: 3 -> 5 -->
-                            <line x1="29.4%" y1="37.0%" x2="29.4%" y2="50.0%" class="process-line path-5" marker-end="url(#arrow-down)" />
-                            
-                            <!-- Path 6: 5 -> 6 -->
-                            <line x1="29.4%" y1="63.0%" x2="39.8%" y2="63.0%" class="process-line path-6" marker-end="url(#arrow-right)" />
-                            
-                            <!-- Path 7: 5 -> 7 -->
-                            <line x1="29.4%" y1="63.0%" x2="29.4%" y2="76.0%" class="process-line path-7" marker-end="url(#arrow-down)" />
-                            
-                            <!-- Path 8: 7 -> 8 -->
-                            <line x1="29.4%" y1="89.0%" x2="39.8%" y2="89.0%" class="process-line path-8" marker-end="url(#arrow-right)" />
-
-                            <!-- Path 9: 8 -> 9 -->
-                            <line x1="50.0%" y1="89.0%" x2="60.3%" y2="89.0%" class="process-line path-9" marker-end="url(#arrow-right)" />
-                            
-                            <!-- Path 10: 9 -> 10 -->
-                            <line x1="70.5%" y1="89.0%" x2="80.8%" y2="89.0%" class="process-line path-10" marker-end="url(#arrow-right)" />
-
-                            <!-- Returning paths 10 -> 11 -> 12 -->
-                            <line x1="91.0%" y1="89.0%" x2="91.0%" y2="76.0%" class="process-line path-11" marker-end="url(#arrow-up)" />
-                            <line x1="91.0%" y1="63.0%" x2="91.0%" y2="50.0%" class="process-line path-12" marker-end="url(#arrow-up)" />
-                            
-                            <!-- Return Loop 11 -> 6 (Multiple arrows effect) -->
-                            <line x1="91.0%" y1="63.0%" x2="80.8%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
-                            <line x1="80.8%" y1="63.0%" x2="70.5%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
-                            <line x1="70.5%" y1="63.0%" x2="60.2%" y2="63.0%" class="process-line path-11" marker-end="url(#arrow-left)" />
-
-                            <!-- Return Loop 12 -> 4 (Multiple arrows effect) -->
-                            <line x1="91.0%" y1="37.0%" x2="80.8%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
-                            <line x1="80.8%" y1="37.0%" x2="70.5%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
-                            <line x1="70.5%" y1="37.0%" x2="60.2%" y2="37.0%" class="process-line path-12" marker-end="url(#arrow-left)" />
-                        </g>
-                    </svg>
+            <div class="timeline-container">
+                <!-- Línea central luminosa -->
+                <div class="timeline-track">
+                    <div class="timeline-progress"></div>
                 </div>
 
-                <div class="process-step scroll-step step-01">
-                    <div class="step-number">01</div>
-                    <h3 class="step-title">Background</h3>
+                <!-- Pasos de la metodología -->
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">01</div>
+                        <h3 class="step-title">Operating Environment Observation (Background)</h3>
+                        <p class="step-desc">Initial systemic audit. We evaluate your organisation's current topology, analysing its data flows, daily processes, and the operational context of your industry before proposing any intervention.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-02">
-                    <div class="step-number">02</div>
-                    <h3 class="step-title">What is known?</h3>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">02</div>
+                        <h3 class="step-title">State of the Art and Limitations (What is known?)</h3>
+                        <p class="step-desc">Forensic analysis of your current tools. We document the technological infrastructures your company already utilises, evaluating their performance levels, technical debt, and scalability constraints.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-03">
-                    <div class="step-number">03</div>
-                    <h3 class="step-title">What is unknown?</h3>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">03</div>
+                        <h3 class="step-title">Isolation of Critical Variables (What is not known?)</h3>
+                        <p class="step-desc">Identification of systemic inefficiencies. We detect error-prone manual processes, data synchronisation latencies, and legal compliance vulnerabilities that standard commercial systems fail to resolve.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-04">
-                    <div class="step-number">04</div>
-                    <h3 class="step-title">Research Question</h3>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">04</div>
+                        <h3 class="step-title">Definition of the Engineering Problem (Research Question)</h3>
+                        <p class="step-desc">Exact formulation of the architectural challenge. We define with mathematical precision the core problem that the new software topology must resolve to automate and scale your operation.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-05">
-                    <div class="step-number">05</div>
-                    <h3 class="step-title">Why should it be known?</h3>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">05</div>
+                        <h3 class="step-title">Impact Justification (Why should it be resolved?)</h3>
+                        <p class="step-desc">Projection of operational return. We quantify the empirical value of the solution: legal risk mitigation (Compliance), elimination of downtime, and an increase in your company's long-term technological autonomy.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-06">
-                    <div class="step-number">06</div>
-                    <h3 class="step-title">Hypothesis</h3>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">06</div>
+                        <h3 class="step-title">Architecture Formulation (Hypothesis)</h3>
+                        <p class="step-desc">Postulate of a structural solution. We propose the specific software architecture (e.g., a Serverless ecosystem, a bespoke CRM, or a high-fidelity Interface) as the exact technical response to the problem posed.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-07">
-                    <div class="step-number">07</div>
-                    <h3 class="step-title">Available Methods</h3>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">07</div>
+                        <h3 class="step-title">Technology Stack Selection (What methods are there?)</h3>
+                        <p class="step-desc">Algorithmic and infrastructural evaluation. We determine the optimal communication protocols, databases, and cryptographic barriers, ensuring that the selected technology adapts to your problem, and not the other way around.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-08">
-                    <div class="step-number">08</div>
-                    <h3 class="step-title">Experimental Design</h3>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">08</div>
+                        <h3 class="step-title">Structural Design and Data Flows (Experimental Design)</h3>
+                        <p class="step-desc">Ecosystem modelling. We build the information architecture, human-computer interaction (HCI) design, and plan the development iterations under strict variable control.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-09">
-                    <div class="step-number">09</div>
-                    <h3 class="step-title">Experiments and QA</h3>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">09</div>
+                        <h3 class="step-title">Development, Testing, and Auditing (Experiments and QA)</h3>
+                        <p class="step-desc">Pure engineering and stress testing. Coding of the platform subjected to continuous unit testing, validation of security mechanisms (Access Control), and regulatory compliance audits (GDPR) in closed environments.</p>
+                    </div>
                 </div>
-                <div class="process-step scroll-step step-10">
-                    <div class="step-number">10</div>
-                    <h3 class="step-title">Conclusions and Publication</h3>
-                </div>
-                <div class="process-step scroll-step step-11 return-node">
-                    <div class="step-number">11</div>
-                </div>
-                <div class="process-step scroll-step step-12 return-node">
-                    <div class="step-number">12</div>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">10</div>
+                        <h3 class="step-title">Deployment and Technology Transfer (Conclusions and Publication)</h3>
+                        <p class="step-desc">Migration to production and handover. Launch of the system in high-availability infrastructures, final data synchronisation, and transfer of operational knowledge to your team through specialised training.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -470,23 +479,14 @@
         <div class="container">
             <div class="research-teaser-flex">
                 <div class="animate-on-scroll" style="flex: 1; min-width: 300px; padding-right: 2rem;">
-                    <h2>Research</h2>
-                    <p class="mb-md">Elysium λ Development & Research operates as an independent laboratory where
-                        software
-                        engineering, artificial intelligence, and applied research converge to develop technological
-                        solutions centered on human development.<br><br>From Europe, we explore how intelligent systems,
-                        data science, and software architecture can help small and medium-sized enterprises close the
-                        technological gap with transparent, efficient, and sustainable systems.<br><br>Our goal is to
-                        transform researches into real prototypes, combining scientific thinking, advanced web
-                        development, and technological experimentation.</p>
+                    <h2>Research & Development (R&D)</h2>
+                    <p class="mb-md" style="text-align: justify;">Elysium λ operates as an independent software engineering and applied research laboratory. Instead of replicating commercial formulas, we apply the rigour of the empirical method to dissect operational problems and build digital architectures from their foundations.<br><br>From Europe, we analyse the intersection between Human-Computer Interaction (HCI), cloud infrastructures (Serverless), and applied cryptography. Our purpose is to democratise access to high-level engineering, allowing organisations to scale their operations through precise, resilient, and auditable technological ecosystems.<br><br>We do not build simple interfaces; we transform technological research into operational infrastructure. We combine scientific thinking, algorithmic design, and continuous experimentation to deliver software that definitively resolves structural inefficiencies.</p>
                     <a href="research.html" class="btn btn-primary">Research Lab</a>
                 </div>
                 <div class="animate-on-scroll delay-1"
                     style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
                     <h4>Mission Statement</h4>
-                    <p style="margin-bottom: 0;">Our mission is to explore the intersection of
-                        artificial intelligence, data science and intelligent systems through applied research,
-                        experimentation and open knowledge.</p>
+                    <p style="margin-bottom: 0;">To translate methodological rigour into tangible software solutions. Our mission is to build digital ecosystems that eliminate operational friction, mechanise complex workflows, and return technological control to organisations, always prioritising structural security and open knowledge.</p>
                 </div>
             </div>
         </div>
@@ -496,15 +496,28 @@
     <section class="testimonials section" style="border-top: 1px solid var(--color-border);">
         <div class="container animate-on-scroll">
             <h2 class="text-center mb-lg">Testimonials from individuals and businesses</h2>
-            <div class="testimonial-carousel">
+            <a href="review-pmorais.html" style="text-decoration: none; display: block; cursor: pointer;">
+            <div class="testimonial-carousel" style="transition: box-shadow 0.3s ease, transform 0.3s ease;" onmouseover="this.style.boxShadow='0 16px 60px rgba(41,151,255,0.25)';this.style.transform='translateY(-3px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
                 <div class="testimonial-content">
-                    <p style="text-align: center; opacity: 0.4; font-style: italic; font-size: 0.9rem;">Testimonials
-                        coming soon.</p>
+                    <blockquote class="testimonial-quote">
+                        "Before the development of the page, we faced some difficulties in the way we communicated our offer and reached our target audience, which limited the visibility of our work and the acquisition of new clients."
+                    </blockquote>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem;">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; border: 2px solid var(--color-accent); flex-shrink: 0;">
+                            <img src="Images/Portfolio/logo_ios_android.png" alt="Paulo Morais" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-weight: 700; color: var(--color-text-primary); font-size: 1rem;">Paulo Morais</div>
+                            <div style="color: var(--color-accent); font-size: 0.85rem; font-weight: 600;">Osteopath &amp; Specialist Trainer</div>
+                            <div style="color: var(--color-text-secondary); font-size: 0.8rem;">Founder of Consciênciavaliativa - Unipessoal Lda</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="testimonial-indicators">
                     <!-- Indicators will be injected by JS -->
                 </div>
             </div>
+            </a>
         </div>
     </section>
 
@@ -582,6 +595,7 @@
 
     <script src="JS/main.js"></script>
     <script src="JS/version-modal.js"></script>
+    <script src="JS/service-modal.js"></script>
 </body>
 
 </html>
