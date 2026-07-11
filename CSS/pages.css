@@ -17,6 +17,19 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* optional to give it a nice edge */
 }
 
+/* Solid shield above the sticky header to block content bleeding through the navbar */
+.timeline-section .section-header::before {
+    content: '';
+    position: absolute;
+    top: calc(-1 * var(--header-height, 70px));
+    left: -9999px;
+    right: -9999px;
+    height: var(--header-height, 70px);
+    background: #051125;
+    pointer-events: none;
+    z-index: 1;
+}
+
 .timeline-container {
     position: relative;
     max-width: 1000px;

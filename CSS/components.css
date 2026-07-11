@@ -995,7 +995,15 @@ section {
 /* Mobile adjustments for modal and cards */
 @media (max-width: 768px) {
     .premium-modal-content {
-        padding: 2.5rem 1.5rem;
+        padding: 3rem 1.5rem 2.5rem 1.5rem; /* added top padding so text avoids close button */
+    }
+    
+    .premium-modal-close {
+        top: 0.75rem; /* move it up */
+        right: 0.75rem; /* move it right */
+        width: 32px; /* slightly smaller on mobile */
+        height: 32px;
+        font-size: 1.25rem;
     }
     
     .premium-modal-body li {
@@ -2040,9 +2048,9 @@ footer {
     /* Hero Section */
     .hero {
         padding-top: calc(var(--header-height) + 20px);
-        min-height: 75vh; /* Permite asomar la siguiente sección completa */
-        min-height: 75dvh;
-        padding-bottom: 4rem;
+        min-height: 60vh; /* Reduced height to pull tools section up */
+        min-height: 60dvh;
+        padding-bottom: 2rem; /* Reduced padding to bring sections closer */
         text-align: center;
     }
 
@@ -2063,8 +2071,10 @@ footer {
     }
 
     .hero-symbol-bg {
-        width: 95vw;       /* Larger on mobile */
-        top: 45%;
+        width: 180vw;       /* Huge size on mobile as requested */
+        top: 25%;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .hero-cta {
