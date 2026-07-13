@@ -138,7 +138,7 @@ onAuthStateChanged(auth, async (user) => {
             }
 
             // Special Case: Super Admin Redirect
-            if (user.email === 'danielalonzzo@icloud.com') {
+            if (user.email === 'danielalonzzo@icloud.com' && sessionStorage.getItem('dev_mode') !== 'true') {
                 if (!window.location.pathname.includes('admin.html')) {
                     const pathParts = window.location.pathname.split('/');
                     const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
@@ -184,21 +184,46 @@ onAuthStateChanged(auth, async (user) => {
 
             // If we are on profiles.html and onboarding IS completed (or it's a prospect), show the portal
             if (!isPageOnboarding && authSection && profileSection) {
-                authSection.classList.add('hidden');
+                authSection.parentElement.parentElement.classList.add('hidden'); // Hide the wrapper section
                 profileSection.classList.remove('hidden');
                 
+                // Hide global layout for SPA feel
+                const navbar = document.querySelector('.navbar');
+                const footer = document.querySelector('footer');
+                if (navbar) navbar.style.display = 'none';
+                if (footer) footer.style.display = 'none';
+                document.body.style.overflow = 'hidden';
+                
+                // Bind Data
+                const welcomeName = document.getElementById('sidebar-welcome-name');
+                const partnerCompany = document.getElementById('sidebar-partner-company');
+                
+                const pName = document.getElementById('profile-name');
+                const pEmail = document.getElementById('profile-email');
+                const pCompany = document.getElementById('profile-company');
+                const pLicense = document.getElementById('profile-license');
+
                 if (userData.role === 'prospect') {
-                    document.getElementById('welcome-name').textContent = `Welcome, ${userData.name || 'Prospect'}`;
-                    const companyEl = document.getElementById('partner-company');
-                    if (companyEl) companyEl.textContent = "Your account is under review.";
+                    if (welcomeName) welcomeName.textContent = `Welcome, ${userData.name || 'Prospect'}`;
+                    if (partnerCompany) partnerCompany.textContent = "Your account is under review.";
+                    
+                    if (pName) pName.textContent = userData.name || '-';
+                    if (pEmail) pEmail.textContent = userData.email || '-';
+                    if (pCompany) pCompany.textContent = "Under review";
+                    if (pLicense) pLicense.textContent = "Pending";
                     
                     // Hide any project access button if it exists
-                    const projectBtnContainer = document.getElementById('project-access-container');
-                    if (projectBtnContainer) projectBtnContainer.style.display = 'none';
+                    const projectBtnContainer = document.getElementById('client-projects-list');
+                    if (projectBtnContainer) projectBtnContainer.innerHTML = '<p style="color: var(--color-text-secondary);">Your account is under review.</p>';
                 } else {
-                    document.getElementById('welcome-name').textContent = `Welcome, ${userData.name || 'Partner'}`;
-                    const companyEl = document.getElementById('partner-company');
-                    if (companyEl) companyEl.textContent = userData.company || '';
+                    if (welcomeName) welcomeName.textContent = `Welcome, ${userData.name || 'Partner'}`;
+                    if (partnerCompany) partnerCompany.textContent = userData.company || '';
+                    
+                    if (pName) pName.textContent = userData.name || '-';
+                    if (pEmail) pEmail.textContent = userData.email || '-';
+                    if (pCompany) pCompany.textContent = userData.company || '-';
+                    if (pLicense) pLicense.textContent = userData.licenseCode || 'Active';
+
                     
                     if (userData.projectUrl || (userData.projects && userData.projects.length > 0)) {
                         const projectListContainer = document.getElementById('client-projects-list');
@@ -424,4 +449,83 @@ prospectForm.addEventListener('submit', async (e) => {
         console.error("Prospect registration error:", error);
         showError("An error occurred during submission: " + error.message);
     }
+});
+
+
+// ==========================================
+// SIDEBAR NAVIGATION LOGIC (CLIENT SPA)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.admin-section');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Remove active from all nav items
+            navItems.forEach(nav => nav.classList.remove('active'));
+            // Add active to clicked item
+            item.classList.add('active');
+
+            // Hide all sections
+            sections.forEach(sec => {
+                sec.classList.remove('active');
+                sec.style.display = 'none';
+            });
+
+            // Show target section
+            const targetId = item.getAttribute('data-target');
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                targetSection.style.display = 'block';
+            }
+        });
+    });
+
+    // ==========================================
+    // STRIPE LOGIC
+    // ==========================================
+    let searchParams = new URLSearchParams(window.location.search);
+    
+    function showActiveSubscriptionView() {
+        const noSubView = document.getElementById('no-subscription-view');
+        const activeSubView = document.getElementById('active-subscription-view');
+        const noPaymentMethods = document.getElementById('no-payment-methods');
+        
+        // Also update quick status and profile status
+        const quickSubStatus = document.getElementById('quick-sub-status');
+        const profileSubStatus = document.getElementById('profile-subscription-status');
+        
+        if (noSubView && activeSubView) {
+            noSubView.classList.add('hidden');
+            noSubView.style.display = 'none';
+            
+            activeSubView.classList.remove('hidden');
+            activeSubView.style.display = 'block';
+            
+            if (noPaymentMethods) {
+                noPaymentMethods.style.display = 'none';
+            }
+        }
+        
+        if (quickSubStatus) quickSubStatus.innerHTML = '<span style="color: #00c875;">● Active Subscription</span>';
+        if (profileSubStatus) profileSubStatus.innerHTML = '<span style="color: #00c875;">● Active Subscription</span>';
+    }
+
+    if (searchParams.has('session_id')) {
+        const session_id = searchParams.get('session_id');
+        const sessionIdInput = document.getElementById('session-id-payment');
+        if (sessionIdInput) {
+            sessionIdInput.setAttribute('value', session_id);
+            showActiveSubscriptionView();
+        }
+    } else {
+        const storedSessionId = localStorage.getItem('stripe_session_id');
+        const sessionIdInput = document.getElementById('session-id-payment');
+        if (storedSessionId && sessionIdInput) {
+            sessionIdInput.setAttribute('value', storedSessionId);
+            showActiveSubscriptionView();
+        }
+    }
+
 });

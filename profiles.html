@@ -262,26 +262,296 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <!-- Profile Section -->
-            <div id="profile-section" class="hidden">
-                <div class="profile-view animate-on-scroll">
-                    <div class="profile-card">
-                        <span class="welcome-lambda">λ</span>
-                        <h2 id="welcome-name" style="font-size: 2.5rem; color: var(--color-platinum); margin-bottom: 1rem;">Welcome, Partner</h2>
-                        <p id="partner-company" style="font-size: 1.15rem; color: var(--color-text-secondary); margin-bottom: 2rem;">Company Name</p>
-                        <div style="max-width: 600px; margin: 0 auto; line-height: 1.6; color: var(--color-text-secondary); margin-bottom: 3rem;">
-                            You have successfully accessed the Elysium Partner Portal. Advanced features and tools for partners will be available here soon.
-                        </div>
-                        <div id="client-projects-list" style="margin-bottom: 2rem; display: flex; flex-direction: column; gap: 1rem; align-items: center; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto;"></div>
-
-                        <button id="logoutBtn" class="btn">Sign Out</button>
-                    </div>
+    <!-- ═══════════════════════════════════════════════════════
+         CLIENT DASHBOARD (SPA LAYOUT)
+    ═══════════════════════════════════════════════════════ -->
+    <div id="profile-section" class="hidden admin-wrapper" style="min-height: 100vh; width: 100vw; background: var(--color-bg); position: fixed; top: 0; left: 0; z-index: 9999;">
+        
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-admin-header">
+                <div class="sidebar-admin-avatar" style="background: rgba(41, 151, 255, 0.1); color: var(--color-accent);">C</div>
+                <div class="sidebar-admin-info">
+                    <div class="sidebar-admin-name" id="sidebar-welcome-name">Partner</div>
+                    <div class="sidebar-admin-role" id="sidebar-partner-company">Company Name</div>
                 </div>
             </div>
 
-        </div>
-    </section>
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-group-label">Dashboard</div>
+
+                <div class="nav-item active" data-target="resumen" id="nav-resumen">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    <span>Resumen</span>
+                </div>
+
+                <div class="nav-item" data-target="suscripciones" id="nav-suscripciones">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
+                    </svg>
+                    <span>Suscripciones</span>
+                </div>
+
+                <div class="nav-item" data-target="metodos-pago" id="nav-metodos-pago">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                    </svg>
+                    <span>Métodos de pago</span>
+                </div>
+
+                <div class="nav-item" data-target="perfil" id="nav-perfil">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Perfil</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto;">
+                <button id="logoutBtn" class="sidebar-logout-btn" style="justify-content: flex-start; padding: 0.75rem 1rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="admin-main" style="height: 100vh; overflow-y: auto;">
+            
+            <!-- RESUMEN SECTION -->
+            <section id="resumen" class="admin-section active">
+                <div class="dashboard-header">
+                    <div>
+                        <h1 id="overview-title">Resumen</h1>
+                        <p class="color-text-secondary">Overview of your active projects and subscription.</p>
+                    </div>
+                </div>
+
+                <div class="profile-full-width">
+                    <!-- Active Projects -->
+                    <div class="overview-panel">
+                        <div class="overview-panel-header">
+                            <h3 class="overview-panel-title">Active Projects</h3>
+                        </div>
+                        <div id="client-projects-list" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                            <!-- JS injects projects here -->
+                            <p style="color: var(--color-text-secondary);">No active projects currently.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Subscription Status -->
+                    <div class="overview-panel">
+                        <div class="overview-panel-header">
+                            <h3 class="overview-panel-title">Subscription Status</h3>
+                        </div>
+                        <div id="quick-sub-status">
+                            <p style="color: var(--color-text-secondary);">Loading status...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SUSCRIPCIONES SECTION -->
+            <section id="suscripciones" class="admin-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Suscripciones</h2>
+                        <p class="color-text-secondary">Manage and upgrade your Elysium services.</p>
+                    </div>
+                </div>
+
+                <div class="profile-full-width">
+                    <div class="overview-panel">
+                        <div class="overview-panel-header">
+                            <h3 class="overview-panel-title">Available Plans</h3>
+                        </div>
+                        
+                        <div class="subscription-grid">
+                            
+                            <!-- Plan 1 -->
+                            <div class="sub-card">
+                                <div>
+                                    <h4 class="sub-title">Domain & Hosting</h4>
+                                    <p class="sub-subtitle">The Operational Core.</p>
+                                    <p class="sub-price">€99 <span class="sub-period">/ year</span></p>
+                                    <ul class="sub-features">
+                                        <li>Domain management & identity</li>
+                                        <li>High-availability web hosting</li>
+                                        <li>Base infrastructure updates</li>
+                                    </ul>
+                                </div>
+                                <form action="http://localhost:4242/create-checkout-session" method="POST">
+                                    <input type="hidden" name="lookup_key" value="domain_hosting" />
+                                    <button type="submit" class="btn btn-primary sub-btn">Subscribe</button>
+                                </form>
+                            </div>
+
+                            <!-- Plan 2 -->
+                            <div class="sub-card">
+                                <div>
+                                    <h4 class="sub-title">Basic Maintenance</h4>
+                                    <p class="sub-subtitle">Level 1 Ecosystem.</p>
+                                    <p class="sub-price">€70 <span class="sub-period">/ month</span></p>
+                                    <ul class="sub-features">
+                                        <li>Includes Hosting Maintenance</li>
+                                        <li>Corporate website development</li>
+                                        <li>Mobile-first fluid design</li>
+                                    </ul>
+                                </div>
+                                <form action="http://localhost:4242/create-checkout-session" method="POST">
+                                    <input type="hidden" name="lookup_key" value="basic_maintenance" />
+                                    <button type="submit" class="btn btn-primary sub-btn">Subscribe</button>
+                                </form>
+                            </div>
+
+                            <!-- Plan 3 -->
+                            <div class="sub-card featured-sub">
+                                <div class="featured-badge">Most Popular</div>
+                                <div>
+                                    <h4 class="sub-title">Preferential Maintenance</h4>
+                                    <p class="sub-subtitle">Level 2 Ecosystem.</p>
+                                    <p class="sub-price">€99 <span class="sub-period">/ month</span></p>
+                                    <ul class="sub-features">
+                                        <li>Includes Basic features</li>
+                                        <li>Multi-language support</li>
+                                        <li>Light/Dark mode adaptation</li>
+                                    </ul>
+                                </div>
+                                <form action="http://localhost:4242/create-checkout-session" method="POST">
+                                    <input type="hidden" name="lookup_key" value="preferential_maintenance" />
+                                    <button type="submit" class="btn btn-primary sub-btn">Subscribe</button>
+                                </form>
+                            </div>
+
+                            <!-- Plan 4 -->
+                            <div class="sub-card">
+                                <div>
+                                    <h4 class="sub-title">Advanced Maintenance</h4>
+                                    <p class="sub-subtitle">Level 3 Ecosystem.</p>
+                                    <p class="sub-price">€120 <span class="sub-period">/ month</span></p>
+                                    <ul class="sub-features">
+                                        <li>Includes Preferential features</li>
+                                        <li>Private CRM platform</li>
+                                        <li>Custom-built scalable software</li>
+                                    </ul>
+                                </div>
+                                <form action="http://localhost:4242/create-checkout-session" method="POST">
+                                    <input type="hidden" name="lookup_key" value="advanced_maintenance" />
+                                    <button type="submit" class="btn btn-primary sub-btn">Subscribe</button>
+                                </form>
+                            </div>
+
+                            <!-- Plan 5 -->
+                            <div class="sub-card">
+                                <div>
+                                    <h4 class="sub-title">Custom Core CRM</h4>
+                                    <p class="sub-subtitle">Independent module.</p>
+                                    <p class="sub-price">€50 <span class="sub-period">/ month</span></p>
+                                    <ul class="sub-features">
+                                        <li>Intuitive control panel</li>
+                                        <li>100% confidential workspace</li>
+                                        <li>Direct centralized access</li>
+                                    </ul>
+                                </div>
+                                <form action="http://localhost:4242/create-checkout-session" method="POST">
+                                    <input type="hidden" name="lookup_key" value="custom_core_crm" />
+                                    <button type="submit" class="btn btn-primary sub-btn">Subscribe</button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MÉTODOS DE PAGO SECTION -->
+            <section id="metodos-pago" class="admin-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Métodos de pago</h2>
+                        <p class="color-text-secondary">Manage your payment methods and billing history.</p>
+                    </div>
+                </div>
+                
+                <div id="active-subscription-view" class="hidden" style="background: rgba(41, 151, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-sm); border: 1px solid rgba(41, 151, 255, 0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h4 style="color: var(--color-platinum); margin-bottom: 0.2rem;">Customer Portal</h4>
+                            <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin: 0;">Your billing is managed securely via Stripe. Click below to add or remove credit cards.</p>
+                        </div>
+                        <form action="http://localhost:4242/create-portal-session" method="POST">
+                            <input type="hidden" id="session-id" name="session_id" value="" />
+                            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Manage Billing Information</button>
+                        </form>
+                    </div>
+                </div>
+                <div id="no-payment-methods" style="margin-top: 1rem;">
+                    <p style="color: var(--color-text-secondary);">You need an active subscription to manage payment methods. Please subscribe to a plan first.</p>
+                </div>
+            </section>
+
+            <!-- PERFIL SECTION -->
+            <section id="perfil" class="admin-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Perfil</h2>
+                        <p class="color-text-secondary">View and manage your personal and corporate details.</p>
+                    </div>
+                </div>
+
+                <div class="profile-full-width">
+                    <div class="overview-panel">
+                        <div class="overview-panel-header">
+                            <h3 class="overview-panel-title">Información de la Cuenta</h3>
+                        </div>
+                        
+                        <div class="profile-details-grid">
+                            
+                            <div class="profile-avatar-container">
+                                <div class="profile-avatar-large">C</div>
+                                <div>
+                                    <h2 id="profile-name-large">Client Name</h2>
+                                    <p class="color-text-secondary">Elysium Partner</p>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-info-fields">
+                                <div class="info-field">
+                                    <label>Full Name</label>
+                                    <div class="info-value" id="profile-name">-</div>
+                                </div>
+                                <div class="info-field">
+                                    <label>Email Address</label>
+                                    <div class="info-value" id="profile-email">-</div>
+                                </div>
+                                <div class="info-field">
+                                    <label>Company</label>
+                                    <div class="info-value" id="profile-company">-</div>
+                                </div>
+                                <div class="info-field">
+                                    <label>License Code</label>
+                                    <div class="info-value license-badge" id="profile-license">-</div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <footer>
         <div class="container">
@@ -336,6 +606,7 @@
     <script src="JS/main.js"></script>
     <script src="JS/version-modal.js"></script>
     <script type="module" src="JS/profiles.js"></script>
+    
 </body>
 
 </html>

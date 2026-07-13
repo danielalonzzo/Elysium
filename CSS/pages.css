@@ -59,7 +59,7 @@
     background: var(--color-accent);
     box-shadow: 0 0 15px var(--color-accent), 0 0 30px var(--color-accent);
     border-radius: 2px;
-    transition: height 0.3s ease;
+    transition: height 2s cubic-bezier(0.22, 1, 0.36, 1); /* Slower and smoother */
 }
 
 /* Items individuales (Izquierda y Derecha) */
@@ -67,7 +67,7 @@
     position: relative;
     width: 50%;
     padding: 0 3rem;
-    margin-bottom: 3rem;
+    margin-bottom: 40vh; /* Increased from 3rem to force more scrolling */
     display: flex;
     flex-direction: column;
 }
@@ -92,7 +92,7 @@
 /* Card stacking — Global (Desktop & Mobile) */
 .timeline-section .timeline-container {
     /* Extra padding at the bottom so the last card has time to stay sticky */
-    padding-bottom: 30vh;
+    padding-bottom: 15vh;
 }
 
 .timeline-section .timeline-item {
@@ -3282,4 +3282,224 @@ textarea.form-control {
     border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-top: 1.5rem;
+}
+
+/* ── CLIENT DASHBOARD PROFILES (ADDED VIA SCRIPT) ───────────────────────── */
+.admin-wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+/* Subscriptions - Ultra Elegant & Compact Grid */
+.profile-full-width {
+    display: block;
+    width: 100%;
+}
+
+.subscription-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.sub-card {
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+}
+
+.sub-card:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sub-title {
+    color: var(--color-platinum);
+    font-size: 0.95rem;
+    font-weight: 400;
+    margin-bottom: 0.1rem;
+}
+
+.sub-subtitle {
+    color: var(--color-text-secondary);
+    font-size: 0.7rem;
+    margin-bottom: 1rem;
+}
+
+.sub-price {
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--color-platinum);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+}
+
+.sub-period {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+}
+
+.sub-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+}
+
+.sub-features li {
+    font-size: 0.75rem;
+    color: rgba(225, 225, 229, 0.6);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    line-height: 1.3;
+}
+
+.sub-features li::before {
+    content: '✓';
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: 300;
+    font-size: 0.7rem;
+}
+
+.sub-btn {
+    width: 100%;
+    margin-top: auto;
+    font-size: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+.sub-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* Featured Sub Card */
+.featured-sub {
+    border-color: rgba(41, 151, 255, 0.15);
+    background: linear-gradient(180deg, rgba(41, 151, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%);
+    position: relative;
+}
+
+.featured-sub .featured-badge {
+    position: absolute;
+    top: -8px;
+    right: 1rem;
+    background: var(--color-bg-primary);
+    border: 1px solid rgba(41, 151, 255, 0.2);
+    color: var(--color-accent);
+    font-size: 0.55rem;
+    font-weight: 500;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.featured-sub .sub-price {
+    color: var(--color-accent);
+}
+
+.featured-sub .sub-btn {
+    border-color: rgba(41, 151, 255, 0.2);
+    color: var(--color-accent);
+}
+.featured-sub .sub-btn:hover {
+    background: rgba(41, 151, 255, 0.05);
+}
+
+/* Profile Details */
+.profile-details-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.profile-avatar-container {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 2rem;
+}
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(41, 151, 255, 0.1);
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+    border: 1px solid rgba(41, 151, 255, 0.2);
+}
+
+.profile-info-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.info-field label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    color: var(--color-platinum);
+    padding: 0.75rem;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+}
+
+.license-badge {
+    font-family: monospace;
+    color: var(--color-accent);
+    letter-spacing: 1px;
+}
+
+/* Mobile Adjustments for Profile */
+@media (max-width: 768px) {
+    .profile-info-fields {
+        grid-template-columns: 1fr;
+    }
+    .admin-wrapper {
+        flex-direction: column;
+    }
+    
+    /* Make sure main content scrolls naturally on mobile above the bottom nav */
+    .admin-main {
+        height: calc(100vh - 70px) !important; /* approx height of bottom nav */
+        padding-bottom: 20px;
+    }
 }

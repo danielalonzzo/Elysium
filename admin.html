@@ -105,11 +105,27 @@
                 </svg>
                 <span>Licenses</span>
             </div>
+
+            <div class="nav-item" data-target="contacts" id="nav-contacts">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <span>Inquiries</span>
+                <span class="sidebar-badge" id="sidebar-contacts-count">0</span>
+            </div>
         </nav>
 
         <!-- Sidebar Footer -->
-        <div class="sidebar-footer">
-            <button id="logoutBtn" class="sidebar-logout-btn">
+        <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <button onclick="sessionStorage.setItem('dev_mode', 'true'); window.location.href='profiles.html'" class="sidebar-logout-btn" style="color: var(--color-accent); border-color: rgba(41, 151, 255, 0.2); background: rgba(41, 151, 255, 0.05); justify-content: flex-start; padding: 0.75rem 1rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Dev View</span>
+            </button>
+            <button id="logoutBtn" class="sidebar-logout-btn" style="justify-content: flex-start; padding: 0.75rem 1rem;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
@@ -266,6 +282,32 @@
                     </thead>
                     <tbody id="licenses-list">
                         <!-- Licenses injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ─── CONTACTS / INQUIRIES ────────────────────────────── -->
+        <section id="contacts" class="admin-section" style="display: none;">
+            <div class="dashboard-header">
+                <div>
+                    <h1 id="contacts-title">Inquiries</h1>
+                    <p class="color-text-secondary" id="contacts-desc">Review contact form submissions.</p>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th id="th-date">Date</th>
+                            <th id="th-name">Name</th>
+                            <th id="th-email">Email</th>
+                            <th id="th-service">Interest</th>
+                            <th id="th-message">Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contacts-list">
+                        <tr><td colspan="5"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>
                     </tbody>
                 </table>
             </div>

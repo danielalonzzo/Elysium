@@ -228,6 +228,14 @@ const translations = {
         stage_dev: "Development",
         stage_delivery: "Delivery & Publication",
         stage_maint: "Maintenance",
+        nav_contacts: "Inquiries",
+        contacts_title: "Inquiries",
+        contacts_desc: "Review contact form submissions.",
+        table_date: "Date",
+        table_name: "Name",
+        table_email: "Email",
+        table_service: "Interest",
+        table_message: "Message",
         flag: "🇬🇧"
     },
     es: {
@@ -375,6 +383,14 @@ const translations = {
         stage_dev: "Desarrollo",
         stage_delivery: "Entrega y publicación",
         stage_maint: "Mantenimiento",
+        nav_contacts: "Consultas",
+        contacts_title: "Consultas",
+        contacts_desc: "Revisa los formularios de contacto recibidos.",
+        table_date: "Fecha",
+        table_name: "Nombre",
+        table_email: "Correo",
+        table_service: "Interés",
+        table_message: "Mensaje",
         flag: "🇨🇷"
     },
     pt: {
@@ -521,6 +537,14 @@ const translations = {
         stage_dev: "Desenvolvimento",
         stage_delivery: "Entrega e publicação",
         stage_maint: "Manutenção",
+        nav_contacts: "Consultas",
+        contacts_title: "Consultas",
+        contacts_desc: "Reveja as submissões de formulários de contacto.",
+        table_date: "Data",
+        table_name: "Nome",
+        table_email: "E-mail",
+        table_service: "Interesse",
+        table_message: "Mensagem",
         flag: "🇵🇹"
     }
 };
@@ -682,6 +706,8 @@ function applyTranslations() {
     if (navPipeline) navPipeline.textContent = 'Pipeline';
     if (navClients)  navClients.textContent  = t.nav_clients;
     if (navLicenses) navLicenses.textContent = t.nav_licenses;
+    const navContacts = document.querySelector('[data-target="contacts"] span:not(.sidebar-badge)');
+    if (navContacts) navContacts.textContent = t.nav_contacts || "Inquiries";
 
     // Logout button has SVG + span — only update the span
     const logoutSpan = document.querySelector('#logoutBtn span');
@@ -703,6 +729,11 @@ function applyTranslations() {
     if (licH1) licH1.textContent = t.licenses_title;
     if (licP)  licP.textContent  = t.licenses_desc;
 
+    const conH1 = document.querySelector('#contacts-title');
+    const conP  = document.querySelector('#contacts-desc');
+    if (conH1) conH1.textContent = t.contacts_title || "Inquiries";
+    if (conP)  conP.textContent  = t.contacts_desc || "Review contact form submissions.";
+
     // Update table headers
     const ths = document.querySelectorAll('.admin-table th');
     if (ths.length > 0) {
@@ -711,6 +742,17 @@ function applyTranslations() {
         ths[2].textContent = t.table_assigned;
         ths[3].textContent = t.table_used;
     }
+
+    const thDate = document.getElementById('th-date');
+    const thName = document.getElementById('th-name');
+    const thEmail = document.getElementById('th-email');
+    const thService = document.getElementById('th-service');
+    const thMessage = document.getElementById('th-message');
+    if (thDate) thDate.textContent = t.table_date || "Date";
+    if (thName) thName.textContent = t.table_name || "Name";
+    if (thEmail) thEmail.textContent = t.table_email || "Email";
+    if (thService) thService.textContent = t.table_service || "Interest";
+    if (thMessage) thMessage.textContent = t.table_message || "Message";
 }
 
 async function initDashboard() {
@@ -740,6 +782,7 @@ async function initDashboard() {
     if (savedTab === 'clients')   loadClients();
     if (savedTab === 'pipeline')  loadPipeline();
     if (savedTab === 'licenses')  loadLicenses();
+    if (savedTab === 'contacts')  loadContacts();
 }
 
 async function loadStats() {
@@ -846,6 +889,14 @@ async function loadStats() {
         const sidebarPipeline  = document.getElementById('sidebar-pipeline-count');
         if (sidebarPartners)  sidebarPartners.textContent  = totalPartners;
         if (sidebarPipeline)  sidebarPipeline.textContent  = activeProjects;
+
+        try {
+            const contactsSnap = await getDocs(collection(db, 'contacts'));
+            const contactsBadge = document.getElementById('sidebar-contacts-count');
+            if (contactsBadge) contactsBadge.textContent = contactsSnap.size;
+        } catch (e) {
+            console.warn('Could not load contacts count.', e);
+        }
 
         logger.log(`Stats — partners: ${totalPartners}, OB rate: ${onboardingRate}%, active: ${activeProjects}`);
 
@@ -2724,4 +2775,41 @@ function renderClientRevenueChart(clientData) {
             }
         }
     });
+}
+
+async function loadContacts() {
+    const contactsList = document.getElementById('contacts-list');
+    const badge = document.getElementById('sidebar-contacts-count');
+    contactsList.innerHTML = '<tr><td colspan="5"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>';
+
+    try {
+        const q = query(collection(db, 'contacts'), orderBy('submittedAt', 'desc'));
+        const snap = await getDocs(q);
+        
+        if (badge) badge.textContent = snap.size;
+        
+        if (snap.empty) {
+            contactsList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-text-secondary); padding: 2rem;">No inquiries found.</td></tr>';
+            return;
+        }
+
+        let html = '';
+        snap.forEach(doc => {
+            const data = doc.data();
+            const date = data.submittedAt ? new Date(data.submittedAt.seconds * 1000).toLocaleDateString() : '-';
+            html += `
+                <tr>
+                    <td>${date}</td>
+                    <td><strong>${data.name || '-'}</strong></td>
+                    <td><a href="mailto:${data.email || ''}" style="color: var(--color-accent); text-decoration: none;">${data.email || '-'}</a></td>
+                    <td><span class="status-badge" style="background: rgba(41, 151, 255, 0.1); color: var(--color-accent);">${data.service || '-'}</span></td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${data.message || ''}">${data.message || '-'}</td>
+                </tr>
+            `;
+        });
+        contactsList.innerHTML = html;
+    } catch (e) {
+        logger.error("Error loading contacts:", e);
+        contactsList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff4444; padding: 2rem;">Error loading inquiries.</td></tr>';
+    }
 }
