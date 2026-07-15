@@ -93,7 +93,7 @@ export default function Hero() {
       </div>
       
       {/* Marquee Ticker */}
-      <div className="absolute bottom-0 left-0 w-full bg-[var(--color-brand-dark)] text-white py-3 overflow-hidden border-t-4 border-b-4 border-[#AB1C18] shadow-lg transform rotate-[-1deg] scale-105">
+      <div className="absolute bottom-0 left-0 w-full bg-[var(--color-brand-dark)] text-white py-3 overflow-hidden border-t-4 border-b-4 border-[#FF8A18] shadow-lg transform rotate-[-1deg] scale-105">
         <div className="flex whitespace-nowrap animate-[marquee_20s_linear_infinite]">
            <span className="text-xl font-bold uppercase tracking-wider mx-4">🐾 Paseos Individuales 🐾 Paquetes Mensuales 🐾 Cuido a Domicilio 🐾 Billetera de Horas 🐾 Fotos Semanales 🐾 </span>
            <span className="text-xl font-bold uppercase tracking-wider mx-4">🐾 Paseos Individuales 🐾 Paquetes Mensuales 🐾 Cuido a Domicilio 🐾 Billetera de Horas 🐾 Fotos Semanales 🐾 </span>

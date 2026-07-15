@@ -89,6 +89,7 @@ html {
     scroll-behavior: smooth;
     font-size: 16px;
     height: 100%;
+    overflow-x: clip; /* clip (not hidden) avoids creating a scroll context — safer on iOS Safari */
 }
 
 body {
@@ -96,7 +97,7 @@ body {
     background-color: var(--color-bg-primary);
     color: var(--color-text-primary);
     line-height: 1.6;
-    overflow-x: hidden;
+    overflow-x: clip; /* clip (not hidden) avoids creating a scroll context — safer on iOS Safari */
     -webkit-font-smoothing: antialiased;
 }
 

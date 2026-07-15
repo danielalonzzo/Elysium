@@ -12,7 +12,7 @@ const InstagramIcon = ({ size = 24 }) => (
 
 export default function Footer({ onOpenModal }) {
   return (
-    <footer className="bg-[#2D2D2D] text-white pt-16 pb-8 border-t-4 border-[#AB1C18] mt-20">
+    <footer className="bg-[#2D2D2D] text-white pt-16 pb-8 border-t-4 border-[#FF8A18] mt-20">
       <div className="container mx-auto px-6 max-w-6xl">
         
         {/* Main Footer Content */}
@@ -41,8 +41,8 @@ export default function Footer({ onOpenModal }) {
             <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-6">Empresa</h4>
             <ul className="space-y-4 text-sm font-medium text-gray-300">
               <li><Link to="/" className="hover:text-[var(--color-brand-orange)] transition-colors">Inicio</Link></li>
-              <li><a href="/#servicios" className="hover:text-[var(--color-brand-orange)] transition-colors">Servicios Adicionales</a></li>
-              <li><a href="/#precios" className="hover:text-[var(--color-brand-orange)] transition-colors">Paquetes Mensuales</a></li>
+              <li><a href="#servicios" className="hover:text-[var(--color-brand-orange)] transition-colors">Servicios Adicionales</a></li>
+              <li><a href="#precios" className="hover:text-[var(--color-brand-orange)] transition-colors">Paquetes Mensuales</a></li>
               <li><Link to="/portal" className="hover:text-[var(--color-brand-orange)] transition-colors">Portal de Clientes</Link></li>
             </ul>
           </div>

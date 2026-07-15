@@ -1,0 +1,193 @@
+# Elysium λ Development & Research
+
+> An independent laboratory where web applications, intelligent systems, and applied research converge to develop technological solutions centred on human development and sustainability.
+
+- Website: https://elysiumdr.eu
+- Contact: info@elysiumdr.eu
+- Location: Bragança, Portugal (European Union)
+- Founded: January 2026
+- Founder: Daniel Alonso Morales Ávila (Computer Science Engineer)
+- Languages available: English (default), Spanish (es), Portuguese (pt)
+- Social: https://x.com/elysiumdr | https://www.instagram.com/elysium.dr
+
+---
+
+## About Elysium λ
+
+Elysium λ Development & Research is an independent digital consultancy and research organisation based in Portugal, European Union. It provides enterprise-grade digital infrastructure for small and medium-sized enterprises (SMEs) across Europe and Latin America (Portugal, Spain, Costa Rica, and the wider Ibero-American region).
+
+The organisation operates at the intersection of web engineering, applied research, and human-centred design. Its mission is to investigate and develop digital systems focused on human development and the empowerment of SMEs through research and technological innovation.
+
+**Vision:** To evolve into the λ Elysium Institute of Development & Research — an institute dedicated to the study, development, and application of intelligent systems, and the training of new generations of scientists and developers. The organisation actively aims to contribute to the construction of a digital Europe, where artificial intelligence, data science, and intelligent systems drive the development of organisations and communities.
+
+**Core values:** Transparency, accessibility, ethical technology, and human-centred digital infrastructure.
+
+---
+
+## Services
+
+Elysium λ offers subscription-based digital infrastructure. Clients pay no upfront development cost; all engineering is included in the monthly subscription.
+
+### Subscription Tiers
+
+**Hosting Maintenance — €99/year**
+The Operational Core.
+- Domain management and brand digital identity.
+- Web hosting on high-availability servers (always online).
+- Base infrastructure maintenance and updates.
+
+**Basic Maintenance — €70/month**
+Level 1 Ecosystem. Includes Hosting Maintenance plus:
+- Complete development of your corporate website.
+- Fluid design adapted for mobile devices.
+- Ultra-fast loading times to prevent customer drop-off.
+- Inclusive and accessible structure (WCAG compliance).
+- Contact forms shielded against spam.
+- Advanced security protocols.
+- Full GDPR compliance.
+
+**Preferential Maintenance — €99/month**
+Level 2 Ecosystem. Includes all Basic features plus:
+- Architecture prepared for future e-commerce and sales integrations.
+- Perfectly structured multi-language website for global expansion.
+- Smart visual design (automatic adaptation to light/dark modes).
+- Real-time currency conversion engine for international clients.
+
+**Advanced Maintenance — €120/month**
+Level 3 Ecosystem. Includes all Preferential features plus:
+- Private platform to manage clients and operations (CRM).
+- User system with restricted permissions and access levels.
+- Custom-built software that scales with business growth.
+- Cloud databases protected by the highest industry standards.
+
+**Custom Core CRM — €50/month (add-on)**
+Independent management module:
+- Intuitive, elegant control panel.
+- 100% confidential workspace separated from the public site.
+- Direct and centralised access from the secure Elysium client portal.
+
+### Licensing & IP Policy
+- Zero Development Cost: Elysium assumes 100% of initial engineering.
+- Code remains intellectual property of Elysium λ Development & Research.
+- Clients acquire a full-use licence tied to their active subscription.
+- Buyout option available through an auditing and valuation process.
+
+**Full services page (EN):** https://elysiumdr.eu/services.html
+**Full services page (ES):** https://elysiumdr.eu/es/services.html
+**Full services page (PT):** https://elysiumdr.eu/pt/services.html
+
+---
+
+## Portfolio
+
+Elysium λ has worked with clients in Portugal, Spain, and Costa Rica. Selected projects:
+
+### Pedro Morais — pmorais.pt (Portugal)
+Psychotherapy & Clinical Psychology practice. Full redesign and development of corporate website. Services: web development, UX/UI, SEO optimisation, WCAG accessibility, performance.
+Case study: https://elysiumdr.eu/case-pmorais.html
+
+### VALTRIX Engineering (Costa Rica)
+Engineering consultancy firm. Full digital ecosystem development.
+Case study: https://elysiumdr.eu/case-valtrix.html
+
+### Moyra (Portugal)
+Digital presence development.
+Case study: https://elysiumdr.eu/case-moyra.html
+
+**Portfolio page (EN):** https://elysiumdr.eu/portfolio.html
+**Portfolio page (ES):** https://elysiumdr.eu/es/portfolio.html
+**Portfolio page (PT):** https://elysiumdr.eu/pt/portfolio.html
+
+---
+
+## Research
+
+Elysium λ conducts applied research in the areas of intelligent systems, ontological engineering, and data-driven intelligence for SMEs. Research is published openly on the website.
+
+**Research hub (EN):** https://elysiumdr.eu/research.html
+**Research hub (ES):** https://elysiumdr.eu/es/research.html
+**Research hub (PT):** https://elysiumdr.eu/pt/research.html
+
+---
+
+## About the Organisation (Nosotros / Sobre Nós)
+
+**Mission:** Investigating and developing digital systems focused on human development and boosting SMEs through research and technological innovation. Elysium λ explores how intelligent systems can strengthen the digital capabilities of small and medium-sized enterprises.
+
+**Vision:** To evolve into the λ Elysium Institute of Development & Research, actively contributing to the construction of a digital Europe aligned with the highest standards of education, ethical technology, and the fundamental values of the European Union.
+
+**About page (EN):** https://elysiumdr.eu/about.html
+**About page (ES):** https://elysiumdr.eu/es/about.html
+**About page (PT):** https://elysiumdr.eu/pt/about.html
+
+---
+
+## Daniel Morales — Founder & Computer Science Engineer
+
+**Full name:** Daniel Alonso Morales Ávila
+**Role:** Founder & Lead Software Engineer at Elysium λ Development & Research
+**Nationality:** Costa Rican | Based in: Bragança, Portugal (EU)
+**Contact:** daniel.morales@elysiumdr.eu | (+351) 934086075
+**LinkedIn:** https://www.linkedin.com/in/danielalonzzo/
+**GitHub:** https://github.com/danielalonzzo
+
+### Professional Summary
+Web development professional with hands-on experience in HTML, CSS, JavaScript, and Python. Develops functional web applications and data-driven solutions with a strong emphasis on code quality, efficiency, and user-oriented design. Combines technology and human-centred design to transform complex challenges into structured, scalable solutions.
+
+### Work Experience
+- **Founder, Elysium λ Development & Research** — January 2026–Present, Portugal.
+  End-to-end web solution design and development; full-stack development; WCAG 2.1 accessibility and Core Web Vitals performance; technical SEO.
+
+- **Junior Web Developer, Consciênciavaliativa Unipessoal Lda.** — September 2025–December 2026, Lisbon, Portugal.
+  Full website design and development; UX diagnostics; accessibility audits (WCAG 2.1); SEO analysis.
+
+- **Professional Internship, SMF360 Ingenio Futuro** — July–October 2024, Miami, USA.
+  CRM integration and customisation; frontend web page redesign; intern supervision.
+
+- **University Community Outreach, SIFÄIS** — December 2022–July 2023, Heredia, Costa Rica.
+  Led digital literacy programme for youth in the Guararí community; trained 50+ participants in digital tools.
+
+### Education
+- **Bachelor's Degree in Computer Science Engineering** — ULACIT, San José, Costa Rica (2020–2025). EQF Level 6.
+- **Erasmus+ Exchange: Web App Dev & Portuguese Culture** — Instituto Politécnico de Bragança, Portugal (2023–2024). EQF Level 6.
+- **Bachelor's Degree in Administration** — Universidad Nacional de Costa Rica (2019–2021). EQF Level 6.
+
+### Skills & Technologies
+HTML, CSS, JavaScript, Python, Full-Stack Development, Web Architecture, Responsive Web Design, Accessibility (WCAG 2.1), Machine Learning-Assisted Tools (Antigravity / Google Gemini), Performance Optimisation, SEO, Firebase, Cloudflare, React, Software Engineering.
+
+**Daniel Morales profile (EN):** https://elysiumdr.eu/daniel-morales.html
+**Daniel Morales profile (ES):** https://elysiumdr.eu/es/daniel-morales.html
+**Daniel Morales profile (PT):** https://elysiumdr.eu/pt/daniel-morales.html
+
+---
+
+## Contact
+
+**Email:** info@elysiumdr.eu
+**WhatsApp:** (+351) 934086075
+**Location:** Bragança, Portugal, European Union
+**Serves:** Portugal, Spain, Costa Rica, and wider EU & Ibero-American markets
+
+**Contact page (EN):** https://elysiumdr.eu/contact.html
+**Contact page (ES):** https://elysiumdr.eu/es/contact.html
+**Contact page (PT):** https://elysiumdr.eu/pt/contact.html
+
+---
+
+## Available in Three Languages
+
+All key pages of this website are available in English, Spanish, and Portuguese (European). Language versions:
+
+| Page          | English (EN)                                        | Spanish (ES)                                           | Portuguese (PT)                                         |
+|---------------|-----------------------------------------------------|--------------------------------------------------------|---------------------------------------------------------|
+| Home          | https://elysiumdr.eu/                               | https://elysiumdr.eu/es/                               | https://elysiumdr.eu/pt/                                |
+| Services      | https://elysiumdr.eu/services.html                  | https://elysiumdr.eu/es/services.html                  | https://elysiumdr.eu/pt/services.html                   |
+| Portfolio     | https://elysiumdr.eu/portfolio.html                 | https://elysiumdr.eu/es/portfolio.html                 | https://elysiumdr.eu/pt/portfolio.html                  |
+| Research      | https://elysiumdr.eu/research.html                  | https://elysiumdr.eu/es/research.html                  | https://elysiumdr.eu/pt/research.html                   |
+| About         | https://elysiumdr.eu/about.html                     | https://elysiumdr.eu/es/about.html                     | https://elysiumdr.eu/pt/about.html                      |
+| Daniel Morales| https://elysiumdr.eu/daniel-morales.html            | https://elysiumdr.eu/es/daniel-morales.html            | https://elysiumdr.eu/pt/daniel-morales.html             |
+| Contact       | https://elysiumdr.eu/contact.html                   | https://elysiumdr.eu/es/contact.html                   | https://elysiumdr.eu/pt/contact.html                    |
+
+---
+
+*Last updated: July 2026 | Elysium λ Development & Research | https://elysiumdr.eu*

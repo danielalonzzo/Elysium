@@ -409,18 +409,15 @@ document.addEventListener('DOMContentLoaded', () => {
 document.querySelectorAll('.accordion-header').forEach(header => {
     header.addEventListener('click', () => {
         const accordionItem = header.parentElement;
+        const isExpanded = accordionItem.classList.contains('is-expanded');
 
-        // Toggle current item
-        accordionItem.classList.toggle('is-expanded');
-
-        // Optional: Close other items (uncomment if you want accordion behavior)
-        /*
-        document.querySelectorAll('.accordion-item').forEach(item => {
-            if(item !== accordionItem) {
-                item.classList.remove('is-expanded');
-            }
-        });
-        */
+        if (isExpanded) {
+            accordionItem.classList.remove('is-expanded');
+            header.setAttribute('aria-expanded', 'false');
+        } else {
+            accordionItem.classList.add('is-expanded');
+            header.setAttribute('aria-expanded', 'true');
+        }
     });
 });
 

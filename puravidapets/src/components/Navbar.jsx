@@ -9,7 +9,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 w-full z-40 bg-[var(--color-brand-beige)]/90 backdrop-blur-md shadow-sm border-b border-orange-500/10">
       {/* Top Bar */}
-      <div className="bg-[#AB1C18] text-white text-sm font-semibold text-center py-2">
+      <div className="bg-[#FF8A18] text-white text-sm font-semibold text-center py-2">
         ¡Preguntá por nuestros nuevos planes mensuales Pura Vida! 🐾
       </div>
       
@@ -27,8 +27,8 @@ export default function Navbar() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-8 font-semibold text-[var(--color-brand-dark)]">
-          <a href="/#servicios" className="hover:text-[var(--color-brand-orange)] transition-colors">Servicios</a>
-          <a href="/#precios" className="hover:text-[var(--color-brand-orange)] transition-colors">Precios</a>
+          <a href="#servicios" className="hover:text-[var(--color-brand-orange)] transition-colors">Servicios</a>
+          <a href="#precios" className="hover:text-[var(--color-brand-orange)] transition-colors">Precios</a>
           
           <Link to="/portal" className="flex items-center gap-2 hover:text-[var(--color-brand-orange)] transition-colors">
             <User size={18} />
@@ -59,14 +59,14 @@ export default function Navbar() {
             className="md:hidden absolute top-full left-0 w-full bg-[#FFF8F0] border-b border-orange-500/10 shadow-lg py-6 px-4 flex flex-col gap-6 font-semibold text-[var(--color-brand-dark)]"
           >
             <a 
-              href="/#servicios" 
+              href="#servicios" 
               onClick={() => setIsMobileMenuOpen(false)}
               className="hover:text-[var(--color-brand-orange)] transition-colors px-4 py-2 bg-white rounded-xl shadow-sm"
             >
               Servicios
             </a>
             <a 
-              href="/#precios" 
+              href="#precios" 
               onClick={() => setIsMobileMenuOpen(false)}
               className="hover:text-[var(--color-brand-orange)] transition-colors px-4 py-2 bg-white rounded-xl shadow-sm"
             >

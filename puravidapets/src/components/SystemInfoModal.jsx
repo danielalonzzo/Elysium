@@ -40,7 +40,7 @@ export default function SystemInfoModal({ isOpen, onClose }) {
             <div className="pt-10 pb-6 px-6 text-center flex-shrink-0 relative">
               <div className="flex justify-center mb-3 relative z-10">
                 <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white shadow-md bg-[#FFF8F0]">
-                  <img src="/logo.jpg" alt="Pura Vida Pets Logo" className="w-full h-full object-cover" />
+                  <img src="./logo.jpg" alt="Pura Vida Pets Logo" className="w-full h-full object-cover" />
                 </div>
               </div>
               <h2 className="text-3xl font-bold font-[var(--font-display)] tracking-wide text-gray-800">

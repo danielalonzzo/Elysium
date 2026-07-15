@@ -37,14 +37,14 @@ export default function ClientDashboard() {
           
           {/* Sidebar / Billetera */}
           <div className="md:col-span-1">
-            <div className="bg-[#2D2D2D] rounded-3xl p-6 text-white border-4 border-[var(--color-brand-orange)] shadow-xl sticky top-28 dark:bg-[#1A1918] dark:border-[#FF8A00]/50">
+            <div className="bg-white dark:bg-[#1A1918] rounded-3xl p-6 text-[#2D2D2D] dark:text-[#F5F0E8] border-4 border-[var(--color-brand-orange)] shadow-xl sticky top-28 dark:border-[#FF8A00]/50">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">Tu Billetera</h2>
                 <Clock className="text-[var(--color-brand-orange)]" />
               </div>
               
-              <div className="bg-white/10 rounded-2xl p-4 mb-6">
-                <p className="text-sm text-gray-300 mb-1">Plan Actual</p>
+              <div className="bg-[#FFF8F0] dark:bg-white/5 rounded-2xl p-4 mb-6 border border-orange-500/10">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Plan Actual</p>
                 <p className="text-xl font-bold text-[var(--color-tier-puravida)]">{wallet.plan}</p>
               </div>
 
@@ -52,15 +52,15 @@ export default function ClientDashboard() {
                 <div className="text-6xl font-black text-[var(--color-brand-orange)] mb-2">
                   {wallet.remainingHours}
                 </div>
-                <p className="text-sm font-medium uppercase tracking-wide text-gray-300">Horas Disponibles</p>
+                <p className="text-sm font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Horas Disponibles</p>
               </div>
               
-              <div className="flex justify-between text-sm bg-black/20 rounded-xl p-3">
+              <div className="flex justify-between text-sm bg-[#FFF8F0] dark:bg-black/20 rounded-xl p-3 border border-orange-500/10 dark:border-transparent">
                 <span>Total: {wallet.totalHours}h</span>
                 <span>Usadas: {wallet.usedHours}h</span>
               </div>
               
-              <button className="w-full mt-6 bg-white dark:bg-[var(--color-brand-orange)] dark:text-white dark:hover:bg-[#e07a00] text-[#2D2D2D] font-bold py-3 rounded-xl hover:bg-gray-100 transition-colors">
+              <button className="w-full mt-6 bg-[var(--color-brand-orange)] text-white font-bold py-3 rounded-xl hover:bg-[#e07a00] transition-colors shadow-md">
                 Reservar Paseo
               </button>
             </div>

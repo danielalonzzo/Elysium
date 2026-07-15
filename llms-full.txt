@@ -1,0 +1,499 @@
+================================================================================
+ELYSIUM λ DEVELOPMENT & RESEARCH — FULL SITE CONTENT FOR AI MODELS
+https://elysiumdr.eu | info@elysiumdr.eu
+Last updated: July 2026
+Languages: English · Español · Português
+================================================================================
+
+This file contains the complete textual content of elysiumdr.eu for AI and
+language model consumption. It is provided voluntarily under the llms.txt
+protocol to enable accurate, informed responses about Elysium λ.
+
+================================================================================
+PART 1 — ENGLISH (EN)
+================================================================================
+
+--- HOME PAGE ---
+URL: https://elysiumdr.eu/
+
+Title: Elysium λ Development & Research
+Subtitle: Digital Infrastructure for SMEs: IT Consulting and Services for SMEs
+
+Description:
+An independent laboratory where web applications, intelligent systems, and
+applied research converge to develop technological solutions centred on human
+development and sustainability.
+
+Elysium λ Development & Research provides enterprise-grade digital
+infrastructure for small and medium-sized enterprises (SMEs) in Europe and
+Latin America. Based in Bragança, Portugal, European Union. Founded January 2026.
+
+Contact: info@elysiumdr.eu
+Phone/WhatsApp: +351 934086075
+Social: @elysiumdr (X/Twitter) | @elysium.dr (Instagram)
+
+--- SERVICES PAGE ---
+URL: https://elysiumdr.eu/services.html
+
+Title: Services — Elysium λ Development & Research
+Description: Professional web development, design, maintenance and support for
+SMEs — flexible, transparent pricing. Portugal, European Union.
+
+ENTERPRISE-GRADE DIGITAL INFRASTRUCTURE
+
+Zero Development Cost Model:
+High-performance digital infrastructure included in monthly subscription.
+You don't pay for website construction — each monthly fee is an investment in
+an ecosystem that evolves with your business, guaranteeing peak performance,
+operational security, and high lead retention.
+
+SUBSCRIPTION TIERS:
+
+1. Hosting Maintenance — €99/year (The Operational Core)
+   - Domain management and brand digital identity.
+   - Web hosting on high-availability servers (always online).
+   - Base infrastructure maintenance and updates.
+
+2. Basic Maintenance — €70/month (Level 1 Ecosystem)
+   - Includes Hosting Maintenance.
+   - Complete development of your corporate website.
+   - Fluid design flawlessly adapted for mobile devices.
+   - Ultra-fast loading times to prevent customer drop-off.
+   - Inclusive and accessible structure for all types of users.
+   - Contact forms shielded against spam and malicious attacks.
+   - Advanced security protocols to protect your brand's reputation.
+   - Full compliance with global data privacy regulations (GDPR).
+
+3. Preferential Maintenance — €99/month (Level 2 Ecosystem)
+   - Includes all Basic features.
+   - Architecture prepared for future commerce and sales integrations.
+   - Global expansion: Perfectly structured multi-language website.
+   - Smart visual design (automatic adaptation to light/dark modes).
+   - Real-time currency conversion engine for international clients.
+
+4. Advanced Maintenance — €120/month (Level 3 Ecosystem)
+   - Includes all Preferential features.
+   - Private platform to manage your clients and operations (CRM).
+   - User system with restricted permissions and access levels.
+   - Custom-built software that scales alongside your business growth.
+   - Cloud databases protected by the highest industry standards.
+
+5. Custom Core CRM — €50/month (Independent add-on module)
+   - Intuitive, elegant, and exceptionally easy-to-use control panel.
+   - 100% confidential workspace entirely separated from your public site.
+   - Direct and centralised access from your secure Elysium client portal.
+
+TRANSPARENCY & LICENSING:
+- Zero Development Cost: Elysium assumes 100% of initial engineering.
+- Code Ownership (IP): Source code remains intellectual property of Elysium λ.
+  Clients acquire a full-use licence tied to their active subscription.
+- Lifecycle & Continuity: If subscription is interrupted, system and support
+  will be suspended.
+- Valuation & Buyout: If your business model requires total code ownership,
+  we offer an auditing and valuation process for project buyout.
+
+--- PORTFOLIO PAGE ---
+URL: https://elysiumdr.eu/portfolio.html
+
+Title: Portfolio — Elysium λ Development & Research
+
+SELECTED PROJECTS:
+
+Pedro Morais — pmorais.pt (Portugal)
+Type: Clinical Psychology & Psychotherapy practice
+Work: Complete redesign and development of corporate website.
+Services delivered: Web development, UX/UI design, SEO optimisation,
+WCAG accessibility compliance, performance optimisation.
+Case study: https://elysiumdr.eu/case-pmorais.html
+
+VALTRIX Engineering (Costa Rica)
+Type: Engineering consultancy firm
+Work: Full digital ecosystem development.
+Case study: https://elysiumdr.eu/case-valtrix.html
+
+Moyra (Portugal)
+Type: Health & wellness professional
+Work: Digital presence development and brand online identity.
+Case study: https://elysiumdr.eu/case-moyra.html
+
+Pura Vida Pets (Costa Rica)
+Type: Veterinary and pet care services
+Work: Web application development (platform for pet owners and veterinary
+professionals).
+Portfolio entry: https://elysiumdr.eu/puravidapets/
+
+--- RESEARCH PAGE ---
+URL: https://elysiumdr.eu/research.html
+
+Title: Research — Elysium λ Development & Research
+
+Elysium λ conducts applied research in intelligent systems, ontological
+engineering, and data-driven intelligence for SMEs.
+
+Published research areas:
+- Ontological engineering for intelligent systems
+- Data-driven SME intelligence
+- Applied AI for human development and sustainability
+
+--- ABOUT PAGE ---
+URL: https://elysiumdr.eu/about.html
+
+Title: Our Ethos — Elysium λ Development & Research
+Description: Mission, vision and story of Elysium λ Development and Research
+— a European SME web and research company based in Portugal.
+
+FOUNDING PHILOSOPHY:
+"Our work is guided by the conviction that digital infrastructure should be
+accessible, transparent, and focused on human development."
+
+MISSION:
+Investigating and developing digital systems focused on human development and
+boosting SMEs through research and technological innovation.
+
+Elysium λ Development & Research explores how intelligent systems can strengthen
+the digital capabilities of small and medium-sized enterprises, enabling them
+to participate in a constantly evolving interconnected world.
+
+VISION:
+Evolving into the λ Elysium Institute of Development & Research — an institute
+dedicated to the study, development, and application of intelligent systems,
+as well as the training of new generations of scientists and developers.
+
+To actively contribute to the construction of a digital Europe, where artificial
+intelligence, data science, and intelligent systems drive the development of
+organisations and communities, always staying aligned with the highest standards
+of education, the ethical development of technology, and the fundamental values
+of the European Union.
+
+--- DANIEL MORALES PAGE ---
+URL: https://elysiumdr.eu/daniel-morales.html
+
+Title: Daniel Morales — Elysium λ Development & Research
+Full name: Daniel Alonso Morales Ávila
+Role: Founder & Computer Science Engineer
+Nationality: Costa Rican | Residence: Bragança, Portugal, European Union
+Email: daniel.morales@elysiumdr.eu
+Phone: +351 934086075
+LinkedIn: https://www.linkedin.com/in/danielalonzzo/
+GitHub: https://github.com/danielalonzzo
+
+ABOUT:
+With a solid understanding of both technology and human-centred design, Daniel
+focuses on transforming complex challenges into structured, scalable solutions.
+As Founder of Elysium λ Development & Research, he leads initiatives in web
+development, technical consultancy, and applied research, delivering solutions
+that integrate engineering rigour with measurable real-world impact.
+
+He is a web development professional with hands-on experience in HTML, CSS,
+JavaScript, and Python. He develops functional web applications and data-driven
+solutions with a strong emphasis on code quality, efficiency, and user-oriented
+design.
+
+WORK EXPERIENCE:
+
+1. Founder — Elysium λ Development & Research
+   January 2026 – Present | Bragança, Portugal
+   - End-to-end design, development, and implementation of web solutions.
+   - Full-stack web application development using advanced IDEs and ML tools.
+   - WCAG 2.1 accessibility and Core Web Vitals performance optimisation.
+   - Technical SEO and semantic structure implementation.
+   Technologies: HTML, CSS, JavaScript, Full-Stack, Web Architecture, Responsive
+   Web Design, WCAG, Machine Learning-Assisted Tools (Antigravity), SEO.
+
+2. Junior Web Developer — Consciênciavaliativa Unipessoal Lda.
+   September 2025 – December 2026 | Lisbon, Portugal
+   - End-to-end design and development of fully responsive website.
+   - Redesign and modernisation of digital ecosystem.
+   - UX diagnostics, WCAG 2.1 accessibility audits, SEO analysis.
+   - Performance and usability improvements.
+
+3. Professional Internship — SMF360 Ingenio Futuro
+   July–October 2024 | Miami, United States
+   - CRM system integration and customisation.
+   - Redesign of multiple web pages using modern frontend architectures.
+   - Collaboration in supervision and management of interns.
+
+4. University Community Outreach — SIFÄIS
+   December 2022 – July 2023 | Heredia, Costa Rica
+   - Led digital literacy programme for youth from the Guararí community.
+   - Trained over 50 young participants in the use of technological tools.
+   - Facilitated access to digital information and resources.
+
+EDUCATION:
+
+1. Bachelor's Degree in Computer Science Engineering
+   ULACIT — Universidad Latinoamericana de la Ciencia y la Tecnología
+   January 2020 – November 2025 | San José, Costa Rica | EQF Level 6
+
+2. Erasmus+ Exchange Programme — Web App Development & Portuguese Culture
+   Instituto Politécnico de Bragança
+   September 2023 – May 2024 | Bragança, Portugal | EQF Level 6
+
+3. Bachelor's Degree in Administration
+   Universidad Nacional de Costa Rica
+   January 2019 – November 2021 | Heredia, Costa Rica | EQF Level 6
+
+LANGUAGE SKILLS:
+- Spanish: Native
+- English: C1 (Advanced)
+- Portuguese: B2 (Upper Intermediate)
+
+TECHNICAL SKILLS:
+HTML, CSS, JavaScript, Python, React, Firebase, Cloudflare, Full-Stack
+Development, Web Architecture, Responsive Web Design, WCAG 2.1 Accessibility,
+Machine Learning-Assisted Development (Antigravity / Google Gemini),
+Performance Optimisation, SEO, Software Engineering, UX/UI Design.
+
+--- CONTACT PAGE ---
+URL: https://elysiumdr.eu/contact.html
+
+Title: Contact — Elysium λ Development & Research
+Email: info@elysiumdr.eu
+WhatsApp: +351 934086075
+Location: Bragança, Portugal, European Union
+Service area: Portugal, Spain, Costa Rica, European Union, Ibero-America
+
+================================================================================
+PART 2 — ESPAÑOL (ES)
+================================================================================
+
+--- PÁGINA DE INICIO ---
+URL: https://elysiumdr.eu/es/
+
+Título: Elysium λ Development & Research
+Subtítulo: Infraestructura Digital para PYMEs: Consultoría y Servicios TI para PYMEs
+
+Descripción:
+Un laboratorio independiente donde convergen aplicaciones web, sistemas
+inteligentes e investigación aplicada para desarrollar soluciones tecnológicas
+centradas en el desarrollo humano y la sostenibilidad.
+
+Elysium λ Development & Research ofrece infraestructura digital de nivel
+empresarial para pequeñas y medianas empresas (PYMEs) en Europa y América Latina.
+Sede: Bragança, Portugal, Unión Europea. Fundada: enero 2026.
+
+Contacto: info@elysiumdr.eu
+Teléfono/WhatsApp: +351 934086075
+Redes: @elysiumdr (X/Twitter) | @elysium.dr (Instagram)
+
+--- PÁGINA DE SERVICIOS ---
+URL: https://elysiumdr.eu/es/services.html
+
+Título: Servicios — Elysium λ Development & Research
+Descripción: Desarrollo web profesional, diseño, mantenimiento y soporte para
+PYMEs — precios flexibles y transparentes. Portugal, Unión Europea.
+
+INFRAESTRUCTURA DIGITAL DE NIVEL EMPRESARIAL
+
+Modelo de Coste Cero de Desarrollo:
+Infraestructura digital de alto rendimiento incluida en la suscripción mensual.
+No pagas el desarrollo del sitio web — cada cuota mensual es una inversión en
+un ecosistema que evoluciona con tu negocio, garantizando máximo rendimiento,
+seguridad operativa y alta retención de clientes.
+
+PLANES DE SUSCRIPCIÓN:
+
+1. Mantenimiento de Hosting — €99/año (El Núcleo Operativo)
+   - Gestión del dominio e identidad digital de marca.
+   - Alojamiento web en servidores de alta disponibilidad (siempre en línea).
+   - Mantenimiento y actualizaciones de infraestructura base.
+
+2. Mantenimiento Básico — €70/mes (Ecosistema Nivel 1)
+   - Incluye Mantenimiento de Hosting.
+   - Desarrollo completo de tu sitio web corporativo.
+   - Diseño fluido perfectamente adaptado para dispositivos móviles.
+   - Tiempos de carga ultrarrápidos para evitar la pérdida de clientes.
+   - Estructura inclusiva y accesible para todo tipo de usuarios.
+   - Formularios de contacto protegidos contra spam y ataques maliciosos.
+   - Protocolos de seguridad avanzados para proteger la reputación de tu marca.
+   - Cumplimiento total con las regulaciones globales de privacidad (RGPD).
+
+3. Mantenimiento Preferencial — €99/mes (Ecosistema Nivel 2)
+   - Incluye todas las funcionalidades Básicas.
+   - Arquitectura preparada para futuras integraciones de comercio y ventas.
+   - Expansión global: sitio web multilingüe perfectamente estructurado.
+   - Diseño visual inteligente (adaptación automática a modos claro/oscuro).
+   - Motor de conversión de divisas en tiempo real para clientes internacionales.
+
+4. Mantenimiento Avanzado — €120/mes (Ecosistema Nivel 3)
+   - Incluye todas las funcionalidades Preferenciales.
+   - Plataforma privada para gestionar clientes y operaciones (CRM).
+   - Sistema de usuarios con permisos restringidos y niveles de acceso.
+   - Software a medida que escala junto con el crecimiento de tu negocio.
+   - Bases de datos en la nube protegidas por los más altos estándares.
+
+5. CRM Core Personalizado — €50/mes (módulo complementario independiente)
+   - Panel de control intuitivo, elegante y excepcionalmente fácil de usar.
+   - Espacio de trabajo 100% confidencial, separado de tu sitio público.
+   - Acceso directo y centralizado desde tu portal seguro de cliente Elysium.
+
+--- SOBRE NOSOTROS ---
+URL: https://elysiumdr.eu/es/about.html
+
+Misión:
+Investigar y desarrollar sistemas digitales centrados en el desarrollo humano
+y el impulso de las PYMEs a través de la investigación y la innovación tecnológica.
+
+Elysium λ explora cómo los sistemas inteligentes pueden fortalecer las capacidades
+digitales de las pequeñas y medianas empresas, permitiéndoles participar en un
+mundo interconectado en constante evolución.
+
+Visión:
+Evolucionar hacia el λ Elysium Institute of Development & Research — un instituto
+dedicado al estudio, desarrollo y aplicación de sistemas inteligentes, así como
+a la formación de nuevas generaciones de científicos y desarrolladores.
+
+Contribuir activamente a la construcción de una Europa digital, donde la
+inteligencia artificial, la ciencia de datos y los sistemas inteligentes impulsen
+el desarrollo de organizaciones y comunidades, siempre alineados con los más
+altos estándares de educación, el desarrollo ético de la tecnología y los valores
+fundamentales de la Unión Europea.
+
+--- DANIEL MORALES ---
+URL: https://elysiumdr.eu/es/daniel-morales.html
+
+Nombre completo: Daniel Alonso Morales Ávila
+Cargo: Fundador e Ingeniero Informático
+Nacionalidad: Costarricense | Residencia: Bragança, Portugal, Unión Europea
+Email: daniel.morales@elysiumdr.eu
+Teléfono: +351 934086075
+
+Sobre Daniel:
+Con una sólida comprensión tanto de la tecnología como del diseño centrado en
+las personas, Daniel se enfoca en transformar desafíos complejos en soluciones
+estructuradas y escalables. Como Fundador de Elysium λ Development & Research,
+lidera iniciativas en desarrollo web, consultoría técnica e investigación aplicada.
+
+--- CONTACTO ---
+URL: https://elysiumdr.eu/es/contact.html
+
+Email: info@elysiumdr.eu
+WhatsApp: +351 934086075
+Ubicación: Bragança, Portugal, Unión Europea
+Área de servicio: Portugal, España, Costa Rica, Unión Europea, Iberoamérica
+
+================================================================================
+PART 3 — PORTUGUÊS (PT)
+================================================================================
+
+--- PÁGINA INICIAL ---
+URL: https://elysiumdr.eu/pt/
+
+Título: Elysium λ Development & Research
+Subtítulo: Infraestrutura Digital para PMEs: Consultoria e Serviços TI para PMEs
+
+Descrição:
+Um laboratório independente onde convergem aplicações web, sistemas inteligentes
+e investigação aplicada para desenvolver soluções tecnológicas centradas no
+desenvolvimento humano e na sustentabilidade.
+
+Elysium λ Development & Research fornece infraestrutura digital de nível
+empresarial para pequenas e médias empresas (PMEs) na Europa e América Latina.
+Sede: Bragança, Portugal, União Europeia. Fundada: janeiro de 2026.
+
+Contacto: info@elysiumdr.eu
+Telefone/WhatsApp: +351 934086075
+Redes sociais: @elysiumdr (X/Twitter) | @elysium.dr (Instagram)
+
+--- PÁGINA DE SERVIÇOS ---
+URL: https://elysiumdr.eu/pt/services.html
+
+Título: Serviços — Elysium λ Development & Research
+Descrição: Desenvolvimento web profissional, design, manutenção e suporte para
+PMEs — preços flexíveis e transparentes. Portugal, União Europeia.
+
+INFRAESTRUTURA DIGITAL DE NÍVEL EMPRESARIAL
+
+Modelo de Custo Zero de Desenvolvimento:
+Infraestrutura digital de alto desempenho incluída na subscrição mensal.
+Não paga pelo desenvolvimento do website — cada mensalidade é um investimento
+num ecossistema que evolui com o seu negócio, garantindo máxima performance,
+segurança operacional e alta retenção de clientes.
+
+PLANOS DE SUBSCRIÇÃO:
+
+1. Manutenção de Hosting — €99/ano (O Núcleo Operacional)
+   - Gestão do domínio e identidade digital de marca.
+   - Alojamento web em servidores de alta disponibilidade (sempre online).
+   - Manutenção e actualizações de infraestrutura base.
+
+2. Manutenção Básica — €70/mês (Ecossistema Nível 1)
+   - Inclui Manutenção de Hosting.
+   - Desenvolvimento completo do seu website corporativo.
+   - Design fluido perfeitamente adaptado para dispositivos móveis.
+   - Tempos de carregamento ultra-rápidos para evitar perda de clientes.
+   - Estrutura inclusiva e acessível para todos os tipos de utilizadores.
+   - Formulários de contacto protegidos contra spam e ataques maliciosos.
+   - Protocolos de segurança avançados para proteger a reputação da sua marca.
+   - Conformidade total com os regulamentos globais de privacidade (RGPD).
+
+3. Manutenção Preferencial — €99/mês (Ecossistema Nível 2)
+   - Inclui todas as funcionalidades Básicas.
+   - Arquitectura preparada para futuras integrações de comércio e vendas.
+   - Expansão global: website multilingue perfeitamente estruturado.
+   - Design visual inteligente (adaptação automática a modos claro/escuro).
+   - Motor de conversão de divisas em tempo real para clientes internacionais.
+
+4. Manutenção Avançada — €120/mês (Ecossistema Nível 3)
+   - Inclui todas as funcionalidades Preferenciais.
+   - Plataforma privada para gerir clientes e operações (CRM).
+   - Sistema de utilizadores com permissões restritas e níveis de acesso.
+   - Software à medida que escala com o crescimento do seu negócio.
+   - Bases de dados na cloud protegidas pelos mais altos padrões da indústria.
+
+5. CRM Core Personalizado — €50/mês (módulo complementar independente)
+   - Painel de controlo intuitivo, elegante e excepcionalmente fácil de usar.
+   - Espaço de trabalho 100% confidencial, separado do seu site público.
+   - Acesso directo e centralizado a partir do seu portal seguro de cliente Elysium.
+
+--- SOBRE NÓS ---
+URL: https://elysiumdr.eu/pt/about.html
+
+Missão:
+Investigar e desenvolver sistemas digitais centrados no desenvolvimento humano
+e no impulso das PMEs através da investigação e da inovação tecnológica.
+
+Elysium λ explora como os sistemas inteligentes podem fortalecer as capacidades
+digitais das pequenas e médias empresas, permitindo-lhes participar num mundo
+interligado em constante evolução.
+
+Visão:
+Evoluir para o λ Elysium Institute of Development & Research — um instituto
+dedicado ao estudo, desenvolvimento e aplicação de sistemas inteligentes, bem
+como à formação de novas gerações de cientistas e programadores.
+
+Contribuir activamente para a construção de uma Europa digital, onde a inteligência
+artificial, a ciência de dados e os sistemas inteligentes impulsionem o
+desenvolvimento de organizações e comunidades, sempre alinhados com os mais
+elevados padrões de educação, o desenvolvimento ético da tecnologia e os valores
+fundamentais da União Europeia.
+
+--- DANIEL MORALES ---
+URL: https://elysiumdr.eu/pt/daniel-morales.html
+
+Nome completo: Daniel Alonso Morales Ávila
+Cargo: Fundador e Engenheiro Informático
+Nacionalidade: Costarriquenho | Residência: Bragança, Portugal, União Europeia
+Email: daniel.morales@elysiumdr.eu
+Telefone: +351 934086075
+
+Sobre Daniel:
+Com uma sólida compreensão tanto da tecnologia como do design centrado nas
+pessoas, Daniel concentra-se em transformar desafios complexos em soluções
+estruturadas e escaláveis. Como Fundador da Elysium λ Development & Research,
+lidera iniciativas em desenvolvimento web, consultoria técnica e investigação
+aplicada, entregando soluções que integram rigor de engenharia com impacto real
+e mensurável.
+
+--- CONTACTO ---
+URL: https://elysiumdr.eu/pt/contact.html
+
+Email: info@elysiumdr.eu
+WhatsApp: +351 934086075
+Localização: Bragança, Portugal, União Europeia
+Área de serviço: Portugal, Espanha, Costa Rica, União Europeia, Ibero-América
+
+================================================================================
+END OF FILE
+Elysium λ Development & Research | https://elysiumdr.eu | info@elysiumdr.eu
+================================================================================

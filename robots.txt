@@ -1,15 +1,107 @@
+# Elysium λ Development & Research — robots.txt
+# https://elysiumdr.eu
+
+# ──────────────────────────────────────────────
+# DEFAULT: Allow all crawlers
+# ──────────────────────────────────────────────
 User-agent: *
 Allow: /
-
-# Block private/utility pages
 Disallow: /admin.html
 Disallow: /onboarding.html
-Disallow: /seed-licenses.html
 Disallow: /es/onboarding.html
 Disallow: /pt/onboarding.html
+Disallow: /seed-licenses.html
 Disallow: /test-pattern.html
-
-# Block internal JS source (optional but keeps crawl budget lean)
+Disallow: /profiles.html
 Disallow: /rewrite_svg.py
 
+# ──────────────────────────────────────────────
+# AI CRAWLERS — Explicitly allowed
+# ──────────────────────────────────────────────
+
+# OpenAI ChatGPT
+User-agent: GPTBot
+Allow: /
+
+# OpenAI ChatGPT Browsing
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic Claude
+User-agent: ClaudeBot
+Allow: /
+
+# Anthropic Claude (legacy)
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+# Google AI (Gemini / Bard / AI Overviews)
+User-agent: Google-Extended
+Allow: /
+
+# Google Vertex AI
+User-agent: GoogleOther
+Allow: /
+
+# Meta AI (Llama)
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# Meta External Fetcher
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+
+# You.com
+User-agent: YouBot
+Allow: /
+
+# Common Crawl (training data)
+User-agent: CCBot
+Allow: /
+
+# Apple Applebot (Siri / Apple Intelligence)
+User-agent: Applebot
+Allow: /
+
+# Bytedance / Doubao
+User-agent: Bytespider
+Allow: /
+
+# Amazon Alexa
+User-agent: ia_archiver
+Allow: /
+
+# DuckDuckBot (DuckDuckGo AI)
+User-agent: DuckDuckBot
+Allow: /
+
+# Diffbot (AI data extraction)
+User-agent: Diffbot
+Allow: /
+
+# Amazon Kendra (enterprise AI search)
+User-agent: Amazonbot
+Allow: /
+
+# Mistral / Le Chat
+User-agent: MistralBot
+Allow: /
+
+# ──────────────────────────────────────────────
+# AI CONTENT FILES
+# ──────────────────────────────────────────────
+# llms.txt and llms-full.txt are explicitly public and indexable.
+# All crawlers are allowed to read /llms.txt and /llms-full.txt.
+
+# ──────────────────────────────────────────────
+# SITEMAP
+# ──────────────────────────────────────────────
 Sitemap: https://elysiumdr.eu/sitemap.xml
