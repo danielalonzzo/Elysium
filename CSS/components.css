@@ -432,10 +432,10 @@
 /* ── Animated Lambda (premium metallic text-reveal effect) ── */
 .hero-symbol-bg {
     position: absolute;
-    top: 58%;
-    left: 53%; /* Centrado óptico (desplaza el peso visual hacia la derecha) */
+    top: 55%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 45vw;
+    font-size: 38vw;
     font-weight: 200; 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1;
@@ -1934,7 +1934,7 @@ footer {
 
     /* Hero Section */
     .hero {
-        padding-top: calc(var(--header-height) + 20px);
+        padding-top: calc(var(--header-height) + 120px);
         min-height: 60vh; /* Reduced height to pull tools section up */
         min-height: 60dvh;
         padding-bottom: 2rem; /* Reduced padding to bring sections closer */

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es-CR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary SEO -->
+    <title>Elysium λ | Desarrollo de Infraestructura Digital para pymes en España</title>
+    <meta name="description"
+        content="Elysium desarrolla infraestructura digital escalable para pymes en España. Especialistas en modernización web, CRM a medida sin coste inicial y adaptación RGPD.">
+    <meta name="keywords"
+        content="Desarrollo de infraestructura digital para pymes España, Modernización web para pymes europeas, Cómo implementar un CRM a medida sin coste inicial, Adaptación RGPD para webs en España, transformación digital, escalabilidad, modelo de suscripción">
+    <meta name="author" content="Daniel Morales — Elysium Development & Research">
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical & hreflang -->
+    <link rel="canonical" href="https://elysiumdr.eu/es/">
+    <link rel="alternate" hreflang="en" href="https://elysiumdr.eu/">
+    <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/">
+    <link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/">
+    <link rel="alternate" hreflang="es-ES" href="https://elysiumdr.eu/es/infraestructura-digital-pymes-espana.html">
+    <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica.html">
+    <link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal.html">
+    <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://elysiumdr.eu/es/">
+    <meta property="og:title" content="Elysium λ Development & Research">
+    <meta property="og:description"
+        content="Un laboratorio independiente donde las aplicaciones web, los sistemas inteligentes y la investigación aplicada convergen para desarrollar soluciones tecnológicas centradas en el desarrollo humano y la sostenibilidad.">
+    <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+    <meta property="og:site_name" content="Elysium λ Development & Research">
+    <meta property="og:locale" content="es_CR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@elysiumdr">
+    <meta name="twitter:title" content="Elysium λ Development & Research">
+    <meta name="twitter:description"
+        content="Un laboratorio independiente donde las aplicaciones web, los sistemas inteligentes y la investigación aplicada convergen para desarrollar soluciones tecnológicas centradas en el desarrollo humano y la sostenibilidad.">
+    <meta name="twitter:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": ["Organization", "ResearchOrganization"],
+          "name": "Elysium Development & Research",
+          "alternateName": ["ElysiumDR", "Elysium λ", "Elysium web", "Elysium Daniel"],
+          "url": "https://elysiumdr.eu",
+          "logo": "https://elysiumdr.eu/Images/favicon-512.png",
+          "sameAs": [
+            "https://x.com/elysiumdr",
+            "https://www.instagram.com/elysium.dr"
+          ]
+        },
+        {
+          "@type": "LocalBusiness",
+          "name": "Elysium Development & Research",
+          "image": "https://elysiumdr.eu/Images/favicon-512.png",
+          "description": "Agencia web profesional que desarrolla sitios y soluciones digitales para pymes en Europa e Iberoamérica.",
+          "founder": {
+            "@type": "Person",
+            "name": "Daniel Morales"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Bragança",
+            "addressRegion": "Bragança",
+            "addressCountry": "PT"
+          },
+          "areaServed": ["Unión Europea", "Costa Rica", "España", "Portugal", "Iberoamérica"],
+          "serviceType": ["Desarrollo Web", "Diseño Web", "Consultoría Web", "Estrategia Digital", "Infraestructura Digital"],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@elysiumdr.eu",
+            "contactType": "customer support"
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../CSS/base.css">
+    <link rel="stylesheet" href="../CSS/components.css">
+    <link rel="stylesheet" href="../CSS/pages.css">
+
+    <!-- Favicon suite -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="../favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="apple-touch-icon" href="../Images/apple-touch-icon.png">
+    <meta name="theme-color" content="#020410">
+</head>
+
+<body>
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">
+                <span class="brand-symbol">λ</span> ELYSIUM
+            </a>
+            <div class="nav-links">
+                <a href="services.html" class="nav-link">Servicios</a>
+                <a href="portfolio.html" class="nav-link">Portafolio</a>
+                <a href="research.html" class="nav-link">Investigación</a>
+                <a href="about.html" class="nav-link">Nosotros</a>
+                <a href="profiles.html" class="nav-link">Cuenta</a>
+                <a href="contact.html" class="btn btn-primary">Contacto</a>
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Seleccionar idioma"><span class="lang-current-label">ES</span> <img src="../images/banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="../index.html" role="menuitem">English <img src="../images/banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="index.html" role="menuitem">Español <img src="../images/banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="../pt/index.html" role="menuitem">Português <img src="../images/banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <!-- Animated Lambda (premium text-reveal effect) -->
+        <div class="hero-symbol-bg">λ</div>
+        <div class="hero-content animate-on-scroll">
+            <p class="hero-subtitle">Elysium λ | España</p>
+            <h1>Desarrollo de infraestructura digital para pymes en España</h1>
+            <p style="margin-bottom: 2rem; color: var(--color-text-secondary); max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">Lideramos la <strong>transformación digital</strong> y <strong>escalabilidad</strong> con modernización web para pymes europeas, implementación de CRM a medida sin coste inicial bajo un <strong>modelo de suscripción</strong> y adaptación RGPD.</p>
+            <div class="hero-cta">
+                <a href="contact.html" class="btn btn-primary">Iniciar un proyecto</a>
+                <a href="services.html" class="btn">Ver servicios</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tools Carousel -->
+    <section class="section-brands"
+        style="padding: 2rem 0; text-align: center; border-bottom: 1px solid var(--glass-border); overflow: hidden; background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(255, 255, 255, 0.02) 50%, rgba(0,0,0,0));">
+        <div class="container animate-on-scroll">
+            <p
+                style="opacity: 0.5; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">
+                Nuestras herramientas</p>
+
+            <div class="logos">
+                <div class="logos-slide">
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Antigravity.png" alt="Antigravity" />
+                        <span>Antigravity</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/GitHub.png" alt="GitHub" />
+                        <span>GitHub</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/HTML5.png" alt="HTML5" />
+                        <span>HTML5</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/CSS3.png" alt="CSS3" />
+                        <span>CSS3</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/JavaScript.png" alt="JavaScript" />
+                        <span>JavaScript</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Cloudflare.png" alt="Cloudflare" />
+                        <span>Cloudflare</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/IONOS.svg" alt="IONOS" />
+                        <span>IONOS</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Python.png" alt="Python" />
+                        <span>Python</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Firebase.png" alt="Firebase" />
+                        <span>Firebase</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Git.png" alt="Git" />
+                        <span>Git</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/NPM.png" alt="NPM" />
+                        <span>NPM</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Node.js.png" alt="Node.js" />
+                        <span>Node.js</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/cPanel.png" alt="cPanel" />
+                        <span>cPanel</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/stripe.jpeg" alt="Stripe" />
+                        <span>Stripe</span>
+                    </div>
+                </div>
+                <!-- Duplicate for infinite loop -->
+                <div class="logos-slide">
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Antigravity.png" alt="Antigravity" />
+                        <span>Antigravity</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/GitHub.png" alt="GitHub" />
+                        <span>GitHub</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/HTML5.png" alt="HTML5" />
+                        <span>HTML5</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/CSS3.png" alt="CSS3" />
+                        <span>CSS3</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/JavaScript.png" alt="JavaScript" />
+                        <span>JavaScript</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Cloudflare.png" alt="Cloudflare" />
+                        <span>Cloudflare</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/IONOS.svg" alt="IONOS" />
+                        <span>IONOS</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Python.png" alt="Python" />
+                        <span>Python</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Firebase.png" alt="Firebase" />
+                        <span>Firebase</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Git.png" alt="Git" />
+                        <span>Git</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/NPM.png" alt="NPM" />
+                        <span>NPM</span>
+                    </div>
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/Node.js.png" alt="Node.js" />
+                        <span>Node.js</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/cPanel.png" alt="cPanel" />
+                        <span>cPanel</span>
+                    </div>
+
+                    <div class="logo-item">
+                        <img src="../Images/OUR TOOLS/stripe.jpeg" alt="Stripe" />
+                        <span>Stripe</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Teaser -->
+    <section class="services section">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <h2>Áreas de Especialización en Transformación Digital</h2>
+                <p>Pilares de desarrollo web serverless y escalabilidad para pymes europeas.</p>
+            </div>
+            <div class="card-grid">
+                <div class="card animate-on-scroll delay-1" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">01</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Diseño de interfaces digitales fundamentadas en la ergonomía cognitiva y el comportamiento empírico del usuario.</p>
+                        <div class="expand-indicator" style="display: none;">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Optimización de Respuesta Visual:</strong> Arquitecturas de renderizado que garantizan una interacción sin latencia percibida en pantalla, eliminando la fricción y los tiempos de carga durante transacciones o navegaciones.</li>
+                            <li><strong>Ingeniería de Flujos de Trabajo:</strong> Estructuración de procesos operativos complejos (formularios dinámicos, agendamiento de citas) en secuencias algorítmicas modulares para reducir la fatiga y el error humano.</li>
+                            <li><strong>Estandarización y Accesibilidad Universal:</strong> Construcción bajo normativas internacionales (W3C / WCAG 2.1) con tipografía de sistema nativa y adaptabilidad de contraste ambiental, asegurando viabilidad operativa en cualquier dispositivo.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card animate-on-scroll delay-2" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">02</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Despliegue de infraestructuras en la nube modulares y escalables.</p>
+                        <div class="expand-indicator" style="display: none;">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Infraestructura Serverless:</strong> Sustitución de servidores estáticos por ecosistemas orientados a eventos que se adaptan dinámicamente al volumen de tráfico, garantizando alta disponibilidad sin caídas de servicio.</li>
+                            <li><strong>Sincronización de Datos Concurrente:</strong> Implementación de protocolos de comunicación continua que permiten la propagación y actualización instantánea de la información en toda la plataforma para todos los usuarios simultáneamente.</li>
+                            <li><strong>Interoperabilidad y Orquestación:</strong> Integración programática (vía APIs) con ecosistemas de terceros —como calendarios corporativos o pasarelas financieras— para la ejecución automática de flujos de trabajo sin intervención humana.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card animate-on-scroll delay-3" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">03</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Arquitectura de Sistemas de Gestión (CRM) a Medida</p>
+                        <div class="expand-indicator" style="display: none;">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Ingeniería Funcional sin Restricciones:</strong> Desarrollo de la capa de software sin dependencias de plataformas prefabricadas. Esto permite programar módulos específicos (gestión financiera, generación automatizada de documentos, facturación) adaptados a las reglas exactas de su negocio.</li>
+                            <li><strong>Modelado de Procesos y Pipelines de Datos:</strong> Construcción de embudos operativos dinámicos que reflejan, automatizan y auditan el ciclo de vida real de los clientes o proyectos, desde la interacción inicial hasta la entrega final del servicio.</li>
+                            <li><strong>Centralización y Trazabilidad Operativa:</strong> Unificación de toda la telemetría del negocio en un único panel de control de alta concurrencia. Garantiza que la información crítica esté siempre actualizada, estructurada y disponible de manera inmediata para el personal autorizado.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card animate-on-scroll delay-4" onclick="this.classList.toggle('expanded')">
+                    <div class="card-number">04</div>
+                    <div class="card-glow"></div>
+                    <div class="card-summary">
+                        <p>Construcción de sistemas bajo el paradigma Security-by-Design, integrando barreras criptográficas y protocolos de gobernanza de datos.</p>
+                        <div class="expand-indicator" style="display: none;">+</div>
+                    </div>
+                    <div class="card-details">
+                        <ul>
+                            <li><strong>Defensa Criptográfica de la Información:</strong> Aplicación de estándares de encriptación y validación matemática (hashes seguros) para proteger transferencias de datos sensibles y comunicaciones transaccionales contra interceptaciones.</li>
+                            <li><strong>Control de Privilegios y Acceso Estricto (RBAC):</strong> Arquitectura de bases de datos que valida el nivel de autorización de cada individuo antes de cualquier interacción, previniendo escaladas de privilegios y accesos no autorizados a paneles de administración.</li>
+                            <li><strong>Alineación con Marcos Legales Internacionales (Compliance):</strong> Diseño de mecanismos de auditoría y recolección de datos que aíslan explícitamente el consentimiento del usuario, cumpliendo con el rigor técnico del RGPD europeo y normativas de privacidad locales.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center" style="margin-top: 3rem;">
+                <a href="services.html" class="btn">Explorar todos los servicios</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology Timeline Section -->
+    <section id="metodologia" class="timeline-section section" style="background: var(--color-bg-secondary); position: relative;">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <h2>Metodología científica</h2>
+                <p>Modelo λ de Desarrollo Framework</p>
+            </div>
+
+            <div class="timeline-container">
+                <!-- Línea central luminosa -->
+                <div class="timeline-track">
+                    <div class="timeline-progress"></div>
+                </div>
+
+                <!-- Pasos de la metodología -->
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">01</div>
+                        <h3 class="step-title">Observación del Entorno Operativo (Antecedentes)</h3>
+                        <p class="step-desc">Auditoría sistémica inicial. Evaluamos la topología actual de su organización, analizando sus flujos de datos, procesos diarios y el contexto operativo de su industria antes de postular cualquier intervención.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">02</div>
+                        <h3 class="step-title">Estado del Arte y Limitaciones (¿Qué se sabe?)</h3>
+                        <p class="step-desc">Análisis forense de sus herramientas actuales. Documentamos las infraestructuras tecnológicas que su empresa ya utiliza, evaluando sus niveles de rendimiento, deuda técnica y restricciones de escalabilidad.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">03</div>
+                        <h3 class="step-title">Aislamiento de Variables Críticas (¿Qué no se sabe?)</h3>
+                        <p class="step-desc">Identificación de ineficiencias sistémicas. Detectamos los procesos manuales propensos a error, las latencias en la sincronización de datos y las vulnerabilidades de cumplimiento legal que los sistemas comerciales estándar no logran resolver.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">04</div>
+                        <h3 class="step-title">Definición del Problema de Ingeniería (Pregunta de Investigación)</h3>
+                        <p class="step-desc">Formulación exacta del desafío arquitectónico. Definimos con precisión matemática el problema central que la nueva topología de software debe resolver para automatizar y escalar su operación.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">05</div>
+                        <h3 class="step-title">Justificación del Impacto (¿Por qué debería resolverse?)</h3>
+                        <p class="step-desc">Proyección del retorno operativo. Cuantificamos el valor empírico de la solución: mitigación de riesgos legales (Compliance), eliminación de tiempos muertos y aumento de la autonomía tecnológica de su empresa a largo plazo.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">06</div>
+                        <h3 class="step-title">Formulación de la Arquitectura (Hipótesis)</h3>
+                        <p class="step-desc">Postulado de solución estructural. Proponemos la arquitectura de software específica (ej. un ecosistema Serverless, un CRM a medida o una Interfaz de alta fidelidad) como la respuesta técnica exacta al problema planteado.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">07</div>
+                        <h3 class="step-title">Selección de Pila Tecnológica (¿Qué métodos hay?)</h3>
+                        <p class="step-desc">Evaluación algorítmica y de infraestructura. Determinamos los protocolos de comunicación, bases de datos y barreras criptográficas óptimas, garantizando que la tecnología seleccionada se adapte a su problema, y no al revés.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">08</div>
+                        <h3 class="step-title">Diseño Estructural y Flujos de Datos (Diseño Experimental)</h3>
+                        <p class="step-desc">Modelado del ecosistema. Construimos la arquitectura de la información, el diseño de la interacción humano-computadora (HCI) y planificamos las iteraciones de desarrollo bajo un control estricto de variables.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item left animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">09</div>
+                        <h3 class="step-title">Desarrollo, Testeo y Auditoría (Experimentos y QA)</h3>
+                        <p class="step-desc">Ingeniería pura y pruebas de estrés. Codificación de la plataforma sometida a pruebas unitarias continuas, validación de mecanismos de seguridad (Control de Accesos) y auditorías de cumplimiento normativo (RGPD) en entornos cerrados.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item right animate-on-scroll">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-panel">
+                        <div class="step-number">10</div>
+                        <h3 class="step-title">Despliegue y Transferencia Tecnológica (Conclusiones y Publicación)</h3>
+                        <p class="step-desc">Migración a producción y entrega. Lanzamiento del sistema en infraestructuras de alta disponibilidad, sincronización final de datos y transferencia del conocimiento operativo a su equipo mediante capacitación especializada.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Research Teaser -->
+    <section class="research-teaser section">
+        <div class="container">
+            <div class="research-teaser-flex">
+                <div class="animate-on-scroll" style="flex: 1; min-width: 300px; padding-right: 2rem;">
+                    <h2>Investigación y Desarrollo (I+D)</h2>
+                    <p class="mb-md" style="text-align: justify;">Elysium λ opera como un laboratorio independiente de ingeniería de software e investigación aplicada. En lugar de replicar fórmulas comerciales, aplicamos el rigor del método empírico para diseccionar problemas operativos y construir arquitecturas digitales desde sus fundamentos.<br><br>Desde Europa, analizamos la intersección entre la Interacción Humano-Computadora (HCI), las infraestructuras en la nube (Serverless) y la criptografía aplicada. Nuestro propósito es democratizar el acceso a la ingeniería de alto nivel, permitiendo a las organizaciones escalar sus operaciones mediante ecosistemas tecnológicos precisos, resilientes y auditables.<br><br>No construimos simples interfaces; transformamos la investigación tecnológica en infraestructura operativa. Combinamos pensamiento científico, diseño algorítmico y experimentación continua para entregar software que resuelve ineficiencias estructurales de manera definitiva.</p>
+                    <a href="research.html" class="btn btn-primary">Research Lab</a>
+                </div>
+                <div class="animate-on-scroll delay-1"
+                    style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
+                    <h4>Declaración de Misión</h4>
+                    <p style="margin-bottom: 0;">Traducir el rigor metodológico en soluciones de software tangibles. Nuestra misión es construir ecosistemas digitales que eliminen la fricción operativa, mecanicen flujos de trabajo complejos y devuelvan el control tecnológico a las organizaciones, priorizando siempre la seguridad estructural y el conocimiento abierto.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials section" style="border-top: 1px solid var(--color-border);">
+        <div class="container animate-on-scroll">
+            <h2 class="text-center mb-lg">Testimonios de particulares y empresas</h2>
+            <a href="review-pmorais.html" style="text-decoration: none; display: block; cursor: pointer;">
+            <div class="testimonial-carousel" style="transition: box-shadow 0.3s ease, transform 0.3s ease;" onmouseover="this.style.boxShadow='0 16px 60px rgba(41,151,255,0.25)';this.style.transform='translateY(-3px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+                <div class="testimonial-content">
+                    <blockquote class="testimonial-quote">
+                        "Antes del desarrollo de la página, enfrentábamos algunas dificultades en la forma en que comunicábamos nuestra oferta y llegábamos al público objetivo, lo que limitaba la visibilidad de nuestro trabajo y la captación de nuevos clientes."
+                    </blockquote>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem;">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; border: 2px solid var(--color-accent); flex-shrink: 0;">
+                            <img src="../Images/Portfolio/logo_ios_android.png" alt="Paulo Morais" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-weight: 700; color: var(--color-text-primary); font-size: 1rem;">Paulo Morais</div>
+                            <div style="color: var(--color-accent); font-size: 0.85rem; font-weight: 600;">Osteópata &amp; Entrenador Especialista</div>
+                            <div style="color: var(--color-text-secondary); font-size: 0.8rem;">Fundador de Consciênciavaliativa - Unipessoal Lda</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-indicators"></div>
+            </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- CTA Final -->
+    <section class="cta-final section text-center">
+        <div class="container animate-on-scroll">
+            <h2 class="mb-md">Eleve su presencia digital</h2>
+            <p class="mb-lg">Presencia web profesional para su empresa. Construida sobre valores europeos.</p>
+            <a href="contact.html" class="btn btn-primary">Agendar consulta</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand-wrapper">
+                        <a href="index.html" class="nav-brand " style="display:inline-block;">
+                            <span class="brand-symbol">λ</span> ELYSIUM
+                        </a>
+                        <div class="lang-switcher-dropdown footer-lang-switcher">
+                            <button type="button" class="lang-switcher-trigger" aria-expanded="false"
+                                aria-haspopup="true" aria-label="Seleccionar idioma"><span
+                                    class="lang-current-label">ES</span> <img src="../images/banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
+                                    aria-hidden="true">▼</span></button>
+                            <div class="lang-switcher-menu" role="menu">
+                                <a href="../index.html" role="menuitem">English <img src="../images/banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="index.html" role="menuitem">Español <img src="../images/banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="../pt/index.html" role="menuitem">Português <img src="../images/banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, Unión Europea</p>
+                    <p class="footer-service-note">También en Hispanoamérica.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Empresa</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">Nosotros</a></li>
+                        <li><a href="services.html">Servicios</a></li>
+                        <li><a href="research.html">Investigación</a></li>
+                        <li><a href="portfolio.html">Portafolio</a></li>
+                        <li><a href="contact.html">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy.html">Política de privacidad</a></li>
+                        <li><a href="terms.html">Términos de servicio</a></li>
+                        <li><a href="https://www.livroreclamacoes.pt/Pedido/Reclamacao" target="_blank"
+                                rel="noopener noreferrer">Livro de Reclamações</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Conectar</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://www.linkedin.com/company/elysiumdr" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                        <li><a href="https://x.com/elysiumdr?s=21">Twitter</a></li>
+                        <li><a
+                                href="https://www.instagram.com/elysium.dr?igsh=YmFhNnlqbWttM3h0&utm_source=qr">Instagram</a>
+                        </li>
+                        <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Elysium λ Development & Research. Todos los derechos reservados.</span>
+                <span class="brand-symbol footer-lambda">λ</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../JS/main.js"></script>
+    <script src="../JS/version-modal.js"></script>
+    <script src="../JS/service-modal.js"></script>
+</body>
+
+</html>

@@ -17,8 +17,12 @@
     <!-- Canonical & hreflang -->
     <link rel="canonical" href="https://elysiumdr.eu/">
     <link rel="alternate" hreflang="en" href="https://elysiumdr.eu/">
+    <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/">
     <link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/">
+    <link rel="alternate" hreflang="es-ES" href="https://elysiumdr.eu/es/infraestructura-digital-pymes-espana.html">
+    <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica.html">
     <link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal.html">
     <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/">
 
     <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
@@ -41,36 +45,45 @@
         content="An independent laboratory where web applications, intelligent systems, and applied research converge to develop technological solutions centered on human development and sustainability.">
     <meta name="twitter:image" content="https://elysiumdr.eu/Images/favicon-512.png">
 
-    <!-- Structured Data: Organisation -->
+    <!-- Structured Data: Organisation & LocalBusiness -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "ProfessionalService",
-      "name": "Elysium Development & Research",
-      "alternateName": ["ElysiumDR", "Elysium λ", "Elysium web", "Elysium Daniel"],
-      "url": "https://elysiumdr.eu",
-      "logo": "https://elysiumdr.eu/Images/favicon-512.png",
-      "image": "https://elysiumdr.eu/Images/favicon-512.png",
-      "description": "Professional web agency building websites and digital solutions for SMEs in Europe and Latin America.",
-      "founder": {
-        "@type": "Person",
-        "name": "Daniel Morales"
-      },
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "PT",
-        "addressRegion": "Portugal"
-      },
-      "areaServed": ["EU", "Costa Rica", "España", "Portugal", "Iberoamérica"],
-      "serviceType": ["Web Development", "Web Design", "Web Consultancy", "Digital Strategy"],
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "info@elysiumdr.eu",
-        "contactType": "customer support"
-      },
-      "sameAs": [
-        "https://x.com/elysiumdr",
-        "https://www.instagram.com/elysium.dr"
+      "@graph": [
+        {
+          "@type": ["Organization", "ResearchOrganization"],
+          "name": "Elysium Development & Research",
+          "alternateName": ["ElysiumDR", "Elysium λ", "Elysium web", "Elysium Daniel"],
+          "url": "https://elysiumdr.eu",
+          "logo": "https://elysiumdr.eu/Images/favicon-512.png",
+          "sameAs": [
+            "https://x.com/elysiumdr",
+            "https://www.instagram.com/elysium.dr"
+          ]
+        },
+        {
+          "@type": "LocalBusiness",
+          "name": "Elysium Development & Research",
+          "image": "https://elysiumdr.eu/Images/favicon-512.png",
+          "description": "Professional web agency building websites and digital solutions for SMEs in Europe and Latin America.",
+          "founder": {
+            "@type": "Person",
+            "name": "Daniel Morales"
+          },
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Bragança",
+            "addressRegion": "Bragança",
+            "addressCountry": "PT"
+          },
+          "areaServed": ["Portugal", "España", "Costa Rica", "EU", "Iberoamérica"],
+          "serviceType": ["Web Development", "Web Design", "Web Consultancy", "Digital Strategy", "Digital Infrastructure"],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "email": "info@elysiumdr.eu",
+            "contactType": "customer support"
+          }
+        }
       ]
     }
     </script>
@@ -133,12 +146,12 @@
                 <a href="contact.html" class="btn btn-primary">Contact</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Select language"><span class="lang-current-label">EN</span> 🇬🇧 <span
+                        aria-label="Select language"><span class="lang-current-label">EN</span> <img src="images/banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
-                        <a href="index.html" role="menuitem">English 🇬🇧</a>
-                        <a href="es/index.html" role="menuitem">Español 🇨🇷</a>
-                        <a href="pt/index.html" role="menuitem">Português 🇵🇹</a>
+                        <a href="index.html" role="menuitem">English <img src="images/banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="es/index.html" role="menuitem">Español <img src="images/banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="pt/index.html" role="menuitem">Português <img src="images/banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                     </div>
                 </div>
             </div>
@@ -152,8 +165,7 @@
         <div class="hero-symbol-bg">λ</div>
         <div class="hero-content animate-on-scroll">
             <p class="hero-subtitle">Development & Research</p>
-            <h1>Digital Infrastructure for SMEs: <span class="hero-title-suffix">Research, Web Applications, and
-                    Intelligent Systems.</span></h1>
+            <h1>Digital Infrastructure for SMEs: <span class="hero-title-suffix">IT Consulting and Services for SMEs</span></h1>
             <div class="hero-cta">
                 <a href="contact.html" class="btn btn-primary">Start a Project</a>
                 <a href="services.html" class="btn">View Services</a>
@@ -552,12 +564,12 @@
                         <div class="lang-switcher-dropdown footer-lang-switcher">
                             <button type="button" class="lang-switcher-trigger" aria-expanded="false"
                                 aria-haspopup="true" aria-label="Select language"><span
-                                    class="lang-current-label">EN</span> 🇬🇧 <span class="lang-arrow"
+                                    class="lang-current-label">EN</span> <img src="images/banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
                                     aria-hidden="true">▼</span></button>
                             <div class="lang-switcher-menu" role="menu">
-                                <a href="index.html" role="menuitem">English 🇬🇧</a>
-                                <a href="es/index.html" role="menuitem">Español 🇨🇷</a>
-                                <a href="pt/index.html" role="menuitem">Português 🇵🇹</a>
+                                <a href="index.html" role="menuitem">English <img src="images/banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="es/index.html" role="menuitem">Español <img src="images/banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="pt/index.html" role="menuitem">Português <img src="images/banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                             </div>
                         </div>
                     </div>
