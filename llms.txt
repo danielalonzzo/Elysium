@@ -1,6 +1,6 @@
 # Elysium λ Development & Research
 
-> An independent laboratory where web applications, intelligent systems, and applied research converge to develop technological solutions centred on human development and sustainability.
+> Digital Infrastructure for SMEs. IT Consulting and Services
 
 - Website: https://elysiumdr.eu
 - Contact: info@elysiumdr.eu

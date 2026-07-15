@@ -20,9 +20,7 @@ Title: Elysium λ Development & Research
 Subtitle: Digital Infrastructure for SMEs: IT Consulting and Services for SMEs
 
 Description:
-An independent laboratory where web applications, intelligent systems, and
-applied research converge to develop technological solutions centred on human
-development and sustainability.
+Digital Infrastructure for SMEs. IT Consulting and Services
 
 Elysium λ Development & Research provides enterprise-grade digital
 infrastructure for small and medium-sized enterprises (SMEs) in Europe and
@@ -36,8 +34,7 @@ Social: @elysiumdr (X/Twitter) | @elysium.dr (Instagram)
 URL: https://elysiumdr.eu/services.html
 
 Title: Services — Elysium λ Development & Research
-Description: Professional web development, design, maintenance and support for
-SMEs — flexible, transparent pricing. Portugal, European Union.
+Description: Zero Development Costs: High-performance digital infrastructure included in your monthly subscription.
 
 ENTERPRISE-GRADE DIGITAL INFRASTRUCTURE
 
@@ -264,9 +261,7 @@ Título: Elysium λ Development & Research
 Subtítulo: Infraestructura Digital para PYMEs: Consultoría y Servicios TI para PYMEs
 
 Descripción:
-Un laboratorio independiente donde convergen aplicaciones web, sistemas
-inteligentes e investigación aplicada para desarrollar soluciones tecnológicas
-centradas en el desarrollo humano y la sostenibilidad.
+Infraestructura Digital para PYMES. Consultoría y Servicios TI
 
 Elysium λ Development & Research ofrece infraestructura digital de nivel
 empresarial para pequeñas y medianas empresas (PYMEs) en Europa y América Latina.
@@ -383,9 +378,7 @@ Título: Elysium λ Development & Research
 Subtítulo: Infraestrutura Digital para PMEs: Consultoria e Serviços TI para PMEs
 
 Descrição:
-Um laboratório independente onde convergem aplicações web, sistemas inteligentes
-e investigação aplicada para desenvolver soluções tecnológicas centradas no
-desenvolvimento humano e na sustentabilidade.
+Infraestrutura Digital para PMEs. Consultoria e Serviços de TI
 
 Elysium λ Development & Research fornece infraestrutura digital de nível
 empresarial para pequenas e médias empresas (PMEs) na Europa e América Latina.
