@@ -454,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let converted = Math.round(basePrice * rate);
 
         if (currency === 'EUR') {
-            return `€${basePrice.toLocaleString('es-ES')}`;
+            return `${basePrice.toLocaleString('es-ES')} €`;
         } else if (currency === 'USD') {
             return `$${converted.toLocaleString('en-US')}`;
         } else if (currency === 'CRC') {
