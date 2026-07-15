@@ -15,7 +15,7 @@
     'use strict';
 
     // ── Configuration ─────────────────────────────────────────────────────────
-    var APP_VERSION       = 'V1.2.2';
+    var APP_VERSION       = 'V1.2.3';
     var MODAL_ID          = 'elysium-system-info-modal';
     var VERSION_TAG_CLASS = 'elysium-version-tag';
     var ACCENT            = '#2997ff';   // Elysium brand electric blue

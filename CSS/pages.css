@@ -199,7 +199,7 @@
 
 .step-desc {
     font-size: 0.95rem;
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.85); /* Improved contrast for readability */
     line-height: 1.6;
     position: relative;
     z-index: 1;

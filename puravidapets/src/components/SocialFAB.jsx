@@ -14,12 +14,11 @@ export default function SocialFAB() {
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
-  // Initialize theme from localStorage or system preferences
+  // Initialize theme from localStorage, default to light
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     
-    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && systemPrefersDark);
+    const shouldBeDark = savedTheme === 'dark';
     setIsDark(shouldBeDark);
     
     if (shouldBeDark) {
