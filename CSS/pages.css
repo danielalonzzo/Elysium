@@ -39,7 +39,7 @@
 /* Solid shield above the sticky header to block content bleeding through the navbar */
 .timeline-section .section-header::before {
     content: '';
-    display: inline-block;
+    position: absolute;
     top: calc(-1 * var(--header-height, 70px));
     left: -9999px;
     right: -9999px;
@@ -58,19 +58,19 @@
 
 /* Línea Central Base */
 .timeline-track {
-    display: inline-block;
+    position: absolute;
     top: 0;
     bottom: 0;
-    
+    left: 50%;
     width: 2px;
     background: rgba(255, 255, 255, 0.1);
-    
+    transform: translateX(-50%);
     border-radius: 2px;
 }
 
 /* Línea Central que se ilumina con JS (Progreso) */
 .timeline-progress {
-    display: inline-block;
+    position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -103,7 +103,7 @@
 
 /* KEY FIX: use margin-left instead of left so position:sticky can take over */
 .timeline-item.right {
-    margin-
+    margin-left: 50%;
     align-items: flex-start;
     text-align: left;
 }
@@ -139,7 +139,7 @@
 
 /* Punto indicador iluminado */
 .timeline-dot {
-    display: inline-block;
+    position: absolute;
     top: 30px;
     width: 16px;
     height: 16px;
@@ -180,14 +180,7 @@
     border-radius: 20px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    transition: all 0.4s ease;
-}
-
-.timeline-item.is-dimmed .timeline-content {
-    opacity: 0.25;
-    transform: scale(0.95);
-    pointer-events: none;
-    filter: grayscale(80%);
+    transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
 .timeline-content:hover {
@@ -202,7 +195,7 @@
     font-size: 4rem;
     font-weight: 800;
     color: rgba(255, 255, 255, 0.05);
-    display: inline-block;
+    position: absolute;
     top: 0;
     right: 20px;
     line-height: 1;
