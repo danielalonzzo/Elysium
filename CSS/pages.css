@@ -39,7 +39,7 @@
 /* Solid shield above the sticky header to block content bleeding through the navbar */
 .timeline-section .section-header::before {
     content: '';
-    position: absolute;
+    display: inline-block;
     top: calc(-1 * var(--header-height, 70px));
     left: -9999px;
     right: -9999px;
@@ -58,19 +58,19 @@
 
 /* Línea Central Base */
 .timeline-track {
-    position: absolute;
+    display: inline-block;
     top: 0;
     bottom: 0;
-    left: 50%;
+    
     width: 2px;
     background: rgba(255, 255, 255, 0.1);
-    transform: translateX(-50%);
+    
     border-radius: 2px;
 }
 
 /* Línea Central que se ilumina con JS (Progreso) */
 .timeline-progress {
-    position: absolute;
+    display: inline-block;
     top: 0;
     left: 0;
     width: 100%;
@@ -103,7 +103,7 @@
 
 /* KEY FIX: use margin-left instead of left so position:sticky can take over */
 .timeline-item.right {
-    margin-left: 50%;
+    margin-
     align-items: flex-start;
     text-align: left;
 }
@@ -139,7 +139,7 @@
 
 /* Punto indicador iluminado */
 .timeline-dot {
-    position: absolute;
+    display: inline-block;
     top: 30px;
     width: 16px;
     height: 16px;
@@ -202,7 +202,7 @@
     font-size: 4rem;
     font-weight: 800;
     color: rgba(255, 255, 255, 0.05);
-    position: absolute;
+    display: inline-block;
     top: 0;
     right: 20px;
     line-height: 1;
@@ -496,7 +496,7 @@ textarea.form-control {
 
 .developer-photo::before {
     content: '';
-    position: absolute;
+    display: inline-block;
     inset: -15px;
     background: radial-gradient(circle, rgba(40, 151, 255, 0.45) 0%, transparent 75%);
     border-radius: 50%;
@@ -608,7 +608,7 @@ textarea.form-control {
 
 .profile-hero-img-wrapper::before {
     content: '';
-    position: absolute;
+    display: inline-block;
     inset: -30px;
     /* Wider glow area */
     background: radial-gradient(circle, rgba(40, 151, 255, 0.5) 0%, transparent 75%);
@@ -797,7 +797,7 @@ textarea.form-control {
 
 .cv-about-card::before {
     content: '';
-    position: absolute;
+    display: inline-block;
     inset: -20px;
     background: radial-gradient(circle at 20% 30%, rgba(40, 151, 255, 0.08) 0%, transparent 60%);
     border-radius: inherit;
@@ -819,7 +819,7 @@ textarea.form-control {
 
 .cv-timeline::before {
     content: '';
-    position: absolute;
+    display: inline-block;
     top: 5px;
     bottom: 5px;
     left: 4px;
@@ -893,7 +893,7 @@ textarea.form-control {
 }
 
 .cv-timeline-dot {
-    position: absolute;
+    display: inline-block;
     left: -1.45rem;
     top: 1.25rem;
     width: 12px;
@@ -948,7 +948,7 @@ textarea.form-control {
 
 .cv-list li::before {
     content: '→';
-    position: absolute;
+    display: inline-block;
     left: 0;
     color: var(--color-accent);
     opacity: 0.7;
@@ -1563,7 +1563,7 @@ textarea.form-control {
 /* Subtle glow in corner */
 .kpi-card::after {
     content: '';
-    position: absolute;
+    display: inline-block;
     top: -40px;
     right: -40px;
     width: 120px;
@@ -1970,7 +1970,7 @@ textarea.form-control {
 
 .client-card::before {
     content: '';
-    position: absolute;
+    display: inline-block;
     top: 0;
     left: 0;
     right: 0;
@@ -2096,7 +2096,7 @@ textarea.form-control {
 }
 
 .crm-search-wrapper svg {
-    position: absolute;
+    display: inline-block;
     left: 1rem;
     top: 50%;
     transform: translateY(-50%);
@@ -2224,7 +2224,7 @@ textarea.form-control {
 }
 
 .close-detail {
-    position: absolute;
+    display: inline-block;
     top: 2rem;
     right: 2.5rem;
     width: 42px;
@@ -2493,7 +2493,7 @@ textarea.form-control {
 
 .timeline-item:not(:last-child)::before {
     content: '';
-    position: absolute;
+    display: inline-block;
     left: 10px;
     top: 22px;
     width: 1px;
@@ -2608,7 +2608,7 @@ textarea.form-control {
 }
 
 .fin-card .currency-symbol {
-    position: absolute;
+    display: inline-block;
     right: 1.25rem;
     top: 50%;
     transform: translateY(-50%);
@@ -2736,7 +2736,7 @@ textarea.form-control {
 }
 
 .report-file-input-wrapper input[type="file"] {
-    position: absolute;
+    display: inline-block;
     left: 0;
     top: 0;
     opacity: 0;
@@ -3112,7 +3112,7 @@ textarea.form-control {
 
 /* The container that aligns with the inner physical screen of the MacBook */
 .mac-screen-container {
-    position: absolute;
+    display: inline-block;
     top: var(--screen-top);
     left: var(--screen-left);
     width: var(--screen-width);
@@ -3271,9 +3271,9 @@ textarea.form-control {
 }
 
 .pipeline-step .step-line {
-    position: absolute;
+    display: inline-block;
     top: 18px;
-    left: 50%;
+    
     width: 100%;
     height: 2px;
     background: var(--glass-border);
@@ -3429,7 +3429,7 @@ textarea.form-control {
 }
 
 .featured-sub .featured-badge {
-    position: absolute;
+    display: inline-block;
     top: -8px;
     right: 1rem;
     background: var(--color-bg-primary);
@@ -3569,7 +3569,7 @@ textarea.form-control {
 
 .matrix-section-panel::after {
     content: '';
-    position: absolute;
+    display: inline-block;
     top: 0; left: 0; right: 0; bottom: 0;
     border-radius: var(--radius-lg);
     background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
@@ -3577,7 +3577,7 @@ textarea.form-control {
 }
 
 .matrix-glow-bg {
-    position: absolute; 
+    display: inline-block; 
     inset: 0; 
     border-radius: var(--radius-lg); 
     overflow: hidden; 
@@ -3637,10 +3637,10 @@ textarea.form-control {
 }
 
 .matrix-popular-badge {
-    position: absolute;
-    top: -16px;
-    left: 50%;
-    transform: translateX(-50%);
+    display: inline-block;
+    
+    
+    
     background: var(--color-accent);
     color: #fff;
     font-size: 0.65rem;
@@ -3650,7 +3650,7 @@ textarea.form-control {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     z-index: 20;
-    box-shadow: 0 4px 15px rgba(41,151,255,0.4);
+    box-shadow: 0 4px 15px rgba(41,151,255,0.4); margin-bottom: 0.75rem;
     white-space: nowrap;
 }
 
@@ -3701,7 +3701,7 @@ textarea.form-control {
     color: var(--color-platinum);
     font-weight: normal;
 }
-.matrix-price {
+.matrix-price { white-space: nowrap;
     font-size: 1.5rem; 
     font-weight: 700; 
     color: var(--color-accent); 
@@ -3913,10 +3913,10 @@ textarea.form-control {
 }
 
 .matrix-popular-badge {
-    position: absolute;
-    top: -16px;
-    left: 50%;
-    transform: translateX(-50%);
+    display: inline-block;
+    
+    
+    
     background: var(--color-accent);
     color: #fff;
     font-size: 0.65rem;
@@ -3926,7 +3926,7 @@ textarea.form-control {
     text-transform: uppercase;
     letter-spacing: 0.1em;
     z-index: 20;
-    box-shadow: 0 4px 15px rgba(41,151,255,0.4);
+    box-shadow: 0 4px 15px rgba(41,151,255,0.4); margin-bottom: 0.75rem;
     white-space: nowrap;
 }
 
@@ -3986,7 +3986,7 @@ textarea.form-control {
         font-size: 1rem;
         margin-bottom: 0.2rem; /* Tighter */
     }
-    .matrix-price {
+    .matrix-price { white-space: nowrap;
         margin-bottom: 0.2rem; /* Tighter */
     }
     .matrix-popular-badge {

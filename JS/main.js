@@ -484,9 +484,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currency === 'USD') {
             return `$${converted.toLocaleString('en-US')}`;
         } else if (currency === 'CRC') {
-            // Round up to the nearest thousand (e.g. 55121 -> 56000)
-            const roundedCRC = Math.ceil(converted / 1000) * 1000;
-            return `₡${roundedCRC.toLocaleString('es-CR')}`;
+            const roundedCRC = Math.ceil(converted / 1000);
+            return `₡${roundedCRC}K`;
         }
         return `€${basePrice}`;
     }
