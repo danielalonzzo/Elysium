@@ -667,7 +667,7 @@ section {
 }
 
 /* Ensure the grid sits above the waves */
-.services .container {
+.services .container, .services .card-grid {
     position: relative;
     z-index: 1;
 }

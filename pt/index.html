@@ -150,7 +150,7 @@
         <div class="hero-symbol-bg">λ</div>
         <div class="hero-content animate-on-scroll">
             <p class="hero-subtitle">Development & Research</p>
-            <h1>Infraestrutura Digital para PME: <span class="hero-title-suffix">Consultoria e Serviços de Informática para PMEs</span></h1>
+            <h1>Infraestrutura Digital para PME: <span class="hero-title-suffix"><span class="dynamic-price" data-base-price="0">0 €</span> Custos de Desenvolvimento</span></h1>
             <div class="hero-cta">
                 <a href="contact.html" class="btn btn-primary">Iniciar projeto</a>
                 <a href="services.html" class="btn">Ver serviços</a>
@@ -298,7 +298,7 @@
         <div class="container">
             <div class="section-header animate-on-scroll">
                 <h2>Áreas de Especialização</h2>
-                <p>Infraestrutura digital B2B para PMEs</p>
+                <p>Infraestrutura Digital Incluída na sua Subscrição Mensal</p>
             </div>
             <div class="card-grid">
                 <div class="card animate-on-scroll delay-1" onclick="this.classList.toggle('expanded')">
@@ -335,7 +335,7 @@
                     <div class="card-number">03</div>
                     <div class="card-glow"></div>
                     <div class="card-summary">
-                        <p>Sistemas de Gestão (CRM) à Medida</p>
+                        <p>Programamos Sistemas de Gestão (CRM) à Medida</p>
                         <div class="expand-indicator" style="display: none;">+</div>
                     </div>
                     <div class="card-details">
@@ -362,9 +362,266 @@
                     </div>
                 </div>
             </div>
-            <div class="text-center" style="margin-top: 3rem;">
+            </div>
+
+
+            <div class="section-header animate-on-scroll" style="margin-top: 8rem;">
+                <h2>Planos de Subscrição</h2>
+                <p>Você não paga pelo desenvolvimento de software</p>
+                
+                <!-- Currency Switcher -->
+                <div class="currency-switcher-container" style="margin-top: 2rem;">
+                    <div class="currency-toggle">
+                        <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
+                            <span class="currency-flag"><img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
+                        </button>
+                        <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
+                            <span class="currency-flag"><img src="../Images/Banderas/estados-unidos.png" alt="US" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
+                        </button>
+                        <button class="currency-btn" data-currency="CRC" aria-label="Costa Rican Colon">
+                            <span class="currency-flag"><img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                .unified-pricing-card {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.0) 40%, rgba(255, 255, 255, 0.01) 100%);
+                    backdrop-filter: blur(15px) saturate(120%);
+                    -webkit-backdrop-filter: blur(15px) saturate(120%);
+                    border-top: 1px solid rgba(255, 255, 255, 0.15);
+                    border-left: 1px solid rgba(255, 255, 255, 0.15);
+                    border-right: 1px solid rgba(255, 255, 255, 0.03);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+                    border-radius: var(--radius-lg);
+                    position: relative;
+                    margin: 0 auto;
+                    max-width: 1000px;
+                    box-shadow: 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.2), 
+                        inset 1px 0 1px rgba(255, 255, 255, 0.1), 
+                        0 20px 40px rgba(0, 0, 0, 0.4);
+                    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+                
+                @media (min-width: 901px) {
+                    .unified-pricing-card:hover {
+                        transform: translateY(-8px);
+                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 40%, rgba(41, 151, 252, 0.03) 100%);
+                        border-top: 1px solid rgba(255, 255, 255, 0.2);
+                        border-left: 1px solid rgba(255, 255, 255, 0.2);
+                        box-shadow: 
+                            inset 0 1px 2px rgba(255, 255, 255, 0.25),
+                            inset 1px 0 2px rgba(255, 255, 255, 0.2),
+                            0 30px 60px rgba(0, 0, 0, 0.5),
+                            0 0 100px rgba(41, 151, 252, 0.15);
+                    }
+                }
+                .unified-pricing-card::after {
+                    content: '';
+                    position: absolute;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    border-radius: var(--radius-lg);
+                    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+                    pointer-events: none;
+                }
+                .unified-pricing-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    position: relative;
+                    z-index: 2;
+                }
+                .pricing-col {
+                    padding: 3rem 2rem;
+                    display: flex;
+                    flex-direction: column;
+                    text-align: center;
+                    position: relative;
+                }
+                .pricing-col:not(:last-child) {
+                    border-right: 1px solid rgba(255,255,255,0.05);
+                }
+                .pricing-col-popular {
+                    background: linear-gradient(180deg, rgba(41, 151, 255, 0.05) 0%, transparent 100%);
+                    border-top-right-radius: var(--radius-lg);
+                    border-bottom-right-radius: var(--radius-lg);
+                }
+                @keyframes swipeHintChild {
+                    0% { transform: translateX(0); }
+                    25% { transform: translateX(-25px); }
+                    50% { transform: translateX(0); }
+                    75% { transform: translateX(-12px); }
+                    100% { transform: translateX(0); }
+                }
+                .pricing-col-popular::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 2px;
+                    height: 2px;
+                    border-radius: 50%;
+                    opacity: 0;
+                    pointer-events: none;
+                    z-index: 1;
+                }
+                .pricing-col-popular.gold-flash::before {
+                    animation: dragonFire 3.5s ease-out;
+                }
+                @keyframes dragonFire {
+                    0% { opacity: 0; box-shadow: 0 0 0 0 rgba(41, 151, 252, 0.9), 0 0 0 0 rgba(255, 255, 255, 0.6); }
+                    35% { opacity: 1; box-shadow: 0 0 250px 150px rgba(41, 151, 252, 0.6), 0 0 120px 80px rgba(255, 255, 255, 0.4); }
+                    100% { opacity: 0; box-shadow: 0 0 800px 500px rgba(41, 151, 252, 0), 0 0 500px 300px rgba(255, 255, 255, 0); }
+                }
+                .popular-badge {
+                    position: absolute;
+                    top: -12px;
+                    right: 20px;
+                    background: var(--color-accent);
+                    color: #fff;
+                    font-size: 0.6rem;
+                    font-weight: 700;
+                    padding: 0.2rem 0.6rem;
+                    border-radius: 4px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    z-index: 10;
+                    box-shadow: 0 4px 10px rgba(41,151,255,0.3);
+                }
+                @media (max-width: 900px) {
+                    .popular-badge {
+                        top: 15px;
+                        right: 15px;
+                    }
+                    .unified-pricing-grid {
+                        display: flex;
+                        overflow-x: auto;
+                        scroll-snap-type: x mandatory;
+                        -webkit-overflow-scrolling: touch;
+                        scrollbar-width: none; /* Firefox */
+                    }
+                    .unified-pricing-grid::-webkit-scrollbar {
+                        display: none; /* Safari and Chrome */
+                    }
+                    .pricing-col {
+                        flex: 0 0 85%;
+                        min-width: 280px;
+                        scroll-snap-align: center;
+                    }
+                    .pricing-col:not(:last-child) {
+                        border-right: 1px solid rgba(255,255,255,0.05);
+                        border-bottom: none;
+                    }
+                    .pricing-col-popular {
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+                }
+            </style>
+            
+            <div class="unified-pricing-card animate-on-scroll">
+                <div style="position: absolute; inset: 0; border-radius: var(--radius-lg); overflow: hidden; pointer-events: none;">
+                    <div class="card-glow" style="background: radial-gradient(circle at 50% 0%, rgba(41, 151, 255, 0.15), transparent 70%);"></div>
+                </div>
+                
+                <div class="unified-pricing-grid">
+                    <!-- Basic Plan -->
+                    <div class="pricing-col">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção Básica</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="70">70 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mês</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="840">840 €</span> / ano</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ <strong>Inclui Manutenção Hosting</strong></li>
+                            <li style="margin-bottom: 0.5rem;">✓ Desenvolvimento web corporativo</li>
+                            <li>✓ Design fluido Mobile-first</li>
+                        </ul>
+                        <a href="../profiles.html?subscribe=basic_maintenance" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                    </div>
+
+                    <!-- Preferential Plan -->
+                    <div class="pricing-col">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção Preferencial</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="99">99 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mês</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="1188">1188 €</span> / ano</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ <strong>Inclui funcionalidades Básicas</strong></li>
+                            <li style="margin-bottom: 0.5rem;">✓ Suporte multi-idioma</li>
+                            <li>✓ Adaptação modo Claro/Escuro</li>
+                        </ul>
+                        <a href="../profiles.html?subscribe=preferential_maintenance" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                    </div>
+
+                    <!-- Advanced Plan (Featured) -->
+                    <div class="pricing-col pricing-col-popular">
+                        <div class="popular-badge">Mais Popular</div>
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção Avançada</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="120">120 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mês</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="1440">1440 €</span> / ano</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ <strong>Inclui funcionalidades Preferenciais</strong></li>
+                            <li style="margin-bottom: 0.5rem;">✓ Plataforma CRM privada</li>
+                            <li>✓ Software personalizado escalável</li>
+                        </ul>
+                        <a href="../profiles.html?subscribe=advanced_maintenance" class="btn" style="margin-top: 2rem; width: 100%; background: rgba(41, 151, 255, 0.1); border-color: var(--color-accent);">Subscrever</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center animate-on-scroll" style="margin-top: 4rem;">
                 <a href="services.html" class="btn">Explorar todos os serviços</a>
             </div>
+            
+            <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const grid = document.querySelector('.unified-pricing-grid');
+                const popularCol = document.querySelector('.pricing-col-popular');
+                const section = grid ? grid.closest('section') : null;
+                
+                if (grid && popularCol && section) {
+                    let sectionVisible = false;
+                    const sectionObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (window.innerWidth > 900) return;
+                            if (entry.intersectionRatio >= 0.3) {
+                                if (!sectionVisible) {
+                                    sectionVisible = true;
+                                    setTimeout(() => {
+                                        grid.querySelectorAll('.pricing-col').forEach(col => {
+                                            col.style.animation = 'none';
+                                            void col.offsetWidth;
+                                            col.style.animation = 'swipeHintChild 0.8s ease-in-out';
+                                        });
+                                    }, 400);
+                                }
+                            } else if (entry.intersectionRatio <= 0.1) {
+                                sectionVisible = false;
+                            }
+                        });
+                    }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] });
+                    sectionObserver.observe(section);
+
+                    let popularVisible = false;
+                    const popularObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (window.innerWidth > 900) return;
+                            if (entry.intersectionRatio >= 0.8) {
+                                if (!popularVisible) {
+                                    popularVisible = true;
+                                    popularCol.classList.remove('gold-flash');
+                                    void popularCol.offsetWidth;
+                                    popularCol.classList.add('gold-flash');
+                                }
+                            } else if (entry.intersectionRatio <= 0.3) {
+                                popularVisible = false;
+                            }
+                        });
+                    }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], root: grid });
+                    popularObserver.observe(popularCol);
+                }
+            });
+            </script>
+        </div>    
         </div>
     </section>
 
@@ -388,7 +645,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">01</div>
                         <h3 class="step-title">Observação do Ambiente Operacional (Antecedentes)</h3>
-                        <p class="step-desc">Auditoria sistémica inicial. Avaliamos a topologia atual da sua organização, analisando os seus fluxos de dados, processos diários e o contexto operacional da sua indústria antes de propor qualquer intervenção.</p>
+                        <p class="step-desc">Avaliamos a topologia atual da sua organização, analisando os seus fluxos de dados, processos diários e o contexto operacional da sua indústria.</p>
                     </div>
                 </div>
 
@@ -397,7 +654,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">02</div>
                         <h3 class="step-title">Estado da Arte e Limitações (O que se sabe?)</h3>
-                        <p class="step-desc">Análise forense das suas ferramentas atuais. Documentamos as infraestruturas tecnológicas que a sua empresa já utiliza, avaliando os seus níveis de desempenho, dívida técnica e restrições de escalabilidade.</p>
+                        <p class="step-desc">Documentamos as infraestruturas tecnológicas que a sua empresa já utiliza.</p>
                     </div>
                 </div>
 
@@ -406,7 +663,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">03</div>
                         <h3 class="step-title">Isolamento de Variáveis Críticas (O que não se sabe?)</h3>
-                        <p class="step-desc">Identificação de ineficiências sistémicas. Detetamos processos manuais propensos a erros, latências na sincronização de dados e vulnerabilidades de conformidade legal que os sistemas comerciais padrão não conseguem resolver.</p>
+                        <p class="step-desc">Detetamos processos manuais propensos a erros, latências na sincronização de dados e vulnerabilidades de conformidade legal.</p>
                     </div>
                 </div>
 
@@ -415,7 +672,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">04</div>
                         <h3 class="step-title">Definição do Problema de Engenharia (Questão de Investigação)</h3>
-                        <p class="step-desc">Formulação exata do desafio arquitetónico. Definimos com precisão matemática o problema central que a nova topologia de software deve resolver para automatizar e escalar a sua operação.</p>
+                        <p class="step-desc">Definimos o problema central que a nova infraestrutura deve resolver para automatizar e escalar as suas operações.</p>
                     </div>
                 </div>
 
@@ -424,7 +681,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">05</div>
                         <h3 class="step-title">Justificação do Impacto (Por que deve ser resolvido?)</h3>
-                        <p class="step-desc">Projeção do retorno operacional. Quantificamos o valor empírico da solução: mitigação de riscos legais (Compliance), eliminação de tempos mortos e aumento da autonomia tecnológica da sua empresa a longo prazo.</p>
+                        <p class="step-desc">Mitigação de riscos legais (Compliance), eliminação de tempos mortos e aumento da autonomia tecnológica da sua empresa a longo prazo.</p>
                     </div>
                 </div>
 
@@ -433,7 +690,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">06</div>
                         <h3 class="step-title">Formulação da Arquitetura (Hipótese)</h3>
-                        <p class="step-desc">Postulado de solução estrutural. Propomos a arquitetura de software específica (ex. um ecossistema Serverless, um CRM à medida ou uma Interface de alta fidelidade) como a resposta técnica exata ao problema colocado.</p>
+                        <p class="step-desc">Propomos uma arquitetura de software (ex. um ecossistema Serverless, um CRM à medida ou uma Interface mobile-first) como a resposta técnica às necessidades do seu negócio.</p>
                     </div>
                 </div>
 
@@ -441,8 +698,8 @@
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
                         <div class="step-number">07</div>
-                        <h3 class="step-title">Seleção da Pilha Tecnológica (Que métodos existem?)</h3>
-                        <p class="step-desc">Avaliação algorítmica e de infraestrutura. Determinamos os protocolos de comunicação, bases de dados e barreiras criptográficas ideais, garantindo que a tecnologia selecionada se adapte ao seu problema, e não o contrário.</p>
+                        <h3 class="step-title">Seleção de Tecnologias (Que métodos existem?)</h3>
+                        <p class="step-desc">Determinamos os protocolos de comunicação, bases de dados e barreiras criptográficas ideais.</p>
                     </div>
                 </div>
 
@@ -451,7 +708,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">08</div>
                         <h3 class="step-title">Desenho Estrutural e Fluxos de Dados (Desenho Experimental)</h3>
-                        <p class="step-desc">Modelação do ecossistema. Construímos a arquitetura de informação, o design de interação humano-computador (HCI) e planeamos as iterações de desenvolvimento sob rigoroso controlo de variáveis.</p>
+                        <p class="step-desc">Construímos o ecossistema do seu negócio, o design de interação humano-computador (HCI) e planeamos as iterações de desenvolvimento.</p>
                     </div>
                 </div>
 
@@ -460,7 +717,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">09</div>
                         <h3 class="step-title">Desenvolvimento, Testes e Auditoria (Experiências e QA)</h3>
-                        <p class="step-desc">Engenharia pura e testes de stress. Codificação da plataforma submetida a testes unitários contínuos, validação de mecanismos de segurança (Controlo de Acessos) e auditorias de conformidade normativa (RGPD) em ambientes fechados.</p>
+                        <p class="step-desc">A plataforma é submetida a testes unitários contínuos, validação de mecanismos de segurança (Controlo de Acessos) e auditorias de conformidade normativa (RGPD).</p>
                     </div>
                 </div>
 
@@ -468,34 +725,34 @@
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
                         <div class="step-number">10</div>
-                        <h3 class="step-title">Implementação e Transferência Tecnológica (Conclusões e Publicação)</h3>
-                        <p class="step-desc">Migração para produção e entrega. Lançamento do sistema em infraestruturas de alta disponibilidade, sincronização final de dados e transferência do conhecimento operacional para a sua equipa através de formação especializada.</p>
+                        <h3 class="step-title">Implementação e Publicação (Conclusões)</h3>
+                        <p class="step-desc">Lançamento do sistema em infraestruturas de alta disponibilidade, sincronização final de dados e transferência do conhecimento operacional para a sua equipa através de formação especializada.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="research-teaser section">
+    <section class="research-teaser section" style="padding-bottom: 3rem;">
         <div class="container">
             <div class="research-teaser-flex">
                 <div class="animate-on-scroll" style="flex: 1; min-width: 300px; padding-right: 2rem;">
                     <h2>Investigação e Desenvolvimento (I&D)</h2>
-                    <p class="mb-md" style="text-align: justify;">A Elysium λ opera como um laboratório independente de engenharia de software e investigação aplicada. Em vez de replicar fórmulas comerciais, aplicamos o rigor do método empírico para dissecar problemas operacionais e construir arquiteturas digitais a partir dos seus fundamentos.<br><br>A partir da Europa, analisamos a interseção entre a Interação Humano-Computador (HCI), infraestruturas na nuvem (Serverless) e criptografia aplicada. O nosso propósito é democratizar o acesso à engenharia de alto nível, permitindo às organizações escalar as suas operações através de ecossistemas tecnológicos precisos, resilientes e auditáveis.<br><br>Não construímos simples interfaces; transformamos a investigação tecnológica em infraestrutura operacional. Combinamos o pensamento científico, design algorítmico e experimentação contínua para entregar software que resolve ineficiências estruturais de forma definitiva.</p>
+                    <p class="mb-md" style="text-align: justify;">A Elysium λ opera como um laboratório independente de engenharia de software e consultoria informática.<br><br>A partir da União Europeia e Costa Rica, o nosso propósito é democratizar o acesso à engenharia de alto nível, permitindo às PMEs escalar as suas operações através de infraestrutura digital e ecossistemas tecnológicos.<br><br>Não construímos simples interfaces; combinamos o pensamento científico, design ergonómico e experimentação contínua para entregar software que resolve ineficiências estruturais.</p>
                     <a href="research.html" class="btn btn-primary">Research Lab</a>
                 </div>
                 <div class="animate-on-scroll delay-1"
                     style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
                     <h4>Declaração de Missão</h4>
-                    <p style="margin-bottom: 0;">Traduzir o rigor metodológico em soluções de software tangíveis. A nossa missão é construir ecossistemas digitais que eliminem a fricção operacional, mecanizem fluxos de trabalho complexos e devolvam o controlo tecnológico às organizações, priorizando sempre a segurança estrutural e o conhecimento aberto.</p>
+                    <p style="margin-bottom: 0;">Democratizar o acesso à infraestrutura digital, dotando as PMEs de ecossistemas tecnológicos acessíveis que automatizam os seus processos e garantem a sua escalabilidade.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="testimonials section" style="border-top: 1px solid var(--color-border);">
+    <section class="testimonials section" style="border-top: 1px solid var(--color-border); padding-top: 4rem; padding-bottom: 3.5rem;">
         <div class="container animate-on-scroll">
-            <h2 class="text-center mb-lg">Testemunhos de particulares e empresas</h2>
+            <h2 class="text-center mb-lg">Testemunhos dos Nossos Parceiros</h2>
             <a href="review-pmorais.html" style="text-decoration: none; display: block; cursor: pointer;">
             <div class="testimonial-carousel" style="transition: box-shadow 0.3s ease, transform 0.3s ease;" onmouseover="this.style.boxShadow='0 16px 60px rgba(41,151,255,0.25)';this.style.transform='translateY(-3px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
                 <div class="testimonial-content">
@@ -512,14 +769,105 @@
                             <div style="color: var(--color-text-secondary); font-size: 0.8rem;">Fundador da Consciênciavaliativa - Unipessoal Lda</div>
                         </div>
                     </div>
+                    <div style="text-align: right; margin-top: 1.5rem; font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary); opacity: 0.6;">
+                        Leia a avaliação completa &rarr;
+                    </div>
                 </div>
                 <div class="testimonial-indicators"></div>
             </div>
             </a>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="portfolio.html" class="btn btn-outline animate-on-scroll">Ver Portfólio</a>
+            </div>
         </div>
     </section>
 
-    <section class="cta-final section text-center">
+    <!-- Serviços Independentes -->
+    <section class="section" style="border-top: 1px solid var(--color-border); padding-top: 3rem; padding-bottom: 2rem;">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <h2>Serviços Independentes</h2>
+                <p>Desempenho Ótimo, Segurança Operacional e Alta Retenção de Leads</p>
+                
+                <!-- Currency Switcher -->
+                <div class="currency-switcher-container" style="margin-top: 2rem;">
+                    <div class="currency-toggle">
+                        <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
+                            <span class="currency-flag"><img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
+                        </button>
+                        <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
+                            <span class="currency-flag"><img src="../Images/Banderas/estados-unidos.png" alt="US" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
+                        </button>
+                        <button class="currency-btn" data-currency="CRC" aria-label="Costa Rican Colon">
+                            <span class="currency-flag"><img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .unified-pricing-grid-2col {
+                    display: flex;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none;
+                    position: relative;
+                    z-index: 2;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    scroll-snap-type: x mandatory;
+                }
+                .unified-pricing-grid-2col::-webkit-scrollbar {
+                    display: none;
+                }
+                @media (min-width: 993px) {
+                    .unified-pricing-grid-2col {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        overflow-x: visible;
+                        scroll-snap-type: none;
+                    }
+                }
+            </style>
+
+            <div class="unified-pricing-card animate-on-scroll delay-1" style="max-width: 900px; margin: 0 auto;">
+                <div class="unified-pricing-grid-2col">
+                    <!-- Hosting Plan -->
+                    <div class="pricing-col" style="flex: 0 0 85%; min-width: 280px; scroll-snap-align: center;">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção de Alojamento</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="99">99 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ anuais</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Faturamento anual</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ Gestão de domínio e identidade digital da sua marca</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Alojamento web em servidores de alta disponibilidade</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Manutenção base da infraestrutura</li>
+                            <li style="margin-bottom: 0.5rem; opacity: 0.7;"><i>*O desenvolvimento da página web não está incluído</i></li>
+                        </ul>
+                        <a href="../profiles.html?subscribe=domain_hosting" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                    </div>
+
+                    <!-- CRM Plan -->
+                    <div class="pricing-col" style="flex: 0 0 85%; min-width: 280px; scroll-snap-align: center; border-right: none;">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">CRM Personalizado</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="50">50 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mensais</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="600">600 €</span> / ano</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ Painel de controlo intuitivo e elegante</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Ambiente de trabalho 100% confidencial</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Acesso direto a partir do seu portal de cliente</li>
+                        </ul>
+                        <a href="../profiles.html?subscribe=custom_core_crm" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="services.html" class="btn btn-outline animate-on-scroll">Explorar todos os serviços</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-final section text-center" style="padding-top: 3rem;">
         <div class="container animate-on-scroll">
             <h2 class="mb-md">Eleve a sua presença digital</h2>
             <p class="mb-lg">Presença web profissional para o seu negócio. Construída sobre valores europeus.</p>

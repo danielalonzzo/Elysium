@@ -71,23 +71,24 @@
                 closeModal();
             }
         });
-        // 4. Inject Sea Waves Background aligned exactly with each card
-        const servicesSection = document.querySelector('.services');
-        const cardGrid = document.querySelector('.services .card-grid');
-        
-        if (servicesSection && cardGrid) {
-            // Prevent waves from bleeding out of the section
-            servicesSection.style.overflow = 'hidden'; 
-            
+        // 4. Inject Sea Waves Background aligned exactly with each card (all .services sections)
+        const allServicesSections = document.querySelectorAll('.services');
+
+        allServicesSections.forEach(servicesSection => {
+            const cardGrid = servicesSection.querySelector('.card-grid');
+            if (!cardGrid) return;
+
+            // Let waves bleed out naturally for a more expansive effect
+
             const wavesContainer = document.createElement('div');
             wavesContainer.className = 'sea-waves-background';
             servicesSection.insertBefore(wavesContainer, servicesSection.firstChild);
-            
-            const cards = cardGrid.querySelectorAll('.card');
+
+            const sectionCards = cardGrid.querySelectorAll('.card');
             const waves = [];
-            
+
             // Create 1 ripple per card that expands in perfect sync with the 8-second card glow cycle
-            cards.forEach((card, index) => {
+            sectionCards.forEach((card, index) => {
                 const wave = document.createElement('div');
                 wave.className = 'wave';
                 // Sync the wave expansion perfectly with the card's 2-second spaced pulse
@@ -96,7 +97,7 @@
                 wavesContainer.appendChild(wave);
                 waves.push({ card, wave });
             });
-            
+
             // Function to precisely position the wave origins exactly behind each card
             const updateWavePositions = () => {
                 const containerRect = wavesContainer.getBoundingClientRect();
@@ -105,15 +106,15 @@
                     // Calculate precise center point
                     const centerX = (cardRect.left - containerRect.left) + (cardRect.width / 2);
                     const centerY = (cardRect.top - containerRect.top) + (cardRect.height / 2);
-                    
+
                     wave.style.left = centerX + 'px';
                     wave.style.top = centerY + 'px';
                 });
             };
-            
+
             // Wait slightly to ensure layout has settled before calculating positions
-            setTimeout(updateWavePositions, 100);
+            setTimeout(updateWavePositions, 200);
             window.addEventListener('resize', updateWavePositions);
-        }
+        });
     });
 })();

@@ -342,13 +342,39 @@ document.addEventListener('DOMContentLoaded', () => {
             
             timelineProgress.style.height = `${progress}%`;
 
-            // Iluminar puntos de la línea de tiempo
-            timelineItems.forEach((item) => {
+            // Iluminar puntos de la línea de tiempo y apagar tarjetas anteriores
+            timelineItems.forEach((item, index) => {
                 const itemRect = item.getBoundingClientRect();
                 if (itemRect.top < window.innerHeight * 0.7) {
                     item.classList.add('is-visible');
                 } else {
                     item.classList.remove('is-visible');
+                }
+                
+                // Desenfocar y apagar progresivamente la tarjeta si está siendo cubierta
+                if (index < timelineItems.length - 1) {
+                    const nextRect = timelineItems[index + 1].getBoundingClientRect();
+                    const distance = nextRect.top - itemRect.top;
+                    const maxDistance = window.innerHeight * 0.4; // Inicia el efecto en este rango
+                    const content = item.querySelector('.timeline-content');
+                    
+                    if (content) {
+                        if (distance <= maxDistance && itemRect.top <= window.innerHeight * 0.5) {
+                            const progress = 1 - (Math.max(0, distance) / maxDistance); // 0 a 1
+                            
+                            content.style.filter = `blur(${progress * 10}px) grayscale(${progress * 80}%)`;
+                            content.style.opacity = 1 - (progress * 0.85);
+                            content.style.transform = `scale(${1 - (progress * 0.05)})`;
+                            content.style.pointerEvents = progress > 0.5 ? 'none' : 'auto';
+                            content.style.transition = 'none'; // Instanteo para sincronizar con scroll
+                        } else {
+                            content.style.filter = '';
+                            content.style.opacity = '';
+                            content.style.transform = '';
+                            content.style.pointerEvents = '';
+                            content.style.transition = ''; // Restaura transición CSS
+                        }
+                    }
                 }
             });
         }, { passive: true });
@@ -468,6 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update all prices on the page
     function updatePrices(targetCurrency) {
         currentCurrency = targetCurrency;
+        localStorage.setItem('preferredCurrency', targetCurrency);
 
         dynamicPrices.forEach(el => {
             const baseStr = el.getAttribute('data-base-price');
@@ -480,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Update active button state
+        // Update active button state across all switchers on the page
         currencyBtns.forEach(btn => {
             if (btn.getAttribute('data-currency') === targetCurrency) {
                 btn.classList.add('active');
@@ -488,6 +515,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.remove('active');
             }
         });
+    }
+
+    // Auto-detect location for first-time visitors
+    async function detectDefaultCurrency() {
+        const saved = localStorage.getItem('preferredCurrency');
+        if (saved) return saved;
+
+        try {
+            const res = await fetch('https://get.geojs.io/v1/ip/country.json');
+            if (!res.ok) throw new Error('Geo API failed');
+            const data = await res.json();
+            const country = data.country;
+            
+            if (country === 'CR') return 'CRC';
+            
+            // Comprehensive list of European ISO 2-letter country codes
+            const europe = ['AD','AL','AT','AX','BA','BE','BG','BY','CH','CY','CZ','DE','DK','EE','ES','FI','FO','FR','GB','GG','GI','GR','HR','HU','IE','IM','IS','IT','JE','LI','LT','LU','LV','MC','MD','ME','MK','MT','NL','NO','PL','PT','RO','RS','RU','SE','SI','SJ','SK','SM','UA','VA'];
+            if (europe.includes(country)) return 'EUR';
+            
+            return 'USD';
+        } catch (e) {
+            console.error('Geo detect failed, defaulting to USD:', e);
+            return 'USD'; // Default to USD if detection fails
+        }
     }
 
     // Setup event listeners
@@ -501,10 +552,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initialize
-    fetchRates().then(() => {
-        // We default to EUR, but we can re-render just to be sure layout is correct
-        updatePrices('EUR');
-    });
+    async function initCurrency() {
+        // Run both fetches in parallel if possible, but fetchRates must finish before updatePrices
+        await fetchRates();
+        const defaultCurrency = await detectDefaultCurrency();
+        updatePrices(defaultCurrency);
+    }
+    
+    initCurrency();
 });
 
 // Read More Toggle Logic

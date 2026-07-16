@@ -10,7 +10,8 @@ import {
     orderBy,
     updateDoc,
     deleteDoc,
-    setDoc
+    setDoc,
+    addDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
     ref, 
@@ -1770,6 +1771,110 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             </div>
         </div>
 
+        <!-- ── SUBSCRIPTION MANAGEMENT (Admin) ── -->
+        <div class="detail-section" style="margin-bottom: 2rem; border: 1px solid rgba(41,151,255,0.25); border-radius: var(--radius-md); padding: 1.5rem; background: rgba(41,151,255,0.04);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--glass-border); padding-bottom:0.75rem;">
+                <h3 style="color:var(--color-accent); margin:0;">Subscription Management</h3>
+                ${(() => {
+                    const sub = member.subscription;
+                    if (!sub || !sub.planType) return '<span style="font-size:0.8rem;color:var(--color-text-secondary);">No active subscription</span>';
+                    const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444' };
+                    const color = statusColors[sub.status] || '#888';
+                    return `<span style="font-size:0.8rem;font-weight:700;color:${color};">● ${(sub.status || '').replace('_', ' ').toUpperCase()}</span>`;
+                })()}
+            </div>
+
+            ${(() => {
+                const sub = member.subscription;
+                if (sub && sub.planType) {
+                    const statusLabels = { active: 'Active', pending_payment: 'Payment Pending', suspended: 'Suspended' };
+                    const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444' };
+                    const col = statusColors[sub.status] || '#888';
+                    return `
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
+                        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Plan</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);">${sub.planLabel || sub.planType}</div>
+                        </div>
+                        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Status</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:${col};">${statusLabels[sub.status] || sub.status}</div>
+                        </div>
+                        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">License Code</div>
+                            <div style="font-size:0.8rem;font-weight:700;color:var(--color-accent);font-family:monospace;letter-spacing:0.05em;">${sub.licenseCode || '—'}</div>
+                        </div>
+                        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Next Billing</div>
+                            <div style="font-size:0.9rem;color:var(--color-platinum);">${sub.nextBillingDate ? fmtDate(sub.nextBillingDate) : '—'}</div>
+                        </div>
+                    </div>`;
+                }
+                return '';
+            })()}
+
+            <!-- Manual Assignment Form -->
+            <div id="sub-assign-form">
+                <h4 style="margin-bottom:1rem;font-size:0.9rem;color:var(--color-platinum);">
+                    ${member.subscription ? 'Register New Payment / Update Subscription' : 'Assign Subscription Manually'}
+                </h4>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem;">
+                    <div>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Plan</label>
+                        <select id="sub-plan-select" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                            <option value="hosting"      ${member.subscription?.planType === 'hosting'      ? 'selected' : ''}>Domain & Hosting (€99/yr)</option>
+                            <option value="basic"        ${member.subscription?.planType === 'basic'        ? 'selected' : ''}>Basic Maintenance (€70/mo)</option>
+                            <option value="preferential" ${member.subscription?.planType === 'preferential' ? 'selected' : ''}>Preferential Maintenance (€99/mo)</option>
+                            <option value="advanced"     ${member.subscription?.planType === 'advanced'     ? 'selected' : ''}>Advanced Maintenance (€120/mo)</option>
+                            <option value="crm"          ${member.subscription?.planType === 'crm'          ? 'selected' : ''}>Custom Core CRM (€50/mo)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Billing Cycle</label>
+                        <select id="sub-cycle-select" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                            <option value="monthly" ${member.subscription?.billingCycle === 'monthly' ? 'selected' : ''}>Monthly</option>
+                            <option value="annual"  ${member.subscription?.billingCycle === 'annual'  ? 'selected' : ''}>Annual</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Payment Date</label>
+                        <input type="date" id="sub-start-date" class="form-control" value="${new Date().toISOString().split('T')[0]}" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Amount Paid</label>
+                        <div style="display:flex;gap:0.25rem;">
+                            <input type="number" id="sub-amount" class="form-control" placeholder="70" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                            <select id="sub-currency" style="width:60px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);padding:0.65rem 0.25rem;border-radius:var(--radius-sm);color:var(--color-text-primary);font-size:0.85rem;">
+                                <option value="EUR">€</option><option value="USD">$</option><option value="CRC">₡</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Invoice PDF (optional)</label>
+                    <div class="report-file-input-wrapper">
+                        <input type="file" id="sub-invoice-file" accept="application/pdf,image/*">
+                        <div class="report-file-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <span id="sub-invoice-label">Choose invoice file...</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1rem;align-items:center;">
+                    <button id="btn-assign-subscription" class="btn btn-primary">
+                        ${member.subscription ? 'Register Payment' : 'Activate Subscription'}
+                    </button>
+                    <span id="sub-assign-msg" style="display:none;color:#00c875;font-size:0.875rem;"></span>
+                </div>
+            </div>
+
+            <!-- Payment History for this client -->
+            <div id="sub-payment-history" style="margin-top:2rem;">
+                <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:1rem;border-top:1px solid var(--glass-border);padding-top:1rem;">Payment History</h4>
+                <div id="sub-payment-list"><div class="premium-loader" style="width:24px;height:24px;"></div></div>
+            </div>
+        </div>
+
         <div id="pdf-content-wrapper">
             ${onboarding ? `
             <!-- Step 1: Primary Contact Info -->
@@ -2278,6 +2383,153 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             btnSaveFin.textContent = t.save_financials;
         });
     }
+
+    // ── SUBSCRIPTION MANAGEMENT LISTENERS ──
+    const subInvoiceFile  = document.getElementById('sub-invoice-file');
+    const subInvoiceLabel = document.getElementById('sub-invoice-label');
+    if (subInvoiceFile && subInvoiceLabel) {
+        subInvoiceFile.addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (f) {
+                let name = f.name;
+                if (name.length > 30) name = name.substring(0, 27) + '...';
+                subInvoiceLabel.textContent = name;
+                subInvoiceLabel.style.color = '#fff';
+            } else {
+                subInvoiceLabel.textContent = 'Choose invoice file...';
+                subInvoiceLabel.style.color = '';
+            }
+        });
+    }
+
+    const btnAssignSub = document.getElementById('btn-assign-subscription');
+    if (btnAssignSub) {
+        btnAssignSub.addEventListener('click', async () => {
+            const planType   = document.getElementById('sub-plan-select').value;
+            const cycle      = document.getElementById('sub-cycle-select').value;
+            const startDate  = document.getElementById('sub-start-date').value;
+            const amount     = parseFloat(document.getElementById('sub-amount').value) || 0;
+            const currency   = document.getElementById('sub-currency').value;
+            const invoiceInp = document.getElementById('sub-invoice-file');
+            const invoiceFile = invoiceInp?.files[0] || null;
+            const msgEl      = document.getElementById('sub-assign-msg');
+
+            if (!startDate) return alert('Please set a payment date.');
+
+            btnAssignSub.disabled = true;
+            btnAssignSub.textContent = 'Saving…';
+
+            try {
+                // Map planType → license code segment
+                const PLAN_CODES = { hosting: 'H0ST', basic: 'ECO1', preferential: 'ECO2', advanced: 'ECO3', crm: 'CRMP' };
+                const PLAN_LABELS = { hosting: 'Domain & Hosting', basic: 'Basic Maintenance', preferential: 'Preferential Maintenance', advanced: 'Advanced Maintenance', crm: 'Custom Core CRM' };
+                const CYCLE_CODES = { monthly: 'M3N1', annual: 'ANL1' };
+
+                const d = new Date(startDate + 'T12:00:00');
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const yy = String(d.getFullYear()).slice(-2);
+                const licenseCode = `ELY-${PLAN_CODES[planType]}-${CYCLE_CODES[cycle]}-${mm}${yy}`;
+
+                // Compute next billing date
+                const nextDate = new Date(d);
+                if (cycle === 'monthly') nextDate.setMonth(nextDate.getMonth() + 1);
+                else nextDate.setFullYear(nextDate.getFullYear() + 1);
+
+                // Upload invoice if provided
+                let invoiceUrl = null;
+                if (invoiceFile) {
+                    const ts = Date.now();
+                    const safeName = invoiceFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+                    const storageRef = ref(storage, `members/${userId}/invoices/${ts}_${safeName}`);
+                    const uploadSnap = await uploadBytes(storageRef, invoiceFile);
+                    invoiceUrl = await getDownloadURL(uploadSnap.ref);
+                }
+
+                // Build subscription object
+                const subscription = {
+                    planType,
+                    planLabel: PLAN_LABELS[planType],
+                    billingCycle: cycle,
+                    status: 'active',
+                    licenseCode,
+                    startDate: new Date(startDate + 'T12:00:00'),
+                    nextBillingDate: nextDate,
+                    updatedAt: new Date()
+                };
+
+                // Write subscription to member document
+                await updateDoc(doc(db, 'members', userId), { subscription, licenseCode });
+
+                // Write payment record
+                await addDoc(collection(db, 'subscription_payments'), {
+                    userId,
+                    userName: member.name,
+                    userEmail: member.email,
+                    planType,
+                    planLabel: PLAN_LABELS[planType],
+                    billingCycle: cycle,
+                    licenseCode,
+                    amount,
+                    currency,
+                    invoiceUrl,
+                    paymentDate: new Date(startDate + 'T12:00:00'),
+                    recordedAt: new Date(),
+                    recordedBy: 'admin'
+                });
+
+                // Update in-memory cache
+                const cacheIdx = _allClients.findIndex(c => c.id === userId);
+                if (cacheIdx !== -1) { _allClients[cacheIdx].subscription = subscription; _allClients[cacheIdx].licenseCode = licenseCode; }
+
+                msgEl.textContent = `✓ Subscription activated! License: ${licenseCode}`;
+                msgEl.style.display = 'inline';
+                msgEl.style.color = '#00c875';
+
+                // Reload detail after 1.5s
+                setTimeout(() => showClientDetail(userId, { ...member, subscription, licenseCode }), 1500);
+
+            } catch (err) {
+                logger.error('Assign subscription:', err);
+                alert('Error: ' + err.message);
+            }
+            btnAssignSub.disabled = false;
+            btnAssignSub.textContent = member.subscription ? 'Register Payment' : 'Activate Subscription';
+        });
+    }
+
+    // Load payment history for this client
+    (async () => {
+        const listEl = document.getElementById('sub-payment-list');
+        if (!listEl) return;
+        try {
+            const q = query(collection(db, 'subscription_payments'), where('userId', '==', userId), orderBy('paymentDate', 'desc'));
+            const snap = await getDocs(q);
+            if (snap.empty) {
+                listEl.innerHTML = '<p style="font-size:0.85rem;opacity:0.5;">No payments recorded yet.</p>';
+                return;
+            }
+            const currMap = { EUR: '€', USD: '$', CRC: '₡' };
+            listEl.innerHTML = snap.docs.map(d => {
+                const p = d.data();
+                const dateStr = p.paymentDate?.seconds ? new Date(p.paymentDate.seconds * 1000).toLocaleDateString() : (p.paymentDate || '—');
+                const sym = currMap[p.currency] || '€';
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--glass-border);gap:1rem;">
+                    <div>
+                        <div style="font-size:0.85rem;font-weight:600;color:var(--color-platinum);">${p.planLabel || p.planType}</div>
+                        <div style="font-size:0.75rem;color:var(--color-text-secondary);">${dateStr} · <span style="font-family:monospace;color:var(--color-accent);">${p.licenseCode}</span></div>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;align-items:center;">
+                        <span style="font-weight:700;color:#00c875;">${sym}${p.amount || 0}</span>
+                        ${p.invoiceUrl ? `<a href="${p.invoiceUrl}" target="_blank" class="report-btn" title="Download Invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (err) {
+            console.warn('Payment history load:', err);
+            const listEl2 = document.getElementById('sub-payment-list');
+            if (listEl2) listEl2.innerHTML = '<p style="font-size:0.8rem;opacity:0.5;">Could not load history.</p>';
+        }
+    })();
 
     const fileInputEl = document.getElementById('report-file-input');
     const fileNameLabel = document.getElementById('report-file-name-label');

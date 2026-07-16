@@ -13,519 +13,1124 @@ import {
     updateDoc, 
     serverTimestamp,
     addDoc,
-    collection
+    collection,
+    query,
+    where,
+    getDocs,
+    orderBy
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-let isSigningUp = false;
+const initialUrlParams = new URLSearchParams(window.location.search);
+if (initialUrlParams.has('subscribe')) {
+    sessionStorage.setItem('pending_subscribe', initialUrlParams.get('subscribe'));
+}
 
-const loginView = document.getElementById('login-view');
-const signupView = document.getElementById('signup-view');
-const authSection = document.getElementById('auth-section');
-const profileSection = document.getElementById('profile-section');
-const errorMsg = document.getElementById('error-message');
+// ── Constants ────────────────────────────────────────────────────────────────
+const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+const GRACE_PERIOD_DAYS = 15;
 
-const showSignup = document.getElementById('show-signup');
-const showLogin = document.getElementById('show-login');
-const prospectView = document.getElementById('prospect-view');
-const showProspect = document.getElementById('show-prospect');
-const showProspectFromSignup = document.getElementById('show-prospect-from-signup');
-const showLoginFromProspect = document.getElementById('show-login-from-prospect');
-const showSignupFromProspect = document.getElementById('show-signup-from-prospect');
-
-const loginForm = document.getElementById('login-form');
-const signupForm = document.getElementById('signup-form');
-const prospectForm = document.getElementById('prospect-form');
-const logoutBtn = document.getElementById('logoutBtn');
-
-// View Toggles
-showSignup.addEventListener('click', (e) => {
-    e.preventDefault();
-    loginView.classList.add('hidden');
-    prospectView.classList.add('hidden');
-    signupView.classList.remove('hidden');
-    errorMsg.classList.add('hidden');
-});
-
-showLogin.addEventListener('click', (e) => {
-    e.preventDefault();
-    signupView.classList.add('hidden');
-    prospectView.classList.add('hidden');
-    loginView.classList.remove('hidden');
-    errorMsg.classList.add('hidden');
-});
-
-const showProspectHandler = (e) => {
-    e.preventDefault();
-    loginView.classList.add('hidden');
-    signupView.classList.add('hidden');
-    prospectView.classList.remove('hidden');
-    errorMsg.classList.add('hidden');
+// Plan definitions — single source of truth
+const PLANS = {
+    hosting:      { code: 'H0ST', label: 'Domain & Hosting',          price: { monthly: null, annual: 99 },    period: 'annual',  tier: 1 },
+    basic:        { code: 'ECO1', label: 'Basic Maintenance',          price: { monthly: 70,   annual: 700 },   period: 'monthly', tier: 2 },
+    preferential: { code: 'ECO2', label: 'Preferential Maintenance',  price: { monthly: 99,   annual: 990 },   period: 'monthly', tier: 3 },
+    advanced:     { code: 'ECO3', label: 'Advanced Maintenance',       price: { monthly: 120,  annual: 1200 },  period: 'monthly', tier: 4 },
+    crm:          { code: 'CRMP', label: 'Custom Core CRM',            price: { monthly: 50,   annual: 500 },   period: 'monthly', tier: 4 }
 };
 
-if (showProspect) showProspect.addEventListener('click', showProspectHandler);
-if (showProspectFromSignup) showProspectFromSignup.addEventListener('click', showProspectHandler);
+const PERIOD_CODES = { monthly: 'M3N1', annual: 'ANL1' };
 
-showLoginFromProspect.addEventListener('click', (e) => {
-    e.preventDefault();
-    prospectView.classList.add('hidden');
-    loginView.classList.remove('hidden');
-    errorMsg.classList.add('hidden');
-});
+// ── License Code Generator ────────────────────────────────────────────────────
+function generateLicenseCode(planType, billingCycle) {
+    const plan   = PLANS[planType];
+    const period = PERIOD_CODES[billingCycle] || 'M3N1';
+    const now    = new Date();
+    const mm     = String(now.getMonth() + 1).padStart(2, '0');
+    const yy     = String(now.getFullYear()).slice(-2);
+    return `ELY-${plan.code}-${period}-${mm}${yy}`;
+}
 
-showSignupFromProspect.addEventListener('click', (e) => {
-    e.preventDefault();
-    prospectView.classList.add('hidden');
-    signupView.classList.remove('hidden');
-    errorMsg.classList.add('hidden');
-});
+// ── State ────────────────────────────────────────────────────────────────────
+let isSigningUp = false;
+let currentUser = null;
+let currentUserData = null;
 
-// Prospect Checkbox Toggle
-const prospectIsClientCheckbox = document.getElementById('prospect-is-client');
-const prospectLicenseGroup = document.getElementById('prospect-license-group');
-const prospectLicenseInput = document.getElementById('prospect-license');
+// ── DOM References ────────────────────────────────────────────────────────────
+const loginView          = document.getElementById('login-view');
+const signupView         = document.getElementById('signup-view');
+const authSection        = document.getElementById('auth-section');
+const profileSection     = document.getElementById('profile-section');
+const errorMsg           = document.getElementById('error-message');
+const prospectView       = document.getElementById('prospect-view');
+const showSignup         = document.getElementById('show-signup');
+const showLogin          = document.getElementById('show-login');
+const showProspect       = document.getElementById('show-prospect');
+const showProspectFromSignup  = document.getElementById('show-prospect-from-signup');
+const showLoginFromProspect   = document.getElementById('show-login-from-prospect');
+const showSignupFromProspect  = document.getElementById('show-signup-from-prospect');
+const loginForm          = document.getElementById('login-form');
+const signupForm         = document.getElementById('signup-form');
+const prospectForm       = document.getElementById('prospect-form');
+const logoutBtn          = document.getElementById('logoutBtn');
 
-prospectIsClientCheckbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-        prospectLicenseGroup.classList.remove('hidden');
-        prospectLicenseInput.setAttribute('required', 'true');
-    } else {
-        prospectLicenseGroup.classList.add('hidden');
-        prospectLicenseInput.removeAttribute('required');
-        prospectLicenseInput.value = '';
+// ── Language detection ────────────────────────────────────────────────────────
+const pathParts  = window.location.pathname.split('/');
+const isEs       = pathParts.some(p => p === 'es');
+const isPt       = pathParts.some(p => p === 'pt');
+const lang       = isEs ? 'es' : isPt ? 'pt' : 'en';
+
+// ── i18n strings ─────────────────────────────────────────────────────────────
+const i18n = {
+    en: {
+        noSub_title:   "Welcome to Elysium λ",
+        noSub_body:    "Your active projects will appear here once you select a subscription plan below.",
+        monthly:       "Monthly",
+        annual:        "Annual",
+        subscribe:     "Select Plan",
+        contact_sub_title:   "Activate your subscription",
+        contact_sub_body:    "To activate this plan, contact your Elysium representative or reach us at info@elysiumdr.eu. We'll set everything up for you.",
+        contact_sub_close:   "Close",
+        suspended_title: "Subscription Suspended",
+        suspended_body:  "Your subscription is currently suspended due to a missed payment. Please regularise your account to regain access to your dashboard.",
+        suspended_btn:   "Reactivate Subscription",
+        pending_banner:  "⚠️ Payment pending — your subscription renews on {date}. You have until {graceEnd} to complete the payment before access is suspended.",
+        onboarding_popup_title: "Complete your onboarding",
+        onboarding_popup_body:  "You have an active subscription! Complete your onboarding to help us understand your project and get started.",
+        onboarding_popup_btn:   "Start Onboarding",
+        onboarding_popup_later: "Remind me later",
+        onboarding_float_label: "Onboarding",
+        plan_hosting:    "Domain & Hosting",
+        plan_basic:      "Basic Maintenance",
+        plan_preferential: "Preferential Maintenance",
+        plan_advanced:   "Advanced Maintenance",
+        plan_crm:        "Custom Core CRM",
+        per_month:       "/ month",
+        per_year:        "/ year",
+        hosting_info_title:   "Your Hosting Plan",
+        hosting_validity:     "Plan Validity",
+        hosting_renewal:      "Next Renewal",
+        hosting_status:       "Status",
+        hosting_active:       "Active",
+        hosting_license:      "License Code",
+        billing_history:      "Payment History",
+        no_payments:          "No payment records yet.",
+        save_changes:         "Save Changes"
+    },
+    es: {
+        noSub_title:   "Bienvenido a Elysium λ",
+        noSub_body:    "Tus proyectos activos aparecerán aquí una vez que selecciones un plan de suscripción.",
+        monthly:       "Mensual",
+        annual:        "Anual",
+        subscribe:     "Seleccionar Plan",
+        contact_sub_title:   "Activa tu suscripción",
+        contact_sub_body:    "Para activar este plan, contacta a tu representante de Elysium o escríbenos a info@elysiumdr.eu. Nos encargamos de todo.",
+        contact_sub_close:   "Cerrar",
+        suspended_title: "Suscripción Suspendida",
+        suspended_body:  "Tu suscripción está suspendida por un pago pendiente. Regulariza tu cuenta para volver a acceder al dashboard.",
+        suspended_btn:   "Reactivar Suscripción",
+        pending_banner:  "⚠️ Pago pendiente — tu suscripción se renueva el {date}. Tienes hasta el {graceEnd} para completar el pago antes de que se suspenda el acceso.",
+        onboarding_popup_title: "Completa tu onboarding",
+        onboarding_popup_body:  "¡Tienes una suscripción activa! Completa el onboarding para que podamos entender tu proyecto y comenzar.",
+        onboarding_popup_btn:   "Iniciar Onboarding",
+        onboarding_popup_later: "Recordarme luego",
+        onboarding_float_label: "Onboarding",
+        plan_hosting:    "Dominio y Hosting",
+        plan_basic:      "Mantenimiento Básico",
+        plan_preferential: "Mantenimiento Preferencial",
+        plan_advanced:   "Mantenimiento Avanzado",
+        plan_crm:        "CRM Personalizado",
+        per_month:       "/ mes",
+        per_year:        "/ año",
+        hosting_info_title:   "Tu Plan de Hosting",
+        hosting_validity:     "Vigencia del Plan",
+        hosting_renewal:      "Próxima Renovación",
+        hosting_status:       "Estado",
+        hosting_active:       "Activo",
+        hosting_license:      "Código de Licencia",
+        billing_history:      "Historial de Pagos",
+        no_payments:          "Aún no hay registros de pago.",
+        save_changes:         "Guardar Cambios"
+    },
+    pt: {
+        noSub_title:   "Bem-vindo ao Elysium λ",
+        noSub_body:    "Os seus projectos activos aparecerão aqui depois de seleccionar um plano de subscrição.",
+        monthly:       "Mensal",
+        annual:        "Anual",
+        subscribe:     "Seleccionar Plano",
+        contact_sub_title:   "Active a sua subscrição",
+        contact_sub_body:    "Para activar este plano, contacte o seu representante Elysium ou envie-nos um email para info@elysiumdr.eu. Tratamos de tudo.",
+        contact_sub_close:   "Fechar",
+        suspended_title: "Subscrição Suspensa",
+        suspended_body:  "A sua subscrição está suspensa por um pagamento em falta. Regularize a sua conta para voltar a aceder ao painel.",
+        suspended_btn:   "Reactivar Subscrição",
+        pending_banner:  "⚠️ Pagamento pendente — a sua subscrição renova em {date}. Tem até {graceEnd} para efectuar o pagamento antes de o acesso ser suspenso.",
+        onboarding_popup_title: "Complete o seu onboarding",
+        onboarding_popup_body:  "Tem uma subscrição activa! Complete o onboarding para que possamos entender o seu projecto e começar.",
+        onboarding_popup_btn:   "Iniciar Onboarding",
+        onboarding_popup_later: "Lembrar mais tarde",
+        onboarding_float_label: "Onboarding",
+        plan_hosting:    "Domínio e Alojamento",
+        plan_basic:      "Manutenção Básica",
+        plan_preferential: "Manutenção Preferencial",
+        plan_advanced:   "Manutenção Avançada",
+        plan_crm:        "CRM Personalizado",
+        per_month:       "/ mês",
+        per_year:        "/ ano",
+        hosting_info_title:   "O Seu Plano de Alojamento",
+        hosting_validity:     "Vigência do Plano",
+        hosting_renewal:      "Próxima Renovação",
+        hosting_status:       "Estado",
+        hosting_active:       "Activo",
+        hosting_license:      "Código de Licença",
+        billing_history:      "Histórico de Pagamentos",
+        no_payments:          "Ainda não existem registos de pagamento.",
+        save_changes:         "Guardar Alterações"
     }
-});
+};
 
+const t = i18n[lang] || i18n.en;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function showError(text) {
+    if (!errorMsg) return;
     errorMsg.textContent = text;
     errorMsg.classList.remove('hidden');
 }
 
-// Authentication State Observer
-onAuthStateChanged(auth, async (user) => {
-    if (isSigningUp) return; // Prevent interference during registration
+function formatDate(ts) {
+    if (!ts) return '—';
+    const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+    return d.toLocaleDateString(lang === 'en' ? 'en-GB' : lang === 'es' ? 'es-CR' : 'pt-PT', {
+        day: '2-digit', month: 'long', year: 'numeric'
+    });
+}
+
+function formatPrice(amount, currency) {
+    if (!amount) return '—';
+    const symbols = { EUR: '€', USD: '$', CRC: '₡' };
+    const s = symbols[currency] || '€';
+    return `${s}${amount.toLocaleString()}`;
+}
+
+// ── View Toggle Handlers ──────────────────────────────────────────────────────
+if (showSignup) showSignup.addEventListener('click', e => {
+    e.preventDefault();
+    loginView?.classList.add('hidden');
+    prospectView?.classList.add('hidden');
+    signupView?.classList.remove('hidden');
+    errorMsg?.classList.add('hidden');
+});
+
+if (showLogin) showLogin.addEventListener('click', e => {
+    e.preventDefault();
+    signupView?.classList.add('hidden');
+    prospectView?.classList.add('hidden');
+    loginView?.classList.remove('hidden');
+    errorMsg?.classList.add('hidden');
+});
+
+const showProspectHandler = e => {
+    e.preventDefault();
+    loginView?.classList.add('hidden');
+    signupView?.classList.add('hidden');
+    prospectView?.classList.remove('hidden');
+    errorMsg?.classList.add('hidden');
+};
+if (showProspect) showProspect.addEventListener('click', showProspectHandler);
+if (showProspectFromSignup) showProspectFromSignup.addEventListener('click', showProspectHandler);
+
+if (showLoginFromProspect) showLoginFromProspect.addEventListener('click', e => {
+    e.preventDefault();
+    prospectView?.classList.add('hidden');
+    loginView?.classList.remove('hidden');
+    errorMsg?.classList.add('hidden');
+});
+
+if (showSignupFromProspect) showSignupFromProspect.addEventListener('click', e => {
+    e.preventDefault();
+    prospectView?.classList.add('hidden');
+    signupView?.classList.remove('hidden');
+    errorMsg?.classList.add('hidden');
+});
+
+// Prospect is-client checkbox toggle
+const prospectIsClientCheckbox = document.getElementById('prospect-is-client');
+const prospectLicenseGroup     = document.getElementById('prospect-license-group');
+const prospectLicenseInput     = document.getElementById('prospect-license');
+
+if (prospectIsClientCheckbox) {
+    prospectIsClientCheckbox.addEventListener('change', e => {
+        if (e.target.checked) {
+            prospectLicenseGroup?.classList.remove('hidden');
+            prospectLicenseInput?.setAttribute('required', 'true');
+        } else {
+            prospectLicenseGroup?.classList.add('hidden');
+            prospectLicenseInput?.removeAttribute('required');
+            if (prospectLicenseInput) prospectLicenseInput.value = '';
+        }
+    });
+}
+
+// ── Auth State Observer (main entry point) ────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+    if (isSigningUp) return;
 
     if (user) {
-        const isPageOnboarding = window.location.pathname.includes('onboarding.html');
-        
+        currentUser = user;
+
+        // Super-admin redirect
+        if (user.email === SUPER_ADMIN_EMAIL && sessionStorage.getItem('dev_mode') !== 'true') {
+            if (!window.location.pathname.includes('admin.html')) {
+                const localized = pathParts.some(p => p === 'es' || p === 'pt');
+                window.location.href = localized ? '../admin.html' : 'admin.html';
+            }
+            return;
+        }
+
         try {
-            const memberRef = doc(db, 'members', user.uid);
-            const memberDoc = await getDoc(memberRef);
-            
-            let onboardingCompleted = false;
-            let userData = null;
+            const memberRef  = doc(db, 'members', user.uid);
+            const memberSnap = await getDoc(memberRef);
 
-            if (memberDoc.exists()) {
-                userData = memberDoc.data();
-                onboardingCompleted = userData.onboardingCompleted === true;
-            } else {
-                // If the document doesn't exist for a logged-in user, create it (auto-fix for legacy users)
-                // Skip if user was just created to prevent race conditions even on cross-tab
+            let userData;
+
+            if (!memberSnap.exists()) {
+                // New user — doc may not exist yet if registration was very recent
                 const isNewUser = Date.now() - new Date(user.metadata.creationTime).getTime() < 60000;
+                if (isNewUser) return; // Wait for registration block to finish
                 
-                if (!isNewUser) {
-                    userData = {
-                        name: user.displayName || 'Partner',
-                        email: user.email,
-                        role: 'partner',
-                        onboardingCompleted: false,
-                        createdAt: serverTimestamp()
+                // Auto-create for edge cases (e.g. Google sign-in future)
+                userData = {
+                    name: user.displayName || 'Partner',
+                    email: user.email,
+                    role: 'partner',
+                    subscription: null,
+                    onboardingCompleted: false,
+                    createdAt: serverTimestamp()
+                };
+                await setDoc(memberRef, userData);
+            } else {
+                userData = memberSnap.data();
+
+                // ── Silent legacy migration ───────────────────────────────────
+                // Old users have licenseCode at root level without subscription object
+                if (userData.licenseCode && !userData.subscription) {
+                    const migrated = {
+                        planType:      'basic', // conservative default
+                        planLabel:     'Basic Maintenance',
+                        billingCycle:  'monthly',
+                        status:        'active',
+                        licenseCode:   userData.licenseCode,
+                        startDate:     userData.createdAt || serverTimestamp(),
+                        nextBillingDate: null,
+                        isManual:      true,
+                        stripeCustomerId:     null,
+                        stripeSubscriptionId: null,
+                        gracePeriodEnd: null
                     };
-                    await setDoc(memberRef, userData);
-                } else {
-                    return; // Wait for registration block to finish it
+                    userData.subscription = migrated;
+                    // Write migration silently (fire & forget)
+                    updateDoc(memberRef, { subscription: migrated }).catch(console.warn);
                 }
-                onboardingCompleted = false;
             }
 
-            // Special Case: Super Admin Redirect
-            if (user.email === 'danielalonzzo@icloud.com' && sessionStorage.getItem('dev_mode') !== 'true') {
-                if (!window.location.pathname.includes('admin.html')) {
-                    const pathParts = window.location.pathname.split('/');
-                    const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
+            currentUserData = userData;
+
+            // ── Check subscription status on client side ───────────────────
+            checkAndUpdateSubscriptionStatus(userData, memberRef);
+
+            // ── Render dashboard ───────────────────────────────────────────
+            renderDashboard(userData);
+
+            // Check for pending subscription
+            const pendingSubscribe = sessionStorage.getItem('pending_subscribe');
+            if (pendingSubscribe) {
+                sessionStorage.removeItem('pending_subscribe');
+                
+                const planMap = {
+                    'domain_hosting': 'hosting',
+                    'basic_maintenance': 'basic',
+                    'preferential_maintenance': 'preferential',
+                    'advanced_maintenance': 'advanced',
+                    'custom_core_crm': 'crm'
+                };
+                const planKey = planMap[pendingSubscribe] || pendingSubscribe;
+                
+                // Give UI a tiny moment to render before acting
+                setTimeout(() => {
+                    const navSus = document.getElementById('nav-suscripciones');
+                    if (navSus) navSus.click(); // If legacy tabs exist
                     
-                    // Capture and persist current language context
-                    if (isLocalized) {
-                        const langCode = pathParts.find(p => p === 'es' || p === 'pt');
-                        localStorage.setItem('elysium_lang', langCode);
-                        localStorage.setItem('langOverride', 'true');
+                    const planBtn = document.querySelector(`.plan-select-btn[data-plan="${planKey}"]`);
+                    if (planBtn) {
+                        planBtn.click();
+                    } else if (typeof showContactSubscriptionModal === 'function') {
+                        showContactSubscriptionModal(planKey, planKey === 'hosting' ? 'annual' : 'monthly');
                     }
-                    
-                    window.location.href = isLocalized ? '../admin.html' : 'admin.html';
-                }
-                return;
+                }, 500);
             }
 
-            // Global Block: Force completion of onboarding (only for partners)
-            if (userData.role !== 'prospect' && !isPageOnboarding) {
-                const projects = userData.projects || [];
-                
-                // Legacy check
-                if (projects.length === 0 && !userData.onboardingCompleted) {
-                    const pathParts = window.location.pathname.split('/');
-                    const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
-                    window.location.href = isLocalized ? 'onboarding.html' : 'onboarding.html';
-                    return;
-                }
-
-                // Check if ANY project requires onboarding
-                const projectNeedingOnboarding = projects.find(p => 
-                    p.projectStage === 'prospect' || 
-                    p.onboardingCompleted === false || 
-                    (p.id !== 'project-1' && !p.onboardingCompleted)
-                );
-
-                if (projectNeedingOnboarding) {
-                    const pathParts = window.location.pathname.split('/');
-                    const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
-                    window.location.href = `onboarding.html?projectId=${projectNeedingOnboarding.id}`;
-                    return;
-                }
-            }
-
-            // If we are on profiles.html and onboarding IS completed (or it's a prospect), show the portal
-            if (!isPageOnboarding && authSection && profileSection) {
-                authSection.parentElement.parentElement.classList.add('hidden'); // Hide the wrapper section
-                profileSection.classList.remove('hidden');
-                
-                // Hide global layout for SPA feel
-                const navbar = document.querySelector('.navbar');
-                const footer = document.querySelector('footer');
-                if (navbar) navbar.style.display = 'none';
-                if (footer) footer.style.display = 'none';
-                document.body.style.overflow = 'hidden';
-                
-                // Bind Data
-                const welcomeName = document.getElementById('sidebar-welcome-name');
-                const partnerCompany = document.getElementById('sidebar-partner-company');
-                
-                const pName = document.getElementById('profile-name');
-                const pEmail = document.getElementById('profile-email');
-                const pCompany = document.getElementById('profile-company');
-                const pLicense = document.getElementById('profile-license');
-
-                if (userData.role === 'prospect') {
-                    if (welcomeName) welcomeName.textContent = `Welcome, ${userData.name || 'Prospect'}`;
-                    if (partnerCompany) partnerCompany.textContent = "Your account is under review.";
-                    
-                    if (pName) pName.textContent = userData.name || '-';
-                    if (pEmail) pEmail.textContent = userData.email || '-';
-                    if (pCompany) pCompany.textContent = "Under review";
-                    if (pLicense) pLicense.textContent = "Pending";
-                    
-                    // Hide any project access button if it exists
-                    const projectBtnContainer = document.getElementById('client-projects-list');
-                    if (projectBtnContainer) projectBtnContainer.innerHTML = '<p style="color: var(--color-text-secondary);">Your account is under review.</p>';
-                } else {
-                    if (welcomeName) welcomeName.textContent = `Welcome, ${userData.name || 'Partner'}`;
-                    if (partnerCompany) partnerCompany.textContent = userData.company || '';
-                    
-                    if (pName) pName.textContent = userData.name || '-';
-                    if (pEmail) pEmail.textContent = userData.email || '-';
-                    if (pCompany) pCompany.textContent = userData.company || '-';
-                    if (pLicense) pLicense.textContent = userData.licenseCode || 'Active';
-
-                    
-                    if (userData.projectUrl || (userData.projects && userData.projects.length > 0)) {
-                        const projectListContainer = document.getElementById('client-projects-list');
-                        if (projectListContainer) {
-                            projectListContainer.innerHTML = ''; // Clear existing
-                            
-                            const isEs = window.location.pathname.includes('/es/');
-                            const isPt = window.location.pathname.includes('/pt/');
-                            let btnText = 'Access My Project';
-                            if (isEs) btnText = 'Acceder a mi Proyecto';
-                            if (isPt) btnText = 'Acessar meu Projeto';
-                            
-                            // Ensure there is at least one project from the new format or legacy format
-                            const projectsToRender = userData.projects || [{
-                                id: 'legacy',
-                                name: userData.company || 'Main Project',
-                                projectUrl: userData.projectUrl
-                            }];
-                            
-                            projectsToRender.forEach((proj, index) => {
-                                if (proj.projectUrl) {
-                                    const a = document.createElement('a');
-                                    a.href = proj.projectUrl;
-                                    a.target = '_blank';
-                                    a.className = 'btn btn-primary';
-                                    a.style.display = 'inline-flex';
-                                    a.style.alignItems = 'center';
-                                    a.style.gap = '0.5rem';
-                                    a.style.border = 'none !important';
-                                    a.style.width = '100%';
-                                    a.style.justifyContent = 'center';
-                                    
-                                    const projName = proj.name || `Project ${index + 1}`;
-                                    
-                                    a.innerHTML = `
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 1.2rem; height: 1.2rem;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                        ${btnText} - ${projName}
-                                    `;
-                                    projectListContainer.appendChild(a);
-                                }
-                            });
-                        }
-                    }
-                } // closes else (partner block)
-        } // closes if (!isPageOnboarding)
-
-        } catch (error) {
-            console.error("Error in auth state handling:", error);
+        } catch (err) {
+            console.error("Error in auth state:", err);
         }
     } else {
-        if (authSection && profileSection) {
-            authSection.classList.remove('hidden');
-            profileSection.classList.add('hidden');
-        }
-        
-        // If logged out and on onboarding page, redirect to profiles
+        currentUser = null;
+        currentUserData = null;
+        authSection?.classList.remove('hidden');
+        profileSection?.classList.add('hidden');
+
         if (window.location.pathname.includes('onboarding.html')) {
-            window.location.href = 'profiles.html';
+            window.location.href = isEs ? '../profiles.html' : isPt ? '../profiles.html' : 'profiles.html';
         }
     }
 });
 
-// Login Logic
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
+// ── Client-side subscription status check ────────────────────────────────────
+function checkAndUpdateSubscriptionStatus(userData, memberRef) {
+    const sub = userData.subscription;
+    if (!sub || !sub.nextBillingDate || sub.status === 'suspended') return;
 
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-        showError("Invalid credentials. Please check your email and password.");
+    const now           = Date.now();
+    const nextBilling   = sub.nextBillingDate.seconds * 1000;
+    const graceEnd      = sub.gracePeriodEnd ? sub.gracePeriodEnd.seconds * 1000 : nextBilling + (GRACE_PERIOD_DAYS * 86400000);
+
+    if (now > graceEnd && sub.status === 'pending_payment') {
+        // Grace period expired — suspend locally (server cron does authoritative update)
+        userData.subscription.status = 'suspended';
+    } else if (now > nextBilling && sub.status === 'active') {
+        userData.subscription.status = 'pending_payment';
+        userData.subscription.gracePeriodEnd = new Date(graceEnd);
     }
-});
+}
 
-// Signup Logic with License Validation
-signupForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    isSigningUp = true;
-    const name = document.getElementById('signup-name').value;
-    const company = document.getElementById('signup-company').value;
-    const email = document.getElementById('signup-email').value;
-    const licenseCode = document.getElementById('signup-license').value.trim();
-    const password = document.getElementById('signup-password').value;
-    const repeatPassword = document.getElementById('signup-password-repeat').value;
+// ── Main Dashboard Renderer ───────────────────────────────────────────────────
+function renderDashboard(userData) {
+    const sub = userData.subscription;
 
-    if (password.length < 6) {
-        showError("Password must be at least 6 characters.");
-        isSigningUp = false;
-        return;
+    // Hide auth, show profile
+    const authWrapper = authSection?.closest('section') || authSection?.parentElement?.parentElement;
+    if (authWrapper) authWrapper.classList.add('hidden');
+    profileSection?.classList.remove('hidden');
+
+    // Hide global layout for SPA feel
+    document.querySelector('.navbar')?.style.setProperty('display', 'none');
+    document.querySelector('footer')?.style.setProperty('display', 'none');
+    document.body.style.overflow = 'hidden';
+
+    // Fill sidebar identity
+    const welcomeName    = document.getElementById('sidebar-welcome-name');
+    const partnerCompany = document.getElementById('sidebar-partner-company');
+    if (welcomeName)    welcomeName.textContent  = userData.name    || 'Partner';
+    if (partnerCompany) partnerCompany.textContent = userData.company || '—';
+
+    // Fill profile tab
+    fillProfileTab(userData);
+
+    // Route to correct state
+    if (!sub || !sub.planType) {
+        renderPreSubscriptionState();
+    } else if (sub.status === 'suspended') {
+        renderSuspendedState(userData);
+    } else {
+        renderActiveSubscriptionState(userData);
     }
+}
 
-    if (password !== repeatPassword) {
-        showError("Passwords do not match.");
-        isSigningUp = false;
-        return;
-    }
+// ── PRE-SUBSCRIPTION STATE ────────────────────────────────────────────────────
+function renderPreSubscriptionState() {
+    // Update Resumen section
+    const resumenSection = document.getElementById('resumen');
+    if (!resumenSection) return;
 
-    try {
-        // 1. Validate License
-        const licenseRef = doc(db, 'licenses', licenseCode);
-        const licenseSnap = await getDoc(licenseRef);
+    resumenSection.innerHTML = buildPreSubscriptionHTML();
 
-        if (!licenseSnap.exists()) {
-            showError("Invalid license code. Please contact Elysium to receive one.");
-            isSigningUp = false;
-            return;
-        }
+    // Hide advanced sidebar tabs (keep only Resumen + Perfil)
+    setSidebarVisibility('none');
 
-        const licenseData = licenseSnap.data();
-        if (licenseData.status !== 'active') {
-            showError("This license has already been used or is inactive.");
-            isSigningUp = false;
-            return;
-        }
+    // Wire billing toggle
+    wireBillingToggle(resumenSection);
 
-        // 2. Create User
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // 3. Save Member Data First
-        await setDoc(doc(db, 'members', user.uid), {
-            name: name,
-            company: company,
-            email: email,
-            licenseCode: licenseCode,
-            role: 'partner',
-            onboardingCompleted: false, // New field for mandatory onboarding
-            createdAt: serverTimestamp()
+    // Wire plan buttons
+    resumenSection.querySelectorAll('.plan-select-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const planType    = btn.dataset.plan;
+            const billingCycle = resumenSection.querySelector('.billing-toggle-btn.active')?.dataset.cycle || 'monthly';
+            showContactSubscriptionModal(planType, billingCycle);
         });
+    });
+}
 
-        // 4. Update Profile
-        await updateProfile(user, { displayName: name });
+function buildPreSubscriptionHTML() {
+    return `
+        <div class="dashboard-header">
+            <div>
+                <h1>${t.noSub_title}</h1>
+                <p class="color-text-secondary">${t.noSub_body}</p>
+            </div>
+        </div>
 
-        // 5. Mark License as Used Last
-        try {
-            await updateDoc(licenseRef, {
-                status: 'used',
-                assignedTo: email,
-                usedAt: serverTimestamp()
+        <!-- Billing toggle -->
+        <div style="display:flex; gap:0.5rem; margin-bottom:2rem; background:var(--glass-bg); border-radius:var(--radius-sm); padding:4px; width:fit-content; border:1px solid var(--glass-border);">
+            <button class="billing-toggle-btn active" data-cycle="monthly" style="${billingToggleBtnStyle(true)}">${t.monthly}</button>
+            <button class="billing-toggle-btn" data-cycle="annual" style="${billingToggleBtnStyle(false)}">${t.annual} <span style="font-size:0.7rem; color:#00c875; margin-left:4px;">−15%</span></button>
+        </div>
+
+        <!-- Plans grid -->
+        <div class="subscription-grid">
+            ${buildPlanCard('hosting',      t.plan_hosting,      '€99',  t.per_year,  ['Domain management & identity', 'High-availability web hosting', 'Base infrastructure updates'], false, '🌐')}
+            ${buildPlanCard('basic',        t.plan_basic,        '€70',  t.per_month, ['Domain & Hosting included', 'Corporate website development', 'Mobile-first fluid design'], false, '⚙️')}
+            ${buildPlanCard('preferential', t.plan_preferential, '€99',  t.per_month, ['Basic features included', 'Multi-language support', 'Light/Dark mode adaptation'], true,  '⭐')}
+            ${buildPlanCard('advanced',     t.plan_advanced,     '€120', t.per_month, ['Preferential features included', 'Private CRM platform', 'Custom scalable software'], false, '🚀')}
+            ${buildPlanCard('crm',          t.plan_crm,          '€50',  t.per_month, ['Intuitive control panel', '100% confidential workspace', 'Direct centralised access'], false, '🧩')}
+        </div>
+    `;
+}
+
+function billingToggleBtnStyle(active) {
+    return `background:${active ? 'var(--color-accent)' : 'transparent'}; color:${active ? '#fff' : 'var(--color-text-secondary)'}; border:none; padding:0.5rem 1.2rem; border-radius:6px; cursor:pointer; font-size:0.85rem; font-weight:600; transition:all 0.2s;`;
+}
+
+function buildPlanCard(planType, label, price, period, features, featured, icon) {
+    return `
+        <div class="sub-card${featured ? ' featured-sub' : ''}">
+            ${featured ? '<div class="featured-badge">Most Popular</div>' : ''}
+            <div>
+                <div style="font-size:1.5rem; margin-bottom:0.5rem;">${icon}</div>
+                <h4 class="sub-title">${label}</h4>
+                <p class="sub-price">${price} <span class="sub-period">${period}</span></p>
+                <ul class="sub-features">
+                    ${features.map(f => `<li>${f}</li>`).join('')}
+                </ul>
+            </div>
+            <button class="btn btn-primary sub-btn plan-select-btn" data-plan="${planType}">${t.subscribe}</button>
+        </div>
+    `;
+}
+
+function wireBillingToggle(container) {
+    container.querySelectorAll('.billing-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            container.querySelectorAll('.billing-toggle-btn').forEach(b => {
+                b.style.background = 'transparent';
+                b.style.color      = 'var(--color-text-secondary)';
+                b.classList.remove('active');
             });
-        } catch (licenseError) {
-            console.warn("License update failed (check Firestore rules):", licenseError);
-            // We don't throw here so the user can still proceed since the account is already created
-        }
+            btn.style.background = 'var(--color-accent)';
+            btn.style.color      = '#fff';
+            btn.classList.add('active');
 
-        // Redirect manually on successful signup
-        const pathParts = window.location.pathname.split('/');
-        const isLocalized = pathParts.some(p => p === 'es' || p === 'pt');
-        
-        if (isLocalized) {
-            window.location.href = 'onboarding.html';
-        } else {
-            window.location.href = 'onboarding.html';
-        }
+            const cycle = btn.dataset.cycle;
+            // Update annual prices
+            const priceMap = {
+                hosting:      { monthly: null,  annual: 99  },
+                basic:        { monthly: 70,    annual: 700 },
+                preferential: { monthly: 99,    annual: 990 },
+                advanced:     { monthly: 120,   annual: 1200 },
+                crm:          { monthly: 50,    annual: 500 }
+            };
+            container.querySelectorAll('.sub-card').forEach(card => {
+                const planType = card.querySelector('.plan-select-btn')?.dataset.plan;
+                if (!planType || !priceMap[planType]) return;
+                const price    = priceMap[planType][cycle];
+                const period   = cycle === 'annual' ? t.per_year : t.per_month;
+                const priceEl  = card.querySelector('.sub-price');
+                if (priceEl && price !== null) {
+                    priceEl.innerHTML = `€${price} <span class="sub-period">${period}</span>`;
+                }
+            });
+        });
+    });
+}
 
-    } catch (error) {
-        isSigningUp = false;
-        console.error(error);
-        if (error.code === 'auth/email-already-in-use') {
-            showError("This email is already registered.");
-        } else {
-            showError("An error occurred during registration: " + error.message);
+// ── CONTACT SUBSCRIPTION MODAL ────────────────────────────────────────────────
+function showContactSubscriptionModal(planType, billingCycle) {
+    const plan     = PLANS[planType];
+    const existing = document.getElementById('contact-sub-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'contact-sub-modal';
+    modal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);`;
+    modal.innerHTML = `
+        <div style="background:var(--color-card-bg, #1a1a2e);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:2.5rem;max-width:480px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+            <div style="width:60px;height:60px;border-radius:50%;background:rgba(41,151,255,0.1);border:2px solid var(--color-accent);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.5rem;">λ</div>
+            <h3 style="color:var(--color-platinum);margin-bottom:0.5rem;">${t.contact_sub_title}</h3>
+            <p style="font-size:0.9rem;color:#00c875;margin-bottom:0.5rem;font-weight:600;">${plan.label} — ${billingCycle === 'annual' ? t.annual : t.monthly}</p>
+            <p style="color:var(--color-text-secondary);margin-bottom:2rem;line-height:1.6;font-size:0.9rem;">${t.contact_sub_body}</p>
+            <a href="mailto:info@elysiumdr.eu?subject=Subscription%20Request%20—%20${encodeURIComponent(plan.label)}" class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;display:block;">info@elysiumdr.eu</a>
+            <button id="close-contact-modal" style="background:transparent;border:1px solid var(--glass-border);color:var(--color-text-secondary);padding:0.75rem 2rem;border-radius:8px;cursor:pointer;width:100%;font-size:0.9rem;">${t.contact_sub_close}</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    modal.querySelector('#close-contact-modal').addEventListener('click', () => modal.remove());
+}
+
+// ── ACTIVE SUBSCRIPTION STATE ─────────────────────────────────────────────────
+function renderActiveSubscriptionState(userData) {
+    const sub      = userData.subscription;
+    const planType = sub.planType;
+    const tier     = PLANS[planType]?.tier || 2;
+
+    // Show pending payment banner if needed
+    if (sub.status === 'pending_payment') {
+        showPendingPaymentBanner(sub);
+    }
+
+    // Configure sidebar based on plan tier
+    configureSidebarByTier(tier);
+
+    // Render appropriate resumen content
+    if (planType === 'hosting') {
+        renderHostingDashboard(userData);
+    } else {
+        renderCRMDashboard(userData, tier);
+    }
+
+    // Load billing tab
+    loadBillingHistory(userData);
+
+    // Fill subscription info tab
+    fillSubscriptionTab(sub);
+
+    // Onboarding reminders (if not completed and has subscription)
+    if (!userData.onboardingCompleted && sub.status === 'active') {
+        attachOnboardingReminders();
+    }
+}
+
+// ── SUSPENDED STATE ───────────────────────────────────────────────────────────
+function renderSuspendedState(userData) {
+    const resumenSection = document.getElementById('resumen');
+    if (!resumenSection) return;
+
+    setSidebarVisibility('none');
+
+    resumenSection.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:2rem;">
+            <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,68,68,0.1);border:2px solid rgba(255,68,68,0.4);display:flex;align-items:center;justify-content:center;margin-bottom:2rem;font-size:2rem;">🔒</div>
+            <h2 style="color:var(--color-platinum);margin-bottom:1rem;">${t.suspended_title}</h2>
+            <p style="color:var(--color-text-secondary);max-width:460px;line-height:1.7;margin-bottom:2rem;">${t.suspended_body}</p>
+            <a href="mailto:info@elysiumdr.eu?subject=Reactivation%20Request" class="btn btn-primary" style="padding:1rem 2.5rem;">${t.suspended_btn}</a>
+        </div>
+    `;
+}
+
+// ── PENDING PAYMENT BANNER ────────────────────────────────────────────────────
+function showPendingPaymentBanner(sub) {
+    const existing = document.getElementById('pending-payment-banner');
+    if (existing) return;
+
+    const adminMain = document.querySelector('.admin-main') || document.querySelector('main');
+    if (!adminMain) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'pending-payment-banner';
+    banner.style.cssText = `background:rgba(255,165,0,0.12);border:1px solid rgba(255,165,0,0.35);border-radius:8px;padding:1rem 1.5rem;margin:1rem 1.5rem 0;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;`;
+
+    const nextDate  = formatDate(sub.nextBillingDate);
+    const graceDate = formatDate(sub.gracePeriodEnd);
+    const msg       = t.pending_banner.replace('{date}', nextDate).replace('{graceEnd}', graceDate);
+
+    banner.innerHTML = `
+        <span style="color:#ffaa00;font-size:0.9rem;flex:1;">${msg}</span>
+        <a href="mailto:info@elysiumdr.eu?subject=Payment%20Regularisation" class="btn btn-primary" style="padding:0.5rem 1.5rem;font-size:0.85rem;white-space:nowrap;">Regularise Payment</a>
+    `;
+
+    adminMain.insertBefore(banner, adminMain.firstChild);
+}
+
+// ── SIDEBAR CONFIGURATION BY TIER ────────────────────────────────────────────
+function setSidebarVisibility(display) {
+    // Hide all tier-gated items
+    ['nav-proyectos', 'nav-documentos', 'nav-mensajes', 'nav-suscripciones', 'nav-facturacion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = display;
+    });
+}
+
+function configureSidebarByTier(tier) {
+    const show = id => { const el = document.getElementById(id); if (el) el.style.display = ''; };
+    const hide = id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; };
+
+    // Tier 1 — Hosting: only resumen + billing + profile
+    if (tier === 1) {
+        hide('nav-suscripciones'); hide('nav-proyectos'); hide('nav-documentos'); hide('nav-mensajes');
+        show('nav-facturacion');
+    }
+    // Tier 2 — Basic: resumen + billing + profile
+    else if (tier === 2) {
+        hide('nav-proyectos'); hide('nav-documentos'); hide('nav-mensajes'); hide('nav-suscripciones');
+        show('nav-facturacion');
+    }
+    // Tier 3 — Preferential: resumen + projects + documents + billing + profile
+    else if (tier === 3) {
+        show('nav-proyectos'); show('nav-documentos'); hide('nav-mensajes'); hide('nav-suscripciones');
+        show('nav-facturacion');
+    }
+    // Tier 4 — Advanced / CRM: everything
+    else {
+        show('nav-proyectos'); show('nav-documentos'); show('nav-mensajes'); hide('nav-suscripciones');
+        show('nav-facturacion');
+    }
+}
+
+// ── HOSTING DASHBOARD ─────────────────────────────────────────────────────────
+function renderHostingDashboard(userData) {
+    const sub = userData.subscription;
+    const resumenSection = document.getElementById('resumen');
+    if (!resumenSection) return;
+
+    const statusColor = sub.status === 'active' ? '#00c875' : '#ffaa00';
+
+    resumenSection.innerHTML = `
+        <div class="dashboard-header">
+            <div>
+                <h1>${t.hosting_info_title}</h1>
+                <p class="color-text-secondary">${PLANS.hosting.label}</p>
+            </div>
+        </div>
+
+        <div class="profile-full-width">
+            <div class="overview-panel">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-bottom:2rem;">
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.5rem;">
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.5rem;">${t.hosting_status}</div>
+                        <div style="font-size:1.1rem;font-weight:700;color:${statusColor};">● ${t.hosting_active}</div>
+                    </div>
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.5rem;">
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.5rem;">${t.hosting_validity}</div>
+                        <div style="font-size:1rem;font-weight:600;color:var(--color-platinum);">${formatDate(sub.startDate)}</div>
+                    </div>
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.5rem;">
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.5rem;">${t.hosting_renewal}</div>
+                        <div style="font-size:1rem;font-weight:600;color:var(--color-platinum);">${formatDate(sub.nextBillingDate)}</div>
+                    </div>
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.5rem;">
+                        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.5rem;">${t.hosting_license}</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;">${sub.licenseCode || '—'}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ── CRM DASHBOARD (basic / preferential / advanced / crm) ────────────────────
+function renderCRMDashboard(userData, tier) {
+    const resumenSection = document.getElementById('resumen');
+    if (!resumenSection) return;
+
+    const sub = userData.subscription;
+
+    // Header
+    const headerHTML = `
+        <div class="dashboard-header">
+            <div>
+                <h1>Resumen</h1>
+                <p class="color-text-secondary">${PLANS[sub.planType]?.label || ''} — ${formatDate(sub.startDate)}</p>
+            </div>
+        </div>
+        <div class="profile-full-width">
+    `;
+
+    // Projects panel
+    let projectsHTML = `
+        <div class="overview-panel">
+            <div class="overview-panel-header"><h3 class="overview-panel-title">Active Projects</h3></div>
+            <div id="client-projects-list" style="display:flex;flex-direction:column;gap:1rem;width:100%;">
+                <p style="color:var(--color-text-secondary);">No active projects currently.</p>
+            </div>
+        </div>
+    `;
+
+    // Subscription status quick panel
+    const statusColor = sub.status === 'active' ? '#00c875' : '#ffaa00';
+    const statusLabel = sub.status === 'active' ? 'Active' : sub.status === 'pending_payment' ? 'Payment Pending' : 'Suspended';
+    const quickSubHTML = `
+        <div class="overview-panel">
+            <div class="overview-panel-header"><h3 class="overview-panel-title">Subscription</h3></div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Plan</span><span style="color:var(--color-platinum);font-weight:600;">${PLANS[sub.planType]?.label}</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Status</span><span style="color:${statusColor};font-weight:600;">● ${statusLabel}</span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">License</span><span style="color:var(--color-accent);font-size:0.85rem;font-weight:700;">${sub.licenseCode || '—'}</span></div>
+                ${sub.nextBillingDate ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Next renewal</span><span style="color:var(--color-platinum);">${formatDate(sub.nextBillingDate)}</span></div>` : ''}
+            </div>
+        </div>
+    `;
+
+    resumenSection.innerHTML = headerHTML + projectsHTML + quickSubHTML + `</div>`;
+
+    // Render project links
+    if (userData.projectUrl || (userData.projects && userData.projects.length > 0)) {
+        const projectListContainer = document.getElementById('client-projects-list');
+        if (projectListContainer) {
+            projectListContainer.innerHTML = '';
+            const projects = userData.projects || [{ id: 'legacy', name: userData.company || 'Main Project', projectUrl: userData.projectUrl }];
+            projects.forEach((proj, i) => {
+                if (proj.projectUrl) {
+                    const a = document.createElement('a');
+                    a.href = proj.projectUrl;
+                    a.target = '_blank';
+                    a.className = 'btn btn-primary';
+                    a.style.cssText = 'display:inline-flex;align-items:center;gap:0.5rem;width:100%;justify-content:center;';
+                    a.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.2rem;height:1.2rem;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> ${proj.name || 'Project ' + (i+1)}`;
+                    projectListContainer.appendChild(a);
+                }
+            });
         }
     }
-});
+}
 
-// Logout Logic
-logoutBtn.addEventListener('click', () => {
-    signOut(auth);
-});
+// ── SUBSCRIPTION TAB ──────────────────────────────────────────────────────────
+function fillSubscriptionTab(sub) {
+    const subSection = document.getElementById('suscripciones');
+    if (!subSection) return;
 
-// Prospect Registration Logic
-prospectForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    isSigningUp = true;
-    const name = document.getElementById('prospect-name').value;
-    const company = document.getElementById('prospect-company').value;
-    const email = document.getElementById('prospect-email').value;
-    const description = document.getElementById('prospect-description').value;
-    const isClient = document.getElementById('prospect-is-client').checked;
-    const licenseCode = document.getElementById('prospect-license').value.trim();
-    const successMsg = document.getElementById('prospect-success-msg');
-    const submitBtn = document.querySelector('#prospect-form button[type="submit"]');
+    const plan = PLANS[sub.planType] || {};
+    subSection.innerHTML = `
+        <div class="dashboard-header">
+            <div><h2>Subscription</h2><p class="color-text-secondary">Your current plan and billing information.</p></div>
+        </div>
+        <div class="profile-full-width">
+            <div class="overview-panel">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.25rem;">
+                        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Current Plan</div>
+                        <div style="font-size:1rem;font-weight:700;color:var(--color-accent);">${plan.label || '—'}</div>
+                    </div>
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.25rem;">
+                        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Billing</div>
+                        <div style="font-size:1rem;font-weight:700;color:var(--color-platinum);">${sub.billingCycle === 'annual' ? 'Annual' : 'Monthly'}</div>
+                    </div>
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.25rem;">
+                        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">License Code</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;">${sub.licenseCode || '—'}</div>
+                    </div>
+                    <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.25rem;">
+                        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Next Billing</div>
+                        <div style="font-size:1rem;font-weight:600;color:var(--color-platinum);">${formatDate(sub.nextBillingDate)}</div>
+                    </div>
+                </div>
+                <div id="billing-payments-list"></div>
+            </div>
+        </div>
+    `;
+}
+
+// ── BILLING HISTORY ───────────────────────────────────────────────────────────
+async function loadBillingHistory(userData) {
+    const container = document.getElementById('billing-payments-list');
+    if (!container) return;
+
+    container.innerHTML = '<div class="premium-loader"></div>';
 
     try {
-        if (isClient && licenseCode) {
-            // Validate the license actually exists if they claim to be a client
-            const licenseRef = doc(db, 'licenses', licenseCode);
-            const licenseSnap = await getDoc(licenseRef);
-            if (!licenseSnap.exists()) {
-                showError("Invalid license code. Please verify your Elysium license number.");
-                isSigningUp = false;
-                return;
+        const q = query(
+            collection(db, 'subscription_payments'),
+            where('userId', '==', currentUser.uid),
+            orderBy('paymentDate', 'desc')
+        );
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+            container.innerHTML = `<p style="color:var(--color-text-secondary);text-align:center;padding:2rem;">${t.no_payments}</p>`;
+            return;
+        }
+
+        const rows = snap.docs.map(d => {
+            const p = d.data();
+            const date   = formatDate(p.paymentDate);
+            const amount = formatPrice(p.amount, p.currency || 'EUR');
+            const method = p.method === 'manual' ? 'Manual' : 'Online';
+            const invoiceLink = p.invoiceUrl ? `<a href="${p.invoiceUrl}" target="_blank" style="color:var(--color-accent);font-size:0.8rem;">View</a>` : '—';
+            return `<tr>
+                <td style="padding:0.75rem 1rem;color:var(--color-text-secondary);font-size:0.875rem;">${date}</td>
+                <td style="padding:0.75rem 1rem;color:var(--color-platinum);font-weight:600;">${amount}</td>
+                <td style="padding:0.75rem 1rem;color:var(--color-text-secondary);font-size:0.85rem;">${method}</td>
+                <td style="padding:0.75rem 1rem;">${invoiceLink}</td>
+            </tr>`;
+        }).join('');
+
+        container.innerHTML = `
+            <h4 style="margin-bottom:1rem;">${t.billing_history}</h4>
+            <table style="width:100%;border-collapse:collapse;">
+                <thead><tr style="border-bottom:1px solid var(--glass-border);">
+                    <th style="padding:0.5rem 1rem;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);">Date</th>
+                    <th style="padding:0.5rem 1rem;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);">Amount</th>
+                    <th style="padding:0.5rem 1rem;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);">Method</th>
+                    <th style="padding:0.5rem 1rem;text-align:left;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);">Invoice</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+        `;
+    } catch (err) {
+        console.warn('Could not load billing history:', err);
+        container.innerHTML = `<p style="color:var(--color-text-secondary);font-size:0.875rem;">Payment history unavailable.</p>`;
+    }
+}
+
+// ── PROFILE TAB ───────────────────────────────────────────────────────────────
+function fillProfileTab(userData) {
+    const sub = userData.subscription;
+    const pName    = document.getElementById('profile-name');
+    const pEmail   = document.getElementById('profile-email');
+    const pCompany = document.getElementById('profile-company');
+    const pLicense = document.getElementById('profile-license');
+    const pLargeName = document.getElementById('profile-name-large');
+    const avatarLarge = document.querySelector('.profile-avatar-large');
+
+    if (pName)      pName.textContent    = userData.name    || '—';
+    if (pEmail)     pEmail.textContent   = userData.email   || '—';
+    if (pCompany)   pCompany.textContent = userData.company || '—';
+    if (pLicense)   pLicense.textContent = sub?.licenseCode || (sub ? 'Active' : 'No subscription');
+    if (pLargeName) pLargeName.textContent = userData.name  || 'Partner';
+    if (avatarLarge) avatarLarge.textContent = (userData.name || 'P')[0].toUpperCase();
+
+    // Sidebar identity
+    const sidebarAvatar = document.querySelector('.sidebar-admin-avatar');
+    if (sidebarAvatar) sidebarAvatar.textContent = (userData.name || 'P')[0].toUpperCase();
+}
+
+// ── ONBOARDING REMINDERS ──────────────────────────────────────────────────────
+function attachOnboardingReminders() {
+    // 1. Floating pulsing button (bottom-right)
+    if (!document.getElementById('onboarding-float-btn')) {
+        const btn = document.createElement('a');
+        btn.id        = 'onboarding-float-btn';
+        btn.href      = isEs ? '../onboarding.html' : isPt ? '../onboarding.html' : 'onboarding.html';
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.2rem;height:1.2rem;"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/></svg>${t.onboarding_float_label}`;
+        btn.style.cssText = `position:fixed;bottom:2rem;right:2rem;z-index:9998;background:var(--color-accent);color:#fff;padding:0.9rem 1.4rem;border-radius:50px;text-decoration:none;display:flex;align-items:center;gap:0.5rem;font-weight:700;font-size:0.85rem;box-shadow:0 4px 20px rgba(41,151,255,0.45);animation:onboarding-pulse 2s infinite;`;
+        document.body.appendChild(btn);
+
+        // Add pulse keyframes if not present
+        if (!document.getElementById('onboarding-pulse-style')) {
+            const style = document.createElement('style');
+            style.id = 'onboarding-pulse-style';
+            style.textContent = `
+                @keyframes onboarding-pulse {
+                    0%   { transform:scale(1);   box-shadow:0 4px 20px rgba(41,151,255,0.45); }
+                    50%  { transform:scale(1.06); box-shadow:0 6px 30px rgba(41,151,255,0.7); }
+                    100% { transform:scale(1);   box-shadow:0 4px 20px rgba(41,151,255,0.45); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+
+    // 2. Popup modal (shown on each visit until onboarding is done)
+    // Suppress if user clicked "later" within this session
+    const suppressedUntil = sessionStorage.getItem('onboarding_popup_suppressed');
+    if (suppressedUntil && Date.now() < parseInt(suppressedUntil)) return;
+
+    setTimeout(() => {
+        showOnboardingPopup();
+    }, 1500); // Small delay so dashboard renders first
+}
+
+function showOnboardingPopup() {
+    if (document.getElementById('onboarding-popup-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'onboarding-popup-modal';
+    modal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:99998;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:fadeIn 0.3s ease;`;
+    modal.innerHTML = `
+        <div style="background:var(--color-card-bg,#1a1a2e);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:2.5rem;max-width:440px;width:90%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(41,151,255,0.1);border:2px solid var(--color-accent);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.8rem;">📋</div>
+            <h3 style="color:var(--color-platinum);margin-bottom:0.75rem;">${t.onboarding_popup_title}</h3>
+            <p style="color:var(--color-text-secondary);line-height:1.65;margin-bottom:2rem;font-size:0.9rem;">${t.onboarding_popup_body}</p>
+            <a id="onboarding-popup-start" href="${isEs ? '../onboarding.html' : isPt ? '../onboarding.html' : 'onboarding.html'}" class="btn btn-primary" style="width:100%;display:block;margin-bottom:0.75rem;">${t.onboarding_popup_btn}</a>
+            <button id="onboarding-popup-later" style="background:transparent;border:1px solid var(--glass-border);color:var(--color-text-secondary);padding:0.75rem 2rem;border-radius:8px;cursor:pointer;width:100%;font-size:0.875rem;">${t.onboarding_popup_later}</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#onboarding-popup-later').addEventListener('click', () => {
+        // Suppress popup for 4 hours in this session
+        sessionStorage.setItem('onboarding_popup_suppressed', Date.now() + 4 * 3600 * 1000);
+        modal.remove();
+    });
+}
+
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+if (loginForm) {
+    loginForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const email    = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            showError(lang === 'es' ? 'Credenciales inválidas. Por favor verifica tu correo y contraseña.' :
+                      lang === 'pt' ? 'Credenciais inválidas. Por favor verifique o seu email e palavra-passe.' :
+                      'Invalid credentials. Please check your email and password.');
+        }
+    });
+}
+
+// ── SIGNUP (no license required) ─────────────────────────────────────────────
+if (signupForm) {
+    signupForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        isSigningUp = true;
+
+        const name          = document.getElementById('signup-name')?.value?.trim() || '';
+        const company       = document.getElementById('signup-company')?.value?.trim() || '';
+        const email         = document.getElementById('signup-email')?.value?.trim() || '';
+        const password      = document.getElementById('signup-password')?.value || '';
+        const repeatPw      = document.getElementById('signup-password-repeat')?.value || '';
+
+        if (password.length < 6) {
+            showError(lang === 'es' ? 'La contraseña debe tener al menos 6 caracteres.' :
+                      lang === 'pt' ? 'A palavra-passe deve ter pelo menos 6 caracteres.' :
+                      'Password must be at least 6 characters.');
+            isSigningUp = false;
+            return;
+        }
+
+        if (password !== repeatPw) {
+            showError(lang === 'es' ? 'Las contraseñas no coinciden.' :
+                      lang === 'pt' ? 'As palavras-passe não coincidem.' :
+                      'Passwords do not match.');
+            isSigningUp = false;
+            return;
+        }
+
+        try {
+            // 1. Create Firebase Auth user
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user           = userCredential.user;
+
+            // 2. Update display name
+            await updateProfile(user, { displayName: name });
+
+            // 3. Create Firestore member document (no license, no subscription yet)
+            await setDoc(doc(db, 'members', user.uid), {
+                name:                name,
+                company:             company || null,
+                email:               email,
+                role:                'partner',
+                subscription:        null,
+                onboardingCompleted: false,
+                createdAt:           serverTimestamp()
+            });
+
+            // 4. Redirect to dashboard (profiles.html — no onboarding yet)
+            // Auth state observer will handle the UI render
+            isSigningUp = false;
+
+        } catch (error) {
+            isSigningUp = false;
+            console.error(error);
+            if (error.code === 'auth/email-already-in-use') {
+                showError(lang === 'es' ? 'Este correo ya está registrado.' :
+                          lang === 'pt' ? 'Este email já está registado.' :
+                          'This email is already registered.');
+            } else {
+                showError('Registration error: ' + error.message);
             }
         }
+    });
+}
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sending...';
+// ── LOGOUT ────────────────────────────────────────────────────────────────────
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => signOut(auth));
+}
 
-        await addDoc(collection(db, 'prospects'), {
-            name: name,
-            company: company,
-            email: email,
-            projectDescription: description,
-            isExistingClient: isClient,
-            licenseCode: isClient ? licenseCode : null,
-            createdAt: serverTimestamp(),
-            status: 'pending' // 'pending', 'linked', 'rejected'
-        });
+// ── PROSPECT REGISTRATION ─────────────────────────────────────────────────────
+if (prospectForm) {
+    prospectForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        isSigningUp = true;
 
-        // Show success message and reset form
-        document.getElementById('prospect-form').reset();
-        errorMsg.classList.add('hidden');
-        successMsg.style.display = 'block';
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Project Request'; // Or original text
+        const name        = document.getElementById('prospect-name')?.value || '';
+        const company     = document.getElementById('prospect-company')?.value || '';
+        const email       = document.getElementById('prospect-email')?.value || '';
+        const description = document.getElementById('prospect-description')?.value || '';
+        const isClient    = document.getElementById('prospect-is-client')?.checked || false;
+        const licenseCode = document.getElementById('prospect-license')?.value?.trim() || '';
+        const successMsg  = document.getElementById('prospect-success-msg');
+        const submitBtn   = prospectForm.querySelector('button[type="submit"]');
 
-    } catch (error) {
-        isSigningUp = false;
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Project Request';
-        console.error("Prospect registration error:", error);
-        showError("An error occurred during submission: " + error.message);
-    }
-});
+        try {
+            if (isClient && licenseCode) {
+                const licenseSnap = await getDoc(doc(db, 'licenses', licenseCode));
+                if (!licenseSnap.exists()) {
+                    showError(lang === 'es' ? 'Código de licencia inválido.' :
+                              lang === 'pt' ? 'Código de licença inválido.' :
+                              'Invalid license code.');
+                    isSigningUp = false;
+                    return;
+                }
+            }
 
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '...'; }
 
-// ==========================================
-// SIDEBAR NAVIGATION LOGIC (CLIENT SPA)
-// ==========================================
+            await addDoc(collection(db, 'prospects'), {
+                name, company, email,
+                projectDescription: description,
+                isExistingClient:   isClient,
+                licenseCode:        isClient ? licenseCode : null,
+                createdAt:          serverTimestamp(),
+                status:             'pending'
+            });
+
+            prospectForm.reset();
+            errorMsg?.classList.add('hidden');
+            if (successMsg) successMsg.style.display = 'block';
+
+        } catch (error) {
+            console.error('Prospect error:', error);
+            showError('Submission error: ' + error.message);
+        } finally {
+            isSigningUp = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = lang === 'es' ? 'Enviar Solicitud' :
+                                        lang === 'pt' ? 'Enviar Pedido' : 'Send Project Request';
+            }
+        }
+    });
+}
+
+// ── SIDEBAR NAVIGATION ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.admin-section');
 
     navItems.forEach(item => {
         item.addEventListener('click', () => {
-            // Remove active from all nav items
-            navItems.forEach(nav => nav.classList.remove('active'));
-            // Add active to clicked item
+            navItems.forEach(n => n.classList.remove('active'));
             item.classList.add('active');
 
-            // Hide all sections
             sections.forEach(sec => {
                 sec.classList.remove('active');
                 sec.style.display = 'none';
             });
 
-            // Show target section
             const targetId = item.getAttribute('data-target');
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-                targetSection.style.display = 'block';
+            const target   = document.getElementById(targetId);
+            if (target) {
+                target.classList.add('active');
+                target.style.display = 'block';
+
+                // Lazy-load billing history when tab opens
+                if (targetId === 'suscripciones' && currentUserData) {
+                    loadBillingHistory(currentUserData);
+                }
             }
         });
     });
 
-    // ==========================================
-    // STRIPE LOGIC
-    // ==========================================
-    let searchParams = new URLSearchParams(window.location.search);
-    
-    function showActiveSubscriptionView() {
-        const noSubView = document.getElementById('no-subscription-view');
-        const activeSubView = document.getElementById('active-subscription-view');
-        const noPaymentMethods = document.getElementById('no-payment-methods');
-        
-        // Also update quick status and profile status
-        const quickSubStatus = document.getElementById('quick-sub-status');
-        const profileSubStatus = document.getElementById('profile-subscription-status');
-        
-        if (noSubView && activeSubView) {
-            noSubView.classList.add('hidden');
-            noSubView.style.display = 'none';
-            
-            activeSubView.classList.remove('hidden');
-            activeSubView.style.display = 'block';
-            
-            if (noPaymentMethods) {
-                noPaymentMethods.style.display = 'none';
-            }
-        }
-        
-        if (quickSubStatus) quickSubStatus.innerHTML = '<span style="color: #00c875;">● Active Subscription</span>';
-        if (profileSubStatus) profileSubStatus.innerHTML = '<span style="color: #00c875;">● Active Subscription</span>';
-    }
-
+    // ── Stripe return handling (Phase 3) ──────────────────────────────────────
+    const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.has('session_id')) {
-        const session_id = searchParams.get('session_id');
-        const sessionIdInput = document.getElementById('session-id-payment');
-        if (sessionIdInput) {
-            sessionIdInput.setAttribute('value', session_id);
-            showActiveSubscriptionView();
-        }
-    } else {
-        const storedSessionId = localStorage.getItem('stripe_session_id');
-        const sessionIdInput = document.getElementById('session-id-payment');
-        if (storedSessionId && sessionIdInput) {
-            sessionIdInput.setAttribute('value', storedSessionId);
-            showActiveSubscriptionView();
-        }
+        // Store for Phase 3 integration
+        localStorage.setItem('stripe_session_id', searchParams.get('session_id'));
     }
-
 });
+
+// Export for use in other modules if needed
+export { generateLicenseCode, PLANS, PERIOD_CODES };

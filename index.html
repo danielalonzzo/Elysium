@@ -170,7 +170,7 @@
         <div class="hero-symbol-bg">λ</div>
         <div class="hero-content animate-on-scroll">
             <p class="hero-subtitle">Development & Research</p>
-            <h1>Digital Infrastructure for SMEs: <span class="hero-title-suffix">IT Consulting and Services for SMEs</span></h1>
+            <h1>Digital Infrastructure for SMEs: <span class="hero-title-suffix"><span class="dynamic-price" data-base-price="0">0 €</span> Development Costs</span></h1>
             <div class="hero-cta">
                 <a href="contact.html" class="btn btn-primary">Start a Project</a>
                 <a href="services.html" class="btn">View Services</a>
@@ -322,7 +322,7 @@
         <div class="container">
             <div class="section-header animate-on-scroll">
                 <h2>Core Competencies</h2>
-                <p>B2B digital infrastructure for SMEs</p>
+                <p>Digital Infrastructure Included in your Monthly Subscription</p>
             </div>
             <div class="card-grid">
                 <div class="card animate-on-scroll delay-1" onclick="this.classList.toggle('expanded')">
@@ -359,7 +359,7 @@
                     <div class="card-number">03</div>
                     <div class="card-glow"></div>
                     <div class="card-summary">
-                        <p>Custom Management Systems (CRM)</p>
+                        <p>We Program Custom Management Systems (CRM)</p>
                         <div class="expand-indicator" style="display: none;">+</div>
                     </div>
                     <div class="card-details">
@@ -386,10 +386,265 @@
                     </div>
                 </div>
             </div>
+            
 
-            <div class="text-center" style="margin-top: 3rem;">
+
+            <div class="section-header animate-on-scroll" style="margin-top: 8rem;">
+                <h2>Subscription Plans</h2>
+                <p>You don't pay for the software development</p>
+                
+                <!-- Currency Switcher -->
+                <div class="currency-switcher-container" style="margin-top: 2rem;">
+                    <div class="currency-toggle">
+                        <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
+                            <span class="currency-flag"><img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
+                        </button>
+                        <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
+                            <span class="currency-flag"><img src="Images/Banderas/estados-unidos.png" alt="US" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
+                        </button>
+                        <button class="currency-btn" data-currency="CRC" aria-label="Costa Rican Colon">
+                            <span class="currency-flag"><img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                .unified-pricing-card {
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.0) 40%, rgba(255, 255, 255, 0.01) 100%);
+                    backdrop-filter: blur(15px) saturate(120%);
+                    -webkit-backdrop-filter: blur(15px) saturate(120%);
+                    border-top: 1px solid rgba(255, 255, 255, 0.15);
+                    border-left: 1px solid rgba(255, 255, 255, 0.15);
+                    border-right: 1px solid rgba(255, 255, 255, 0.03);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+                    border-radius: var(--radius-lg);
+                    position: relative;
+                    margin: 0 auto;
+                    max-width: 1000px;
+                    box-shadow: 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.2), 
+                        inset 1px 0 1px rgba(255, 255, 255, 0.1), 
+                        0 20px 40px rgba(0, 0, 0, 0.4);
+                    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+                
+                @media (min-width: 901px) {
+                    .unified-pricing-card:hover {
+                        transform: translateY(-8px);
+                        background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 40%, rgba(41, 151, 252, 0.03) 100%);
+                        border-top: 1px solid rgba(255, 255, 255, 0.2);
+                        border-left: 1px solid rgba(255, 255, 255, 0.2);
+                        box-shadow: 
+                            inset 0 1px 2px rgba(255, 255, 255, 0.25),
+                            inset 1px 0 2px rgba(255, 255, 255, 0.2),
+                            0 30px 60px rgba(0, 0, 0, 0.5),
+                            0 0 100px rgba(41, 151, 252, 0.15);
+                    }
+                }
+                .unified-pricing-card::after {
+                    content: '';
+                    position: absolute;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    border-radius: var(--radius-lg);
+                    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+                    pointer-events: none;
+                }
+                .unified-pricing-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    position: relative;
+                    z-index: 2;
+                }
+                .pricing-col {
+                    padding: 3rem 2rem;
+                    display: flex;
+                    flex-direction: column;
+                    text-align: center;
+                    position: relative;
+                }
+                .pricing-col:not(:last-child) {
+                    border-right: 1px solid rgba(255,255,255,0.05);
+                }
+                .pricing-col-popular {
+                    background: linear-gradient(180deg, rgba(41, 151, 255, 0.05) 0%, transparent 100%);
+                    border-top-right-radius: var(--radius-lg);
+                    border-bottom-right-radius: var(--radius-lg);
+                }
+                @keyframes swipeHintChild {
+                    0% { transform: translateX(0); }
+                    25% { transform: translateX(-25px); }
+                    50% { transform: translateX(0); }
+                    75% { transform: translateX(-12px); }
+                    100% { transform: translateX(0); }
+                }
+                .pricing-col-popular::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 2px;
+                    height: 2px;
+                    border-radius: 50%;
+                    opacity: 0;
+                    pointer-events: none;
+                    z-index: 1;
+                }
+                .pricing-col-popular.gold-flash::before {
+                    animation: dragonFire 3.5s ease-out;
+                }
+                @keyframes dragonFire {
+                    0% { opacity: 0; box-shadow: 0 0 0 0 rgba(41, 151, 252, 0.9), 0 0 0 0 rgba(255, 255, 255, 0.6); }
+                    35% { opacity: 1; box-shadow: 0 0 250px 150px rgba(41, 151, 252, 0.6), 0 0 120px 80px rgba(255, 255, 255, 0.4); }
+                    100% { opacity: 0; box-shadow: 0 0 800px 500px rgba(41, 151, 252, 0), 0 0 500px 300px rgba(255, 255, 255, 0); }
+                }
+                .popular-badge {
+                    position: absolute;
+                    top: -12px;
+                    right: 20px;
+                    background: var(--color-accent);
+                    color: #fff;
+                    font-size: 0.6rem;
+                    font-weight: 700;
+                    padding: 0.2rem 0.6rem;
+                    border-radius: 4px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    z-index: 10;
+                    box-shadow: 0 4px 10px rgba(41,151,255,0.3);
+                }
+                @media (max-width: 900px) {
+                    .popular-badge {
+                        top: 15px;
+                        right: 15px;
+                    }
+                    .unified-pricing-grid {
+                        display: flex;
+                        overflow-x: auto;
+                        scroll-snap-type: x mandatory;
+                        -webkit-overflow-scrolling: touch;
+                        scrollbar-width: none; /* Firefox */
+                    }
+                    .unified-pricing-grid::-webkit-scrollbar {
+                        display: none; /* Safari and Chrome */
+                    }
+                    .pricing-col {
+                        flex: 0 0 85%;
+                        min-width: 280px;
+                        scroll-snap-align: center;
+                    }
+                    .pricing-col:not(:last-child) {
+                        border-right: 1px solid rgba(255,255,255,0.05);
+                        border-bottom: none;
+                    }
+                    .pricing-col-popular {
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                    }
+                }
+            </style>
+            
+            <div class="unified-pricing-card animate-on-scroll">
+                <div style="position: absolute; inset: 0; border-radius: var(--radius-lg); overflow: hidden; pointer-events: none;">
+                    <div class="card-glow" style="background: radial-gradient(circle at 50% 0%, rgba(41, 151, 255, 0.15), transparent 70%);"></div>
+                </div>
+                
+                <div class="unified-pricing-grid">
+                    <!-- Basic Plan -->
+                    <div class="pricing-col">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Basic Maintenance</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="70">70 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ month</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Optional: <span class="dynamic-price" data-base-price="840">840 €</span> / year</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ <strong>Includes Hosting Maintenance</strong></li>
+                            <li style="margin-bottom: 0.5rem;">✓ Corporate website development</li>
+                            <li>✓ Mobile-first fluid design</li>
+                        </ul>
+                        <a href="profiles.html?subscribe=basic_maintenance" class="btn" style="margin-top: 2rem; width: 100%;">Subscribe</a>
+                    </div>
+
+                    <!-- Preferential Plan -->
+                    <div class="pricing-col">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Preferential Maintenance</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="99">99 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ month</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Optional: <span class="dynamic-price" data-base-price="1188">1188 €</span> / year</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ <strong>Includes all Basic features</strong></li>
+                            <li style="margin-bottom: 0.5rem;">✓ Multi-language support</li>
+                            <li>✓ Light/Dark mode adaptation</li>
+                        </ul>
+                        <a href="profiles.html?subscribe=preferential_maintenance" class="btn" style="margin-top: 2rem; width: 100%;">Subscribe</a>
+                    </div>
+
+                    <!-- Advanced Plan (Featured) -->
+                    <div class="pricing-col pricing-col-popular">
+                        <div class="popular-badge">Most Popular</div>
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Advanced Maintenance</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="120">120 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ month</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Optional: <span class="dynamic-price" data-base-price="1440">1440 €</span> / year</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ <strong>Includes Preferential features</strong></li>
+                            <li style="margin-bottom: 0.5rem;">✓ Private CRM platform</li>
+                            <li>✓ Custom scalable software</li>
+                        </ul>
+                        <a href="../profiles.html?subscribe=advanced_maintenance" class="btn" style="margin-top: 2rem; width: 100%; background: rgba(41, 151, 255, 0.1); border-color: var(--color-accent);">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center animate-on-scroll" style="margin-top: 4rem;">
                 <a href="services.html" class="btn">Explore All Services</a>
             </div>
+            
+            <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const grid = document.querySelector('.unified-pricing-grid');
+                const popularCol = document.querySelector('.pricing-col-popular');
+                const section = grid ? grid.closest('section') : null;
+                
+                if (grid && popularCol && section) {
+                    let sectionVisible = false;
+                    const sectionObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (window.innerWidth > 900) return;
+                            if (entry.intersectionRatio >= 0.3) {
+                                if (!sectionVisible) {
+                                    sectionVisible = true;
+                                    setTimeout(() => {
+                                        grid.querySelectorAll('.pricing-col').forEach(col => {
+                                            col.style.animation = 'none';
+                                            void col.offsetWidth;
+                                            col.style.animation = 'swipeHintChild 0.8s ease-in-out';
+                                        });
+                                    }, 400);
+                                }
+                            } else if (entry.intersectionRatio <= 0.1) {
+                                sectionVisible = false;
+                            }
+                        });
+                    }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] });
+                    sectionObserver.observe(section);
+
+                    let popularVisible = false;
+                    const popularObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (window.innerWidth > 900) return;
+                            if (entry.intersectionRatio >= 0.8) {
+                                if (!popularVisible) {
+                                    popularVisible = true;
+                                    popularCol.classList.remove('gold-flash');
+                                    void popularCol.offsetWidth;
+                                    popularCol.classList.add('gold-flash');
+                                }
+                            } else if (entry.intersectionRatio <= 0.3) {
+                                popularVisible = false;
+                            }
+                        });
+                    }, { threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], root: grid });
+                    popularObserver.observe(popularCol);
+                }
+            });
+            </script>
         </div>
     </section>
 
@@ -413,7 +668,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">01</div>
                         <h3 class="step-title">Operating Environment Observation (Background)</h3>
-                        <p class="step-desc">Initial systemic audit. We evaluate your organisation's current topology, analysing its data flows, daily processes, and the operational context of your industry before proposing any intervention.</p>
+                        <p class="step-desc">We evaluate your organisation's current topology, analysing its data flows, daily processes, and the operational context of your industry.</p>
                     </div>
                 </div>
 
@@ -422,7 +677,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">02</div>
                         <h3 class="step-title">State of the Art and Limitations (What is known?)</h3>
-                        <p class="step-desc">Forensic analysis of your current tools. We document the technological infrastructures your company already utilises, evaluating their performance levels, technical debt, and scalability constraints.</p>
+                        <p class="step-desc">We document the technological infrastructures your company already utilises.</p>
                     </div>
                 </div>
 
@@ -431,7 +686,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">03</div>
                         <h3 class="step-title">Isolation of Critical Variables (What is not known?)</h3>
-                        <p class="step-desc">Identification of systemic inefficiencies. We detect error-prone manual processes, data synchronisation latencies, and legal compliance vulnerabilities that standard commercial systems fail to resolve.</p>
+                        <p class="step-desc">We detect error-prone manual processes, data synchronisation latencies, and legal compliance vulnerabilities.</p>
                     </div>
                 </div>
 
@@ -440,7 +695,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">04</div>
                         <h3 class="step-title">Definition of the Engineering Problem (Research Question)</h3>
-                        <p class="step-desc">Exact formulation of the architectural challenge. We define with mathematical precision the core problem that the new software topology must resolve to automate and scale your operation.</p>
+                        <p class="step-desc">We define the core problem that the new infrastructure must resolve to automate and scale your operations.</p>
                     </div>
                 </div>
 
@@ -449,7 +704,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">05</div>
                         <h3 class="step-title">Impact Justification (Why should it be resolved?)</h3>
-                        <p class="step-desc">Projection of operational return. We quantify the empirical value of the solution: legal risk mitigation (Compliance), elimination of downtime, and an increase in your company's long-term technological autonomy.</p>
+                        <p class="step-desc">Legal risk mitigation (Compliance), elimination of downtime, and an increase in your company's long-term technological autonomy.</p>
                     </div>
                 </div>
 
@@ -458,7 +713,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">06</div>
                         <h3 class="step-title">Architecture Formulation (Hypothesis)</h3>
-                        <p class="step-desc">Postulate of a structural solution. We propose the specific software architecture (e.g., a Serverless ecosystem, a bespoke CRM, or a high-fidelity Interface) as the exact technical response to the problem posed.</p>
+                        <p class="step-desc">We propose a software architecture (e.g., a Serverless ecosystem, a bespoke CRM, or a mobile-first Interface) as the technical response to your business needs.</p>
                     </div>
                 </div>
 
@@ -466,8 +721,8 @@
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
                         <div class="step-number">07</div>
-                        <h3 class="step-title">Technology Stack Selection (What methods are there?)</h3>
-                        <p class="step-desc">Algorithmic and infrastructural evaluation. We determine the optimal communication protocols, databases, and cryptographic barriers, ensuring that the selected technology adapts to your problem, and not the other way around.</p>
+                        <h3 class="step-title">Technology Selection (What methods are there?)</h3>
+                        <p class="step-desc">We determine the optimal communication protocols, databases, and cryptographic barriers.</p>
                     </div>
                 </div>
 
@@ -476,7 +731,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">08</div>
                         <h3 class="step-title">Structural Design and Data Flows (Experimental Design)</h3>
-                        <p class="step-desc">Ecosystem modelling. We build the information architecture, human-computer interaction (HCI) design, and plan the development iterations under strict variable control.</p>
+                        <p class="step-desc">We build your business ecosystem, the human-computer interaction (HCI) design, and plan the development iterations.</p>
                     </div>
                 </div>
 
@@ -485,7 +740,7 @@
                     <div class="timeline-content glass-panel">
                         <div class="step-number">09</div>
                         <h3 class="step-title">Development, Testing, and Auditing (Experiments and QA)</h3>
-                        <p class="step-desc">Pure engineering and stress testing. Coding of the platform subjected to continuous unit testing, validation of security mechanisms (Access Control), and regulatory compliance audits (GDPR) in closed environments.</p>
+                        <p class="step-desc">The platform is subjected to continuous unit testing, validation of security mechanisms (Access Control), and regulatory compliance audits (GDPR).</p>
                     </div>
                 </div>
 
@@ -493,8 +748,8 @@
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
                         <div class="step-number">10</div>
-                        <h3 class="step-title">Deployment and Technology Transfer (Conclusions and Publication)</h3>
-                        <p class="step-desc">Migration to production and handover. Launch of the system in high-availability infrastructures, final data synchronisation, and transfer of operational knowledge to your team through specialised training.</p>
+                        <h3 class="step-title">Deployment and Publication (Conclusions)</h3>
+                        <p class="step-desc">Launch of the system in high-availability infrastructures, final data synchronisation, and transfer of operational knowledge to your team through specialised training.</p>
                     </div>
                 </div>
             </div>
@@ -502,27 +757,27 @@
     </section>
 
     <!-- Research Teaser -->
-    <section class="research-teaser section">
+    <section class="research-teaser section" style="padding-bottom: 3rem;">
         <div class="container">
             <div class="research-teaser-flex">
                 <div class="animate-on-scroll" style="flex: 1; min-width: 300px; padding-right: 2rem;">
                     <h2>Research & Development (R&D)</h2>
-                    <p class="mb-md" style="text-align: justify;">Elysium λ operates as an independent software engineering and applied research laboratory. Instead of replicating commercial formulas, we apply the rigour of the empirical method to dissect operational problems and build digital architectures from their foundations.<br><br>From Europe, we analyse the intersection between Human-Computer Interaction (HCI), cloud infrastructures (Serverless), and applied cryptography. Our purpose is to democratise access to high-level engineering, allowing organisations to scale their operations through precise, resilient, and auditable technological ecosystems.<br><br>We do not build simple interfaces; we transform technological research into operational infrastructure. We combine scientific thinking, algorithmic design, and continuous experimentation to deliver software that definitively resolves structural inefficiencies.</p>
+                    <p class="mb-md" style="text-align: justify;">Elysium λ operates as an independent software engineering and IT consulting laboratory.<br><br>From the European Union and Costa Rica, our purpose is to democratize access to high-level engineering, allowing SMEs to scale their operations through digital infrastructure and technological ecosystems.<br><br>We do not build simple interfaces; we combine scientific thinking, ergonomic design, and continuous experimentation to deliver software that resolves structural inefficiencies.</p>
                     <a href="research.html" class="btn btn-primary">Research Lab</a>
                 </div>
                 <div class="animate-on-scroll delay-1"
                     style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
                     <h4>Mission Statement</h4>
-                    <p style="margin-bottom: 0;">To translate methodological rigour into tangible software solutions. Our mission is to build digital ecosystems that eliminate operational friction, mechanise complex workflows, and return technological control to organisations, always prioritising structural security and open knowledge.</p>
+                    <p style="margin-bottom: 0;">Democratize access to digital infrastructure, providing SMEs with accessible technological ecosystems that automate their processes and ensure their scalability.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Testimonials -->
-    <section class="testimonials section" style="border-top: 1px solid var(--color-border);">
+    <section class="testimonials section" style="border-top: 1px solid var(--color-border); padding-top: 4rem; padding-bottom: 3.5rem;">
         <div class="container animate-on-scroll">
-            <h2 class="text-center mb-lg">Testimonials from individuals and businesses</h2>
+            <h2 class="text-center mb-lg">Testimonials from Our Partners</h2>
             <a href="review-pmorais.html" style="text-decoration: none; display: block; cursor: pointer;">
             <div class="testimonial-carousel" style="transition: box-shadow 0.3s ease, transform 0.3s ease;" onmouseover="this.style.boxShadow='0 16px 60px rgba(41,151,255,0.25)';this.style.transform='translateY(-3px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
                 <div class="testimonial-content">
@@ -539,17 +794,108 @@
                             <div style="color: var(--color-text-secondary); font-size: 0.8rem;">Founder of Consciênciavaliativa - Unipessoal Lda</div>
                         </div>
                     </div>
+                    <div style="text-align: right; margin-top: 1.5rem; font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary); opacity: 0.6;">
+                        Read the full review &rarr;
+                    </div>
                 </div>
                 <div class="testimonial-indicators">
                     <!-- Indicators will be injected by JS -->
                 </div>
             </div>
             </a>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="portfolio.html" class="btn btn-outline animate-on-scroll">View Portfolio</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Independent Services -->
+    <section class="section" style="border-top: 1px solid var(--color-border); padding-top: 3rem; padding-bottom: 2rem;">
+        <div class="container">
+            <div class="section-header animate-on-scroll">
+                <h2>Independent Services</h2>
+                <p>Optimal Performance, Operational Security and High Lead Retention</p>
+                
+                <!-- Currency Switcher -->
+                <div class="currency-switcher-container" style="margin-top: 2rem;">
+                    <div class="currency-toggle">
+                        <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
+                            <span class="currency-flag"><img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
+                        </button>
+                        <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
+                            <span class="currency-flag"><img src="Images/Banderas/estados-unidos.png" alt="US" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
+                        </button>
+                        <button class="currency-btn" data-currency="CRC" aria-label="Costa Rican Colon">
+                            <span class="currency-flag"><img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <style>
+                .unified-pricing-grid-2col {
+                    display: flex;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none;
+                    position: relative;
+                    z-index: 2;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    scroll-snap-type: x mandatory;
+                }
+                .unified-pricing-grid-2col::-webkit-scrollbar {
+                    display: none;
+                }
+                @media (min-width: 993px) {
+                    .unified-pricing-grid-2col {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        overflow-x: visible;
+                        scroll-snap-type: none;
+                    }
+                }
+            </style>
+
+            <div class="unified-pricing-card animate-on-scroll delay-1" style="max-width: 900px; margin: 0 auto;">
+                <div class="unified-pricing-grid-2col">
+                    <!-- Hosting Plan -->
+                    <div class="pricing-col" style="flex: 0 0 85%; min-width: 280px; scroll-snap-align: center;">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Hosting Maintenance</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="99">99 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ year</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Billed annually</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ Domain management and brand digital identity</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Web hosting on high-availability servers</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Base infrastructure maintenance</li>
+                            <li style="margin-bottom: 0.5rem; opacity: 0.7;"><i>*Web page development is not included</i></li>
+                        </ul>
+                        <a href="profiles.html?subscribe=domain_hosting" class="btn" style="margin-top: 2rem; width: 100%;">Subscribe</a>
+                    </div>
+
+                    <!-- CRM Plan -->
+                    <div class="pricing-col" style="flex: 0 0 85%; min-width: 280px; scroll-snap-align: center; border-right: none;">
+                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Custom CRM</h4>
+                        <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="50">50 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ month</span></p>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Optional: <span class="dynamic-price" data-base-price="600">600 €</span> / year</div>
+                        <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
+                            <li style="margin-bottom: 0.5rem;">✓ Intuitive and elegant control panel</li>
+                            <li style="margin-bottom: 0.5rem;">✓ 100% confidential workspace</li>
+                            <li style="margin-bottom: 0.5rem;">✓ Centralized access from client portal</li>
+                        </ul>
+                        <a href="profiles.html?subscribe=custom_core_crm" class="btn" style="margin-top: 2rem; width: 100%;">Subscribe</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="services.html" class="btn btn-outline animate-on-scroll">Explore All Services</a>
+            </div>
         </div>
     </section>
 
     <!-- CTA Final -->
-    <section class="cta-final section text-center">
+    <section class="cta-final section text-center" style="padding-top: 3rem;">
         <div class="container animate-on-scroll">
             <h2 class="mb-md">Elevate Your Digital Presence</h2>
             <p class="mb-lg">Professional web presence for your business. Built on European values.</p>

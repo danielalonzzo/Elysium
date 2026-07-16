@@ -3,50 +3,67 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Función para verificar si eres el Súper Admin
+    // ── Helper Functions ──────────────────────────────────────────────────────
     function isSuperAdmin() {
       return request.auth != null && request.auth.token.email == 'danielalonzzo@icloud.com';
     }
-
-    // Reglas para la colección de Miembros (Clientes)
-    match /members/{userId} {
-      allow read, write: if isSuperAdmin();
-      // Permite leer y escribir si el UID coincide con el ID del documento
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Prevents users from self-modifying protected fields (subscription, role)
+    // Only admin can write these
+    function notModifyingProtectedFields() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['subscription', 'role']);
     }
 
-    // Reglas para la colección de Licencias
+    // ── Members (Partners / Clients) ──────────────────────────────────────────
+    match /members/{userId} {
+      allow read, write: if isSuperAdmin();
+      allow read: if isOwner(userId);
+      // On create: owner can create their own doc (initial registration)
+      allow create: if isOwner(userId);
+      // On update: owner can update ONLY non-protected fields
+      allow update: if isOwner(userId) && notModifyingProtectedFields();
+    }
+
+    // ── Licenses (legacy pool — preserved as-is) ──────────────────────────────
     match /licenses/{licenseId} {
       allow read, write: if isSuperAdmin();
-      // Cualquiera puede leer para validar la licencia antes del registro
       allow read: if true; 
-      // PERMITIR ACTUALIZACIÓN: Un usuario recién registrado puede marcar SU licencia como usada
       allow update: if request.auth != null && 
                     resource.data.status == 'active' && 
                     request.resource.data.status == 'used';
     }
 
-    // Reglas para el Onboarding (Formularios)
+    // ── Onboarding Submissions ────────────────────────────────────────────────
     match /onboarding_submissions/{submissionId} {
       allow read, write: if isSuperAdmin();
-      // El usuario puede crear su envío si el userId coincide con su UID
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      // Para leer (read), usamos 'resource.data' (el documento que ya existe en la BD)
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
-    // Reglas para los Prospectos (Formulario web)
+    // ── Prospects ────────────────────────────────────────────────────────────
     match /prospects/{prospectId} {
       allow read, write: if isSuperAdmin();
-      // Permite a cualquier visitante (sin autenticar) crear un prospecto
       allow create: if true;
     }
 
-    // Reglas para la colección de Contactos (Formulario web de contacto)
+    // ── Contacts ─────────────────────────────────────────────────────────────
     match /contacts/{contactId} {
       allow read, write: if isSuperAdmin();
-      // Permite a cualquier visitante (sin autenticar) enviar un mensaje de contacto
       allow create: if true;
+    }
+
+    // ── Subscription Payments ─────────────────────────────────────────────────
+    // All payment records: manual (admin-assigned) + automatic (Stripe webhook)
+    match /subscription_payments/{paymentId} {
+      allow read, write: if isSuperAdmin();
+      // Owner can only read their own payment records
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      // No self-creation — payments created by admin or backend only
     }
   }
 }

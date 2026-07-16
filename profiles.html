@@ -71,6 +71,103 @@
             opacity: 0.9;
             text-decoration: underline;
         }
+
+        /* ── Subscription plan grid ── */
+        .subscription-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.25rem;
+            width: 100%;
+        }
+        .sub-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md, 12px);
+            padding: 1.75rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1.25rem;
+            transition: border-color 0.2s, transform 0.2s;
+            position: relative;
+        }
+        .sub-card:hover {
+            border-color: var(--color-accent);
+            transform: translateY(-2px);
+        }
+        .sub-card.featured-sub {
+            border-color: var(--color-accent);
+            background: rgba(41, 151, 255, 0.06);
+        }
+        .featured-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-accent);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 3px 14px;
+            border-radius: 50px;
+            white-space: nowrap;
+        }
+        .sub-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-platinum);
+            margin-bottom: 0.4rem;
+        }
+        .sub-price {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--color-accent);
+            margin: 0.5rem 0;
+        }
+        .sub-period {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--color-text-secondary);
+        }
+        .sub-features {
+            list-style: none;
+            padding: 0;
+            margin: 0.75rem 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .sub-features li {
+            font-size: 0.82rem;
+            color: var(--color-text-secondary);
+            padding-left: 1.25rem;
+            position: relative;
+        }
+        .sub-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00c875;
+            font-weight: 700;
+        }
+        .sub-btn { width: 100%; justify-content: center; font-size: 0.85rem; }
+
+        /* ── Billing toggle ── */
+        .billing-toggle-btn { transition: background 0.2s, color 0.2s; }
+
+        /* ── Pending payment banner ── */
+        #pending-payment-banner {
+            animation: fadeInDown 0.4s ease;
+        }
+        @keyframes fadeInDown {
+            from { opacity:0; transform:translateY(-10px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity:0; } to { opacity:1; }
+        }
         
         .hidden {
             display: none;
@@ -184,7 +281,7 @@
                     <div id="signup-view" class="hidden">
                         <div class="auth-header">
                             <h2>Join Elysium</h2>
-                            <p>Register with your partner license</p>
+                            <p>Create your partner account — free to start</p>
                         </div>
                         <form id="signup-form">
                             <div class="form-group">
@@ -192,16 +289,12 @@
                                 <input type="text" id="signup-name" class="form-control" required placeholder="John Doe">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Company Name</label>
+                                <label class="form-label">Company Name <span style="font-size:0.78rem;color:var(--color-text-secondary);">(optional)</span></label>
                                 <input type="text" id="signup-company" class="form-control" placeholder="Acme Corp">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Email Address *</label>
-                                <input type="email" id="signup-email" class="form-control" required placeholder="Personal Email">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Elysium λ License Number *</label>
-                                <input type="text" id="signup-license" class="form-control" required placeholder="ELY-XXXX-XXXX-XXXX">
+                                <input type="email" id="signup-email" class="form-control" required placeholder="name@company.com">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Password *</label>
@@ -211,12 +304,12 @@
                                 <label class="form-label">Repeat Password *</label>
                                 <input type="password" id="signup-password-repeat" class="form-control" required placeholder="Min. 6 characters">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Register</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
                         </form>
                         <div class="auth-toggle">
                             Already have an account? <a href="#" id="show-login">Sign in</a>
                             <br><br>
-                            <a href="#" id="show-prospect-from-signup" class="prospect-link">Create Prospect Account</a>
+                            <a href="#" id="show-prospect-from-signup" class="prospect-link">Start a Project Inquiry</a>
                         </div>
                     </div>
 
@@ -291,19 +384,45 @@
                     <span>Resumen</span>
                 </div>
 
-                <div class="nav-item" data-target="suscripciones" id="nav-suscripciones">
+                <!-- Tier 3+ only -->
+                <div class="nav-item" data-target="proyectos" id="nav-proyectos" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <span>Proyectos</span>
+                </div>
+
+                <!-- Tier 3+ only -->
+                <div class="nav-item" data-target="documentos" id="nav-documentos" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span>Documentos</span>
+                </div>
+
+                <!-- Tier 4 only -->
+                <div class="nav-item" data-target="mensajes" id="nav-mensajes" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Mensajes</span>
+                </div>
+
+                <!-- Tier 2+ only -->
+                <div class="nav-item" data-target="suscripciones" id="nav-suscripciones" style="display:none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
                     </svg>
-                    <span>Suscripciones</span>
+                    <span>Suscripción</span>
                 </div>
 
-                <div class="nav-item" data-target="metodos-pago" id="nav-metodos-pago">
+                <!-- Always visible when subscription active -->
+                <div class="nav-item" data-target="facturacion" id="nav-facturacion" style="display:none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                         <line x1="1" y1="10" x2="23" y2="10"></line>
                     </svg>
-                    <span>Métodos de pago</span>
+                    <span>Facturación</span>
                 </div>
 
                 <div class="nav-item" data-target="perfil" id="nav-perfil">
@@ -359,6 +478,55 @@
                         <div id="quick-sub-status">
                             <p style="color: var(--color-text-secondary);">Loading status...</p>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PROYECTOS SECTION (Tier 3+) -->
+            <section id="proyectos" class="admin-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Proyectos</h2>
+                        <p class="color-text-secondary">Your active projects and deliverables.</p>
+                    </div>
+                </div>
+                <div class="profile-full-width">
+                    <div class="overview-panel">
+                        <div id="proyectos-list">
+                            <p style="color:var(--color-text-secondary);">No active projects currently.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DOCUMENTOS SECTION (Tier 3+) -->
+            <section id="documentos" class="admin-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Documentos</h2>
+                        <p class="color-text-secondary">Shared files, reports, and project documents.</p>
+                    </div>
+                </div>
+                <div class="profile-full-width">
+                    <div class="overview-panel">
+                        <div id="documentos-list">
+                            <p style="color:var(--color-text-secondary);">No documents shared yet.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MENSAJES SECTION (Tier 4) -->
+            <section id="mensajes" class="admin-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Mensajes</h2>
+                        <p class="color-text-secondary">Direct communication with your Elysium team.</p>
+                    </div>
+                </div>
+                <div class="profile-full-width">
+                    <div class="overview-panel">
+                        <p style="color:var(--color-text-secondary);">Messaging module coming soon.</p>
                     </div>
                 </div>
             </section>
@@ -476,29 +644,20 @@
                 </div>
             </section>
 
-            <!-- MÉTODOS DE PAGO SECTION -->
-            <section id="metodos-pago" class="admin-section" style="display: none;">
+            <!-- FACTURACIÓN SECTION (billing history) -->
+            <section id="facturacion" class="admin-section" style="display: none;">
                 <div class="dashboard-header">
                     <div>
-                        <h2>Métodos de pago</h2>
-                        <p class="color-text-secondary">Manage your payment methods and billing history.</p>
+                        <h2>Facturación</h2>
+                        <p class="color-text-secondary">Your payment history and invoices.</p>
                     </div>
                 </div>
-                
-                <div id="active-subscription-view" class="hidden" style="background: rgba(41, 151, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-sm); border: 1px solid rgba(41, 151, 255, 0.2);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                        <div>
-                            <h4 style="color: var(--color-platinum); margin-bottom: 0.2rem;">Customer Portal</h4>
-                            <p style="font-size: 0.9rem; color: var(--color-text-secondary); margin: 0;">Your billing is managed securely via Stripe. Click below to add or remove credit cards.</p>
+                <div class="profile-full-width">
+                    <div class="overview-panel">
+                        <div id="facturacion-payments-list">
+                            <div class="premium-loader"></div>
                         </div>
-                        <form action="http://localhost:4242/create-portal-session" method="POST">
-                            <input type="hidden" id="session-id" name="session_id" value="" />
-                            <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Manage Billing Information</button>
-                        </form>
                     </div>
-                </div>
-                <div id="no-payment-methods" style="margin-top: 1rem;">
-                    <p style="color: var(--color-text-secondary);">You need an active subscription to manage payment methods. Please subscribe to a plan first.</p>
                 </div>
             </section>
 
