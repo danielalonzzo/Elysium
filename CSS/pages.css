@@ -3706,6 +3706,7 @@ textarea.form-control {
     font-weight: 700; 
     color: var(--color-accent); 
     margin-bottom: 0.25rem;
+    white-space: nowrap;
 }
 .matrix-price-period {
     font-size: 0.9rem; 
