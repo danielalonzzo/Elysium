@@ -3706,12 +3706,13 @@ textarea.form-control {
     font-weight: 700; 
     color: var(--color-accent); 
     margin-bottom: 0.25rem;
-    white-space: nowrap;
 }
 .matrix-price-period {
     font-size: 0.9rem; 
     font-weight: normal; 
     color: var(--color-text-secondary);
+    display: inline-block;
+    white-space: nowrap;
 }
 
 /* Checkmarks and Dashes */
@@ -4028,4 +4029,9 @@ textarea.form-control {
         border-right: 1px solid rgba(255, 255, 255, 0.05); /* keep border to separate from plans */
         padding-left: 0.5rem;
     }
+}
+
+.dynamic-price {
+    display: inline-block;
+    white-space: nowrap;
 }
