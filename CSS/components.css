@@ -1692,6 +1692,23 @@ footer {
     z-index: 1;
 }
 
+/* Keep the Services title visually connected to its introductory content. */
+.services-page-header {
+    min-height: clamp(330px, 40vh, 400px);
+}
+
+.services-page-header + .section {
+    padding-top: 0;
+}
+
+.services-page-header + .section > .container > .animate-on-scroll:first-child {
+    padding-top: 0 !important;
+}
+
+.services-page-header + .section .intro-panel-wrapper {
+    padding-top: clamp(1.5rem, 3vw, 2rem);
+}
+
 .parallax-lambda {
     position: absolute;
     top: calc(50% + calc(var(--header-height) / 2));

@@ -1,0 +1,19 @@
+{
+  "name": "elysium-billing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stripe-to-Firebase subscription and license provisioning service for Elysium CRM",
+  "main": "stripe-server.js",
+  "scripts": {
+    "start": "node stripe-server.js",
+    "check": "node --check stripe-server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "firebase-admin": "^14.1.0",
+    "stripe": "^22.3.1"
+  }
+}

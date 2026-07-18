@@ -1,7 +1,7 @@
 /**
  * ══════════════════════════════════════════════════════════════════════════════
  *  Elysium λ — System Info Modal
- *  version-modal.js  |  v1.0.0
+ *  version-modal.js  |  v1.3.1
  *
  *  Design: Matches pmorais.pt reference — clean light modal, row-divider
  *  layout, amber accent links, sectioned with small-caps labels.
@@ -15,7 +15,7 @@
     'use strict';
 
     // ── Configuration ─────────────────────────────────────────────────────────
-    var APP_VERSION       = 'V1.3.0';
+    var APP_VERSION       = 'V1.3.1';
     var MODAL_ID          = 'elysium-system-info-modal';
     var VERSION_TAG_CLASS = 'elysium-version-tag';
     var ACCENT            = '#2997ff';   // Elysium brand electric blue
@@ -35,7 +35,7 @@
             labelVersion:   'Interface Version',
             labelBuild:     'Build Compilation',
             labelLicence:   'Product Licence',
-            licenceVal:     'ELY-28LB-NL5H-MFFF',
+            licenceVal:     'ELY-EC03-ANL9-321979257',
             btnUpdate:      'Update',
             // Security
             secSecurity:    'SECURITY & COMPLIANCE',
@@ -78,7 +78,7 @@
             labelVersion:   'Versión de Interfaz',
             labelBuild:     'Compilación (Build)',
             labelLicence:   'Licencia del Producto',
-            licenceVal:     'ELY-28LB-NL5H-MFFF',
+            licenceVal:     'ELY-EC03-ANL9-321979257',
             btnUpdate:      'Actualizar',
             secSecurity:    'SEGURIDAD Y CONFORMIDAD',
             labelPrivDir:   'Directiva de Privacidad',
@@ -116,7 +116,7 @@
             labelVersion:   'Versão da Interface',
             labelBuild:     'Compilação (Build)',
             labelLicence:   'Licença do Produto',
-            licenceVal:     'ELY-28LB-NL5H-MFFF',
+            licenceVal:     'ELY-EC03-ANL9-321979257',
             btnUpdate:      'Actualizar',
             secSecurity:    'SEGURANÇA E CONFORMIDADE',
             labelPrivDir:   'Directiva de Privacidade',

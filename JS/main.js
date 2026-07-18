@@ -484,8 +484,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currency === 'USD') {
             return `$${converted.toLocaleString('en-US')}`;
         } else if (currency === 'CRC') {
-            const roundedCRC = Math.ceil(converted / 1000);
-            return `₡${roundedCRC}K`;
+            const roundedCRC = Math.ceil(converted / 1000) * 1000;
+            const formattedCRC = roundedCRC
+                .toString()
+                .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            return `₡${formattedCRC}`;
         }
         return `€${basePrice}`;
     }
@@ -494,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updatePrices(targetCurrency) {
         currentCurrency = targetCurrency;
         localStorage.setItem('preferredCurrency', targetCurrency);
+        document.body.dataset.activeCurrency = targetCurrency;
 
         dynamicPrices.forEach(el => {
             const baseStr = el.getAttribute('data-base-price');

@@ -12,11 +12,21 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
     
-    // Prevents users from self-modifying protected fields (subscription, role)
-    // Only admin can write these
-    function notModifyingProtectedFields() {
-      return !request.resource.data.diff(resource.data).affectedKeys()
-        .hasAny(['subscription', 'role']);
+    // Allowlist of fields the owner may modify. Everything else — subscription,
+    // role, adminNotes, finance, CRM data — is admin-only.
+    function updatesOnlyUserEditableFields() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['projects', 'onboardingCompleted', 'onboardingCompletedAt', 'lastUpdated']);
+    }
+
+    // Initial registration doc: fixed shape, no self-granted role or subscription
+    function isValidNewMember() {
+      return request.resource.data.keys().hasOnly(
+          ['name', 'company', 'email', 'role', 'subscription', 'onboardingCompleted', 'createdAt']
+        )
+        && request.resource.data.role == 'partner'
+        && request.resource.data.subscription == null
+        && request.resource.data.email.lower() == request.auth.token.email.lower();
     }
 
     // ── Members (Partners / Clients) ──────────────────────────────────────────
@@ -24,18 +34,17 @@ service cloud.firestore {
       allow read, write: if isSuperAdmin();
       allow read: if isOwner(userId);
       // On create: owner can create their own doc (initial registration)
-      allow create: if isOwner(userId);
-      // On update: owner can update ONLY non-protected fields
-      allow update: if isOwner(userId) && notModifyingProtectedFields();
+      allow create: if isOwner(userId) && isValidNewMember();
+      // On update: owner can update ONLY allowlisted fields
+      allow update: if isOwner(userId) && updatesOnlyUserEditableFields();
     }
 
-    // ── Licenses (legacy pool — preserved as-is) ──────────────────────────────
+    // ── Licenses ──────────────────────────────────────────────────────────────
     match /licenses/{licenseId} {
       allow read, write: if isSuperAdmin();
-      allow read: if true; 
-      allow update: if request.auth != null && 
-                    resource.data.status == 'active' && 
-                    request.resource.data.status == 'used';
+      // Subscription license documents contain CRM metadata. A member may only
+      // read the license assigned to their own Firebase UID.
+      allow get: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // ── Onboarding Submissions ────────────────────────────────────────────────
@@ -64,6 +73,20 @@ service cloud.firestore {
       // Owner can only read their own payment records
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       // No self-creation — payments created by admin or backend only
+    }
+
+    // ── Activities (append-only audit log) ────────────────────────────────────
+    // Immutable ledger of CRM events. No update/delete for anyone — including
+    // admin — so history stays trustworthy. Cleanup only via Firebase console.
+    match /activities/{activityId} {
+      allow read, create: if isSuperAdmin();
+      // Members may log a restricted set of events about themselves,
+      // stamped with the server clock (no backdating)
+      allow create: if request.auth != null
+        && request.resource.data.memberId == request.auth.uid
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.type in ['member_registered', 'onboarding_completed']
+        && request.resource.data.createdAt == request.time;
     }
   }
 }

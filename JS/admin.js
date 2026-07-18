@@ -1,17 +1,20 @@
 import { auth, db, storage } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
-    collection, 
-    getDocs, 
-    doc, 
-    getDoc, 
-    query, 
-    where, 
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+    query,
+    where,
     orderBy,
+    limit,
     updateDoc,
     deleteDoc,
     setDoc,
-    addDoc
+    addDoc,
+    serverTimestamp,
+    writeBatch
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
     ref, 
@@ -22,6 +25,33 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
 const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+
+const SUBSCRIPTION_PLANS = {
+    hosting:      { code: 'H0ST', label: 'Domain & Hosting' },
+    basic:        { code: 'EC01', label: 'Basic Maintenance' },
+    preferential: { code: 'EC02', label: 'Preferential Maintenance' },
+    advanced:     { code: 'EC03', label: 'Advanced Maintenance' },
+    crm:          { code: 'CRMP', label: 'Custom Core CRM' }
+};
+
+/**
+ * External/manual licenses encode the commercial agreement itself:
+ * ELY-{plan}-{M3N|ANL}{1..9}-{business tax/registration ID}.
+ * Stripe licenses keep their separate webhook-derived identifier.
+ */
+function buildManualLicense(planType, contractUnit, contractLength, businessId) {
+    const planCode = SUBSCRIPTION_PLANS[planType]?.code || 'CSTM';
+    const length = Math.min(9, Math.max(1, Number(contractLength) || 1));
+    const periodCode = `${contractUnit === 'years' ? 'ANL' : 'M3N'}${length}`;
+    const normalizedBusinessId = String(businessId || '').replace(/\D/g, '');
+    return {
+        licenseCode: `ELY-${planCode}-${periodCode}-${normalizedBusinessId}`,
+        periodCode,
+        businessId: normalizedBusinessId,
+        contractLength: length,
+        contractUnit: contractUnit === 'years' ? 'years' : 'months'
+    };
+}
 
 // ── Conditional Logger ──────────────────────────────────────────────────────
 // In production (elysiumdr.eu) all logs are silenced to prevent leaking
@@ -52,6 +82,56 @@ function getPartnerStage(data) {
     if (data.projectUrl)                         return 'active';
     if (data.onboardingCompleted)                return 'onboarding';
     return 'prospect';
+}
+
+/** Escape a string for safe interpolation into innerHTML */
+function esc(str) {
+    return String(str ?? '').replace(/[&<>"']/g, ch => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
+    ));
+}
+
+function formatAdminDate(value) {
+    if (!value) return '—';
+    const date = value.seconds ? new Date(value.seconds * 1000) : new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    const locale = currentLang === 'es' ? 'es-CR' : currentLang === 'pt' ? 'pt-PT' : 'en-GB';
+    return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function subscriptionStatus(subscription) {
+    if (!subscription) return null;
+    const storedStatus = subscription.status || 'active';
+    if (!subscription.nextBillingDate || ['suspended', 'canceled', 'cancelled'].includes(storedStatus)) return storedStatus;
+
+    const renewal = subscription.nextBillingDate.seconds
+        ? subscription.nextBillingDate.seconds * 1000
+        : new Date(subscription.nextBillingDate).getTime();
+    if (!Number.isFinite(renewal) || Date.now() <= renewal) return storedStatus;
+
+    const grace = subscription.gracePeriodEnd
+        ? (subscription.gracePeriodEnd.seconds
+            ? subscription.gracePeriodEnd.seconds * 1000
+            : new Date(subscription.gracePeriodEnd).getTime())
+        : renewal + (15 * 86400000);
+    return Date.now() > grace ? 'suspended' : 'pending_payment';
+}
+
+/**
+ * Append an event to the immutable activity log (fire-and-forget).
+ * Never blocks or fails the operation that triggered it.
+ */
+function logActivity(memberId, memberName, type, payload = {}) {
+    return addDoc(collection(db, 'activities'), {
+        memberId,
+        memberName: memberName || null,
+        type,
+        payload,
+        actorUid:   auth.currentUser?.uid   || null,
+        actorEmail: auth.currentUser?.email || null,
+        actorRole:  'admin',
+        createdAt:  serverTimestamp()
+    }).catch(err => logger.warn('logActivity failed:', err));
 }
 
 /** Human-readable relative time from Firestore timestamp */
@@ -98,7 +178,7 @@ const translations = {
         clients_title: "Clients",
         clients_desc: "Manage and view all registered partners.",
         licenses_title: "Licenses",
-        licenses_desc: "Overview of all generated and available licenses.",
+        licenses_desc: "Licenses assigned by active subscriptions, whether paid online or recorded manually.",
         table_code: "Code",
         table_status: "Status",
         table_assigned: "Assigned To",
@@ -237,7 +317,8 @@ const translations = {
         table_email: "Email",
         table_service: "Interest",
         table_message: "Message",
-        flag: "🇬🇧"
+        flagSrc: "Images/Banderas/union-europea.png",
+        flagAlt: "EU"
     },
     es: {
         nav_overview: "Resumen",
@@ -252,7 +333,7 @@ const translations = {
         clients_title: "Clientes",
         clients_desc: "Administra y visualiza todos los socios registrados.",
         licenses_title: "Licencias",
-        licenses_desc: "Resumen de todas las licencias generadas y disponibles.",
+        licenses_desc: "Licencias asignadas por suscripciones, tanto por pago web como por registro manual.",
         table_code: "Código",
         table_status: "Estado",
         table_assigned: "Asignado a",
@@ -392,7 +473,8 @@ const translations = {
         table_email: "Correo",
         table_service: "Interés",
         table_message: "Mensaje",
-        flag: "🇨🇷"
+        flagSrc: "Images/Banderas/costa-rica.png",
+        flagAlt: "CR"
     },
     pt: {
         nav_overview: "Visão Geral",
@@ -407,7 +489,7 @@ const translations = {
         clients_title: "Clientes",
         clients_desc: "Gerencie e visualize todos os parceiros registrados.",
         licenses_title: "Licenças",
-        licenses_desc: "Visão geral de todas as licenças geradas e disponíveis.",
+        licenses_desc: "Licenças atribuídas por subscrições, por pagamento online ou registo manual.",
         table_code: "Código",
         table_status: "Status",
         table_assigned: "Atribuído a",
@@ -546,7 +628,8 @@ const translations = {
         table_email: "E-mail",
         table_service: "Interesse",
         table_message: "Mensagem",
-        flag: "🇵🇹"
+        flagSrc: "Images/Banderas/portugal.png",
+        flagAlt: "PT"
     }
 };
 
@@ -632,6 +715,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (activeSection === 'overview') loadStats();
             else if (activeSection === 'clients') loadClients();
             else if (activeSection === 'licenses') loadLicenses();
+            else if (activeSection === 'pipeline') loadPipeline();
+            else if (activeSection === 'contacts') loadContacts();
         });
     });
 
@@ -654,6 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target === 'clients') loadClients();
         if (target === 'pipeline') loadPipeline();
         if (target === 'licenses') loadLicenses();
+        if (target === 'contacts') loadContacts();
     }
 
     navItems.forEach(item => {
@@ -696,7 +782,7 @@ function applyTranslations() {
     if (label) label.textContent = currentLang.toUpperCase();
     
     const flagEl = document.querySelector('.lang-current-flag');
-    if (flagEl) flagEl.textContent = t.flag;
+    if (flagEl) flagEl.innerHTML = `<img src="${t.flagSrc}" alt="${t.flagAlt}" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;">`;
 
     // Update Sidebar nav labels (each nav-item has an SVG + span, target only the span)
     const navOverview  = document.querySelector('[data-target="overview"] span:not(.sidebar-badge)');
@@ -801,13 +887,6 @@ async function loadStats() {
             console.warn('Could not load prospects (permission denied or missing collection).', e);
         }
         
-        let licensesSnap = null;
-        try {
-            licensesSnap = await getDocs(collection(db, 'licenses'));
-        } catch (e) {
-            console.warn('Could not load licenses.', e);
-        }
-
         // Filter real partners
         const partnerDocs = membersSnap.docs.filter(d => {
             const r = d.data().role;
@@ -881,9 +960,11 @@ async function loadStats() {
         const completedOB       = partnerDocs.filter(d => d.data().onboardingCompleted).length;
         const onboardingRate    = totalPartners > 0 ? Math.round((completedOB / totalPartners) * 100) : 0;
         const activeProjects    = partnerDocs.filter(d => d.data().projectUrl).length;
-        const totalLicenses     = licensesSnap ? licensesSnap.size : 0;
-        const usedLicenses      = licensesSnap ? licensesSnap.docs.filter(d => d.data().status === 'used').length : 0;
-        const licenseUtil       = totalLicenses > 0 ? Math.round((usedLicenses / totalLicenses) * 100) : 0;
+        const subscribedPartners = partnerDocs.filter(d => d.data().subscription?.licenseCode);
+        const totalLicenses      = subscribedPartners.length;
+        const activeLicenses     = subscribedPartners.filter(d => subscriptionStatus(d.data().subscription) === 'active').length;
+        const automaticLicenses  = subscribedPartners.filter(d => d.data().subscription?.source === 'stripe').length;
+        const licenseHealth      = totalLicenses > 0 ? Math.round((activeLicenses / totalLicenses) * 100) : 0;
 
         // Update sidebar counts
         const sidebarPartners  = document.getElementById('sidebar-clients-count');
@@ -937,11 +1018,11 @@ async function loadStats() {
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
             }) +
             kpiCard({
-                id: 'licenses', value: `${licenseUtil}%`, label: 'License Utilization',
-                sub: `${usedLicenses} of ${totalLicenses} used`, progressLabel: `${totalLicenses - usedLicenses} left`,
-                colorClass: licenseUtil > 85 ? 'kpi-red' : 'kpi-blue',
-                trendClass: licenseUtil > 85 ? 'trend-down' : 'trend-neutral',
-                trend: licenseUtil > 85 ? '↑ High' : `${usedLicenses}/${totalLicenses}`,
+                id: 'licenses', value: activeLicenses, label: 'Active Subscription Licenses',
+                sub: `${totalLicenses} assigned`, progressLabel: `${automaticLicenses} automatic`,
+                colorClass: licenseHealth >= 80 ? 'kpi-green' : 'kpi-blue',
+                trendClass: 'trend-neutral',
+                trend: totalLicenses ? `${licenseHealth}% active` : 'No subscriptions',
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
             });
 
@@ -949,7 +1030,7 @@ async function loadStats() {
         animateProgress(document.getElementById('kpi-fill-partners'), onboardingRate);
         animateProgress(document.getElementById('kpi-fill-rate'),     onboardingRate);
         animateProgress(document.getElementById('kpi-fill-active'),   totalPartners > 0 ? (activeProjects / totalPartners) * 100 : 0);
-        animateProgress(document.getElementById('kpi-fill-licenses'), licenseUtil);
+        animateProgress(document.getElementById('kpi-fill-licenses'), licenseHealth);
 
         // Load supplementary panels
         loadRecentActivity();
@@ -963,54 +1044,99 @@ async function loadStats() {
 }
 
 // ── RECENT ACTIVITY FEED ─────────────────────────────────────────────────────
+const FEED_ICONS = {
+    user:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+    monitor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+    slash:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
+    check:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`,
+    file:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`
+};
+
+/** Humanize a pipeline stage key: 'first_contact' → 'first contact' */
+const stageName = s => String(s || '—').replace(/_/g, ' ');
+
+// How each activity type renders (dot class, icon, timeline label, subtitle builder)
+const ACTIVITY_PRESENTATION = {
+    member_registered:     { dot: 'feed-dot-join',    icon: 'user',    label: 'Account created',        sub: () => 'Joined as partner' },
+    onboarding_completed:  { dot: 'feed-dot-onboard', icon: 'check',   label: 'Onboarding submitted',   sub: () => 'Onboarding completed' },
+    stage_changed:         { dot: 'feed-dot-project', icon: 'check',   label: 'Pipeline stage updated', sub: p => `Stage: ${stageName(p.fromStage)} → ${stageName(p.toStage)}` },
+    project_url_set:       { dot: 'feed-dot-project', icon: 'monitor', label: 'Project published',      sub: () => 'Project URL assigned' },
+    financials_updated:    { dot: 'feed-dot-project', icon: 'file',    label: 'Financial terms updated', sub: () => 'Financials updated' },
+    report_added:          { dot: 'feed-dot-project', icon: 'file',    label: 'Report delivered',       sub: p => p.title ? `Report added · ${p.title}` : 'Report added' },
+    report_removed:        { dot: 'feed-dot-suspend', icon: 'file',    label: 'Report removed',         sub: p => p.title ? `Report removed · ${p.title}` : 'Report removed' },
+    subscription_assigned: { dot: 'feed-dot-onboard', icon: 'file',    label: 'Subscription activated', sub: p => `Subscription assigned${p.planType ? ' · ' + p.planType : ''}` },
+    subscription_updated:  { dot: 'feed-dot-project', icon: 'file',    label: 'Subscription updated',   sub: p => `Status: ${p.status || 'updated'}` },
+    subscription_payment_received: { dot: 'feed-dot-onboard', icon: 'check', label: 'Subscription payment received', sub: p => `License renewed${p.planType ? ' · ' + p.planType : ''}` },
+    subscription_payment_failed: { dot: 'feed-dot-suspend', icon: 'slash', label: 'Subscription payment failed', sub: () => 'Payment requires attention' },
+    subscription_canceled: { dot: 'feed-dot-suspend', icon: 'slash', label: 'Subscription canceled', sub: () => 'License access canceled' },
+    prospect_promoted:     { dot: 'feed-dot-join',    icon: 'user',    label: 'Prospect converted',     sub: p => p.prospectName ? `Prospect converted · ${p.prospectName}` : 'Prospect converted to project' },
+    notes_updated:         { dot: 'feed-dot-project', icon: 'file',    label: 'Internal note updated',  sub: () => 'Internal notes updated' },
+    account_suspended:     { dot: 'feed-dot-suspend', icon: 'slash',   label: 'Account suspended',      sub: () => 'Account suspended' },
+    account_reactivated:   { dot: 'feed-dot-onboard', icon: 'check',   label: 'Account reactivated',    sub: () => 'Account reactivated' }
+};
+
 async function loadRecentActivity() {
     const container = document.getElementById('activity-feed-container');
     if (!container) return;
 
     try {
-        // Build event list from _allClients already in memory
-        const events = [];
+        // ── Real events from the append-only activity log ──
+        let logged = [];
+        try {
+            const snap = await getDocs(query(collection(db, 'activities'), orderBy('createdAt', 'desc'), limit(15)));
+            logged = snap.docs.map(d => d.data());
+        } catch (err) {
+            logger.warn('Activity log unavailable, falling back to derived feed:', err);
+        }
+
+        const events = logged.map(a => {
+            const pres = ACTIVITY_PRESENTATION[a.type] || { dot: 'feed-dot-project', icon: 'file', sub: () => a.type };
+            return {
+                ts: a.createdAt,
+                title: a.memberName || 'Unknown',
+                sub: pres.sub(a.payload || {}),
+                dotClass: pres.dot,
+                icon: FEED_ICONS[pres.icon],
+                partnerId: a.memberId
+            };
+        });
+
+        // ── Legacy derived events (history predating the activity log) ──
+        // Skipped for members whose equivalent event already exists in the log.
+        const idsWith = type => new Set(logged.filter(a => a.type === type).map(a => a.memberId));
+        const loggedJoin    = idsWith('member_registered');
+        const loggedUrl     = idsWith('project_url_set');
+        const loggedSuspend = idsWith('account_suspended');
 
         _allClients.forEach(c => {
-            if (c.createdAt) {
+            if (c.createdAt && !loggedJoin.has(c.id)) {
                 events.push({
-                    type: 'join', ts: c.createdAt,
+                    ts: c.createdAt,
                     title: c.name || 'Unknown',
                     sub: `Joined as partner${c.company ? ' · ' + c.company : ''}`,
-                    dotClass: 'feed-dot-join',
-                    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-                    partner: c
+                    dotClass: 'feed-dot-join', icon: FEED_ICONS.user, partnerId: c.id
                 });
             }
-            if (c.projectUrl) {
+            if (c.projectUrl && !loggedUrl.has(c.id)) {
                 events.push({
-                    type: 'project', ts: c.createdAt, // use createdAt as proxy
+                    ts: c.createdAt, // proxy date — no real timestamp pre-ledger
                     title: c.name || 'Unknown',
                     sub: 'Project URL assigned',
-                    dotClass: 'feed-dot-project',
-                    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
-                    partner: c
+                    dotClass: 'feed-dot-project', icon: FEED_ICONS.monitor, partnerId: c.id
                 });
             }
-            if (c.isDeactivated) {
+            if (c.isDeactivated && !loggedSuspend.has(c.id)) {
                 events.push({
-                    type: 'suspend', ts: c.createdAt,
+                    ts: c.createdAt, // proxy date — no real timestamp pre-ledger
                     title: c.name || 'Unknown',
                     sub: 'Account suspended',
-                    dotClass: 'feed-dot-suspend',
-                    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
-                    partner: c
+                    dotClass: 'feed-dot-suspend', icon: FEED_ICONS.slash, partnerId: c.id
                 });
             }
         });
 
         // Sort by timestamp desc, take top 7
-        events.sort((a, b) => {
-            const tsA = a.ts?.seconds ?? 0;
-            const tsB = b.ts?.seconds ?? 0;
-            return tsB - tsA;
-        });
-
+        events.sort((a, b) => (b.ts?.seconds ?? 0) - (a.ts?.seconds ?? 0));
         const top = events.slice(0, 7);
 
         if (top.length === 0) {
@@ -1019,20 +1145,19 @@ async function loadRecentActivity() {
         }
 
         container.innerHTML = `<div class="feed-list">${top.map(ev => `
-            <div class="feed-item" style="cursor:pointer;" data-partner-id="${ev.partner.id}">
+            <div class="feed-item" style="cursor:pointer;" data-partner-id="${esc(ev.partnerId)}">
                 <div class="feed-item-dot ${ev.dotClass}">${ev.icon}</div>
                 <div class="feed-item-body">
-                    <div class="feed-item-title">${ev.title}</div>
-                    <div class="feed-item-sub">${ev.sub}</div>
+                    <div class="feed-item-title">${esc(ev.title)}</div>
+                    <div class="feed-item-sub">${esc(ev.sub)}</div>
                 </div>
                 <div class="feed-item-time">${timeAgo(ev.ts)}</div>
             </div>`).join('')}</div>`;
 
-        // Click opens detail panel
+        // Click opens detail panel (only for members still loaded in memory)
         container.querySelectorAll('.feed-item').forEach(item => {
             item.addEventListener('click', () => {
-                const pid = item.dataset.partnerId;
-                const partner = _allClients.find(c => c.id === pid);
+                const partner = _allClients.find(c => c.id === item.dataset.partnerId);
                 if (partner) showClientDetail(partner.id, partner);
             });
         });
@@ -1040,6 +1165,81 @@ async function loadRecentActivity() {
     } catch (error) {
         logger.error('loadRecentActivity:', error);
     }
+}
+
+// ── CLIENT TIMELINE (Vista 360, inside detail panel) ────────────────────────
+async function loadClientTimeline(userId, member) {
+    const container = document.getElementById('client-timeline-container');
+    if (!container) return;
+
+    let acts = [];
+    try {
+        // Equality-only query → automatic single-field index; sorted client-side
+        // so no composite-index deploy is required.
+        const snap = await getDocs(query(collection(db, 'activities'), where('memberId', '==', userId), limit(100)));
+        acts = snap.docs.map(d => d.data());
+        acts.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+    } catch (err) {
+        logger.warn('Client timeline unavailable:', err);
+        container.innerHTML = `<p class="timeline-empty">Activity log unavailable.</p>`;
+        return;
+    }
+
+    const fmtFull = ts => ts?.seconds
+        ? new Date(ts.seconds * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '';
+
+    const arrowSvg = `<svg class="tl-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+
+    const items = acts.map(a => {
+        const pres = ACTIVITY_PRESENTATION[a.type] || { dot: 'feed-dot-project', icon: 'file', label: a.type, sub: () => '' };
+        const p = a.payload || {};
+        const detail = a.type === 'stage_changed'
+            ? `<span class="tl-stage-flow">
+                   <span class="tl-stage-pill">${esc(stageName(p.fromStage))}</span>${arrowSvg}
+                   <span class="tl-stage-pill tl-stage-pill-active">${esc(stageName(p.toStage))}</span>
+               </span>`
+            : `<span class="tl-desc">${esc(pres.sub(p))}</span>`;
+
+        return `
+            <div class="tl-item">
+                <div class="tl-node ${pres.dot}">${FEED_ICONS[pres.icon]}</div>
+                <div class="tl-card">
+                    <div class="tl-card-head">
+                        <span class="tl-label">${esc(pres.label || a.type)}</span>
+                        <span class="tl-time">${timeAgo(a.createdAt)}</span>
+                    </div>
+                    ${detail}
+                    <div class="tl-meta">
+                        <span class="tl-actor ${a.actorRole === 'admin' ? 'tl-actor-admin' : 'tl-actor-member'}">${a.actorRole === 'admin' ? 'Admin' : 'Client'}</span>
+                        <span class="tl-date">${esc(fmtFull(a.createdAt))}</span>
+                    </div>
+                </div>
+            </div>`;
+    });
+
+    // Genesis node — account creation predating the activity ledger
+    if (member?.createdAt && !acts.some(a => a.type === 'member_registered')) {
+        items.push(`
+            <div class="tl-item">
+                <div class="tl-node feed-dot-join">${FEED_ICONS.user}</div>
+                <div class="tl-card">
+                    <div class="tl-card-head">
+                        <span class="tl-label">${member.role === 'prospect' ? 'Request received' : 'Account created'}</span>
+                        <span class="tl-time">${timeAgo(member.createdAt)}</span>
+                    </div>
+                    <span class="tl-desc">${esc(member.company ? 'Member · ' + member.company : 'Member since')}</span>
+                    <div class="tl-meta">
+                        <span class="tl-actor tl-actor-member">Client</span>
+                        <span class="tl-date">${esc(fmtFull(member.createdAt))}</span>
+                    </div>
+                </div>
+            </div>`);
+    }
+
+    container.innerHTML = items.length === 0
+        ? `<p class="timeline-empty">No recorded activity yet. New events will appear here as they happen.</p>`
+        : `<div class="tl">${items.join('')}</div>`;
 }
 
 // ── PIPELINE SNAPSHOT (overview panel mini-version) ──────────────────────────
@@ -1170,7 +1370,7 @@ async function loadPipeline() {
     board.innerHTML = Object.values(stages).map(col => `
         <div class="pipeline-column ${col.cls}">
             <div class="pipeline-col-header">
-                <div class="pipeline-col-title"><div class="pipeline-col-dot"></div>${col.label}</div>
+                <div class="pipeline-col-title"><div class="pipeline-col-dot"></div><span>${esc(col.label)}</span></div>
                 <span class="pipeline-col-count">${col.clients.length}</span>
             </div>
             <div class="pipeline-col-cards">
@@ -1183,8 +1383,11 @@ async function loadPipeline() {
                         const cardCompany = c.company || c.email || '';
                         return `
                         <div class="pipeline-card" data-partner-id="${c.id}" data-project-id="${p ? p.id : ''}">
-                            <div class="pipeline-card-name">${cardName}</div>
-                            <div class="pipeline-card-company">${cardCompany}</div>
+                            <div class="pipeline-card-avatar">${esc(initials(cardName))}</div>
+                            <div class="pipeline-card-body">
+                                <div class="pipeline-card-name">${esc(cardName)}</div>
+                                <div class="pipeline-card-company">${esc(cardCompany)}</div>
+                            </div>
                         </div>`;
                     }).join('')
                 }
@@ -1381,56 +1584,110 @@ function renderClientGrid(clients, t) {
 
 async function loadLicenses() {
     const licensesList = document.getElementById('licenses-list');
-    licensesList.innerHTML = '<tr><td colspan="4" style="text-align: center;"><div class="premium-loader"></div></td></tr>';
+    const summary = document.getElementById('licenses-summary');
+    licensesList.innerHTML = '<tr><td colspan="6" style="text-align: center;"><div class="premium-loader"></div></td></tr>';
     const t = translations[currentLang];
 
     try {
-        const querySnapshot = await getDocs(collection(db, 'licenses'));
-        
-        let licenses = [];
-        querySnapshot.forEach((doc) => {
-            licenses.push(doc.data());
+        // A license exists because a member has a subscription. The old pool is
+        // deliberately not listed: unassigned codes are no longer inventory.
+        const membersSnap = await getDocs(collection(db, 'members'));
+        const licenses = membersSnap.docs.flatMap(memberDoc => {
+            const member = memberDoc.data();
+
+            // Keep old assigned codes visible until their first subscription
+            // renewal migrates them to the new structure.
+            const sub = member.subscription || (member.licenseCode ? {
+                planType: 'legacy',
+                planLabel: 'Legacy license',
+                billingCycle: '—',
+                licenseCode: member.licenseCode,
+                status: 'active',
+                source: 'legacy',
+                nextBillingDate: null
+            } : null);
+            if (!sub?.licenseCode) return [];
+
+            return [{
+                userId: memberDoc.id,
+                userName: member.name || member.company || '—',
+                userEmail: member.email || '—',
+                memberRecord: { id: memberDoc.id, ...member },
+                ...sub,
+                status: subscriptionStatus(sub)
+            }];
         });
 
+        const statusOrder = { active: 0, pending_payment: 1, suspended: 2, canceled: 3, cancelled: 3 };
         licenses.sort((a, b) => {
-            if (a.status === 'used' && b.status !== 'used') return -1;
-            if (a.status !== 'used' && b.status === 'used') return 1;
-            
-            if (a.status === 'used' && b.status === 'used') {
-                const nameA = a.assignedTo || '';
-                const nameB = b.assignedTo || '';
-                return nameA.localeCompare(nameB);
-            }
-            
-            // For available/active ones, sort by code or created at? Let's just maintain code or let them be.
-            const codeA = a.code || '';
-            const codeB = b.code || '';
-            return codeA.localeCompare(codeB);
+            const byStatus = (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9);
+            return byStatus || a.userName.localeCompare(b.userName);
         });
-        
+
+        const counts = licenses.reduce((acc, item) => {
+            const status = item.status || 'active';
+            acc.total += 1;
+            acc.active += status === 'active' ? 1 : 0;
+            acc.attention += ['pending_payment', 'suspended'].includes(status) ? 1 : 0;
+            acc.automatic += item.source === 'stripe' ? 1 : 0;
+            return acc;
+        }, { total: 0, active: 0, attention: 0, automatic: 0 });
+
+        const copy = {
+            en: { total: 'Assigned', active: 'Active', attention: 'Needs attention', automatic: 'Automatic', empty: 'No subscription licenses have been assigned yet.', manual: 'Manual', stripe: 'Web / Stripe', legacy: 'Legacy', monthly: 'Monthly', annual: 'Annual', pending_payment: 'Payment pending', suspended: 'Suspended', canceled: 'Canceled', cancelled: 'Canceled' },
+            es: { total: 'Asignadas', active: 'Activas', attention: 'Requieren atención', automatic: 'Automáticas', empty: 'Aún no hay licencias asignadas por suscripción.', manual: 'Manual', stripe: 'Web / Stripe', legacy: 'Anterior', monthly: 'Mensual', annual: 'Anual', pending_payment: 'Pago pendiente', suspended: 'Suspendida', canceled: 'Cancelada', cancelled: 'Cancelada' },
+            pt: { total: 'Atribuídas', active: 'Ativas', attention: 'Requer atenção', automatic: 'Automáticas', empty: 'Ainda não existem licenças atribuídas por subscrição.', manual: 'Manual', stripe: 'Web / Stripe', legacy: 'Anterior', monthly: 'Mensal', annual: 'Anual', pending_payment: 'Pagamento pendente', suspended: 'Suspensa', canceled: 'Cancelada', cancelled: 'Cancelada' }
+        }[currentLang] || null;
+
+        if (summary) {
+            summary.innerHTML = [
+                [counts.total, copy.total, 'license-metric-blue'],
+                [counts.active, copy.active, 'license-metric-green'],
+                [counts.attention, copy.attention, 'license-metric-gold'],
+                [counts.automatic, copy.automatic, 'license-metric-purple']
+            ].map(([value, label, cls]) => `
+                <div class="license-metric ${cls}">
+                    <strong>${value}</strong><span>${label}</span>
+                </div>`).join('');
+        }
+
+        if (licenses.length === 0) {
+            licensesList.innerHTML = `<tr><td colspan="6" class="license-empty">${copy.empty}</td></tr>`;
+            return;
+        }
+
         licensesList.innerHTML = '';
         licenses.forEach((data) => {
-            const usedAtStr = data.usedAt ? new Date(data.usedAt.seconds * 1000).toLocaleDateString() : '-';
-            
-            let displayStatus = data.status.toUpperCase();
-            if (data.status === 'active') {
-                displayStatus = currentLang === 'es' ? 'DISPONIBLE' : (currentLang === 'pt' ? 'DISPONÍVEL' : 'AVAILABLE');
-            } else if (data.status === 'used') {
-                displayStatus = currentLang === 'es' ? 'USADA' : (currentLang === 'pt' ? 'USADA' : 'USED');
-            }
-            
+            const status = data.status || 'active';
+            const displayStatus = copy[status] || (status === 'active' ? copy.active : status.replaceAll('_', ' '));
+            const source = data.source === 'stripe' ? copy.stripe : data.source === 'legacy' ? copy.legacy : copy.manual;
+            const sourceClass = data.source === 'stripe' ? 'license-source-auto' : 'license-source-manual';
+            const cycle = data.contractPeriodCode || copy[data.billingCycle] || data.billingCycle || '—';
+            const renewal = formatAdminDate(data.nextBillingDate);
             const tr = document.createElement('tr');
+            tr.dataset.userId = data.userId;
+            tr.className = 'license-row';
             tr.innerHTML = `
-                <td style="font-family: monospace; font-weight: bold; color: var(--color-accent);">${data.code}</td>
-                <td><span class="status-badge status-${data.status}">${displayStatus}</span></td>
-                <td style="font-size: 0.9rem;">${data.assignedTo || '-'}</td>
-                <td style="font-size: 0.85rem; opacity: 0.7;">${usedAtStr}</td>
+                <td class="license-code-cell">${esc(data.licenseCode)}</td>
+                <td><strong>${esc(data.userName)}</strong><small>${esc(data.userEmail)}</small></td>
+                <td><strong>${esc(data.planLabel || data.planType || '—')}</strong><small>${esc(cycle)}</small></td>
+                <td><span class="license-source ${sourceClass}">${esc(source)}</span></td>
+                <td><span class="status-badge status-${esc(status)}">${esc(displayStatus)}</span></td>
+                <td>${esc(renewal)}</td>
             `;
             licensesList.appendChild(tr);
         });
+
+        licensesList.querySelectorAll('.license-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const member = _allClients.find(client => client.id === row.dataset.userId)
+                    || licenses.find(item => item.userId === row.dataset.userId)?.memberRecord;
+                if (member) showClientDetail(member.id, member);
+            });
+        });
     } catch (error) {
         console.error("Error loading licenses:", error);
-        licensesList.innerHTML = `<tr><td colspan="4" class="color-text-error">${t.error_licenses}<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></td></tr>`;
+        licensesList.innerHTML = `<tr><td colspan="6" class="color-text-error">${t.error_licenses}<br><small style="font-size: 0.8em; opacity: 0.8;">${esc(error.message)}</small></td></tr>`;
     }
 }
 
@@ -1485,6 +1742,11 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     const detailContent = document.getElementById('detail-content');
     const t = translations[currentLang];
     const isSuspended = member.isDeactivated === true;
+    const existingContractUnit = member.subscription?.contractUnit
+        || (member.subscription?.billingCycle === 'annual' ? 'years' : 'months');
+    const periodLength = Number(String(member.subscription?.contractPeriodCode || '').match(/(\d)$/)?.[1]);
+    const existingContractLength = Number(member.subscription?.contractLength) || periodLength || 1;
+    const existingBusinessId = member.subscription?.businessId || member.businessId || '';
     
     // Helper to format list items as tags
     const renderTags = (items) => {
@@ -1778,18 +2040,21 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 ${(() => {
                     const sub = member.subscription;
                     if (!sub || !sub.planType) return '<span style="font-size:0.8rem;color:var(--color-text-secondary);">No active subscription</span>';
-                    const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444' };
-                    const color = statusColors[sub.status] || '#888';
-                    return `<span style="font-size:0.8rem;font-weight:700;color:${color};">● ${(sub.status || '').replace('_', ' ').toUpperCase()}</span>`;
+                    const status = subscriptionStatus(sub);
+                    const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444', canceled: '#ff4444', cancelled: '#ff4444' };
+                    const color = statusColors[status] || '#888';
+                    return `<span style="font-size:0.8rem;font-weight:700;color:${color};">● ${(status || '').replace('_', ' ').toUpperCase()}</span>`;
                 })()}
             </div>
 
             ${(() => {
                 const sub = member.subscription;
                 if (sub && sub.planType) {
-                    const statusLabels = { active: 'Active', pending_payment: 'Payment Pending', suspended: 'Suspended' };
-                    const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444' };
-                    const col = statusColors[sub.status] || '#888';
+                    const status = subscriptionStatus(sub);
+                    const statusLabels = { active: 'Active', pending_payment: 'Payment Pending', suspended: 'Suspended', canceled: 'Canceled', cancelled: 'Canceled' };
+                    const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444', canceled: '#ff4444', cancelled: '#ff4444' };
+                    const col = statusColors[status] || '#888';
+                    const sourceLabel = sub.source === 'stripe' ? 'Web / Stripe' : sub.source === 'legacy' ? 'Legacy' : 'Manual / External';
                     return `
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
@@ -1798,7 +2063,19 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Status</div>
-                            <div style="font-size:0.9rem;font-weight:700;color:${col};">${statusLabels[sub.status] || sub.status}</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:${col};">${statusLabels[status] || status}</div>
+                        </div>
+                        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Origin</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-platinum);">${sourceLabel}</div>
+                        </div>
+                        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Contract</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-platinum);">${esc(sub.contractPeriodCode || (sub.billingCycle === 'annual' ? 'ANL1' : 'M3N1'))}</div>
+                        </div>
+                        <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Business ID</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-platinum);font-family:monospace;">${esc(sub.businessId || member.businessId || '—')}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">License Code</div>
@@ -1816,7 +2093,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             <!-- Manual Assignment Form -->
             <div id="sub-assign-form">
                 <h4 style="margin-bottom:1rem;font-size:0.9rem;color:var(--color-platinum);">
-                    ${member.subscription ? 'Register New Payment / Update Subscription' : 'Assign Subscription Manually'}
+                    ${member.subscription ? 'Register External Payment / Update Subscription' : 'Activate Subscription from External Payment'}
                 </h4>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem;">
                     <div>
@@ -1830,11 +2107,24 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                         </select>
                     </div>
                     <div>
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Billing Cycle</label>
-                        <select id="sub-cycle-select" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
-                            <option value="monthly" ${member.subscription?.billingCycle === 'monthly' ? 'selected' : ''}>Monthly</option>
-                            <option value="annual"  ${member.subscription?.billingCycle === 'annual'  ? 'selected' : ''}>Annual</option>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Contract Unit</label>
+                        <select id="sub-contract-unit" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                            <option value="months" ${existingContractUnit === 'months' ? 'selected' : ''}>Months (M3N)</option>
+                            <option value="years"  ${existingContractUnit === 'years'  ? 'selected' : ''}>Years (ANL)</option>
                         </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Contract Length</label>
+                        <select id="sub-contract-length" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                            ${Array.from({ length: 9 }, (_, index) => {
+                                const length = index + 1;
+                                return `<option value="${length}" ${existingContractLength === length ? 'selected' : ''}>${length}</option>`;
+                            }).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Business Identification</label>
+                        <input type="text" inputmode="numeric" autocomplete="off" id="sub-business-id" class="form-control" value="${esc(existingBusinessId)}" placeholder="321979257" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                     </div>
                     <div>
                         <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Payment Date</label>
@@ -1850,6 +2140,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                         </div>
                     </div>
                 </div>
+                <div id="sub-license-preview" style="margin:-0.25rem 0 1rem;font:600 0.78rem/1.4 monospace;color:var(--color-accent);"></div>
                 <div style="margin-bottom:1rem;">
                     <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Invoice PDF (optional)</label>
                     <div class="report-file-input-wrapper">
@@ -1862,7 +2153,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 </div>
                 <div style="display:flex;gap:1rem;align-items:center;">
                     <button id="btn-assign-subscription" class="btn btn-primary">
-                        ${member.subscription ? 'Register Payment' : 'Activate Subscription'}
+                        ${member.subscription ? 'Register External Payment' : 'Activate Subscription'}
                     </button>
                     <span id="sub-assign-msg" style="display:none;color:#00c875;font-size:0.875rem;"></span>
                 </div>
@@ -2143,6 +2434,14 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
 
         </div>
 
+        <!-- ── Client Timeline (Vista 360) ─────────────────────── -->
+        <div class="detail-section" style="margin-bottom: 2.5rem;">
+            <h3>Activity Timeline</h3>
+            <div id="client-timeline-container">
+                <p class="timeline-empty">Loading activity…</p>
+            </div>
+        </div>
+
         <!-- ── Admin Notes ─────────────────────────────────────── -->
         <div class="admin-notes-section">
             <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:0.6rem; font-weight:600; opacity:0.7;">Internal Notes (admin only)</label>
@@ -2153,6 +2452,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             </div>
         </div>
     `;
+
+    // Load the Vista 360 timeline from the activity ledger (async, non-blocking)
+    loadClientTimeline(userId, member);
 
     // ── Helper to update project fields ──
     const updateCurrentProjectFields = async (updates) => {
@@ -2259,6 +2561,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 
                 // 5. Update target member
                 await updateDoc(doc(db, 'members', targetDoc.id), { projects: targetProjects });
+                logActivity(targetDoc.id, targetMemberData.name, 'prospect_promoted', { prospectId: userId, prospectName: member.name || null, projectId: newProjectId });
                 
                 // 6. Delete the prospect document
                 await deleteDoc(doc(db, 'prospects', userId));
@@ -2317,6 +2620,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
         
         try {
             await updateCurrentProjectFields({ projectUrl: url });
+            logActivity(userId, member.name, 'project_url_set', { projectId: currentProject.id || null, url });
             msgLabel.textContent = t.saved;
             msgLabel.style.color = '#4CAF50';
             msgLabel.style.display = 'block';
@@ -2366,6 +2670,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             btnSaveFin.textContent = 'Saving...';
             try {
                 await updateCurrentProjectFields({ financials: newFin });
+                logActivity(userId, member.name, 'financials_updated', { projectId: currentProject.id || null });
                 
                 const msg = document.getElementById('fin-save-msg');
                 msg.textContent = t.saved;
@@ -2403,10 +2708,40 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     }
 
     const btnAssignSub = document.getElementById('btn-assign-subscription');
+    const subPlanSelect = document.getElementById('sub-plan-select');
+    const subContractUnit = document.getElementById('sub-contract-unit');
+    const subContractLength = document.getElementById('sub-contract-length');
+    const subBusinessId = document.getElementById('sub-business-id');
+    const subLicensePreview = document.getElementById('sub-license-preview');
+    const updateManualLicensePreview = () => {
+        if (!subPlanSelect || !subContractUnit || !subContractLength || !subBusinessId || !subLicensePreview) return;
+        const businessId = subBusinessId.value.replace(/\D/g, '');
+        const manualLicense = buildManualLicense(subPlanSelect.value, subContractUnit.value, subContractLength.value, businessId);
+        subLicensePreview.textContent = businessId
+            ? `License: ${manualLicense.licenseCode}`
+            : 'License: enter the business identification number';
+    };
+    const syncAllowedContractUnit = () => {
+        if (!subPlanSelect || !subContractUnit) return;
+        const monthlyOption = subContractUnit.querySelector('option[value="months"]');
+        const annualOnly = subPlanSelect.value === 'hosting';
+        if (monthlyOption) monthlyOption.disabled = annualOnly;
+        if (annualOnly) subContractUnit.value = 'years';
+        updateManualLicensePreview();
+    };
+    subPlanSelect?.addEventListener('change', syncAllowedContractUnit);
+    subContractUnit?.addEventListener('change', updateManualLicensePreview);
+    subContractLength?.addEventListener('change', updateManualLicensePreview);
+    subBusinessId?.addEventListener('input', updateManualLicensePreview);
+    syncAllowedContractUnit();
+
     if (btnAssignSub) {
         btnAssignSub.addEventListener('click', async () => {
-            const planType   = document.getElementById('sub-plan-select').value;
-            const cycle      = document.getElementById('sub-cycle-select').value;
+            const planType = document.getElementById('sub-plan-select').value;
+            const contractUnit = document.getElementById('sub-contract-unit').value;
+            const contractLength = Number(document.getElementById('sub-contract-length').value);
+            const businessId = document.getElementById('sub-business-id').value.replace(/\D/g, '');
+            const cycle = contractUnit === 'years' ? 'annual' : 'monthly';
             const startDate  = document.getElementById('sub-start-date').value;
             const amount     = parseFloat(document.getElementById('sub-amount').value) || 0;
             const currency   = document.getElementById('sub-currency').value;
@@ -2415,25 +2750,26 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             const msgEl      = document.getElementById('sub-assign-msg');
 
             if (!startDate) return alert('Please set a payment date.');
+            if (!Number.isInteger(contractLength) || contractLength < 1 || contractLength > 9) {
+                return alert('Contract length must be between 1 and 9.');
+            }
+            if (!/^\d{5,20}$/.test(businessId)) {
+                return alert('Please enter a valid business identification number (digits only).');
+            }
 
             btnAssignSub.disabled = true;
             btnAssignSub.textContent = 'Saving…';
 
             try {
-                // Map planType → license code segment
-                const PLAN_CODES = { hosting: 'H0ST', basic: 'ECO1', preferential: 'ECO2', advanced: 'ECO3', crm: 'CRMP' };
-                const PLAN_LABELS = { hosting: 'Domain & Hosting', basic: 'Basic Maintenance', preferential: 'Preferential Maintenance', advanced: 'Advanced Maintenance', crm: 'Custom Core CRM' };
-                const CYCLE_CODES = { monthly: 'M3N1', annual: 'ANL1' };
-
                 const d = new Date(startDate + 'T12:00:00');
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const yy = String(d.getFullYear()).slice(-2);
-                const licenseCode = `ELY-${PLAN_CODES[planType]}-${CYCLE_CODES[cycle]}-${mm}${yy}`;
+                const manualLicense = buildManualLicense(planType, contractUnit, contractLength, businessId);
+                const previousLicense = member.subscription?.licenseCode || member.licenseCode || null;
+                const { licenseCode, periodCode } = manualLicense;
 
                 // Compute next billing date
                 const nextDate = new Date(d);
-                if (cycle === 'monthly') nextDate.setMonth(nextDate.getMonth() + 1);
-                else nextDate.setFullYear(nextDate.getFullYear() + 1);
+                if (contractUnit === 'months') nextDate.setMonth(nextDate.getMonth() + contractLength);
+                else nextDate.setFullYear(nextDate.getFullYear() + contractLength);
 
                 // Upload invoice if provided
                 let invoiceUrl = null;
@@ -2448,52 +2784,107 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 // Build subscription object
                 const subscription = {
                     planType,
-                    planLabel: PLAN_LABELS[planType],
+                    planLabel: SUBSCRIPTION_PLANS[planType].label,
                     billingCycle: cycle,
+                    contractUnit,
+                    contractLength,
+                    contractPeriodCode: periodCode,
+                    businessId,
                     status: 'active',
                     licenseCode,
-                    startDate: new Date(startDate + 'T12:00:00'),
+                    source: 'manual',
+                    isManual: true,
+                    startDate: member.subscription?.startDate || d,
+                    contractStartDate: d,
                     nextBillingDate: nextDate,
-                    updatedAt: new Date()
+                    gracePeriodEnd: null,
+                    stripeCustomerId: null,
+                    stripeSubscriptionId: null,
+                    updatedAt: serverTimestamp()
                 };
 
-                // Write subscription to member document
-                await updateDoc(doc(db, 'members', userId), { subscription, licenseCode });
-
-                // Write payment record
-                await addDoc(collection(db, 'subscription_payments'), {
+                // Member, license and payment are committed together so the CRM
+                // can never show a paid subscription without its license.
+                const memberRef = doc(db, 'members', userId);
+                const licenseRef = doc(db, 'licenses', licenseCode);
+                const paymentRef = doc(collection(db, 'subscription_payments'));
+                const batch = writeBatch(db);
+                batch.update(memberRef, { subscription, licenseCode, businessId });
+                batch.set(licenseRef, {
+                    code: licenseCode,
                     userId,
-                    userName: member.name,
-                    userEmail: member.email,
+                    userName: member.name || null,
+                    userEmail: member.email || null,
                     planType,
-                    planLabel: PLAN_LABELS[planType],
+                    planLabel: SUBSCRIPTION_PLANS[planType].label,
                     billingCycle: cycle,
+                    contractUnit,
+                    contractLength,
+                    contractPeriodCode: periodCode,
+                    businessId,
+                    status: 'active',
+                    source: 'manual',
+                    assignedTo: member.name || member.email,
+                    assignedAt: member.subscription?.startDate || d,
+                    nextBillingDate: nextDate,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+                batch.set(paymentRef, {
+                    userId,
+                    userName: member.name || null,
+                    userEmail: member.email || null,
+                    planType,
+                    planLabel: SUBSCRIPTION_PLANS[planType].label,
+                    billingCycle: cycle,
+                    contractUnit,
+                    contractLength,
+                    contractPeriodCode: periodCode,
+                    businessId,
                     licenseCode,
                     amount,
                     currency,
                     invoiceUrl,
-                    paymentDate: new Date(startDate + 'T12:00:00'),
-                    recordedAt: new Date(),
-                    recordedBy: 'admin'
+                    paymentDate: d,
+                    recordedAt: serverTimestamp(),
+                    recordedBy: 'admin',
+                    source: 'manual'
+                });
+                if (previousLicense && previousLicense !== licenseCode) {
+                    batch.delete(doc(db, 'licenses', previousLicense));
+                }
+                await batch.commit();
+
+                logActivity(userId, member.name, 'subscription_assigned', {
+                    planType,
+                    billingCycle: cycle,
+                    contractPeriodCode: periodCode,
+                    businessId,
+                    licenseCode,
+                    amount,
+                    currency
                 });
 
                 // Update in-memory cache
                 const cacheIdx = _allClients.findIndex(c => c.id === userId);
-                if (cacheIdx !== -1) { _allClients[cacheIdx].subscription = subscription; _allClients[cacheIdx].licenseCode = licenseCode; }
+                if (cacheIdx !== -1) {
+                    _allClients[cacheIdx].subscription = subscription;
+                    _allClients[cacheIdx].licenseCode = licenseCode;
+                    _allClients[cacheIdx].businessId = businessId;
+                }
 
                 msgEl.textContent = `✓ Subscription activated! License: ${licenseCode}`;
                 msgEl.style.display = 'inline';
                 msgEl.style.color = '#00c875';
 
                 // Reload detail after 1.5s
-                setTimeout(() => showClientDetail(userId, { ...member, subscription, licenseCode }), 1500);
+                setTimeout(() => showClientDetail(userId, { ...member, subscription, licenseCode, businessId }), 1500);
 
             } catch (err) {
                 logger.error('Assign subscription:', err);
                 alert('Error: ' + err.message);
             }
             btnAssignSub.disabled = false;
-            btnAssignSub.textContent = member.subscription ? 'Register Payment' : 'Activate Subscription';
+            btnAssignSub.textContent = member.subscription ? 'Register External Payment' : 'Activate Subscription';
         });
     }
 
@@ -2584,7 +2975,8 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 // Add to Firestore array
                 const newReports = [...(currentProject.reports || []), { title, date, amount, currency, url: downloadURL, filePath }];
                 await updateCurrentProjectFields({ reports: newReports });
-                
+                logActivity(userId, member.name, 'report_added', { projectId: currentProject.id || null, title });
+
                 // Re-render
                 showClientDetail(userId, member);
             } catch (err) {
@@ -2613,6 +3005,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 
                 // 2. Delete from Firestore
                 await updateCurrentProjectFields({ reports: newReports });
+                logActivity(userId, member.name, 'report_removed', { projectId: currentProject.id || null, title: reportToDelete.title || null });
                 renderDetail(member, onboarding, userId, submissionTimestamp, currentProject.id);
             } catch (err) {
                 alert('Error deleting report: ' + err.message);
@@ -2627,9 +3020,11 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
         step.addEventListener('click', async () => {
             const newStage = step.dataset.stage;
             if (!newStage || newStage === currentProject.projectStage) return;
+            const fromStage = currentProject.projectStage || null;
 
             try {
                 await updateCurrentProjectFields({ projectStage: newStage });
+                logActivity(userId, member.name, 'stage_changed', { projectId: currentProject.id || null, fromStage, toStage: newStage });
                 
                 // Re-render UI to update colors
                 renderDetail(member, onboarding, userId, submissionTimestamp, currentProject.id);
@@ -2660,6 +3055,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
 
             try {
                 await updateDoc(doc(db, 'members', userId), { adminNotes: notes });
+                logActivity(userId, member.name, 'notes_updated', {});
                 member.adminNotes = notes;
                 // Update in-memory cache
                 const idx = _allClients.findIndex(c => c.id === userId);
@@ -2697,6 +3093,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
 
             try {
                 await updateDoc(doc(db, 'members', userId), { isDeactivated: newState });
+                logActivity(userId, member.name, newState ? 'account_suspended' : 'account_reactivated', {});
                 member.isDeactivated = newState;
 
                 // Update in-memory cache so search/sort stays consistent
@@ -3052,10 +3449,10 @@ async function loadContacts() {
             html += `
                 <tr>
                     <td>${date}</td>
-                    <td><strong>${data.name || '-'}</strong></td>
-                    <td><a href="mailto:${data.email || ''}" style="color: var(--color-accent); text-decoration: none;">${data.email || '-'}</a></td>
-                    <td><span class="status-badge" style="background: rgba(41, 151, 255, 0.1); color: var(--color-accent);">${data.service || '-'}</span></td>
-                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${data.message || ''}">${data.message || '-'}</td>
+                    <td><strong>${esc(data.name) || '-'}</strong></td>
+                    <td><a href="mailto:${esc(data.email) || ''}" style="color: var(--color-accent); text-decoration: none;">${esc(data.email) || '-'}</a></td>
+                    <td><span class="status-badge" style="background: rgba(41, 151, 255, 0.1); color: var(--color-accent);">${esc(data.service) || '-'}</span></td>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(data.message) || ''}">${esc(data.message) || '-'}</td>
                 </tr>
             `;
         });

@@ -3,227 +3,612 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONCORE – Cancer Recovery & Performance Center</title>
-    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-src 'self';">
+    <title>ONCORE – Cancer Recovery & Survivorship Center | Recover Beyond Cancer</title>
+    <meta name="description" content="O primeiro Cancer Recovery & Survivorship Center privado em Portugal. Recuperação funcional, física e psicológica após o tratamento oncológico. Miraflores, Lisboa.">
+
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0B0B0B">
+    <meta name="theme-color" content="#1E2C26">
     <link rel="apple-touch-icon" href="images/logo/apple-touch-icon.png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/oncore.css?v=2.0.5">
 </head>
-<body class="dark-mode">
+<body>
 
-    <!-- Header -->
+    <!-- ============ PRELOADER INICIAL ============ -->
+    <div id="oncore-preloader" aria-hidden="true">
+        <div class="preloader-content">
+            <span class="preloader-mark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </span>
+            <span class="preloader-brand">ONCORE</span>
+            <span class="preloader-sub">Cancer Recovery &amp; Survivorship Center</span>
+        </div>
+    </div>
+
+    <!-- ============ HEADER (pill nav) ============ -->
     <header id="header">
-        <div class="container header-container">
-            <a href="#" class="logo-text">
-                <i data-lucide="activity"></i> ONCORE
+        <div class="nav-pill">
+            <a href="#inicio" class="logo">
+                <span class="logo-mark"><i data-lucide="activity"></i></span>
+                <span class="logo-name">ONCORE<small>Cancer Recovery &amp; Survivorship Center</small></span>
             </a>
-            <nav class="nav-menu">
+            <nav class="nav-menu" id="navMenu">
                 <ul>
-                    <li><a href="#hero">Início</a></li>
-                    <li><a href="#problema">O Desafio</a></li>
-                    <li><a href="#servicos">Serviços</a></li>
-                    <li><a href="#sobre">Visão</a></li>
+                    <li><a href="#inicio" class="nav-active">Início</a></li>
+                    <li><a href="#programas">Programas Clínicos</a></li>
+                    <li><a href="#sobre">A ONCORE</a></li>
+                    <li><a href="#equipa">Equipa Multidisciplinar</a></li>
+                    <li><a href="#ecossistema">Ecossistema &amp; Academy</a></li>
+                    <li><a href="#referenciacao">Referenciação</a></li>
                 </ul>
+                <a href="#contactos" class="btn btn-dark nav-cta-mobile">Agendar Avaliação</a>
             </nav>
-            <div class="mobile-menu-btn" id="mobileMenuBtn">
+            <a href="#contactos" class="btn btn-dark nav-cta">Agendar Avaliação</a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menu" aria-controls="navMenu" aria-expanded="false">
                 <i data-lucide="menu"></i>
-            </div>
+            </button>
         </div>
     </header>
 
     <main>
-        <!-- Hero Split Section -->
-        <section id="hero" class="hero-split">
-            <div class="hero-split-left">
-                <h1>A recuperação<br><strong>começa aqui.</strong></h1>
-                <p>O primeiro centro premium em Portugal totalmente dedicado à recuperação integrada do sobrevivente oncológico. Não tratamos tumores. Tratamos a recuperação da pessoa.</p>
-                <a href="#problema" class="btn btn-premium-metallic">
-                    Saber Mais <i data-lucide="arrow-right"></i>
-                </a>
-            </div>
-            <div class="hero-split-right">
-                <!-- Oncology Animated Ribbon -->
-                <svg viewBox="0 0 100 100" class="hero-elegant-svg hero-ribbon-svg">
-                    <defs>
-                        <linearGradient id="ribbonGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stop-color="var(--color-primary)" />
-                            <stop offset="50%" stop-color="#EAD4A7" />
-                            <stop offset="100%" stop-color="var(--color-primary)" />
-                        </linearGradient>
-                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="2" result="blur" />
-                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                        </filter>
-                    </defs>
-                    
-                    <!-- Background subtle elements -->
-                    <circle cx="50" cy="50" r="45" stroke="var(--color-primary)" stroke-width="0.1" fill="none" stroke-dasharray="1 4" class="rotate-circle" />
-                    <circle cx="50" cy="50" r="35" stroke="var(--color-primary)" stroke-width="0.2" fill="none" stroke-opacity="0.2" />
-                    
-                    <!-- The elegant ribbon -->
-                    <path d="M 32 85 C 50 55, 70 35, 60 15 C 50 0, 30 10, 35 30 C 40 50, 55 65, 68 85" 
-                          stroke="url(#ribbonGrad)" 
-                          stroke-width="1.5" 
-                          fill="none" 
-                          stroke-linecap="round" 
-                          pathLength="100"
-                          class="ribbon-path"
-                          filter="url(#glow)" />
+        <!-- ============ 2. HERO — assinatura ONCORE ============ -->
+        <section id="inicio" class="hero">
+            <div class="container hero-stage">
+                <div class="hero-copy">
+                    <div class="hero-kicker"><span></span> Recover beyond cancer</div>
+                    <h1>Recupere a vida.<br><em>Para além do cancro.</em></h1>
+                    <p class="hero-lead">O primeiro <i>Cancer Recovery &amp; Survivorship Center</i> privado em Portugal. Um lugar onde ciência, movimento e cuidado humano se unem para devolver força, confiança e autonomia.</p>
+                    <div class="hero-actions">
+                        <a href="#contactos" class="btn btn-accent">Agendar Avaliação <i data-lucide="arrow-up-right"></i></a>
+                        <a href="#jornada" class="hero-secondary-link">Conhecer o percurso <i data-lucide="arrow-down"></i></a>
+                    </div>
+                    <div class="hero-proof" aria-label="Diferenciais ONCORE">
+                        <div><strong>360°</strong><span>Avaliação<br>multidisciplinar</span></div>
+                        <div><strong>1:1</strong><span>Plano clínico<br>personalizado</span></div>
+                        <div><strong>ONCORE</strong><span>Ciência com<br>proximidade</span></div>
+                    </div>
+                </div>
 
-                    <!-- Sparkles/Particles -->
-                    <circle cx="60" cy="15" r="1" fill="#EAD4A7" class="sparkle s1" />
-                    <circle cx="35" cy="30" r="0.8" fill="#EAD4A7" class="sparkle s2" />
-                    <circle cx="50" cy="50" r="1.5" fill="#EAD4A7" class="sparkle s3" />
-                </svg>
+                <div class="hero-visual" aria-label="Continuidade de cuidados, do tratamento à vida">
+                    <div class="hero-continuum">
+                        <div class="hero-continuum-head">
+                            <span class="hero-continuum-number">01</span>
+                            <span class="hero-continuum-label">Continuidade<br>de cuidados</span>
+                        </div>
+                        <p class="hero-continuum-title">Do tratamento<br>de volta à <em>vida.</em></p>
+                        <p class="hero-continuum-text">Um percurso clínico contínuo, com uma equipa próxima e um plano que evolui consigo em cada etapa.</p>
+                        <div class="hero-continuum-steps" aria-label="Avaliar, personalizar e acompanhar">
+                            <span><b>01</b>Avaliar</span>
+                            <span><b>02</b>Personalizar</span>
+                            <span><b>03</b>Acompanhar</span>
+                        </div>
+                    </div>
+                    <div class="hero-signal" aria-hidden="true">
+                        <svg viewBox="0 0 720 92" preserveAspectRatio="none">
+                            <path class="signal-base" d="M0 48H218l30-1 19-28 23 58 26-30h114l18-1 15-18 21 38 22-20h234" />
+                            <path class="signal-live" pathLength="1" d="M0 48H218l30-1 19-28 23 58 26-30h114l18-1 15-18 21 38 22-20h234" />
+                        </svg>
+                    </div>
+                    <span class="hero-visual-index" aria-hidden="true">RECOVERY / SURVIVORSHIP</span>
+                </div>
             </div>
-        </section>
 
-        <!-- Problem Section (Redesigned) -->
-        <section id="problema" class="problem-section text-center">
-            <div class="container">
-                <h2 class="section-title text-center">O Desafio Pós-Cancro</h2>
-                <div class="problem-content">
-                    <p>Hoje, milhares de pessoas sobrevivem ao cancro em Portugal. Mas quando o tratamento termina, começa um novo problema: a maioria dos pacientes ficam sem acompanhamento estruturado para recuperarem a sua vida física, emocional e funcional.</p>
-                    <br>
-                    <p>Os hospitais tratam a doença. Mas quase ninguém trata a recuperação.</p>
-                    
-                    <h3 class="problem-subtitle">O resultado é visível.</h3>
-                    <p>Fadiga crónica, perda de mobilidade, depressão, isolamento, incapacidade física e dificuldade em regressar à vida normal.</p>
-                    
-                    <p class="problem-highlight">A ONCORE nasce para preencher esse vazio.</p>
+            <div class="container hero-trust">
+                <span class="banner-label">Prática clínica orientada pela evidência e por recomendações internacionais</span>
+                <div class="banner-logos" aria-label="Referências científicas">
+                    <span>ACSM</span><span>ASCO</span><span>ESMO</span><span>NCCN</span>
                 </div>
             </div>
         </section>
 
-        <!-- Services (Perfil Grid Style) -->
-        <section id="servicos" class="perfil">
+        <!-- ============ 3. FRANJA DE VALORES + CONTACTO RÁPIDO ============ -->
+        <section class="values-section">
             <div class="container">
-                <h2 class="section-title">A Solução ONCORE</h2>
-                <p class="servicos-intro">
-                    Um espaço multidisciplinar que une todas as valências fundamentais. Não tratamos tumores. Tratamos a recuperação da pessoa.
-                </p>
-                <div class="perfil-grid">
-                    <div class="perfil-card">
-                        <i data-lucide="heart-pulse"></i>
-                        <h3>Exercício Clínico</h3>
-                        <p>Exercício oncológico especializado e adaptado à condição de cada paciente.</p>
+                <p class="values-lead">Quer esteja em tratamento, quer o tenha terminado há meses ou anos, estamos ao seu lado em cada etapa, com orientação especializada, acompanhamento próximo e cuidados humanizados que devolvem força, confiança e autonomia.</p>
+                <div class="values-grid">
+                    <div class="values-list-col">
+                        <span class="eyebrow">Os nossos valores</span>
+                        <h2>A acompanhá-lo no regresso à sua vida</h2>
+                        <ul class="values-list">
+                            <li><i data-lucide="user-check"></i> Personalização</li>
+                            <li><i data-lucide="flask-conical"></i> Evidência Científica</li>
+                            <li><i data-lucide="heart-handshake"></i> Humanização</li>
+                            <li><i data-lucide="lightbulb"></i> Inovação</li>
+                            <li><i data-lucide="users"></i> Multidisciplinaridade</li>
+                        </ul>
                     </div>
-                    <div class="perfil-card">
-                        <i data-lucide="activity"></i>
-                        <h3>Fisioterapia</h3>
-                        <p>Fisioterapia focada em reabilitação de mobilidade e redução de dor.</p>
-                    </div>
-                    <div class="perfil-card">
-                        <i data-lucide="user-plus"></i>
-                        <h3>Osteopatia</h3>
-                        <p>Abordagem manual holística para o equilíbrio corporal e estrutural.</p>
-                    </div>
-                    <div class="perfil-card">
-                        <i data-lucide="apple"></i>
-                        <h3>Nutrição</h3>
-                        <p>Plano alimentar focado na imunidade, recuperação e vitalidade.</p>
-                    </div>
-                    <div class="perfil-card">
-                        <i data-lucide="brain-circuit"></i>
-                        <h3>Psico-oncologia</h3>
-                        <p>Apoio emocional contínuo ao longo de todo o processo de reabilitação.</p>
-                    </div>
-                    <div class="perfil-card">
-                        <i data-lucide="trending-up"></i>
-                        <h3>Performance</h3>
-                        <p>Recuperação funcional e maximização da qualidade de vida pós-cancro.</p>
+                    <div class="values-contact-col">
+                        <div class="quick-card">
+                            <div class="quick-item">
+                                <i data-lucide="phone-call"></i>
+                                <div>
+                                    <h4>Ligue-nos</h4>
+                                    <p><a href="tel:+351960471537">+351 960 471 537</a></p>
+                                </div>
+                            </div>
+                            <div class="quick-item">
+                                <i data-lucide="map-pin"></i>
+                                <div>
+                                    <h4>Onde estamos</h4>
+                                    <p>Miraflores, Área Metropolitana de Lisboa</p>
+                                </div>
+                            </div>
+                            <div class="quick-specialties">
+                                <span>Exercício Clínico</span>
+                                <span>Fisioterapia Oncológica</span>
+                                <span>Nutrição</span>
+                                <span>Psico-oncologia</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Vision Split -->
+        <!-- ============ 4. SOBRE NÓS ============ -->
         <section id="sobre" class="about-section">
-            <div class="testimonials-split container">
-                <div class="testimonials-left">
-                    <h3>Interseção entre saúde e longevidade</h3>
-                    <p>O nosso objetivo não é apenas aumentar sobrevivência. É devolver funcionalidade, identidad e futuro.</p>
-                    <p>Porque sobreviver ao cancro não pode ser o fim da jornada. Tem de ser o início de una nova vida.</p>
-                </div>
-                <div class="testimonials-right testimonials-right-static">
-                    <div class="testimonial-card-gold testimonial-card-gold-static active">
-                        <h4>A Nossa Visão</h4>
-                        <p>Lisboa apresenta as condições ideais: fortes centros oncológicos, turismo médico premium e uma população que procura recuperar a calidad de vida.</p>
+            <div class="container about-grid">
+                <div class="about-media">
+                    <div class="about-img main"><img src="images/oncore_premium_survivor.png" alt="Sobrevivente com vitalidade e saúde"></div>
+                    <div class="about-img float"><img src="images/oncore_premium_clinic.png" alt="Ambiente premium não-hospitalar da ONCORE"></div>
+                    <div class="about-stat">
+                        <strong>+450.000</strong>
+                        <span>pessoas vivem após um diagnóstico oncológico em Portugal</span>
                     </div>
                 </div>
+                <div class="about-text">
+                    <span class="eyebrow">A ONCORE</span>
+                    <h2>A Nossa Abordagem</h2>
+                    <blockquote class="manifesto-quote">
+                        «O cancro mudou. A sobrevivência aumentou.<br>Mas sobreviver não é o mesmo que recuperar.»
+                    </blockquote>
+                    <p>Acreditamos que o sucesso do tratamento não termina com a remissão da doença. A ONCORE não substitui o hospital: garante a continuidade dos cuidados através de programas integrados e multidisciplinares, para lhe devolver a autonomia e a confiança.</p>
+                    <p>Não tratamos o cancro. Ajudamos as pessoas a recuperar dele, com ciência, tecnologia e uma profunda humanização dos cuidados.</p>
+                    <a href="#equipa" class="btn btn-dark">Conhecer a ONCORE <i data-lucide="arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 5. PROGRAMAS CLÍNICOS (grid) ============ -->
+        <section id="programas" class="services-section">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Programas Clínicos</span>
+                    <h2>Cuidados integrados para cada fase da sua recuperação</h2>
+                </div>
+                <div class="services-grid">
+                    <article class="service-card">
+                        <div class="service-icon"><i data-lucide="activity"></i></div>
+                        <h3>ONCORE ACTIVE</h3>
+                        <p class="service-tag">Durante o tratamento</p>
+                        <p>Programas adaptados para pessoas em tratamento ativo: exercício clínico supervisionado para reduzir a fadiga, preservar a massa muscular e melhorar a tolerância aos tratamentos.</p>
+                        <a href="#contactos" class="text-link">Saber mais <i data-lucide="arrow-up-right"></i></a>
+                    </article>
+                    <article class="service-card">
+                        <div class="service-icon"><i data-lucide="heart-pulse"></i></div>
+                        <h3>ONCORE RECOVER</h3>
+                        <p class="service-tag">Pós-tratamento</p>
+                        <p>Programa intensivo pós-tratamento, focado na recuperação da força, na redução da fadiga e no restauro da capacidade funcional e da qualidade de vida.</p>
+                        <a href="#contactos" class="text-link">Saber mais <i data-lucide="arrow-up-right"></i></a>
+                    </article>
+                    <article class="service-card">
+                        <div class="service-icon"><i data-lucide="infinity"></i></div>
+                        <h3>ONCORE LIFE</h3>
+                        <p class="service-tag">Manutenção &amp; Membership</p>
+                        <p>Programa de manutenção e membership para sobreviventes de longo prazo: treino supervisionado, reavaliações periódicas, acompanhamento clínico e comunidade ONCORE.</p>
+                        <a href="#contactos" class="text-link">Saber mais <i data-lucide="arrow-up-right"></i></a>
+                    </article>
+                    <article class="service-card service-card-featured">
+                        <span class="featured-tag">Em destaque</span>
+                        <div class="service-icon"><i data-lucide="smartphone"></i></div>
+                        <h3>ONCORE DIGITAL</h3>
+                        <p>Acompanhamento remoto, telemonitorização e aplicação móvel, a sua equipa clínica, onde quer que esteja. Plano de exercício, evolução clínica e comunicação segura, na palma da mão.</p>
+                        <a href="#contactos" class="text-link">Saber mais <i data-lucide="arrow-up-right"></i></a>
+                    </article>
+                </div>
+                <div class="services-extra">
+                    <p><strong>Programas específicos:</strong></p>
+                    <span class="extra-chip"><i data-lucide="droplets"></i> ONCORE LYMPH · prevenção e tratamento do linfedema</span>
+                    <span class="extra-chip"><i data-lucide="briefcase"></i> ONCORE RETURN · reintegração profissional e regresso ao trabalho</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 6. GETTING STARTED (A Jornada do Utente) ============ -->
+        <section id="jornada" class="steps-section">
+            <div class="container steps-grid">
+                <div class="steps-intro">
+                    <span class="eyebrow">A Jornada do Utente</span>
+                    <h2>Começar o seu percurso é simples</h2>
+                    <div class="steps-card">
+                        <h4>Fale connosco hoje</h4>
+                        <p>Um <span class="term-tooltip" tabindex="0" data-tooltip="Profissional que coordena o seu percurso de cuidados, organiza marcações e articula a comunicação entre si e a equipa clínica."><strong>Case Manager</strong></span> dedicado coordena todo o seu percurso, marcações, equipa e acompanhamento.</p>
+                        <a href="#contactos" class="btn btn-accent">Falar com um <span class="term-tooltip" tabindex="0" data-tooltip="Profissional que coordena o seu percurso de cuidados, organiza marcações e articula a comunicação entre si e a equipa clínica."><strong>Case Manager</strong></span></a>
+                    </div>
+                </div>
+                <div class="steps-list">
+                    <div class="step">
+                        <span class="step-num">01</span>
+                        <div>
+                            <h3>Avaliação Inicial</h3>
+                            <p>Avaliação multidisciplinar completa: clínica, física, nutricional e psicológica; para estratificação de risco e definição de objetivos individualizados.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">02</span>
+                        <div>
+                            <h3>Programa Personalizado</h3>
+                            <p>Intervenção coordenada de Exercício Clínico, Fisioterapia Oncológica, Nutrição e Psico-oncologia, num único plano orientado por objetivos.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <span class="step-num">03</span>
+                        <div>
+                            <h3>Monitorização Contínua</h3>
+                            <p>Reavaliações periódicas focadas em indicadores funcionais e de qualidade de vida, com ajuste permanente do plano à sua evolução.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 7. EQUIPA MULTIDISCIPLINAR ============ -->
+        <section id="equipa" class="team-section">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Equipa Multidisciplinar</span>
+                    <h2>Cuidado por especialistas dedicados e experientes</h2>
+                    <p class="section-sub">Ciência e humanização, numa equipa coordenada que coloca cada utente no centro de todas as decisões clínicas.</p>
+                </div>
+                <div class="team-grid">
+                    <a href="https://pmorais.pt/sobre-mim.html" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+                        <article class="team-card founder-card" style="height: 100%;">
+                            <div class="team-avatar av-1"><span>PM</span></div>
+                            <h3>Paulo Morais</h3>
+                            <p class="team-role">Founder, CEO &amp; Especialista em Exercício Clínico</p>
+                            <p class="team-desc">Visão pioneira na recuperação oncológica em Portugal, com prescrição de exercício segundo as recomendações ACSM, ASCO e ESMO.</p>
+                        </article>
+                    </a>
+                    <article class="team-card">
+                        <div class="team-avatar av-2"><i data-lucide="stethoscope"></i></div>
+                        <h3>Direção Clínica</h3>
+                        <p class="team-role">Médicos Fisiatras e Oncologistas</p>
+                        <p class="team-desc">Supervisão científica, estratificação de risco e articulação permanente com hospitais e médicos referenciadores.</p>
+                    </article>
+                    <article class="team-card">
+                        <div class="team-avatar av-3"><i data-lucide="users"></i></div>
+                        <h3>Equipa Multidisciplinar</h3>
+                        <p class="team-role">Fisioterapeutas Oncológicos, Nutricionistas e Psico-oncólogos</p>
+                        <p class="team-desc">Intervenção integrada com reuniões clínicas semanais e planos terapêuticos partilhados, centrados na pessoa.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 8. B2B / REFERENCIAÇÃO ============ -->
+        <section id="referenciacao" class="referral-section">
+            <div class="container referral-grid">
+                <div class="referral-intro">
+                    <span class="eyebrow light">É profissional de saúde?</span>
+                    <h2>Para Médicos, Hospitais e Seguradoras</h2>
+                    <p>Confie nos nossos especialistas para a recuperação dos seus doentes. Um processo de referenciação simples, com comunicação clínica permanente.</p>
+                    <a href="mailto:info@oncore.pt?subject=Referencia%C3%A7%C3%A3o%20de%20Utente" class="btn btn-accent">Referenciar Utente / Parceiros <i data-lucide="arrow-right"></i></a>
+                </div>
+                <div class="referral-benefits">
+                    <div class="benefit">
+                        <i data-lucide="hospital"></i>
+                        <div>
+                            <h4>Continuidade de cuidados</h4>
+                            <p>Cuidados complementares ao tratamento hospitalar, não substituímos o hospital, completamos o percurso de recuperação.</p>
+                        </div>
+                    </div>
+                    <div class="benefit">
+                        <i data-lucide="bar-chart-3"></i>
+                        <div>
+                            <h4>Resultados mensuráveis</h4>
+                            <p>Relatórios clínicos objetivos segundo princípios de Value-Based Healthcare: função, fadiga, qualidade de vida e regresso ao trabalho.</p>
+                        </div>
+                    </div>
+                    <div class="benefit">
+                        <i data-lucide="monitor-smartphone"></i>
+                        <div>
+                            <h4>Integração fluida</h4>
+                            <p>Plataforma digital para médicos referenciadores, com acesso à evolução do utente, indicadores clínicos e relatórios de alta.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 9. TESTEMUNHOS ============ -->
+        <section id="comunidade" class="testimonials-section">
+            <div class="container">
+                <div class="section-head">
+                    <span class="eyebrow">Comunidade</span>
+                    <h2>O que a nossa comunidade diz sobre nós</h2>
+                </div>
+                <div class="testimonial-slider" id="testimonialSlider">
+                    <div class="testimonial-track" id="testimonialTrack">
+                        <figure class="testimonial">
+                            <div class="stars" aria-label="5 estrelas"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+                            <blockquote>“Depois da quimioterapia, pensava que a fadiga seria para sempre. Com o exercício clínico, em três meses recuperei energia para voltar a caminhar com as minhas filhas e a sentir-me eu própria.”</blockquote>
+                            <figcaption><span class="t-avatar">M</span> Maria J. · Programa RECOVER</figcaption>
+                        </figure>
+                        <figure class="testimonial">
+                            <div class="stars" aria-label="5 estrelas"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+                            <blockquote>“A equipa devolveu-me a força e a confiança. Voltei ao trabalho com um plano seguro, acompanhamento semanal e a certeza de que não estava sozinho.”</blockquote>
+                            <figcaption><span class="t-avatar">R</span> Ricardo S. · Programa RETURN</figcaption>
+                        </figure>
+                        <figure class="testimonial">
+                            <div class="stars" aria-label="5 estrelas"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+                            <blockquote>“A fisioterapia especializada controlou o meu linfedema e o treino supervisionado deu-me uma energia que já não sentia há anos. Recuperei a minha vida.”</blockquote>
+                            <figcaption><span class="t-avatar">A</span> Ana C. · Programa LYMPH</figcaption>
+                        </figure>
+                    </div>
+                    <div class="slider-nav">
+                        <button id="prevTestimonial" aria-label="Testemunho anterior"><i data-lucide="chevron-left"></i></button>
+                        <div class="slider-dots" id="sliderDots"></div>
+                        <button id="nextTestimonial" aria-label="Próximo testemunho"><i data-lucide="chevron-right"></i></button>
+                    </div>
+                </div>
+                <p class="testimonial-note">Testemunhos ilustrativos, representativos dos resultados esperados dos programas ONCORE.</p>
+            </div>
+        </section>
+
+        <!-- ============ 10. CONTACTO ============ -->
+        <section id="contactos" class="contact-section">
+            <div class="container">
+                <form class="contact-form-panel" id="contactForm" aria-labelledby="contact-form-title">
+                    <div class="contact-form-head">
+                        <span class="eyebrow">Pedido de contacto</span>
+                        <h3 id="contact-form-title">Conte-nos como podemos ajudar</h3>
+                        <p>A nossa equipa irá encaminhar o seu pedido e responder com a orientação adequada.</p>
+                    </div>
+
+                    <div class="contact-form-grid">
+                        <div class="form-field">
+                            <label for="contact-name">Nome completo *</label>
+                            <input type="text" id="contact-name" name="name" autocomplete="name" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="contact-email">Email *</label>
+                            <input type="email" id="contact-email" name="email" autocomplete="email" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="contact-phone">Telefone</label>
+                            <input type="tel" id="contact-phone" name="phone" autocomplete="tel">
+                        </div>
+                        <div class="form-field">
+                            <label for="contact-profile">Perfil *</label>
+                            <select id="contact-profile" name="profile" required>
+                                <option value="" selected disabled>Selecione uma opção</option>
+                                <option value="Utente ou sobrevivente">Utente ou sobrevivente</option>
+                                <option value="Familiar ou cuidador">Familiar ou cuidador</option>
+                                <option value="Medico ou profissional de saude">Médico ou profissional de saúde</option>
+                                <option value="Seguradora ou parceiro">Seguradora ou parceiro</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-field form-field-full">
+                            <label for="contact-interest">Área de interesse *</label>
+                            <select id="contact-interest" name="interest" required>
+                                <option value="" selected disabled>Selecione uma opção</option>
+                                <option value="Avaliacao inicial">Avaliação inicial</option>
+                                <option value="ONCORE ACTIVE">ONCORE ACTIVE</option>
+                                <option value="ONCORE RECOVER">ONCORE RECOVER</option>
+                                <option value="ONCORE LIFE">ONCORE LIFE</option>
+                                <option value="ONCORE DIGITAL">ONCORE DIGITAL</option>
+                                <option value="ONCORE LYMPH">ONCORE LYMPH</option>
+                                <option value="ONCORE RETURN">ONCORE RETURN</option>
+                                <option value="Referenciacao ou parceria">Referenciação ou parceria</option>
+                                <option value="Outra questao">Outra questão</option>
+                            </select>
+                        </div>
+                        <div class="form-field form-field-full">
+                            <label for="contact-message">Mensagem *</label>
+                            <textarea id="contact-message" name="message" rows="5" required></textarea>
+                        </div>
+                        <p class="form-note"><i data-lucide="shield-check"></i>Para sua segurança, evite enviar informação clínica sensível neste primeiro contacto.</p>
+                        <label class="form-consent">
+                            <input type="checkbox" id="contact-consent" name="consent" required>
+                            <span>Autorizo o contacto da ONCORE para resposta ao meu pedido e confirmo que li a <a href="privacy-policy.html">Política de Privacidade</a>.</span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-accent">Enviar pedido <i data-lucide="send"></i></button>
+                        <p class="form-status" id="contactFormStatus" aria-live="polite"></p>
+                    </div>
+                </form>
+            </div>
+            <div class="container contact-grid">
+                <div class="contact-intro">
+                    <span class="eyebrow">Contactos</span>
+                    <h2>Fazemos da comunicação a nossa prioridade</h2>
+                    <p>Agende a sua avaliação inicial ou fale com um <span class="term-tooltip" tabindex="0" data-tooltip="Profissional que coordena o seu percurso de cuidados, organiza marcações e articula a comunicação entre si e a equipa clínica."><strong>Case Manager</strong></span>. Estamos aqui para o orientar, desde o primeiro contacto.</p>
+                    <a href="mailto:info@oncore.pt?subject=Agendar%20Avalia%C3%A7%C3%A3o" class="btn btn-accent">Agendar Avaliação <i data-lucide="calendar-check"></i></a>
+                </div>
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <i data-lucide="clock"></i>
+                        <div><h4>Seg – Sex</h4><p>8h00 – 20h00</p></div>
+                    </div>
+                    <div class="contact-item">
+                        <i data-lucide="phone"></i>
+                        <div><h4>Telefone</h4><p><a href="tel:+351960471537">+351 960 471 537</a></p></div>
+                    </div>
+                    <div class="contact-item">
+                        <i data-lucide="mail"></i>
+                        <div><h4>Email</h4><p><a href="mailto:info@oncore.pt">info@oncore.pt</a></p></div>
+                    </div>
+                    <div class="contact-item">
+                        <i data-lucide="map-pin"></i>
+                        <div><h4>Morada</h4><p>Miraflores, Oeiras. Área Metropolitana de Lisboa</p></div>
+                    </div>
+                    <a href="https://maps.google.com/?q=Miraflores,+Oeiras" target="_blank" rel="noopener" class="text-link">Obter direções <i data-lucide="arrow-up-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ 11. FAQ ============ -->
+        <section id="faq" class="faq-section">
+            <div class="container faq-grid">
+                <div class="faq-head">
+                    <span class="eyebrow">Perguntas Frequentes</span>
+                    <h2>Ainda tem dúvidas?</h2>
+                    <p>Se não encontrar a resposta que procura, <a href="mailto:info@oncore.pt">fale connosco</a>.</p>
+                </div>
+                <div class="faq-list">
+                    <details class="faq-item">
+                        <summary>Trabalham com seguradoras?<i data-lucide="plus"></i></summary>
+                        <p>Sim. Estamos a integrar convenções e protocolos com as principais seguradoras e subsistemas de saúde, incluindo pacotes de recuperação, programas pós-cirúrgicos e acompanhamento digital, com avaliação de resultados baseada em indicadores clínicos.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Preciso de ser referenciado pelo meu médico?<i data-lucide="plus"></i></summary>
+                        <p>Não é obrigatório. Aceitamos referenciação de oncologistas, fisiatras, médicos de família, hospitais e seguradoras, mas também pode iniciar o seu percurso por iniciativa própria. Em qualquer caso, articulamos sempre com a sua equipa médica assistente.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Como funciona a avaliação inicial?<i data-lucide="plus"></i></summary>
+                        <p>É uma análise integrada e multidisciplinar: história clínica, composição corporal, força muscular, capacidade cardiorrespiratória, mobilidade, fadiga, estado nutricional e saúde emocional. Com base nos resultados, definimos objetivos e construímos o seu plano personalizado.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Posso frequentar a ONCORE durante o tratamento?<i data-lucide="plus"></i></summary>
+                        <p>Sim. O programa ONCORE ACTIVE foi desenhado para pessoas em tratamento ativo, com supervisão clínica reforçada e comunicação permanente com a sua equipa médica, para reduzir a fadiga e preservar a capacidade funcional em segurança.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Quais são as instalações e a localização?<i data-lucide="plus"></i></summary>
+                        <p>Estamos em Miraflores (Oeiras), na Área Metropolitana de Lisboa, num ambiente premium não-hospitalar com ginásio clínico, gabinetes de fisioterapia e consulta, e acessibilidade universal.</p>
+                    </details>
+                    <details class="faq-item">
+                        <summary>Quais são os horários?<i data-lucide="plus"></i></summary>
+                        <p>De segunda a sexta-feira, das 8h00 às 20h00. Os programas com componente digital incluem acompanhamento remoto contínuo através da aplicação móvel ONCORE.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ECOSSISTEMA (pré-footer) ============ -->
+        <section id="ecossistema" class="eco-section">
+            <div class="container eco-grid">
+                <div class="eco-head">
+                    <span class="eyebrow light">Ecossistema ONCORE</span>
+                    <h2>Mais do que uma clínica</h2>
+                    <p>Uma plataforma integrada de recuperação, formação e investigação.</p>
+                </div>
+                <a class="eco-card" href="mailto:info@oncore.pt?subject=ONCORE%20Academy">
+                    <div class="eco-img"><img src="images/oncore_premium_academy.png" alt="ONCORE Academy"></div>
+                    <div class="eco-body">
+                        <h3>ONCORE Academy</h3>
+                        <p>Formação certificada em Cancer Exercise, Rehabilitation &amp; Survivorship para profissionais de saúde e do exercício.</p>
+                        <span class="text-link">Saber mais <i data-lucide="arrow-up-right"></i></span>
+                    </div>
+                </a>
+                <a class="eco-card" href="mailto:info@oncore.pt?subject=ONCORE%20Research%20Institute">
+                    <div class="eco-img"><img src="images/oncore_premium_research.png" alt="ONCORE Research Institute"></div>
+                    <div class="eco-body">
+                        <h3>ONCORE Research Institute</h3>
+                        <p>Produção de ciência, Inteligência Artificial e Real-World Evidence ao serviço da recuperação oncológica.</p>
+                        <span class="text-link">Saber mais <i data-lucide="arrow-up-right"></i></span>
+                    </div>
+                </a>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
+    <!-- ============ 12. FOOTER ============ -->
     <footer>
-        <div class="footer-container-new">
-            <div class="branding-col">
-                <div class="logo-text footer-logo-text">
-                    <i data-lucide="activity"></i> ONCORE
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <div class="logo footer-logo">
+                    <span class="logo-mark"><i data-lucide="activity"></i></span>
+                    <span class="logo-name">ONCORE</span>
                 </div>
-                <p class="brand-desc">Cancer Recovery & Performance Center. O primeiro centro premium em Portugal totalmente dedicado à recuperação integrada do sobrevivente oncológico.</p>
-                <p class="brand-sub">Fundador: Paulo Morais</p>
+                <p class="footer-tagline">Recover Beyond Cancer.</p>
+                <p class="footer-desc">O primeiro <i>Cancer Recovery &amp; Survivorship Center</i> privado em Portugal. Recuperação funcional, física e psicológica após o tratamento oncológico.</p>
             </div>
-            <div>
-                <h4 class="footer-heading">Serviços</h4>
-                <ul class="footer-links-list">
-                    <li><a href="#">Exercício Clínico</a></li>
-                    <li><a href="#">Fisioterapia</a></li>
-                    <li><a href="#">Nutrição</a></li>
+            <div class="footer-col">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="#inicio">Início</a></li>
+                    <li><a href="#programas">Programas Clínicos</a></li>
+                    <li><a href="#sobre">A ONCORE</a></li>
+                    <li><a href="#equipa">Equipa Multidisciplinar</a></li>
+                    <li><a href="#referenciacao">Referenciação (Para Médicos)</a></li>
                 </ul>
             </div>
-            <div>
-                <h4 class="footer-heading">Empresa</h4>
-                <ul class="footer-links-list">
-                    <li><a href="#">Sobre Nós</a></li>
-                    <li><a href="#">A Nossa Visão</a></li>
-                    <li><a href="#">Contacto</a></li>
+            <div class="footer-col">
+                <h4>Ecossistema</h4>
+                <ul>
+                    <li><a href="#ecossistema">ONCORE Academy</a></li>
+                    <li><a href="#ecossistema">ONCORE Research Institute</a></li>
+                    <li><a href="#programas">ONCORE Digital</a></li>
+                    <li><a href="#referenciacao">ONCORE Corporate</a></li>
                 </ul>
             </div>
-            <div>
-                <h4 class="footer-heading">Legal</h4>
-                <ul class="footer-links-list">
-                    <li><a href="#">Privacidade</a></li>
-                    <li><a href="#">Termos de Uso</a></li>
+            <div class="footer-col">
+                <h4>Contactos</h4>
+                <ul>
+                    <li><a href="tel:+351960471537">+351 960 471 537</a></li>
+                    <li><a href="mailto:info@oncore.pt">info@oncore.pt</a></li>
+                    <li>Miraflores, Oeiras<br>Área Metropolitana de Lisboa</li>
                 </ul>
             </div>
         </div>
-        <div class="footer-copyright">
-            &copy; 2026 ONCORE. Todos os direitos reservados. Developed by Elysium λ Development.
+        <div class="footer-bottom">
+            <div class="container footer-bottom-inner">
+                <div class="footer-legal">
+                    <span>&copy; 2026 ONCORE — Cancer Recovery &amp; Survivorship Center. Todos os direitos reservados.</span>
+                    <span class="legal-links">
+                        <a href="privacy-policy.html">Política de Privacidade</a> |
+                        <a href="cookie-policy.html">Política de Cookies</a> |
+                        <a href="https://www.livroreclamacoes.pt/pedido/reclamacao" target="_blank" rel="noopener noreferrer">Livro de Reclamações</a>
+                    </span>
+                </div>
+                <span><a href="https://pmorais.pt/sobre-mim.html" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">Founder &amp; CEO: Paulo Morais</a> <span style="margin: 0 10px; opacity: 0.5;">|</span> Desenvolvido por <a href="https://elysiumdr.eu/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">Elysium λ Development &amp; Research</a></span>
+            </div>
         </div>
     </footer>
 
-    <div class="fab-container">
-        <div class="fab-trigger" id="fabTrigger">
-            <i data-lucide="plus"></i>
-        </div>
-        <div class="fab-options">
-            <a href="index-en.html" class="fab-action-btn" title="English">
-                <span style="font-weight: 700; font-family: var(--font-heading); font-size: 1rem;">EN</span>
+    <!-- ONCORE DOCK -->
+    <div class="oncore-dock">
+        <div class="dock-items">
+            <a href="index-en.html" class="dock-item" data-tooltip="English">
+                <span class="dock-lang">EN</span>
             </a>
-            <a href="https://wa.me/351000000000" class="fab-action-btn" title="WhatsApp">
-                <i data-lucide="phone"></i>
+            <div class="dock-divider"></div>
+            <a href="https://api.whatsapp.com/send/?phone=351960471537&text&type=phone_number&app_absent=0" class="dock-item" data-tooltip="WhatsApp" target="_blank" rel="noopener">
+                <i data-lucide="message-circle"></i>
             </a>
-            <a href="mailto:info@oncore.pt" class="fab-action-btn" title="Email">
+            <a href="mailto:info@oncore.pt" class="dock-item" data-tooltip="Email">
                 <i data-lucide="mail"></i>
             </a>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="js/script.js"></script>
-    <script src="js/theme.js"></script>
+    <script src="js/oncore.js?v=2.0.3"></script>
+    <script src="js/version-modal.js?v=1.0.0-beta"></script>
+    <script src="js/cookie-consent.js?v=1.0.0-beta"></script>
+
+    <!-- Cookie Banner -->
+    <div id="cookie-banner" class="cookie-banner" aria-hidden="true">
+        <div class="cookie-banner-content">
+            <h4>Valorizamos a sua privacidade</h4>
+            <p>Utilizamos cookies e tecnologias similares para garantir o bom funcionamento do site, analisar o tráfego e melhorar a sua experiência. Como os seus dados de saúde são prioritários para nós, apenas as cookies estritamente necessárias estão ativas por defeito. Pode consultar a nossa <a href="privacy-policy.html">Política de Privacidade</a>.</p>
+            <div class="cookie-actions">
+                <button id="btn-reject-cookies" class="btn btn-ghost">Rejeitar não essenciais</button>
+                <button id="btn-accept-cookies" class="btn btn-dark">Aceitar Todas</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,8 +1,21 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+
+    function isSuperAdmin() {
+      return request.auth != null && request.auth.token.email == 'danielalonzzo@icloud.com';
+    }
+
+    // ── Client files (invoices, reports) ─────────────────────────────────────
+    // Uploaded and deleted by admin only; each client can read only their own.
+    match /members/{userId}/{allPaths=**} {
+      allow read: if isSuperAdmin() || (request.auth != null && request.auth.uid == userId);
+      allow write: if isSuperAdmin();
+    }
+
+    // ── Everything else: admin only ──────────────────────────────────────────
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if isSuperAdmin();
     }
   }
 }

@@ -17,7 +17,8 @@ import {
     query,
     where,
     getDocs,
-    orderBy
+    orderBy,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const initialUrlParams = new URLSearchParams(window.location.search);
@@ -87,6 +88,14 @@ const i18n = {
         monthly:       "Monthly",
         annual:        "Annual",
         subscribe:     "Select Plan",
+        checkout_title: "Secure online subscription",
+        checkout_body:  "Your license will be assigned automatically as soon as Stripe confirms the payment.",
+        checkout_pay:   "Continue to secure payment",
+        checkout_loading: "Opening secure payment…",
+        checkout_manual: "Paying by transfer or another method? Contact us and an administrator will record the payment manually.",
+        checkout_error: "Secure checkout is temporarily unavailable. Please try again or contact us.",
+        checkout_processing: "Payment confirmed. We are assigning your subscription license…",
+        checkout_ready: "Subscription active. Your license has been assigned automatically.",
         contact_sub_title:   "Activate your subscription",
         contact_sub_body:    "To activate this plan, contact your Elysium representative or reach us at info@elysiumdr.eu. We'll set everything up for you.",
         contact_sub_close:   "Close",
@@ -122,6 +131,14 @@ const i18n = {
         monthly:       "Mensual",
         annual:        "Anual",
         subscribe:     "Seleccionar Plan",
+        checkout_title: "Suscripción online segura",
+        checkout_body:  "Tu licencia se asignará automáticamente en cuanto Stripe confirme el pago.",
+        checkout_pay:   "Continuar al pago seguro",
+        checkout_loading: "Abriendo pago seguro…",
+        checkout_manual: "¿Pagarás por transferencia u otro medio? Contáctanos y un administrador registrará el pago manualmente.",
+        checkout_error: "El pago seguro no está disponible temporalmente. Inténtalo de nuevo o contáctanos.",
+        checkout_processing: "Pago confirmado. Estamos asignando la licencia de tu suscripción…",
+        checkout_ready: "Suscripción activa. Tu licencia fue asignada automáticamente.",
         contact_sub_title:   "Activa tu suscripción",
         contact_sub_body:    "Para activar este plan, contacta a tu representante de Elysium o escríbenos a info@elysiumdr.eu. Nos encargamos de todo.",
         contact_sub_close:   "Cerrar",
@@ -157,6 +174,14 @@ const i18n = {
         monthly:       "Mensal",
         annual:        "Anual",
         subscribe:     "Seleccionar Plano",
+        checkout_title: "Subscrição online segura",
+        checkout_body:  "A sua licença será atribuída automaticamente assim que a Stripe confirmar o pagamento.",
+        checkout_pay:   "Continuar para pagamento seguro",
+        checkout_loading: "A abrir pagamento seguro…",
+        checkout_manual: "Vai pagar por transferência ou outro meio? Contacte-nos e um administrador registará o pagamento manualmente.",
+        checkout_error: "O pagamento seguro está temporariamente indisponível. Tente novamente ou contacte-nos.",
+        checkout_processing: "Pagamento confirmado. Estamos a atribuir a licença da sua subscrição…",
+        checkout_ready: "Subscrição ativa. A sua licença foi atribuída automaticamente.",
         contact_sub_title:   "Active a sua subscrição",
         contact_sub_body:    "Para activar este plano, contacte o seu representante Elysium ou envie-nos um email para info@elysiumdr.eu. Tratamos de tudo.",
         contact_sub_close:   "Fechar",
@@ -210,6 +235,97 @@ function formatPrice(amount, currency) {
     const symbols = { EUR: '€', USD: '$', CRC: '₡' };
     const s = symbols[currency] || '€';
     return `${s}${amount.toLocaleString()}`;
+}
+
+function billingApiUrl(path) {
+    const configuredOrigin = String(window.ELYSIUM_BILLING_API_URL || '').replace(/\/$/, '');
+    return `${configuredOrigin}${path}`;
+}
+
+async function startSubscriptionCheckout(planType, billingCycle, button, messageEl) {
+    if (!currentUser) {
+        if (messageEl) messageEl.textContent = t.checkout_error;
+        return;
+    }
+
+    const originalText = button.textContent;
+    button.disabled = true;
+    button.textContent = t.checkout_loading;
+    if (messageEl) messageEl.textContent = '';
+
+    try {
+        const idToken = await currentUser.getIdToken();
+        const response = await fetch(billingApiUrl('/api/billing/create-checkout-session'), {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                planType,
+                billingCycle,
+                returnPath: window.location.pathname
+            })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.url) throw new Error(payload.error || t.checkout_error);
+        window.location.assign(payload.url);
+    } catch (error) {
+        console.error('Checkout error:', error);
+        if (messageEl) messageEl.textContent = error.message || t.checkout_error;
+        button.disabled = false;
+        button.textContent = originalText;
+    }
+}
+
+let checkoutWatcherStop = null;
+
+function showCheckoutStatus(message, state = 'processing') {
+    let banner = document.getElementById('checkout-status-banner');
+    if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'checkout-status-banner';
+        banner.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:100000;max-width:min(92vw,620px);padding:0.9rem 1.25rem;border-radius:12px;border:1px solid rgba(41,151,255,.35);background:rgba(5,16,37,.96);box-shadow:0 16px 50px rgba(0,0,0,.35);color:#e1e1e5;font-size:.9rem;text-align:center;';
+        document.body.appendChild(banner);
+    }
+    banner.textContent = message;
+    banner.style.borderColor = state === 'ready' ? 'rgba(0,200,117,.45)' : 'rgba(41,151,255,.35)';
+    return banner;
+}
+
+function watchCheckoutProvisioning(memberRef) {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') !== 'success' || checkoutWatcherStop) return;
+
+    const banner = showCheckoutStatus(t.checkout_processing);
+    const checkoutSessionId = params.get('session_id');
+    let completed = false;
+    checkoutWatcherStop = onSnapshot(memberRef, snapshot => {
+        const updated = snapshot.data();
+        const subscription = updated?.subscription;
+        const matchesCheckout = !checkoutSessionId || subscription?.stripeCheckoutSessionId === checkoutSessionId;
+        if (!subscription?.licenseCode || subscription.status !== 'active' || !matchesCheckout || completed) return;
+        completed = true;
+        currentUserData = updated;
+        renderDashboard(updated);
+        showCheckoutStatus(t.checkout_ready, 'ready');
+        checkoutWatcherStop?.();
+        checkoutWatcherStop = null;
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.setTimeout(() => banner.remove(), 5000);
+    }, error => {
+        console.error('Subscription provisioning watcher:', error);
+        banner.textContent = t.checkout_error;
+    });
+
+    // Webhook retries can take longer. Stop the live listener without claiming
+    // success; a normal dashboard reload will read the provisioned license.
+    window.setTimeout(() => {
+        if (completed || !checkoutWatcherStop) return;
+        checkoutWatcherStop();
+        checkoutWatcherStop = null;
+        banner.textContent = t.checkout_processing;
+    }, 45000);
 }
 
 // ── View Toggle Handlers ──────────────────────────────────────────────────────
@@ -340,6 +456,7 @@ onAuthStateChanged(auth, async user => {
 
             // ── Render dashboard ───────────────────────────────────────────
             renderDashboard(userData);
+            watchCheckoutProvisioning(memberRef);
 
             // Check for pending subscription
             const pendingSubscribe = sessionStorage.getItem('pending_subscribe');
@@ -363,8 +480,8 @@ onAuthStateChanged(auth, async user => {
                     const planBtn = document.querySelector(`.plan-select-btn[data-plan="${planKey}"]`);
                     if (planBtn) {
                         planBtn.click();
-                    } else if (typeof showContactSubscriptionModal === 'function') {
-                        showContactSubscriptionModal(planKey, planKey === 'hosting' ? 'annual' : 'monthly');
+                    } else if (typeof showSubscriptionCheckoutModal === 'function') {
+                        showSubscriptionCheckoutModal(planKey, planKey === 'hosting' ? 'annual' : 'monthly');
                     }
                 }, 500);
             }
@@ -390,8 +507,12 @@ function checkAndUpdateSubscriptionStatus(userData, memberRef) {
     if (!sub || !sub.nextBillingDate || sub.status === 'suspended') return;
 
     const now           = Date.now();
-    const nextBilling   = sub.nextBillingDate.seconds * 1000;
-    const graceEnd      = sub.gracePeriodEnd ? sub.gracePeriodEnd.seconds * 1000 : nextBilling + (GRACE_PERIOD_DAYS * 86400000);
+    const nextBilling   = sub.nextBillingDate.seconds
+        ? sub.nextBillingDate.seconds * 1000
+        : new Date(sub.nextBillingDate).getTime();
+    const graceEnd      = sub.gracePeriodEnd
+        ? (sub.gracePeriodEnd.seconds ? sub.gracePeriodEnd.seconds * 1000 : new Date(sub.gracePeriodEnd).getTime())
+        : nextBilling + (GRACE_PERIOD_DAYS * 86400000);
 
     if (now > graceEnd && sub.status === 'pending_payment') {
         // Grace period expired — suspend locally (server cron does authoritative update)
@@ -428,7 +549,7 @@ function renderDashboard(userData) {
     // Route to correct state
     if (!sub || !sub.planType) {
         renderPreSubscriptionState();
-    } else if (sub.status === 'suspended') {
+    } else if (['suspended', 'canceled', 'cancelled'].includes(sub.status)) {
         renderSuspendedState(userData);
     } else {
         renderActiveSubscriptionState(userData);
@@ -453,8 +574,9 @@ function renderPreSubscriptionState() {
     resumenSection.querySelectorAll('.plan-select-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const planType    = btn.dataset.plan;
-            const billingCycle = resumenSection.querySelector('.billing-toggle-btn.active')?.dataset.cycle || 'monthly';
-            showContactSubscriptionModal(planType, billingCycle);
+            const selectedCycle = resumenSection.querySelector('.billing-toggle-btn.active')?.dataset.cycle || 'monthly';
+            const billingCycle = planType === 'hosting' ? 'annual' : selectedCycle;
+            showSubscriptionCheckoutModal(planType, billingCycle);
         });
     });
 }
@@ -541,9 +663,10 @@ function wireBillingToggle(container) {
     });
 }
 
-// ── CONTACT SUBSCRIPTION MODAL ────────────────────────────────────────────────
-function showContactSubscriptionModal(planType, billingCycle) {
+// ── SUBSCRIPTION CHECKOUT MODAL ─────────────────────────────────────────────
+function showSubscriptionCheckoutModal(planType, billingCycle) {
     const plan     = PLANS[planType];
+    if (!plan) return;
     const existing = document.getElementById('contact-sub-modal');
     if (existing) existing.remove();
 
@@ -553,10 +676,13 @@ function showContactSubscriptionModal(planType, billingCycle) {
     modal.innerHTML = `
         <div style="background:var(--color-card-bg, #1a1a2e);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:2.5rem;max-width:480px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <div style="width:60px;height:60px;border-radius:50%;background:rgba(41,151,255,0.1);border:2px solid var(--color-accent);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.5rem;">λ</div>
-            <h3 style="color:var(--color-platinum);margin-bottom:0.5rem;">${t.contact_sub_title}</h3>
+            <h3 style="color:var(--color-platinum);margin-bottom:0.5rem;">${t.checkout_title}</h3>
             <p style="font-size:0.9rem;color:#00c875;margin-bottom:0.5rem;font-weight:600;">${plan.label} — ${billingCycle === 'annual' ? t.annual : t.monthly}</p>
-            <p style="color:var(--color-text-secondary);margin-bottom:2rem;line-height:1.6;font-size:0.9rem;">${t.contact_sub_body}</p>
-            <a href="mailto:info@elysiumdr.eu?subject=Subscription%20Request%20—%20${encodeURIComponent(plan.label)}" class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;display:block;">info@elysiumdr.eu</a>
+            <p style="color:var(--color-text-secondary);margin-bottom:1.5rem;line-height:1.6;font-size:0.9rem;">${t.checkout_body}</p>
+            <button id="confirm-web-subscription" class="btn btn-primary" style="width:100%;margin-bottom:0.75rem;">${t.checkout_pay}</button>
+            <p id="checkout-modal-error" style="min-height:1.2em;margin:0 0 1rem;color:#ff6060;font-size:0.8rem;"></p>
+            <p style="color:var(--color-text-secondary);margin:0 0 0.65rem;line-height:1.5;font-size:0.78rem;">${t.checkout_manual}</p>
+            <a href="mailto:info@elysiumdr.eu?subject=Manual%20Subscription%20Payment%20—%20${encodeURIComponent(plan.label)}" style="display:inline-block;color:var(--color-accent);font-size:0.85rem;margin-bottom:1rem;">info@elysiumdr.eu</a>
             <button id="close-contact-modal" style="background:transparent;border:1px solid var(--glass-border);color:var(--color-text-secondary);padding:0.75rem 2rem;border-radius:8px;cursor:pointer;width:100%;font-size:0.9rem;">${t.contact_sub_close}</button>
         </div>
     `;
@@ -564,6 +690,9 @@ function showContactSubscriptionModal(planType, billingCycle) {
     document.body.appendChild(modal);
     modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
     modal.querySelector('#close-contact-modal').addEventListener('click', () => modal.remove());
+    const checkoutButton = modal.querySelector('#confirm-web-subscription');
+    const errorElement = modal.querySelector('#checkout-modal-error');
+    checkoutButton.addEventListener('click', () => startSubscriptionCheckout(planType, billingCycle, checkoutButton, errorElement));
 }
 
 // ── ACTIVE SUBSCRIPTION STATE ─────────────────────────────────────────────────
@@ -750,9 +879,10 @@ function renderCRMDashboard(userData, tier) {
     const quickSubHTML = `
         <div class="overview-panel">
             <div class="overview-panel-header"><h3 class="overview-panel-title">Subscription</h3></div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="display:flex;flex-direction:column;gap:0.75rem;">
                 <div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Plan</span><span style="color:var(--color-platinum);font-weight:600;">${PLANS[sub.planType]?.label}</span></div>
                 <div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Status</span><span style="color:${statusColor};font-weight:600;">● ${statusLabel}</span></div>
+                ${sub.contractPeriodCode ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Contract</span><span style="color:var(--color-platinum);font-weight:600;">${sub.contractPeriodCode}</span></div>` : ''}
                 <div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">License</span><span style="color:var(--color-accent);font-size:0.85rem;font-weight:700;">${sub.licenseCode || '—'}</span></div>
                 ${sub.nextBillingDate ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--color-text-secondary);">Next renewal</span><span style="color:var(--color-platinum);">${formatDate(sub.nextBillingDate)}</span></div>` : ''}
             </div>
@@ -800,8 +930,8 @@ function fillSubscriptionTab(sub) {
                         <div style="font-size:1rem;font-weight:700;color:var(--color-accent);">${plan.label || '—'}</div>
                     </div>
                     <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.25rem;">
-                        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Billing</div>
-                        <div style="font-size:1rem;font-weight:700;color:var(--color-platinum);">${sub.billingCycle === 'annual' ? 'Annual' : 'Monthly'}</div>
+                        <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Contract</div>
+                        <div style="font-size:1rem;font-weight:700;color:var(--color-platinum);">${sub.contractPeriodCode || (sub.billingCycle === 'annual' ? 'ANL1' : 'M3N1')}</div>
                     </div>
                     <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:1.25rem;">
                         <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">License Code</div>
@@ -1016,6 +1146,18 @@ if (signupForm) {
                 createdAt:           serverTimestamp()
             });
 
+            // Append to the immutable activity log (fire-and-forget)
+            addDoc(collection(db, 'activities'), {
+                memberId:   user.uid,
+                memberName: name || null,
+                type:       'member_registered',
+                payload:    {},
+                actorUid:   user.uid,
+                actorEmail: user.email || null,
+                actorRole:  'member',
+                createdAt:  serverTimestamp()
+            }).catch(err => console.warn('Activity log failed:', err));
+
             // 4. Redirect to dashboard (profiles.html — no onboarding yet)
             // Auth state observer will handle the UI render
             isSigningUp = false;
@@ -1055,15 +1197,12 @@ if (prospectForm) {
         const submitBtn   = prospectForm.querySelector('button[type="submit"]');
 
         try {
-            if (isClient && licenseCode) {
-                const licenseSnap = await getDoc(doc(db, 'licenses', licenseCode));
-                if (!licenseSnap.exists()) {
+            if (isClient && licenseCode && !/^ELY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4,20}$/i.test(licenseCode)) {
                     showError(lang === 'es' ? 'Código de licencia inválido.' :
                               lang === 'pt' ? 'Código de licença inválido.' :
                               'Invalid license code.');
                     isSigningUp = false;
                     return;
-                }
             }
 
             if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '...'; }
@@ -1100,6 +1239,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.admin-section');
 
+    // Compatibility for the static English subscription markup. The runtime
+    // pre-subscription view uses the same secure checkout modal.
+    document.querySelectorAll('#suscripciones .plan-select-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const planType = button.dataset.plan;
+            showSubscriptionCheckoutModal(planType, planType === 'hosting' ? 'annual' : 'monthly');
+        });
+    });
+
     navItems.forEach(item => {
         item.addEventListener('click', () => {
             navItems.forEach(n => n.classList.remove('active'));
@@ -1125,11 +1273,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ── Stripe return handling (Phase 3) ──────────────────────────────────────
-    const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.has('session_id')) {
-        // Store for Phase 3 integration
-        localStorage.setItem('stripe_session_id', searchParams.get('session_id'));
-    }
+    // Checkout activation is driven by the signed Stripe webhook, never by a
+    // session ID stored in the browser.
 });
 
 // Export for use in other modules if needed

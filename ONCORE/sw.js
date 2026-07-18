@@ -1,12 +1,23 @@
 // sw.js
-const CACHE_NAME = 'oncore-cache-v1';
+const CACHE_NAME = 'oncore-cache-v10';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/css/oncore.css',
+  '/js/oncore.js',
+  '/js/version-modal.js',
   '/css/style.css',
   '/js/script.js',
   '/js/theme.js'
 ];
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
+    )
+  );
+});
 
 self.addEventListener('install', event => {
   event.waitUntil(

@@ -468,6 +468,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            // Append to the immutable activity log (fire-and-forget; never blocks the flow)
+            addDoc(collection(db, 'activities'), {
+                memberId:   currentUser.uid,
+                memberName: memberSnap.exists() ? (memberSnap.data().name || null) : null,
+                type:       'onboarding_completed',
+                payload:    { projectId: projectId || null },
+                actorUid:   currentUser.uid,
+                actorEmail: currentUser.email || null,
+                actorRole:  'member',
+                createdAt:  serverTimestamp()
+            }).catch(err => console.warn('Activity log failed:', err));
+
             // Clear local storage on success
             localStorage.removeItem('onboarding_data');
             localStorage.removeItem('onboarding_step');
