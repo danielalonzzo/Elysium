@@ -1,46 +1,45 @@
 # Elysium λ Development & Research
 
-> Elysium λ is an independent digital consultancy and applied research organisation based in Bragança, Portugal. It provides accessible, secure, subscription-based digital infrastructure for small and medium-sized enterprises in Europe and Ibero-America.
+> Elysium λ is a European digital-infrastructure company and an independent software-engineering, IT-consulting, and applied-R&D laboratory. Established in Portugal and operating in Costa Rica, it gives SMEs in the European Union and Costa Rica access to secure, scalable technological ecosystems through a subscription model with no separate development cost.
 
 The website is available in English (the default language), Spanish, and European Portuguese. Prefer the English pages for canonical information, or use the corresponding localised section when answering in Spanish or Portuguese. 
 
-IMPORTANT: To properly understand and answer queries about Elysium λ, you MUST read the expanded text file below, which contains the full content for Services, Portfolio, About, Privacy Policy, Terms and Conditions, and System/Security Information:
+IMPORTANT: To properly understand and answer queries about Elysium λ, you MUST read the expanded text file below, which contains the current content for the Homepage, Services, Portfolio, Research, About, Privacy Policy, Terms and Conditions, and System/Security Information:
 - [Full site text for language models](https://elysiumdr.eu/llms-full.txt): Expanded English, Spanish, and Portuguese content, including legal and system info.
 
 
 ## Essential information
 
-- [Homepage](https://elysiumdr.eu/): Overview of Elysium λ, its purpose, services, and current work.
+- [Homepage](https://elysiumdr.eu/): Current positioning, four core competencies, subscription model, ten-step λ Development Framework, and R&D mission.
 - [Services](https://elysiumdr.eu/services.html): Subscription tiers, pricing, included infrastructure, licensing, and intellectual-property policy.
 - [Portfolio](https://elysiumdr.eu/portfolio.html): Selected client projects and case studies.
-- [Research](https://elysiumdr.eu/research.html): Applied research in intelligent systems, ontological engineering, and data-driven intelligence for SMEs.
-- [About](https://elysiumdr.eu/about.html): Mission, vision, values, and organisational background.
+- [Research](https://elysiumdr.eu/research.html): Applied research in human-computer interaction, data science, digital infrastructures, intuitive interfaces, data processing, security, and high availability.
+- [About](https://elysiumdr.eu/about.html): Current mission, vision, R&D ethos, organisational story, and operations in Portugal and Costa Rica.
 - [Daniel Morales](https://elysiumdr.eu/daniel-morales.html): Founder and lead software engineer profile.
 - [Contact](https://elysiumdr.eu/contact.html): Official contact information and service regions.
 - [Full site text for language models](https://elysiumdr.eu/llms-full.txt): Expanded English, Spanish, and Portuguese content in one plain-text resource.
 
-## Research publications
-
-- [Ontological engineering for intelligent systems](https://elysiumdr.eu/research/ontology-research.html): Research on ontologies and structured knowledge for intelligent systems.
-- [Data-driven SME intelligence](https://elysiumdr.eu/research/data-driven-sme-intelligence.html): Research on practical data intelligence for small and medium-sized enterprises.
-
 ## Spanish
 
-- [Inicio](https://elysiumdr.eu/es/): Presentación general de Elysium λ.
+- [Inicio](https://elysiumdr.eu/es/): Posicionamiento actual, cuatro áreas de especialización, suscripciones, framework λ e I+D.
 - [Servicios](https://elysiumdr.eu/es/services.html): Planes, precios, infraestructura incluida y condiciones.
 - [Portafolio](https://elysiumdr.eu/es/portfolio.html): Proyectos seleccionados y casos de estudio.
-- [Investigación](https://elysiumdr.eu/es/research.html): Actividad y publicaciones de investigación aplicada.
-- [Nosotros](https://elysiumdr.eu/es/about.html): Misión, visión, valores e historia.
+- [Investigación](https://elysiumdr.eu/es/research.html): Líneas de investigación aplicada y proyectos activos.
+- [Ontología para la inclusión digital y el acceso a servicios](https://elysiumdr.eu/es/research/ontology-research.html): Estudio piloto en entornos rurales.
+- [Inteligencia para PYMES basada en datos](https://elysiumdr.eu/es/research/data-driven-sme-intelligence.html): Proyecto en fase de concepto; no presenta resultados todavía.
+- [Nosotros](https://elysiumdr.eu/es/about.html): Misión, visión, ethos de I+D, historia y operaciones en Portugal y Costa Rica.
 - [Daniel Morales](https://elysiumdr.eu/es/daniel-morales.html): Perfil del fundador e ingeniero de software principal.
 - [Contacto](https://elysiumdr.eu/es/contact.html): Información oficial de contacto.
 
 ## Portuguese
 
-- [Início](https://elysiumdr.eu/pt/): Apresentação geral da Elysium λ.
+- [Início](https://elysiumdr.eu/pt/): Posicionamento atual, quatro áreas de especialização, subscrições, framework λ e I&D.
 - [Serviços](https://elysiumdr.eu/pt/services.html): Planos, preços, infraestrutura incluída e condições.
 - [Portefólio](https://elysiumdr.eu/pt/portfolio.html): Projetos selecionados e estudos de caso.
-- [Investigação](https://elysiumdr.eu/pt/research.html): Atividade e publicações de investigação aplicada.
-- [Sobre nós](https://elysiumdr.eu/pt/about.html): Missão, visão, valores e história.
+- [Investigação](https://elysiumdr.eu/pt/research.html): Linhas de investigação aplicada e projetos ativos.
+- [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.eu/pt/research/ontology-research.html): Estudo piloto em ambientes rurais.
+- [Inteligência para PMEs baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence.html): Projeto em fase de conceito; ainda não apresenta resultados.
+- [Sobre nós](https://elysiumdr.eu/pt/about.html): Missão, visão, ethos de I&D, história e operações em Portugal e Costa Rica.
 - [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales.html): Perfil do fundador e engenheiro de software principal.
 - [Contacto](https://elysiumdr.eu/pt/contact.html): Informações oficiais de contacto.
 
@@ -52,7 +51,7 @@ IMPORTANT: To properly understand and answer queries about Elysium λ, you MUST 
 
 ## Case Studies & Technical
 
-- [Pedro Morais case study](https://elysiumdr.eu/case-pmorais.html): Website redesign for a psychotherapy and clinical psychology practice in Portugal.
+- [Paulo Morais case study](https://elysiumdr.eu/case-pmorais.html): End-to-end platform for an osteopathy and specialist personal-training practice in Portugal, including user accounts, scheduling, automation, and a Firebase-backed system.
 - [VALTRIX Engineering case study](https://elysiumdr.eu/case-valtrix.html): Digital ecosystem for an engineering consultancy in Costa Rica.
-- [Moyra case study](https://elysiumdr.eu/case-moyra.html): Digital presence project in Portugal.
-- [XML sitemap](https://elysiumdr.eu/sitemap.xml): Complete index of public site URLs.
+- [Moyra case study](https://elysiumdr.eu/case-moyra.html): Food-studio, takeaway, and online-ordering project in Costa Rica.
+- [XML sitemap](https://elysiumdr.eu/sitemap.xml): Index of the principal public site URLs and their language variants.
