@@ -54,6 +54,15 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
     
+    // ── Onboarding Drafts (live guided-session sync) ──────────────────────────
+    // Autosaved while the client fills the onboarding form so the admin can
+    // observe progress in real time from the CRM Co-Pilot panel.
+    // Doc id == client uid. The client clears their draft after submission.
+    match /onboarding_drafts/{userId} {
+      allow read, write: if isSuperAdmin();
+      allow read, create, update, delete: if isOwner(userId);
+    }
+
     // ── Prospects ────────────────────────────────────────────────────────────
     match /prospects/{prospectId} {
       allow read, write: if isSuperAdmin();

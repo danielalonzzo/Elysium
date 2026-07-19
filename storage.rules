@@ -13,6 +13,32 @@ service firebase.storage {
       allow write: if isSuperAdmin();
     }
 
+    // ── Onboarding asset ingestion ───────────────────────────────────────────
+    // Clients upload brand/content/data files during the guided onboarding
+    // session. Scoped to their own folder, capped per file, and restricted to
+    // safe content types (images, PDF, vector, spreadsheets, docs).
+    match /members/{userId}/onboarding/{allPaths=**} {
+      allow read: if isSuperAdmin() || (request.auth != null && request.auth.uid == userId);
+      allow create, update: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size < 25 * 1024 * 1024
+        && (
+          request.resource.contentType.matches('image/.*')
+          || request.resource.contentType in [
+            'application/pdf',
+            'application/postscript',
+            'text/csv',
+            'text/plain',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/zip'
+          ]
+        );
+      allow delete: if isSuperAdmin() || (request.auth != null && request.auth.uid == userId);
+    }
+
     // ── Everything else: admin only ──────────────────────────────────────────
     match /{allPaths=**} {
       allow read, write: if isSuperAdmin();
