@@ -14,7 +14,8 @@ import {
     setDoc,
     addDoc,
     serverTimestamp,
-    writeBatch
+    writeBatch,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
     ref, 
@@ -68,6 +69,7 @@ const logger = {
 let _allClients   = [];
 let _sortAZ       = true;    // true = A→Z, false = newest first
 let _activeFilter = 'all';   // pipeline stage filter on clients tab
+let _draftUnsub   = null;    // live onboarding-draft listener (Co-Pilot panel)
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 /**
@@ -1702,6 +1704,9 @@ async function showClientDetail(userId, memberData, selectedProjectId = null) {
     detailContent.innerHTML = '<div class="premium-loader"></div>';
     detailOverlay.style.display = 'flex';
 
+    // Stop any Co-Pilot draft listener from a previously opened client
+    if (_draftUnsub) { _draftUnsub(); _draftUnsub = null; }
+
     try {
         if (!selectedProjectId && memberData.projects && memberData.projects.length > 0) {
             selectedProjectId = memberData.projects[0].id;
@@ -1712,7 +1717,8 @@ async function showClientDetail(userId, memberData, selectedProjectId = null) {
         const submissionSnap = await getDocs(q);
         let onboardingData = null;
         let submissionTimestamp = null;
-        
+        let submissionVersion = 1;
+
         if (!submissionSnap.empty) {
             let subDoc = null;
             if (selectedProjectId) {
@@ -1731,21 +1737,325 @@ async function showClientDetail(userId, memberData, selectedProjectId = null) {
             if (subDoc) {
                 onboardingData      = subDoc.formData;
                 submissionTimestamp = subDoc.submittedAt || subDoc.createdAt || null;
+                submissionVersion   = Number(subDoc.formVersion) || 1;
             }
         }
 
         logger.log(`Loaded detail for partner: ${memberData.name} (${userId})`);
 
-        renderDetail(memberData, onboardingData, userId, submissionTimestamp, selectedProjectId);
+        renderDetail(memberData, onboardingData, userId, submissionTimestamp, selectedProjectId, submissionVersion);
     } catch (error) {
         logger.error("Error showing client detail:", error);
         detailContent.innerHTML = `<p class="color-text-error">Error loading client detail.<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
     }
 }
 
-function renderDetail(member, onboarding, userId, submissionTimestamp = null, selectedProjectId = null) {
+// ── ONBOARDING V2 (λ Immersion Protocol) ─────────────────────────────────────
+// Labels for the v2 tier-adaptive onboarding. v1 submissions keep the legacy
+// step-by-step renderer below; v2 submissions render module-based sections.
+const V2_LABELS = {
+    en: {
+        v2_badge: 'Onboarding v2 — λ Immersion Protocol', files_short: 'files',
+        m1: 'λ 01 · Organization & Contacts', m2: 'λ 01 · Operational Telemetry', m3: 'λ 01 · Team & Ergonomics',
+        m4: 'λ 02 · Technical Inventory', m5: 'λ 02 · Asset Ingestion', m6: 'λ 03–04 · Problem & Measurable Objective',
+        m7: 'λ 07 · Security & RBAC', m8: 'λ 06 · Functional Scope & Integrations', m9: 'λ 06 · Identity & Design',
+        m10: 'λ 08–10 · Operations & Launch', m11: 'Consent',
+        full_name: 'Full Name', role: 'Role', email: 'Email', country: 'Country', phone: 'Phone / WhatsApp',
+        company: 'Company', website: 'Current Website', sector: 'Sector', org_size: 'Organization Size',
+        description: 'Business Description', project_lead: 'Project Lead', tech_contact: 'Technical Contact',
+        tech_email: 'Technical Contact Email',
+        journey: 'Day-to-day process', bottleneck: 'Main bottleneck', tools: 'Tools in use',
+        status_quo: 'Cost of changing nothing (2 years)',
+        team_size: 'Daily users', digital_level: 'Digital literacy', devices: 'Primary device',
+        website_status: 'Website status', assets: 'Existing assets', access: 'Access checklist',
+        acc_domain: 'Domain / DNS', acc_hosting: 'Hosting', acc_google: 'Google Business', acc_meta: 'Meta Business', acc_email: 'Corporate email',
+        legacy: 'Legacy data', legacy_records: 'Approx. records', legacy_source: 'Data source',
+        files: 'Uploaded files', no_files: 'No files uploaded', pending: 'Pending materials',
+        vision: 'Vision', mission: 'Mission', problem: 'Core problem', goal: 'Objective',
+        kpi: 'Success metric (KPI)', ideal_customer: 'Ideal customer', audience: 'Target audience',
+        rbac: 'Access levels', admins: 'Administrators', editors: 'Editors', viewers: 'Read-only',
+        sensitive: 'Sensitive data', restricted: 'Hidden from standard employees', past_problems: 'Past incidents',
+        features: 'Required functions', web_sections: 'Website sections', app_users: 'Internal app users',
+        integrations: 'Integrations', integration_desc: 'Integration workflow / active accounts',
+        brand_feeling: 'Design should transmit', design_refs: 'Reference sites', design_avoids: 'Avoid in design',
+        languages: 'Site languages', color_scheme: 'Color scheme',
+        ops_updates: 'Content updated by', ops_frequency: 'Change frequency', seo: 'SEO priority',
+        deadline: 'Target launch date', launch_event: 'Tied to event', tester: 'Acceptance tester / training',
+        privacy: 'Privacy consent', files_consent: 'Files processing consent', marketing: 'Marketing consent',
+        accepted: 'Accepted', rejected: 'Not granted', none: '—',
+        copilot_title: 'Co-Pilot — Live Onboarding Session',
+        copilot_waiting: 'Waiting for the client to start the onboarding…',
+        copilot_module: 'Current module', copilot_updated: 'Last update', copilot_files: 'Files uploaded',
+        suggest_proto: 'Onboarding completed — this project is still in First Contact.',
+        suggest_btn: 'Move to Prototyping'
+    },
+    es: {
+        v2_badge: 'Onboarding v2 — Protocolo λ de Inmersión', files_short: 'archivos',
+        m1: 'λ 01 · Organización y Contactos', m2: 'λ 01 · Telemetría Operativa', m3: 'λ 01 · Equipo y Ergonomía',
+        m4: 'λ 02 · Inventario Técnico', m5: 'λ 02 · Ingesta de Activos', m6: 'λ 03–04 · Problema y Objetivo Medible',
+        m7: 'λ 07 · Seguridad y RBAC', m8: 'λ 06 · Alcance Funcional e Integraciones', m9: 'λ 06 · Identidad y Diseño',
+        m10: 'λ 08–10 · Operación y Lanzamiento', m11: 'Consentimiento',
+        full_name: 'Nombre Completo', role: 'Rol', email: 'Email', country: 'País', phone: 'Teléfono / WhatsApp',
+        company: 'Empresa', website: 'Sitio Web Actual', sector: 'Sector', org_size: 'Tamaño de la Organización',
+        description: 'Descripción del Negocio', project_lead: 'Líder del Proyecto', tech_contact: 'Contacto Técnico',
+        tech_email: 'Email del Contacto Técnico',
+        journey: 'Proceso del día a día', bottleneck: 'Cuello de botella principal', tools: 'Herramientas en uso',
+        status_quo: 'Coste de no cambiar nada (2 años)',
+        team_size: 'Usuarios diarios', digital_level: 'Alfabetización digital', devices: 'Dispositivo principal',
+        website_status: 'Estado del sitio web', assets: 'Activos existentes', access: 'Checklist de accesos',
+        acc_domain: 'Dominio / DNS', acc_hosting: 'Hosting', acc_google: 'Google Business', acc_meta: 'Meta Business', acc_email: 'Email corporativo',
+        legacy: 'Datos legados', legacy_records: 'Registros aprox.', legacy_source: 'Origen de los datos',
+        files: 'Archivos subidos', no_files: 'Sin archivos subidos', pending: 'Materiales pendientes',
+        vision: 'Visión', mission: 'Misión', problem: 'Problema central', goal: 'Objetivo',
+        kpi: 'Métrica de éxito (KPI)', ideal_customer: 'Cliente ideal', audience: 'Audiencia objetivo',
+        rbac: 'Niveles de acceso', admins: 'Administradores', editors: 'Editores', viewers: 'Solo lectura',
+        sensitive: 'Datos sensibles', restricted: 'Oculto a empleados estándar', past_problems: 'Incidentes pasados',
+        features: 'Funciones requeridas', web_sections: 'Secciones del sitio', app_users: 'Usuarios de la app interna',
+        integrations: 'Integraciones', integration_desc: 'Flujo de integraciones / cuentas activas',
+        brand_feeling: 'El diseño debe transmitir', design_refs: 'Sitios de referencia', design_avoids: 'Evitar en el diseño',
+        languages: 'Idiomas del sitio', color_scheme: 'Esquema de color',
+        ops_updates: 'Contenido actualizado por', ops_frequency: 'Frecuencia de cambios', seo: 'Prioridad SEO',
+        deadline: 'Fecha objetivo de lanzamiento', launch_event: 'Ligado a evento', tester: 'Tester de aceptación / formación',
+        privacy: 'Consentimiento de privacidad', files_consent: 'Consentimiento de archivos', marketing: 'Consentimiento de marketing',
+        accepted: 'Aceptado', rejected: 'No otorgado', none: '—',
+        copilot_title: 'Co-Piloto — Sesión de Onboarding en Vivo',
+        copilot_waiting: 'Esperando a que el cliente comience el onboarding…',
+        copilot_module: 'Módulo actual', copilot_updated: 'Última actualización', copilot_files: 'Archivos subidos',
+        suggest_proto: 'Onboarding completado — este proyecto sigue en Primer Contacto.',
+        suggest_btn: 'Mover a Prototipado'
+    },
+    pt: {
+        v2_badge: 'Onboarding v2 — Protocolo λ de Imersão', files_short: 'ficheiros',
+        m1: 'λ 01 · Organização e Contactos', m2: 'λ 01 · Telemetria Operacional', m3: 'λ 01 · Equipa e Ergonomia',
+        m4: 'λ 02 · Inventário Técnico', m5: 'λ 02 · Ingestão de Ativos', m6: 'λ 03–04 · Problema e Objetivo Mensurável',
+        m7: 'λ 07 · Segurança e RBAC', m8: 'λ 06 · Âmbito Funcional e Integrações', m9: 'λ 06 · Identidade e Design',
+        m10: 'λ 08–10 · Operação e Lançamento', m11: 'Consentimento',
+        full_name: 'Nome Completo', role: 'Função', email: 'Email', country: 'País', phone: 'Telefone / WhatsApp',
+        company: 'Empresa', website: 'Website Atual', sector: 'Setor', org_size: 'Dimensão da Organização',
+        description: 'Descrição do Negócio', project_lead: 'Líder do Projeto', tech_contact: 'Contacto Técnico',
+        tech_email: 'Email do Contacto Técnico',
+        journey: 'Processo do dia a dia', bottleneck: 'Principal estrangulamento', tools: 'Ferramentas em uso',
+        status_quo: 'Custo de não mudar nada (2 anos)',
+        team_size: 'Utilizadores diários', digital_level: 'Literacia digital', devices: 'Dispositivo principal',
+        website_status: 'Estado do website', assets: 'Ativos existentes', access: 'Checklist de acessos',
+        acc_domain: 'Domínio / DNS', acc_hosting: 'Alojamento', acc_google: 'Google Business', acc_meta: 'Meta Business', acc_email: 'Email corporativo',
+        legacy: 'Dados legados', legacy_records: 'Registos aprox.', legacy_source: 'Origem dos dados',
+        files: 'Ficheiros carregados', no_files: 'Sem ficheiros carregados', pending: 'Materiais pendentes',
+        vision: 'Visão', mission: 'Missão', problem: 'Problema central', goal: 'Objetivo',
+        kpi: 'Métrica de sucesso (KPI)', ideal_customer: 'Cliente ideal', audience: 'Público-alvo',
+        rbac: 'Níveis de acesso', admins: 'Administradores', editors: 'Editores', viewers: 'Apenas leitura',
+        sensitive: 'Dados sensíveis', restricted: 'Oculto a colaboradores padrão', past_problems: 'Incidentes passados',
+        features: 'Funções necessárias', web_sections: 'Secções do site', app_users: 'Utilizadores da app interna',
+        integrations: 'Integrações', integration_desc: 'Fluxo de integrações / contas ativas',
+        brand_feeling: 'O design deve transmitir', design_refs: 'Sites de referência', design_avoids: 'Evitar no design',
+        languages: 'Idiomas do site', color_scheme: 'Esquema de cores',
+        ops_updates: 'Conteúdo atualizado por', ops_frequency: 'Frequência de alterações', seo: 'Prioridade SEO',
+        deadline: 'Data-alvo de lançamento', launch_event: 'Ligado a evento', tester: 'Tester de aceitação / formação',
+        privacy: 'Consentimento de privacidade', files_consent: 'Consentimento de ficheiros', marketing: 'Consentimento de marketing',
+        accepted: 'Aceite', rejected: 'Não concedido', none: '—',
+        copilot_title: 'Co-Piloto — Sessão de Onboarding ao Vivo',
+        copilot_waiting: 'A aguardar que o cliente inicie o onboarding…',
+        copilot_module: 'Módulo atual', copilot_updated: 'Última atualização', copilot_files: 'Ficheiros carregados',
+        suggest_proto: 'Onboarding concluído — este projeto ainda está em Primeiro Contacto.',
+        suggest_btn: 'Mover para Prototipagem'
+    }
+};
+
+/** Render a v2 (λ Immersion Protocol) submission as module-based sections. */
+function renderOnboardingV2(ob) {
+    const L = V2_LABELS[currentLang] || V2_LABELS.en;
+    const hv = (v) => (v === undefined || v === null || String(v).trim() === '') ? '-' : esc(String(v)).replace(/_/g, ' ');
+    const tags = (items) => (!Array.isArray(items) || items.length === 0)
+        ? L.none
+        : `<div class="tag-list">${items.map(i => `<span class="tag">${esc(String(i)).replace(/_/g, ' ')}</span>`).join('')}</div>`;
+    const item = (label, value) => `<div class="info-item"><label>${label}</label><span>${hv(value)}</span></div>`;
+    const block = (label, value) => `<div class="info-item" style="margin-bottom: 1rem;"><label>${label}</label><p>${hv(value)}</p></div>`;
+    const tagItem = (label, items) => `<div class="info-item" style="margin-bottom: 1rem;"><label>${label}</label>${tags(items)}</div>`;
+    const bool = (v) => v === true ? L.accepted : L.rejected;
+    const has = (...keys) => keys.some(k => {
+        const v = ob[k];
+        return Array.isArray(v) ? v.length > 0 : (v !== undefined && v !== null && String(v).trim() !== '');
+    });
+    const sec = (title, inner, show = true) => show ? `<div class="detail-section"><h3>${title}</h3>${inner}</div>` : '';
+
+    const files = Array.isArray(ob.uploaded_files) ? ob.uploaded_files : [];
+    const filesHTML = files.length
+        ? `<div class="tag-list">${files.map(f => {
+            const label = `${esc(f.name || 'file')}${f.category ? ` (${esc(f.category)})` : ''}`;
+            return f.url
+                ? `<a class="tag" href="${esc(f.url)}" target="_blank" rel="noopener" style="text-decoration: none;">${label}</a>`
+                : `<span class="tag">${label}</span>`;
+        }).join('')}</div>`
+        : `<span>${L.no_files}</span>`;
+
+    return `
+        <div style="padding: 0.75rem 1rem; background: rgba(41, 151, 255, 0.06); border: 1px solid rgba(41, 151, 255, 0.2); border-radius: var(--radius-sm); margin-bottom: 1.5rem;">
+            <span style="font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-accent);">
+                ${L.v2_badge}${files.length ? ` · ${files.length} ${L.files_short}` : ''}
+            </span>
+        </div>
+
+        ${sec(L.m1, `
+            <div class="info-grid" style="margin-bottom: 1rem;">
+                ${item(L.full_name, ob.contact_name)}
+                ${item(L.role, ob.contact_role)}
+                ${item(L.email, ob.contact_email)}
+                ${item(L.country, ob.contact_country)}
+                ${item(L.phone, ob.contact_phone)}
+                ${item(L.company, ob.company_name)}
+                ${item(L.website, ob.company_website)}
+                ${item(L.sector, ob.company_sector)}
+                ${item(L.org_size, ob.company_size)}
+                ${item(L.project_lead, ob.project_lead_name)}
+                ${item(L.tech_contact, ob.tech_contact_name)}
+                ${item(L.tech_email, ob.tech_contact_email)}
+            </div>
+            ${block(L.description, ob.company_description)}
+        `)}
+
+        ${sec(L.m2, `
+            ${block(L.journey, ob.process_journey)}
+            ${block(L.bottleneck, ob.process_bottleneck)}
+            ${tagItem(L.tools, ob.process_tools)}
+            ${ob.process_tools_other ? block('+', ob.process_tools_other) : ''}
+            ${block(L.status_quo, ob.status_quo_risk)}
+        `, has('process_journey', 'process_bottleneck', 'process_tools', 'status_quo_risk'))}
+
+        ${sec(L.m3, `
+            <div class="info-grid">
+                ${item(L.team_size, ob.team_size_daily)}
+                ${item(L.digital_level, ob.team_digital_level)}
+                ${item(L.devices, ob.team_devices)}
+            </div>
+        `, has('team_size_daily', 'team_digital_level', 'team_devices'))}
+
+        ${sec(L.m4, `
+            <div class="info-grid" style="margin-bottom: 1rem;">
+                ${item(L.website_status, ob.has_website)}
+                ${item(L.legacy, ob.legacy_data)}
+                ${item(L.legacy_records, ob.legacy_records)}
+                ${item(L.legacy_source, ob.legacy_source)}
+            </div>
+            ${tagItem(L.assets, ob.current_assets)}
+            <div class="info-item" style="margin-bottom: 1rem;"><label>${L.access}</label>
+                <div class="info-grid" style="margin-top: 0.5rem;">
+                    ${item(L.acc_domain, ob.access_domain)}
+                    ${item(L.acc_hosting, ob.access_hosting)}
+                    ${item(L.acc_google, ob.access_google_business)}
+                    ${item(L.acc_meta, ob.access_meta)}
+                    ${item(L.acc_email, ob.access_corporate_email)}
+                </div>
+            </div>
+        `, has('has_website', 'current_assets', 'access_domain', 'legacy_data'))}
+
+        ${sec(L.m5, `
+            <div class="info-item" style="margin-bottom: 1rem;"><label>${L.files}</label>${filesHTML}</div>
+            ${tagItem(L.pending, ob.pending_assets)}
+        `, files.length > 0 || has('pending_assets'))}
+
+        ${sec(L.m6, `
+            ${block(L.vision, ob.company_vision)}
+            ${block(L.mission, ob.company_mission)}
+            ${block(L.problem, ob.problem_description)}
+            ${block(L.goal, ob.goal_description)}
+            <div class="info-item" style="margin-bottom: 1rem;"><label>${L.kpi}</label><span style="color: var(--color-accent); font-weight: bold;">${hv(ob.kpi_metric)}</span></div>
+            ${block(L.ideal_customer, ob.ideal_customer)}
+            ${tagItem(L.audience, ob.target_audience)}
+        `, has('problem_description', 'goal_description', 'kpi_metric', 'ideal_customer'))}
+
+        ${sec(L.m7, `
+            <div class="info-grid" style="margin-bottom: 1rem;">
+                ${item(L.admins, ob.rbac_admins)}
+                ${item(L.editors, ob.rbac_editors)}
+                ${item(L.viewers, ob.rbac_viewers)}
+            </div>
+            ${tagItem(L.sensitive, ob.sensitive_data)}
+            ${block(L.restricted, ob.restricted_info)}
+            ${tagItem(L.past_problems, ob.past_problems)}
+        `, has('rbac_admins', 'rbac_editors', 'rbac_viewers', 'sensitive_data', 'past_problems'))}
+
+        ${sec(L.m8, `
+            ${tagItem(L.features, ob.features)}
+            ${ob.feature_other ? block('+', ob.feature_other) : ''}
+            ${tagItem(L.web_sections, ob.web_sections)}
+            ${tagItem(L.app_users, ob.app_users)}
+            ${tagItem(L.integrations, ob.integrations)}
+            ${ob.integration_other ? block('+', ob.integration_other) : ''}
+            ${block(L.integration_desc, ob.integration_desc)}
+        `, has('features', 'integrations', 'web_sections', 'app_users'))}
+
+        ${sec(L.m9, `
+            ${tagItem(L.brand_feeling, ob.brand_feeling)}
+            ${ob.brand_feeling_other ? block('+', ob.brand_feeling_other) : ''}
+            ${block(L.design_refs, ob.design_refs)}
+            ${block(L.design_avoids, ob.design_avoids)}
+            ${tagItem(L.languages, ob.site_languages)}
+            <div class="info-grid">${item(L.color_scheme, ob.color_scheme)}</div>
+        `, has('brand_feeling', 'design_refs', 'color_scheme'))}
+
+        ${sec(L.m10, `
+            <div class="info-grid">
+                ${item(L.ops_updates, ob.ops_updates)}
+                ${item(L.ops_frequency, ob.ops_frequency)}
+                ${item(L.seo, ob.seo_priority)}
+                ${item(L.deadline, ob.has_deadline === 'yes' ? ob.deadline_date : (ob.has_deadline || '-'))}
+                ${item(L.launch_event, ob.launch_event)}
+                ${item(L.tester, ob.acceptance_tester)}
+            </div>
+        `)}
+
+        ${sec(L.m11, `
+            <div class="info-grid">
+                ${item(L.privacy, bool(ob.privacy_consent))}
+                ${item(L.files_consent, bool(ob.files_consent))}
+                ${item(L.marketing, bool(ob.marketing_consent))}
+            </div>
+        `)}
+    `;
+}
+
+/** Co-Pilot: live view of the client's onboarding draft while they fill it. */
+function watchOnboardingDraft(userId) {
+    const container = document.getElementById('copilot-draft-container');
+    if (!container) return;
+    if (_draftUnsub) { _draftUnsub(); _draftUnsub = null; }
+
+    const L = V2_LABELS[currentLang] || V2_LABELS.en;
+
+    _draftUnsub = onSnapshot(doc(db, 'onboarding_drafts', userId), (snap) => {
+        if (!snap.exists()) {
+            container.innerHTML = `<p class="timeline-empty">${L.copilot_waiting}</p>`;
+            return;
+        }
+        const d = snap.data();
+        const data = d.data || {};
+        const answered = Object.entries(data).filter(([, v]) =>
+            Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined && v !== false));
+        const files = Array.isArray(d.uploadedFiles) ? d.uploadedFiles : [];
+
+        const rows = answered.map(([k, v]) => {
+            const val = Array.isArray(v) ? v.join(', ') : (v === true ? '✓' : String(v));
+            return `<div class="info-item"><label>${esc(k.replace(/_/g, ' '))}</label><span>${esc(val).replace(/_/g, ' ')}</span></div>`;
+        }).join('');
+
+        container.innerHTML = `
+            <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.85rem; color: var(--color-text-secondary);">
+                <span>${L.copilot_module}: <strong style="color: var(--color-platinum);">${Number(d.currentModule) || 1}${d.totalModules ? `/${d.totalModules}` : ''}</strong>${d.currentModuleLabel ? ` — ${esc(d.currentModuleLabel)}` : ''}</span>
+                <span>${L.copilot_updated}: <strong style="color: var(--color-platinum);">${d.updatedAt ? timeAgo(d.updatedAt) : '—'}</strong></span>
+                <span>${L.copilot_files}: <strong style="color: var(--color-platinum);">${files.length}</strong></span>
+            </div>
+            ${answered.length ? `<div class="info-grid">${rows}</div>` : `<p class="timeline-empty">${L.copilot_waiting}</p>`}
+        `;
+    }, (err) => {
+        logger.error('Co-Pilot draft listener error:', err);
+        container.innerHTML = `<p class="timeline-empty">${esc(err.message)}</p>`;
+    });
+}
+
+function renderDetail(member, onboarding, userId, submissionTimestamp = null, selectedProjectId = null, formVersion = 1) {
     const detailContent = document.getElementById('detail-content');
     const t = translations[currentLang];
+    const L = V2_LABELS[currentLang] || V2_LABELS.en;
     const isSuspended = member.isDeactivated === true;
     const existingContractUnit = member.subscription?.contractUnit
         || (member.subscription?.billingCycle === 'annual' ? 'years' : 'months');
@@ -1841,6 +2151,13 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 ${t.download_pdf}
             </button>
         </div>
+
+        ${member.onboardingCompleted && (currentProject.projectStage || 'first_contact') === 'first_contact' ? `
+        <div id="stage-suggestion-banner" style="display: flex; align-items: center; gap: 1rem; justify-content: space-between; flex-wrap: wrap; background: rgba(41, 151, 255, 0.07); border: 1px solid rgba(41, 151, 255, 0.25); border-radius: var(--radius-md); padding: 1rem 1.5rem; margin-bottom: 2rem;">
+            <span style="font-size: 0.9rem;">${L.suggest_proto}</span>
+            <button id="btn-suggest-prototyping" class="btn btn-outline" style="min-width: 170px;">${L.suggest_btn}</button>
+        </div>
+        ` : ''}
 
         ${member.role === 'prospect' ? `
         <div class="detail-section" style="background: rgba(255, 171, 0, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(255, 171, 0, 0.2);">
@@ -2172,7 +2489,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
         </div>
 
         <div id="pdf-content-wrapper">
-            ${onboarding ? `
+            ${onboarding ? (Number(formVersion) >= 2 ? renderOnboardingV2(onboarding) : `
             <!-- Step 1: Primary Contact Info -->
             <div class="detail-section">
                 <h3>${t.step1_title}</h3>
@@ -2429,7 +2746,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                     <div class="info-item"><label>${t.marketing_consent}</label><span>${onboarding?.marketing_consent ? t.accepted : t.rejected}</span></div>
                 </div>
             </div>
-            ` : `
+            `) : `
                 <div style="padding: 2rem; text-align: center; color: var(--color-text-secondary); background: var(--glass-bg); border-radius: var(--radius-md); border: 1px solid var(--glass-border); margin-top: 1rem;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin-bottom: 1rem; opacity: 0.5;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                     <p style="font-size: 1.1rem; opacity: 0.8;">${t.onboarding_empty}</p>
@@ -2438,6 +2755,16 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
         </div>
 
         </div>
+
+        ${!member.onboardingCompleted ? `
+        <!-- ── Co-Pilot: live onboarding draft (admin-only view) ── -->
+        <div class="detail-section" style="margin-bottom: 2.5rem; border: 1px solid rgba(0, 200, 117, 0.25); background: rgba(0, 200, 117, 0.04); border-radius: var(--radius-md); padding: 1.5rem;">
+            <h3 style="margin-top: 0;">${L.copilot_title}</h3>
+            <div id="copilot-draft-container">
+                <p class="timeline-empty">${L.copilot_waiting}</p>
+            </div>
+        </div>
+        ` : ''}
 
         <!-- ── Client Timeline (Vista 360) ─────────────────────── -->
         <div class="detail-section" style="margin-bottom: 2.5rem;">
@@ -2461,6 +2788,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     // Load the Vista 360 timeline from the activity ledger (async, non-blocking)
     loadClientTimeline(userId, member);
 
+    // Co-Pilot: follow the client's onboarding draft in real time
+    if (!member.onboardingCompleted) watchOnboardingDraft(userId);
+
     // ── Helper to update project fields ──
     const updateCurrentProjectFields = async (updates) => {
         if (!member.projects) member.projects = [];
@@ -2482,6 +2812,23 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     };
 
     // ── Event Listeners ──────────────────────────────────────────────────────
+
+    // Pipeline suggestion: onboarding done but project still in first_contact
+    const btnSuggestProto = document.getElementById('btn-suggest-prototyping');
+    if (btnSuggestProto) {
+        btnSuggestProto.addEventListener('click', async () => {
+            btnSuggestProto.disabled = true;
+            try {
+                const fromStage = currentProject.projectStage || 'first_contact';
+                await updateCurrentProjectFields({ projectStage: 'prototyping' });
+                logActivity(userId, member.name, 'stage_changed', { fromStage, toStage: 'prototyping', projectId: currentProject.id });
+                document.getElementById('stage-suggestion-banner')?.remove();
+            } catch (err) {
+                logger.error('Stage suggestion failed:', err);
+                btnSuggestProto.disabled = false;
+            }
+        });
+    }
 
     // Project Tabs
     const tabBtns = document.querySelectorAll('.project-tab-btn');

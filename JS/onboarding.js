@@ -1,111 +1,194 @@
-import { auth, db } from './firebase-config.js';
+import { auth, db, storage } from './firebase-config.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { 
-    doc, 
+import {
+    doc,
     getDoc,
-    updateDoc, 
-    setDoc, 
-    collection, 
-    addDoc, 
-    serverTimestamp 
+    updateDoc,
+    setDoc,
+    deleteDoc,
+    collection,
+    addDoc,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import {
+    ref as storageRef,
+    uploadBytesResumable,
+    getDownloadURL,
+    deleteObject
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+// ═══ Onboarding v2 — λ Immersion Protocol ════════════════════════════════════
+// Post-contract, guided, tier-adaptive. Modules are gated by the client's
+// subscription plan (data-tiers attribute). Progress is mirrored live to
+// Firestore (onboarding_drafts/{uid}) so the admin Co-Pilot panel can follow
+// the session in real time. Assets are ingested into Firebase Storage under
+// members/{uid}/onboarding/{category}/.
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('onboarding-form');
-    const steps = document.querySelectorAll('.form-step');
     const progressFill = document.getElementById('progress-fill');
     const stepNumberLabel = document.getElementById('step-number');
     const stepCategoryLabel = document.getElementById('step-category');
+    const tierNote = document.getElementById('tier-note');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const submitBtn = document.getElementById('submit-btn');
 
-    let currentStep = 1;
-    const totalSteps = steps.length;
+    const allSteps = Array.from(document.querySelectorAll('.form-step'));
+
+    const VALID_TIERS = ['hosting', 'basic', 'preferential', 'advanced', 'crm'];
+    const PLAN_LABELS = {
+        hosting: 'Domain & Hosting',
+        basic: 'Basic Maintenance',
+        preferential: 'Preferential Maintenance',
+        advanced: 'Advanced Maintenance',
+        crm: 'Custom Core CRM'
+    };
+
+    // Checkbox groups collected as arrays on submit
+    const MULTI_KEYS = [
+        'process_tools', 'current_assets', 'pending_assets', 'target_audience',
+        'sensitive_data', 'past_problems', 'features', 'web_sections',
+        'app_users', 'integrations', 'brand_feeling', 'site_languages'
+    ];
+    // Single checkboxes stored as booleans
+    const BOOL_KEYS = ['privacy_consent', 'files_consent', 'marketing_consent'];
+
+    const STORAGE_KEY_DATA = 'onboarding_v2_data';
+    const STORAGE_KEY_STEP = 'onboarding_v2_step';
+
     let currentUser = null;
+    let memberData = null;
+    let planType = null;            // null → tier unknown → show every module
+    let visibleSteps = allSteps;    // recomputed after tier detection
+    let currentIndex = 0;
+    let uploadedFiles = [];         // [{category, name, size, path, url}]
+    let draftTimer = null;
+    let draftReady = false;         // avoid syncing before initial load completes
 
-    // Check Auth State — pre-fills name/company from Firestore (always overrides, registration data wins)
-    onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            window.location.href = 'profiles.html';
-        } else {
-            currentUser = user;
-            try {
-                const memberRef = doc(db, 'members', user.uid);
-                const memberSnap = await getDoc(memberRef);
+    const fullLang = document.documentElement.lang || 'en';
+    const lang = fullLang.split('-')[0].toLowerCase();
 
-                if (memberSnap.exists()) {
-                    const userData = memberSnap.data();
-                    const nameInput = document.querySelector('input[name="contact_name"]');
-                    const companyInput = document.querySelector('input[name="company_name"]');
-
-                    // Always set name from Firestore — registration data takes priority
-                    if (nameInput && userData.name) {
-                        nameInput.value = userData.name;
-                        nameInput.dispatchEvent(new Event('change'));
-                    }
-                    if (companyInput && userData.company) {
-                        companyInput.value = userData.company;
-                        companyInput.dispatchEvent(new Event('change'));
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching member data for pre-fill:", error);
-            }
+    const i18n = {
+        en: {
+            fillRequired: 'Please fill in all required fields before proceeding.',
+            sending: 'Sending...',
+            submitLabel: 'Submit Onboarding',
+            sessionExpired: 'Your session has expired. Please sign in again.',
+            submitError: 'The form could not be submitted: ',
+            contactSupport: '. Please contact support if the problem persists.',
+            uploadTooBig: 'This file exceeds the 25 MB limit: ',
+            uploadFailed: 'Upload failed: ',
+            module: 'Module',
+            of: 'of',
+            planDetected: 'Plan',
+            modules: 'modules'
+        },
+        es: {
+            fillRequired: 'Por favor, complete todos los campos obligatorios antes de continuar.',
+            sending: 'Enviando...',
+            submitLabel: 'Enviar Onboarding',
+            sessionExpired: 'Su sesión ha expirado. Por favor, inicie sesión de nuevo.',
+            submitError: 'No se pudo enviar el formulario: ',
+            contactSupport: '. Por favor, contacte a soporte si el problema persiste.',
+            uploadTooBig: 'Este archivo supera el límite de 25 MB: ',
+            uploadFailed: 'Error al subir el archivo: ',
+            module: 'Módulo',
+            of: 'de',
+            planDetected: 'Plan',
+            modules: 'módulos'
+        },
+        pt: {
+            fillRequired: 'Por favor, preencha todos os campos obrigatórios antes de continuar.',
+            sending: 'Enviando...',
+            submitLabel: 'Enviar Onboarding',
+            sessionExpired: 'A sua sessão expirou. Por favor, inicie sessão novamente.',
+            submitError: 'Não foi possível enviar o formulário: ',
+            contactSupport: '. Por favor, contacte o suporte se o problema persistir.',
+            uploadTooBig: 'Este ficheiro excede o limite de 25 MB: ',
+            uploadFailed: 'Falha no carregamento: ',
+            module: 'Módulo',
+            of: 'de',
+            planDetected: 'Plano',
+            modules: 'módulos'
         }
-    });
+    };
+    const t = i18n[lang] || i18n.en;
 
-    function updateFormUI(shouldScroll = true) {
-        // Update Steps Visibility
-        steps.forEach(step => {
-            step.classList.remove('active');
-            if (parseInt(step.dataset.step) === currentStep) {
-                step.classList.add('active');
+    // ── Tier gating ──────────────────────────────────────────────────────────
+    function containerAllowsTier(el, tier) {
+        const tiers = (el.dataset.tiers || '').trim();
+        if (!tiers) return true;               // untagged → all plans
+        if (!tier) return true;                // unknown plan → show everything
+        return tiers.split(/\s+/).includes(tier);
+    }
 
-                // Update Labels
-                stepNumberLabel.textContent = `Step ${currentStep} of ${totalSteps}`;
-                stepCategoryLabel.textContent = step.dataset.category;
-            }
+    function applyTier(tier) {
+        // Steps
+        allSteps.forEach(step => {
+            const allowed = containerAllowsTier(step, tier);
+            step.dataset.tierHidden = allowed ? '' : '1';
+            if (!allowed) step.classList.remove('active');
         });
 
-        // Update Progress Bar
-        const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-        progressFill.style.width = `${progressPercentage}%`;
+        // Sub-groups inside visible steps
+        document.querySelectorAll('.form-step [data-tiers]').forEach(group => {
+            const allowed = containerAllowsTier(group, tier);
+            group.dataset.tierHidden = allowed ? '' : '1';
+            group.classList.toggle('hidden', !allowed);
+            // Required inputs inside a tier-hidden group must never block validation
+            group.querySelectorAll('[required]').forEach(input => {
+                if (!allowed) {
+                    input.dataset.wasRequired = '1';
+                    input.required = false;
+                } else if (input.dataset.wasRequired === '1') {
+                    input.required = true;
+                }
+            });
+        });
 
-        // Update Buttons — use only style.display (no classList 'hidden') to avoid !important conflicts
-        prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+        visibleSteps = allSteps.filter(s => s.dataset.tierHidden !== '1');
+        if (currentIndex >= visibleSteps.length) currentIndex = 0;
 
-        if (currentStep === totalSteps) {
-            nextBtn.style.display = 'none';
-            submitBtn.style.display = 'block';
-        } else {
-            nextBtn.style.display = 'block';
-            submitBtn.style.display = 'none';
+        if (tierNote) {
+            tierNote.textContent = tier
+                ? `${t.planDetected}: ${PLAN_LABELS[tier] || tier} — ${visibleSteps.length} ${t.modules}`
+                : '';
         }
+    }
 
-        // Scroll to top of container
+    // ── UI ───────────────────────────────────────────────────────────────────
+    function updateFormUI(shouldScroll = true) {
+        allSteps.forEach(step => step.classList.remove('active'));
+        const activeStep = visibleSteps[currentIndex];
+        if (!activeStep) return;
+
+        activeStep.classList.add('active');
+        stepNumberLabel.textContent = `${t.module} ${currentIndex + 1} ${t.of} ${visibleSteps.length}`;
+        stepCategoryLabel.textContent = activeStep.dataset.category;
+
+        const pct = visibleSteps.length > 1 ? (currentIndex / (visibleSteps.length - 1)) * 100 : 100;
+        progressFill.style.width = `${pct}%`;
+
+        prevBtn.style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+        const isLast = currentIndex === visibleSteps.length - 1;
+        nextBtn.style.display = isLast ? 'none' : 'block';
+        submitBtn.style.display = isLast ? 'block' : 'none';
+
         if (shouldScroll) {
             document.querySelector('.onboarding-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
-    const messages = {
-        en: "Please fill in all required fields before proceeding.",
-        es: "Por favor, complete todos los campos obligatorios antes de continuar.",
-        pt: "Por favor, preencha todos os campos obrigatórios antes de continuar."
-    };
-    const lang = document.documentElement.lang.split('-')[0] || 'en';
-
     function validateCurrentStep() {
-        const activeStep = document.querySelector('.form-step.active');
+        const activeStep = visibleSteps[currentIndex];
         if (!activeStep) return true;
-        
+
         const requiredInputs = activeStep.querySelectorAll('[required]');
         let isValid = true;
 
         requiredInputs.forEach(input => {
-            // Skip validation for hidden or ancestor-hidden elements
-            if (input.offsetParent === null && input.type !== 'hidden') return;
+            if (input.offsetParent === null && input.type !== 'hidden') return; // hidden → skip
 
             if (input.type === 'checkbox' || input.type === 'radio') {
                 const name = input.getAttribute('name');
@@ -116,170 +199,117 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if (!isValid) {
-            alert(messages[lang] || messages.en);
-        }
+        if (!isValid) alert(t.fillRequired);
         return isValid;
     }
 
-    // Navigation Events
+    // ── Navigation ───────────────────────────────────────────────────────────
     nextBtn.addEventListener('click', () => {
-        if (validateCurrentStep()) {
-            if (currentStep < totalSteps) {
-                currentStep++;
-                updateFormUI(true);
-            }
+        if (validateCurrentStep() && currentIndex < visibleSteps.length - 1) {
+            currentIndex++;
+            updateFormUI(true);
+            persistProgress();
         }
     });
 
     prevBtn.addEventListener('click', () => {
-        if (currentStep > 1) {
-            currentStep--;
+        if (currentIndex > 0) {
+            currentIndex--;
             updateFormUI(true);
+            persistProgress();
         }
     });
 
-    // Option Card Selection Logic
+    // ── Option cards ─────────────────────────────────────────────────────────
     document.querySelectorAll('.option-card').forEach(card => {
         const input = card.querySelector('input');
-        
-        // Initial state sync
-        if (input && input.checked) card.classList.add('selected');
+        if (!input) return;
 
-        if (input) {
-            input.addEventListener('change', () => {
-                if (input.type === 'radio') {
-                    // Unselect others in same name group
-                    const name = input.getAttribute('name');
-                    document.querySelectorAll(`input[name="${name}"]`).forEach(otherInput => {
-                        otherInput.parentElement.classList.remove('selected');
-                    });
-                }
-                
-                if (input.checked) {
-                    card.classList.add('selected');
-                } else {
-                    card.classList.remove('selected');
-                }
+        if (input.checked) card.classList.add('selected');
 
-                // Handle conditional sections
-                handleConditionals();
-            });
-        }
+        input.addEventListener('change', () => {
+            if (input.type === 'radio') {
+                const name = input.getAttribute('name');
+                document.querySelectorAll(`input[name="${name}"]`).forEach(other => {
+                    other.parentElement.classList.remove('selected');
+                });
+            }
+            card.classList.toggle('selected', input.checked);
+            handleConditionals();
+        });
     });
 
-    // Conditional Select Listeners
-    ['prev-provider-select', 'deadline-select'].forEach(id => {
-        const select = document.getElementById(id);
-        if (select) {
-            select.addEventListener('change', handleConditionals);
-        }
+    document.querySelectorAll('#deadline-select').forEach(sel => {
+        sel.addEventListener('change', handleConditionals);
     });
 
+    // ── Conditional sections ─────────────────────────────────────────────────
     function handleConditionals() {
-        // Previous Provider
-        const prevProviderSelect = document.getElementById('prev-provider-select');
-        const prevProviderDetail = document.getElementById('prev-provider-detail');
-        const whyNoProviderDetail = document.getElementById('why-no-provider-detail');
-        
-        if (prevProviderSelect) {
-            if (prevProviderDetail) prevProviderDetail.classList.toggle('visible', prevProviderSelect.value === 'yes');
-            if (whyNoProviderDetail) whyNoProviderDetail.classList.toggle('visible', prevProviderSelect.value === 'no');
-            
-            // Required attribute toggle
-            if (prevProviderDetail) {
-                const requiredInputs = prevProviderDetail.querySelectorAll('input, select, textarea');
-                requiredInputs.forEach(input => input.required = prevProviderSelect.value === 'yes');
-            }
-            if (whyNoProviderDetail) {
-                const whyNoInput = whyNoProviderDetail.querySelector('textarea');
-                if (whyNoInput) whyNoInput.required = prevProviderSelect.value === 'no';
-            }
-        }
-
-        // Service Specific Details
-        const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(i => i.value);
-        const websiteExtra = document.getElementById('website-extra');
-        const appExtra = document.getElementById('app-extra');
-
-        if (websiteExtra) {
-            const showWebsite = interests.includes('website') || 
-                               interests.includes('redesign_code');
-            websiteExtra.classList.toggle('visible', showWebsite);
-        }
-        
-        if (appExtra) {
-            appExtra.classList.toggle('visible', interests.includes('app_bundle'));
-        }
-
-        // Deadline
-        const deadlineSelect = document.getElementById('deadline-select');
-        const deadlineDetail = document.getElementById('deadline-detail');
-        if (deadlineSelect && deadlineDetail) {
-            deadlineDetail.classList.toggle('visible', deadlineSelect.value === 'yes');
-            // Update required attribute based on visibility
-            const deadlineInput = deadlineDetail.querySelector('input');
-            if (deadlineInput) {
-                deadlineInput.required = deadlineSelect.value === 'yes';
-            }
-        }
-
-        // Conditional Text Inputs for "Other" Options
+        // "Other" text toggles
         const toggles = [
-            { checkboxId: 'priority-other-checkbox', sectionId: 'priority-other-text', inputName: 'priority_other' },
+            { checkboxId: 'tools-other-checkbox', sectionId: 'tools-other-text', inputName: 'process_tools_other' },
             { checkboxId: 'feature-other-checkbox', sectionId: 'feature-other-text', inputName: 'feature_other' },
             { checkboxId: 'brand-other-checkbox', sectionId: 'brand-other-text', inputName: 'brand_feeling_other' },
-            { checkboxId: 'integration-other-checkbox', sectionId: 'integration-other-text', inputName: 'integration_other' },
-            { checkboxId: 'decision-makers-other-checkbox', sectionId: 'decision-makers-other-text', inputName: 'decision_makers_other' }
+            { checkboxId: 'integration-other-checkbox', sectionId: 'integration-other-text', inputName: 'integration_other' }
         ];
 
-        toggles.forEach(toggle => {
-            const checkbox = document.getElementById(toggle.checkboxId);
-            const section = document.getElementById(toggle.sectionId);
+        toggles.forEach(({ checkboxId, sectionId, inputName }) => {
+            const checkbox = document.getElementById(checkboxId);
+            const section = document.getElementById(sectionId);
             if (checkbox && section) {
                 section.classList.toggle('visible', checkbox.checked);
-                const input = section.querySelector(`input[name="${toggle.inputName}"]`);
-                if (input) {
-                    input.required = checkbox.checked;
-                }
+                const input = section.querySelector(`[name="${inputName}"]`);
+                if (input) input.required = checkbox.checked;
             }
         });
 
-        // "None" option logic for checkboxes
+        // Legacy data detail
+        const legacyChecked = document.querySelector('input[name="legacy_data"]:checked');
+        const legacyDetail = document.getElementById('legacy-detail');
+        if (legacyDetail) {
+            const show = !!legacyChecked && legacyChecked.value !== 'none';
+            legacyDetail.classList.toggle('visible', show);
+        }
+
+        // Deadline detail
+        const deadlineSelect = document.getElementById('deadline-select');
+        const deadlineDetail = document.getElementById('deadline-detail');
+        if (deadlineSelect && deadlineDetail) {
+            const show = deadlineSelect.value === 'yes';
+            deadlineDetail.classList.toggle('visible', show);
+            const dateInput = deadlineDetail.querySelector('input[name="deadline_date"]');
+            if (dateInput) dateInput.required = show;
+        }
+
+        // "None" exclusivity groups
         const noneGroups = [
+            { noneId: 'assets-none-checkbox', groupName: 'current_assets' },
+            { noneId: 'sensitive-none-checkbox', groupName: 'sensitive_data' },
             { noneId: 'past-problems-none-checkbox', groupName: 'past_problems' },
             { noneId: 'integrations-none-checkbox', groupName: 'integrations' }
         ];
 
-        noneGroups.forEach(group => {
-            const noneCheckbox = document.getElementById(group.noneId);
-            if (noneCheckbox) {
-                const groupCheckboxes = document.querySelectorAll(`input[name="${group.groupName}"]`);
-                
-                // If None is checked, uncheck and disable others
-                if (noneCheckbox.checked) {
-                    groupCheckboxes.forEach(cb => {
-                        if (cb !== noneCheckbox) {
-                            cb.checked = false;
-                            cb.parentElement.classList.remove('selected');
-                            // cb.disabled = true; // Optional: visually disable them
-                        }
-                    });
-                } else {
-                    // Re-enable if None is unchecked
-                    // groupCheckboxes.forEach(cb => { cb.disabled = false; });
-                }
+        noneGroups.forEach(({ noneId, groupName }) => {
+            const noneCheckbox = document.getElementById(noneId);
+            if (noneCheckbox && noneCheckbox.checked) {
+                document.querySelectorAll(`input[name="${groupName}"]`).forEach(cb => {
+                    if (cb !== noneCheckbox && cb.checked) {
+                        cb.checked = false;
+                        cb.parentElement.classList.remove('selected');
+                    }
+                });
             }
         });
     }
 
-    // Country Code Auto-population
+    // ── Country code auto-population ─────────────────────────────────────────
     const countrySelect = document.querySelector('select[name="contact_country"]');
     const phoneInput = document.querySelector('input[name="contact_phone"]');
     const countryCodes = {
         'Portugal': '+351 ',
         'Spain': '+34 ',
         'Espanha': '+34 ',
+        'España': '+34 ',
         'Costa Rica': '+506 ',
         'Argentina': '+54 ',
         'Mexico': '+52 ',
@@ -291,175 +321,378 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (countrySelect && phoneInput) {
         countrySelect.addEventListener('change', () => {
-            const selectedCountry = countrySelect.value;
-            const code = countryCodes[selectedCountry];
-            
-            // Only update if the phone input is empty or only contains a +
+            const code = countryCodes[countrySelect.value];
             if (code && (!phoneInput.value.trim() || phoneInput.value.trim() === '+')) {
                 phoneInput.value = code;
             }
         });
-
-        // Ensure + on focus if empty
         phoneInput.addEventListener('focus', () => {
-            if (!phoneInput.value.trim()) {
-                phoneInput.value = '+';
-            }
+            if (!phoneInput.value.trim()) phoneInput.value = '+';
         });
     }
 
-    // Persistence Logic
-    function saveProgress() {
+    // ── Data collection ──────────────────────────────────────────────────────
+    // An element contributes data only if its module/group/conditional is
+    // actually shown for this tier and this set of answers.
+    function isCollected(el) {
+        const step = el.closest('.form-step');
+        if (step && step.dataset.tierHidden === '1') return false;
+
+        const tierGroup = el.closest('[data-tiers]');
+        if (tierGroup && tierGroup !== step && tierGroup.dataset.tierHidden === '1') return false;
+
+        const cond = el.closest('.conditional-section');
+        if (cond && !cond.classList.contains('visible')) return false;
+
+        return true;
+    }
+
+    function collectData() {
         const data = {};
         form.querySelectorAll('input, select, textarea').forEach(el => {
             const name = el.getAttribute('name');
-            if (!name) return;
+            if (!name || !isCollected(el)) return;
 
-            if (el.type === 'checkbox') {
+            if (BOOL_KEYS.includes(name)) {
+                data[name] = el.checked;
+            } else if (el.type === 'checkbox') {
                 if (!data[name]) data[name] = [];
                 if (el.checked) data[name].push(el.value);
             } else if (el.type === 'radio') {
                 if (el.checked) data[name] = el.value;
+                else if (!(name in data)) data[name] = data[name] || '';
             } else {
-                data[name] = el.value;
+                data[name] = el.value.trim();
             }
         });
 
-        localStorage.setItem('onboarding_data', JSON.stringify(data));
-        localStorage.setItem('onboarding_step', currentStep);
+        // Normalize: multi keys always arrays
+        MULTI_KEYS.forEach(key => {
+            if (key in data && !Array.isArray(data[key])) data[key] = [data[key]];
+        });
+
+        return data;
     }
 
-    function loadProgress() {
-        const savedData = localStorage.getItem('onboarding_data');
-        const savedStep = localStorage.getItem('onboarding_step');
+    // ── Persistence: localStorage + live Firestore draft ─────────────────────
+    function persistProgress() {
+        const data = collectData();
+        try {
+            localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(data));
+            localStorage.setItem(STORAGE_KEY_STEP, visibleSteps[currentIndex]?.dataset.step || '1');
+        } catch (_) { /* storage full/blocked — draft sync still covers us */ }
 
-        if (savedData) {
-            const data = JSON.parse(savedData);
-            Object.keys(data).forEach(name => {
-                const value = data[name];
-                const elements = form.querySelectorAll(`[name="${name}"]`);
+        scheduleDraftSync(data);
+    }
 
-                elements.forEach(el => {
-                    if (el.type === 'checkbox') {
-                        el.checked = (Array.isArray(value) && value.includes(el.value));
-                    } else if (el.type === 'radio') {
-                        el.checked = (el.value === value);
+    function scheduleDraftSync(data) {
+        if (!currentUser || !draftReady) return;
+        clearTimeout(draftTimer);
+        draftTimer = setTimeout(async () => {
+            try {
+                const activeStep = visibleSteps[currentIndex];
+                await setDoc(doc(db, 'onboarding_drafts', currentUser.uid), {
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email || null,
+                    formVersion: 2,
+                    planType: planType || null,
+                    lang: lang,
+                    currentModule: activeStep ? Number(activeStep.dataset.step) : 1,
+                    currentModuleLabel: activeStep ? activeStep.dataset.category : '',
+                    totalModules: visibleSteps.length,
+                    data: data || collectData(),
+                    uploadedFiles: uploadedFiles,
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+            } catch (err) {
+                console.warn('Draft sync failed:', err);
+            }
+        }, 800);
+    }
+
+    function applySavedData(data) {
+        Object.keys(data).forEach(name => {
+            const value = data[name];
+            form.querySelectorAll(`[name="${name}"]`).forEach(el => {
+                if (el.type === 'checkbox') {
+                    if (BOOL_KEYS.includes(name)) {
+                        el.checked = value === true;
                     } else {
-                        el.value = value;
+                        el.checked = Array.isArray(value) && value.includes(el.value);
                     }
-                    // Trigger events to update UI classes and conditionals
-                    el.dispatchEvent(new Event('change'));
-                });
+                } else if (el.type === 'radio') {
+                    el.checked = (el.value === value);
+                } else {
+                    el.value = value ?? '';
+                }
+                el.parentElement?.classList.toggle('selected',
+                    el.parentElement?.classList.contains('option-card') ? el.checked : false);
             });
-        }
-
-        if (savedStep) {
-            currentStep = parseInt(savedStep);
-        }
-
+        });
         handleConditionals();
     }
 
-    // Save on every change
-    form.addEventListener('input', saveProgress);
-    form.addEventListener('change', saveProgress);
+    async function loadProgress() {
+        // 1. Local first (same device)
+        let restored = false;
+        const savedData = localStorage.getItem(STORAGE_KEY_DATA);
+        if (savedData) {
+            try {
+                applySavedData(JSON.parse(savedData));
+                restored = true;
+            } catch (_) { /* corrupt — ignore */ }
+        }
 
-    // Form Submission
+        // 2. Firestore draft (another device, or localStorage cleared)
+        if (currentUser) {
+            try {
+                const draftSnap = await getDoc(doc(db, 'onboarding_drafts', currentUser.uid));
+                if (draftSnap.exists()) {
+                    const draft = draftSnap.data();
+                    if (!restored && draft.data) {
+                        applySavedData(draft.data);
+                        restored = true;
+                    }
+                    if (Array.isArray(draft.uploadedFiles)) {
+                        uploadedFiles = draft.uploadedFiles;
+                        uploadedFiles.forEach(renderRestoredFile);
+                        updateFilesConsentRequirement();
+                    }
+                }
+            } catch (err) {
+                console.warn('Could not load remote draft:', err);
+            }
+        }
+
+        const savedStep = localStorage.getItem(STORAGE_KEY_STEP);
+        if (savedStep) {
+            const idx = visibleSteps.findIndex(s => s.dataset.step === savedStep);
+            if (idx >= 0) currentIndex = idx;
+        }
+    }
+
+    form.addEventListener('input', () => persistProgress());
+    form.addEventListener('change', () => persistProgress());
+
+    // ── Asset ingestion (Firebase Storage) ───────────────────────────────────
+    const MAX_FILE_SIZE = 25 * 1024 * 1024;
+
+    function safeFileName(name) {
+        return name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 120);
+    }
+
+    function updateFilesConsentRequirement() {
+        const filesConsent = document.querySelector('input[name="files_consent"]');
+        if (filesConsent) filesConsent.required = uploadedFiles.length > 0;
+    }
+
+    function fileItemHTML(name) {
+        return `
+            <span class="file-name">${name}</span>
+            <div class="upload-file-progress"><span></span></div>
+            <button type="button" class="upload-file-remove" title="Remove">×</button>`;
+    }
+
+    function renderRestoredFile(fileMeta) {
+        const zone = document.querySelector(`.upload-zone[data-upload-category="${fileMeta.category}"]`);
+        if (!zone) return;
+        const list = zone.querySelector('.upload-file-list');
+        const li = document.createElement('li');
+        li.className = 'upload-file-item upload-done';
+        li.dataset.path = fileMeta.path;
+        li.innerHTML = fileItemHTML(fileMeta.name);
+        li.querySelector('.upload-file-progress span').style.width = '100%';
+        attachRemoveHandler(li, fileMeta);
+        list.appendChild(li);
+    }
+
+    function attachRemoveHandler(li, fileMeta) {
+        li.querySelector('.upload-file-remove').addEventListener('click', async () => {
+            try {
+                await deleteObject(storageRef(storage, fileMeta.path));
+            } catch (err) {
+                console.warn('Could not delete file from storage:', err);
+            }
+            uploadedFiles = uploadedFiles.filter(f => f.path !== fileMeta.path);
+            li.remove();
+            updateFilesConsentRequirement();
+            persistProgress();
+        });
+    }
+
+    function uploadFile(file, category, list) {
+        if (!currentUser) return;
+
+        if (file.size > MAX_FILE_SIZE) {
+            alert(t.uploadTooBig + file.name);
+            return;
+        }
+
+        const li = document.createElement('li');
+        li.className = 'upload-file-item';
+        li.innerHTML = fileItemHTML(file.name);
+        list.appendChild(li);
+        const progressBar = li.querySelector('.upload-file-progress span');
+
+        const path = `members/${currentUser.uid}/onboarding/${category}/${Date.now()}_${safeFileName(file.name)}`;
+        const task = uploadBytesResumable(storageRef(storage, path), file, {
+            contentType: file.type || 'application/octet-stream'
+        });
+
+        task.on('state_changed',
+            (snap) => {
+                const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+                progressBar.style.width = `${pct}%`;
+            },
+            (err) => {
+                console.error('Upload error:', err);
+                li.classList.add('upload-error');
+                progressBar.style.width = '0%';
+                alert(t.uploadFailed + file.name);
+                setTimeout(() => li.remove(), 2500);
+            },
+            async () => {
+                let url = null;
+                try { url = await getDownloadURL(task.snapshot.ref); } catch (_) { /* non-fatal */ }
+                const fileMeta = {
+                    category: category,
+                    name: file.name,
+                    size: file.size,
+                    contentType: file.type || null,
+                    path: path,
+                    url: url,
+                    uploadedAt: Date.now()
+                };
+                uploadedFiles.push(fileMeta);
+                li.classList.add('upload-done');
+                li.dataset.path = path;
+                progressBar.style.width = '100%';
+                attachRemoveHandler(li, fileMeta);
+                updateFilesConsentRequirement();
+                persistProgress();
+            }
+        );
+    }
+
+    document.querySelectorAll('.upload-zone').forEach(zone => {
+        const input = zone.querySelector('input[type="file"]');
+        const list = zone.querySelector('.upload-file-list');
+        const category = zone.dataset.uploadCategory;
+
+        zone.addEventListener('click', (e) => {
+            if (e.target.closest('.upload-file-item')) return; // clicks on chips ≠ browse
+            input.click();
+        });
+
+        input.addEventListener('change', () => {
+            Array.from(input.files || []).forEach(file => uploadFile(file, category, list));
+            input.value = '';
+        });
+
+        ['dragenter', 'dragover'].forEach(evt => zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            zone.classList.add('dragover');
+        }));
+        ['dragleave', 'drop'].forEach(evt => zone.addEventListener(evt, (e) => {
+            e.preventDefault();
+            zone.classList.remove('dragover');
+        }));
+        zone.addEventListener('drop', (e) => {
+            Array.from(e.dataTransfer?.files || []).forEach(file => uploadFile(file, category, list));
+        });
+    });
+
+    // ── Auth: prefill, tier detection, remote resume ─────────────────────────
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = 'profiles.html';
+            return;
+        }
+        currentUser = user;
+
+        try {
+            const memberSnap = await getDoc(doc(db, 'members', user.uid));
+            if (memberSnap.exists()) {
+                memberData = memberSnap.data();
+
+                // Tier detection → module gating
+                const detected = memberData.subscription?.planType;
+                planType = VALID_TIERS.includes(detected) ? detected : null;
+            }
+        } catch (error) {
+            console.error('Error fetching member data:', error);
+        }
+
+        applyTier(planType);
+        await loadProgress();
+
+        // Registration data always wins over any stale draft values
+        const nameInput = document.querySelector('input[name="contact_name"]');
+        const companyInput = document.querySelector('input[name="company_name"]');
+        const emailInput = document.querySelector('input[name="contact_email"]');
+        if (memberData) {
+            if (nameInput && memberData.name) nameInput.value = memberData.name;
+            if (companyInput && memberData.company) companyInput.value = memberData.company;
+            if (emailInput && !emailInput.value.trim() && (memberData.email || user.email)) {
+                emailInput.value = memberData.email || user.email;
+            }
+        }
+
+        draftReady = true;
+        updateFormUI(false);
+        scheduleDraftSync();
+    });
+
+    // ── Submission ───────────────────────────────────────────────────────────
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Final validation for current (submission) step
         if (!validateCurrentStep()) return;
-        
+
         if (!currentUser) {
-            alert("Su sesión ha expirado. Por favor, inicie sesión de nuevo.");
+            alert(t.sessionExpired);
             return;
         }
 
         try {
             submitBtn.disabled = true;
-            submitBtn.textContent = lang === 'es' ? 'Enviando...' : (lang === 'pt' ? 'Enviando...' : 'Sending...');
+            submitBtn.textContent = t.sending;
 
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            
-            // Collect multi-selects manually since Object.fromEntries only gets one
-            const multiSelects = ['interests', 'main_need', 'project_stage', 'main_priority', 'target_audience', 'features', 'web_sections', 'app_users', 'frustrations', 'current_assets', 'brand_feeling', 'integrations', 'tech_priorities', 'past_problems', 'payment_pref', 'decision_makers'];
-            multiSelects.forEach(key => {
-                data[key] = Array.from(formData.getAll(key));
-            });
+            const data = collectData();
+            data.uploaded_files = uploadedFiles;
 
-            // Clean up conditional data if main option is not selected
-            if (!data.previous_provider || data.previous_provider === 'no') {
-                delete data.provider_name;
-                delete data.provider_rating;
-                delete data.provider_good;
-                delete data.provider_bad;
-            } else {
-                delete data.why_no_provider;
-            }
-
-            if (!data.main_priority || !data.main_priority.includes('other')) {
-                delete data.priority_other;
-            }
-
-            if (!data.features || !data.features.includes('other')) {
-                delete data.feature_other;
-            }
-
-            if (!data.brand_feeling || !data.brand_feeling.includes('other')) {
-                delete data.brand_feeling_other;
-            }
-
-            if (!data.integrations || !data.integrations.includes('other')) {
-                delete data.integration_other;
-            }
-
-            if (!data.decision_makers || !data.decision_makers.includes('other')) {
-                delete data.decision_makers_other;
-            }
-
-            // Clean up past_problems "none" interactions (if none is selected, remove others)
-            if (data.past_problems && data.past_problems.includes('none')) {
-                data.past_problems = ['none'];
-            }
-
-            // Clean up support_interest "none" (if "none" is already handled by radio, no special cleanup needed)
-
-            // 1. Get projectId from URL if present
             const urlParams = new URLSearchParams(window.location.search);
             const projectId = urlParams.get('projectId');
 
-            // 2. Save Submissions to a dedicated collection
+            // 1. Dedicated submissions collection (versioned)
             await addDoc(collection(db, 'onboarding_submissions'), {
                 userId: currentUser.uid,
                 userEmail: currentUser.email,
                 projectId: projectId || null,
+                formVersion: 2,
+                planType: planType || null,
                 formData: data,
                 submittedAt: serverTimestamp()
             });
 
-            // 3. Update member profile 
+            // 2. Member profile update
             const memberRef = doc(db, 'members', currentUser.uid);
             const memberSnap = await getDoc(memberRef);
             if (memberSnap.exists()) {
-                const memberData = memberSnap.data();
-                
-                if (projectId && memberData.projects) {
-                    // Update specific project
-                    const updatedProjects = memberData.projects.map(p => {
+                const member = memberSnap.data();
+
+                if (projectId && member.projects) {
+                    const updatedProjects = member.projects.map(p => {
                         if (p.id === projectId) {
-                            return { ...p, onboardingCompleted: true, projectStage: 'first_contact' };
+                            return { ...p, onboardingCompleted: true, projectStage: p.projectStage || 'first_contact' };
                         }
                         return p;
                     });
-                    
                     await updateDoc(memberRef, {
                         projects: updatedProjects,
                         lastUpdated: serverTimestamp()
                     });
                 } else {
-                    // Legacy fallback
                     await updateDoc(memberRef, {
                         onboardingCompleted: true,
                         onboardingCompletedAt: serverTimestamp(),
@@ -468,129 +701,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Append to the immutable activity log (fire-and-forget; never blocks the flow)
+            // 3. Append to the immutable activity log (fire-and-forget)
             addDoc(collection(db, 'activities'), {
-                memberId:   currentUser.uid,
+                memberId: currentUser.uid,
                 memberName: memberSnap.exists() ? (memberSnap.data().name || null) : null,
-                type:       'onboarding_completed',
-                payload:    { projectId: projectId || null },
-                actorUid:   currentUser.uid,
+                type: 'onboarding_completed',
+                payload: { projectId: projectId || null, formVersion: 2, planType: planType || null },
+                actorUid: currentUser.uid,
                 actorEmail: currentUser.email || null,
-                actorRole:  'member',
-                createdAt:  serverTimestamp()
+                actorRole: 'member',
+                createdAt: serverTimestamp()
             }).catch(err => console.warn('Activity log failed:', err));
 
-            // Clear local storage on success
+            // 4. Clear the live draft and local cache
+            deleteDoc(doc(db, 'onboarding_drafts', currentUser.uid))
+                .catch(err => console.warn('Draft cleanup failed:', err));
+            localStorage.removeItem(STORAGE_KEY_DATA);
+            localStorage.removeItem(STORAGE_KEY_STEP);
+            // Legacy v1 keys, if any survive
             localStorage.removeItem('onboarding_data');
             localStorage.removeItem('onboarding_step');
 
             window.location.href = 'thank-you.html';
         } catch (error) {
-            console.error("Detailed error submitting onboarding:", error);
-            alert("No se pudo enviar el formulario: " + (error.message || "Error desconocido") + ". Por favor, contacte a soporte si el problema persiste.");
+            console.error('Detailed error submitting onboarding:', error);
+            alert(t.submitError + (error.message || 'Unknown error') + t.contactSupport);
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = 'Enviar Onboarding';
+            submitBtn.textContent = t.submitLabel;
         }
     });
 
-    // Initial Load
-    loadProgress();
-    // Ensure UI (buttons, steps) is correct regardless of async operations
+    // ── Initial paint (pre-auth): show module 1 of the full set ──────────────
     updateFormUI(false);
+    handleConditionals();
 
-    // Final check for option-card focus (standardizing UI)
-    document.querySelectorAll('.option-card').forEach(card => {
-        const input = card.querySelector('input');
-        if (input && input.checked) card.classList.add('selected');
-    });
-
-    // Language switch fix: ensure data is saved before redirecting
+    // Language switch: persist before navigating away
     document.querySelectorAll('.lang-switcher-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-            saveProgress();
-        });
-    });
-
-    // Currency Switcher Logic
-    const budgetData = {
-        EUR: {
-            symbol: '€',
-            ranges: ['<300', '300-700', '700-1500', '1500-3000', '3000-7000', '>7000'],
-            texts: {
-                en: ['Under 300€', '300€ – 700€', '700€ – 1,500€', '1,500€ – 3,000€', '3,000€ – 7,000€', 'More than 7,000€'],
-                es: ['Menos de 300€', '300€ – 700€', '700€ – 1.500€', '1.500€ – 3.000€', '3.000€ – 7.000€', 'Más de 7.000€'],
-                pt: ['Menos de 300€', '300€ – 700€', '700€ – 1.500€', '1.500€ – 3.000€', '3.000€ – 7.000€', 'Mais de 7.000€']
-            }
-        },
-        USD: {
-            symbol: '$',
-            ranges: ['<300', '300-700', '700-1500', '1500-3000', '3000-7000', '>7000'],
-            texts: {
-                en: ['Under $300', '$300 – $700', '$700 – $1,500', '$1,500 – $3,000', '$3,000 – $7,000', 'More than $7,000'],
-                es: ['Menos de $300', '$300 – $700', '$700 – $1.500', '$1.500 – $3.000', '$3.000 – $7.000', 'Más de $7,000'],
-                pt: ['Menos de $300', '$300 – $700', '$700 – $1.500', '$1.500 – $3.000', '$3.000 – $7.000', 'Mais de $7,000']
-            }
-        },
-        CRC: {
-            symbol: '₡',
-            ranges: ['<250k', '250k-500k', '500k-1M', '1M-2.5M', '2.5M-5M', '>5M'],
-            texts: {
-                en: ['Under 250,000₡', '250,000₡ – 500,000₡', '500,000₡ – 1,000,000₡', '1,000,000₡ – 2,500,000₡', '2,500,000₡ – 5,000,000₡', 'More than 5,000,000₡'],
-                es: ['Menos de 250.000₡', '250.000₡ – 500.000₡', '500.000₡ – 1.000.000₡', '1.000.000₡ – 2.500.000₡', '2.500.000₡ – 5.000.000₡', 'Más de 5.000.000₡'],
-                pt: ['Menos de 250.000₡', '250.000₡ – 500.000₡', '500.000₡ – 1.000.000₡', '1.000.000₡ – 2.500.000₡', '2.500.000₡ – 5.000.000₡', 'Mais de 5.000.000₡']
-            }
-        }
-    };
-
-    const currencyBtns = document.querySelectorAll('.currency-switcher button');
-    const budgetSelect = document.getElementById('budget-select');
-    const fullLang = document.documentElement.lang || 'en';
-    const langCode = fullLang.split('-')[0].toLowerCase(); // Handle es-CR, pt-PT, etc.
-
-    currencyBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const currency = btn.dataset.currency;
-            
-            // Update buttons active state
-            currencyBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            
-            // Update budget select options
-            if (budgetSelect && budgetData[currency]) {
-                const data = budgetData[currency];
-                const texts = data.texts[langCode] || data.texts['en'];
-                const currentValue = budgetSelect.value;
-                
-                const selectLabels = {
-                    en: { placeholder: 'Select range', guidance: 'Prefer guidance based on scope' },
-                    es: { placeholder: 'Seleccione rango', guidance: 'Prefiero orientación según alcance' },
-                    pt: { placeholder: 'Selecione intervalo', guidance: 'Prefiro orientação conforme o âmbito' }
-                };
-                const labels = selectLabels[langCode] || selectLabels['en'];
-
-                budgetSelect.innerHTML = '';
-                
-                const placeholder = document.createElement('option');
-                placeholder.value = '';
-                placeholder.textContent = labels.placeholder;
-                budgetSelect.appendChild(placeholder);
-                
-                data.ranges.forEach((range, index) => {
-                    const option = document.createElement('option');
-                    option.value = range;
-                    option.textContent = texts[index];
-                    budgetSelect.appendChild(option);
-                });
-                
-                const guidance = document.createElement('option');
-                guidance.value = 'guidance';
-                guidance.textContent = labels.guidance;
-                budgetSelect.appendChild(guidance);
-
-                if (currentValue === 'guidance') budgetSelect.value = 'guidance';
-            }
-        });
+        link.addEventListener('click', () => persistProgress());
     });
 });
