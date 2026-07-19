@@ -250,6 +250,257 @@ WhatsApp: +351 934086075
 Location: Bragança, Portugal, European Union
 Service area: Portugal, Spain, Costa Rica, European Union, Ibero-America
 
+
+--- TERMS AND CONDITIONS ---
+URL: https://elysiumdr.eu/terms.html
+
+λ
+
+Terms of Service
+
+Last Updated: February 2026
+
+1. Identification of the Service Provider
+
+These Terms of Service govern the contractual relationship between the user and:
+
+                    - Legal Entity: Elysium λ Development & Research
+
+                    - Legal Representative: Daniel Alonso Morales Ávila
+
+                    - NIF / VAT: 321979257PT
+
+                    - Registered Address: Bragança, Portugal, European Union
+
+                    - Contact: info@elysiumdr.eu
+
+By accessing or using this website, you agree to be bound by these Terms and acknowledge responsibility for compliance with applicable local and international laws.
+
+2. Scope of Services
+
+Elysium λ Development & Research provides professional services in the fields of software engineering, web development, system architecture, digital research, and related technical consulting. Specific deliverables, deadlines, and pricing are governed by individual service agreements or project proposals issued separately.
+
+3. Right of Withdrawal — Cooling-Off Period (EU)
+
+In accordance with Directive 2011/83/EU on consumer rights, consumers who are residents of the European Union have the right to withdraw from a distance contract within 14 calendar days from the date the contract is concluded, without providing any reason.
+
+To exercise this right, notify us in writing at info@elysiumdr.eu before the 14-day period expires. This right does not apply to services that have been fully performed with your prior express consent, or to custom digital content delivered and accepted by you.
+
+4. Data Protection & Privacy
+
+The processing of your personal data is governed by our Privacy Policy, which is incorporated by reference into these Terms. We comply with:
+
+                    - GDPR (EU 2016/679) — for users residing in the European Union and European Economic Area.
+
+                    - Law No. 8968 (Costa Rica) — Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales, supervised by PRODHAB.
+
+                    - Law No. 58/2019 (Portugal) — domestic implementation of the GDPR.
+
+Sensitive data (including health-related information, where applicable) will only be processed upon obtaining your explicit, documented consent as required by Art. 9 GDPR and Art. 9 of Law 8968.
+
+5. Intellectual Property
+
+All content, code, designs, and materials produced by Elysium λ Development & Research and published on this website remain the exclusive intellectual property of the company unless explicitly transferred in writing via a client agreement. Temporary access to materials for personal, non-commercial viewing is granted under these Terms but does not constitute assignment of any intellectual property rights.
+
+6. Limitation of Liability
+
+To the maximum extent permitted by applicable law, Elysium λ Development & Research shall not be liable for indirect, incidental, or consequential damages arising from the use of this website or our services. Our maximum aggregate liability is limited to the amounts paid by you for the specific service giving rise to the claim in the 12 months preceding the event.
+
+7. Tax Obligations
+
+Fees quoted by Elysium λ Development & Research are exclusive of applicable taxes unless otherwise stated. For clients in Portugal, services are subject to the applicable VAT rate under CIVA (Código do IVA). Certain health-related professional services may qualify for VAT exemption under Art. 9 CIVA where legally applicable. Tax invoices will be issued according to Portuguese fiscal law.
+
+8. Dispute Resolution
+
+In the event of a dispute, we encourage amicable resolution via direct contact at info@elysiumdr.eu. If no resolution is reached, consumers in the European Union may use the European Commission's Online Dispute Resolution (ODR) platform:
+
+https://ec.europa.eu/consumers/odr
+
+Our designated email for ODR purposes is info@elysiumdr.eu.
+
+9. Governing Law & Jurisdiction
+
+These Terms are governed by the laws of Portugal and the European Union. In the absence of amicable resolution, disputes shall be submitted to the competent courts of Bragança, Portugal, without prejudice to any mandatory consumer protection provisions applicable in the user's country of residence.
+
+10. Infrastructure & Security Certifications
+
+Our services are hosted on Google Cloud / Firebase infrastructure, which holds the following internationally recognised certifications inherited by our platform:
+
+                    - ISO/IEC 27001, 27017, 27018 — Information Security Management and Cloud Security.
+
+                    - SOC 1, SOC 2, SOC 3 — System and Organisation Controls.
+
+                    - PCI-DSS compatibility and HIPAA-eligible services.
+
+Our platform also implements HSTS, Content Security Policy (CSP) Level 3, and HMAC-SHA256 cryptographic token signing as technical security measures.
+
+11. Amendments
+
+We reserve the right to update these Terms at any time. The "Last Updated" date at the top of this page will reflect the most recent revision. Continued use of our services after any modification constitutes acceptance of the updated Terms.
+
+--- PRIVACY POLICY ---
+URL: https://elysiumdr.eu/privacy.html
+
+λ
+
+Privacy Policy
+
+Last Updated: July 2026
+
+1. Identity and Contact Information of the Data Controller
+
+The data controller for your personal information is:
+
+                    - Full Legal Name: Elysium λ Development & Research
+
+                    - Legal Representative: Daniel Alonso Morales Ávila
+
+                    - NIF / VAT: 321979257PT
+
+                    - Registered Address: Bragança, Portugal, European Union
+
+                    - Email for Privacy Enquiries: info@elysiumdr.eu
+
+2. Information We Collect and Purpose
+
+We only collect personal information that you provide voluntarily through our digital channels:
+
+                    - Contact & Onboarding Forms: Full name, professional email address, company name, website, and project-specific details.
+
+                    - Purpose: To manage your inquiries, provide requested technical information, and execute pre-contractual or contractual measures necessary to initiate our professional services.
+
+3. Sensitive Data — Health Information (Art. 9 GDPR / Art. 9 Law 8968)
+
+Where our services involve health-related or clinically sensitive data (e.g., physical assessments, medical history), this constitutes special category data under Art. 9 of the GDPR (EU 2016/679) and sensitive personal data under Art. 9 of Costa Rica's Law No. 8968.
+
+Such data will only be processed upon your explicit, documented consent (recorded as consentHealthData: true in our system). You may withdraw this consent at any time. Processing without consent is strictly prohibited.
+
+4. Legal Basis for Processing
+
+We process your data based on the following legal foundations:
+
+                    - Explicit Consent: When you voluntarily complete our forms and check the explicit acceptance box, or specifically authorise health data processing.
+
+                    - Pre-contractual measures: When your request involves the preparation of a budget, quote, or technical assessment.
+
+                    - Legitimate Interest: To maintain the security, integrity, and optimal functioning of our internal systems and digital delivery infrastructure.
+
+                    - Legal Obligation: To comply with applicable fiscal, regulatory, and security obligations in Portugal (EU) and Costa Rica.
+
+5. Data Retention & Automated Purging
+
+We retain your personal data only for as long as necessary to fulfill the purposes for which it was collected, or to comply with applicable legal, tax, or regulatory obligations. Our automated retention policy operates as follows:
+
+                    - Health & clinical data: Anonymised after 5 years of inactivity.
+
+                    - Fiscal & user profile data: Fully anonymised and purged from authentication systems after 10 years of inactivity, in line with European fiscal obligations and Costa Rica's Law 8968.
+
+Automated purging is executed via scheduled backend tasks to ensure compliance without manual intervention.
+
+6. Your Comprehensive Rights
+
+Consistent with the GDPR (EU), Law No. 58/2019 (Portugal), and Law No. 8968 (Costa Rica / PRODHAB), you possess the following rights which may be exercised free of charge:
+
+                    - Access: To obtain confirmation on whether your data is being processed and access it.
+
+                    - Rectification: To correct inaccurate or incomplete data.
+
+                    - Erasure (Right to be Forgotten): To request the deletion of data when it is no longer necessary.
+
+                    - Restriction of Processing: To limit how your data is used under specific circumstances.
+
+                    - Data Portability: To receive your data in a structured, electronic format.
+
+                    - Objection: To oppose processing for specific reasons or marketing purposes.
+
+                    - Withdrawal of Consent: You may withdraw your consent at any time without affecting the lawfulness of prior processing.
+
+To exercise these rights, please send an explicit request to info@elysiumdr.eu.
+
+7. Recipients and Third Parties
+
+We do not sell or trade your data. We share information only with essential service providers who act as processors under our strict instructions:
+
+                    - Hosting & Backend: Firebase (Google Cloud), with servers primarily in the EU.
+
+                    - Communication: Corporate email and secure CRM systems used strictly for project management.
+
+8. International Data Transfers
+
+When using global infrastructure like Google Cloud, data may occasionally be transferred to regions outside the European Economic Area (EEA). We ensure these transfers are covered by Standard Contractual Clauses (SCCs) approved by the European Commission (Art. 46 GDPR), guaranteeing a level of protection equivalent to the GDPR.
+
+For Costa Rica users, cross-border transfers comply with Law No. 8968, which requires that recipient systems guarantee adequate levels of security and confidentiality — a condition met by Google Cloud's internationally certified infrastructure.
+
+9. Technical Security Measures
+
+We implement robust technical and organisational security measures, including:
+
+                    - HSTS (Strict-Transport-Security): Forces exclusive HTTPS connections for one year, protecting against man-in-the-middle (MitM) attacks.
+
+                    - Content Security Policy (CSP) Level 3: Strict directives blocking unauthorised script and style injection (XSS).
+
+                    - X-Frame-Options / frame-ancestors: Mitigates Clickjacking attacks.
+
+                    - Permissions-Policy: Restricts browser access to camera, microphone, and geolocation.
+
+                    - HMAC-SHA256 Cryptographic Signing: Used for token integrity verification, preventing tampering.
+
+                    - Role-Based Access Control (RBAC): Enforced at database level via Firestore security rules — only authenticated data owners can access their own records.
+
+                    - User Enumeration Protection: Sensitive endpoints return generic responses to prevent user account discovery.
+
+                    - Constant-Time Comparison: Token verification uses timing-safe equality to prevent timing-based information leakage.
+
+                    - Secret Manager: All credentials and cryptographic secrets are stored in Google Cloud Secret Manager — never in source code.
+
+10. Infrastructure Certifications
+
+Our platform is hosted on Google Cloud / Firebase infrastructure. Although Elysium λ Development & Research does not hold private audit certifications (standard for independent professional businesses), our platform inherits the following Google Cloud certifications:
+
+                    - ISO/IEC 27001, 27017, 27018 — Information Security Management and Cloud Security.
+
+                    - SOC 1, SOC 2, SOC 3 — System and Organisation Controls.
+
+                    - PCI-DSS compatibility and HIPAA-eligible services (de facto reference standard for private clinics in Costa Rica selecting cloud providers).
+
+11. Cookies and Tracking
+
+Our website utilises only essential and technical cookies required for navigation and basic security. We do not employ third-party tracking, profiling, or behavioral advertising cookies without your explicit, opt-in consent, in compliance with the ePrivacy Directive (2002/58/EC) and the principles of Law No. 8968 (Costa Rica).
+
+12. Mandatory Nature of Information
+
+Fields marked with an asterisk (*) in our forms are strictly mandatory to process your request. Failure to provide this minimum information will prevent us from establishing contact or delivering the requested services.
+
+13. Right to Lodge a Complaint
+
+If you believe your data has been handled improperly, you have the right to claim before the competent supervisory authorities:
+
+                    - Portugal (EU): Comissão Nacional de Proteção de Dados (CNPD) — www.cnpd.pt
+
+                    - Costa Rica: Agencia de Protección de Datos de los Habitantes (PRODHAB) — www.prodhab.go.cr
+
+--- SYSTEM & SECURITY INFORMATION ---
+URL: Footer Modal (version-modal.js)
+
+SYSTEM INFORMATION:
+Software Specifications:
+- Interface Version: V1.3.1
+- Product Licence: ELY-EC03-ANL9-321979257
+
+Security & Compliance:
+- Privacy Directive: ePrivacy Directive · Cookie Consent v1.0
+- Security Infrastructure: HSTS · CSP L3 · HMAC-SHA256
+- Legal Framework: GDPR (EU) · Law 8968 (CR)
+
+Corporate Information:
+- Organisation: Elysium λ Development & Research
+- Web Portal: elysiumdr.eu
+- Technical Support: daniel.morales@elysiumdr.eu
+
+Software Attributions:
+- Icon Ecosystem: Lucide Icons v0.460.0
+- Cloud Certifications: ISO 27001 · SOC 2/3 · PCI-DSS · Firebase
+
 ================================================================================
 PART 2 — ESPAÑOL (ES)
 ================================================================================

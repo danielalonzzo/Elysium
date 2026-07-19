@@ -284,6 +284,19 @@
     transition: all var(--transition-fast);
 }
 
+select.form-control:invalid {
+    color: var(--color-text-secondary);
+}
+
+select.form-control option {
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-secondary);
+}
+
+select.form-control option[value=""] {
+    color: var(--color-text-secondary);
+}
+
 .form-control:focus {
     outline: none;
     border-color: var(--color-accent);
@@ -4161,7 +4174,7 @@ textarea.form-control {
 
 /* Header Cells - Desktop Optimized */
 .matrix-label-header, .matrix-plan-header {
-    height: 240px; /* Reduced to prevent vertical overflow on screen */
+    height: 280px; /* Increased to prevent vertical overlap with popular badge */
     padding: 2rem 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
@@ -4244,7 +4257,7 @@ textarea.form-control {
     
     
     .matrix-label-header, .matrix-plan-header {
-        height: 235px; /* Keep taller header on mobile for badge room */
+        height: 250px; /* Keep taller header on mobile for badge room */
     }
     .matrix-plan-header {
         padding: 2.8rem 0.5rem 1rem 0.5rem;
@@ -4319,11 +4332,6 @@ textarea.form-control {
 }
 
 /* Full colón amounts need a compact two-line layout inside narrow plan columns. */
-body[data-active-currency="CRC"] .matrix-label-header,
-body[data-active-currency="CRC"] .matrix-plan-header {
-    height: 280px;
-}
-
 body[data-active-currency="CRC"] .matrix-plan-header {
     padding-right: 0.5rem;
     padding-left: 0.5rem;
@@ -4354,9 +4362,4 @@ body[data-active-currency="CRC"] .matrix-plan-optional {
     white-space: normal !important;
 }
 
-@media (max-width: 950px) {
-    body[data-active-currency="CRC"] .matrix-label-header,
-    body[data-active-currency="CRC"] .matrix-plan-header {
-        height: 250px;
-    }
-}
+

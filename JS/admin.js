@@ -315,6 +315,7 @@ const translations = {
         table_date: "Date",
         table_name: "Name",
         table_email: "Email",
+        table_phone: "Phone",
         table_service: "Interest",
         table_message: "Message",
         flagSrc: "Images/Banderas/union-europea.png",
@@ -471,6 +472,7 @@ const translations = {
         table_date: "Fecha",
         table_name: "Nombre",
         table_email: "Correo",
+        table_phone: "Teléfono",
         table_service: "Interés",
         table_message: "Mensaje",
         flagSrc: "Images/Banderas/costa-rica.png",
@@ -626,6 +628,7 @@ const translations = {
         table_date: "Data",
         table_name: "Nome",
         table_email: "E-mail",
+        table_phone: "Telefone",
         table_service: "Interesse",
         table_message: "Mensagem",
         flagSrc: "Images/Banderas/portugal.png",
@@ -833,11 +836,13 @@ function applyTranslations() {
     const thDate = document.getElementById('th-date');
     const thName = document.getElementById('th-name');
     const thEmail = document.getElementById('th-email');
+    const thPhone = document.getElementById('th-phone');
     const thService = document.getElementById('th-service');
     const thMessage = document.getElementById('th-message');
     if (thDate) thDate.textContent = t.table_date || "Date";
     if (thName) thName.textContent = t.table_name || "Name";
     if (thEmail) thEmail.textContent = t.table_email || "Email";
+    if (thPhone) thPhone.textContent = t.table_phone || "Phone";
     if (thService) thService.textContent = t.table_service || "Interest";
     if (thMessage) thMessage.textContent = t.table_message || "Message";
 }
@@ -3438,7 +3443,7 @@ async function loadContacts() {
         if (badge) badge.textContent = snap.size;
         
         if (snap.empty) {
-            contactsList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-text-secondary); padding: 2rem;">No inquiries found.</td></tr>';
+            contactsList.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-text-secondary); padding: 2rem;">No inquiries found.</td></tr>';
             return;
         }
 
@@ -3451,6 +3456,7 @@ async function loadContacts() {
                     <td>${date}</td>
                     <td><strong>${esc(data.name) || '-'}</strong></td>
                     <td><a href="mailto:${esc(data.email) || ''}" style="color: var(--color-accent); text-decoration: none;">${esc(data.email) || '-'}</a></td>
+                    <td><a href="tel:${esc(data.phone) || ''}" style="color: var(--color-accent); text-decoration: none;">${esc(data.phone) || '-'}</a></td>
                     <td><span class="status-badge" style="background: rgba(41, 151, 255, 0.1); color: var(--color-accent);">${esc(data.service) || '-'}</span></td>
                     <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(data.message) || ''}">${esc(data.message) || '-'}</td>
                 </tr>
@@ -3459,6 +3465,6 @@ async function loadContacts() {
         contactsList.innerHTML = html;
     } catch (e) {
         logger.error("Error loading contacts:", e);
-        contactsList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #ff4444; padding: 2rem;">Error loading inquiries.</td></tr>';
+        contactsList.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #ff4444; padding: 2rem;">Error loading inquiries.</td></tr>';
     }
 }

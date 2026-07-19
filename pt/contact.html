@@ -55,6 +55,14 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
         rel="stylesheet">
+    <!-- Intl Tel Input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
+    <style>
+        .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags.png"); }
+        @media (min-resolution: 2x) {
+          .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags@2x.png"); }
+        }
+    </style>
     <link rel="stylesheet" href="../CSS/base.css">
     <link rel="stylesheet" href="../CSS/components.css">
     <link rel="stylesheet" href="../CSS/pages.css">
@@ -129,8 +137,7 @@
                 <!-- Contact Info -->
                 <div class="animate-on-scroll">
                     <h3 class="mb-md">Contacte-nos</h3>
-                    <p class="mb-lg">Estamos disponíveis para novos projetos e colaborações de investigação. Por favor
-                        indique o máximo de detalhes sobre a sua consulta.</p>
+                    <p class="mb-lg">Estamos disponíveis para novos projetos e colaborações de investigação. Indique o máximo de detalhes sobre a sua consulta, se faz o favor.</p>
                     <div class="mb-md">
                         <h5
                             style="text-transform: uppercase; margin-bottom: 0.5rem; color: var(--color-text-secondary);">
@@ -174,18 +181,20 @@
                             <input type="email" id="email" name="email" class="form-control" required>
                         </div>
                         <div class="form-group">
+                            <label for="phone" class="form-label">Número de telefone (opcional)</label>
+                            <input type="tel" id="phone" name="phone" class="form-control">
+                        </div>
+                        <div class="form-group">
                             <label for="service" class="form-label">Interesse</label>
-                            <select id="service" name="service" class="form-control">
-                                <option value="website">Website</option>
-                                <option value="domain-hosting">Domínio e Alojamento</option>
+                            <select id="service" name="service" class="form-control" required>
+                                <option value="" disabled selected>Escolha uma opção</option>
                                 <option value="basic-maintenance">Manutenção Básica</option>
-                                <option value="preferred-maintenance">Manutenção Preferencial</option>
-                                <option value="premium-maintenance">Manutenção Premium</option>
-                                <option value="full-app">Pacote Profissional de Aplicação Web Completa</option>
-                                <option value="site-redesign-code">Redesign Profissional de Site Existente (Código)
-                                </option>
-                                <option value="investigation">Investigação</option>
-                                <option value="other">Outro</option>
+                                <option value="preferential-maintenance">Manutenção Preferencial</option>
+                                <option value="advanced-maintenance">Manutenção Avançada</option>
+                                <option value="hosting-maintenance">Manutenção de Hosting</option>
+                                <option value="custom-crm">CRM Personalizado</option>
+                                <option value="research">Investigação</option>
+                                <option value="other">Outros</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -259,6 +268,34 @@
     </footer>
     <script src="../JS/main.js"></script>
     <script src="../JS/version-modal.js"></script>
+
+    <!-- Intl Tel Input JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+    <script>
+        const phoneInput = document.querySelector("#phone");
+        
+        function initPhoneInput(userCountry) {
+            const euCountries = ['at', 'be', 'bg', 'hr', 'cy', 'cz', 'dk', 'ee', 'fi', 'fr', 'de', 'gr', 'hu', 'ie', 'it', 'lv', 'lt', 'lu', 'mt', 'nl', 'pl', 'pt', 'ro', 'sk', 'si', 'es', 'se'];
+            const prefCountries = Array.from(new Set(['pt', 'cr', userCountry, ...euCountries]));
+            
+            const iti = window.intlTelInput(phoneInput, {
+                initialCountry: userCountry,
+                separateDialCode: true,
+                preferredCountries: prefCountries,
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js"
+            });
+            window.iti = iti;
+        }
+
+        fetch("https://get.geojs.io/v1/ip/country.json")
+            .then(function(res) {
+                if (!res.ok) throw new Error("Network error");
+                return res.json();
+            })
+            .then(function(data) { initPhoneInput(data.country.toLowerCase()); })
+            .catch(function() { initPhoneInput("pt"); });
+    </script>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
@@ -287,12 +324,13 @@
                 await addDoc(collection(db, 'contacts'), {
                     name: form.name.value,
                     email: form.email.value,
+                    phone: window.iti ? window.iti.getNumber() : form.phone.value || '',
                     service: form.service.value,
                     message: form.message.value,
                     lang: 'pt',
                     submittedAt: serverTimestamp()
                 });
-                alert('Obrigado! A sua consulta foi recebida. Responderemos em 24 horas.');
+                document.getElementById('successModal').classList.add('active');
                 form.reset();
             } catch (err) {
                 console.error(err);
@@ -303,6 +341,16 @@
             }
         });
     </script>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h3 style="margin-bottom: 1rem;">Obrigado!</h3>
+            <p>A sua consulta foi recebida. Responderemos em 24 horas.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('successModal').classList.remove('active')" style="margin-top: 1.5rem; width: 100%;">Fechar</button>
+        </div>
+    </div>
+
 </body>
 
 </html>

@@ -58,6 +58,14 @@
         href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
         rel="stylesheet">
 
+    <!-- Intl Tel Input CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
+    <style>
+        .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags.png"); }
+        @media (min-resolution: 2x) {
+          .iti__flag { background-image: url("https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/img/flags@2x.png"); }
+        }
+    </style>
     <!-- CSS -->
     <link rel="stylesheet" href="CSS/base.css">
     <link rel="stylesheet" href="CSS/components.css">
@@ -181,16 +189,19 @@
                             <input type="email" id="email" name="email" class="form-control" required>
                         </div>
                         <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number (optional)</label>
+                            <input type="tel" id="phone" name="phone" class="form-control">
+                        </div>
+                        <div class="form-group">
                             <label for="service" class="form-label">Interest</label>
-                            <select id="service" name="service" class="form-control">
-                                <option value="website">Website</option>
-                                <option value="domain-hosting">Domain & Hosting</option>
+                            <select id="service" name="service" class="form-control" required>
+                                <option value="" disabled selected>Select an option</option>
                                 <option value="basic-maintenance">Basic Maintenance</option>
-                                <option value="preferred-maintenance">Preferred Maintenance</option>
-                                <option value="premium-maintenance">Premium Maintenance</option>
-                                <option value="full-app">Professional Full Web Application Package</option>
-                                <option value="site-redesign-code">Professional Existing Site Redesign (Code)</option>
-                                <option value="investigation">Investigation</option>
+                                <option value="preferential-maintenance">Preferential Maintenance</option>
+                                <option value="advanced-maintenance">Advanced Maintenance</option>
+                                <option value="hosting-maintenance">Hosting Maintenance</option>
+                                <option value="custom-crm">Custom CRM</option>
+                                <option value="research">Research</option>
                                 <option value="other">Other</option>
                             </select>
                         </div>
@@ -271,6 +282,34 @@
 
     <script src="JS/main.js"></script>
     <script src="JS/version-modal.js"></script>
+    
+    <!-- Intl Tel Input JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+    <script>
+        const phoneInput = document.querySelector("#phone");
+        
+        function initPhoneInput(userCountry) {
+            const euCountries = ['at', 'be', 'bg', 'hr', 'cy', 'cz', 'dk', 'ee', 'fi', 'fr', 'de', 'gr', 'hu', 'ie', 'it', 'lv', 'lt', 'lu', 'mt', 'nl', 'pl', 'pt', 'ro', 'sk', 'si', 'es', 'se'];
+            const prefCountries = Array.from(new Set(['pt', 'cr', userCountry, ...euCountries]));
+            
+            const iti = window.intlTelInput(phoneInput, {
+                initialCountry: userCountry,
+                separateDialCode: true,
+                preferredCountries: prefCountries,
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js"
+            });
+            window.iti = iti;
+        }
+
+        fetch("https://get.geojs.io/v1/ip/country.json")
+            .then(function(res) {
+                if (!res.ok) throw new Error("Network error");
+                return res.json();
+            })
+            .then(function(data) { initPhoneInput(data.country.toLowerCase()); })
+            .catch(function() { initPhoneInput("us"); });
+    </script>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
@@ -299,12 +338,13 @@
                 await addDoc(collection(db, 'contacts'), {
                     name: form.name.value,
                     email: form.email.value,
+                    phone: window.iti ? window.iti.getNumber() : form.phone.value || '',
                     service: form.service.value,
                     message: form.message.value,
                     lang: 'en',
                     submittedAt: serverTimestamp()
                 });
-                alert('Thank you! Your inquiry has been received. We will respond within 24 hours.');
+                document.getElementById('successModal').classList.add('active');
                 form.reset();
             } catch (err) {
                 console.error(err);
@@ -315,6 +355,16 @@
             }
         });
     </script>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="custom-modal-overlay">
+        <div class="custom-modal">
+            <h3 style="margin-bottom: 1rem;">Thank You!</h3>
+            <p>Your inquiry has been received. We will respond within 24 hours.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('successModal').classList.remove('active')" style="margin-top: 1.5rem; width: 100%;">Close</button>
+        </div>
+    </div>
+
 </body>
 
 </html>

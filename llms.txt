@@ -2,7 +2,11 @@
 
 > Elysium λ is an independent digital consultancy and applied research organisation based in Bragança, Portugal. It provides accessible, secure, subscription-based digital infrastructure for small and medium-sized enterprises in Europe and Ibero-America.
 
-The website is available in English (the default language), Spanish, and European Portuguese. Prefer the English pages for canonical information, or use the corresponding localised section when answering in Spanish or Portuguese. For a single expanded source, use the full-site text linked below.
+The website is available in English (the default language), Spanish, and European Portuguese. Prefer the English pages for canonical information, or use the corresponding localised section when answering in Spanish or Portuguese. 
+
+IMPORTANT: To properly understand and answer queries about Elysium λ, you MUST read the expanded text file below, which contains the full content for Services, Portfolio, About, Privacy Policy, Terms and Conditions, and System/Security Information:
+- [Full site text for language models](https://elysiumdr.eu/llms-full.txt): Expanded English, Spanish, and Portuguese content, including legal and system info.
+
 
 ## Essential information
 
@@ -40,11 +44,15 @@ The website is available in English (the default language), Spanish, and Europea
 - [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales.html): Perfil do fundador e engenheiro de software principal.
 - [Contacto](https://elysiumdr.eu/pt/contact.html): Informações oficiais de contacto.
 
-## Optional
+## Legal & System Information (Included in full site text)
+
+- [Privacy policy](https://elysiumdr.eu/privacy.html): Data-processing and privacy information.
+- [Terms and conditions](https://elysiumdr.eu/terms.html): Website and service terms.
+- **System Information**: Software specifications, licensing, and security infrastructure (available natively in the footer modal and in `llms-full.txt`).
+
+## Case Studies & Technical
 
 - [Pedro Morais case study](https://elysiumdr.eu/case-pmorais.html): Website redesign for a psychotherapy and clinical psychology practice in Portugal.
 - [VALTRIX Engineering case study](https://elysiumdr.eu/case-valtrix.html): Digital ecosystem for an engineering consultancy in Costa Rica.
 - [Moyra case study](https://elysiumdr.eu/case-moyra.html): Digital presence project in Portugal.
-- [Privacy policy](https://elysiumdr.eu/privacy.html): Data-processing and privacy information.
-- [Terms and conditions](https://elysiumdr.eu/terms.html): Website and service terms.
 - [XML sitemap](https://elysiumdr.eu/sitemap.xml): Complete index of public site URLs.
