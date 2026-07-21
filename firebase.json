@@ -14,7 +14,8 @@
       "backend/**",
       "**/*.py",
       "storage.rules",
-      "firestore.rules"
+      "firestore.rules",
+      "sounds/*.wav"
     ],
     "headers": [
       {
@@ -27,7 +28,7 @@
         ]
       },
       {
-        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|woff|woff2|ttf|otf|eot|mp4|webm)",
+        "source": "**/*.@(jpg|jpeg|gif|png|svg|webp|woff|woff2|ttf|otf|eot|mp4|webm|m4a)",
         "headers": [
           {
             "key": "Cache-Control",

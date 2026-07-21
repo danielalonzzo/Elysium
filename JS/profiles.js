@@ -216,7 +216,13 @@ const i18n = {
 const t = i18n[lang] || i18n.en;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+// Capa sonora (Elysium λ · A01). No-op si el módulo de audio no está cargado.
+function playSound(voice) {
+    if (window.ElysiumAudio) window.ElysiumAudio.play(voice);
+}
+
 function showError(text) {
+    playSound('error');
     if (!errorMsg) return;
     errorMsg.textContent = text;
     errorMsg.classList.remove('hidden');
@@ -1091,6 +1097,7 @@ if (loginForm) {
         const password = document.getElementById('login-password').value;
         try {
             await signInWithEmailAndPassword(auth, email, password);
+            playSound('success');
         } catch (error) {
             showError(lang === 'es' ? 'Credenciales inválidas. Por favor verifica tu correo y contraseña.' :
                       lang === 'pt' ? 'Credenciais inválidas. Por favor verifique o seu email e palavra-passe.' :
@@ -1160,6 +1167,7 @@ if (signupForm) {
 
             // 4. Redirect to dashboard (profiles.html — no onboarding yet)
             // Auth state observer will handle the UI render
+            playSound('success');
             isSigningUp = false;
 
         } catch (error) {
@@ -1219,6 +1227,7 @@ if (prospectForm) {
             prospectForm.reset();
             errorMsg?.classList.add('hidden');
             if (successMsg) successMsg.style.display = 'block';
+            playSound('success');
 
         } catch (error) {
             console.error('Prospect error:', error);

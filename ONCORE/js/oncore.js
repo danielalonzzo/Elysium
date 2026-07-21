@@ -9,13 +9,19 @@
     var PRELOADER_MAX_MS = 5000;
     var startedAt = Date.now();
 
+    // Lança a entrada cénica do hero (títulos, retrato e barra inferior).
+    function revealHero() {
+        if (document.body) document.body.classList.add('hero-ready');
+    }
+
     function hidePreloader() {
         var pre = document.getElementById('oncore-preloader');
-        if (!pre || pre.classList.contains('is-loaded')) return;
+        if (!pre || pre.classList.contains('is-loaded')) { revealHero(); return; }
         var elapsed = Date.now() - startedAt;
         var delay = Math.max(0, PRELOADER_MIN_MS - elapsed);
         setTimeout(function () {
             pre.classList.add('is-loaded');
+            revealHero();
             // Remove do DOM após a transição de 0.8s
             setTimeout(function () { pre.remove(); }, 900);
         }, delay);

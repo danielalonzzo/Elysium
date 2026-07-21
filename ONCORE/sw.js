@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = 'oncore-cache-v10';
+const CACHE_NAME = 'oncore-cache-v14';
 const urlsToCache = [
   '/',
   '/index.html',

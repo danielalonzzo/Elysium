@@ -546,6 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             (err) => {
                 console.error('Upload error:', err);
+                window.ElysiumAudio?.play('error');
                 li.classList.add('upload-error');
                 progressBar.style.width = '0%';
                 alert(t.uploadFailed + file.name);
@@ -647,12 +648,18 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        if (!validateCurrentStep()) return;
+        if (!validateCurrentStep()) {
+            window.ElysiumAudio?.play('error');
+            return;
+        }
 
         if (!currentUser) {
+            window.ElysiumAudio?.play('error');
             alert(t.sessionExpired);
             return;
         }
+
+        let submitted = false;
 
         try {
             submitBtn.disabled = true;
@@ -722,13 +729,22 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('onboarding_data');
             localStorage.removeItem('onboarding_step');
 
-            window.location.href = 'thank-you.html';
+            // Damos margen a que suene la confirmación antes de descargar la
+            // página (la navegación destruye el AudioContext).
+            submitted = true;
+            window.ElysiumAudio?.play('success');
+            setTimeout(() => { window.location.href = 'thank-you.html'; }, 500);
         } catch (error) {
             console.error('Detailed error submitting onboarding:', error);
+            window.ElysiumAudio?.play('error');
             alert(t.submitError + (error.message || 'Unknown error') + t.contactSupport);
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = t.submitLabel;
+            // En caso de éxito el botón sigue bloqueado hasta la redirección,
+            // para que no se pueda reenviar durante esa ventana.
+            if (!submitted) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = t.submitLabel;
+            }
         }
     });
 

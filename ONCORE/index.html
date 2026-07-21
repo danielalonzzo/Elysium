@@ -8,7 +8,7 @@
     <meta name="description" content="O primeiro Cancer Recovery & Survivorship Center privado em Portugal. Recuperação funcional, física e psicológica após o tratamento oncológico. Miraflores, Lisboa.">
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1E2C26">
+    <meta name="theme-color" content="#FBF7F0">
     <link rel="apple-touch-icon" href="images/logo/apple-touch-icon.png">
 
     <!-- Fonts -->
@@ -20,7 +20,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/oncore.css?v=2.0.5">
+    <link rel="stylesheet" href="css/oncore.css?v=2.2.2">
 </head>
 <body>
 
@@ -63,50 +63,80 @@
     <main>
         <!-- ============ 2. HERO — assinatura ONCORE ============ -->
         <section id="inicio" class="hero">
+            <div class="hero-atmos" aria-hidden="true">
+                <span class="hero-glow hero-glow-a"></span>
+                <span class="hero-glow hero-glow-b"></span>
+                <span class="hero-grain"></span>
+            </div>
+
             <div class="container hero-stage">
                 <div class="hero-copy">
-                    <div class="hero-kicker"><span></span> Recover beyond cancer</div>
-                    <h1>Recupere a vida.<br><em>Para além do cancro.</em></h1>
-                    <p class="hero-lead">O primeiro <i>Cancer Recovery &amp; Survivorship Center</i> privado em Portugal. Um lugar onde ciência, movimento e cuidado humano se unem para devolver força, confiança e autonomia.</p>
-                    <div class="hero-actions">
+                    <p class="hero-kicker hero-anim" style="--d: 0.20s"><span></span>Cancer Recovery &amp; Survivorship Center</p>
+                    <h1 class="hero-title">
+                        <span class="hero-title-line"><span style="--d: 0.30s">Recupere a vida.</span></span>
+                        <span class="hero-title-line"><em style="--d: 0.44s">Para além do cancro.</em></span>
+                    </h1>
+                    <p class="hero-lead hero-anim" style="--d: 0.62s">O primeiro centro privado em Portugal dedicado à recuperação depois do cancro. <b>Exercício clínico, fisioterapia oncológica, nutrição e psico-oncologia</b> num só plano, durante e depois do tratamento.</p>
+                    <div class="hero-actions hero-anim" style="--d: 0.74s">
                         <a href="#contactos" class="btn btn-accent">Agendar Avaliação <i data-lucide="arrow-up-right"></i></a>
                         <a href="#jornada" class="hero-secondary-link">Conhecer o percurso <i data-lucide="arrow-down"></i></a>
                     </div>
-                    <div class="hero-proof" aria-label="Diferenciais ONCORE">
-                        <div><strong>360°</strong><span>Avaliação<br>multidisciplinar</span></div>
-                        <div><strong>1:1</strong><span>Plano clínico<br>personalizado</span></div>
-                        <div><strong>ONCORE</strong><span>Ciência com<br>proximidade</span></div>
-                    </div>
+                    <p class="hero-evidence hero-anim" style="--d: 0.84s">
+                        <span class="hero-evidence-label">Prática clínica orientada pelas recomendações</span>
+                        <span class="hero-evidence-logos" aria-label="Referências científicas">
+                            <b>ACSM</b><b>ASCO</b><b>ESMO</b><b>NCCN</b>
+                        </span>
+                    </p>
                 </div>
 
-                <div class="hero-visual" aria-label="Continuidade de cuidados, do tratamento à vida">
-                    <div class="hero-continuum">
-                        <div class="hero-continuum-head">
-                            <span class="hero-continuum-number">01</span>
-                            <span class="hero-continuum-label">Continuidade<br>de cuidados</span>
-                        </div>
-                        <p class="hero-continuum-title">Do tratamento<br>de volta à <em>vida.</em></p>
-                        <p class="hero-continuum-text">Um percurso clínico contínuo, com uma equipa próxima e um plano que evolui consigo em cada etapa.</p>
-                        <div class="hero-continuum-steps" aria-label="Avaliar, personalizar e acompanhar">
-                            <span><b>01</b>Avaliar</span>
-                            <span><b>02</b>Personalizar</span>
-                            <span><b>03</b>Acompanhar</span>
-                        </div>
+                <figure class="hero-portrait hero-anim" style="--d: 0.40s">
+                    <div class="hero-portrait-frame">
+                        <img src="images/oncore_premium_survivor.png" alt="Sobrevivente oncológica a recuperar a sua vida num espaço luminoso e sereno" width="1024" height="1024" fetchpriority="high" decoding="async">
+                        <span class="hero-portrait-veil" aria-hidden="true"></span>
                     </div>
-                    <div class="hero-signal" aria-hidden="true">
-                        <svg viewBox="0 0 720 92" preserveAspectRatio="none">
-                            <path class="signal-base" d="M0 48H218l30-1 19-28 23 58 26-30h114l18-1 15-18 21 38 22-20h234" />
-                            <path class="signal-live" pathLength="1" d="M0 48H218l30-1 19-28 23 58 26-30h114l18-1 15-18 21 38 22-20h234" />
-                        </svg>
-                    </div>
-                    <span class="hero-visual-index" aria-hidden="true">RECOVERY / SURVIVORSHIP</span>
-                </div>
+                    <span class="hero-portrait-index" aria-hidden="true">Recovery / Survivorship</span>
+                    <figcaption class="hero-note">
+                        <p>«Não tratamos o cancro. <em>Ajudamos as pessoas a recuperar dele.</em>»</p>
+                        <cite>A abordagem ONCORE</cite>
+                    </figcaption>
+                </figure>
             </div>
 
-            <div class="container hero-trust">
-                <span class="banner-label">Prática clínica orientada pela evidência e por recomendações internacionais</span>
-                <div class="banner-logos" aria-label="Referências científicas">
-                    <span>ACSM</span><span>ASCO</span><span>ESMO</span><span>NCCN</span>
+            <div class="hero-journey hero-anim" style="--d: 0.96s">
+                <div class="hero-pulse" aria-hidden="true">
+                    <svg viewBox="0 0 1200 80" preserveAspectRatio="none">
+                        <path class="signal-base" d="M0 40H300l18 0 10-26 14 52 12-26H700l16 0 9-18 13 34 11-16H1200" />
+                        <path class="signal-live" pathLength="1" d="M0 40H300l18 0 10-26 14 52 12-26H700l16 0 9-18 13 34 11-16H1200" />
+                    </svg>
+                </div>
+                <div class="container">
+                    <div class="hero-journey-head">
+                        <span class="hero-journey-label">O percurso ONCORE</span>
+                        <span class="hero-journey-note">Um programa clínico para cada fase, do tratamento de volta à vida.</span>
+                    </div>
+                    <ol class="hero-journey-steps">
+                        <li>
+                            <a href="#programas">
+                                <span class="step-phase">Durante o tratamento</span>
+                                <span class="step-name">ONCORE ACTIVE</span>
+                                <span class="step-desc">Exercício clínico supervisionado para reduzir a fadiga e preservar a força.</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#programas">
+                                <span class="step-phase">Pós-tratamento</span>
+                                <span class="step-name">ONCORE RECOVER</span>
+                                <span class="step-desc">Programa intensivo para recuperar capacidade funcional e qualidade de vida.</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#programas">
+                                <span class="step-phase">Longo prazo</span>
+                                <span class="step-name">ONCORE LIFE</span>
+                                <span class="step-desc">Treino, reavaliações e acompanhamento clínico contínuo.</span>
+                            </a>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </section>
@@ -595,7 +625,7 @@
         </div>
     </div>
 
-    <script src="js/oncore.js?v=2.0.3"></script>
+    <script src="js/oncore.js?v=2.2.2"></script>
     <script src="js/version-modal.js?v=1.0.0-beta"></script>
     <script src="js/cookie-consent.js?v=1.0.0-beta"></script>
 
