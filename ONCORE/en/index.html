@@ -44,36 +44,36 @@
     <!-- Juego canónico de favicon (§23.2). Los archivos viven en la raíz del
          dominio, que es donde los navegadores los buscan por convención. -->
     <!-- SVG: escala a cualquier tamaño y se adapta al tema del sistema -->
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/ONCORE/favicon.svg" type="image/svg+xml">
     <!-- PNG de respaldo para navegadores sin soporte SVG -->
-    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
-    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
+    <link rel="icon" href="/ONCORE/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/ONCORE/favicon-16.png" sizes="16x16" type="image/png">
     <!-- ICO en la raíz: lo piden agregadores y navegadores heredados -->
-    <link rel="alternate icon" href="/favicon.ico" sizes="any">
+    <link rel="alternate icon" href="/ONCORE/favicon.ico" sizes="any">
     <!-- iOS: pantalla de inicio. Sin transparencia ni esquinas redondeadas -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <link rel="apple-touch-icon" href="/ONCORE/apple-touch-icon.png" sizes="180x180">
     <!-- Safari: pestaña anclada, silueta monocroma -->
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#27332E">
+    <link rel="mask-icon" href="/ONCORE/safari-pinned-tab.svg" color="#27332E">
     <!-- Android e instalación como app: los iconos van en el manifiesto (F17) -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/ONCORE/manifest.json">
     <!-- Color de la barra del navegador en móvil; F13 lo reescribe según el tema -->
     <meta name="theme-color" content="#FBF7F0">
 
     <!-- F13 Dynamic Theme: se resuelve antes de pintar, sin parpadeo de tema -->
-    <script src="/src/core/theme.js"></script>
+    <script src="/ONCORE/src/core/theme.js"></script>
 
     <!-- F01 Loading Page: en <head>, antes de cualquier hoja de estilo -->
-    <script src="/src/core/elysium-config.js"></script>
-    <script src="/elysium-core/elysium-preloader.js"></script>
+    <script src="/ONCORE/src/core/elysium-config.js"></script>
+    <script src="/ONCORE/elysium-core/elysium-preloader.js"></script>
 
     <!-- Tipografía auto-alojada: sin CDN de terceros (privacidad + CSP estricta) -->
-    <link rel="preload" href="/src/styles/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="/src/styles/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/ONCORE/src/styles/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/ONCORE/src/styles/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="/src/styles/tokens.css">
-    <link rel="stylesheet" href="/src/styles/typography.css">
-    <link rel="stylesheet" href="/src/styles/oncore.css">
+    <link rel="stylesheet" href="/ONCORE/src/styles/tokens.css">
+    <link rel="stylesheet" href="/ONCORE/src/styles/typography.css">
+    <link rel="stylesheet" href="/ONCORE/src/styles/oncore.css">
 
     <script type="application/ld+json">
     {
@@ -301,8 +301,8 @@
                     <div class="hero-portrait-frame">
                         <video
                             class="hero-portrait-media" data-loop-video
-                            src="/images/video-portada.mp4"
-                            poster="/images/video-portada-poster.jpg"
+                            src="/ONCORE/images/video-portada.mp4"
+                            poster="/ONCORE/images/video-portada-poster.jpg"
                             width="1280" height="720"
                             autoplay muted loop playsinline
                             disablepictureinpicture disableremoteplayback
@@ -405,8 +405,8 @@
         <section id="sobre" class="about-section">
             <div class="container about-grid">
                 <div class="about-media">
-                    <div class="about-img main"><img src="/images/oncore_premium_survivor.jpg" alt="Survivor with vitality and health" width="1024" height="1024" loading="lazy" decoding="async"><video class="about-media-video" data-loop-video src="/images/video-portada.mp4" poster="/images/video-portada-poster.jpg" width="1280" height="720" autoplay muted loop playsinline disablepictureinpicture disableremoteplayback preload="metadata" tabindex="-1" role="img" aria-label="Two people in cancer recovery talking on a bench in the ONCORE garden"></video></div>
-                    <div class="about-img float"><img src="/images/oncore_premium_clinic.jpg" alt="Premium non-hospital environment of ONCORE" width="417" height="418" loading="lazy" decoding="async"></div>
+                    <div class="about-img main"><img src="/ONCORE/images/oncore_premium_survivor.jpg" alt="Survivor with vitality and health" width="1024" height="1024" loading="lazy" decoding="async"><video class="about-media-video" data-loop-video src="/ONCORE/images/video-portada.mp4" poster="/ONCORE/images/video-portada-poster.jpg" width="1280" height="720" autoplay muted loop playsinline disablepictureinpicture disableremoteplayback preload="metadata" tabindex="-1" role="img" aria-label="Two people in cancer recovery talking on a bench in the ONCORE garden"></video></div>
+                    <div class="about-img float"><img src="/ONCORE/images/oncore_premium_clinic.jpg" alt="Premium non-hospital environment of ONCORE" width="417" height="418" loading="lazy" decoding="async"></div>
                     <div class="about-stat">
                         <strong>+450.000</strong>
                         <span>people live after a cancer diagnosis in Portugal</span>
@@ -667,7 +667,7 @@
                         <p class="form-note"><i data-lucide="shield-check"></i>For your security, avoid sending sensitive clinical information in this first contact.</p>
                         <label class="form-consent">
                             <input type="checkbox" id="contact-consent" name="consent" required>
-                            <span>I authorize ONCORE to contact me in response to my request and confirm that I have read the <a href="/en/privacy-policy.html">Privacy Policy</a>.</span>
+                            <span>I authorize ONCORE to contact me in response to my request and confirm that I have read the <a href="/ONCORE/en/privacy-policy.html">Privacy Policy</a>.</span>
                         </label>
                     </div>
 
@@ -752,7 +752,7 @@
                     <p>An integrated platform for recovery, training, and research.</p>
                 </div>
                 <a class="eco-card" href="mailto:info@oncore.pt?subject=ONCORE%20Academy">
-                    <div class="eco-img"><img src="/images/oncore_premium_academy.jpg" alt="ONCORE Academy" width="275" height="419" loading="lazy" decoding="async"></div>
+                    <div class="eco-img"><img src="/ONCORE/images/oncore_premium_academy.jpg" alt="ONCORE Academy" width="275" height="419" loading="lazy" decoding="async"></div>
                     <div class="eco-body">
                         <h3>ONCORE Academy</h3>
                         <p>Certified training in Cancer Exercise, Rehabilitation &amp; Survivorship for health and exercise professionals.</p>
@@ -760,7 +760,7 @@
                     </div>
                 </a>
                 <a class="eco-card" href="mailto:info@oncore.pt?subject=ONCORE%20Research%20Institute">
-                    <div class="eco-img"><img src="/images/oncore_premium_research.jpg" alt="ONCORE Research Institute" width="278" height="417" loading="lazy" decoding="async"></div>
+                    <div class="eco-img"><img src="/ONCORE/images/oncore_premium_research.jpg" alt="ONCORE Research Institute" width="278" height="417" loading="lazy" decoding="async"></div>
                     <div class="eco-body">
                         <h3>ONCORE Research Institute</h3>
                         <p>Production of science, Artificial Intelligence, and Real-World Evidence applied to oncology recovery.</p>
@@ -815,8 +815,8 @@
                 <div class="footer-legal">
                     <span>&copy; 2026 ONCORE — Cancer Recovery &amp; Survivorship Center. All rights reserved.</span>
                     <span class="legal-links">
-                        <a href="/en/privacy-policy.html">Privacy Policy</a> |
-                        <a href="/en/cookie-policy.html">Cookie Policy</a> |
+                        <a href="/ONCORE/en/privacy-policy.html">Privacy Policy</a> |
+                        <a href="/ONCORE/en/cookie-policy.html">Cookie Policy</a> |
                         <button type="button" class="legal-cookie-btn" data-cookie-settings>Cookie settings</button> |
                         <a href="https://www.livroreclamacoes.pt/pedido/reclamacao" target="_blank" rel="noopener noreferrer">Complaints Book</a>
                     </span>
@@ -829,7 +829,7 @@
     <!-- ONCORE DOCK -->
     <div class="oncore-dock">
         <div class="dock-items">
-            <a href="/" class="dock-item" data-tooltip="Português" data-lang-toggle hreflang="pt-PT">
+            <a href="/ONCORE/" class="dock-item" data-tooltip="Português" data-lang-toggle hreflang="pt-PT">
                 <span class="dock-lang">PT</span>
             </a>
             <button type="button" class="dock-item dock-theme" data-theme-toggle data-mode="auto" aria-label="Theme: automatic" data-tooltip="Theme: automatic">
@@ -848,35 +848,35 @@
     </div>
 
     <!-- Iconos auto-alojados (subconjunto local de Lucide) -->
-    <script src="/src/vendor/lucide-icons.js" defer></script>
+    <script src="/ONCORE/src/vendor/lucide-icons.js" defer></script>
 
     <!-- F15 Multi-language -->
-    <script src="/src/core/i18n.js" defer></script>
+    <script src="/ONCORE/src/core/i18n.js" defer></script>
 
     <!-- Capa de interfaz: F02, F03, F04, F09 -->
-    <script src="/src/ui/header.js" defer></script>
-    <script src="/src/ui/scroll-reveal.js" defer></script>
-    <script src="/src/ui/anchor-glide.js" defer></script>
-    <script src="/src/ui/magic-bottom.js" defer></script>
-    <script src="/src/ui/loop-video.js" defer></script>
+    <script src="/ONCORE/src/ui/header.js" defer></script>
+    <script src="/ONCORE/src/ui/scroll-reveal.js" defer></script>
+    <script src="/ONCORE/src/ui/anchor-glide.js" defer></script>
+    <script src="/ONCORE/src/ui/magic-bottom.js" defer></script>
+    <script src="/ONCORE/src/ui/loop-video.js" defer></script>
 
     <!-- Módulos del cliente -->
-    <script src="/src/features/testimonials.js" defer></script>
-    <script src="/src/features/faq.js" defer></script>
-    <script src="/src/features/glossary.js" defer></script>
-    <script src="/src/features/contact-form.js" defer></script>
-    <script src="/src/features/multi-currency.js" defer></script>
+    <script src="/ONCORE/src/features/testimonials.js" defer></script>
+    <script src="/ONCORE/src/features/faq.js" defer></script>
+    <script src="/ONCORE/src/features/glossary.js" defer></script>
+    <script src="/ONCORE/src/features/contact-form.js" defer></script>
+    <script src="/ONCORE/src/features/multi-currency.js" defer></script>
 
     <!-- F05 Information System + F06 System Update -->
-    <script src="/elysium-core/elysium-system-info.js" defer></script>
+    <script src="/ONCORE/elysium-core/elysium-system-info.js" defer></script>
 
     <!-- F08 Cookies Management -->
-    <script src="/elysium-core/elysium-compliance.js" defer></script>
+    <script src="/ONCORE/elysium-core/elysium-compliance.js" defer></script>
 
     <!-- Arranque -->
-    <script src="/src/core/app.js" defer></script>
+    <script src="/ONCORE/src/core/app.js" defer></script>
 
     <!-- F17 Web App Downloader -->
-    <script src="/src/core/register-sw.js" defer></script>
+    <script src="/ONCORE/src/core/register-sw.js" defer></script>
 </body>
 </html>

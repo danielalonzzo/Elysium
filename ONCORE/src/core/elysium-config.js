@@ -32,7 +32,7 @@
     var isEnglish = lang.indexOf('en') === 0;
 
     /** Raíz del árbol de idioma actual, para resolver rutas legales reales. */
-    var ROOT = isEnglish ? '/en/' : '/';
+    var ROOT = isEnglish ? '/ONCORE/en/' : '/ONCORE/';
 
     /** Acento de marca (terracota ONCORE, espejo de `--terracotta`). */
     var ACCENT = '#C1683F';
@@ -78,7 +78,7 @@
             // términos y condiciones, y el estándar prohíbe enlazar a '#'.
             privacy: ROOT + 'privacy-policy.html'
         },
-        healthEndpoint: '/manifest.json',
+        healthEndpoint: '/ONCORE/manifest.json',
         compliance: {
             privacyDirective: isEnglish
                 ? 'ePrivacy Directive · Cookie Consent v1.0'

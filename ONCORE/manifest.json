@@ -4,9 +4,9 @@
   "description": "Centro privado de recuperação após o cancro em Miraflores, Lisboa. Exercício clínico, fisioterapia oncológica, nutrição e psico-oncologia.",
   "lang": "pt-PT",
   "dir": "ltr",
-  "id": "/",
-  "start_url": "/",
-  "scope": "/",
+  "id": "/ONCORE/",
+  "start_url": "/ONCORE/",
+  "scope": "/ONCORE/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#FBF7F0",
@@ -18,19 +18,19 @@
   ],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/ONCORE/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/ONCORE/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512-maskable.png",
+      "src": "/ONCORE/icon-512-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -40,12 +40,12 @@
     {
       "name": "Agendar Avaliação",
       "short_name": "Agendar",
-      "url": "/#contactos"
+      "url": "/ONCORE/#contactos"
     },
     {
       "name": "Programas Clínicos",
       "short_name": "Programas",
-      "url": "/#programas"
+      "url": "/ONCORE/#programas"
     }
   ]
 }

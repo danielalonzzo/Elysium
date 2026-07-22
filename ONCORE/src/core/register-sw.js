@@ -20,7 +20,7 @@
     if (!('serviceWorker' in navigator)) return;
 
     window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        navigator.serviceWorker.register('/ONCORE/sw.js', { scope: '/ONCORE/' })
             .catch(function (error) {
                 if (window.console) console.warn('[F17] no se pudo registrar el Service Worker:', error);
             });

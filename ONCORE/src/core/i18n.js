@@ -32,7 +32,7 @@
     var STORAGE_KEY = 'lang_pref';
 
     /** Prefijo de ruta del árbol en inglés. */
-    var EN_PREFIX = '/en/';
+    var EN_PREFIX = '/ONCORE/en/';
 
     /** Idiomas de navegador que resuelven hacia el árbol portugués. */
     var LOCAL_PREFIXES = ['pt', 'es', 'gl', 'ca', 'fr', 'it', 'ro'];
@@ -41,7 +41,7 @@
     var LOCAL_LANG = 'pt';
 
     var path = window.location.pathname;
-    var onEnglish = path === '/en' || path.indexOf(EN_PREFIX) === 0;
+    var onEnglish = path === '/ONCORE/en' || path.indexOf(EN_PREFIX) === 0;
 
     /**
      * Traduce una ruta al otro árbol de idioma.
@@ -50,12 +50,12 @@
      * @returns {string} Ruta equivalente en el idioma pedido.
      */
     function translatePath(currentPath, toEnglish) {
-        var bare = (currentPath === '/en' || currentPath.indexOf(EN_PREFIX) === 0)
-            ? '/' + currentPath.replace(/^\/en\/?/, '')
+        var bare = (currentPath === '/ONCORE/en' || currentPath.indexOf(EN_PREFIX) === 0)
+            ? '/ONCORE/' + currentPath.replace(/^\/en\/?/, '')
             : currentPath;
 
-        if (!toEnglish) return bare || '/';
-        return bare === '/' ? EN_PREFIX : EN_PREFIX + bare.replace(/^\//, '');
+        if (!toEnglish) return bare || '/ONCORE/';
+        return bare === '/ONCORE/' ? EN_PREFIX : EN_PREFIX + bare.replace(/^\//, '');
     }
 
     /**
@@ -98,7 +98,7 @@
     // ya eligió idioma o llegó con `?lang=` explícito.
     var explicit = /[?&]lang=/.test(window.location.search);
     var pref = storedPref();
-    var isDocument = path === '/' || path === '/en' || /\/$|\.html$/.test(path);
+    var isDocument = path === '/ONCORE/' || path === '/ONCORE/en' || /\/$|\.html$/.test(path);
 
     if (explicit) {
         savePref(current());
