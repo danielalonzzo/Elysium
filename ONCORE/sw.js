@@ -1,41 +1,110 @@
-// sw.js
-const CACHE_NAME = 'oncore-cache-v14';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/css/oncore.css',
-  '/js/oncore.js',
-  '/js/version-modal.js',
-  '/css/style.css',
-  '/js/script.js',
-  '/js/theme.js'
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ *  F17 · WEB APP DOWNLOADER — Service Worker de ONCORE
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ *  Estrategia stale-while-revalidate: sirve la caché de inmediato y actualiza
+ *  en segundo plano, de modo que el sitio arranca al instante y tolera cortes
+ *  de red sin quedarse congelado en una versión antigua.
+ *
+ *  Este archivo se sirve con `Cache-Control: no-store` (regla del Security
+ *  Core, F07) para que cada despliegue llegue siempre al dispositivo.
+ *
+ *  Zero-dependency.
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+/** Nombre de la caché. Cambiarlo invalida por completo la anterior. */
+const CACHE = 'oncore-cache-v19';
+
+/**
+ * Recursos del arranque en ambos idiomas. Solo lo imprescindible para pintar:
+ * las fuentes y las fotografías entran en caché al usarse, no en la instalación.
+ */
+const PRECACHE = [
+    '/',
+    '/index.html',
+    '/en/',
+    '/en/index.html',
+    '/manifest.json',
+    '/favicon.svg',
+    '/favicon-32.png',
+    '/src/styles/tokens.css',
+    '/src/styles/typography.css',
+    '/src/styles/oncore.css',
+    '/src/core/theme.js',
+    '/src/core/elysium-config.js',
+    '/src/core/app.js',
+    '/src/core/i18n.js',
+    '/src/core/register-sw.js',
+    '/src/vendor/lucide-icons.js',
+    '/src/ui/header.js',
+    '/src/ui/scroll-reveal.js',
+    '/src/ui/anchor-glide.js',
+    '/src/ui/magic-bottom.js',
+    '/src/ui/loop-video.js',
+    '/src/features/testimonials.js',
+    '/src/features/faq.js',
+    '/src/features/glossary.js',
+    '/src/features/contact-form.js',
+    '/src/features/multi-currency.js',
+    '/elysium-core/elysium-preloader.js',
+    '/elysium-core/elysium-system-info.js',
+    '/elysium-core/elysium-compliance.js'
 ];
 
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
-    )
-  );
+self.addEventListener('install', event => {
+    // Un recurso caído no debe impedir la instalación del resto.
+    event.waitUntil(
+        caches.open(CACHE)
+            .then(cache => Promise.allSettled(PRECACHE.map(url => cache.add(url))))
+            .then(() => self.skipWaiting())
+    );
 });
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
-  );
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys()
+            .then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
+            .then(() => self.clients.claim())
+    );
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
+    const request = event.request;
+
+    if (request.method !== 'GET') return;
+
+    // Solo se cachea lo propio: nada de terceros ni de otros orígenes.
+    const url = new URL(request.url);
+    if (url.origin !== self.location.origin) return;
+
+    // El vídeo del hero se sirve por rangos: el navegador pide trozos con la
+    // cabecera `Range` y recibe un 206 Partial Content. Guardar ese trozo en
+    // caché y devolverlo después como si fuera el archivo completo deja el
+    // vídeo cortado o sin reproducir, así que el medio se deja pasar directo a
+    // la red — el hosting ya lo sirve con caché de un año (F07).
+    if (request.headers.has('range') || request.destination === 'video' || request.destination === 'audio') {
+        return;
+    }
+
+    event.respondWith(
+        caches.match(request).then(cached => {
+            const fresh = fetch(request).then(response => {
+                // Solo el 200 completo entra en caché; un 206 nunca.
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const copy = response.clone();
+                    caches.open(CACHE).then(cache => cache.put(request, copy));
+                }
+                return response;
+            }).catch(() => cached);
+
+            return cached || fresh;      // caché al instante, red en segundo plano
+        })
+    );
+});
+
+self.addEventListener('message', event => {
+    // F06 System Update pide al Service Worker que ceda el paso de inmediato.
+    if (event.data === 'skipWaiting') self.skipWaiting();
 });

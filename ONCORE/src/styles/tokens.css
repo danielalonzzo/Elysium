@@ -1,0 +1,143 @@
+/* ==========================================================================
+   F13 · DYNAMIC THEME  +  F14 · THEME SWITCHER — tokens de diseño de ONCORE
+   ==========================================================================
+
+   Punto único de verdad del color. `src/core/theme.js` fija `data-theme` en
+   `<html>` antes de pintar, de modo que no existe ningún fotograma con el tema
+   equivocado.
+
+   Convención de los canales `--*-rgb`: existen para poder aplicar alfa sobre un
+   color tematizable (`rgba(var(--ink-rgb), 0.12)`). Sin ellos, cada capa
+   translúcida quedaría clavada a la paleta clara.
+
+   Cuatro canales tienen un papel semántico que conviene no confundir:
+
+     --surface-rgb    cristal claro sobre la página (tarjetas esmeriladas)
+     --highlight-rgb  realce luminoso SOBRE superficie oscura (dock, header)
+     --shadow-rgb     sombras proyectadas; en oscuro son negras, nunca claras
+     --on-inverse-rgb texto y filetes sobre las bandas oscuras
+
+   Contraste: todos los pares texto/fondo de ambos temas se han verificado
+   contra WCAG 2.1 AA (4.5:1 en texto normal, 3:1 en componentes de interfaz).
+   Por eso `--accent-text` no es el terracota de marca: `#C1683F` sobre crema
+   da 3.7:1 e incumple AA, y el `#A85433` de la paleta se queda en 4.08:1 sobre
+   la arena `--sand`, que es donde vive la mitad de los `.eyebrow`. El terracota
+   de marca se conserva para rellenos decorativos, donde el umbral es 3:1.
+   ========================================================================== */
+
+:root,
+:root[data-theme="light"] {
+    /* Paleta quente e orgânica */
+    --cream: #FBF7F0;             /* fundo principal, branco quente */
+    --sand: #F1E7D8;              /* superfícies suaves */
+    --sand-deep: #E7D9C3;
+    --ink: #27332E;               /* verde-carvão profundo (texto) */
+    --ink-soft: #55625C;
+    --ink-hover: #1C2622;
+    --terracotta: #C1683F;        /* acento de marca — preenchimento decorativo */
+    --terracotta-dark: #A85433;
+    --accent-text: #A04E2E;       /* acento em texto e CTA — AA sobre creme (5.43:1) e areia (4.74:1) */
+    --on-accent: #FFFFFF;         /* texto sobre --accent-text */
+    --gold: #D9A96B;              /* detalhe dourado */
+    --gold-deep: #D29D5B;
+    --sage: #B8C7BB;              /* verde salva suave */
+    --sage-deep: #8FA98F;
+    --mist: #A9BFC6;              /* azul sereno */
+
+    /* Superfícies */
+    --surface: #FFFFFF;           /* cartões e painéis */
+    --surface-inverse: #27332E;   /* faixas escuras (referenciação, footer) */
+    --on-inverse: #FBF7F0;        /* texto sobre as faixas escuras */
+
+    /* Degradê do hero: a luz quente da marca a descer pela dobra */
+    --hero-mid: #F8F1E6;
+    --hero-end: #F5EDE0;
+
+    /* Canais RGB para camadas translúcidas */
+    --ink-rgb: 39, 51, 46;
+    --ink-soft-rgb: 85, 98, 92;
+    --terracotta-rgb: 193, 104, 63;
+    --gold-rgb: 217, 169, 107;
+    --sage-rgb: 184, 199, 187;
+    --mist-rgb: 169, 191, 198;
+    --sand-rgb: 241, 231, 216;
+    --sand-deep-rgb: 231, 217, 195;
+    --surface-rgb: 255, 255, 255;
+    --surface-inverse-rgb: 39, 51, 46;
+    --on-inverse-rgb: 251, 247, 240;
+    --highlight-rgb: 255, 255, 255;
+    --shadow-rgb: 39, 51, 46;
+
+    color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+    /* A noite da ONCORE: o mesmo verde-carvão da marca, agora como fundo. */
+    --cream: #141A17;             /* fundo principal */
+    --sand: #1B231F;              /* superfícies suaves */
+    --sand-deep: #232C27;
+    --ink: #EDE7DC;               /* texto (14.3:1 sobre o fundo) */
+    --ink-soft: #A7B2AA;          /* texto secundário (8.0:1) */
+    --ink-hover: #F5F1E8;
+    --terracotta: #D98159;
+    --terracotta-dark: #C1683F;
+    --accent-text: #E39069;       /* 7.1:1 sobre o fundo */
+    --on-accent: #141A17;         /* texto escuro sobre o acento claro */
+    --gold: #E0BE86;              /* 10.0:1 sobre o fundo */
+    --gold-deep: #CBA86F;
+    --sage: #7E9384;
+    --sage-deep: #6B8071;
+    --mist: #7F9AA2;
+
+    /* Superfícies */
+    --surface: #1E2823;           /* cartões e painéis */
+    --surface-inverse: #0E1311;   /* faixas: mais fundas que a página */
+    --on-inverse: #EDE7DC;
+
+    /* O degradê do hero desce para o escuro, não para o creme */
+    --hero-mid: #171E1A;
+    --hero-end: #1A221D;
+
+    /* Canais RGB para camadas translúcidas */
+    --ink-rgb: 237, 231, 220;
+    --ink-soft-rgb: 167, 178, 170;
+    --terracotta-rgb: 217, 129, 89;
+    --gold-rgb: 224, 190, 134;
+    --sage-rgb: 126, 147, 132;
+    --mist-rgb: 127, 154, 162;
+    --sand-rgb: 27, 35, 31;
+    --sand-deep-rgb: 35, 44, 39;
+    --surface-rgb: 30, 40, 35;
+    --surface-inverse-rgb: 14, 19, 17;
+    --on-inverse-rgb: 237, 231, 220;
+    --highlight-rgb: 237, 231, 220;
+    --shadow-rgb: 0, 0, 0;        /* as sombras nunca iluminam */
+
+    color-scheme: dark;
+}
+
+/* ---------- Tipografia, formas e medidas (comuns aos dois temas) ---------- */
+:root {
+    --font-heading: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --radius-lg: 32px;
+    --radius-md: 20px;
+    --radius-sm: 12px;
+    --shadow-soft: 0 20px 60px -30px rgba(var(--shadow-rgb), 0.35);
+    --shadow-card: 0 12px 40px -20px rgba(var(--shadow-rgb), 0.25);
+    --container: 1180px;
+}
+
+/* As imagens fotográficas suavizam-se no tema escuro para não ofuscar. */
+:root[data-theme="dark"] img:not([src$=".svg"]) {
+    filter: brightness(0.88) contrast(1.02);
+}
+
+/* A troca de tema não deve piscar nem arrastar transições de cor por toda a
+   página; anima-se só o essencial e nunca com movimento reduzido ativo. */
+@media (prefers-reduced-motion: no-preference) {
+    body {
+        transition: background-color 0.4s ease, color 0.4s ease;
+    }
+}

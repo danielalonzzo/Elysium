@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!--
+    ONCORE — separador fixado do Safari.
+
+    Silhueta monocroma numa única cor preta e sem fundo: o Safari ignora as
+    cores do ficheiro e recolore a forma com o valor de `color` declarado na
+    etiqueta `mask-icon`. Por isso aqui não há pastilha nem tema — só o traço.
+
+    O `viewBox` de 16×16 é o que a Apple documenta para este ficheiro.
+  -->
+  <path d="M13.6 8h-2.07l-1.6 4.67L6.4 3.33 4.8 8H2.4"
+        fill="none" stroke="#000000" stroke-width="1.7"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

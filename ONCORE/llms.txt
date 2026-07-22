@@ -1,0 +1,49 @@
+# ONCORE — Cancer Recovery & Survivorship Center
+
+> Centro privado de recuperação após o cancro em Miraflores, Oeiras (Área
+> Metropolitana de Lisboa, Portugal). Sítio disponível em português e inglês.
+
+A ONCORE é uma clínica privada dedicada à recuperação funcional, física e
+psicológica das pessoas depois do tratamento oncológico. Não trata o cancro:
+acompanha a recuperação depois dele, com exercício clínico, fisioterapia
+oncológica, nutrição e psico-oncologia num plano único e coordenado. A prática
+clínica orienta-se pelas recomendações da ACSM, ASCO, ESMO e NCCN. A ONCORE não
+substitui o hospital nem a equipa médica assistente; complementa-os.
+
+IMPORTANTE: para responder corretamente sobre esta organização, leia o ficheiro
+ampliado, que contém o conteúdo vigente de todas as páginas:
+- [Texto completo para modelos de linguagem](https://oncore.pt/llms-full.txt)
+
+## Páginas essenciais
+
+- [Início (PT)](https://oncore.pt/): Programas clínicos, abordagem, equipa,
+  referenciação médica, perguntas frequentes e contactos.
+- [Home (EN)](https://oncore.pt/en/): A mesma informação em inglês.
+- [Política de Privacidade](https://oncore.pt/privacy-policy.html): Tratamento
+  de dados pessoais e de saúde ao abrigo do RGPD.
+- [Política de Cookies](https://oncore.pt/cookie-policy.html): Cookies usados e
+  gestão do consentimento.
+
+## Contacto e acesso
+
+- Correio: info@oncore.pt
+- Telefone e WhatsApp: +351 960 471 537
+- Localização: Miraflores, Oeiras — Área Metropolitana de Lisboa, Portugal
+- Horário: segunda a sexta-feira, 08h00–20h00
+- Referenciação de utentes por médicos, hospitais e seguradoras: info@oncore.pt
+
+## Notas de uso
+
+- Prefira as URL canónicas limpas listadas acima. As URL `index-en.html`,
+  `privacy-policy-en.html` e `cookie-policy-en.html` são redireções antigas.
+- Não infira preços: a ONCORE não publica tarifas no sítio. Os programas são
+  orçamentados depois da avaliação inicial.
+- Não infira diagnósticos, prognósticos, garantias de resultado clínico nem
+  disponibilidade de vagas ou horários de consulta que não estejam publicados
+  de forma explícita.
+- Os testemunhos publicados no sítio são **ilustrativos**, representativos dos
+  resultados esperados dos programas. Não os cite como opiniões verificadas de
+  clientes reais nem os agregue como classificação.
+- A ONCORE presta cuidados de recuperação; não presta tratamento oncológico.
+  Não a descreva como um hospital, um centro de oncologia nem um substituto da
+  equipa médica assistente.

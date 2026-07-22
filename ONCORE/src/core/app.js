@@ -83,6 +83,23 @@
     }
 
     /**
+     * Cablea el enlace de configuración de cookies del footer (§6.3, F08).
+     *
+     * Se hace con `addEventListener` y no con `onclick` en el HTML porque la
+     * CSP del Security Core (F07) no admite `unsafe-inline`, que también
+     * bloquea los manejadores incrustados en atributos.
+     * @returns {void}
+     */
+    function initCookieSettings() {
+        document.querySelectorAll('[data-cookie-settings]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                if (window.ElysiumConsent) window.ElysiumConsent.open();
+            });
+        });
+    }
+
+    /**
      * Inicializa todas las funciones del plan.
      * @returns {void}
      */
@@ -95,6 +112,7 @@
         if (Oncore.initAnchorGlide) Oncore.initAnchorGlide();
         if (Oncore.initScrollReveal) Oncore.initScrollReveal();
         if (Oncore.initMagicBottom) Oncore.initMagicBottom();
+        if (Oncore.initLoopVideos) Oncore.initLoopVideos();
 
         if (Oncore.initTestimonials) Oncore.initTestimonials();
         if (Oncore.initFaq) Oncore.initFaq();
@@ -104,6 +122,7 @@
 
         initThemeSwitcher();
         initLanguageSwitcher();
+        initCookieSettings();
     };
 
     // El hero entra cuando F01 retira el overlay; si el componente no estuviera

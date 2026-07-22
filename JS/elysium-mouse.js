@@ -55,13 +55,21 @@
     function injectStyles() {
         if (document.getElementById(STYLE_ID)) return;
         var css =
-        'html.ely-cursor-active, html.ely-cursor-active * { cursor: none !important; }' +
+        'html.ely-cursor-active, html.ely-cursor-active body, ' +
+        'html.ely-cursor-active *, html.ely-cursor-active *::before, ' +
+        'html.ely-cursor-active *::after, html.ely-cursor-active *:hover, ' +
+        'html.ely-cursor-active *:active, html.ely-cursor-active *:focus, ' +
+        'html.ely-cursor-active *:visited { ' +
+        ' cursor: none !important; }' +
+
+        '.ely-cursor, .ely-cursor *, .ely-cursor-dot, .ely-cursor-breath, .ely-cursor-comet {' +
+        ' pointer-events: none !important; }' +
 
         '.ely-cursor { position: fixed; top: 0; left: 0; width: 0; height: 0;' +
-        ' pointer-events: none; z-index: 2147483646; }' +
+        ' z-index: 2147483646; transition: opacity .2s ease; }' +
 
         '.ely-cursor-dot, .ely-cursor-breath, .ely-cursor-comet {' +
-        ' position: fixed; top: 0; left: 0; pointer-events: none;' +
+        ' position: fixed; top: 0; left: 0;' +
         ' will-change: transform; }' +
 
         /* Núcleo (punto / lambda) */
@@ -96,7 +104,7 @@
         '.ely-cursor.is-idle .ely-cursor-breath-core { animation: ely-breathe 3.4s ease-in-out infinite; }' +
 
         /* Clic (onda de choque) — posiciona con left/top, anima con transform */
-        '.ely-ripple { position: fixed; pointer-events: none; z-index: 4;' +
+        '.ely-ripple { position: fixed; pointer-events: none !important; z-index: 4;' +
         ' width: var(--ely-ring, 40px); height: var(--ely-ring, 40px);' +
         ' margin-left: calc(var(--ely-ring, 40px) / -2); margin-top: calc(var(--ely-ring, 40px) / -2);' +
         ' border: 1.5px solid var(--ely-accent, #2997ff); border-radius: 50%;' +
@@ -158,9 +166,27 @@
     }
 
     /* ---- Manejadores ------------------------------------------------------ */
+    function onLeave() {
+        if (root) root.style.opacity = '0';
+    }
+
+    function onEnter() {
+        if (root) root.style.opacity = '1';
+    }
+
+    function onDragStart(e) {
+        var target = e.target;
+        // Solo previene el arrastre de imágenes para no bloquear la selección de texto
+        if (target && target.tagName === 'IMG') {
+            e.preventDefault();
+        }
+    }
+
     function onMove(e) {
         mouseX = e.clientX;
         mouseY = e.clientY;
+        if (root && root.style.opacity === '0') root.style.opacity = '1';
+
         // Núcleo y respiración: seguimiento inmediato (sin lerp) vía transform
         var pos = translate(mouseX, mouseY);
         dot.style.transform = pos;
@@ -182,16 +208,23 @@
     }
 
     function onDown(e) {
-        var ripple = document.createElement('div');
-        ripple.className = 'ely-ripple';
-        ripple.style.left = e.clientX + 'px';
-        ripple.style.top = e.clientY + 'px';
-        root.appendChild(ripple);
-        var remove = function () {
-            if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
-        };
-        ripple.addEventListener('animationend', remove);
-        setTimeout(remove, 600); // respaldo si el evento no dispara
+        if (root && root.style.opacity === '0') root.style.opacity = '1';
+        var cx = e.clientX, cy = e.clientY;
+
+        // Diferir la creación del ripple a rAF para NO mutar el DOM durante mousedown y permitir selección de texto nativa
+        requestAnimationFrame(function () {
+            if (!root) return;
+            var ripple = document.createElement('div');
+            ripple.className = 'ely-ripple';
+            ripple.style.left = cx + 'px';
+            ripple.style.top = cy + 'px';
+            root.appendChild(ripple);
+            var remove = function () {
+                if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+            };
+            ripple.addEventListener('animationend', remove);
+            setTimeout(remove, 600);
+        });
     }
 
     /* ---- Bucle de animación — cinemática del aura-cometa ------------------ *
@@ -230,6 +263,8 @@
 
         document.addEventListener('mousemove', onMove, { passive: true });
         document.addEventListener('mousedown', onDown, { passive: true });
+        document.addEventListener('mouseleave', onLeave, { passive: true });
+        document.addEventListener('mouseenter', onEnter, { passive: true });
 
         mounted = true;
         scheduleIdle();
@@ -243,6 +278,8 @@
 
         document.removeEventListener('mousemove', onMove);
         document.removeEventListener('mousedown', onDown);
+        document.removeEventListener('mouseleave', onLeave);
+        document.removeEventListener('mouseenter', onEnter);
 
         document.documentElement.classList.remove('ely-cursor-active');
         if (root && root.parentNode) root.parentNode.removeChild(root);

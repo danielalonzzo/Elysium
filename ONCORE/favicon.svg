@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img" aria-label="ONCORE">
+  <!--
+    ONCORE — favicon vectorial.
+
+    Não é o logótipo reduzido: a 16 px o texto «ONCORE» seria uma mancha. É o
+    isótipo, o traço de pulso da marca, dentro de uma pastilha que lhe garante
+    fundo próprio e o torna legível sobre qualquer barra de separadores.
+
+    A pastilha inverte-se com o tema do sistema. Em claro é o verde-carvão da
+    marca; em escuro passa a creme, porque um quadrado #27332E sobre uma barra
+    de separadores escura desapareceria. O traço acompanha, mantendo sempre
+    contraste suficiente contra o seu próprio fundo.
+  -->
+  <style>
+    .ely-bg   { fill: #27332E; }
+    .ely-mark { stroke: #D9A96B; }
+    @media (prefers-color-scheme: dark) {
+      .ely-bg   { fill: #EDE7DC; }
+      .ely-mark { stroke: #A04E2E; }
+    }
+  </style>
+  <rect class="ely-bg" width="24" height="24" rx="5.2"/>
+  <path class="ely-mark" d="M20.4 12h-3.1l-2.4 7L9.6 5l-2.4 7H3.6"
+        fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

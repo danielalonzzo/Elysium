@@ -1,21 +1,51 @@
 {
-  "name": "ONCORE - Cancer Recovery & Performance Center",
+  "name": "ONCORE — Cancer Recovery & Survivorship Center",
   "short_name": "ONCORE",
+  "description": "Centro privado de recuperação após o cancro em Miraflores, Lisboa. Exercício clínico, fisioterapia oncológica, nutrição e psico-oncologia.",
+  "lang": "pt-PT",
+  "dir": "ltr",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#0B0B0B",
-  "theme_color": "#D4AF37",
-  "description": "O primeiro centro premium em Portugal totalmente dedicado à recuperação integrada do sobrevivente oncológico.",
+  "orientation": "portrait-primary",
+  "background_color": "#FBF7F0",
+  "theme_color": "#FBF7F0",
+  "categories": [
+    "health",
+    "medical",
+    "lifestyle"
+  ],
   "icons": [
     {
-      "src": "/images/logo/icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/images/logo/icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Agendar Avaliação",
+      "short_name": "Agendar",
+      "url": "/#contactos"
+    },
+    {
+      "name": "Programas Clínicos",
+      "short_name": "Programas",
+      "url": "/#programas"
     }
   ]
 }

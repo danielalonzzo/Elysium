@@ -26,7 +26,8 @@
     if (!('AudioContext' in window || 'webkitAudioContext' in window)) return;
 
     var STORE_KEY = 'ely-audio-muted';
-    var MASTER_VOLUME = 0.6;
+    var STORE_VOL_KEY = 'ely-audio-volume';
+    var volumeLevel = readVolume(); // 0.0 to 1.0
 
     /* Ganancia por voz — compensa el nivel de cada sample.
      * 'void' suena en casi cada click, así que va deliberadamente más abajo. */
@@ -51,13 +52,22 @@
     var muted = readMuted();
     var resumed = false;
 
-    /* ---- Persistencia del mute ------------------------------------------- */
+    /* ---- Persistencia del mute y volumen --------------------------------- */
     function readMuted() {
         try { return localStorage.getItem(STORE_KEY) === '1'; }
         catch (e) { return false; }
     }
     function writeMuted(v) {
         try { localStorage.setItem(STORE_KEY, v ? '1' : '0'); } catch (e) {}
+    }
+    function readVolume() {
+        try {
+            var v = localStorage.getItem(STORE_VOL_KEY);
+            return v !== null ? Math.max(0, Math.min(1, parseFloat(v))) : 0.60;
+        } catch (e) { return 0.60; }
+    }
+    function writeVolume(v) {
+        try { localStorage.setItem(STORE_VOL_KEY, String(v)); } catch (e) {}
     }
 
     /* ---- Grafo de audio + precarga --------------------------------------- *
@@ -66,7 +76,7 @@
     function init() {
         try { ctx = new AC(); } catch (e) { return; }
         master = ctx.createGain();
-        master.gain.value = MASTER_VOLUME;
+        master.gain.value = volumeLevel;
         master.connect(ctx.destination);
 
         Object.keys(VOICES).forEach(function (name) {
@@ -230,6 +240,15 @@
         unmute: unmute,
         toggle: toggle,
         isMuted: function () { return muted; },
+        setMuted: function (v) { if (v) mute(); else unmute(); },
+        getVolume: function () { return volumeLevel; },
+        setVolume: function (v) {
+            volumeLevel = Math.max(0, Math.min(1, parseFloat(v)));
+            if (master && ctx) {
+                try { master.gain.value = volumeLevel; } catch (e) {}
+            }
+            writeVolume(volumeLevel);
+        },
         ready: function (v) { return !!buffers[v]; }
     };
 })();

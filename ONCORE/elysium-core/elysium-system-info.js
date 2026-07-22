@@ -73,6 +73,8 @@
             subtitle: 'INFORMAÇÃO DO SISTEMA', close: 'Fechar', update: 'Atualizar',
             secSoftware: 'Especificações de Software', version: 'Versão da Interface',
             build: 'Compilação (Build)', license: 'Licença do Produto',
+            secSettings: 'Ajustes do Sistema', systemSound: 'Som do Sistema', volume: 'Nível de Volume',
+            defLang: 'Idioma Predefinido', defCurrency: 'Moeda por Defeito', userRegion: 'Região do Utilizador',
             secSecurity: 'Segurança e Conformidade', privDir: 'Diretiva de Privacidade',
             infra: 'Infraestrutura de Segurança', legal: 'Enquadramento Legal',
             terms: 'Termos e Condições', privacy: 'Política de Privacidade', viewDoc: 'Ver documento',
@@ -85,6 +87,8 @@
             subtitle: 'INFORMACIÓN DEL SISTEMA', close: 'Cerrar', update: 'Actualizar',
             secSoftware: 'Especificaciones de Software', version: 'Versión de la Interfaz',
             build: 'Compilación (Build)', license: 'Licencia del Producto',
+            secSettings: 'Ajustes del Sistema', systemSound: 'Sonido del Sistema', volume: 'Nivel de Volumen',
+            defLang: 'Idioma Predeterminado', defCurrency: 'Divisa por Defecto', userRegion: 'Región del Usuario',
             secSecurity: 'Seguridad y Cumplimiento', privDir: 'Directiva de Privacidad',
             infra: 'Infraestructura de Seguridad', legal: 'Marco Legal',
             terms: 'Términos y Condiciones', privacy: 'Política de Privacidad', viewDoc: 'Ver documento',
@@ -97,6 +101,8 @@
             subtitle: 'SYSTEM INFORMATION', close: 'Close', update: 'Update',
             secSoftware: 'Software Specifications', version: 'Interface Version',
             build: 'Build Compilation', license: 'Product License',
+            secSettings: 'System Settings', systemSound: 'System Sound', volume: 'Volume Level',
+            defLang: 'Default Language', defCurrency: 'Default Currency', userRegion: 'User Region',
             secSecurity: 'Security & Compliance', privDir: 'Privacy Directive',
             infra: 'Security Infrastructure', legal: 'Legal Framework',
             terms: 'Terms & Conditions', privacy: 'Privacy Policy', viewDoc: 'View document',
@@ -247,6 +253,41 @@
             '  font:inherit;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .2s;}',
             '.ely-sys-update:hover{background:' + ACCENT + ';color:#fff;}',
 
+            '.ely-sys-select{',
+            '  background:' + C.card + ';color:' + C.text + ';',
+            '  border:1px solid ' + C.line + ';border-radius:6px;',
+            '  padding:3px 8px;font-size:.78rem;font-family:inherit;outline:none;',
+            '  cursor:pointer;transition:border-color .18s, background .18s;',
+            '}',
+            '.ely-sys-select:hover,.ely-sys-select:focus{border-color:' + ACCENT + ';}',
+            '.ely-sys-select option{background:' + C.surface + ';color:' + C.text + ';}',
+
+            '.ely-range-wrapper{display:flex;align-items:center;gap:8px;}',
+            '.ely-range-input{',
+            '  -webkit-appearance:none;appearance:none;width:80px;height:4px;',
+            '  border-radius:2px;background:' + C.line + ';outline:none;cursor:pointer;',
+            '}',
+            '.ely-range-input::-webkit-slider-thumb{',
+            '  -webkit-appearance:none;appearance:none;width:13px;height:13px;',
+            '  border-radius:50%;background:' + ACCENT + ';box-shadow:0 0 6px rgba(41,151,255,0.6);',
+            '  cursor:pointer;transition:transform .15s ease;',
+            '}',
+            '.ely-range-input::-webkit-slider-thumb:hover{transform:scale(1.25);}',
+            '.ely-range-val{font-size:.75rem;color:' + C.dim + ';min-width:32px;text-align:right;font-family:"SF Mono",monospace;}',
+
+            '.ely-toggle-switch{position:relative;display:inline-block;width:34px;height:18px;flex-shrink:0;}',
+            '.ely-toggle-switch input{opacity:0;width:0;height:0;}',
+            '.ely-slider{',
+            '  position:absolute;cursor:pointer;inset:0;background-color:' + C.line + ';',
+            '  transition:.25s ease;border-radius:20px;border:1px solid ' + C.line + ';',
+            '}',
+            '.ely-slider:before{',
+            '  position:absolute;content:"";height:12px;width:12px;left:2px;bottom:2px;',
+            '  background-color:' + C.dim + ';transition:.25s ease;border-radius:50%;',
+            '}',
+            'input:checked + .ely-slider{background-color:rgba(41, 151, 255, 0.25);border-color:rgba(41, 151, 255, 0.5);}',
+            'input:checked + .ely-slider:before{transform:translateX(16px);background-color:' + ACCENT + ';box-shadow:0 0 8px rgba(41,151,255,0.8);}',
+
             '.ely-sys-dot{display:inline-block;width:7px;height:7px;border-radius:50%;',
             '  margin-right:7px;background:' + C.dim + ';vertical-align:middle;}',
             '.ely-sys-dot.is-online{background:#30D158;}',
@@ -342,6 +383,12 @@
         var dev = cfg.developer || { name: 'Elysium λ Development & Research', url: 'https://elysiumdr.eu' };
         var badge = cfg.stage ? '<span class="ely-sys-badge">' + esc(cfg.stage) + '</span>' : '';
 
+        var isAudioMuted = window.ElysiumAudio ? window.ElysiumAudio.isMuted() : (localStorage.getItem('ely-audio-muted') === '1');
+        var audioVolPercent = Math.round((window.ElysiumAudio ? window.ElysiumAudio.getVolume() : parseFloat(localStorage.getItem('ely-audio-volume') || '0.6')) * 100);
+        var currentLang = localStorage.getItem('ely-pref-lang') || cfg.locale || 'es';
+        var currentCurrency = localStorage.getItem('ely-pref-currency') || 'EUR';
+        var currentRegion = localStorage.getItem('ely-pref-region') || 'GLOBAL';
+
         var html = ['<div class="ely-sys-card" role="document">',
             '<button class="ely-sys-close" type="button" aria-label="' + esc(t.close) + '">&#10005;</button>',
             '<div class="ely-sys-head">',
@@ -362,7 +409,45 @@
             cfg.license ? row(t.license, esc(cfg.license)) : '',
             '</div>',
 
-            // 2 · Seguridad y cumplimiento
+            // 2 · Ajustes del sistema
+            '<div class="ely-sys-sec">' + esc(t.secSettings) + '</div>',
+            '<div class="ely-sys-group">',
+            '<div class="ely-sys-row"><span>' + esc(t.systemSound) + '</span>',
+            '<span class="ely-sys-val">' +
+            '<label class="ely-toggle-switch" title="' + esc(t.systemSound) + '">' +
+            '<input type="checkbox" id="ely-core-setting-sound"' + (!isAudioMuted ? ' checked' : '') + '>' +
+            '<span class="ely-slider"></span>' +
+            '</label></span></div>',
+            '<div class="ely-sys-row" id="ely-core-vol-row" style="' + (isAudioMuted ? 'opacity:0.5;pointer-events:none;' : '') + '"><span>' + esc(t.volume) + '</span>',
+            '<span class="ely-sys-val"><div class="ely-range-wrapper">' +
+            '<input type="range" id="ely-core-setting-volume" min="0" max="100" value="' + audioVolPercent + '" class="ely-range-input">' +
+            '<span class="ely-range-val" id="ely-core-vol-val">' + audioVolPercent + '%</span>' +
+            '</div></span></div>',
+            '<div class="ely-sys-row"><span>' + esc(t.defLang) + '</span>',
+            '<span class="ely-sys-val"><select id="ely-core-setting-lang" class="ely-sys-select">' +
+            '<option value="en"' + (currentLang === 'en' ? ' selected' : '') + '>English (EN)</option>' +
+            '<option value="es"' + (currentLang === 'es' ? ' selected' : '') + '>Español (ES)</option>' +
+            '<option value="pt"' + (currentLang === 'pt' ? ' selected' : '') + '>Português (PT)</option>' +
+            '</select></span></div>',
+            '<div class="ely-sys-row"><span>' + esc(t.defCurrency) + '</span>',
+            '<span class="ely-sys-val"><select id="ely-core-setting-currency" class="ely-sys-select">' +
+            '<option value="EUR"' + (currentCurrency === 'EUR' ? ' selected' : '') + '>EUR (€)</option>' +
+            '<option value="USD"' + (currentCurrency === 'USD' ? ' selected' : '') + '>USD ($)</option>' +
+            '<option value="CRC"' + (currentCurrency === 'CRC' ? ' selected' : '') + '>CRC (₡)</option>' +
+            '<option value="GBP"' + (currentCurrency === 'GBP' ? ' selected' : '') + '>GBP (£)</option>' +
+            '</select></span></div>',
+            '<div class="ely-sys-row"><span>' + esc(t.userRegion) + '</span>',
+            '<span class="ely-sys-val"><select id="ely-core-setting-region" class="ely-sys-select">' +
+            '<option value="EU"' + (currentRegion === 'EU' ? ' selected' : '') + '>Europa (EU)</option>' +
+            '<option value="ES"' + (currentRegion === 'ES' ? ' selected' : '') + '>España (ES)</option>' +
+            '<option value="PT"' + (currentRegion === 'PT' ? ' selected' : '') + '>Portugal (PT)</option>' +
+            '<option value="CR"' + (currentRegion === 'CR' ? ' selected' : '') + '>Costa Rica (CR)</option>' +
+            '<option value="US"' + (currentRegion === 'US' ? ' selected' : '') + '>United States (US)</option>' +
+            '<option value="GLOBAL"' + (currentRegion === 'GLOBAL' ? ' selected' : '') + '>Global</option>' +
+            '</select></span></div>',
+            '</div>',
+
+            // 3 · Seguridad y cumplimiento
             '<div class="ely-sys-sec">' + esc(t.secSecurity) + '</div>',
             '<div class="ely-sys-group">',
             comp.privacyDirective ? row(t.privDir, esc(comp.privacyDirective)) : '',
@@ -372,7 +457,7 @@
             legal.privacy ? linkRow(t.privacy, legal.privacy, t.viewDoc) : '',
             '</div>',
 
-            // 3 · Estado de la infraestructura conectada
+            // 4 · Estado de la infraestructura conectada
             '<div class="ely-sys-sec">' + esc(t.secStatus) + '</div>',
             '<div class="ely-sys-group">',
             row(t.network, '<span class="ely-sys-dot" id="ely-sys-dot"></span><span id="ely-sys-net">'
@@ -380,7 +465,7 @@
             row(t.latency, '<span id="ely-sys-lat">' + esc(t.checking) + '</span>'),
             '</div>',
 
-            // 4 · Información corporativa
+            // 5 · Información corporativa
             '<div class="ely-sys-sec">' + esc(t.secCorp) + '</div>',
             '<div class="ely-sys-group">',
             (org.rows || []).map(function (r) {
@@ -390,7 +475,7 @@
             }).join(''),
             '</div>',
 
-            // 5 · Atribuciones de software
+            // 6 · Atribuciones de software
             '<div class="ely-sys-sec">' + esc(t.secAttrib) + '</div>',
             '<div class="ely-sys-group">',
             (cfg.attributions || []).map(function (a) { return row(a.label, esc(a.value)); }).join(''),
@@ -419,6 +504,73 @@
         modal.querySelector('.ely-sys-update').addEventListener('click', function () {
             window.elysiumForceUpdate(false);
         });
+
+        // Settings Listeners
+        var soundToggle = modal.querySelector('#ely-core-setting-sound');
+        var volRow = modal.querySelector('#ely-core-vol-row');
+        if (soundToggle) {
+            soundToggle.addEventListener('change', function() {
+                var enabled = soundToggle.checked;
+                if (window.ElysiumAudio) {
+                    window.ElysiumAudio.setMuted(!enabled);
+                    if (enabled) window.ElysiumAudio.play('button');
+                } else {
+                    try { localStorage.setItem('ely-audio-muted', enabled ? '0' : '1'); } catch(e) {}
+                }
+                if (volRow) {
+                    volRow.style.opacity = enabled ? '1' : '0.5';
+                    volRow.style.pointerEvents = enabled ? 'auto' : 'none';
+                }
+            });
+        }
+
+        var volSlider = modal.querySelector('#ely-core-setting-volume');
+        var volValLabel = modal.querySelector('#ely-core-vol-val');
+        if (volSlider) {
+            var handleVol = function() {
+                var val = parseInt(volSlider.value, 10);
+                if (volValLabel) volValLabel.textContent = val + '%';
+                if (window.ElysiumAudio) {
+                    window.ElysiumAudio.setVolume(val / 100);
+                } else {
+                    try { localStorage.setItem('ely-audio-volume', String(val / 100)); } catch(e) {}
+                }
+            };
+            volSlider.addEventListener('input', handleVol);
+            volSlider.addEventListener('change', function() {
+                handleVol();
+                if (window.ElysiumAudio && !window.ElysiumAudio.isMuted()) {
+                    window.ElysiumAudio.play('button');
+                }
+            });
+        }
+
+        var langSelect = modal.querySelector('#ely-core-setting-lang');
+        if (langSelect) {
+            langSelect.addEventListener('change', function() {
+                var val = langSelect.value;
+                try { localStorage.setItem('ely-pref-lang', val); } catch(e) {}
+                window.dispatchEvent(new CustomEvent('elysium:lang-changed', { detail: { language: val } }));
+            });
+        }
+
+        var currSelect = modal.querySelector('#ely-core-setting-currency');
+        if (currSelect) {
+            currSelect.addEventListener('change', function() {
+                var val = currSelect.value;
+                try { localStorage.setItem('ely-pref-currency', val); } catch(e) {}
+                window.dispatchEvent(new CustomEvent('elysium:currency-changed', { detail: { currency: val } }));
+            });
+        }
+
+        var regionSelect = modal.querySelector('#ely-core-setting-region');
+        if (regionSelect) {
+            regionSelect.addEventListener('change', function() {
+                var val = regionSelect.value;
+                try { localStorage.setItem('ely-pref-region', val); } catch(e) {}
+                window.dispatchEvent(new CustomEvent('elysium:region-changed', { detail: { region: val } }));
+            });
+        }
 
         return modal;
     }

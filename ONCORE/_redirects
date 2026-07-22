@@ -1,0 +1,12 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  F15 · MULTI-LANGUAGE — redirecciones permanentes del árbol inglés
+# ═══════════════════════════════════════════════════════════════════════════
+#
+#  El inglés pasó de `index-en.html` al prefijo de ruta `/en/`. Las URL
+#  antiguas estaban publicadas, así que se redirigen con 301 para consolidar la
+#  señal de enlaces y no romper marcadores externos. Los archivos HTML de
+#  respaldo siguen en el repositorio por si el hosting no aplicase estas reglas.
+
+/index-en.html            /en/                        301
+/privacy-policy-en.html   /en/privacy-policy.html     301
+/cookie-policy-en.html    /en/cookie-policy.html      301

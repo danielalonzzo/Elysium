@@ -148,7 +148,18 @@
         window.addEventListener('scroll', handleScroll, { passive: true });
         window.addEventListener('resize', requestHeaderContrast, { passive: true });
         document.addEventListener('oncore:theme:change', requestHeaderContrast);
-        handleScroll();
+
+        // El primer sondeo es síncrono, no diferido a un frame: en una pestaña
+        // abierta en segundo plano `requestAnimationFrame` no se ejecuta hasta
+        // que la pestaña se muestra, y hasta entonces la cabecera se quedaba en
+        // su estado por defecto — texto crema sobre el hero crema, ilegible.
+        header.classList.toggle('scrolled', window.scrollY > 50);
+        syncHeaderContrast();
+
+        // Y se revisa al volver a mostrarse, por si el layout cambió entretanto.
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) syncHeaderContrast();
+        });
     };
 
     /**

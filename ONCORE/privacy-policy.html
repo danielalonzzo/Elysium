@@ -1,38 +1,132 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:;">
-    <title>Política de Privacidade | ONCORE</title>
+
+    <!-- Punto único de verdad de la versión (§6.1) -->
+    <meta name="app-version" content="v1.5.0-build.1">
+
+    <title>Política de Privacidade e Dados de Saúde | ONCORE</title>
+    <meta name="description" content="Como a ONCORE trata os seus dados pessoais e de saúde ao abrigo do RGPD: finalidades, base de licitude, conservação, segurança e os seus direitos.">
+    <meta name="author" content="ONCORE — Cancer Recovery &amp; Survivorship Center">
+
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+    <link rel="canonical" href="https://oncore.pt/privacy-policy.html">
+
+    <link rel="alternate" hreflang="pt-PT" href="https://oncore.pt/privacy-policy.html">
+    <link rel="alternate" hreflang="en" href="https://oncore.pt/en/privacy-policy.html">
+    <link rel="alternate" hreflang="x-default" href="https://oncore.pt/privacy-policy.html">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://oncore.pt/privacy-policy.html">
+    <meta property="og:title" content="Política de Privacidade e Dados de Saúde | ONCORE">
+    <meta property="og:description" content="Como a ONCORE trata os seus dados pessoais e de saúde, e que direitos tem sobre eles.">
+    <meta property="og:image" content="https://oncore.pt/images/og-oncore-1200x630.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Cartão da ONCORE — Cancer Recovery &amp; Survivorship Center, Miraflores, Lisboa">
+    <meta property="og:site_name" content="ONCORE">
+    <meta property="og:locale" content="pt_PT">
+    <meta property="og:locale:alternate" content="en_GB">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Política de Privacidade e Dados de Saúde | ONCORE">
+    <meta name="twitter:description" content="Como a ONCORE trata os seus dados pessoais e de saúde, e que direitos tem sobre eles.">
+    <meta name="twitter:image" content="https://oncore.pt/images/og-oncore-1200x630.jpg">
+
+    <!-- SVG: escala a cualquier tamaño y se adapta al tema del sistema -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <!-- PNG de respaldo para navegadores sin soporte SVG -->
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon-16.png" sizes="16x16" type="image/png">
+    <!-- ICO en la raíz: lo piden agregadores y navegadores heredados -->
+    <link rel="alternate icon" href="/favicon.ico" sizes="any">
+    <!-- iOS: pantalla de inicio. Sin transparencia ni esquinas redondeadas -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+    <!-- Safari: pestaña anclada, silueta monocroma -->
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#27332E">
+    <!-- Android e instalación como app: los iconos van en el manifiesto (F17) -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- Color de la barra del navegador en móvil; F13 lo reescribe según el tema -->
     <meta name="theme-color" content="#FBF7F0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/oncore.css?v=1.0.0-beta">
-    <style>
-        .legal-page { padding: 120px 20px 60px; max-width: 800px; margin: 0 auto; }
-        .legal-page h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 20px; color: #0B0B0B; }
-        .legal-page h2 { font-size: 1.5rem; margin-top: 40px; margin-bottom: 15px; color: #0B0B0B; }
-        .legal-page p, .legal-page li { font-size: 1rem; line-height: 1.6; color: #333; margin-bottom: 15px; }
-        .legal-page ul { margin-bottom: 20px; padding-left: 20px; }
-    </style>
+
+    <!-- F13 Dynamic Theme: antes de pintar, sin parpadeo -->
+    <script src="/src/core/theme.js"></script>
+
+    <!-- F01 Loading Page -->
+    <script src="/src/core/elysium-config.js"></script>
+    <script src="/elysium-core/elysium-preloader.js"></script>
+
+    <link rel="preload" href="/src/styles/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/src/styles/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+    <link rel="stylesheet" href="/src/styles/tokens.css">
+    <link rel="stylesheet" href="/src/styles/typography.css">
+    <link rel="stylesheet" href="/src/styles/oncore.css">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "MedicalClinic",
+          "@id": "https://oncore.pt/#clinica",
+          "name": "ONCORE — Cancer Recovery & Survivorship Center",
+          "url": "https://oncore.pt/"
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://oncore.pt/#website",
+          "url": "https://oncore.pt/",
+          "name": "ONCORE",
+          "inLanguage": ["pt-PT", "en-GB"],
+          "publisher": { "@id": "https://oncore.pt/#clinica" }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://oncore.pt/privacy-policy.html#webpage",
+          "url": "https://oncore.pt/privacy-policy.html",
+          "name": "Política de Privacidade e Dados de Saúde | ONCORE",
+          "description": "Como a ONCORE trata os seus dados pessoais e de saúde ao abrigo do RGPD: finalidades, base de licitude, conservação, segurança e os seus direitos.",
+          "inLanguage": "pt-PT",
+          "isPartOf": { "@id": "https://oncore.pt/#website" },
+          "about": { "@id": "https://oncore.pt/#clinica" },
+          "dateModified": "2026-07-21"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://oncore.pt/privacy-policy.html#breadcrumb",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Início", "item": "https://oncore.pt/" },
+            { "@type": "ListItem", "position": 2, "name": "Política de Privacidade", "item": "https://oncore.pt/privacy-policy.html" }
+          ]
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
-    <header id="header">
-        <div class="nav-pill" style="position: relative; margin-top: 20px;">
-            <a href="index.html" class="logo">
-                <span class="logo-name">ONCORE</span>
+
+    <a class="ely-skip-link" href="#conteudo">Saltar para o conteúdo principal</a>
+
+    <header id="header" class="legal-header header-on-light">
+        <div class="nav-pill">
+            <a href="/" class="logo">
+                <span class="logo-mark"><i data-lucide="activity"></i></span>
+                <span class="logo-name">ONCORE<small>Cancer Recovery &amp; Survivorship Center</small></span>
             </a>
-            <a href="index.html" class="btn btn-dark nav-cta">Voltar ao Início</a>
+            <a href="/" class="btn btn-dark nav-cta">Voltar ao Início</a>
         </div>
     </header>
 
-    <main class="legal-page">
+    <main class="legal-page" id="conteudo">
         <h1>Política de Privacidade</h1>
         <p><strong>Última atualização: Julho de 2026</strong></p>
 
-        <p>A Elysium λ Development & Research (doravante "ONCORE", "nós", "nosso"), como responsável pelo tratamento, valoriza a sua privacidade e compromete-se a proteger os seus dados pessoais, especialmente os dados de saúde, em conformidade com o Regulamento Geral sobre a Proteção de Dados (RGPD).</p>
+        <p>A ONCORE — Cancer Recovery &amp; Survivorship Center (doravante "ONCORE", "nós", "nosso") é a <strong>responsável pelo tratamento</strong> dos seus dados pessoais e compromete-se a protegê-los, em especial os dados de saúde, em conformidade com o Regulamento Geral sobre a Proteção de Dados (RGPD) e com a Lei n.º 58/2019.</p>
+
+        <p>A Elysium λ Development &amp; Research atua como <strong>subcontratante</strong>: fornece e mantém a infraestrutura tecnológica por conta e sob instruções documentadas da ONCORE, sem tratar os seus dados para finalidades próprias.</p>
 
         <h2>1. Dados Recolhidos</h2>
         <p>Recolhemos os dados estritamente necessários para a prestação dos nossos serviços de recuperação oncológica. Isto pode incluir:</p>
@@ -44,7 +138,7 @@
         <h2>2. Finalidade do Tratamento</h2>
         <p>Os seus dados são tratados exclusivamente para:</p>
         <ul>
-            <li>Agendamento e prestação de serviços de saúde (osteopatia, exercício clínico, fisioterapia).</li>
+            <li>Agendamento e prestação de serviços de saúde (exercício clínico, fisioterapia oncológica, nutrição e psico-oncologia).</li>
             <li>Avaliação clínica e monitorização da recuperação funcional.</li>
             <li>Comunicação com a equipa médica e utente.</li>
         </ul>
@@ -56,7 +150,7 @@
         <p>Conservamos os seus dados apenas durante o período necessário para as finalidades acima, ou conforme exigido por lei para a conservação de processos clínicos (habitualmente 10 anos).</p>
 
         <h2>5. Segurança dos Dados</h2>
-        <p>Implementámos medidas técnicas (criptografia, firewalls, controlo de acessos) e organizativas robustas para garantir a confidencialidade, integridade e disponibilidade dos seus dados. A infraestrutura tecnológica é providenciada pela Elysium λ Development & Research e Cloudflare.</p>
+        <p>Implementámos medidas técnicas (criptografia, firewalls, controlo de acessos) e organizativas robustas para garantir a confidencialidade, integridade e disponibilidade dos seus dados. A infraestrutura tecnológica é providenciada, na qualidade de subcontratantes, pela Elysium λ Development &amp; Research e pela Cloudflare.</p>
 
         <h2>6. Os seus Direitos</h2>
         <p>Nos termos do RGPD, tem o direito de:</p>
@@ -70,11 +164,32 @@
     </main>
 
     <footer>
-        <div class="footer-bottom" style="margin-top: 40px; border-top: 1px solid #ccc; padding: 20px 0;">
-            <div style="text-align: center; font-size: 0.9rem;">
-                <span>&copy; 2026 ONCORE. Todos os direitos reservados. | <a href="cookie-policy.html">Política de Cookies</a></span>
+        <div class="footer-bottom">
+            <div class="container footer-bottom-inner">
+                <div class="footer-legal">
+                    <span>&copy; 2026 ONCORE — Cancer Recovery &amp; Survivorship Center. Todos os direitos reservados.</span>
+                    <span class="legal-links">
+                        <a href="/privacy-policy.html">Política de Privacidade</a> |
+                        <a href="/cookie-policy.html">Política de Cookies</a> |
+                        <button type="button" class="legal-cookie-btn" data-cookie-settings>Configuração de cookies</button>
+                    </span>
+                </div>
+                <span>Desenvolvido por <a href="https://elysiumdr.eu/" target="_blank" rel="noopener noreferrer" class="footer-credit-link">Elysium &#955; Development &amp; Research</a></span>
             </div>
         </div>
     </footer>
+
+    <script src="/src/vendor/lucide-icons.js" defer></script>
+    <script src="/src/core/i18n.js" defer></script>
+    <script src="/src/ui/anchor-glide.js" defer></script>
+
+    <!-- F05 Information System + F06 System Update -->
+    <script src="/elysium-core/elysium-system-info.js" defer></script>
+
+    <!-- F08 Cookies Management -->
+    <script src="/elysium-core/elysium-compliance.js" defer></script>
+
+    <script src="/src/core/app.js" defer></script>
+    <script src="/src/core/register-sw.js" defer></script>
 </body>
 </html>

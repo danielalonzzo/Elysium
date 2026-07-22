@@ -1,7 +1,7 @@
 /**
  * ══════════════════════════════════════════════════════════════════════════════
  *  Elysium λ — System Info Modal
- *  version-modal.js  |  v1.4.2
+ *  version-modal.js  |  v1.5.0
  *
  *  Design: Matches pmorais.pt reference — clean light modal, row-divider
  *  layout, amber accent links, sectioned with small-caps labels.
@@ -15,7 +15,7 @@
     'use strict';
 
     // ── Configuration ─────────────────────────────────────────────────────────
-    var APP_VERSION       = 'V1.4.2';
+    var APP_VERSION       = 'V1.5.0';
     var MODAL_ID          = 'elysium-system-info-modal';
     var VERSION_TAG_CLASS = 'elysium-version-tag';
     var ACCENT            = '#2997ff';   // Elysium brand electric blue
@@ -39,6 +39,13 @@
             btnUpdate:      'Update',
             // Security
             secSecurity:    'SECURITY & COMPLIANCE',
+            // System Settings
+            secSettings:      'SYSTEM SETTINGS',
+            labelSystemSound: 'System Sound',
+            labelVolume:      'Volume Level',
+            labelDefLang:     'Default Language',
+            labelDefCurrency: 'Default Currency',
+            labelUserRegion:  'User Region',
             labelPrivDir:   'Privacy Directive',
             privDirVal:     'ePrivacy Directive · Cookie Consent v1.0',
             labelSecInfra:  'Security Infrastructure',
@@ -81,6 +88,12 @@
             licenceVal:     'ELY-EC03-ANL9-321979257',
             btnUpdate:      'Actualizar',
             secSecurity:    'SEGURIDAD Y CONFORMIDAD',
+            secSettings:      'AJUSTES DEL SISTEMA',
+            labelSystemSound: 'Sonido del Sistema',
+            labelVolume:      'Nivel de Volumen',
+            labelDefLang:     'Idioma Predeterminado',
+            labelDefCurrency: 'Divisa por Defecto',
+            labelUserRegion:  'Región del Usuario',
             labelPrivDir:   'Directiva de Privacidad',
             privDirVal:     'Directiva ePrivacy · Cookie Consent v1.0',
             labelSecInfra:  'Infraestructura de Seguridad',
@@ -119,6 +132,12 @@
             licenceVal:     'ELY-EC03-ANL9-321979257',
             btnUpdate:      'Actualizar',
             secSecurity:    'SEGURANÇA E CONFORMIDADE',
+            secSettings:      'AJUSTES DO SISTEMA',
+            labelSystemSound: 'Som do Sistema',
+            labelVolume:      'Nível de Volume',
+            labelDefLang:     'Idioma Predefinido',
+            labelDefCurrency: 'Moeda por Defeito',
+            labelUserRegion:  'Região do Utilizador',
             labelPrivDir:   'Directiva de Privacidade',
             privDirVal:     'Directiva ePrivacy · Cookie Consent v1.0',
             labelSecInfra:  'Infraestrutura de Segurança',
@@ -299,6 +318,44 @@
             '.ely-update-btn:hover{background:' + ACCENT + ';color:#E1E1E5;}',
             '.ely-update-btn.busy{opacity:.45;pointer-events:none;}',
 
+            /* Select dropdown */
+            '.ely-sys-select{',
+            '  background:rgba(10, 20, 40, 0.6);color:#E1E1E5;',
+            '  border:1px solid rgba(255, 255, 255, 0.12);border-radius:6px;',
+            '  padding:3px 8px;font-size:.78rem;font-family:inherit;outline:none;',
+            '  cursor:pointer;transition:border-color .18s, background .18s;',
+            '}',
+            '.ely-sys-select:hover,.ely-sys-select:focus{border-color:' + ACCENT + ';background:rgba(15, 28, 56, 0.8);}',
+            '.ely-sys-select option{background:#0a1428;color:#E1E1E5;}',
+
+            /* Volume slider */
+            '.ely-range-wrapper{display:flex;align-items:center;gap:8px;}',
+            '.ely-range-input{',
+            '  -webkit-appearance:none;appearance:none;width:80px;height:4px;',
+            '  border-radius:2px;background:rgba(255, 255, 255, 0.15);outline:none;cursor:pointer;',
+            '}',
+            '.ely-range-input::-webkit-slider-thumb{',
+            '  -webkit-appearance:none;appearance:none;width:13px;height:13px;',
+            '  border-radius:50%;background:' + ACCENT + ';box-shadow:0 0 6px rgba(41,151,255,0.6);',
+            '  cursor:pointer;transition:transform .15s ease;',
+            '}',
+            '.ely-range-input::-webkit-slider-thumb:hover{transform:scale(1.25);}',
+            '.ely-range-val{font-size:.75rem;color:#A0A5B5;min-width:32px;text-align:right;font-family:"SF Mono",monospace;}',
+
+            /* Toggle Switch */
+            '.ely-toggle-switch{position:relative;display:inline-block;width:34px;height:18px;flex-shrink:0;}',
+            '.ely-toggle-switch input{opacity:0;width:0;height:0;}',
+            '.ely-slider{',
+            '  position:absolute;cursor:pointer;inset:0;background-color:rgba(255, 255, 255, 0.15);',
+            '  transition:.25s ease;border-radius:20px;border:1px solid rgba(255, 255, 255, 0.1);',
+            '}',
+            '.ely-slider:before{',
+            '  position:absolute;content:"";height:12px;width:12px;left:2px;bottom:2px;',
+            '  background-color:#A0A5B5;transition:.25s ease;border-radius:50%;',
+            '}',
+            'input:checked + .ely-slider{background-color:rgba(41, 151, 255, 0.25);border-color:rgba(41, 151, 255, 0.5);}',
+            'input:checked + .ely-slider:before{transform:translateX(16px);background-color:' + ACCENT + ';box-shadow:0 0 8px rgba(41,151,255,0.8);}',
+
             /* Footer */
             '.ely-sysinfo-foot{',
             '  padding:24px 24px 18px;text-align:center;',
@@ -337,6 +394,12 @@
         var termsHref  = resolveHref('terms.html',   'es/terms.html',   'pt/terms.html');
         var privHref   = resolveHref('privacy.html', 'es/privacy.html', 'pt/privacy.html');
 
+        var isAudioMuted = window.ElysiumAudio ? window.ElysiumAudio.isMuted() : (localStorage.getItem('ely-audio-muted') === '1');
+        var audioVolPercent = Math.round((window.ElysiumAudio ? window.ElysiumAudio.getVolume() : parseFloat(localStorage.getItem('ely-audio-volume') || '0.6')) * 100);
+        var currentLang = localStorage.getItem('ely-pref-lang') || locale;
+        var currentCurrency = localStorage.getItem('ely-pref-currency') || 'EUR';
+        var currentRegion = localStorage.getItem('ely-pref-region') || (locale === 'es' ? 'ES' : locale === 'pt' ? 'PT' : 'EU');
+
         var modal = document.createElement('div');
         modal.id = MODAL_ID;
         modal.setAttribute('role', 'dialog');
@@ -371,6 +434,68 @@
             +   '</div>'
             +   row(t.labelBuild, build)
             +   row(t.labelLicence, t.licenceVal)
+            + '</div>'
+
+            // ── System Settings ──
+            + '<div class="ely-sec-label">' + t.secSettings + '</div>'
+            + '<div class="ely-sysinfo-group">'
+            // 1. System Sound
+            +   '<div class="ely-row">'
+            +     '<span class="ely-row-label">' + t.labelSystemSound + '</span>'
+            +     '<span class="ely-row-value">'
+            +       '<label class="ely-toggle-switch" title="' + t.labelSystemSound + '">'
+            +         '<input type="checkbox" id="ely-setting-sound"' + (!isAudioMuted ? ' checked' : '') + '>'
+            +         '<span class="ely-slider"></span>'
+            +       '</label>'
+            +     '</span>'
+            +   '</div>'
+            // 2. System Volume
+            +   '<div class="ely-row" id="ely-vol-row" style="' + (isAudioMuted ? 'opacity:0.5;pointer-events:none;' : '') + '">'
+            +     '<span class="ely-row-label">' + t.labelVolume + '</span>'
+            +     '<span class="ely-row-value">'
+            +       '<div class="ely-range-wrapper">'
+            +         '<input type="range" id="ely-setting-volume" min="0" max="100" value="' + audioVolPercent + '" class="ely-range-input">'
+            +         '<span class="ely-range-val" id="ely-vol-val">' + audioVolPercent + '%</span>'
+            +       '</div>'
+            +     '</span>'
+            +   '</div>'
+            // 3. Default Language
+            +   '<div class="ely-row">'
+            +     '<span class="ely-row-label">' + t.labelDefLang + '</span>'
+            +     '<span class="ely-row-value">'
+            +       '<select id="ely-setting-lang" class="ely-sys-select">'
+            +         '<option value="en"' + (currentLang === 'en' ? ' selected' : '') + '>English (EN)</option>'
+            +         '<option value="es"' + (currentLang === 'es' ? ' selected' : '') + '>Espa\u00f1ol (ES)</option>'
+            +         '<option value="pt"' + (currentLang === 'pt' ? ' selected' : '') + '>Portugu\u00eas (PT)</option>'
+            +       '</select>'
+            +     '</span>'
+            +   '</div>'
+            // 4. Default Currency
+            +   '<div class="ely-row">'
+            +     '<span class="ely-row-label">' + t.labelDefCurrency + '</span>'
+            +     '<span class="ely-row-value">'
+            +       '<select id="ely-setting-currency" class="ely-sys-select">'
+            +         '<option value="EUR"' + (currentCurrency === 'EUR' ? ' selected' : '') + '>EUR (\u20ac)</option>'
+            +         '<option value="USD"' + (currentCurrency === 'USD' ? ' selected' : '') + '>USD ($)</option>'
+            +         '<option value="CRC"' + (currentCurrency === 'CRC' ? ' selected' : '') + '>CRC (\u20a1)</option>'
+            +         '<option value="GBP"' + (currentCurrency === 'GBP' ? ' selected' : '') + '>GBP (\u00a3)</option>'
+            +       '</select>'
+            +     '</span>'
+            +   '</div>'
+            // 5. User Region
+            +   '<div class="ely-row">'
+            +     '<span class="ely-row-label">' + t.labelUserRegion + '</span>'
+            +     '<span class="ely-row-value">'
+            +       '<select id="ely-setting-region" class="ely-sys-select">'
+            +         '<option value="EU"' + (currentRegion === 'EU' ? ' selected' : '') + '>Europa (EU)</option>'
+            +         '<option value="ES"' + (currentRegion === 'ES' ? ' selected' : '') + '>Espa\u00f1a (ES)</option>'
+            +         '<option value="PT"' + (currentRegion === 'PT' ? ' selected' : '') + '>Portugal (PT)</option>'
+            +         '<option value="CR"' + (currentRegion === 'CR' ? ' selected' : '') + '>Costa Rica (CR)</option>'
+            +         '<option value="US"' + (currentRegion === 'US' ? ' selected' : '') + '>United States (US)</option>'
+            +         '<option value="GLOBAL"' + (currentRegion === 'GLOBAL' ? ' selected' : '') + '>Global</option>'
+            +       '</select>'
+            +     '</span>'
+            +   '</div>'
             + '</div>'
 
             // ── Security & Compliance ──
@@ -430,6 +555,73 @@
         if (updateBtn) {
             updateBtn.addEventListener('click', function() {
                 window.elysiusForceUpdate();
+            });
+        }
+
+        // Settings Listeners
+        var soundToggle = modal.querySelector('#ely-setting-sound');
+        var volRow = modal.querySelector('#ely-vol-row');
+        if (soundToggle) {
+            soundToggle.addEventListener('change', function() {
+                var enabled = soundToggle.checked;
+                if (window.ElysiumAudio) {
+                    window.ElysiumAudio.setMuted(!enabled);
+                    if (enabled) window.ElysiumAudio.play('button');
+                } else {
+                    try { localStorage.setItem('ely-audio-muted', enabled ? '0' : '1'); } catch(e) {}
+                }
+                if (volRow) {
+                    volRow.style.opacity = enabled ? '1' : '0.5';
+                    volRow.style.pointerEvents = enabled ? 'auto' : 'none';
+                }
+            });
+        }
+
+        var volSlider = modal.querySelector('#ely-setting-volume');
+        var volValLabel = modal.querySelector('#ely-vol-val');
+        if (volSlider) {
+            var handleVol = function() {
+                var val = parseInt(volSlider.value, 10);
+                if (volValLabel) volValLabel.textContent = val + '%';
+                if (window.ElysiumAudio) {
+                    window.ElysiumAudio.setVolume(val / 100);
+                } else {
+                    try { localStorage.setItem('ely-audio-volume', String(val / 100)); } catch(e) {}
+                }
+            };
+            volSlider.addEventListener('input', handleVol);
+            volSlider.addEventListener('change', function() {
+                handleVol();
+                if (window.ElysiumAudio && !window.ElysiumAudio.isMuted()) {
+                    window.ElysiumAudio.play('button');
+                }
+            });
+        }
+
+        var langSelect = modal.querySelector('#ely-setting-lang');
+        if (langSelect) {
+            langSelect.addEventListener('change', function() {
+                var val = langSelect.value;
+                try { localStorage.setItem('ely-pref-lang', val); } catch(e) {}
+                window.dispatchEvent(new CustomEvent('elysium:lang-changed', { detail: { language: val } }));
+            });
+        }
+
+        var currSelect = modal.querySelector('#ely-setting-currency');
+        if (currSelect) {
+            currSelect.addEventListener('change', function() {
+                var val = currSelect.value;
+                try { localStorage.setItem('ely-pref-currency', val); } catch(e) {}
+                window.dispatchEvent(new CustomEvent('elysium:currency-changed', { detail: { currency: val } }));
+            });
+        }
+
+        var regionSelect = modal.querySelector('#ely-setting-region');
+        if (regionSelect) {
+            regionSelect.addEventListener('change', function() {
+                var val = regionSelect.value;
+                try { localStorage.setItem('ely-pref-region', val); } catch(e) {}
+                window.dispatchEvent(new CustomEvent('elysium:region-changed', { detail: { region: val } }));
             });
         }
 
