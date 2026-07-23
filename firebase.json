@@ -20,12 +20,12 @@
     "redirects": [
       {
         "source": "/regalarte",
-        "destination": "https://regalarte-prototype.pages.dev",
+        "destination": "https://regalarte.danielalonzzo.workers.dev",
         "type": 301
       },
       {
         "source": "/regalarte/**",
-        "destination": "https://regalarte-prototype.pages.dev",
+        "destination": "https://regalarte.danielalonzzo.workers.dev",
         "type": 301
       }
     ],
