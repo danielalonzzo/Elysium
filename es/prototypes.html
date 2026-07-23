@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es-CR">
+
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NDDNWMFH');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Prototipos — Elysium λ Admin</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../CSS/base.css">
+    <link rel="stylesheet" href="../CSS/components.css">
+    <link rel="stylesheet" href="../CSS/pages.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+
+    <!-- Strict Admin Auth Guard -->
+    <script type="module">
+        import { auth } from '../JS/firebase-config.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user || user.email !== SUPER_ADMIN_EMAIL) {
+                window.location.href = '../profiles.html';
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDDNWMFH"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="../admin.html" class="nav-brand">
+                <span class="brand-symbol">λ</span> ELYSIUM <span style="font-size: 0.75rem; opacity: 0.7; margin-left: 0.3rem;">CRM</span>
+            </a>
+            <div class="nav-links">
+                <a href="../admin.html" class="nav-link">← Volver al CRM Admin</a>
+                <a href="../profiles.html" class="nav-link">Cuenta</a>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="page-header">
+        <div class="parallax-lambda">λ</div>
+        <div class="container animate-on-scroll">
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(41, 151, 255, 0.1); border: 1px solid rgba(41, 151, 255, 0.25); color: var(--color-accent); padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;">
+                🔒 Acceso Exclusivo para Súper Admin
+            </div>
+            <h1 style="font-size: 3rem;">Prototipos</h1>
+            <p class="hero-subtitle">Conceptos interactivos, prototipos de clientes y demostraciones exclusivas.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="section">
+        <div class="container">
+
+            <div class="ios-filter-container animate-on-scroll">
+                <div class="ios-filter-capsule">
+                    <div class="ios-search-wrapper" id="ios-search-wrapper">
+                        <svg class="ios-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z"/>
+                        </svg>
+                        <input type="text" class="ios-search-input" id="portfolio-search" placeholder="Buscar prototipos...">
+                    </div>
+                    <div class="ios-divider"></div>
+                    <div class="ios-segmented-control" id="ios-segmented-control">
+                        <div class="ios-segment-slider" id="ios-segment-slider"></div>
+                        <button class="ios-segment active" data-filter="all">Todos</button>
+                        <button class="ios-segment" data-filter="retail">Tiendas</button>
+                        <button class="ios-segment" data-filter="food">Gastronomía</button>
+                        <button class="ios-segment" data-filter="health">Salud</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-grid-preview" id="portfolio-grid">
+
+                <!-- Project: Regalarte de las Américas -->
+                <div class="project-card animate-on-scroll" data-category="retail">
+                    <a href="http://localhost:3000" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                        <div class="project-image browser-mockup">
+                            <iframe src="http://localhost:3000" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="../Regalarte/prototipo/prototipo/public/og-redesign.jpg" alt="Regalarte de las Américas Preview" loading="lazy">
+                        </div>
+                        <div class="project-overlay">
+                            <span>Abrir Prototipo Regalarte (v1.0.0 Beta)</span>
+                        </div>
+                    </a>
+                    <div class="project-info">
+                        <h3>Regalarte de las Américas <span class="project-location">COSTA RICA</span></h3>
+                        <p>Rediseño e-commerce completo con interfaz Liquid Glass, catálogo interactivo, narrativa inmersiva y checkout optimizado.</p>
+                        <div class="project-tags">
+                            <a href="http://localhost:3000" target="_blank">Abrir Prototipo</a>
+                            <span>Liquid Glass</span>
+                            <span>v1.0.0 Beta</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project: Moyra -->
+                <div class="project-card animate-on-scroll delay-1" data-category="food">
+                    <a href="https://moyracr.com" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                        <div class="project-image browser-mockup">
+                            <iframe src="https://moyracr.com" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="../Images/Portfolio/moyracr.jpg" alt="Moyra preview" loading="lazy">
+                        </div>
+                        <div class="project-overlay">
+                            <span>Visitar Moyra Food Studio</span>
+                        </div>
+                    </a>
+                    <div class="project-info">
+                        <h3>Moyra <span class="project-location">COSTA RICA</span></h3>
+                        <p>Comida artesanal, lista para llevar. Food Studio, Takeaway & Online Orders.</p>
+                        <div class="project-tags">
+                            <a href="case-moyra.html" target="_blank">Historia</a>
+                            <a href="prototype-moyra.html" target="_blank">Prototipo</a>
+                            <span>Prototipo Admin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project: Dr. Johnny Piedra -->
+                <div class="project-card animate-on-scroll" data-category="health">
+                    <a href="../Dr-Johnny-Piedra/index.html" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                        <div class="project-image browser-mockup">
+                            <iframe src="../Dr-Johnny-Piedra/index.html" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="../Images/Portfolio/dr-johnny.png" alt="Dr. Johnny Piedra preview" loading="lazy">
+                        </div>
+                        <div class="project-overlay">
+                            <span>Visitar Dr. Johnny Piedra</span>
+                        </div>
+                    </a>
+                    <div class="project-info">
+                        <h3>Dr. Johnny Piedra <span class="project-location">COSTA RICA</span></h3>
+                        <p>Urología Avanzada y Cirugía Mínimamente Invasiva. Atención médica especializada en Costa Rica.</p>
+                        <div class="project-tags">
+                            <a href="../Dr-Johnny-Piedra/index.html" target="_blank">Prototipo Live</a>
+                            <span>Prototipo Admin</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-bottom" style="border-top: none; padding-top: 0;">
+                <span>&copy; 2026 Elysium λ Development & Research. Centro de Prototipos Admin.</span>
+                <span class="brand-symbol footer-lambda">λ</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../JS/main.js"></script>
+    <script src="../JS/elysium-mouse.js"></script>
+    <script src="../JS/elysium-audio.js"></script>
+</body>
+
+</html>

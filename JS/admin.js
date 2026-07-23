@@ -171,6 +171,8 @@ const translations = {
         nav_overview: "Overview",
         nav_clients: "Clients",
         nav_licenses: "Licenses",
+        nav_contacts: "Inquiries",
+        nav_prototypes: "Prototypes",
         logout: "Logout",
         welcome: "Welcome back, Super Admin.",
         total_clients: "Total Clients",
@@ -181,6 +183,8 @@ const translations = {
         clients_desc: "Manage and view all registered partners.",
         licenses_title: "Licenses",
         licenses_desc: "Licenses assigned by active subscriptions, whether paid online or recorded manually.",
+        prototypes_title: "Prototypes",
+        prototypes_desc: "Exclusive internal concepts, client prototypes and interactive demos.",
         table_code: "Code",
         table_status: "Status",
         table_assigned: "Assigned To",
@@ -327,6 +331,8 @@ const translations = {
         nav_overview: "Resumen",
         nav_clients: "Clientes",
         nav_licenses: "Licencias",
+        nav_contacts: "Consultas",
+        nav_prototypes: "Prototipos",
         logout: "Cerrar Sesión",
         welcome: "Bienvenido de nuevo, Súper Admin.",
         total_clients: "Total de Clientes",
@@ -337,6 +343,8 @@ const translations = {
         clients_desc: "Administra y visualiza todos los socios registrados.",
         licenses_title: "Licencias",
         licenses_desc: "Licencias asignadas por suscripciones, tanto por pago web como por registro manual.",
+        prototypes_title: "Prototipos",
+        prototypes_desc: "Conceptos internos exclusivos, prototipos de clientes y demostraciones interactivas.",
         table_code: "Código",
         table_status: "Estado",
         table_assigned: "Asignado a",
@@ -484,6 +492,8 @@ const translations = {
         nav_overview: "Visão Geral",
         nav_clients: "Clientes",
         nav_licenses: "Licenças",
+        nav_contacts: "Consultas",
+        nav_prototypes: "Protótipos",
         logout: "Sair",
         welcome: "Bem-vindo de volta, Super Admin.",
         total_clients: "Total de Clientes",
@@ -494,6 +504,8 @@ const translations = {
         clients_desc: "Gerencie e visualize todos os parceiros registrados.",
         licenses_title: "Licenças",
         licenses_desc: "Licenças atribuídas por subscrições, por pagamento online ou registo manual.",
+        prototypes_title: "Protótipos",
+        prototypes_desc: "Conceitos internos exclusivos, protótipos de clientes e demonstrações interativas.",
         table_code: "Código",
         table_status: "Status",
         table_assigned: "Atribuído a",
@@ -745,6 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target === 'pipeline') loadPipeline();
         if (target === 'licenses') loadLicenses();
         if (target === 'contacts') loadContacts();
+        if (target === 'prototypes') initPrototypesFilter();
     }
 
     navItems.forEach(item => {
@@ -800,6 +813,8 @@ function applyTranslations() {
     if (navLicenses) navLicenses.textContent = t.nav_licenses;
     const navContacts = document.querySelector('[data-target="contacts"] span:not(.sidebar-badge)');
     if (navContacts) navContacts.textContent = t.nav_contacts || "Inquiries";
+    const navPrototypes = document.querySelector('[data-target="prototypes"] span:not(.sidebar-badge)');
+    if (navPrototypes) navPrototypes.textContent = t.nav_prototypes || "Prototypes";
 
     // Logout button has SVG + span — only update the span
     const logoutSpan = document.querySelector('#logoutBtn span');
@@ -825,6 +840,11 @@ function applyTranslations() {
     const conP  = document.querySelector('#contacts-desc');
     if (conH1) conH1.textContent = t.contacts_title || "Inquiries";
     if (conP)  conP.textContent  = t.contacts_desc || "Review contact form submissions.";
+
+    const protoH1 = document.querySelector('#prototypes-title');
+    const protoP  = document.querySelector('#prototypes-desc');
+    if (protoH1) protoH1.textContent = t.prototypes_title || "Prototypes";
+    if (protoP)  protoP.textContent  = t.prototypes_desc || "Exclusive internal concepts, client prototypes and interactive demos.";
 
     // Update table headers
     const ths = document.querySelectorAll('.admin-table th');
@@ -877,6 +897,7 @@ async function initDashboard() {
     if (savedTab === 'pipeline')  loadPipeline();
     if (savedTab === 'licenses')  loadLicenses();
     if (savedTab === 'contacts')  loadContacts();
+    if (savedTab === 'prototypes') initPrototypesFilter();
 }
 
 async function loadStats() {
@@ -3813,5 +3834,76 @@ async function loadContacts() {
     } catch (e) {
         logger.error("Error loading contacts:", e);
         contactsList.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #ff4444; padding: 2rem;">Error loading inquiries.</td></tr>';
+    }
+}
+
+function initPrototypesFilter() {
+    const searchInput = document.getElementById('prototype-search');
+    const segmentControl = document.getElementById('ios-segmented-control-proto');
+    const segmentSlider = document.getElementById('ios-segment-slider-proto');
+    const segments = segmentControl?.querySelectorAll('.ios-segment');
+    const projectCards = document.querySelectorAll('#prototype-grid .project-card');
+
+    if (!segmentControl && !searchInput) return;
+
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    function updateSlider(activeSegment) {
+        if (!segmentSlider || !activeSegment) return;
+        const leftOffset = activeSegment.offsetLeft;
+        const width = activeSegment.offsetWidth;
+        segmentSlider.style.transform = `translateX(${leftOffset}px)`;
+        segmentSlider.style.width = `${width}px`;
+    }
+
+    const initialActive = segmentControl?.querySelector('.ios-segment.active');
+    if (initialActive) {
+        setTimeout(() => updateSlider(initialActive), 100);
+    }
+
+    function filterProjects() {
+        let delayCounter = 0;
+        projectCards.forEach(card => {
+            const category = card.getAttribute('data-category') || '';
+            const title = (card.querySelector('h3')?.textContent || '').toLowerCase();
+            const desc = (card.querySelector('p')?.textContent || '').toLowerCase();
+            const textMatch = title.includes(searchQuery) || desc.includes(searchQuery);
+            const categoryMatch = currentFilter === 'all' || category === currentFilter;
+
+            if (textMatch && categoryMatch) {
+                card.style.display = 'block';
+                setTimeout(() => {
+                    card.classList.remove('hidden');
+                }, 10 + (delayCounter * 50));
+                delayCounter++;
+            } else {
+                card.classList.add('hidden');
+                setTimeout(() => {
+                    if (card.classList.contains('hidden')) {
+                        card.style.display = 'none';
+                    }
+                }, 300);
+            }
+        });
+    }
+
+    if (segments) {
+        segments.forEach(segment => {
+            segment.addEventListener('click', () => {
+                segments.forEach(s => s.classList.remove('active'));
+                segment.classList.add('active');
+                updateSlider(segment);
+                currentFilter = segment.getAttribute('data-filter') || 'all';
+                filterProjects();
+            });
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            filterProjects();
+        });
     }
 }

@@ -225,7 +225,7 @@
     /* ---- Arranque --------------------------------------------------------- */
     init();
     function boot() {
-        injectButton();
+        // injectButton();
         document.addEventListener('click', onClick, { passive: true, capture: true });
     }
     if (document.readyState === 'loading') {
