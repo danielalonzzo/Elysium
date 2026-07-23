@@ -17,6 +17,18 @@
       "firestore.rules",
       "sounds/*.wav"
     ],
+    "redirects": [
+      {
+        "source": "/regalarte",
+        "destination": "https://regalarte-prototype.pages.dev",
+        "type": 301
+      },
+      {
+        "source": "/regalarte/**",
+        "destination": "https://regalarte-prototype.pages.dev",
+        "type": 301
+      }
+    ],
     "headers": [
       {
         "source": "**/*.@(html)",
