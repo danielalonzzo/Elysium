@@ -1,0 +1,4 @@
+# Regalarte de las Américas — el prototipo se sirve desde su propio Worker.
+# elysiumdr.eu/regalarte redirige (301) al despliegue de la app.
+/regalarte      https://regalarte.danielalonzzo.workers.dev/   301
+/regalarte/*    https://regalarte.danielalonzzo.workers.dev/   301

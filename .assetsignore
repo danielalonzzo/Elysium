@@ -6,3 +6,27 @@
 node_modules/
 backend/**
 **/node_modules/**
+**/.git/
+# Regalarte se despliega como Worker propio (regalarte.danielalonzzo.workers.dev);
+# no publicamos su código fuente en el sitio principal.
+Regalarte/
+
+# Herramientas y estado local — nunca deben servirse en la web pública.
+.claude/
+.firebase/
+.wrangler/
+.idx/
+.openai/
+
+# Scripts, secretos y configuración de infraestructura (no son assets del sitio).
+*.py
+**/.env
+**/.env.*
+firestore.rules
+storage.rules
+firebase.json
+wrangler.jsonc
+.cloudflareignore
+.assetsignore
+.gitignore
+.gitattributes
