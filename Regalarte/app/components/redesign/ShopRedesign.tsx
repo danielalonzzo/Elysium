@@ -345,7 +345,7 @@ export function ShopRedesign({
                   <span className="rgx-shop-banner-tag">{t("Colección Exclusiva", "Exclusive Collection")}</span>
                   <h3>La Sele</h3>
                   <p>{t("Producto oficial de la Selección Nacional", "Official National Team Product")}</p>
-                  <span className="rgx-shop-banner-cta">{t("Ver colección", "View collection")} <i aria-hidden="true">↗</i></span>
+                  <span className="rgx-shop-banner-cta">{t("Ver colección", "View collection")} <i aria-hidden="true">&#x2197;&#xFE0E;</i></span>
                 </div>
                 <img
                   src={localAsset("2026/03/banner-la-sele-nuevo.webp")}

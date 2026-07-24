@@ -179,7 +179,7 @@ export function NarrativeOverlay({
             {RGX_SCENES.slice(0, -1).map((scene) => <li key={scene.id}>{getProp(scene.title)}</li>)}
           </ol>
           <div className="rgx-hero-actions">
-            <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <span aria-hidden="true">↗</span></Link>
+            <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
             <Link className="rgx-button rgx-button-glass" href="/inscripcion-mayoreo/">{t("Comprar al por mayor", "Shop wholesale")}</Link>
           </div>
         </div>
@@ -226,7 +226,7 @@ export function NarrativeOverlay({
               )}
               {scene.id === "crossing" && (
                 <div className="rgx-hero-actions">
-                  <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <span aria-hidden="true">↗</span></Link>
+                  <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
                   <Link className="rgx-button rgx-button-glass" href="/inscripcion-mayoreo/">{t("Comprar al por mayor", "Shop wholesale")}</Link>
                 </div>
               )}

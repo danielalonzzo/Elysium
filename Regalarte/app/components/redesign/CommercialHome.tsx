@@ -55,7 +55,7 @@ export function ProductTile({
     <article className="rgx-product-card">
       <Link className="rgx-product-media" href={productHref}>
         <img src={localAsset(product.imageUrl)} alt={product.name} loading="lazy" />
-        <span className="rgx-product-view">{t("Ver producto", "View product")} <i aria-hidden="true">↗</i></span>
+        <span className="rgx-product-view">{t("Ver producto", "View product")} <i aria-hidden="true">&#x2197;&#xFE0E;</i></span>
       </Link>
       <div className="rgx-product-info">
         <div>
@@ -295,7 +295,7 @@ export function CommercialHome({
           <h2 id="rgx-intro-title">{t("Una selección exclusiva", "An exclusive selection")}<br />{t("de souvenirs.", "of souvenirs.")}</h2>
           <div className="rgx-intro-copy">
             <p>{t("Contamos con una amplia variedad de productos para llevar la esencia de Costa Rica a cualquier lugar del mundo.", "We offer a wide variety of products to carry the essence of Costa Rica anywhere in the world.")}</p>
-            <Link className="rgx-text-link" href="/tienda/">{t("Explorar toda la tienda", "Explore entire shop")} <span aria-hidden="true">↗</span></Link>
+            <Link className="rgx-text-link" href="/tienda/">{t("Explorar toda la tienda", "Explore entire shop")} <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
           </div>
         </div>
         <div className="rgx-category-strip">
@@ -304,7 +304,7 @@ export function CommercialHome({
               <img src={localAsset(category.image.src)} alt="" loading={index > 2 ? "lazy" : "eager"} />
               <span className="rgx-category-number">0{index + 1}</span>
               <h3>{category.title}</h3>
-              <span className="rgx-category-arrow" aria-hidden="true">↗</span>
+              <span className="rgx-category-arrow" aria-hidden="true">&#x2197;&#xFE0E;</span>
             </Link>
           ))}
         </div>
@@ -330,7 +330,7 @@ export function CommercialHome({
             <h2 id="rgx-wholesale-title">Precios especiales<br />al por mayor.</h2>
             <p>Adquiera nuestra selección premium a tarifas preferenciales. Beneficios únicos para aliados comerciales.</p>
             <div className="rgx-wholesale-actions">
-              <Link className="rgx-button rgx-button-sun" href="/inscripcion-mayoreo/">Comprar al por mayor <span aria-hidden="true">↗</span></Link>
+              <Link className="rgx-button rgx-button-sun" href="/inscripcion-mayoreo/">Comprar al por mayor <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
               <Link className="rgx-text-link rgx-text-link-light" href="/catalogos-mayoreo/">Ver catálogos</Link>
             </div>
           </div>
@@ -351,7 +351,7 @@ export function CommercialHome({
             <div className="rgx-sele-hero-content">
               <h2 id="rgx-sele-title">La Sele.</h2>
               <p>Viva cada partido con la colección oficial.</p>
-              <Link className="rgx-button rgx-button-glass-dark" href="/la-sele/">Conocer la colección <span aria-hidden="true">↗</span></Link>
+              <Link className="rgx-button rgx-button-glass-dark" href="/la-sele/">Conocer la colección <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
             </div>
           </div>
           <PadlockCarousel products={laSelePage.products} />
@@ -363,7 +363,7 @@ export function CommercialHome({
           <p className="rgx-section-index">05 · Nosotros</p>
           <h2 id="rgx-story-title">Líderes en souvenirs<br />en Costa Rica.</h2>
           <p>{aboutPage.introduction}</p>
-          <Link className="rgx-magic-button" href="/nosotros/"><span>Nuestra historia</span> <i aria-hidden="true">↗</i></Link>
+          <Link className="rgx-magic-button" href="/nosotros/"><span>Nuestra historia</span> <i aria-hidden="true">&#x2197;&#xFE0E;</i></Link>
         </div>
         <div className="rgx-story-img-cell">
            <img src={storyImage} alt="Equipo de Regalarte" loading="lazy" />
@@ -418,7 +418,7 @@ export function CommercialHome({
             <p className="rgx-section-index rgx-gold-text">Contáctenos</p>
             <h2 id="rgx-closing-title">¿Listo para llevar<br />Costa Rica con usted?</h2>
             <div className="rgx-hero-actions">
-              <Link className="rgx-button rgx-button-sun" href="/tienda/">Entrar a la tienda <span aria-hidden="true">↗</span></Link>
+              <Link className="rgx-button rgx-button-sun" href="/tienda/">Entrar a la tienda <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
               <Link className="rgx-button rgx-button-glass-outline" href="/contacto/">Hablar con nosotros</Link>
             </div>
           </div>

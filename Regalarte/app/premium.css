@@ -2613,8 +2613,10 @@ body.drawer-open { overflow: hidden; }
     margin: 0 auto;
     text-align: center;
     color: inherit;
-    white-space: nowrap;
+    white-space: normal;
     width: 100%;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 .distance-btn {
     position: absolute;

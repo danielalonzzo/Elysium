@@ -103,7 +103,7 @@ export function ProductDeck({
         <h2 id={titleId} className="rgx-deck-title">{title}</h2>
         <Link className="rgx-deck-viewall" href={viewAllHref}>
           <span>{viewAllLabel}</span>
-          <i aria-hidden="true">↗</i>
+          <i aria-hidden="true">&#x2197;&#xFE0E;</i>
         </Link>
       </div>
 

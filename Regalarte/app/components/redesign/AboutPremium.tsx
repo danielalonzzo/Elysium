@@ -106,7 +106,7 @@ export function AboutPremiumOverlay({
               {scene.id === "manuel-antonio" && <p className="rgx-scroll-cue"><span aria-hidden="true">↓</span> Desliza para conocer más</p>}
               {scene.id === "souvenir" && (
                 <div className="rgx-hero-actions">
-                  <Link className="rgx-button rgx-button-sun" href="/tienda/">Ver colecciones <span aria-hidden="true">↗</span></Link>
+                  <Link className="rgx-button rgx-button-sun" href="/tienda/">Ver colecciones <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
                   <Link className="rgx-button rgx-button-glass-dark" href="/contacto/">Contáctenos</Link>
                 </div>
               )}

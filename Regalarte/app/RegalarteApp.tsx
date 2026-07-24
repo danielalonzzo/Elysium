@@ -583,7 +583,6 @@ function ContactPage() {
             <a href={WHATSAPP} target="_blank" rel="noopener noreferrer" aria-label={t("Escribir por WhatsApp", "Message on WhatsApp")}><IconWhatsApp /></a>
             <a href={FACEBOOK} target="_blank" rel="noopener noreferrer" aria-label={t("Facebook de Regalarte", "Regalarte on Facebook")}><IconFacebook /></a>
             <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" aria-label={t("Instagram de Regalarte", "Regalarte on Instagram")}><IconInstagram /></a>
-            <a href="#direccion" aria-label={t("Ir a la dirección", "Go to address")}><IconMapPin /></a>
           </div>
         </div>
       </section>
@@ -634,7 +633,7 @@ function WholesaleHubPage() {
   return (
     <div className="wholesale-hub leaf-page" style={{ "--leaf-bg": `url(${LEAF_BG})` } as React.CSSProperties}>
       <header className="wholesale-hero page-container"><p className="eyebrow">MAYOREO REGALARTE</p><h1>Hecho en Costa Rica.<br />Listo para tu tienda.</h1><p>Precios especiales, tarifas reducidas y promociones de temporada para comercios. Un solo punto de entrada para catálogos, registro comercial, solicitudes y consultas de distribución.</p><a className="solid-button" href={WHATSAPP} target="_blank" rel="noopener noreferrer">Hablar con el equipo <IconArrowUpRight /></a></header>
-      <section className="wholesale-grid page-container" aria-label="Opciones de mayoreo">{routes.map((route) => <article className="wholesale-card reveal" key={route.href}><span>{route.eyebrow}</span><h2>{route.title}</h2><p>{route.copy}</p><Link href={route.href}>{route.action}<b aria-hidden="true">↗</b></Link></article>)}</section>
+      <section className="wholesale-grid page-container" aria-label="Opciones de mayoreo">{routes.map((route) => <article className="wholesale-card reveal" key={route.href}><span>{route.eyebrow}</span><h2>{route.title}</h2><p>{route.copy}</p><Link href={route.href}>{route.action}<b aria-hidden="true">&#x2197;&#xFE0E;</b></Link></article>)}</section>
     </div>
   );
 }
