@@ -2523,6 +2523,13 @@ body.drawer-open { overflow: hidden; }
 .map-placeholder {
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    min-height: 340px;
+    padding: 92px 24px 28px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 32px;
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
@@ -2602,26 +2609,24 @@ body.drawer-open { overflow: hidden; }
     opacity: 0.9;
 }
 .address-discrete {
-    position: absolute;
-    bottom: 24px;
-    left: 0;
-    right: 0;
+    position: relative;
     z-index: 1;
     font-size: 0.8rem;
     font-weight: 500;
+    line-height: 1.4;
     opacity: 0.6;
-    margin: 0 auto;
+    margin: 0;
     text-align: center;
     color: inherit;
     white-space: normal;
     width: 100%;
-    padding: 0 16px;
+    max-width: 340px;
+    padding: 0 8px;
     box-sizing: border-box;
 }
 .distance-btn {
-    position: absolute;
-    bottom: 60px;
-    left: 24px;
+    position: relative;
+    align-self: flex-start;
     z-index: 2;
     display: inline-flex;
     align-items: center;

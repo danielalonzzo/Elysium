@@ -12,6 +12,7 @@ import type {
 } from "./types";
 import { useExperienceMode } from "./useExperienceMode";
 import { setDockAnimationActive } from "../../utils/dockVisibility";
+import { IconArrowUpRight } from "../Icons";
 
 import { useLanguage } from "../LanguageContext";
 
@@ -179,7 +180,7 @@ export function NarrativeOverlay({
             {RGX_SCENES.slice(0, -1).map((scene) => <li key={scene.id}>{getProp(scene.title)}</li>)}
           </ol>
           <div className="rgx-hero-actions">
-            <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
+            <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <IconArrowUpRight className="rgx-btn-arrow" /></Link>
             <Link className="rgx-button rgx-button-glass" href="/inscripcion-mayoreo/">{t("Comprar al por mayor", "Shop wholesale")}</Link>
           </div>
         </div>
@@ -226,7 +227,7 @@ export function NarrativeOverlay({
               )}
               {scene.id === "crossing" && (
                 <div className="rgx-hero-actions">
-                  <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <span aria-hidden="true">&#x2197;&#xFE0E;</span></Link>
+                  <Link className="rgx-button rgx-button-sun" href="/tienda/">{t("Comprar al detalle", "Shop retail")} <IconArrowUpRight className="rgx-btn-arrow" /></Link>
                   <Link className="rgx-button rgx-button-glass" href="/inscripcion-mayoreo/">{t("Comprar al por mayor", "Shop wholesale")}</Link>
                 </div>
               )}
