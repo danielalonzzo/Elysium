@@ -36,6 +36,35 @@ function warpProgress(raw: number) {
   return ACT1_STORY + ((raw - ACT1_SCROLL) / (1 - ACT1_SCROLL)) * (1 - ACT1_STORY);
 }
 
+/*
+ * Color del lienzo del documento a lo largo de la cinemática. Safari en iOS
+ * pinta con él la barra de direcciones, así que replica lo que se ve en el
+ * borde inferior de la escena: césped en penumbra (Acto 1) → vacío (Acto 2) →
+ * amanecer frío (Actos 3–4). Ver `html.hdc-immersive` en globals.css.
+ */
+const CANVAS_RAMP: Array<{ at: number; rgb: [number, number, number] }> = [
+  { at: 0.0, rgb: [32, 48, 22] },
+  { at: 0.13, rgb: [32, 48, 22] },
+  { at: 0.22, rgb: [6, 6, 9] },
+  { at: 1.0, rgb: [14, 15, 18] },
+];
+
+function canvasColor(p: number) {
+  let lo = CANVAS_RAMP[0];
+  let hi = CANVAS_RAMP[CANVAS_RAMP.length - 1];
+  for (let i = 1; i < CANVAS_RAMP.length; i += 1) {
+    if (p <= CANVAS_RAMP[i].at) {
+      lo = CANVAS_RAMP[i - 1];
+      hi = CANVAS_RAMP[i];
+      break;
+    }
+  }
+  const span = hi.at - lo.at;
+  const t = span > 0 ? clamp((p - lo.at) / span) : 0;
+  const mix = (i: number) => Math.round(lo.rgb[i] + (hi.rgb[i] - lo.rgb[i]) * t);
+  return `rgb(${mix(0)}, ${mix(1)}, ${mix(2)})`;
+}
+
 /** Portada estática para reduced-motion / sin WebGL (variante accesible). */
 function StaticHero() {
   return (
@@ -77,6 +106,24 @@ export function CinematicStory() {
     let cleanup = () => {};
     setDockAnimationActive("portada", true);
 
+    const docRoot = document.documentElement;
+    const paintChrome = (p: number) => {
+      docRoot.style.setProperty("--hdc-canvas", canvasColor(p));
+      docRoot.classList.toggle("hdc-immersive", p < 0.995);
+    };
+
+    const rawProgress = () => {
+      const root = rootRef.current;
+      if (!root) return 0;
+      const rect = root.getBoundingClientRect();
+      return -rect.top / Math.max(root.offsetHeight - window.innerHeight, 1);
+    };
+
+    // El cromo entra ya teñido: si esperásemos al primer `commit`, la barra
+    // parpadearía en blanco hasta el primer scroll. Se parte de la posición
+    // real —no de cero— por si el navegador restaura el scroll a media página.
+    paintChrome(warpProgress(clamp(rawProgress())));
+
     const commit = (next: number) => {
       const safe = warpProgress(clamp(next));
       if (Math.abs(safe - last) < 0.001) return;
@@ -84,14 +131,13 @@ export function CinematicStory() {
       setProgress(safe);
       // El dock reaparece limpiamente al alcanzar el final de la cinemática.
       setDockAnimationActive("portada", safe < 0.98);
+      // El cromo del navegador acompaña al suelo de la escena.
+      paintChrome(safe);
     };
 
     const measure = () => {
-      const root = rootRef.current;
-      if (!root) return;
-      const rect = root.getBoundingClientRect();
-      const travel = Math.max(root.offsetHeight - window.innerHeight, 1);
-      commit(-rect.top / travel);
+      if (!rootRef.current) return;
+      commit(rawProgress());
     };
 
     const setupNativeScroll = () => {
@@ -145,6 +191,8 @@ export function CinematicStory() {
     return () => {
       disposed = true;
       setDockAnimationActive("portada", false);
+      docRoot.classList.remove("hdc-immersive");
+      docRoot.style.removeProperty("--hdc-canvas");
       cleanup();
     };
   }, [mode]);

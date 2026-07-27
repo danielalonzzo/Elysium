@@ -561,6 +561,26 @@ body.nav-open {
   --scene-desc: #e9e2d6;
   color: #f5f5f5;
 }
+/*
+ * Continuidad con el cromo del navegador.
+ *
+ * Safari en iOS tiñe la barra de direcciones con el COLOR DE FONDO DEL
+ * DOCUMENTO (el que `body` propaga al lienzo), no con lo que se ve en pantalla.
+ * Con el tema claro eso pintaba una franja blanca justo debajo del césped.
+ * Mientras corre la cinemática, `CinematicStory` marca el documento y va
+ * escribiendo `--hdc-canvas` con el color del suelo de la escena, de modo que
+ * la barra se lea como una prolongación del pasto y se apague con él.
+ */
+html.hdc-immersive body {
+  background-color: var(--hdc-canvas, #203016);
+}
+/* Refuerzo para el cromo móvil. En escritorio se deja fuera: cambiaría el color
+   de la barra de desplazamiento a media cinemática. */
+@media (max-width: 767px) {
+  html.hdc-immersive {
+    color-scheme: dark;
+  }
+}
 .hdc-story--cinematic {
   /* 397vh = 100vh de viewport + 297vh de recorrido: ~63vh para el Acto 1
      (la mitad que antes) y ~234vh para los Actos 2–4, que no cambian de ritmo. */
@@ -633,11 +653,23 @@ body.nav-open {
 .hdc-coords-sep {
   opacity: 0.5;
 }
+/*
+ * En móvil la copia se apoya en el borde inferior: la cartela de pieza se ha
+ * mudado arriba a la derecha, así que ya no hay nada que esquivar y el motivo
+ * 3D (árbol, esfera) queda despejado en la mitad superior.
+ */
 .hdc-scene-stack {
   position: absolute;
   left: 22px;
   right: 22px;
-  bottom: 130px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 767px) {
+  /* La escena de conversión no baja: abajo reaparece el Magic Bottom, y sus
+     botones necesitan el mismo aire de siempre (130 px sobre el borde). */
+  .hdc-scene-stack .hdc-scene--revelacion {
+    bottom: 116px;
+  }
 }
 @media (min-width: 768px) {
   .hdc-scene-stack {
@@ -830,14 +862,22 @@ body.nav-open {
   position: absolute;
   left: 50%;
   bottom: 2rem;
-  transform: translateX(-50%);
+  transform: translate(-50%, var(--hdc-specimen-rise, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.3rem;
+  margin: 0;
   padding: 0.55rem 1.1rem 0;
   text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: 0;
   border-top: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 0;
+  font: inherit;
+  color: inherit;
   pointer-events: none;
   max-width: min(88vw, 22rem);
 }
@@ -860,6 +900,97 @@ body.nav-open {
   }
   .hdc-specimen-name {
     font-size: 1.12rem;
+  }
+}
+
+/*
+ * Móvil · la cartela deja de ser un pie de foto y pasa a ser una pastilla
+ * táctil arriba a la derecha, enfrente de las coordenadas: mismo lenguaje de
+ * vidrio que el riel de capítulos. Colapsada solo enseña el nombre; al tocarla
+ * (o al pasar el puntero) despliega la ficha completa. Así libera el borde
+ * inferior, donde ahora vive la copia de cada acto.
+ */
+@media (max-width: 767px) {
+  .hdc-specimen {
+    left: auto;
+    right: 16px;
+    bottom: auto;
+    top: calc(var(--header-h) + 4px);
+    transform: translateY(var(--hdc-specimen-rise, 0px));
+    align-items: flex-end;
+    gap: 0;
+    padding: 7px 13px;
+    /* Tope estrecho: en 375 px la lectura GPS llega hasta ~200 px, así que la
+       pastilla parte por detrás de ella y envuelve el nombre en dos líneas. */
+    max-width: min(40vw, 11rem);
+    text-align: right;
+    border: 1px solid rgba(245, 245, 245, 0.16);
+    border-radius: 14px;
+    background: rgba(16, 15, 13, 0.52);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 10px 28px -18px rgba(0, 0, 0, 0.9);
+    pointer-events: auto;
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .hdc-specimen.is-open {
+    background: rgba(16, 15, 13, 0.74);
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .hdc-specimen-name {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    font-size: 0.72rem;
+    line-height: 1.3;
+  }
+  /* Chevron: avisa de que la pastilla despliega la ficha. */
+  .hdc-specimen-name::after {
+    content: "";
+    flex: none;
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    opacity: 0.7;
+    transform: translateY(-1px) rotate(45deg);
+    transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .hdc-specimen-note {
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-top: 0;
+    font-size: 0.56rem;
+    letter-spacing: 0.12em;
+    opacity: 0;
+    transition:
+      grid-template-rows 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      margin-top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.24s ease;
+  }
+  .hdc-specimen-note-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .hdc-specimen.is-open .hdc-specimen-name::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+  .hdc-specimen.is-open .hdc-specimen-note {
+    grid-template-rows: 1fr;
+    margin-top: 5px;
+    opacity: 1;
+  }
+}
+@media (max-width: 767px) and (hover: hover) {
+  .hdc-specimen:hover .hdc-specimen-name::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+  .hdc-specimen:hover .hdc-specimen-note {
+    grid-template-rows: 1fr;
+    margin-top: 5px;
+    opacity: 1;
   }
 }
 

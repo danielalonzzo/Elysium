@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { CONTACT, PRICES } from "../../data/content";
 import { IconArrowUpRight, IconWhatsApp } from "../site/Icons";
 
@@ -70,6 +70,10 @@ const clamp = (v: number) => Math.min(1, Math.max(0, v));
  * Cartelas de identificación (estilo ficha de museo) para las dos piezas que
  * protagonizan la cinemática. La del Diquís se apaga justo cuando la esfera se
  * fragmenta en las cartas: a partir de ahí la pieza ya no es la esfera.
+ *
+ * En móvil la cartela se convierte en una pastilla táctil arriba a la derecha
+ * —enfrente de las coordenadas— que solo muestra el nombre y despliega la ficha
+ * completa al tocarla o al pasar el puntero (ver globals.css).
  */
 type Specimen = { id: string; name: string; note: React.ReactNode; start: number; end: number };
 
@@ -111,6 +115,7 @@ const DARK_LAT_N = 9.8138;
 const DARK_LON_O = 83.7202;
 
 export function NarrativeOverlay({ progress }: { progress: number }) {
+  const [openSpecimen, setOpenSpecimen] = useState<string | null>(null);
   const activeIndex = SCENES.reduce((acc, s, i) => (progress >= s.start ? i : acc), 0);
   const latN = DARK_LAT_N + (progress - DARK_ONSET) * 0.45;
   const lonO = DARK_LON_O - (progress - DARK_ONSET) * 0.23;
@@ -136,7 +141,7 @@ export function NarrativeOverlay({ progress }: { progress: number }) {
           return (
             <article
               key={scene.id}
-              className={`hdc-scene hdc-scene--${scene.align}`}
+              className={`hdc-scene hdc-scene--${scene.align} hdc-scene--${scene.id}`}
               style={style}
             >
               <p className="hdc-scene-kicker">
@@ -174,15 +179,28 @@ export function NarrativeOverlay({ progress }: { progress: number }) {
       {SPECIMENS.map((sp) => {
         const opacity = specimenOpacity(progress, sp);
         if (opacity <= 0) return null;
+        const isOpen = openSpecimen === sp.id;
         return (
-          <figcaption
+          <button
             key={sp.id}
-            className="hdc-specimen"
-            style={{ opacity, transform: `translate(-50%, ${(1 - opacity) * 10}px)` }}
+            type="button"
+            /* Decorativa: vive dentro de una capa aria-hidden, así que no entra
+               en el orden de tabulación (el mismo dato se lee en las secciones). */
+            tabIndex={-1}
+            className={`hdc-specimen${isOpen ? " is-open" : ""}`}
+            style={
+              {
+                opacity,
+                "--hdc-specimen-rise": `${(1 - opacity) * 10}px`,
+              } as CSSProperties
+            }
+            onClick={() => setOpenSpecimen(isOpen ? null : sp.id)}
           >
             <span className="hdc-specimen-name">{sp.name}</span>
-            <span className="hdc-specimen-note">{sp.note}</span>
-          </figcaption>
+            <span className="hdc-specimen-note">
+              <span className="hdc-specimen-note-inner">{sp.note}</span>
+            </span>
+          </button>
         );
       })}
 
