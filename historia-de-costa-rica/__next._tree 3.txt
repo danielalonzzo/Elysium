@@ -1,5 +1,0 @@
-:HL["/historia-de-costa-rica/_next/static/chunks/233y04knfhioq.css","style"]
-:HL["https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap","style"]
-:HL["/historia-de-costa-rica/css/components/f22-system-settings.css","style"]
-:HL["/historia-de-costa-rica/logo.jpg","image"]
-0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}},"staleTime":300,"buildId":"sYQrEX6dytAUYGTqwbF8k"}

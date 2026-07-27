@@ -32,7 +32,7 @@ test("renderiza el rediseño Regalarte con noindex y módulos Elysium", async ()
 test("resuelve rutas representativas del sitio rediseñado", async () => {
   const routes = [
     ["/nosotros/", /Compromiso Ambiental/],
-    ["/tienda/", /Tienda Regalarte/],
+    ["/tienda/", /Tienda[\s\S]*?Regalarte/],
     ["/mayoreo/", /Hecho en Costa Rica/],
     ["/la-sele/", /Productos Oficiales de La Sele/],
     ["/blog/", /Tucanes de Costa Rica/],

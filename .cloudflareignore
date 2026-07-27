@@ -3,6 +3,13 @@
 .vscode/
 .DS_Store
 *.pxd
+*.log
+firebase-debug.log
+.firebase/
+.wrangler/
+backend/
+*.py
 node_modules/
 Regalarte/
 historiadecostarica/
+
