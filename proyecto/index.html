@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="app-version" content="v1.0.0-build.1">
+    <title>Elysium Law | Abogados</title>
+
+    <!-- F17: Web App Downloader (manifest) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#D4AF37">
+
+    <!-- F01: Loading Page -->
+    <script>
+        window.ELYSIUM_PRELOADER = {
+            brandName: 'Elysium Law',
+            logoHTML: '<span style="font-size:3rem;line-height:1;font-weight:bold;color:#D4AF37;">EL</span>',
+            tagline: 'Cargando plataforma legal...',
+            accent: '#D4AF37',
+            background: '#0B0B0B',
+            textColor: '#F5F5F7',
+            minDuration: 1200
+        };
+    </script>
+    <script src="elysium-core/elysium-preloader.js"></script>
+
+    <!-- Estilos de la firma -->
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/layout.css">
+</head>
+<body>
+    <!-- F02: Header Mobile-First -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="./" class="brand-logo">Elysium Law</a>
+            <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <nav class="nav-menu">
+                <a href="#inicio">Inicio</a>
+                <a href="#servicios">Servicios Legales</a>
+                <a href="#equipo">Nuestro Equipo</a>
+                <a href="#contacto">Contacto</a>
+                <!-- F14: Theme Switcher en menú -->
+                <button class="theme-switcher-btn" onclick="toggleTheme()" aria-label="Cambiar tema">🌓</button>
+                <!-- F15: Multi-language switcher -->
+                <button class="lang-switcher-btn" onclick="toggleLanguage()">EN / ES</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- F03: Scroll Reveal -->
+        <section id="inicio" class="hero reveal">
+            <div class="hero-content">
+                <h1>Excelencia Legal Europea</h1>
+                <p>Protegemos sus intereses con rigor y estrategia avanzada.</p>
+                <a href="#servicios" class="btn-primary">Conozca más</a>
+            </div>
+        </section>
+
+        <section id="servicios" class="services reveal">
+            <h2>Nuestros Servicios</h2>
+            <div class="grid-services">
+                <div class="card">
+                    <h3>Derecho Corporativo</h3>
+                    <p>Asesoría integral para empresas y startups en la UE.</p>
+                    <!-- F16: Multi-Currency example -->
+                    <span class="price-tag" data-price="250">250 EUR / hr</span>
+                </div>
+                <div class="card">
+                    <h3>Litigios y Arbitraje</h3>
+                    <p>Defensa firme en tribunales europeos.</p>
+                    <span class="price-tag" data-price="300">300 EUR / hr</span>
+                </div>
+                <div class="card">
+                    <h3>M&A (Fusiones)</h3>
+                    <p>Operaciones de reestructuración corporativa.</p>
+                    <span class="price-tag" data-price="400">400 EUR / hr</span>
+                </div>
+            </div>
+        </section>
+        
+        <section id="equipo" class="team reveal">
+            <h2>Nuestro Equipo</h2>
+            <p>Socios con más de 20 años de experiencia internacional y litigios complejos.</p>
+        </section>
+    </main>
+
+    <!-- F09: Magic Bottom -->
+    <div id="fab-wrapper" class="magic-bottom">
+        <button id="fab-main" class="fab-btn" aria-label="Contacto Rápido">💬</button>
+        <div class="fab-actions">
+            <a href="https://wa.me/123456789" class="fab-action" target="_blank" aria-label="WhatsApp">WA</a>
+            <a href="mailto:info@elysiumlaw.eu" class="fab-action" aria-label="Email">✉️</a>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-bottom-inner">
+            <!-- El tag de versión F05 se inyectará aquí automáticamente -->
+            <button onclick="ElysiumConsent.open()" class="cookie-settings-link">Configuración de cookies</button>
+        </div>
+        <!-- F10: Elysium Signature -->
+        <p class="footer-credit">
+            Developed by 
+            <a href="https://elysiumdr.eu" target="_blank" rel="noopener noreferrer">
+                Elysium λ Development &amp; Research
+            </a>.
+        </p>
+    </footer>
+
+    <!-- Scripts Nucleares y Configuración -->
+    <script>
+        // F05 / F06: Information System / System Update
+        window.ELYSIUM_SYSTEM = {
+            stage: 'Beta', 
+            license: 'ELY-2026-LAW',
+            brandName: 'Elysium Law', 
+            brandSymbolHTML: '⚖️',
+            accent: '#D4AF37', 
+            theme: 'dark',
+            portalUrl: 'https://elysiumlaw.eu',
+            supportEmail: 'soporte@elysiumlaw.eu',
+            techEmail: 'daniel.morales@elysiumdr.eu',
+            devName: 'Elysium λ Development & Research',
+            devUrl: 'https://elysiumdr.eu',
+            legal: { terms: '/terms.html', privacy: '/privacy.html' },
+            legalFramework: 'RGPD (UE)',
+            healthEndpoint: '/manifest.json',
+            locale: 'es'
+        };
+
+        // F08: Cookies Management
+        window.ELYSIUM_CONSENT = {
+            storageKey: 'elysiumlaw_cookie_consent',
+            consentVersion: '1.0',
+            accent: '#D4AF37',
+            privacyUrl: '/privacy.html',
+            categories: [
+                { id: 'analytics', labelKey: 'analytics' }
+            ]
+        };
+
+        // F11: Efectos de Temporada (reservado)
+        window.ELYSIUM_SEASONAL = { seasons: [] };
+
+        // F12: Magic Mouse (reservado)
+        window.ELYSIUM_MOUSE = { accent: '#D4AF37', ringSize: 32, dotSize: 6 };
+    </script>
+    <script src="elysium-core/elysium-system-info.js"></script>
+    <script src="elysium-core/elysium-compliance.js"></script>
+    <script src="elysium-core/elysium-seasonal.js"></script>
+    <script src="elysium-core/elysium-mouse.js"></script>
+    
+    <!-- Lógica local del prototipo -->
+    <script src="src/core/main.js"></script>
+</body>
+</html>

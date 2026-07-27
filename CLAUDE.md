@@ -18,17 +18,25 @@ salen las dos cosas que más desconciertan:
 
 ## Dónde está cada cosa
 
-El código fuente de los prototipos **no vive aquí**. Está en la carpeta hermana:
+Todo vive dentro de este repositorio, con un único git. Un proyecto solo sale de
+aquí cuando hay contrato y pasa a ser un negocio real: entonces se lleva su
+propio repositorio y su propio dominio (así salió `Moyra/`, que hoy está en
+`λ/Moyra/`).
+
+Dentro, el reparto lo decide una sola pregunta: **¿esto es una página?**
 
 ```
-Elysium λ/
-├── Elysium/       ← este repositorio: el SITIO (lo que se sirve)
-└── Prototipos/    ← los PROYECTOS (donde se trabaja)
+Elysium/
+├── ONCORE/          ← sitios: la carpeta ES la URL, se sirven tal cual
+├── puravidapets/
+├── …
+└── Prototipos/      ← lo que NO es una página: fuentes sin compilar,
+                       documentos, grabaciones. Excluido del despliegue.
 ```
 
-Elysium contiene el resultado ya compilado; Prototipos contiene el código que lo
-genera. Se separan así porque una carpeta dentro de Elysium es una URL, y el
-código fuente no es una página.
+La raíz es la web, así que solo puede haber ahí lo que se pueda servir. Una app
+Next no se puede servir: no tiene ningún `index.html` hasta que se compila. Su
+código va a `Prototipos/` y lo que aterriza en la raíz es el resultado.
 
 ## Qué hay en Elysium
 
@@ -40,18 +48,28 @@ código fuente no es una página.
 **Subsitios publicados** — cada carpeta con su `index.html` se sirve en la URL de
 su nombre, y `portfolio.html` los enlaza:
 
-| Carpeta | URL |
-|---|---|
-| `historia-de-costa-rica/` | `/historia-de-costa-rica/` |
-| `ONCORE/` | `/ONCORE/` |
-| `Dr-Johnny-Piedra/` | `/Dr-Johnny-Piedra/` |
-| `VALTRIX Engineering/` | `/VALTRIX Engineering/` |
-| `puravidapets/` | `/puravidapets/` |
+| Carpeta | URL | Se edita en |
+|---|---|---|
+| `ONCORE/` | `/ONCORE/` | la propia carpeta |
+| `Dr-Johnny-Piedra/` | `/Dr-Johnny-Piedra/` | la propia carpeta |
+| `VALTRIX Engineering/` | `/VALTRIX Engineering/` | la propia carpeta |
+| `proyecto/` | `/proyecto/` | la propia carpeta |
+| `historia-de-costa-rica/` | `/historia-de-costa-rica/` | `Prototipos/historia-de-costa-rica/` |
+| `puravidapets/` | `/puravidapets/` | `Prototipos/puravidapets/` |
 
-`historia-de-costa-rica/` es **producto compilado**: lo genera entero
-`scripts/publish-historia-de-costa-rica.sh` a partir de
-`../Prototipos/historia-de-costa-rica/`. Editarlo a mano no sirve de nada, se
-pierde en la siguiente publicación.
+Las cuatro primeras son HTML plano: la carpeta es a la vez el proyecto y el
+sitio, y se trabaja directamente ahí.
+
+Las dos últimas son **producto compilado**. Editarlas a mano no sirve de nada, se
+pierde en la siguiente publicación:
+
+- `historia-de-costa-rica/` la genera entera
+  `scripts/publish-historia-de-costa-rica.sh` desde
+  `Prototipos/historia-de-costa-rica/` (Next 16).
+- `puravidapets/` es el `vite build` de `Prototipos/puravidapets/`. El
+  `index.html` de la fuente es el punto de entrada de Vite y apunta a
+  `/src/main.jsx`: en producción no funciona, por eso lo que se publica es la
+  compilación.
 
 **Lo propio de Elysium, que no son páginas:**
 
@@ -64,18 +82,20 @@ pierde en la siguiente publicación.
 
 ## Qué hay en Prototipos
 
-Los proyectos de cliente. Ninguno se publica desde Elysium salvo por su carpeta
-compilada:
+Lo que no se puede servir tal cual. **Está excluido de las tres listas de
+despliegue**, porque si no se serviría en `elysiumdr.eu/Prototipos/`:
 
 - `historia-de-costa-rica/` — aplicación Next 16. Tiene su propio `CLAUDE.md`;
-  léelo antes de tocarlo. Se publica en `elysiumdr.eu/historia-de-costa-rica/`.
+  léelo antes de tocarlo. Se publica con el script, en la raíz.
+- `puravidapets/` — aplicación Vite/React. Se publica con `vite build`, en la
+  raíz.
 - `Regalarte/` — aplicación Next que se despliega como **Worker propio** en
   `regalarte.danielalonzzo.workers.dev`. Elysium solo guarda una redirección
-  (`/regalarte` → el Worker, en `firebase.json`).
-- `ONCORE/`, `Dr-Johnny-Piedra/`, `VALTRIX Engineering/`, `puravidapets/`,
-  `Moyra/`, `Kimberly Vargas/`, `Elysium Games CR/`, `proyecto/` — material de
-  trabajo. Ojo: las cuatro primeras **también** tienen su copia publicada en
-  Elysium, que es la que se sirve.
+  (`/regalarte` → el Worker, en `firebase.json`), así que no tiene carpeta
+  publicada.
+- `Elysium Games CR/`, `Ideas/` — documentos y grabaciones, no son webs. Las
+  grabaciones (`*.mov`) están fuera de git: sin git-lfs, un vídeo se queda para
+  siempre en el historial aunque luego se borre.
 
 ## Dos paradigmas conviven aquí
 
@@ -83,10 +103,11 @@ Es la causa principal de la confusión al entrar:
 
 - **La mayoría del sitio es HTML plano.** Abres `index.html` y eso es la página.
   Lo que lees es lo que se sirve.
-- **Los proyectos de Prototipos con `package.json` no.** Son aplicaciones React
-  que **no tienen ningún `index.html`** hasta que se compilan. Su punto de
-  entrada es `app/page.tsx`, y su regla es: una carpeta dentro de `app/` = una
-  URL. Si buscas su `index.html` y no aparece, no está perdido: aún no existe.
+- **Los proyectos de Prototipos con `package.json` no.** Son aplicaciones React.
+  Su punto de entrada es `app/page.tsx`, y su regla es: una carpeta dentro de
+  `app/` = una URL. Si buscas su `index.html` y no aparece, no está perdido: aún
+  no existe. Y si aparece, cuidado: en un proyecto Vite el `index.html` de la
+  raíz es el andamio del servidor de desarrollo, no la página.
 
 ## Convenciones
 
@@ -101,10 +122,7 @@ Es la causa principal de la confusión al entrar:
 - **El compilado se versiona.** Las carpetas compiladas se guardan en git a
   propósito, porque el sitio se despliega desde el repositorio. Van marcadas como
   generadas en `.gitattributes` para que no ensucien los `git diff`.
-
-## Aviso
-
-**`Prototipos/` no está bajo control de versiones.** Al sacar los proyectos de
-Elysium salieron también de git: `Regalarte/` y `historia-de-costa-rica/` ya no
-tienen historial ni copia de seguridad más allá de iCloud. Conviene darles un
-repositorio propio.
+- **Un solo git.** Ningún proyecto tiene repositorio, rama ni remoto propios
+  mientras viva aquí. `Regalarte/` e `historia-de-costa-rica/` traían uno de
+  antes; se retiró y su historial quedó guardado como `.bundle` en
+  `λ/_git-backup/`, fuera del repositorio.

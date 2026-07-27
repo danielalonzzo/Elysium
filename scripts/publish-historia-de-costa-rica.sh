@@ -2,13 +2,15 @@
 #
 # Publica el prototipo «Historia de Costa Rica» dentro del sitio de Elysium.
 #
-# El código fuente vive FUERA de este repositorio, junto a él:
+# El código fuente y el sitio publicado conviven en el repositorio:
 #
-#   Elysium λ/Prototipos/historia-de-costa-rica/  → código fuente (Next 16)
-#   Elysium λ/Elysium/historia-de-costa-rica/     → sitio publicado en
-#                                                   elysiumdr.eu/historia-de-costa-rica/
+#   Prototipos/historia-de-costa-rica/  → código fuente (Next 16)
+#   historia-de-costa-rica/             → sitio publicado en
+#                                         elysiumdr.eu/historia-de-costa-rica/
 #
-# Elysium solo contiene el resultado compilado, porque la raíz del repositorio es
+# Los dos no pueden llamarse igual en la raíz, y la fuente de una app Next no es
+# una página: no tiene ningún `index.html` hasta que se compila. Por eso la raíz
+# guarda solo el resultado, que es lo que se sirve — la raíz del repositorio es
 # la raíz de la web (`"public": "."` en firebase.json) y el nombre de la carpeta
 # ES la dirección. En Prototipos/ no se trabaja el sitio, se trabaja el proyecto.
 #
@@ -20,8 +22,8 @@ PREFIX="/historia-de-costa-rica"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # `cd … && pwd` resuelve la ruta y aborta con un error claro si Prototipos/ no
 # está donde se espera, en vez de compilar en el vacío.
-SRC="$(cd "$ROOT/../Prototipos/historia-de-costa-rica" 2>/dev/null && pwd)" || {
-  echo "✗ No se encontró el código fuente en «Elysium λ/Prototipos/historia-de-costa-rica»." >&2
+SRC="$(cd "$ROOT/Prototipos/historia-de-costa-rica" 2>/dev/null && pwd)" || {
+  echo "✗ No se encontró el código fuente en «Prototipos/historia-de-costa-rica»." >&2
   exit 1
 }
 DEST="$ROOT/historia-de-costa-rica"

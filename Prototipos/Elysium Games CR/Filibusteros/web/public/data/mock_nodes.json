@@ -1,0 +1,98 @@
+[
+    {
+      "id": "nodo_01",
+      "orden": 1,
+      "titulo": "La Movilización Estratégica",
+      "periodo": "Febrero - Marzo 1856",
+      "contexto": "William Walker ha consolidado su poder en Nicaragua y representa una amenaza inminente para la soberanía nacional. El ejército debe prepararse.",
+      "problema": "¿Cuál debe ser la doctrina defensiva inicial?",
+      "opciones": [
+        { "id": "opt_A", "label": "Atrincheramiento en la Meseta Central para defender la capital." },
+        { "id": "opt_B", "label": "Marcha ofensiva inmediata hacia la frontera norte." }
+      ],
+      "opcion_correcta": "opt_B",
+      "tipo_resolucion": "ESTANDAR",
+      "feedback_acierto": "Decisión histórica correcta. La movilización rápida permitió trasladar el teatro de operaciones fuera del núcleo poblacional y económico del país.",
+      "feedback_error": "Fallo logístico. Ceder Guanacaste habría permitido al enemigo consolidar rutas de suministro y avanzar sin resistencia hacia el interior."
+    },
+    {
+      "id": "nodo_02",
+      "orden": 2,
+      "titulo": "Batalla de Santa Rosa",
+      "periodo": "20 de Marzo de 1856",
+      "contexto": "Las tropas de avanzada filibusteras se han atrincherado en la Casona de Santa Rosa. Están esperando refuerzos y armamento pesado.",
+      "problema": "¿Cómo neutralizar esta posición fortificada?",
+      "opciones": [
+        { "id": "opt_A", "label": "Iniciar un asedio prolongado y esperar a que se rindan." },
+        { "id": "opt_B", "label": "Ataque rápido y frontal de envolvimiento." }
+      ],
+      "opcion_correcta": "opt_B",
+      "tipo_resolucion": "ESTANDAR",
+      "feedback_acierto": "¡Victoria! El ataque rápido redujo la distancia y anuló la ventaja balística de los rifles filibusteros en solo 15 minutos.",
+      "feedback_error": "Error táctico. Un asedio habría permitido la llegada de refuerzos enemigos, perdiendo la ventaja de la sorpresa."
+    },
+    {
+      "id": "nodo_03",
+      "orden": 3,
+      "titulo": "Batalla de Sardinal",
+      "periodo": "10 de Abril de 1856",
+      "contexto": "Los filibusteros intentan abrir un segundo frente navegando por el río Sarapiquí para atacar el flanco atlántico.",
+      "problema": "¿Cómo frenar esta incursión fluvial?",
+      "opciones": [
+        { "id": "opt_A", "label": "Abandonar la ribera y fortificar los poblados cercanos." },
+        { "id": "opt_B", "label": "Preparar una emboscada en la confluencia fluvial." }
+      ],
+      "opcion_correcta": "opt_B",
+      "tipo_resolucion": "ESTANDAR",
+      "feedback_acierto": "Excelente maniobra. La emboscada contuvo la incursión por el flanco atlántico, impidiendo una ruta de penetración hacia el interior.",
+      "feedback_error": "Decisión fatal. Abandonar el río les habría dado vía libre para internarse en el territorio nacional y dividir a nuestras fuerzas."
+    },
+    {
+      "id": "nodo_04",
+      "orden": 4,
+      "titulo": "Guerra Urbana en Rivas",
+      "periodo": "11 de Abril de 1856",
+      "contexto": "El enemigo ha tomado el Mesón de Guerra, una estructura fortificada desde la cual generan un fuego cruzado letal que paraliza nuestro avance.",
+      "problema": "¿Cómo desarticular esta posición inexpugnable?",
+      "opciones": [
+        { "id": "opt_A", "label": "Ordenar un repliegue general y buscar otra ruta." },
+        { "id": "opt_B", "label": "Solicitar una acción voluntaria de alto riesgo para incendiar la estructura." }
+      ],
+      "opcion_correcta": "opt_B",
+      "tipo_resolucion": "ESTANDAR",
+      "feedback_acierto": "Heroísmo puro. La inmolación táctica erradicó el punto ciego estructural y obligó la retirada enemiga.",
+      "feedback_error": "Retirada inaceptable. El repliegue habría desmoralizado a la tropa y cedido el control total de Rivas a Walker."
+    },
+    {
+      "id": "nodo_05",
+      "orden": 5,
+      "titulo": "La Crisis Epidemiológica",
+      "periodo": "Mayo - Junio 1856",
+      "contexto": "Tras la batalla, una epidemia de cólera morbo, propagada a través del agua contaminada por los cadáveres, comienza a diezmar al ejército.",
+      "problema": "¿Qué medida sanitaria y militar debe tomarse?",
+      "opciones": [
+        { "id": "opt_A", "label": "Cuarentena militar estricta y forzada en Rivas (Nicaragua)." },
+        { "id": "opt_B", "label": "Retirada sanitaria y evacuación de los soldados hacia Costa Rica." }
+      ],
+      "opcion_correcta": "opt_B",
+      "tipo_resolucion": "HISTORICA_TRAGICA",
+      "feedback_acierto": "Decisión histórica... pero trágica. Evacuar pareció lógico para la medicina de la época, pero la retirada propagó el cólera a Costa Rica, matando casi al 10% de la población civil.",
+      "feedback_error": "Aunque médicamente incorrecta para la época, una cuarentena estricta (si hubiera sido posible sostenerla logísticamente) habría evitado llevar la bacteria al interior del país civil."
+    },
+    {
+      "id": "nodo_06",
+      "orden": 6,
+      "titulo": "Campaña del Tránsito",
+      "periodo": "Noviembre 1856 - Mayo 1857",
+      "contexto": "El ejército se ha recuperado. Walker sigue recibiendo armas y mercenarios a través de la Vía del Tránsito en el río San Juan.",
+      "problema": "¿Cómo derrotar definitivamente al filibusterismo?",
+      "opciones": [
+        { "id": "opt_A", "label": "Asalto terrestre masivo y directo contra su capital operativa." },
+        { "id": "opt_B", "label": "Captura táctica de su logística fluvial (barcos y fuertes en el río)." }
+      ],
+      "opcion_correcta": "opt_B",
+      "tipo_resolucion": "ESTANDAR",
+      "feedback_acierto": "Golpe maestro. La neutralización de la fuente de reabastecimiento en el río San Juan provocó el colapso operativo total del ejército enemigo. ¡Victoria final!",
+      "feedback_error": "Ataque ineficaz. Mientras Walker tuviera su línea umbilical abierta para recibir mercenarios de EE.UU., ningún ataque terrestre lograría vencerlo definitivamente."
+    }
+  ]

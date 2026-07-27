@@ -1,0 +1,5 @@
+/* 
+ * El modal independiente de F22 System Settings ha sido eliminado.
+ * Los estilos de los selectores de ajustes ahora viven en 
+ * elysium-system-info.js (integrados en la ventana de versión).
+ */

@@ -1,0 +1,354 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue-Bold;\f1\fswiss\fcharset0 Helvetica;\f2\fnil\fcharset0 HelveticaNeue;
+\f3\fnil\fcharset0 .AppleSystemUIFontMonospaced-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0\c84706\cname labelColor;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs40 \cf2 Documento Arquitect\'f3nico y Narrativo de Implementaci\'f3n
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf2 Proyecto:
+\f2\b0  Sistema Interactivo de Resoluci\'f3n Hist\'f3rica (SIRH): Evoluci\'f3n del Estado Costarricense (1808-1949)\
+
+\f0\b Entorno de Despliegue Objetivo:
+\f2\b0  Laboratorios comunitarios (SIF\'c4IS), ejecuci\'f3n en Modo Quiosco.\
+
+\f0\b Poblaci\'f3n Objetivo:
+\f2\b0  Adolescentes (12 a 17 a\'f1os).
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf2 1. Topolog\'eda de Red e Infraestructura (Serverless)
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 El sistema operar\'e1 exclusivamente sobre la infraestructura de Firebase para minimizar la carga de mantenimiento del servidor y garantizar alta disponibilidad, aplicando el principio de m\'ednimos privilegios.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Autenticaci\'f3n de Sesi\'f3n:
+\f2\b0  Implementaci\'f3n estricta de 
+\f0\b Firebase Anonymous Authentication
+\f2\b0 . El cliente ejecutar\'e1 signInAnonymously() para generar un JSON Web Token (JWT) un\'edvoco, eliminando la recolecci\'f3n de Informaci\'f3n de Identificaci\'f3n Personal (PII) y mitigando el secuestro de sesi\'f3n.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Capa de Presentaci\'f3n:
+\f2\b0  Alojamiento en 
+\f0\b Firebase Hosting
+\f2\b0 . Los est\'e1ticos deben ser programados en HTML5 sem\'e1ntico, CSS3 puro y JavaScript (Vanilla), suprimiendo el uso de frameworks o librer\'edas gr\'e1ficas (WebGL) que saturen el hilo principal del navegador en hardware obsoleto.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Seguridad y Atestaci\'f3n:
+\f2\b0  Despliegue de 
+\f0\b Firebase App Check
+\f2\b0  (reCAPTCHA v3). Es obligatorio configurar la direcci\'f3n IP p\'fablica del centro comunitario en la lista de exclusi\'f3n (lista blanca) del proveedor de atestaci\'f3n para prevenir bloqueos por falsos positivos de ataques DDoS generados por la concurrencia de peticiones en Modo Quiosco.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Telemetr\'eda Restringida:
+\f2\b0  Queda terminantemente prohibida la integraci\'f3n del SDK de Firebase Analytics para asegurar la privacidad absoluta por dise\'f1o.
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf2 2. Modelo de Datos Segregado (Cloud Firestore)
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Para impedir la filtraci\'f3n de la l\'f3gica del juego mediante la inspecci\'f3n del tr\'e1fico de red en el cliente, la base de datos operar\'e1 bajo un esquema de segregaci\'f3n estricta.
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs32 \cf2 2.1 Colecci\'f3n public_nodes (Lectura desde el Cliente)
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Los documentos en esta colecci\'f3n solo contendr\'e1n los elementos necesarios para la renderizaci\'f3n de la Interfaz de Usuario (UI). Las Reglas de Seguridad de Firestore permitir\'e1n la lectura exclusiva a clientes con un JWT an\'f3nimo v\'e1lido.
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3 \cf2 [json]\
+\{\
+  "id": "nodo_01",\
+  "orden": 1,\
+  "titulo": "Crisis de la Monarqu\'eda Hisp\'e1nica",\
+  "periodo": "1808 - 1812",\
+  "contexto": "Las tropas napole\'f3nicas han invadido Espa\'f1a y capturado a Fernando VII. Se genera un vac\'edo de poder metropolitano.",\
+  "problema": "\'bfC\'f3mo debe posicionarse la provincia de Costa Rica ante la acefalia del Imperio?",\
+  "opciones": [\
+    \{ "id": "opt_A", "label": "Juramentar lealtad a la monarqu\'eda impuesta por Francia" \},\
+    \{ "id": "opt_B", "label": "Adherirse a las Cortes de C\'e1diz y exigir representaci\'f3n auton\'f3mica" \}\
+  ]\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs32 \cf2 2.2 Colecci\'f3n private_nodes_logic (Lectura Exclusiva del Backend)
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Esta colecci\'f3n almacenar\'e1 los vectores de resoluci\'f3n. Las Reglas de Seguridad denegar\'e1n absolutamente la lectura a cualquier cliente web. Su acceso queda restringido al entorno de ejecuci\'f3n de las 
+\f0\b Cloud Functions
+\f2\b0 .
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3 \cf2 [json]\
+\{\
+  "id_nodo": "nodo_01",\
+  "opcion_correcta": "opt_B",\
+  "tipo_resolucion": "ESTANDAR",\
+  "feedback_acierto": "Decisi\'f3n hist\'f3ricamente rigurosa. La participaci\'f3n en las Cortes de C\'e1diz permiti\'f3 la asimilaci\'f3n del constitucionalismo liberal y la redacci\'f3n de la Constituci\'f3n de 1812.",\
+  "feedback_error": "Fallo estrat\'e9gico. El apoyo a Jos\'e9 Bonaparte habr\'eda implicado el aislamiento comercial absoluto y un asedio por parte de la marina brit\'e1nica."\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf2 3. L\'f3gica de Negocios y Control de Estado (Backend)
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Las transacciones mutables se procesar\'e1n exclusivamente a trav\'e9s de Cloud Functions para garantizar la integridad de las m\'e9tricas globales y la evaluaci\'f3n de respuestas.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f0\b Validaci\'f3n de Respuestas (POST /submitAnswer):
+\f2\b0  El cliente transmite el JWT, el id_nodo y la opcion_seleccionada. La Cloud Function consulta la colecci\'f3n private_nodes_logic, eval\'faa la concordancia, actualiza la m\'e9trica agregada global e inyecta la carga \'fatil de resoluci\'f3n (feedback y alteraci\'f3n de racha) de vuelta al cliente.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f0\b Gestor de Inactividad (Frontend):
+\f2\b0  Script de recolecci\'f3n temporal mediante temporizador en JavaScript. Tras 90 segundos sin interacciones perif\'e9ricas, se ejecuta sessionStorage.clear(), se revoca el estado del DOM y se recarga el documento para restablecer el Modo Quiosco.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f0\b Purgador de Sesiones (Backend):
+\f2\b0  Tarea programada (cron job) implementada mediante Cloud Tasks para eliminar las referencias y estados de autenticaci\'f3n an\'f3nima que superen los 10 minutos de inactividad, previniendo el desbordamiento de la base de datos de sesiones.
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf2 4. Motor Causal y Gamificaci\'f3n Historiogr\'e1fica
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 El bucle de juego (Core Game Loop) operar\'e1 evaluando consecuencias l\'f3gicas y limitaciones socio-pol\'edticas, huyendo del modelo de retenci\'f3n memor\'edstica.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b L\'edmites de Densidad:
+\f2\b0  El contexto hist\'f3rico presentar\'e1 un m\'e1ximo estricto de 5 l\'edneas de texto. El feedback evaluativo no superar\'e1 las 80 palabras.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Manejo de Excepciones Narrativas:
+\f2\b0  Los nodos con la propiedad "tipo_resolucion": "HISTORICA_TRAGICA" paralizar\'e1n la sumatoria de racha e invocar\'e1n una transici\'f3n de estado CSS diferencial (modificaci\'f3n de la paleta de colores), separando la correcci\'f3n anal\'edtica del derramamiento de sangre emp\'edrico.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Condici\'f3n de Trofeo Final:
+\f2\b0  Se renderizar\'e1 un gr\'e1fico vectorial escalable (SVG) al procesar el estado final del cliente, con clasificaciones parametrizadas desde "S\'fabdito Colonial" (0-1/6) hasta "Arquitecto del Estado" (6/6).
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf2 5. Dise\'f1o Narrativo y Secuencia de Nodos (Sprint 1)
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs28 \cf2 Nodo 1: Crisis de la Monarqu\'eda Hisp\'e1nica (1808-1812)
+\f1\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Problema:
+\f2\b0  Determinar el posicionamiento jur\'eddico ante la invasi\'f3n napole\'f3nica en Espa\'f1a y la captura de Fernando VII.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Opciones:
+\f2\b0  Juramentar lealtad a la monarqu\'eda francesa vs. Adherirse a las Cortes de C\'e1diz.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Resoluci\'f3n:
+\f2\b0  Cortes de C\'e1diz. Permiti\'f3 el primer contacto con el constitucionalismo moderno y la representaci\'f3n pol\'edtica de las provincias americanas frente a la metr\'f3poli.
+\f1\fs24 \cf0 \
+\
+
+\f0\b\fs28 \cf2 Nodo 2: Recepci\'f3n del Acta y Fractura Ideol\'f3gica (1821)
+\f1\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Problema:
+\f2\b0  Establecer el estatus jur\'eddico tras la recepci\'f3n de la independencia declarada en Guatemala y el bando de los "Nublados del d\'eda" desde Le\'f3n, Nicaragua.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Opciones:
+\f2\b0  Subordinaci\'f3n absoluta a las autoridades transitorias nicarag\'fcenses vs. Redacci\'f3n de un estatuto de autodeterminaci\'f3n.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Resoluci\'f3n:
+\f2\b0  Autodeterminaci\'f3n (Pacto de Concordia). Evit\'f3 el vac\'edo de poder mediante la promulgaci\'f3n de una constituci\'f3n provisional que concili\'f3 temporalmente a facciones imperialistas y republicanas.
+\f1\fs24 \cf0 \
+\
+
+\f0\b\fs28 \cf2 Nodo 3: La Hegemon\'eda y el Imperio Mexicano (1823)
+\f1\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Problema:
+\f2\b0  Resolver la fractura insalvable entre Cartago/Heredia (facciones anexionistas a Agust\'edn de Iturbide) y San Jos\'e9/Alajuela (facciones republicanas autonomistas).
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Opciones:
+\f2\b0  Aceptar la anexi\'f3n para evitar la guerra civil vs. Enfrentamiento b\'e9lico por la instauraci\'f3n del modelo republicano.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Resoluci\'f3n:
+\f2\b0  HISTORICA_TRAGICA - Enfrentamiento b\'e9lico (Batalla de Ochomogo). La victoria republicana erradic\'f3 el proyecto imperialista y desplaz\'f3 el eje de poder pol\'edtico hacia San Jos\'e9, pero inaugur\'f3 el derramamiento de sangre por diferencias ideol\'f3gicas.
+\f1\fs24 \cf0 \
+\
+
+\f0\b\fs28 \cf2 Nodo 4: La Rep\'fablica Federal de Centroam\'e9rica (1824-1838)
+\f1\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Problema:
+\f2\b0  Mitigar el impacto del colapso fiscal y las guerras civiles end\'e9micas que azotan al resto de los Estados del pacto federal.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Opciones:
+\f2\b0  Contribuir con tropas y recursos fiscales a las guerras federales vs. Separaci\'f3n unilateral para consolidar la administraci\'f3n interna.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Resoluci\'f3n:
+\f2\b0  Separaci\'f3n unilateral (Dictadura de Braulio Carrillo). El aislamiento permiti\'f3 estructurar la administraci\'f3n p\'fablica nacional y el modelo agroexportador cafetalero sin la sangr\'eda fiscal impuesta por la Federaci\'f3n.
+\f1\fs24 \cf0 \
+\
+
+\f0\b\fs28 \cf2 Nodo 5: Fundaci\'f3n de la Primera Rep\'fablica (1848)
+\f1\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Problema:
+\f2\b0  Superar la limitaci\'f3n diplom\'e1tica intr\'ednseca del estatus de "Estado" para establecer tratados de libre comercio y reconocimiento directo con potencias como Gran Breta\'f1a.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Opciones:
+\f2\b0  Preservar la viabilidad de una futura reunificaci\'f3n centroamericana vs. Ruptura definitiva mediante la declaratoria de Rep\'fablica.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Resoluci\'f3n:
+\f2\b0  Declaratoria de Rep\'fablica (Jos\'e9 Mar\'eda Castro Madriz). Otorg\'f3 soberan\'eda internacional plena, facilit\'f3 las exportaciones directas y requiri\'f3 la estructuraci\'f3n final de los s\'edmbolos patrios definitivos.
+\f1\fs24 \cf0 \
+\
+
+\f0\b\fs28 \cf2 Nodo 6: Ruptura Institucional y Segunda Rep\'fablica (1948-1949)
+\f1\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Problema:
+\f2\b0  Reestructurar el aparato estatal tras una guerra civil originada por anulaci\'f3n electoral y agotamiento del modelo olig\'e1rquico, garantizando estabilidad a largo plazo.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Opciones:
+\f2\b0  Consolidaci\'f3n de un r\'e9gimen militar perpetuo vs. Abolici\'f3n castrense y promulgaci\'f3n de una nueva carta magna.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f0\b Resoluci\'f3n:
+\f2\b0  Abolici\'f3n y Constituci\'f3n del 49. La Junta Fundadora entreg\'f3 el poder, proscribi\'f3 el ej\'e9rcito como instituci\'f3n permanente para prevenir futuros golpes de estado y consolid\'f3 el marco institucional del Estado de Bienestar actual.
+\f1\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs36 \cf2 6. Secuencia de Integraci\'f3n en el Entorno de Desarrollo (Antigravity IDE)
+\f1\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 La ejecuci\'f3n del c\'f3digo se ordenar\'e1 bajo las siguientes directrices operativas sin superposici\'f3n de tareas:
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f0\b Desarrollo del DOM (Aislado):
+\f2\b0  Creaci\'f3n del contenedor HTML5 y los selectores CSS. Programaci\'f3n de app.js interactuando de forma s\'edncrona con un JSON local (mock de la colecci\'f3n p\'fablica) y validaci\'f3n del cron\'f3metro de limpieza de sesi\'f3n de 90 segundos.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f0\b Aprovisionamiento Serverless:
+\f2\b0  Inicializaci\'f3n del proyecto de Firebase. Configuraci\'f3n del m\'e9todo de Autenticaci\'f3n An\'f3nima. Definici\'f3n de \'edndices y despliegue del esquema de seguridad bifurcado (p\'fablico/privado) en Cloud Firestore.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f0\b Programaci\'f3n de L\'f3gica en la Nube:
+\f2\b0  Inyecci\'f3n del script seed.py para poblar Firestore. Desarrollo de la Cloud Function submitAnswer y despliegue de las tareas de limpieza peri\'f3dica de sesiones.
+\f1\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 4. 
+\f0\b Enlace de Integraci\'f3n Completa:
+\f2\b0  Eliminaci\'f3n de los datos locales en el cliente. Sustituci\'f3n por transacciones as\'edncronas HTTP comprobando el ciclo completo del token JWT contra los puntos de acceso en la base de datos segregada. Pruebas de estr\'e9s y latencia.}

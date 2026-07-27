@@ -1,0 +1,451 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue-Bold;\f2\fnil\fcharset0 HelveticaNeue;
+\f3\fnil\fcharset0 .AppleSystemUIFontMonospaced-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0\c84706\cname labelColor;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 > 
+\f1\b\fs28 \cf2 Defining the Scope
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I have successfully defined the game's scope; it will be about Costa Rican biodiversity!
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Conceptualizing Features
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've sketched features: sustainable resource exploitation, map mechanics, excursions, and gentrification considerations for the Costa Rican setting.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Architecting Biodiversity Game
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've begun outlining the biodiversity game's architecture, specifying Firebase serverless backend and vanilla JS/HTML/CSS frontend.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Refining Map Implementation
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I'm now proposing DOM-based or SVG map solutions, adjusting from a framework-less architecture to ensure lightweight performance.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Finalizing Project Requirements
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 My focus has shifted to drafting the response, refining technical details, and finalizing the project's requirements.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Defining the Network
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've specified a serverless architecture, emphasizing Firebase for adolescent-targeted, kiosk-mode community labs.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Prioritizing Ecosystems
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've selected resolution options for community tourism, water resource protection, park visitor education, and wildlife trafficking.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Escrutinio T\'e9cnico y Correcci\'f3n Estructural de la Premisa Inicial
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 Existe una contradicci\'f3n arquitect\'f3nica cr\'edtica en los requerimientos formulados. La solicitud de implementar un "mapa de Costa Rica interactivo tipo Stardew Valley" entra en conflicto directo con la directriz de la Capa de Presentaci\'f3n establecida en su modelo base, la cual exige la supresi\'f3n de librer\'edas gr\'e1ficas (WebGL) y frameworks pesados para evitar la saturaci\'f3n del hilo principal del navegador en hardware obsoleto. Un motor de tiles bidimensional similar a Stardew Valley requiere un ciclo de renderizado continuo (generalmente mediante 
+\f3 requestAnimationFrame
+\f2  en 
+\f3 <canvas>
+\f2 ), lo cual degradar\'e1 severamente el rendimiento (ca\'edda de FPS y latencia de input) en los equipos de los laboratorios comunitarios.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Resoluci\'f3n impuesta:
+\f2\b0  El componente espacial interactivo se implementar\'e1 estrictamente mediante un Gr\'e1fico Vectorial Escalable (SVG) en l\'ednea, manipulado a trav\'e9s del DOM con JavaScript Vanilla (mediante delegaci\'f3n de eventos para 
+\f3 mouseover
+\f2 , 
+\f3 click
+\f2  y mutaciones de clases CSS). Esto garantiza un consumo marginal de CPU/RAM, manteniendo el rigor de la arquitectura y cumpliendo con las normativas de accesibilidad (WCAG 2.1) al permitir la navegaci\'f3n por teclado.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs40 \cf2 Documento Arquitect\'f3nico y Narrativo de Implementaci\'f3n
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs28 \cf2 Proyecto:
+\f2\b0  Sistema Interactivo de Gesti\'f3n de Biodiversidad (SIGB): Conservaci\'f3n, Ecoturismo y Sostenibilidad\
+
+\f1\b Entorno de Despliegue Objetivo:
+\f2\b0  Laboratorios comunitarios, ejecuci\'f3n en Modo Quiosco.\
+
+\f1\b Poblaci\'f3n Objetivo:
+\f2\b0  Adolescentes (12 a 17 a\'f1os).
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 1. Topolog\'eda de Red e Infraestructura (Serverless)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 El sistema operar\'e1 exclusivamente sobre la infraestructura de Firebase bajo el principio de m\'ednimos privilegios.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Autenticaci\'f3n de Sesi\'f3n:
+\f2\b0  Implementaci\'f3n estricta de 
+\f1\b Firebase Anonymous Authentication
+\f2\b0  (
+\f3 signInAnonymously()
+\f2 ) generando un JWT un\'edvoco. Eliminaci\'f3n total de recolecci\'f3n de PII.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Capa de Presentaci\'f3n:
+\f2\b0  Alojamiento en 
+\f1\b Firebase Hosting
+\f2\b0 . Est\'e1ticos programados en HTML5 sem\'e1ntico, CSS3 puro y JavaScript (Vanilla).
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Seguridad y Atestaci\'f3n:
+\f2\b0  Despliegue de 
+\f1\b Firebase App Check
+\f2\b0  (reCAPTCHA v3). La direcci\'f3n IP p\'fablica del centro comunitario deber\'e1 ingresar en la lista de exclusi\'f3n (whitelist) para prevenir falsos positivos de ataques DDoS por alta concurrencia.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Telemetr\'eda Restringida:
+\f2\b0  Queda prohibida la integraci\'f3n del SDK de Firebase Analytics.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 2. Modelo de Datos Segregado (Cloud Firestore)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Esquema de segregaci\'f3n estricta para impedir la filtraci\'f3n de la l\'f3gica del ecosistema mediante la inspecci\'f3n de red.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs32 \cf2 2.1 Colecci\'f3n 
+\f3\b0 public_nodes
+\f1\b  (Lectura desde el Cliente)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Reglas de Seguridad restringen la lectura a clientes con un JWT an\'f3nimo v\'e1lido. Ense\'f1a vocabulario biol\'f3gico de forma inherente.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3 \cf2 [json]\
+\{\
+  "id": "nodo_eco_01",\
+  "orden": 1,\
+  "titulo": "Defensa del Endemismo Pel\'e1gico",\
+  "bioma": "Parque Nacional Isla del Coco",\
+  "contexto": "Flotas pesqueras for\'e1neas ingresan a las aguas jurisdiccionales colindantes a la isla, amenazando especies end\'e9micas y alterando la cadena tr\'f3fica.",\
+  "problema": "\'bfCu\'e1l pol\'edtica de conservaci\'f3n garantiza la mitigaci\'f3n del da\'f1o sin agotar el presupuesto de vigilancia?",\
+  "opciones": [\
+    \{ "id": "opt_A", "label": "Despliegue de patrullaje restrictivo continuo" \},\
+    \{ "id": "opt_B", "label": "Venta de concesiones de pesca comercial regulada" \}\
+  ]\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs32 \cf2 2.2 Colecci\'f3n 
+\f3\b0 private_nodes_logic
+\f1\b  (Lectura Exclusiva del Backend)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Acceso restringido al entorno de ejecuci\'f3n de las 
+\f1\b Cloud Functions
+\f2\b0 .
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3 \cf2 [json]\
+\{\
+  "id_nodo": "nodo_eco_01",\
+  "opcion_correcta": "opt_A",\
+  "tipo_resolucion": "ESTANDAR",\
+  "feedback_acierto": "Decisi\'f3n \'f3ptima. El patrullaje consolida el \'c1rea Marina Protegida, resguardando el 6% de la biodiversidad global y previniendo el colapso de biomasas end\'e9micas.",\
+  "feedback_error": "Fallo sist\'e9mico. La pesca comercial, aun regulada, introduce captura incidental letal para superdepredadores como el tibur\'f3n martillo, quebrando el equilibrio ecosist\'e9mico."\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 3. L\'f3gica de Negocios y Control de Estado (Backend)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Las transacciones mutables se procesar\'e1n exclusivamente a trav\'e9s de Cloud Functions.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f1\b Validaci\'f3n de Respuestas (POST /submitAnswer):
+\f2\b0  Intercepci\'f3n del JWT, 
+\f3 id_nodo
+\f2  y 
+\f3 opcion_seleccionada
+\f2 . La funci\'f3n eval\'faa la colecci\'f3n privada, actualiza la m\'e9trica global y retorna el feedback y la mutaci\'f3n de estado.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f1\b Gestor de Inactividad (Frontend):
+\f2\b0  Temporizador JavaScript. Tras 90 segundos sin interacci\'f3n perif\'e9rica, se ejecuta 
+\f3 sessionStorage.clear()
+\f2 , se limpia el DOM y se recarga el documento.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f1\b Purgador de Sesiones (Backend):
+\f2\b0  Tarea programada (cron job) mediante Cloud Tasks. Elimina estados de autenticaci\'f3n con m\'e1s de 10 minutos de inactividad, previniendo el desbordamiento de la base de datos.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 4. Motor Causal y Gamificaci\'f3n Ambiental
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 El bucle de juego (Core Game Loop) evaluar\'e1 consecuencias ecol\'f3gicas, socioecon\'f3micas (gentrificaci\'f3n) y capacidades de carga de los ecosistemas.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b L\'edmites de Densidad:
+\f2\b0  M\'e1ximo estricto de 5 l\'edneas de texto contextual. Feedback evaluativo no superior a 80 palabras.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Manejo de Excepciones Narrativas:
+\f2\b0  Los nodos con "tipo_resolucion": "IMPACTO_IRREVERSIBLE" paralizan la racha e invocan una transici\'f3n CSS (desaturaci\'f3n de paleta a escala de grises), disociando el error t\'e1ctico del da\'f1o ecol\'f3gico permanente (ej. extinci\'f3n local).
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Condici\'f3n de Trofeo Final:
+\f2\b0  Gr\'e1fico SVG generado as\'edncronamente. Clasificaciones: "Depredador Ambiental" (0-1/6) hasta "Guardi\'e1n de la Biosfera" (6/6).
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 5. Dise\'f1o Narrativo y Secuencia de Nodos (Sprint 1)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs28 \cf2 Nodo 1: Protecci\'f3n del Endemismo (Mares e Islas)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Incursi\'f3n de pesca ilegal en el Parque Nacional Isla del Coco.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Despliegue de patrullaje restrictivo continuo vs. Concesiones de pesca comercial regulada.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Patrullaje restrictivo. Ense\'f1a el concepto de \'c1rea Marina Protegida y su rol como santuario de especies pel\'e1gicas.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 2: Desarrollo Costero y Gentrificaci\'f3n (Playas del Pac\'edfico)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Un macroproyecto tur\'edstico extranjero promete inyecci\'f3n de capital a costa de la deforestaci\'f3n de manglares y el encarecimiento local.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Aprobaci\'f3n del macroproyecto hotelero vs. Fomento de ecoturismo comunitario de baja densidad.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Ecoturismo comunitario. Previene la gentrificaci\'f3n, respeta la capacidad de carga del h\'e1bitat costero e impulsa la explotaci\'f3n de recursos sosteniblemente.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 3: Pol\'edticas Medioambientales (Humedales y Bosques)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Expansi\'f3n agropecuaria amenaza la cuenca de un r\'edo vital (joya secreta hidrol\'f3gica) para aves migratorias.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Concesi\'f3n para riego agr\'edcola intensivo vs. Implementaci\'f3n de Pago por Servicios Ambientales (PSA).
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Implementaci\'f3n de PSA. Demuestra c\'f3mo las pol\'edticas de compensaci\'f3n econ\'f3mica a propietarios privados preservan ecosistemas interconectados sin frenar el desarrollo socioecon\'f3mico.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 4: Civismo y Ecoturismo (S\'edmbolos Nacionales y Parques Volc\'e1nicos)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Turistas extraen orqu\'eddeas Guaria Morada y alimentan fauna silvestre (alteraci\'f3n tr\'f3fica) en el Parque Nacional Volc\'e1n Po\'e1s.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Cierre total del parque para regeneraci\'f3n vs. Intervenci\'f3n educativa estricta y penalizaci\'f3n econ\'f3mica.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Intervenci\'f3n educativa. Fomenta el civismo ambiental y la pedagog\'eda in situ, manteniendo los ingresos necesarios para el Sistema Nacional de \'c1reas de Conservaci\'f3n (SINAC).
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 5: Extracci\'f3n de Recursos y Fauna (Bosques Lluviosos)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Aumento del tr\'e1fico ilegal de perezosos (s\'edmbolo nacional) por redes de comercio de vida silvestre.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Campa\'f1a digital de concientizaci\'f3n c\'edvica vs. Decomiso activo y monitoreo in situ con bi\'f3logos.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Decomiso activo. Subraya la insuficiencia de la concientizaci\'f3n pasiva frente al extractivismo biol\'f3gico sin aplicaci\'f3n rigurosa de la ley.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 6: Punto de Inflexi\'f3n Ecol\'f3gica (Corredores Biol\'f3gicos)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  La expansi\'f3n urbana descontrolada amenaza con seccionar un corredor biol\'f3gico cr\'edtico, aislando poblaciones de jaguares.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Financiamiento de viaductos y pasos de fauna a\'e9reos vs. Inacci\'f3n bajo principios de libre mercado inmobiliario.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  IMPACTO_IRREVERSIBLE - Inacci\'f3n. Fallo sist\'e9mico que provoca la interrupci\'f3n del flujo gen\'e9tico (deriva g\'e9nica) y garantiza la extinci\'f3n local de depredadores \'e1pice, alterando irreversiblemente la cadena tr\'f3fica.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 6. Secuencia de Integraci\'f3n en el Entorno de Desarrollo
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Sin superposici\'f3n de tareas.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f1\b Desarrollo del DOM (Aislado):
+\f2\b0  Estructuraci\'f3n en HTML5, aplicaci\'f3n de selectores CSS3 para manipulaci\'f3n de SVG interactivo. L\'f3gica en JavaScript s\'edncrono conectada a un JSON local. Validaci\'f3n del temporizador de 90 segundos.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f1\b Aprovisionamiento Serverless:
+\f2\b0  Inicializaci\'f3n del proyecto en Firebase. Habilitaci\'f3n de Anonymous Auth. Definici\'f3n de reglas de seguridad bifurcadas en Firestore.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f1\b Programaci\'f3n de L\'f3gica en la Nube:
+\f2\b0  Creaci\'f3n del script en Python (
+\f3 seed.py
+\f2 ) para ingesta masiva inicial a Firestore. Codificaci\'f3n en Node.js de la Cloud Function 
+\f3 submitAnswer
+\f2  y configuraci\'f3n de Cloud Tasks.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 4. 
+\f1\b Enlace de Integraci\'f3n Completa:
+\f2\b0  Inyecci\'f3n de promesas as\'edncronas (
+\f3 fetch
+\f2 ) en el cliente. Validaci\'f3n del ciclo de vida del JWT contra la API segregada. Ejecuci\'f3n de auditor\'eda de rendimiento (Core Web Vitals) en entorno Kiosco.}

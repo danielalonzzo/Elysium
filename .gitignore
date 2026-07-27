@@ -9,3 +9,25 @@ node_modules/
 *.py
 /tmp/
 .claude/
+
+# Prototipos/ vive dentro del repositorio, así que su material de trabajo entra
+# también por aquí. Lo que sigue es lo que no debe pesar en el historial.
+
+# Carpetas que iCloud no sincroniza: son node_modules y cachés de compilación
+# enlazadas con ese sufijo. Se regeneran solas.
+*.nosync/
+
+# Salidas de compilación de los prototipos: las genera el script de publicación,
+# y lo que se versiona es la carpeta ya publicada en la raíz.
+Prototipos/historia-de-costa-rica/out/
+Prototipos/Regalarte/dist/
+Prototipos/Regalarte/build/
+.next/
+
+# Vídeo en bruto. Sin git-lfs, una grabación de pantalla de 70 MB se queda para
+# siempre en el historial aunque luego se borre el archivo.
+*.mov
+
+# Registros locales de las herramientas de despliegue.
+firebase-debug.log
+*.log

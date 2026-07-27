@@ -1,0 +1,426 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue-Bold;\f2\fnil\fcharset0 HelveticaNeue;
+\f3\fnil\fcharset0 .AppleSystemUIFontMonospaced-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0\c84706\cname labelColor;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 > 
+\f1\b\fs28 \cf2 Defining the Objective
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've clarified the user's specific objective: a SIRH project mirroring the structure, but with a Costa Rican focus.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Refining the Architectural Scope
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've set the tone, persona, and format for the document, ensuring Costa Rican Spanish and epistemological rigor.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Revising Historical Narrative
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've crafted five historical narrative nodes focusing on the Spanish arrival and conquest of Costa Rica, each with problems and resolutions.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Analyzing Demographic Collapse
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've specified the demographic collapse as the tragic event, clarifying tactical options and their outcomes.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Constructing the Document
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I'm now drafting the document with its header and sections, adapting content and JSON for Costa Rican context.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Detailing Historiography
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've detailed new Costa Rican historical nodes: expeditions, indigenous resistance, relocation, collapse, and economic shifts.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs40 \cf2 Documento Arquitect\'f3nico y Narrativo de Implementaci\'f3n
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs28 \cf2 Proyecto:
+\f2\b0  Sistema Interactivo de Resoluci\'f3n Hist\'f3rica (SIRH): Contacto, Conquista y Asentamiento (1502-1573)\
+
+\f1\b Entorno de Despliegue Objetivo:
+\f2\b0  Laboratorios comunitarios (SIF\'c4IS), ejecuci\'f3n en Modo Quiosco.\
+
+\f1\b Poblaci\'f3n Objetivo:
+\f2\b0  Adolescentes (12 a 17 a\'f1os).
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 1. Topolog\'eda de Red e Infraestructura (Serverless)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 El sistema operar\'e1 exclusivamente sobre la infraestructura de Firebase para minimizar la carga de mantenimiento del servidor y garantizar alta disponibilidad, aplicando el principio de m\'ednimos privilegios.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Autenticaci\'f3n de Sesi\'f3n:
+\f2\b0  Implementaci\'f3n estricta de 
+\f1\b Firebase Anonymous Authentication
+\f2\b0 . El cliente ejecutar\'e1 
+\f3 signInAnonymously()
+\f2  para generar un JSON Web Token (JWT) un\'edvoco, eliminando la recolecci\'f3n de Informaci\'f3n de Identificaci\'f3n Personal (PII) y mitigando el secuestro de sesi\'f3n.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Capa de Presentaci\'f3n:
+\f2\b0  Alojamiento en 
+\f1\b Firebase Hosting
+\f2\b0 . Los est\'e1ticos deben ser programados en HTML5 sem\'e1ntico, CSS3 puro y JavaScript (Vanilla), suprimiendo el uso de frameworks o librer\'edas gr\'e1ficas (WebGL) que saturen el hilo principal del navegador en hardware obsoleto.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Seguridad y Atestaci\'f3n:
+\f2\b0  Despliegue de 
+\f1\b Firebase App Check
+\f2\b0  (reCAPTCHA v3). Es obligatorio configurar la direcci\'f3n IP p\'fablica del centro comunitario en la lista de exclusi\'f3n (lista blanca) del proveedor de atestaci\'f3n para prevenir bloqueos por falsos positivos de ataques DDoS generados por la concurrencia de peticiones en Modo Quiosco.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Telemetr\'eda Restringida:
+\f2\b0  Queda terminantemente prohibida la integraci\'f3n del SDK de Firebase Analytics para asegurar la privacidad absoluta por dise\'f1o.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 2. Modelo de Datos Segregado (Cloud Firestore)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Para impedir la filtraci\'f3n de la l\'f3gica del juego mediante la inspecci\'f3n del tr\'e1fico de red en el cliente, la base de datos operar\'e1 bajo un esquema de segregaci\'f3n estricta.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs32 \cf2 2.1 Colecci\'f3n 
+\f3\b0 public_nodes
+\f1\b  (Lectura desde el Cliente)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Los documentos en esta colecci\'f3n solo contendr\'e1n los elementos necesarios para la renderizaci\'f3n de la Interfaz de Usuario (UI). Las Reglas de Seguridad de Firestore permitir\'e1n la lectura exclusiva a clientes con un JWT an\'f3nimo v\'e1lido.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3 \cf2 [json]\
+\{\
+  "id": "nodo_01",\
+  "orden": 1,\
+  "titulo": "Contacto en Cariay",\
+  "periodo": "Setiembre 1502",\
+  "contexto": "La flota de Crist\'f3bal Col\'f3n fondea en la costa caribe\'f1a. Pobladores aut\'f3ctonos se aproximan a las embarcaciones.",\
+  "problema": "\'bfCu\'e1l es el protocolo de interacci\'f3n inicial \'f3ptimo?",\
+  "opciones": [\
+    \{ "id": "opt_A", "label": "Despliegue militar ofensivo" \},\
+    \{ "id": "opt_B", "label": "Intercambio comercial cauteloso" \}\
+  ]\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs32 \cf2 2.2 Colecci\'f3n 
+\f3\b0 private_nodes_logic
+\f1\b  (Lectura Exclusiva del Backend)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Esta colecci\'f3n almacenar\'e1 los vectores de resoluci\'f3n. Las Reglas de Seguridad denegar\'e1n absolutamente la lectura a cualquier cliente web. Su acceso queda restringido al entorno de ejecuci\'f3n de las 
+\f1\b Cloud Functions
+\f2\b0 .
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f3 \cf2 [json]\
+\{\
+  "id_nodo": "nodo_01",\
+  "opcion_correcta": "opt_B",\
+  "tipo_resolucion": "ESTANDAR",\
+  "feedback_acierto": "Decisi\'f3n hist\'f3rica. El trueque permiti\'f3 la recolecci\'f3n de guanines (oro) e informaci\'f3n topogr\'e1fica sin desgaste militar inicial.",\
+  "feedback_error": "Fallo t\'e1ctico. Una ofensiva prematura sin inteligencia de terreno habr\'eda resultado en un aislamiento log\'edstico insostenible."\
+\}\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 3. L\'f3gica de Negocios y Control de Estado (Backend)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 Las transacciones mutables se procesar\'e1n exclusivamente a trav\'e9s de Cloud Functions para garantizar la integridad de las m\'e9tricas globales y la evaluaci\'f3n de respuestas.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f1\b Validaci\'f3n de Respuestas (POST /submitAnswer):
+\f2\b0  El cliente transmite el JWT, el 
+\f3 id_nodo
+\f2  y la 
+\f3 opcion_seleccionada
+\f2 . La Cloud Function consulta la colecci\'f3n 
+\f3 private_nodes_logic
+\f2 , eval\'faa la concordancia, actualiza la m\'e9trica agregada global e inyecta la carga \'fatil de resoluci\'f3n (feedback y alteraci\'f3n de racha) de vuelta al cliente.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f1\b Gestor de Inactividad (Frontend):
+\f2\b0  Script de recolecci\'f3n temporal mediante temporizador en JavaScript. Tras 90 segundos sin interacciones perif\'e9ricas, se ejecuta 
+\f3 sessionStorage.clear()
+\f2 , se revoca el estado del DOM y se recarga el documento para restablecer el Modo Quiosco.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f1\b Purgador de Sesiones (Backend):
+\f2\b0  Tarea programada (cron job) implementada mediante Cloud Tasks para eliminar las referencias y estados de autenticaci\'f3n an\'f3nima que superen los 10 minutos de inactividad, previniendo el desbordamiento de la base de datos de sesiones.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 4. Motor Causal y Gamificaci\'f3n Historiogr\'e1fica
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 El bucle de juego (Core Game Loop) operar\'e1 evaluando consecuencias l\'f3gicas, limitaciones log\'edsticas y asimetr\'eda tecnol\'f3gica, huyendo del modelo de retenci\'f3n memor\'edstica.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b L\'edmites de Densidad:
+\f2\b0  El contexto hist\'f3rico presentar\'e1 un m\'e1ximo estricto de 5 l\'edneas de texto. El feedback evaluativo no superar\'e1 las 80 palabras.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Manejo de Excepciones Narrativas:
+\f2\b0  Los nodos con la propiedad 
+\f3 "tipo_resolucion": "HISTORICA_TRAGICA"
+\f2  paralizar\'e1n la sumatoria de racha e invocar\'e1n una transici\'f3n de estado CSS diferencial (modificaci\'f3n de la paleta de colores), separando la correcci\'f3n t\'e1ctica de la cat\'e1strofe demogr\'e1fica.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Condici\'f3n de Trofeo Final:
+\f2\b0  Se renderizar\'e1 un gr\'e1fico vectorial escalable (SVG) al procesar el estado final del cliente, con clasificaciones parametrizadas desde "Explorador Naufragado" (0-1/6) hasta "Gobernador Cartogr\'e1fico" (6/6).
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 5. Dise\'f1o Narrativo y Secuencia de Nodos (Sprint 1)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs28 \cf2 Nodo 1: Contacto en Cariay (1502)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Determinar la doctrina de interacci\'f3n ante el contacto inicial con cacicazgos en la vertiente caribe\'f1a.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Despliegue militar ofensivo vs. Intercambio comercial cauteloso.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Intercambio comercial. El rescate pac\'edfico permiti\'f3 a la expedici\'f3n colombina documentar la presencia de oro (guanines), cimentando la falacia de abundancia mineral que motiv\'f3 expediciones futuras.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 2: Incursi\'f3n de Gil Gonz\'e1lez D\'e1vila (1522)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Maximizar la extracci\'f3n de recursos en la pen\'ednsula de Nicoya bajo un d\'e9ficit cr\'edtico de suministros.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Confrontaci\'f3n armada sistem\'e1tica vs. Alianzas diplom\'e1ticas temporales.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Alianzas diplom\'e1ticas. La negociaci\'f3n con el cacique Nicoya y los bautismos masivos facilitaron la extracci\'f3n fluida de metales preciosos sin diezmar a la expedici\'f3n invasora.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 3: Resistencia Huetar de Garabito (1561)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Formular la t\'e1ctica defensiva ind\'edgena ante la penetraci\'f3n de las fuerzas de Juan de Cavall\'f3n en el Valle Central.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Combate frontal en planicies vs. Guerra de guerrillas y emboscada.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Guerra de guerrillas. La asimetr\'eda t\'e1ctica y el dominio topogr\'e1fico prolongaron severamente el desgaste log\'edstico del ej\'e9rcito invasor.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 4: Reubicaci\'f3n Estrat\'e9gica (1562)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Evitar el colapso por inanici\'f3n y hostilidad del asentamiento fundado inicialmente (Garcimu\'f1oz).
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Mantener la posici\'f3n y fortificar defensas vs. Trasladar el asentamiento al Valle del Guarco.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Trasladar el asentamiento. La decisi\'f3n de Juan V\'e1zquez de Coronado de fundar Cartago asegur\'f3 el acceso a tierras f\'e9rtiles y el control de pasos de monta\'f1a clave.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 5: Colapso Demogr\'e1fico Ind\'edgena
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Propagaci\'f3n incontrolable de pat\'f3genos euroasi\'e1ticos (viruela) en poblaciones aut\'f3ctonas sin respuesta inmunitaria celular adquirida.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Asimilaci\'f3n en sistemas de encomienda vs. Aislamiento geogr\'e1fico en zonas monta\'f1osas.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  HISTORICA_TRAGICA - Aislamiento geogr\'e1fico. La asimilaci\'f3n en reducciones forzadas aceler\'f3 la mortalidad exponencialmente. El repliegue hacia Talamanca permiti\'f3 la supervivencia de fragmentos demogr\'e1ficos a costa de un aislamiento socioecon\'f3mico permanente.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 6: Reestructuraci\'f3n Macroecon\'f3mica (Post-1570)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Escasez absoluta de oro extra\'edble y colapso de la mano de obra ind\'edgena en la reci\'e9n estructurada provincia.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Importaci\'f3n masiva de mano de obra esclava vs. Transici\'f3n a agricultura de subsistencia.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Agricultura de subsistencia. La incapacidad financiera para establecer una econom\'eda de plantaci\'f3n oblig\'f3 a la \'e9lite administrativa a ejecutar trabajos agr\'edcolas directos, moldeando la estructura demogr\'e1fica at\'edpica de la provincia.
+\f0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\b\fs36 \cf2 6. Secuencia de Integraci\'f3n en el Entorno de Desarrollo (Antigravity IDE)
+\f0\b0\fs24 \cf0 \
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f2\fs28 \cf2 La ejecuci\'f3n del c\'f3digo se ordenar\'e1 bajo las siguientes directrices operativas sin superposici\'f3n de tareas:
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f1\b Desarrollo del DOM (Aislado):
+\f2\b0  Creaci\'f3n del contenedor HTML5 y los selectores CSS. Programaci\'f3n de 
+\f3 app.js
+\f2  interactuando de forma s\'edncrona con un JSON local (mock de la colecci\'f3n p\'fablica) y validaci\'f3n del cron\'f3metro de limpieza de sesi\'f3n de 90 segundos.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f1\b Aprovisionamiento Serverless:
+\f2\b0  Inicializaci\'f3n del proyecto de Firebase. Configuraci\'f3n del m\'e9todo de Autenticaci\'f3n An\'f3nima. Definici\'f3n de \'edndices y despliegue del esquema de seguridad bifurcado (p\'fablico/privado) en Cloud Firestore.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f1\b Programaci\'f3n de L\'f3gica en la Nube:
+\f2\b0  Inyecci\'f3n del script 
+\f3 seed.py
+\f2  para poblar Firestore. Desarrollo de la Cloud Function 
+\f3 submitAnswer
+\f2  y despliegue de las tareas de limpieza peri\'f3dica de sesiones.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 4. 
+\f1\b Enlace de Integraci\'f3n Completa:
+\f2\b0  Eliminaci\'f3n de los datos locales en el cliente. Sustituci\'f3n por transacciones as\'edncronas HTTP comprobando el ciclo completo del token JWT contra los puntos de acceso en la base de datos segregada. Pruebas de estr\'e9s y latencia.}

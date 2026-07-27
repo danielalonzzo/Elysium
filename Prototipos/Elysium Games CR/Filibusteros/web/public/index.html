@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filibusteros - La Ruta del Héroe</title>
+    <!-- Google Fonts para estilo histórico -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    
+    <!-- Contenedor Principal del Motor Narrativo -->
+    <div id="story-engine" class="fullscreen-container">
+        <!-- Capa de Fondo (Imágenes dinámicas) -->
+        <div id="background-layer"></div>
+        
+        <!-- Capa de Viñeta (Oscurece bordes) -->
+        <div class="vignette"></div>
+
+        <!-- Capa de Interfaz y Texto -->
+        <div id="ui-layer">
+            <header>
+                <h1 id="chapter-title">Capítulo 1: Sombras sobre el Istmo</h1>
+                <h2 id="level-indicator">Nivel 1</h2>
+            </header>
+            
+            <!-- Inventario -->
+            <div id="inventory-ui" class="hidden">
+                <!-- Ítems se agregarán dinámicamente -->
+            </div>
+
+            <main class="dialogue-box">
+                <p id="dialogue-text"></p>
+                <div class="dialogue-controls">
+                    <button id="back-btn" class="hidden">◂ Volver</button>
+                    <button id="continue-btn" class="hidden">Continuar ▸</button>
+                </div>
+            </main>
+            
+            <!-- Glossary Modal -->
+            <div id="glossary-modal">
+                <div class="glossary-content">
+                    <span class="close-modal">&times;</span>
+                    <img id="glossary-image" src="" alt="Historical Image" style="display:none; width:100%; border-radius:4px; margin-bottom:15px; border:1px solid var(--accent-gold);">
+                    <h3 id="glossary-title" style="color:var(--accent-gold); font-family:var(--font-title); margin-bottom:15px;"></h3>
+                    <p id="glossary-text"></p>
+                </div>
+            </div>
+
+            <!-- Custom Alert Modal -->
+            <div id="alert-modal">
+                <div class="alert-content">
+                    <p id="alert-text" style="font-size: 1.2rem; margin-bottom: 20px;"></p>
+                    <button id="alert-close-btn" class="action-btn" style="margin-top: 15px; max-width: 150px;">Aceptar</button>
+                </div>
+            </div>
+
+            <!-- Full Document Modal -->
+            <div id="document-modal">
+                <div class="document-content">
+                    <span class="close-document-modal">&times;</span>
+                    <h3 id="document-title" style="color:var(--accent-gold); font-family:var(--font-title); margin-bottom:15px; text-align:center;"></h3>
+                    <div style="text-align: center;">
+                        <img id="document-image" src="" alt="Documento Histórico" style="width:100%; max-height: 50vh; object-fit: contain; border:1px solid var(--accent-gold); border-radius:4px;">
+                    </div>
+                    <p id="document-text" style="margin-top: 15px; text-align:center; font-style: italic; opacity: 0.9;"></p>
+                    <div style="text-align:center; margin-top: 20px;">
+                        <button id="document-action-btn" class="action-btn">Continuar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contenedor para Mini-juegos (Oculto en fase narrativa) -->
+            <div id="minigame-container" class="hidden">
+                <!-- El contenido dinámico del minijuego se inyectará aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Pantalla de Carga -->
+    <div id="loading-screen">
+        <h1 class="loading-text">Cargando Archivos Históricos...</h1>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

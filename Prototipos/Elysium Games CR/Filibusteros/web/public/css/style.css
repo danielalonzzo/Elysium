@@ -1,0 +1,546 @@
+:root {
+    --bg-dark: #12151c; /* Azul prusia muy oscuro */
+    --text-light: #f4ebd8; /* Tono pergamino claro */
+    --accent-gold: #c5a059; /* Oro antiguo */
+    --font-title: 'Cinzel', serif;
+    --font-body: 'Playfair Display', serif;
+    --font-ui: 'Lato', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    font-family: var(--font-body);
+}
+
+.fullscreen-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Para que la caja de texto quede abajo */
+}
+
+/* Capa de Fondo */
+#background-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--bg-dark);
+    z-index: 1;
+    transition: background-image 2s ease-in-out, opacity 2s ease-in-out;
+    opacity: 0.6; /* Un poco oscuro para resaltar texto */
+}
+
+/* Viñeta para dar efecto cinemático */
+.vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 0 200px rgba(0,0,0,0.9) inset;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Capa de UI */
+#ui-layer {
+    position: relative;
+    z-index: 10;
+    padding: 40px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+header {
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+h1#chapter-title {
+    font-family: var(--font-title);
+    color: var(--accent-gold);
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+}
+
+h2#level-indicator {
+    font-family: var(--font-ui);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    opacity: 0.8;
+}
+
+/* Caja de Diálogo / Narrativa */
+.dialogue-box {
+    background: rgba(15, 20, 25, 0.85); /* Fondo oscuro semitransparente */
+    border: 1px solid var(--accent-gold);
+    border-radius: 4px;
+    padding: 30px;
+    min-height: 200px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#dialogue-text {
+    font-size: 1.6rem;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+/* Controles de Diálogo */
+.dialogue-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+#continue-btn, #back-btn {
+    background: none;
+    border: none;
+    color: var(--accent-gold);
+    font-family: var(--font-ui);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+#continue-btn:hover {
+    opacity: 0.8;
+    transform: translateX(5px);
+}
+
+#back-btn:hover {
+    opacity: 0.8;
+    transform: translateX(-5px);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Animación de Typewriter Cursor */
+.typewriter-cursor::after {
+    content: '▋';
+    animation: blink 1s step-start infinite;
+    color: var(--accent-gold);
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* Pantalla de Carga */
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-dark);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 1s ease;
+}
+
+.loading-text {
+    font-family: var(--font-title);
+    color: var(--accent-gold);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Inventario UI */
+#inventory-ui {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(15, 20, 25, 0.8);
+    border: 1px solid var(--accent-gold);
+    padding: 10px;
+    border-radius: 4px;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.inventory-item {
+    font-size: 0.9rem;
+    font-family: var(--font-ui);
+    color: var(--accent-gold);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Minijuegos */
+#minigame-container {
+    background: rgba(15, 20, 25, 0.95);
+    border: 2px solid var(--accent-gold);
+    padding: 30px;
+    border-radius: 8px;
+    margin: 20px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.minigame-title {
+    font-family: var(--font-title);
+    color: var(--accent-gold);
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+/* Puzzle Geopolítico */
+.puzzle-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+    flex-grow: 1;
+}
+
+.puzzle-source {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 260px;
+}
+
+.puzzle-target {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 260px;
+}
+
+.central-map-area {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 350px;
+}
+
+.country-piece {
+    background: rgba(15, 20, 25, 0.9);
+    border: 1px solid var(--accent-gold);
+    box-sizing: border-box;
+    width: 100%;
+    padding: 15px;
+    cursor: grab;
+    font-family: var(--font-title);
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    transition: transform 0.2s, background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    border-radius: 4px;
+}
+
+.country-piece:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+}
+
+.target-slot {
+    background: rgba(0,0,0,0.3);
+    border: 1px dashed rgba(212, 175, 55, 0.5);
+    box-sizing: border-box;
+    width: 100%;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-ui);
+    color: rgba(255,255,255,0.2);
+    transition: border 0.3s, background 0.3s;
+    border-radius: 4px;
+    position: relative;
+    padding: 0;
+}
+
+.target-slot.drag-hover {
+    background: rgba(212, 175, 55, 0.2);
+    border: 1px dashed var(--accent-gold);
+}
+
+.target-slot .country-piece {
+    height: 100%;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    color: var(--accent-gold);
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+}
+
+.target-slot .slot-hint {
+    position: absolute;
+    pointer-events: none;
+}
+
+.target-slot.filled {
+    border: 1px solid var(--accent-gold);
+}
+.target-slot.filled .slot-hint {
+    display: none;
+}
+
+/* Action Buttons */
+.action-btn {
+    background: transparent;
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+    font-family: var(--font-ui);
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    margin: 20px auto 0;
+    border-radius: 4px;
+}
+
+.action-btn:hover {
+    background: rgba(212, 175, 55, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+}
+
+.btn-reset {
+    position: absolute;
+    bottom: 20px;
+    left: 30px;
+    z-index: 100;
+    background: rgba(15, 20, 25, 0.8);
+    border: 1px solid rgba(212, 175, 55, 0.5);
+    color: rgba(212, 175, 55, 0.8);
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-reset:hover {
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--accent-gold);
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+}
+
+/* SVG Map */
+#central-america-svg {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.2));
+}
+
+.map-country {
+    fill: rgba(0,0,0,0.5);
+    stroke: var(--accent-gold);
+    stroke-width: 2;
+    transition: fill 0.5s, filter 0.5s;
+}
+
+.map-country.active {
+    fill: var(--accent-gold);
+    filter: drop-shadow(0 0 15px var(--accent-gold));
+}
+
+/* Level 8 Document Hidden */
+#hidden-document {
+    position: absolute;
+    top: 65%;
+    left: 45%;
+    width: 65px;
+    height: 65px;
+    background: url('../assets/images/contrato_walker.png') no-repeat center/cover;
+    opacity: 0.8;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    filter: sepia(0.6) contrast(1.2);
+    animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+    0% {
+        box-shadow: 0 0 5px rgba(212, 175, 55, 0.3);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 25px rgba(212, 175, 55, 1);
+        transform: scale(1.05);
+    }
+}
+
+#hidden-document:hover {
+    opacity: 1;
+    transform: scale(1.1) rotate(2deg) !important;
+    filter: sepia(0);
+    box-shadow: 0 0 30px var(--accent-gold);
+}
+
+/* Glossary Terms */
+.glossary-term {
+    color: var(--accent-gold);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.glossary-term:hover {
+    color: #fff;
+    text-shadow: 0 0 5px var(--accent-gold);
+}
+
+/* Modals */
+#glossary-modal, #alert-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+#glossary-modal.visible, #alert-modal.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.glossary-content {
+    background: var(--bg-dark);
+    border: 2px solid var(--accent-gold);
+    padding: 30px;
+    max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.alert-content {
+    background: linear-gradient(135deg, rgba(20,25,30,0.98), rgba(10,15,20,0.98));
+    border: 1px solid var(--accent-gold);
+    padding: 40px;
+    max-width: 450px;
+    border-radius: 4px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0,0,0,0.9), inset 0 0 20px rgba(212,175,55,0.05);
+    font-family: var(--font-text);
+    color: #e0e0e0;
+}
+
+#document-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+#document-modal.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.document-content {
+    background: var(--bg-dark);
+    border: 2px solid var(--accent-gold);
+    padding: 30px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,1);
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.close-document-modal {
+    position: absolute;
+    top: 10px; right: 15px;
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+#minigame-container.transparent-mode {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+#minigame-container.transparent-mode .minigame-title,
+#minigame-container.transparent-mode p {
+    text-shadow: 0 0 10px #000, 0 0 20px #000;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px; right: 15px;
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+    cursor: pointer;
+}

@@ -7,14 +7,16 @@ node_modules/
 backend/**
 **/node_modules/**
 **/.git/
-# El código fuente de los prototipos ya no vive en este repositorio: está en
-# «Elysium λ/Prototipos/». Elysium solo contiene el resultado compilado. Estas
-# reglas se mantienen como red de seguridad, a cualquier profundidad, porque el
-# fallo peligroso es que alguien deje una carpeta de proyecto DENTRO de una
-# carpeta publicada: entonces `_comercial/` (informes internos del cliente) se
-# serviría en abierto.
+# «Prototipos/» es material de trabajo que vive dentro del repositorio: fuentes
+# sin compilar, documentos y grabaciones. La raíz del repositorio es la raíz de
+# la web, así que sin esta regla se serviría en «elysiumdr.eu/Prototipos/».
+Prototipos/
+# El resto son red de seguridad a cualquier profundidad, porque el fallo
+# peligroso es que una carpeta de proyecto acabe DENTRO de una publicada:
+# entonces `_comercial/` (informes internos del cliente) se serviría en abierto.
 Regalarte/
 _fuentes/
+**/firebase.json
 **/_fuentes/
 **/_comercial/
 **/node_modules/

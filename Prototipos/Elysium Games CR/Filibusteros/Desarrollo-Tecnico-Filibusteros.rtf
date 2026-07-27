@@ -1,0 +1,382 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue-Bold;\f2\fnil\fcharset0 HelveticaNeue;
+\f3\fnil\fcharset0 .AppleSystemUIFontMonospaced-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0\c84706\cname labelColor;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 > 
+\f1\b\fs28 \cf2 Defining the Document's Scope
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've specified the required "final document" parameters, focusing on its technical rigor and target audience.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Defining Project Components
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've detailed the "final document" specifics, including format, language, and the LaTeX use policy.
+\f0\fs24 \cf0 \
+\
+> 
+\f1\b\fs28 \cf2 Refining Game Mechanics
+\f0\b0\fs24 \cf0 \
+\
+> 
+\f2\fs28 \cf2 I've specified the mechanics of the game, including the sprint's structure and AI use limitations.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs40 \cf2 Documento Arquitect\'f3nico y Narrativo de Implementaci\'f3n
+\f0\b0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Proyecto:
+\f2\b0  Sistema Interactivo de Resoluci\'f3n Hist\'f3rica (SIRH): Campa\'f1a Nacional 1856-1857\
+
+\f1\b Entorno de Despliegue Objetivo:
+\f2\b0  Laboratorios comunitarios (SIF\'c4IS), ejecuci\'f3n en Modo Quiosco.\
+
+\f1\b Poblaci\'f3n Objetivo:
+\f2\b0  Adolescentes (12 a 17 a\'f1os).
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs36 \cf2 1. Topolog\'eda de Red e Infraestructura (Serverless)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 El sistema operar\'e1 exclusivamente sobre la infraestructura de Firebase para minimizar la carga de mantenimiento del servidor y garantizar alta disponibilidad, aplicando el principio de m\'ednimos privilegios.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Autenticaci\'f3n de Sesi\'f3n:
+\f2\b0  Implementaci\'f3n estricta de 
+\f1\b Firebase Anonymous Authentication
+\f2\b0 . El cliente ejecutar\'e1 
+\f3 signInAnonymously()
+\f2  para generar un JSON Web Token (JWT) un\'edvoco, eliminando la recolecci\'f3n de Informaci\'f3n de Identificaci\'f3n Personal (PII) y mitigando el secuestro de sesi\'f3n.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Capa de Presentaci\'f3n:
+\f2\b0  Alojamiento en 
+\f1\b Firebase Hosting
+\f2\b0 . Los est\'e1ticos deben ser programados en HTML5 sem\'e1ntico, CSS3 puro y JavaScript (Vanilla), suprimiendo el uso de frameworks o librer\'edas gr\'e1ficas (WebGL) que saturen el hilo principal del navegador en hardware obsoleto.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Seguridad y Atestaci\'f3n:
+\f2\b0  Despliegue de 
+\f1\b Firebase App Check
+\f2\b0  (reCAPTCHA v3). Es obligatorio configurar la direcci\'f3n IP p\'fablica del centro comunitario en la lista de exclusi\'f3n (lista blanca) del proveedor de atestaci\'f3n para prevenir bloqueos por falsos positivos de ataques DDoS generados por la concurrencia de peticiones en Modo Quiosco.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Telemetr\'eda Restringida:
+\f2\b0  Queda terminantemente prohibida la integraci\'f3n del SDK de Firebase Analytics para asegurar la privacidad absoluta por dise\'f1o.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs36 \cf2 2. Modelo de Datos Segregado (Cloud Firestore)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 Para impedir la filtraci\'f3n de la l\'f3gica del juego mediante la inspecci\'f3n del tr\'e1fico de red en el cliente, la base de datos operar\'e1 bajo un esquema de segregaci\'f3n estricta.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs32 \cf2 2.1 Colecci\'f3n 
+\f3\b0 public_nodes
+\f1\b  (Lectura desde el Cliente)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 Los documentos en esta colecci\'f3n solo contendr\'e1n los elementos necesarios para la renderizaci\'f3n de la Interfaz de Usuario (UI). Las Reglas de Seguridad de Firestore permitir\'e1n la lectura exclusiva a clientes con un JWT an\'f3nimo v\'e1lido.
+\f0\fs24 \cf0 \
+\
+
+\f3 \cf2 [json]\
+\{\
+  "id": "nodo_01",\
+  "orden": 1,\
+  "titulo": "La Movilizaci\'f3n Estrat\'e9gica",\
+  "periodo": "Febrero - Marzo 1856",\
+  "contexto": "William Walker ha consolidado su poder en Nicaragua...",\
+  "problema": "\'bfCu\'e1l debe ser la doctrina defensiva inicial?",\
+  "opciones": [\
+    \{ "id": "opt_A", "label": "Atrincheramiento en la Meseta Central" \},\
+    \{ "id": "opt_B", "label": "Marcha ofensiva hacia la frontera norte" \}\
+  ]\
+\}\
+
+\f0 \cf0 \
+\
+
+\f1\b\fs32 \cf2 2.2 Colecci\'f3n 
+\f3\b0 private_nodes_logic
+\f1\b  (Lectura Exclusiva del Backend)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 Esta colecci\'f3n almacenar\'e1 los vectores de resoluci\'f3n. Las Reglas de Seguridad denegar\'e1n absolutamente la lectura a cualquier cliente web. Su acceso queda restringido al entorno de ejecuci\'f3n de las 
+\f1\b Cloud Functions
+\f2\b0 .
+\f0\fs24 \cf0 \
+\
+
+\f3 \cf2 [json]\
+\{\
+  "id_nodo": "nodo_01",\
+  "opcion_correcta": "opt_B",\
+  "tipo_resolucion": "ESTANDAR",\
+  "feedback_acierto": "Decisi\'f3n hist\'f3rica. La movilizaci\'f3n r\'e1pida permiti\'f3 trasladar el teatro de operaciones fuera del n\'facleo poblacional.",\
+  "feedback_error": "Fallo log\'edstico. Ceder Guanacaste habr\'eda permitido al enemigo consolidar rutas de suministro."\
+\}\
+
+\f0 \cf0 \
+\
+
+\f1\b\fs36 \cf2 3. L\'f3gica de Negocios y Control de Estado (Backend)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 Las transacciones mutables se procesar\'e1n exclusivamente a trav\'e9s de Cloud Functions para garantizar la integridad de las m\'e9tricas globales y la evaluaci\'f3n de respuestas.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f1\b Validaci\'f3n de Respuestas (POST /submitAnswer):
+\f2\b0  El cliente transmite el JWT, el 
+\f3 id_nodo
+\f2  y la 
+\f3 opcion_seleccionada
+\f2 . La Cloud Function consulta la colecci\'f3n 
+\f3 private_nodes_logic
+\f2 , eval\'faa la concordancia, actualiza la m\'e9trica agregada global e inyecta la carga \'fatil de resoluci\'f3n (feedback y alteraci\'f3n de racha) de vuelta al cliente.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f1\b Gestor de Inactividad (Frontend):
+\f2\b0  Script de recolecci\'f3n temporal mediante temporizador en JavaScript. Tras 90 segundos sin interacciones perif\'e9ricas, se ejecuta 
+\f3 sessionStorage.clear()
+\f2 , se revoca el estado del DOM y se recarga el documento para restablecer el Modo Quiosco.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f1\b Purgador de Sesiones (Backend):
+\f2\b0  Tarea programada (cron job) implementada mediante Cloud Tasks para eliminar las referencias y estados de autenticaci\'f3n an\'f3nima que superen los 10 minutos de inactividad, previniendo el desbordamiento de la base de datos de sesiones.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs36 \cf2 4. Motor Causal y Gamificaci\'f3n Historiogr\'e1fica
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 El bucle de juego (Core Game Loop) operar\'e1 evaluando consecuencias l\'f3gicas y limitaciones log\'edsticas, huyendo del modelo de retenci\'f3n memor\'edstica.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b L\'edmites de Densidad:
+\f2\b0  El contexto hist\'f3rico presentar\'e1 un m\'e1ximo estricto de 5 l\'edneas de texto. El feedback evaluativo no superar\'e1 las 80 palabras.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Manejo de Excepciones Narrativas:
+\f2\b0  Los nodos con la propiedad 
+\f3 "tipo_resolucion": "HISTORICA_TRAGICA"
+\f2  paralizar\'e1n la sumatoria de racha e invocar\'e1n una transici\'f3n de estado CSS diferencial (modificaci\'f3n de la paleta de colores), separando la correcci\'f3n t\'e1ctica de la cat\'e1strofe emp\'edrica.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Condici\'f3n de Trofeo Final:
+\f2\b0  Se renderizar\'e1 un gr\'e1fico vectorial escalable (SVG) al procesar el estado final del cliente, con clasificaciones parametrizadas desde "Recluta en Formaci\'f3n" (0-1/6) hasta "Estratega de la Campa\'f1a" (6/6).
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs36 \cf2 5. Dise\'f1o Narrativo y Secuencia de Nodos (Sprint 1)
+\f0\b0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 1: La Movilizaci\'f3n Estrat\'e9gica
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Definir la doctrina defensiva ante la consolidaci\'f3n de las fuerzas filibusteras en Nicaragua.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Atrincheramiento en la Meseta Central vs. Marcha ofensiva hacia la frontera norte.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Marcha ofensiva. El traslado r\'e1pido de tropas fuera de los centros econ\'f3micos fue indispensable para mantener el control territorial.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 2: Batalla de Santa Rosa
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Neutralizar la posici\'f3n fortificada enemiga en Guanacaste antes de que el batall\'f3n reciba armamento moderno.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Asedio prolongado vs. Ataque r\'e1pido de envolvimiento.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Ataque r\'e1pido. La reducci\'f3n de la distancia anul\'f3 la ventaja bal\'edstica filibustera en aproximadamente 15 minutos de combate.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 3: Batalla de Sardinal
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Frenar la incursi\'f3n filibustera por el r\'edo Sarapiqu\'ed que pretende abrir un segundo frente de ataque.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Abandonar ribera y fortificar poblados vs. Emboscada en la confluencia fluvial.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Emboscada. La acci\'f3n contuvo la incursi\'f3n por el flanco atl\'e1ntico, impidiendo la consolidaci\'f3n de una ruta de penetraci\'f3n hacia el interior.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 4: Guerra Urbana en Rivas
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Desarticular el fuego cruzado enemigo generado desde estructuras fortificadas (Mes\'f3n).
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Ordenar repliegue general vs. Acci\'f3n voluntaria de alto riesgo.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Acci\'f3n voluntaria (inmolaci\'f3n t\'e1ctica). La erradicaci\'f3n del punto ciego estructural oblig\'f3 la retirada enemiga.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 5: La Crisis Epidemiol\'f3gica (C\'f3lera Morbo)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Colapso de la fuerza militar por propagaci\'f3n pat\'f3gena masiva de origen h\'eddrico.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Cuarentena forzada en Nicaragua vs. Retirada sanitaria y evacuaci\'f3n a Costa Rica.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  
+\f3 HISTORICA_TRAGICA
+\f2  - Retirada sanitaria. Decisi\'f3n l\'f3gica bajo el paradigma m\'e9dico de la \'e9poca; result\'f3 en la propagaci\'f3n de la bacteria diezmando dr\'e1sticamente el porcentaje demogr\'e1fico de la naci\'f3n.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs28 \cf2 Nodo 6: Campa\'f1a del Tr\'e1nsito
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Problema:
+\f2\b0  Cortar la l\'ednea umbilical de armamento y mercenarios estadounidenses en posesi\'f3n de William Walker.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Opciones:
+\f2\b0  Asalto terrestre masivo vs. Captura de la log\'edstica fluvial.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 \'95 
+\f1\b Resoluci\'f3n:
+\f2\b0  Captura log\'edstica. La neutralizaci\'f3n de la fuente constante de reabastecimiento en la V\'eda del Tr\'e1nsito provoc\'f3 el colapso operativo del ej\'e9rcito enemigo.
+\f0\fs24 \cf0 \
+\
+
+\f1\b\fs36 \cf2 6. Secuencia de Integraci\'f3n en el Entorno de Desarrollo (Antigravity IDE)
+\f0\b0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 La ejecuci\'f3n del c\'f3digo se ordenar\'e1 bajo las siguientes directrices operativas sin superposici\'f3n de tareas:
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 1. 
+\f1\b Desarrollo del DOM (Aislado):
+\f2\b0  Creaci\'f3n del contenedor HTML5 y los selectores CSS. Programaci\'f3n de 
+\f3 app.js
+\f2  interactuando de forma s\'edncrona con un JSON local (mock de la colecci\'f3n p\'fablica) y validaci\'f3n del cron\'f3metro de limpieza de sesi\'f3n de 90 segundos.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 2. 
+\f1\b Aprovisionamiento Serverless:
+\f2\b0  Inicializaci\'f3n del proyecto de Firebase. Configuraci\'f3n del m\'e9todo de Autenticaci\'f3n An\'f3nima. Definici\'f3n de \'edndices y despliegue del esquema de seguridad bifurcado (p\'fablico/privado) en Cloud Firestore.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 3. 
+\f1\b Programaci\'f3n de L\'f3gica en la Nube:
+\f2\b0  Inyecci\'f3n del script 
+\f3 seed.py
+\f2  para poblar Firestore. Desarrollo de la Cloud Function 
+\f3 submitAnswer
+\f2  y despliegue de las tareas de limpieza peri\'f3dica de sesiones.
+\f0\fs24 \cf0 \
+\
+
+\f2\fs28 \cf2 4. 
+\f1\b Enlace de Integraci\'f3n Completa:
+\f2\b0  Eliminaci\'f3n de los datos locales en el cliente. Sustituci\'f3n por transacciones as\'edncronas HTTP comprobando el ciclo completo del token JWT contra los puntos de acceso en la base de datos segregada. Pruebas de estr\'e9s y latencia.}

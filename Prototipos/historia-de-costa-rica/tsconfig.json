@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
+  "exclude": [
+    "node_modules",
+    "Regalarte",
+    "_comercial",
+    ".next",
+    "dist",
+    // Las carpetas reales llevan el sufijo `.nosync` (iCloud no las sincroniza) y
+    // `node_modules`/`.next` son enlaces simbólicos a ellas. Hay que excluir también
+    // el nombre real: si no, `include: **/*.ts` se mete a comprobar tipos dentro de
+    // las dependencias y la compilación falla.
+    "node_modules.nosync",
+    ".next.nosync",
+    ".next-export.nosync"
+  ]
+}

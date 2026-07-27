@@ -1,0 +1,2357 @@
+@import "tailwindcss";
+@import "./components/shop/shop.css";
+/* ══════════════════════════════════════════════════════════════════════════
+   Historia de Costa Rica · sistema de marca
+   Paleta aprobada (§6.1): ocre #8B6F4E · superficie #1A1A1A · texto #F5F5F5
+   Tipografías: Playfair Display (títulos) · Inter (cuerpo)
+   Diseño móvil primero (375 px) → escala en breakpoints.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --accent: #A75D39;
+  --accent-soft: #D4805A;
+  --accent-ink: #2E150B;
+  --bg: #1a1a1a;
+  --bg-2: #211e1a;
+  --surface: rgba(245, 245, 245, 0.045);
+  --surface-2: rgba(245, 245, 245, 0.08);
+  --text: #f5f5f5;
+  --text-dim: #b6ada0;
+  --line: rgba(245, 245, 245, 0.12);
+
+  /* Variables for Tienda Regalarte (Inherited from Elysium Theme) */
+  --rg-ink: var(--text);
+  --rg-ink-soft: var(--text-dim);
+  --rg-ink-hover: var(--text);
+  --rg-cream: var(--bg);
+  --rg-sand: var(--bg-2);
+  --rg-surface: var(--surface);
+  --rg-surface-inverse: var(--bg-2);
+  --rg-on-inverse: var(--text);
+  --rg-jungle: #A75D39; /* Brand Accent */
+  --rg-jungle-rgb: 167, 93, 57;
+  --rg-jade: #A75D39;
+  --rg-jade-soft: #D4805A;
+  --rg-gold: #E0B65C;
+  --rg-sun: #F4C94F;
+  --rg-papaya: #A75D39;
+  --rg-accent-text: #D4805A;
+  --rg-red: #C0212F;
+  --rg-blue: #16295C;
+  --rg-ink-rgb: 245, 245, 245;
+  --rg-jade-rgb: 167, 93, 57;
+  --rg-shadow-rgb: 0, 0, 0;
+  --rg-surface-rgb: 36, 32, 28;
+  --rg-inverse-rgb: 13, 12, 11;
+  --rg-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --rg-card-border: rgba(255, 255, 255, 0.1);
+  --rg-media-bg: linear-gradient(165deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  --rg-control-bg: rgba(255, 255, 255, 0.06);
+  --rg-control-border: rgba(255, 255, 255, 0.12);
+  --rg-control-hover: rgba(255, 255, 255, 0.12);
+  --rg-sidebar-active-bg: rgba(167, 93, 57, 0.2);
+  --rg-sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+  --rg-select-arrow: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' fill='none' stroke='%23F5F5F5' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  --rg-display: "Playfair Display", Georgia, serif;
+  --rg-body: "Inter", -apple-system, sans-serif;
+  --rg-radius-lg: 24px;
+  --rg-radius-md: 16px;
+  --rg-radius-sm: 8px;
+  --rg-ease: cubic-bezier(.2, .8, .2, 1);
+  --rg-shadow-lift: 0 32px 72px -30px rgba(var(--rg-shadow-rgb), .38);
+  --whatsapp: #25d366;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --maxw: 1120px;
+  --radius: 16px;
+  --header-h: 76px;
+  --dock-bg: rgba(20, 18, 16, 0.74);
+  --footer-bg: #141210;
+  --nav-pill-bg: rgba(20, 18, 16, 0.55);
+  --nav-pill-bg-scrolled: rgba(20, 18, 16, 0.82);
+  /* Menú desplegable de móvil. OPACO a propósito: la píldora puede permitirse
+     el cristal translúcido porque es una franja fina, pero el desplegable es un
+     panel de texto a pantalla casi completa y flota sobre la portada 3D. Con el
+     `--surface` que usaba antes (4,5 % de opacidad) el árbol se veía a través y
+     los enlaces resultaban ilegibles. */
+  --nav-drawer-bg: #141210;
+  --bento-bg: #100e0c;
+  --card-shadow: rgba(0, 0, 0, 0.5);
+  --facts-label: rgba(245, 245, 245, 0.45);
+  --scene-desc: #e9e2d6;
+  --drop-shadow-img: rgba(0, 0, 0, 0.6);
+}
+
+:root[data-elysium-theme="light"] {
+  --accent: #a75d39; /* Using a warmer, darker accent for light mode contrast */
+  --accent-soft: #cba272;
+  --accent-ink: #f0ebe4;
+  --bg: #f5f5f5;
+  --bg-2: #e0dcd5;
+  --surface: rgba(0, 0, 0, 0.045);
+  --surface-2: rgba(0, 0, 0, 0.08);
+  --text: #1a1a1a;
+  --text-dim: #5c544d;
+  --line: rgba(0, 0, 0, 0.12);
+  --dock-bg: rgba(255, 255, 255, 0.84);
+  --footer-bg: #e8e4de;
+  --nav-pill-bg: rgba(255, 255, 255, 0.72);
+  --nav-pill-bg-scrolled: rgba(255, 255, 255, 0.88);
+  /* El mismo crema opaco que usa `.header-on-light .nav-menu`. */
+  --nav-drawer-bg: #fcfaf6;
+  --bento-bg: #e8e4de;
+  --card-shadow: rgba(0, 0, 0, 0.12);
+  --facts-label: rgba(0, 0, 0, 0.45);
+  --scene-desc: var(--text-dim);
+  --drop-shadow-img: rgba(0, 0, 0, 0.18);
+
+  /* Variables for Tienda Regalarte (Light Mode) */
+  --rg-ink: var(--text);
+  --rg-ink-soft: var(--text-dim);
+  --rg-ink-hover: var(--text);
+  --rg-cream: var(--bg);
+  --rg-sand: var(--bg-2);
+  --rg-surface: var(--surface);
+  --rg-surface-inverse: var(--bg-2);
+  /*
+   * «on-inverse» es la tinta que va SOBRE la superficie oscura, y esa superficie
+   * sigue siendo oscura en tema claro: `--rg-inverse-rgb` es 26,26,26 y el
+   * `--rg-jungle` de los botones es el mismo siena en ambos temas. Atarla a
+   * `--text` la volvía negra aquí, y el titular «Tienda» quedaba negro sobre la
+   * foto oscurecida del hero (igual que el texto de chips y paginación activos).
+   */
+  --rg-on-inverse: #f5f5f5;
+  --rg-jungle-rgb: 167, 93, 57;
+  --rg-jade: #A75D39;
+  --rg-jade-soft: #D4805A;
+  --rg-accent-text: #A75D39;
+  --rg-ink-rgb: 26, 26, 26;
+  --rg-jade-rgb: 167, 93, 57;
+  --rg-shadow-rgb: 26, 26, 26;
+  --rg-surface-rgb: 255, 255, 255;
+  --rg-inverse-rgb: 26, 26, 26;
+  --rg-card-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.4) 100%);
+  --rg-card-border: rgba(0, 0, 0, 0.08);
+  --rg-media-bg: linear-gradient(165deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 100%);
+  --rg-control-bg: rgba(255, 255, 255, 0.5);
+  --rg-control-border: rgba(0, 0, 0, 0.08);
+  --rg-control-hover: rgba(255, 255, 255, 0.85);
+  --rg-sidebar-active-bg: rgba(255, 255, 255, 0.85);
+  --rg-sidebar-hover-bg: rgba(255, 255, 255, 0.5);
+  --rg-select-arrow: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 12 12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' fill='none' stroke='%231A1A1A' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* ── F22 · System Settings: tamaño de texto, contraste, movimiento ────────── */
+:root[data-elysium-text="large"] {
+  font-size: 112.5%;
+}
+:root[data-elysium-contrast="enhanced"] {
+  --text: #ffffff;
+  --text-dim: #e7e0d5;
+  --line: rgba(245, 245, 245, 0.28);
+  --accent-soft: #cba272;
+}
+:root[data-elysium-motion="reduced"] * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + 8px);
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Candado de desplazamiento de los modales (aviso de prototipo). Va sobre el
+   elemento raíz a propósito: el preloader de Elysium escribe y borra
+   `body.style.overflow` por su cuenta, y ahí el candado se perdía. */
+html.hdc-scroll-locked {
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img {
+  max-width: 100%;
+  display: block;
+}
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.08;
+}
+button {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+:focus-visible {
+  outline: 2px solid var(--accent-soft);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.hdc-top-anchor {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  width: 1px;
+}
+
+/* ── Botones ──────────────────────────────────────────────────────────────── */
+.hdc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.94rem;
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: auto;
+}
+.hdc-btn:hover {
+  transform: translateY(-2px);
+}
+.hdc-btn--solid {
+  background: radial-gradient(120% 100% at 50% 0%, var(--accent-soft) 0%, var(--accent) 100%);
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--accent-soft) 50%, transparent);
+  box-shadow: 
+    0 4px 20px color-mix(in srgb, var(--accent) 40%, transparent),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4), 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.hdc-btn--solid:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: radial-gradient(120% 100% at 50% 0%, color-mix(in srgb, var(--accent-soft) 80%, white) 0%, var(--accent) 100%);
+  box-shadow: 
+    0 8px 30px color-mix(in srgb, var(--accent) 60%, transparent),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6), 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+.hdc-btn--solid:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 
+    0 2px 10px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+.hdc-btn--ghost {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--line);
+}
+.hdc-btn--ghost:hover {
+  border-color: var(--accent-soft);
+}
+.hdc-btn-ico {
+  width: 18px;
+  height: 18px;
+}
+
+.hdc-price-tag {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--accent-soft);
+}
+.hdc-price-tag--lg {
+  font-size: 1.9rem;
+}
+
+/* ── F03 · Scroll Reveal ──────────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ══ F02 · Header Mobile-First ═════════════════════════════════════════════ */
+.navbar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 800;
+  display: flex;
+  justify-content: center;
+  padding: 12px 12px 0;
+}
+.nav-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: var(--maxw);
+  padding: 8px 10px 8px 14px;
+  background: var(--nav-pill-bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition: background 0.3s ease;
+  overflow: visible;
+}
+.nav-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 0;
+  pointer-events: none;
+}
+.nav-pill > * {
+  position: relative;
+  z-index: 1;
+}
+.navbar.scrolled .nav-pill {
+  background: var(--nav-pill-bg-scrolled);
+}
+.brand {
+  position: relative;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+.brand img {
+  border-radius: 9px;
+}
+.brand-name {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+}
+.nav-actions {
+  position: relative;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: radial-gradient(120% 100% at 50% 0%, var(--accent-soft) 0%, var(--accent) 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--accent-soft) 50%, transparent);
+  box-shadow: 
+    0 4px 16px color-mix(in srgb, var(--accent) 40%, transparent),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4), 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.nav-cta:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: radial-gradient(120% 100% at 50% 0%, color-mix(in srgb, var(--accent-soft) 80%, white) 0%, var(--accent) 100%);
+  box-shadow: 
+    0 6px 24px color-mix(in srgb, var(--accent) 60%, transparent),
+    inset 0 1px 1px rgba(255, 255, 255, 0.6), 
+    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+}
+.nav-cta:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 
+    0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+.nav-cta-ico {
+  width: 17px;
+  height: 17px;
+}
+.menu-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  position: relative;
+  z-index: 900;
+}
+.menu-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+.menu-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.menu-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+.nav-menu {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 12px);
+  right: 0;
+  left: 0;
+  display: flex;
+  max-height: calc(100svh - 120px);
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(245, 245, 245, 0.14);
+  border-radius: 24px;
+  /* Opaco del todo, sin `backdrop-filter`: es un panel de texto a casi toda
+     pantalla sobre la portada 3D, y con cualquier resto de transparencia el
+     árbol se cuela entre los enlaces. El desenfoque además no llegaba a
+     aplicarse aquí, así que solo costaba una capa de composición. */
+  background: var(--nav-drawer-bg);
+  box-shadow: 0 28px 64px -20px rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: opacity 0.24s ease, transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.nav-menu.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.nav-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-menu a {
+  display: flex;
+  min-height: 48px;
+  padding: 12px 16px;
+  align-items: center;
+  font-size: 1.05rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--text);
+  border: none;
+  border-radius: 14px;
+  text-align: left;
+  background: transparent;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.nav-menu a:hover,
+.nav-menu a:active {
+  background: var(--surface-2);
+}
+.nav-drawer-foot {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.nav-drawer-foot a {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 999px;
+  color: #FFFFFF !important;
+  background: var(--accent);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: filter 0.2s ease;
+}
+.nav-drawer-foot a:hover,
+.nav-drawer-foot a:active {
+  filter: brightness(1.12);
+}
+body.nav-open {
+  overflow: hidden;
+}
+/* Contraste adaptativo de la píldora (site-features.js). */
+/* Header Claro (ej: Árbol de Guanacaste o en la web si el tema es claro) */
+.header-on-light .nav-pill {
+  background: rgba(250, 248, 244, 0.88) !important;
+}
+.header-on-light .brand-name,
+.header-on-light .nav-cta {
+  color: #1a1a1a !important;
+}
+.header-on-light .menu-toggle span {
+  background: #1a1a1a !important;
+}
+.header-on-light .nav-menu a {
+  color: #1a1a1a !important;
+}
+.header-on-light .nav-menu a:hover,
+.header-on-light .nav-menu a:active {
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+.header-on-light .nav-drawer-foot {
+  border-top-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Header Oscuro (ej: Esfera del Diquís o en la web si el tema es oscuro) */
+.header-on-dark .nav-pill {
+  background: rgba(20, 18, 16, 0.78) !important;
+}
+.header-on-dark .brand-name,
+.header-on-dark .nav-cta {
+  color: #f5f5f5 !important;
+}
+.header-on-dark .menu-toggle span {
+  background: #f5f5f5 !important;
+}
+.header-on-dark .nav-cta {
+  background: rgba(245, 245, 245, 0.08) !important;
+}
+.header-on-dark .nav-menu a {
+  color: #f5f5f5 !important;
+}
+.header-on-dark .nav-menu a:hover,
+.header-on-dark .nav-menu a:active {
+  background: rgba(245, 245, 245, 0.1) !important;
+}
+.header-on-dark .nav-drawer-foot {
+  border-top-color: rgba(245, 245, 245, 0.12) !important;
+}
+
+/*
+ * Cuerpo del desplegable — SOLO donde existe como panel.
+ *
+ * A partir de 900 px `.nav-menu` deja de ser un cajón y se convierte en la fila
+ * de enlaces de dentro de la píldora. Estas reglas llevan `!important` (las
+ * pone el contraste adaptativo por encima del tema), así que sin acotarlas por
+ * ancho le ganaban al `background: none` del escritorio y dibujaban un
+ * rectángulo crema detrás de «Tienda · Podcast · Comunidad…». Los colores de
+ * texto de arriba sí son comunes a los dos tamaños.
+ */
+@media (max-width: 899px) {
+  .header-on-light .nav-menu {
+    background: #fcfaf6 !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.18) !important;
+  }
+  .header-on-dark .nav-menu {
+    background: #141210 !important;
+    border-color: rgba(245, 245, 245, 0.14) !important;
+    box-shadow: 0 28px 64px -20px rgba(0, 0, 0, 0.7) !important;
+  }
+}
+
+/* Dock · adaptación de contraste (site-features.js). */
+.dock-on-light .hdc-dock-items {
+  background: rgba(250, 248, 244, 0.82);
+  box-shadow: 0 18px 46px -20px rgba(0, 0, 0, 0.15);
+}
+.dock-on-light .hdc-dock-item {
+  color: #1a1a1a;
+}
+.dock-on-light .hdc-dock-item.is-whatsapp {
+  color: #128c3e;
+}
+.dock-on-dark .hdc-dock-items,
+:root[data-elysium-theme="light"] .dock-on-dark .hdc-dock-items {
+  background: rgba(20, 18, 16, 0.74) !important;
+}
+.dock-on-dark .hdc-dock-item,
+:root[data-elysium-theme="light"] .dock-on-dark .hdc-dock-item {
+  color: #f5f5f5 !important;
+}
+:root[data-elysium-theme="light"] .hdc-dock-items {
+  box-shadow: 0 18px 46px -20px rgba(0, 0, 0, 0.15);
+}
+:root[data-elysium-theme="light"] .hdc-dock-item {
+  color: var(--text);
+}
+
+/* ══ Portada cinemática (GSAP + R3F) ═══════════════════════════════════════ */
+/*
+ * IMPORTANTE: .hdc-story y .hdc-story-sticky SIEMPRE tienen fondo negro.
+ * El canvas Three.js usa alpha:true, por lo que su transparencia muestra
+ * lo que hay debajo. En modo claro el .hdc-main se vuelve blanco —sin
+ * este fondo, el blanco se filtraría a través del canvas.
+ * Nunca cambiar este background a var(--bg) ni similar.
+ */
+.hdc-story {
+  position: relative;
+  background: #000;
+  /* Fuerza variables oscuras dentro de la portada para que los textos
+     superpuestos (NarrativeOverlay) sean siempre legibles sobre la animación. */
+  --text: #f5f5f5;
+  --text-dim: #b6ada0;
+  --scene-desc: #e9e2d6;
+  --surface: rgba(245, 245, 245, 0.045);
+  --surface-2: rgba(245, 245, 245, 0.08);
+  --line: rgba(245, 245, 245, 0.12);
+  color: #f5f5f5;
+}
+/* Asegura que el tema claro NO sobreescriba el fondo de la portada */
+:root[data-elysium-theme="light"] .hdc-story {
+  background: #000;
+  --text: #f5f5f5;
+  --text-dim: #b6ada0;
+  --scene-desc: #e9e2d6;
+  color: #f5f5f5;
+}
+/*
+ * Continuidad con el cromo del navegador.
+ *
+ * Safari en iOS tiñe la barra de direcciones con el COLOR DE FONDO DEL
+ * DOCUMENTO (el que `body` propaga al lienzo), no con lo que se ve en pantalla.
+ * Con el tema claro eso pintaba una franja blanca justo debajo del césped.
+ * Mientras corre la cinemática, `CinematicStory` marca el documento y va
+ * escribiendo `--hdc-canvas` con el color del suelo de la escena, de modo que
+ * la barra se lea como una prolongación del pasto y se apague con él.
+ */
+html.hdc-immersive body {
+  background-color: var(--hdc-canvas, #203016);
+}
+/* Refuerzo para el cromo móvil. En escritorio se deja fuera: cambiaría el color
+   de la barra de desplazamiento a media cinemática. */
+@media (max-width: 767px) {
+  html.hdc-immersive {
+    color-scheme: dark;
+  }
+}
+.hdc-story--cinematic {
+  /* 397vh = 100vh de viewport + 297vh de recorrido: ~63vh para el Acto 1
+     (la mitad que antes) y ~234vh para los Actos 2–4, que no cambian de ritmo. */
+  height: 397vh;
+}
+.hdc-story--static {
+  min-height: 100svh;
+}
+.hdc-story-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  background: #000;
+}
+/*
+ * Portada fuera del viewport (la marca `CinematicStory` con un
+ * IntersectionObserver): se retira la capa entera. En iOS el traspaso del
+ * `sticky` a la sección siguiente dejaba compuesta una franja del último
+ * fotograma WebGL por encima del cuerpo de la página.
+ */
+.hdc-story.is-offscreen .hdc-story-sticky {
+  visibility: hidden;
+}
+.hdc-visual-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, #A75D39 0%, #000000 100%);
+}
+.hdc-cinematic-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* Capa narrativa 2D */
+.hdc-narrative {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.hdc-narrative::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(8, 7, 5, 0.82) 0%,
+    rgba(8, 7, 5, 0.28) 42%,
+    rgba(8, 7, 5, 0) 68%
+  );
+  pointer-events: none;
+}
+.hdc-coords {
+  position: absolute;
+  top: calc(var(--header-h) + 10px);
+  left: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+.hdc-coords-beacon {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 0 rgba(178, 142, 99, 0.6);
+  animation: hdc-beacon 2.4s ease-out infinite;
+}
+@keyframes hdc-beacon {
+  0% { box-shadow: 0 0 0 0 rgba(178, 142, 99, 0.55); }
+  100% { box-shadow: 0 0 0 12px rgba(178, 142, 99, 0); }
+}
+.hdc-coords-sep {
+  opacity: 0.5;
+}
+/*
+ * En móvil la copia se apoya en el borde inferior: la cartela de pieza se ha
+ * mudado arriba a la derecha, así que ya no hay nada que esquivar y el motivo
+ * 3D (árbol, esfera) queda despejado en la mitad superior.
+ */
+.hdc-scene-stack {
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+}
+@media (max-width: 767px) {
+  /* La escena de conversión no baja: abajo reaparece el Magic Bottom, y sus
+     botones necesitan el mismo aire de siempre (130 px sobre el borde). */
+  .hdc-scene-stack .hdc-scene--revelacion {
+    bottom: 116px;
+  }
+}
+@media (min-width: 768px) {
+  .hdc-scene-stack {
+    bottom: 104px;
+  }
+}
+.hdc-scene {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 640px;
+  will-change: opacity, transform;
+}
+/* Velo bajo el texto: garantiza contraste cuando la escena 3D se aclara
+   (Acto 4, cartas blancas). No tapa el 3D, solo lo atenúa tras la copia. */
+.hdc-scene::before {
+  content: "";
+  position: absolute;
+  inset: -2.5rem -2rem -3rem;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(10, 10, 12, 0.82) 0%,
+    rgba(10, 10, 12, 0.62) 45%,
+    rgba(10, 10, 12, 0) 78%
+  );
+  pointer-events: none;
+}
+.hdc-scene--center {
+  margin: 0 auto;
+  text-align: center;
+}
+.hdc-scene-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-soft);
+}
+.hdc-scene-kicker span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  font-family: var(--font-display);
+}
+.hdc-scene-title {
+  font-size: clamp(2rem, 9vw, 3.4rem);
+  letter-spacing: -0.01em;
+}
+.hdc-scene-desc {
+  margin: 14px 0 0;
+  max-width: 44ch;
+  color: var(--scene-desc);
+  font-size: 1.02rem;
+}
+.hdc-scene--center .hdc-scene-desc {
+  margin-inline: auto;
+}
+.hdc-scroll-cue {
+  margin: 20px 0 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+.hdc-scroll-cue span {
+  display: inline-block;
+  margin-right: 6px;
+  animation: hdc-bob 1.8s ease-in-out infinite;
+}
+@keyframes hdc-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+.hdc-commerce {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: inherit;
+}
+.hdc-scene--center .hdc-commerce {
+  align-items: center;
+}
+.hdc-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  pointer-events: auto;
+}
+.hdc-scene--center .hdc-cta-row {
+  justify-content: center;
+}
+/* ── Galería de producto ─────────────────────────────────────────────────── */
+.hdc-gallery {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.hdc-gallery-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.hdc-gallery-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 4 / 5;
+}
+/* La primera imagen (la caja del juego) ocupa el ancho completo. */
+.hdc-gallery--feature .hdc-gallery-item:first-child {
+  grid-column: 1 / -1;
+}
+.hdc-gallery--feature .hdc-gallery-item:first-child img {
+  aspect-ratio: 16 / 11;
+  object-fit: contain;
+  padding: 8px;
+}
+
+/* ── Vídeo incrustado con capa-enlace ────────────────────────────────────── */
+.hdc-video {
+  margin: 0 0 20px;
+}
+.hdc-video-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #000;
+}
+.hdc-video-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+/* Cubre el reproductor: cualquier clic abre la publicación original. */
+.hdc-video-hit {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 14px;
+  text-decoration: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 42%);
+}
+.hdc-video-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: rgba(20, 20, 22, 0.82);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.hdc-video-hit:hover .hdc-video-cue {
+  background: var(--accent);
+  transform: translateY(-2px);
+}
+.hdc-video-hit:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+
+/*
+ * Cartela de pieza · pastilla identificativa arriba a la derecha, enfrente de
+ * las coordenadas. Toma el color y el fondo de la píldora del header (mismas
+ * clases `header-on-light` / `header-on-dark` que reparte site-features.js), de
+ * modo que se aclara sobre la pradera y se oscurece sobre el vacío del Diquís.
+ *
+ * Colapsada enseña solo el nombre; al tocarla o al pasar el puntero despliega
+ * la ficha completa. Es el mismo comportamiento en móvil y en escritorio.
+ */
+.hdc-specimen {
+  position: absolute;
+  top: calc(var(--header-h) + 4px);
+  right: 22px;
+  transform: translateY(var(--hdc-specimen-rise, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+  margin: 0;
+  padding: 8px 14px;
+  /* Tope estrecho: en 375 px la lectura GPS llega hasta ~195 px, así que la
+     pastilla arranca por detrás de ella y envuelve el nombre en dos líneas. */
+  max-width: min(40vw, 11rem);
+  text-align: right;
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  /* Reserva por si site-features.js no llegara a repartir el contraste. */
+  color: #f5f5f5;
+  background: rgba(20, 18, 16, 0.78);
+  border: 1px solid rgba(245, 245, 245, 0.14);
+  border-radius: 16px;
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 12px 30px -20px rgba(0, 0, 0, 0.85);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.25s ease, color 0.3s ease;
+}
+/* Contraste adaptativo: exactamente los mismos valores que `.nav-pill`. */
+body:has(#header.header-on-light) .hdc-specimen {
+  color: #1a1a1a;
+  background: rgba(250, 248, 244, 0.88);
+  border-color: rgba(26, 26, 26, 0.1);
+  box-shadow: 0 12px 30px -22px rgba(0, 0, 0, 0.35);
+}
+body:has(#header.header-on-dark) .hdc-specimen {
+  color: #f5f5f5;
+  background: rgba(20, 18, 16, 0.78);
+  border-color: rgba(245, 245, 245, 0.14);
+}
+.hdc-specimen.is-open {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.hdc-specimen-name {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  color: inherit;
+}
+/* Chevron: avisa de que la pastilla despliega la ficha. */
+.hdc-specimen-name::after {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.7;
+  transform: translateY(-1px) rotate(45deg);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.hdc-specimen-note {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin-top: 0;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, currentColor 65%, transparent);
+  opacity: 0;
+  transition:
+    grid-template-rows 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    margin-top 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.24s ease;
+}
+.hdc-specimen-note-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.hdc-specimen.is-open .hdc-specimen-name::after {
+  transform: translateY(1px) rotate(-135deg);
+}
+.hdc-specimen.is-open .hdc-specimen-note {
+  grid-template-rows: 1fr;
+  margin-top: 5px;
+  opacity: 1;
+}
+@media (hover: hover) {
+  .hdc-specimen:hover .hdc-specimen-name::after {
+    transform: translateY(1px) rotate(-135deg);
+  }
+  .hdc-specimen:hover .hdc-specimen-note {
+    grid-template-rows: 1fr;
+    margin-top: 5px;
+    opacity: 1;
+  }
+}
+@media (min-width: 768px) {
+  .hdc-specimen {
+    right: 40px;
+    padding: 10px 18px;
+    max-width: 17rem;
+    border-radius: 20px;
+  }
+  .hdc-specimen-name {
+    font-size: 0.95rem;
+    gap: 9px;
+  }
+  .hdc-specimen-name::after {
+    width: 6px;
+    height: 6px;
+  }
+  .hdc-specimen-note {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+  }
+  .hdc-specimen.is-open .hdc-specimen-note {
+    margin-top: 7px;
+  }
+}
+
+.hdc-chapter-rail {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.hdc-chapter-rail li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  color: var(--text-dim);
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+.hdc-chapter-rail li.is-active {
+  opacity: 1;
+  color: var(--accent-soft);
+}
+.hdc-rail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+}
+.hdc-chapter-rail li.is-active .hdc-rail-dot {
+  background: var(--accent-soft);
+}
+.hdc-rail-label {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+}
+
+/* Portada estática accesible */
+.hdc-static-hero {
+  position: relative;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 0 22px;
+  background: radial-gradient(120% 80% at 50% 20%, #23180d 0%, #14100b 55%, var(--bg) 100%);
+}
+.hdc-static-aura {
+  position: absolute;
+  width: 70vw;
+  max-width: 520px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 111, 78, 0.4), transparent 68%);
+  filter: blur(20px);
+}
+.hdc-static-copy {
+  position: relative;
+  max-width: 620px;
+  text-align: center;
+}
+.hdc-static-copy .hdc-scene-title {
+  margin-top: 12px;
+}
+.hdc-static-copy .hdc-commerce {
+  align-items: center;
+  margin-top: 26px;
+}
+
+/* ══ Secciones ═════════════════════════════════════════════════════════════ */
+.hdc-main {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  transition: background-color 0.4s ease;
+}
+
+/* ══ Pie · F10 / F05 ═══════════════════════════════════════════════════════ */
+.site-footer {
+  background: var(--footer-bg);
+  border-top: 1px solid var(--line);
+  padding: 56px 22px 30px;
+}
+.footer-grid {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 34px;
+}
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+.footer-logo img {
+  border-radius: 11px;
+}
+.footer-tagline {
+  margin: 14px 0 0;
+  max-width: 34ch;
+  color: var(--text-dim);
+}
+.footer-col h4 {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.footer-col a:hover {
+  color: var(--accent-soft);
+}
+.footer-bottom {
+  max-width: var(--maxw);
+  margin: 34px auto 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.footer-bottom-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+}
+.footer-legal {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.footer-credit {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.footer-credit a {
+  color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* ══ F09 · Magic Bottom ════════════════════════════════════════════════════ */
+.hdc-dock {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 900;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+}
+.hdc-dock.is-tucked,
+.hdc-dock.is-anim-hidden {
+  transform: translateX(-50%) translateY(160%);
+  opacity: 0;
+  pointer-events: none;
+}
+.hdc-dock-items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 10px;
+  background: var(--dock-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 18px 46px -20px rgba(0, 0, 0, 0.8);
+}
+.hdc-dock-item {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--text);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.hdc-dock-item:hover {
+  background: var(--surface-2);
+}
+.hdc-dock-item.is-whatsapp {
+  color: var(--whatsapp);
+}
+.hdc-dock-item svg {
+  width: 21px;
+  height: 21px;
+}
+.hdc-dock-item[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 4px 9px;
+  background: #000;
+  color: #fff;
+  font-size: 0.68rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.hdc-dock-item[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.hdc-dock-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--line);
+  margin: 0 3px;
+}
+
+/* ══ Rediseño 2026: Split-Screen & Bento ═════════════════════════════════ */
+
+/*
+ * -- Split Screen --
+ * Tres modos de la misma marcación:
+ *   1. Móvil base (aquí abajo): pila vertical con la imagen pegada arriba.
+ *      Es lo que se pinta en el servidor y el respaldo con movimiento reducido.
+ *   2. Móvil `[data-mode="pinned"]`: lo activa GSAP (Sections.tsx) para el
+ *      carrusel horizontal — tarjetas arriba, producto abajo, sección anclada.
+ *   3. Escritorio (≥1024px): dos columnas clásicas, imagen pegajosa a la izq.
+ * Las dos capas comparten la celda 1/1 de la retícula: se apilan como capas.
+ */
+.hdc-split-screen {
+  display: grid;
+  /* `minmax(0, …)`: la fila de tarjetas mide `max-content` y, sin esto, estiraría
+     la columna —y con ella la capa del producto— muchísimo más que la pantalla. */
+  grid-template-columns: minmax(0, 1fr);
+  position: relative;
+  z-index: 10;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  --hdc-object-band: clamp(150px, 27svh, 300px);
+}
+
+@media (min-width: 1024px) {
+  .hdc-split-screen {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 40px;
+    padding: 0 40px;
+  }
+}
+
+.hdc-split-sticky {
+  grid-column: 1;
+  grid-row: 1;
+  position: sticky;
+  top: calc(var(--header-h) + 12px);
+  align-self: start;
+  width: 100%;
+  height: var(--hdc-object-band);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+@media (min-width: 1024px) {
+  .hdc-split-sticky {
+    top: var(--header-h);
+    align-self: auto;
+    width: 50%;
+    height: calc(100vh - var(--header-h));
+    height: calc(100svh - var(--header-h));
+    overflow: hidden;
+    /* Las tres capas comparten celda para poder fundirse una sobre otra.
+       La pista se declara explícita: si se deja implícita, se dimensiona al
+       `max-content` de las capas —los 300px del incrustado de Spotify— y el
+       `100%` del marco resolvería contra esos 300px en vez de la columna. */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    /*
+     * MARCO COMÚN. Sin él cada toma se ajustaba contra la columna entera y el
+     * tamaño lo decidía su proporción: una camiseta vertical llenaba los 604px
+     * de alto, la caja del juego se quedaba en 461 y el incrustado de Spotify
+     * en 352. Fijando la caja, los tres actos presentan el producto dentro del
+     * mismo rectángulo y el salto de tamaño entre secciones desaparece.
+     */
+    --hdc-stage-h: min(calc(100svh - var(--header-h) - 96px), 520px);
+    --hdc-stage-w: min(100%, calc(var(--hdc-stage-h) * 0.86));
+  }
+}
+
+.hdc-split-scroll {
+  grid-column: 1;
+  grid-row: 1;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+  padding: calc(var(--hdc-object-band) + var(--header-h) + 36px) 22px 120px;
+}
+
+@media (min-width: 1024px) {
+  .hdc-split-scroll {
+    width: 50%;
+    padding: 0 0 120px;
+    /* Sin hueco entre actos: cada uno ya mide una pantalla (ver más abajo). */
+    gap: 0;
+  }
+
+  /*
+   * Un acto = una pantalla, con el texto centrado en ella.
+   *
+   * Antes los tres actos medían 460/388/319px y se sucedían con 120px de aire,
+   * así que el texto caía a una altura distinta cada vez mientras la columna
+   * pegajosa seguía centrada: nada casaba. Y como el primer acto empezaba en el
+   * borde superior de la sección, los títulos entraban por debajo del header
+   * flotante y se leían cortados.
+   *
+   * Con la banda de una pantalla —la que queda bajo el header— el texto y su
+   * toma comparten centro vertical, el ritmo entre actos es constante y ningún
+   * título vuelve a quedar tapado.
+   */
+  .hdc-split-scroll .hdc-narrative-section {
+    min-height: calc(100vh - var(--header-h));
+    min-height: calc(100svh - var(--header-h));
+    justify-content: center;
+
+    /* Al pegarse las bandas, los tres filetes formaban una única línea continua
+       y dejaban de marcar el arranque de cada acto. Se pinta el filete como
+       fondo, con los extremos en transparente, para que vuelva a haber corte
+       visible entre acto y acto. `border-box` lo deja donde estaba el borde. */
+    border-left-color: transparent;
+    background-image: linear-gradient(
+      to bottom,
+      transparent 0 8%,
+      var(--line) 8% 92%,
+      transparent 92%
+    );
+    background-repeat: no-repeat;
+    background-origin: border-box;
+    background-position: left top;
+    background-size: 1px 100%;
+  }
+}
+
+/* -- Móvil · carrusel horizontal anclado (lo enciende GSAP) -------------- */
+@media (max-width: 1023px) {
+  /* Dos franjas, no dos capas superpuestas: arriba las tarjetas (lo que midan),
+     abajo el producto con TODO el resto. Así no queda aire muerto en medio —el
+     alto de la banda lo decide la pantalla, no un `svh` fijo. */
+  .hdc-split-screen[data-mode="pinned"] {
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+    grid-template-rows: auto minmax(0, 1fr);
+    row-gap: 8px;
+  }
+
+  /* Franja inferior: el producto, con hueco para el dock flotante (F09). */
+  .hdc-split-screen[data-mode="pinned"] .hdc-split-sticky {
+    grid-row: 2;
+    position: relative;
+    top: auto;
+    align-self: stretch;
+    height: auto;
+  }
+
+  /* Franja superior: la fila larga de tarjetas que GSAP desplaza en X.
+     `align-self: start` es imprescindible: estirada a toda la fila, esta capa
+     (z-index 1, y compuesta aparte por `will-change`) se pone por encima de la
+     banda del producto y se come sus clics —el reproductor de Spotify deja de
+     responder— además de estorbar al pintarla. */
+  .hdc-split-screen[data-mode="pinned"] .hdc-split-scroll {
+    grid-row: 1;
+    align-self: start;
+    flex-direction: row;
+    /* Todas a la altura de la más alta: la franja del producto queda a la misma
+       distancia en los tres actos y no baila al pasar de una tarjeta a otra. */
+    align-items: stretch;
+    width: max-content;
+    gap: 22px;
+    padding: calc(var(--header-h) + 10px) 22px 0;
+    will-change: transform;
+  }
+
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-section {
+    flex: 0 0 calc(100vw - 44px);
+    width: calc(100vw - 44px);
+  }
+
+  /* El acto se compacta para convivir con la imagen en una sola pantalla. */
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-section {
+    gap: 14px;
+    padding-left: 18px;
+  }
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-title {
+    font-size: clamp(1.7rem, 7.6vw, 2.3rem);
+  }
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-copy {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: none;
+  }
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-facts strong {
+    font-size: 1.25rem;
+  }
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-facts li + li {
+    padding-left: 10px;
+    margin-left: 10px;
+  }
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-price {
+    font-size: 1.5rem;
+    white-space: nowrap;
+  }
+  /* Precio y botón en una línea; si el precio es largo, el botón baja solo. */
+  .hdc-split-screen[data-mode="pinned"] .hdc-narrative-actions {
+    flex-flow: row wrap;
+    gap: 12px 16px;
+  }
+
+  /* Pantallas bajas (SE, plegables cerrados): otra vuelta de tuerca. */
+  @media (max-height: 720px) {
+    .hdc-split-screen[data-mode="pinned"] .hdc-narrative-title {
+      font-size: 1.5rem;
+    }
+    .hdc-split-screen[data-mode="pinned"] .hdc-narrative-copy {
+      font-size: 0.84rem;
+    }
+    .hdc-split-screen[data-mode="pinned"] .hdc-narrative-facts strong {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.hdc-sticky-object {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+/* El producto llena su franja; solo se reserva el hueco del dock flotante (F09).
+   Se recorta la caja de la capa (no un `padding`) porque las tomas van en
+   posición absoluta y resolverían el 100% contra la caja de relleno. */
+@media (max-width: 1023px) {
+  .hdc-split-screen[data-mode="pinned"] .hdc-sticky-object {
+    inset: 0 0 76px;
+  }
+  /* La toma no llena la franja entera: respira dentro de ella. Al reducir la
+     caja (no el iframe de Spotify) el producto queda algo más pequeño. */
+  .hdc-split-screen[data-mode="pinned"] .hdc-sticky-object img,
+  .hdc-split-screen[data-mode="pinned"] .hdc-sticky-object video {
+    inset: 8%;
+    width: 84%;
+    height: 84%;
+  }
+}
+
+.hdc-sticky-object.is-active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Cada toma ocupa exactamente la caja de su capa —así todas se superponen para
+   el fundido— y se ajusta por dentro con `contain`: conserva la proporción,
+   llena el espacio disponible y nunca se sale de la franja. Un `max-height: 100%`
+   no sirve aquí: el porcentaje no resuelve y las imágenes altas desbordaban. */
+.hdc-sticky-object img,
+.hdc-sticky-object video,
+.hdc-sticky-object iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px var(--drop-shadow-img));
+}
+
+.hdc-sticky-object iframe {
+  position: relative;
+  inset: auto;
+}
+
+/* -- Escritorio · el marco común ----------------------------------------- */
+@media (min-width: 1024px) {
+  /* La capa deja de llenar la columna y pasa a ser el marco: las tres se
+     apilan en la misma celda (`grid-area`) para conservar el fundido. */
+  .hdc-sticky-object {
+    position: relative;
+    inset: auto;
+    grid-area: 1 / 1;
+    width: var(--hdc-stage-w);
+    height: var(--hdc-stage-h);
+  }
+
+  /* Spotify usa su propia altura, pero llena el ancho del marco. */
+  .hdc-sticky-object iframe {
+    width: 100%;
+    height: 352px;
+  }
+}
+
+@media (max-width: 1023px) {
+  /* Spotify en su variante compacta (152px). No conviene estirarla para llenar
+     la franja: el incrustado escala su contenido con la altura y a 375px de
+     ancho el título se sale de la caja. */
+  .hdc-sticky-object iframe {
+    width: min(100%, 400px);
+    height: 152px;
+  }
+}
+
+/* ── Secciones narrativas ──────────────────────────────────────────────────
+   Sin tarjeta: tipografía sobre el fondo y un filete de acento a la izquierda.
+   El filete hace de índice visual —marca dónde empieza cada acto— y en el
+   carrusel móvil se asoma el del siguiente panel al deslizar. */
+.hdc-narrative-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  padding-left: 22px;
+  border-left: 1px solid var(--line);
+}
+
+/* Numeral del paso + rótulo, con un filete que se disuelve hacia la derecha. */
+.hdc-narrative-index {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.hdc-narrative-index span {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--accent-soft);
+}
+
+.hdc-narrative-index::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+.hdc-narrative-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.hdc-narrative-copy {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  max-width: 34ch;
+  font-weight: 300;
+  margin: 0;
+}
+
+/* Cifras del juego: banda de datos con filetes, no una lista con viñetas. */
+.hdc-narrative-facts {
+  display: flex;
+  margin: 4px 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.hdc-narrative-facts li {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 12px 0;
+}
+
+.hdc-narrative-facts li + li {
+  padding-left: 14px;
+  margin-left: 14px;
+  border-left: 1px solid var(--line);
+}
+
+.hdc-narrative-facts strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-soft);
+}
+
+.hdc-narrative-facts span {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  color: var(--facts-label);
+}
+
+.hdc-narrative-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.hdc-narrative-price {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--accent-soft);
+  font-weight: 700;
+}
+
+/* -- Glass Panels -- */
+.hdc-glass-panel {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 2px; /* Geometric/Brutalist touch */
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* -- Bento Grid --
+   El mismo dibujo en todos los tamaños: la celda grande a todo lo ancho, las
+   dos celdas en pareja debajo y la franja de comunidad al pie. En móvil son
+   dos columnas —la mitad de las cuatro del escritorio—, así que la retícula
+   se lee igual en un teléfono que en un monitor, solo a otra escala. */
+.hdc-bento {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: var(--maxw);
+  margin: 0 auto 96px;
+  padding: 0 18px;
+}
+
+@media (min-width: 768px) {
+  .hdc-bento {
+    gap: 16px;
+    margin-bottom: 120px;
+    padding: 0 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hdc-bento {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 320px);
+  }
+}
+
+.hdc-bento-cell {
+  position: relative;
+  background: var(--bento-bg);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+@media (min-width: 768px) {
+  .hdc-bento-cell {
+    padding: 32px;
+  }
+}
+
+.hdc-bento-cell--flush {
+  padding: 0;
+}
+
+.hdc-bento-cell:hover {
+  border-color: var(--accent-soft);
+  transform: translateY(-4px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 20px 30px 50px -10px var(--card-shadow), inset 0 0 0 1px rgba(178, 142, 99, 0.2);
+  z-index: 2;
+}
+
+/* Táctil: el `:hover` se queda pegado tras el toque, así que el volumen 3D
+   de la tarjeta se cambia por un hundido breve al pulsar. */
+@media (hover: none) {
+  .hdc-bento-cell:hover {
+    border-color: var(--line);
+    transform: none;
+    box-shadow: none;
+  }
+  .hdc-bento-cell:active {
+    transform: scale(0.985);
+  }
+  .hdc-bento-cell--video:hover .hdc-video-bg {
+    transform: none;
+  }
+  .hdc-bento-cell--video:hover .hdc-video-overlay {
+    opacity: 1;
+  }
+  .hdc-bento-cell:hover .hdc-bento-cta {
+    transform: none;
+  }
+}
+
+.hdc-bento-cell--large,
+.hdc-bento-cell--wide {
+  grid-column: 1 / -1;
+}
+
+/* Las dos celdas en pareja: proporción fija para que la fila quede pareja
+   —como la fila de 320px del escritorio— sin depender del texto. */
+.hdc-bento-cell--half {
+  aspect-ratio: 4 / 5;
+}
+
+@media (min-width: 768px) {
+  .hdc-bento-cell--half {
+    aspect-ratio: auto;
+    min-height: 280px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hdc-bento-cell--large {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+  .hdc-bento-cell--wide {
+    grid-column: span 2;
+  }
+  .hdc-bento-cell--tall {
+    grid-row: span 2;
+  }
+  .hdc-bento-cell--half {
+    min-height: 0;
+  }
+}
+
+.hdc-bento-cell-bg {
+  position: absolute;
+  inset: 0;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  opacity: 0.4;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  z-index: 0;
+}
+
+.hdc-bento-cell:hover .hdc-bento-cell-bg {
+  opacity: 0.6;
+  transform: scale(1.05);
+}
+
+/* Video Backgrounds for Bento Cells */
+.hdc-bento-cell--video .hdc-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+
+.hdc-bento-cell--video:hover .hdc-video-bg {
+  transform: scale(1.08);
+}
+
+/* Fondo servido desde YouTube: el reproductor conserva su 16:9, así que el
+   envoltorio hace de caja de recorte y el iframe se agranda hasta cubrirla —
+   el equivalente al `object-fit: cover` del <video>. */
+.hdc-bento-cell--video .hdc-video-embed {
+  container-type: size;
+  overflow: hidden;
+  pointer-events: none;
+  display: block;
+}
+
+.hdc-bento-cell--video .hdc-video-embed iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: max(100cqw, 100cqh * 16 / 9);
+  height: max(100cqh, 100cqw * 9 / 16);
+  border: 0;
+}
+
+.hdc-bento-cell--video .hdc-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 100%);
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.hdc-bento-cell--video:hover .hdc-video-overlay {
+  opacity: 0.8;
+}
+
+.hdc-bento-cell--video .hdc-bento-content {
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  color: #ffffff;
+}
+
+.hdc-bento-cell--video .hdc-bento-copy {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hdc-bento-cell--video .hdc-narrative-index {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.hdc-bento-cell--video .hdc-bento-title {
+  color: #ffffff;
+}
+
+.hdc-bento-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.hdc-bento-cell--centered .hdc-bento-content {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Titular de tarjeta. En móvil se ajusta al ancho de la celda: en la pareja
+   de celdas comparte renglón con el disco y tiene que caber en una línea. */
+.hdc-bento-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 5vw, 1.25rem);
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+.hdc-bento-copy {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-top: auto;
+}
+
+.hdc-bento-cell--half .hdc-bento-copy {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+@media (min-width: 768px) {
+  .hdc-bento-title {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  .hdc-bento-copy,
+  .hdc-bento-cell--half .hdc-bento-copy {
+    font-size: 0.95rem;
+  }
+}
+
+/* Variantes del titular. Van después del bloque base —incluida su consulta de
+   medios— para que ganen por orden, sin tener que subir la especificidad. */
+.hdc-bento-cell--large .hdc-bento-title {
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+}
+
+/* Rótulo de la celda de Instagram: bajo el círculo, a dos líneas. */
+.hdc-bento-title--sm {
+  font-size: clamp(0.9rem, 4.2vw, 1rem);
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+/* Titular de la franja de comunidad: el mayor de la retícula, así que se
+   escala con el ancho para no partirse en cuatro líneas en un teléfono. */
+.hdc-bento-title--wide {
+  font-size: clamp(1.7rem, 8vw, 2.25rem);
+}
+
+@media (min-width: 768px) {
+  .hdc-bento-title--sm {
+    font-size: 1.25rem;
+    margin-top: 16px;
+  }
+}
+
+/* Podcast Visualizer Cell */
+.hdc-podcast-cell {
+  background: radial-gradient(circle at 100% 0%, var(--accent-ink) 0%, var(--bento-bg) 70%);
+}
+
+/* El disco se mide en porcentaje de la celda —no en píxeles— para que se
+   asome por la esquina igual en cualquier ancho. En móvil se retira un poco
+   más para dejarle el renglón libre al título. */
+.hdc-vinyl {
+  position: absolute;
+  right: -14%;
+  top: -12%;
+  width: 70%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: 
+    conic-gradient(
+      from 0deg,
+      rgba(255, 255, 255, 0.18) 0deg,
+      transparent 45deg,
+      transparent 135deg,
+      rgba(255, 255, 255, 0.18) 180deg,
+      transparent 225deg,
+      transparent 315deg,
+      rgba(255, 255, 255, 0.18) 360deg
+    ),
+    repeating-radial-gradient(
+      circle at center,
+      #111 0%,
+      #111 2px,
+      #222 3px,
+      #111 4px
+    );
+  border: 4px solid #000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+  animation: hdc-spin 8s linear infinite;
+  z-index: 0;
+  opacity: 0.85;
+  will-change: transform;
+}
+
+.hdc-vinyl-label {
+  position: absolute;
+  inset: 32%;
+  background: var(--accent);
+  border-radius: 50%;
+  border: 3px solid #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.hdc-vinyl-label::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #000;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@media (min-width: 1024px) {
+  .hdc-vinyl {
+    width: 200px;
+    right: -20%;
+    top: -20%;
+  }
+}
+
+@keyframes hdc-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Bento: Credits Auto-Scroll */
+#nosotros {
+  height: clamp(340px, 46vh, 420px);
+}
+
+@media (min-width: 768px) {
+  #nosotros {
+    height: 520px;
+  }
+}
+
+@media (min-width: 1024px) {
+  #nosotros {
+    height: 100%;
+  }
+}
+
+.hdc-credits-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  scroll-behavior: auto !important;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+  padding: 15% 0; /* padding so it scrolls smoothly from the faded edges */
+}
+
+.hdc-credits-container::-webkit-scrollbar {
+  display: none;
+}
+
+.hdc-credits-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.hdc-credits-block {
+  padding-bottom: 4rem; /* spacing between repeating blocks */
+}
+
+.hdc-credits-wrapper {
+  padding: 0 22px;
+}
+
+.hdc-credits-section-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  text-align: center;
+  color: var(--text);
+  margin-bottom: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.hdc-credits-text {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+  font-weight: 300;
+  line-height: 1.65;
+  text-align: center;
+  margin-bottom: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .hdc-credits-wrapper {
+    padding: 0 40px;
+  }
+
+  .hdc-credits-section-title {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .hdc-credits-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Bento: CTA buttons */
+.hdc-bento-cta {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  padding: 13px 24px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  transition: transform 0.3s ease;
+}
+/* Dentro de la franja ancha el botón va detrás del párrafo, no al fondo de
+   la caja: es el párrafo el que baja el bloque entero. */
+.hdc-bento-cell--wide .hdc-bento-cta {
+  margin-top: 14px;
+}
+.hdc-bento-cell:hover .hdc-bento-cta {
+  transform: scale(1.05);
+}
+.hdc-bento-cta--yt {
+  background: #c00;
+}
+
+@media (min-width: 768px) {
+  .hdc-bento-cta {
+    gap: 12px;
+    padding: 16px 32px;
+    font-size: 0.88rem;
+  }
+  .hdc-bento-cell--wide .hdc-bento-cta {
+    margin-top: 16px;
+  }
+}
+
+/* Bento: icon circle (Instagram, etc.) */
+.hdc-bento-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .hdc-bento-icon-circle {
+    width: 64px;
+    height: 64px;
+  }
+}
+.hdc-bento-icon-circle--ig {
+  color: #e1306c;
+}
+.hdc-bento-cell:hover .hdc-bento-icon-circle--ig {
+  background: linear-gradient(135deg, #f09433, #e6683c, #bc1888);
+  color: #fff;
+  border-color: transparent;
+}
+.hdc-bento-icon-lg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (min-width: 768px) {
+  .hdc-bento-icon-lg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Bento: decorative arrow */
+.hdc-bento-arrow {
+  width: 20px;
+  height: 20px;
+  margin-top: 16px;
+  opacity: 0.5;
+  color: var(--text);
+  transition: opacity 0.3s ease;
+}
+.hdc-bento-cell:hover .hdc-bento-arrow {
+  opacity: 1;
+}
+
+/* Light mode: remove header-on-light override (theme handles it now) */
+:root[data-elysium-theme="light"] .header-on-light .nav-pill {
+  background: var(--nav-pill-bg);
+}
+
+/* ══ 404 ═══════════════════════════════════════════════════════════════════ */
+.hdc-notfound {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 22px;
+}
+.hdc-notfound h1 {
+  font-size: clamp(2rem, 8vw, 3rem);
+  margin: 8px 0 12px;
+}
+.hdc-notfound .hdc-btn {
+  margin-top: 22px;
+}
+
+/* ══ Breakpoints ═══════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  .hdc-coords,
+  .hdc-scene-stack {
+    left: 40px;
+    right: 40px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1.7fr 1fr 1fr 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .brand {
+    flex: 1;
+  }
+  .nav-actions {
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .menu-toggle,
+  .nav-drawer-foot {
+    display: none;
+  }
+  .nav-menu {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    max-height: none;
+    padding: 0;
+    overflow: visible;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-menu ul {
+    flex-direction: row;
+    gap: 4px;
+  }
+  .nav-menu a {
+    padding: 8px 12px;
+    font-size: 0.92rem;
+    font-family: inherit;
+    font-weight: normal;
+    border: none;
+    border-radius: 999px;
+    color: var(--text) !important;
+  }
+  .nav-menu a:hover {
+    background: var(--surface-2);
+  }
+
+  /* Recuperamos colores fijos del header en desktop */
+  .header-on-light .nav-menu a {
+    color: #1a1a1a !important;
+  }
+  .header-on-dark .nav-menu a {
+    color: #f5f5f5 !important;
+  }
+  .header-on-dark .nav-menu a:hover {
+    background: rgba(245, 245, 245, 0.12) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
