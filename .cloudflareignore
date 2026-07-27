@@ -11,5 +11,14 @@ backend/
 *.py
 node_modules/
 Regalarte/
-historiadecostarica/
+_fuentes/
+CLAUDE.md
+**/CLAUDE.md
+# Red de seguridad a cualquier profundidad: el código fuente de los prototipos
+# vive en «Elysium λ/Prototipos/», pero si alguna vez una carpeta de proyecto
+# acaba dentro de una publicada, sus documentos internos no deben servirse.
+**/_fuentes/
+**/_comercial/
+**/node_modules/
+**/*.nosync/
 

@@ -7,13 +7,27 @@ node_modules/
 backend/**
 **/node_modules/**
 **/.git/
-# Regalarte se despliega como Worker propio (regalarte.danielalonzzo.workers.dev);
-# no publicamos su código fuente en el sitio principal.
+# El código fuente de los prototipos ya no vive en este repositorio: está en
+# «Elysium λ/Prototipos/». Elysium solo contiene el resultado compilado. Estas
+# reglas se mantienen como red de seguridad, a cualquier profundidad, porque el
+# fallo peligroso es que alguien deje una carpeta de proyecto DENTRO de una
+# carpeta publicada: entonces `_comercial/` (informes internos del cliente) se
+# serviría en abierto.
 Regalarte/
+_fuentes/
+**/_fuentes/
+**/_comercial/
+**/node_modules/
+**/package.json
+**/*.nosync/
 
-# Historia de Costa Rica: al sitio solo va el export estático de
-# `historia-de-costa-rica/`, nunca el proyecto Next ni sus documentos internos.
-historiadecostarica/
+# Notas de arquitectura para trabajar en el repositorio; no son parte del sitio.
+CLAUDE.md
+**/CLAUDE.md
+
+# Directorios excluidos de la sincronización de iCloud (node_modules, cachés de
+# compilación). Nunca son assets del sitio.
+**/*.nosync/
 
 # Herramientas y estado local — nunca deben servirse en la web pública.
 .claude/

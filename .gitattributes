@@ -1,2 +1,10 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# `historia-de-costa-rica/` es producto compilado, no código escrito a mano: lo
+# genera `scripts/publish-historia-de-costa-rica.sh` a partir de
+# `_fuentes/historia-de-costa-rica/`. Se versiona a propósito (el sitio se despliega
+# desde el repositorio), pero marcarlo como generado evita que `git diff` vuelque
+# HTML minificado y chunks con hash cada vez que se recompila.
+historia-de-costa-rica/** linguist-generated=true
+historia-de-costa-rica/** -diff
