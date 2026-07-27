@@ -12,6 +12,7 @@
       "**/.*",
       "**/node_modules/**",
       "backend/**",
+      "historiadecostarica/**",
       "**/*.py",
       "storage.rules",
       "firestore.rules",
@@ -87,6 +88,19 @@
           {
             "key": "X-Elysium-Compliance",
             "value": "GDPR-EU-2016-679 / CR-Ley-8968 / ISO-27001 / SOC2"
+          }
+        ]
+      },
+      {
+        "source": "/historia-de-costa-rica/**",
+        "headers": [
+          {
+            "key": "X-Robots-Tag",
+            "value": "noindex, nofollow"
+          },
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src https://open.spotify.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self';"
           }
         ]
       }

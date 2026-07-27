@@ -14,6 +14,7 @@ Disallow: /seed-licenses.html
 Disallow: /test-pattern.html
 Disallow: /profiles.html
 Disallow: /rewrite_svg.py
+Disallow: /historia-de-costa-rica/
 
 # ──────────────────────────────────────────────
 # AI CRAWLERS — Explicitly allowed

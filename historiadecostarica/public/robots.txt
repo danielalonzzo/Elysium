@@ -1,0 +1,3 @@
+# Pieza privada de Elysium λ — no debe indexarse (§4.1 del protocolo).
+User-agent: *
+Disallow: /

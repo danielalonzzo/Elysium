@@ -11,6 +11,10 @@ backend/**
 # no publicamos su código fuente en el sitio principal.
 Regalarte/
 
+# Historia de Costa Rica: al sitio solo va el export estático de
+# `historia-de-costa-rica/`, nunca el proyecto Next ni sus documentos internos.
+historiadecostarica/
+
 # Herramientas y estado local — nunca deben servirse en la web pública.
 .claude/
 .firebase/

@@ -26,14 +26,14 @@ export default function ElysiumPrototypePopup() {
   const steps = [
     {
       title: "BIENVENIDA/O",
-      content: "Prototipos de Elysium λ Development & Research",
+      content: "Prototipo desarrollado por Elysium λ Development & Research",
       highlight: true
     },
     {
       title: "Aviso Legal",
       content: (
         <>
-          Este prototipo es un material demostrativo creado en exclusiva para <strong>Regalarte de las Américas</strong>. <strong>Elysium λ Development & Research</strong> conserva los derechos de autoría y propiedad del diseño, por lo que no se autoriza su uso, distribución a terceros ni comercialización sin previo acuerdo.
+          Prototipo conceptual no oficial. Esta interfaz y experiencia de usuario ha sido desarrollada por <strong>Elysium λ Development & Research</strong>. Todos los logotipos, textos, imágenes, marcas comerciales y la identidad corporativa subyacente son propiedad exclusiva y absoluta de <strong>Regalarte de las Américas</strong>.
         </>
       ),
     },
@@ -46,13 +46,20 @@ export default function ElysiumPrototypePopup() {
       ),
     },
     {
+      title: "Política de Retención",
+      content: (
+        <>
+          Esta demostración posee un ciclo de vida estricto de 5 días naturales a partir de su acceso inicial. Cumplido este plazo, sin la formalización de un acuerdo comercial <strong>Elysium λ Development & Research</strong> ejecutará la eliminación definitiva de este despliegue, desmantelando el código fuente de nuestra infraestructura y garantizando la nula retención de los activos corporativos de <strong>Regalarte de las Américas</strong>.
+        </>
+      ),
+    },
+    {
       title: "EXPLORAR",
       content: (
         <>
           Esta Experiencia es <strong className="elysium-magic-text">Inmersiva</strong>
         </>
-      ),
-      footer: "Este prototipo es propiedad intelectual de Elysium λ Development & Research"
+      )
     }
   ];
 
