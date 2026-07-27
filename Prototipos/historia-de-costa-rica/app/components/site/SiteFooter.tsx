@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BRAND, CONTACT, NAV } from "../../data/content";
 
 /*
@@ -24,7 +25,15 @@ export function SiteFooter() {
           <ul>
             {NAV.map((item) => (
               <li key={item.href}>
-                <a href={item.href}>{item.label}</a>
+                {/* Los anclas de la misma página van con `<a>`; las rutas, con
+                    `Link`, para que el `basePath` de la publicación se aplique
+                    solo. Un `<a href="/tienda">` aquí se publicaría sin prefijo
+                    y llevaría a la raíz del dominio. */}
+                {item.href.startsWith("#") ? (
+                  <a href={item.href}>{item.label}</a>
+                ) : (
+                  <Link href={item.href}>{item.label}</Link>
+                )}
               </li>
             ))}
           </ul>

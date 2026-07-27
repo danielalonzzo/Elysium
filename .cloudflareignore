@@ -8,7 +8,9 @@ firebase-debug.log
 .firebase/
 .wrangler/
 backend/
+scripts/
 *.py
+*.sh
 node_modules/
 # Material de trabajo dentro del repositorio: fuentes sin compilar, documentos y
 # grabaciones. La raíz del repositorio es la raíz de la web, así que sin esta

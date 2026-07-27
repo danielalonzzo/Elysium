@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "El juego de mesa que reconstruye la cronología de Costa Rica con 80 cartas ilustradas. Juego, merch, podcast y comunidad.",
   robots: { index: false, follow: false, nocache: true },
   icons: { icon: "/logo.jpg" },
-  other: { "app-version": "V1.0.0" },
+  other: { "app-version": "V1.5.1" },
 };
 
 export const viewport: Viewport = {

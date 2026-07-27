@@ -44,16 +44,23 @@ OUT="$SRC/out"
 
 # Next prefija sus propios assets (`_next/…`) y los `next/link`, pero no las rutas
 # absolutas escritas a mano en el código del prototipo (`/images`, `/videos`, `/js`,
-# `/css`, `/elysium-core`, `/logo.jpg`, `/tienda`). Se reescriben aquí para no tener
-# que ensuciar el código fuente, que sigue sirviéndose desde la raíz con `npm run dev`.
+# `/css`, `/elysium-core`, `/logo.jpg`). Se reescriben aquí para no tener que
+# ensuciar el código fuente, que sigue sirviéndose desde la raíz con `npm run dev`.
 # El lookbehind evita duplicar el prefijo en lo que Next ya haya reescrito.
+#
+# AQUÍ SOLO SE TOCAN RECURSOS, NUNCA RUTAS DE NAVEGACIÓN. De las rutas se encarga
+# `basePath`, y hace falta que el router siga viendo la suya sin prefijo: guarda
+# `/tienda` y lo añade él al navegar. Este script llegó a reescribir también
+# `"/tienda"`, con lo que el router acababa pidiendo
+# `/historia-de-costa-rica/historia-de-costa-rica/tienda` y el enlace no abría —
+# la dirección directa sí funcionaba, porque ahí no interviene el router. Si
+# aparece un enlace de navegación que necesite parche, el arreglo es usar
+# `next/link` en el código fuente, no reescribirlo aquí.
 echo "▸ Reescribiendo rutas absolutas al prefijo…"
 find "$OUT" -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' -o -name '*.txt' \) -print0 |
   xargs -0 perl -0pi -e '
     s{(?<!/historia-de-costa-rica)/(images|videos|js|css|elysium-core)/}{/historia-de-costa-rica/$1/}g;
     s{(?<!/historia-de-costa-rica)/logo\.jpg}{/historia-de-costa-rica/logo.jpg}g;
-    s{"/tienda/?"}{"/historia-de-costa-rica/tienda/"}g;
-    s{\\"/tienda/?\\"}{\\"/historia-de-costa-rica/tienda/\\"}g;
   '
 
 # Red de seguridad: hoy el único vídeo local es `ig-bg.mp4` (2,6 MB) y no entra

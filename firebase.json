@@ -15,6 +15,7 @@
       "backend/**",
       "_fuentes/**",
       "Prototipos/**",
+      "scripts/**",
       "Regalarte/**",
       "CLAUDE.md",
       "**/CLAUDE.md",

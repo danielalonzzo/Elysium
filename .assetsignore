@@ -39,7 +39,11 @@ CLAUDE.md
 .openai/
 
 # Scripts, secretos y configuración de infraestructura (no son assets del sitio).
+# `scripts/` entero: el de publicación es un `.sh` y llegó a servirse en abierto
+# en «elysiumdr.eu/scripts/publish-historia-de-costa-rica.sh».
+scripts/
 *.py
+*.sh
 **/.env
 **/.env.*
 firestore.rules

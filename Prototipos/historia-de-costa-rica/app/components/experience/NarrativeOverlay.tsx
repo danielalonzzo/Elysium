@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { CONTACT, PRICES } from "../../data/content";
 import { IconArrowUpRight, IconWhatsApp } from "../site/Icons";
@@ -167,9 +168,9 @@ export function NarrativeOverlay({ progress }: { progress: number }) {
                     <a className="hdc-btn hdc-btn--solid" href={CONTACT.whatsapp} target="_blank" rel="noopener noreferrer">
                       <IconWhatsApp className="hdc-btn-ico" /> Pedir por WhatsApp
                     </a>
-                    <a className="hdc-btn hdc-btn--ghost" href="/tienda">
+                    <Link className="hdc-btn hdc-btn--ghost" href="/tienda">
                       Explorar la tienda <IconArrowUpRight className="hdc-btn-ico" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               )}
