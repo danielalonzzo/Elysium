@@ -32,6 +32,14 @@
   /** Umbral de luminancia a partir del cual el fondo se considera claro. */
   var LIGHT_THRESHOLD = 0.62;
 
+  /*
+   * Progreso narrativo de la portada en el que la escena termina de irse a
+   * negro. Va en el mismo espacio que las marcas de los actos de
+   * CinematicStory.tsx (CANVAS_RAMP acaba de oscurecer en 0.22; la frontera
+   * Acto 1 -> Acto 2 está en 0.27), no en el del scroll en bruto.
+   */
+  var ACT1_DARK = 0.2;
+
   function parseBackgroundColor(color) {
     var values = String(color).match(/[\d.]+/g);
     if (!values || values.length < 3) return null;
@@ -73,31 +81,23 @@
       frame = null;
 
       if (header) {
-        var story = document.querySelector(".hdc-story");
-        var onLight = false;
+        var docRoot = document.documentElement;
+        var onLight;
+        // La portada publica su progreso YA warpeado en `--hdc-story-progress`
+        // mientras dura la cinemática (ver CinematicStory.tsx). Se lee de ahí en
+        // vez de deducirlo otra vez del scroll: esa copia se desfasó cuando el
+        // Acto 1 pasó a durar la mitad, y la píldora se quedaba en modo claro
+        // con la escena ya negra.
+        var progress = parseFloat(docRoot.style.getPropertyValue("--hdc-story-progress"));
 
-        if (story) {
-          var rect = story.getBoundingClientRect();
-          var storyTravel = story.offsetHeight - window.innerHeight;
-          // Si el usuario está desplazándose dentro de la portada cinemática
-          if (rect.top <= 0 && rect.bottom >= 80 && storyTravel > 0) {
-            var progress = -rect.top / storyTravel;
-            if (progress < 0.32) {
-              // 1. Árbol de Guanacaste (Acto 1) -> Header SIEMPRE claro
-              onLight = true;
-            } else {
-              // 2. Esfera del Diquís (Actos 2, 3, 4) -> Header SIEMPRE oscuro
-              onLight = false;
-            }
-          } else {
-            // 3. Ya en la web (fuera de la portada) -> Detecta el modo de la web
-            var theme = document.documentElement.dataset.elysiumTheme || "dark";
-            onLight = theme === "light";
-          }
+        if (docRoot.classList.contains("hdc-immersive") && !isNaN(progress)) {
+          // Acto 1, el árbol bajo un cielo pálido -> píldora clara. A partir de
+          // ACT1_DARK la escena ya se ha ido a negro (Actos 2-4) -> oscura.
+          onLight = progress < ACT1_DARK;
         } else {
-          // Páginas sin portada (como /tienda) -> Detecta el modo de la web
-          var theme = document.documentElement.dataset.elysiumTheme || "dark";
-          onLight = theme === "light";
+          // Fuera de la portada, y en páginas que no la tienen (/tienda),
+          // manda el modo de la web.
+          onLight = (docRoot.dataset.elysiumTheme || "dark") === "light";
         }
 
         header.classList.toggle("header-on-light", onLight);
@@ -128,15 +128,46 @@
       if (frame === null) frame = window.requestAnimationFrame(sync);
     }
 
-    window.addEventListener("scroll", request, { passive: true });
+    /*
+     * Mientras la portada está en pantalla no basta con escuchar el scroll: el
+     * ScrollTrigger va con `scrub`, así que la escena sigue interpolando —y
+     * `--hdc-story-progress` sigue cambiando— hasta medio segundo después del
+     * último evento. Si el visitante suelta justo en la frontera, la píldora se
+     * quedaba con el contraste del acto anterior. Mientras dura la cinemática se
+     * sigue por fotograma; fuera de ella no queda ningún bucle vivo.
+     */
+    var following = false;
+
+    function followStory() {
+      if (!document.documentElement.classList.contains("hdc-immersive")) {
+        following = false;
+        return;
+      }
+      following = true;
+      sync();
+      window.requestAnimationFrame(followStory);
+    }
+
+    /** Arranca el seguimiento salvo que ya haya uno vivo. */
+    function requestFollow() {
+      if (!following) followStory();
+    }
+
+    window.addEventListener("scroll", function () {
+      request();
+      requestFollow();
+    }, { passive: true });
     window.addEventListener("resize", request, { passive: true });
     window.addEventListener("elysium:settings:changed", sync);
 
     // Sondeo inicial para aplicar la regla inmediatamente desde el arranque
     sync();
+    requestFollow();
 
     document.addEventListener("visibilitychange", function () {
-      if (!document.hidden) sync();
+      if (document.hidden) return;
+      sync();
+      requestFollow();
     });
   }
 
@@ -201,22 +232,66 @@
     });
   }
 
+  /**
+   * Posición de documento a la que hay que ir para dejar `target` arriba.
+   *
+   * El caso normal es la caja del propio elemento menos el alto del header.
+   * La excepción es el carrusel horizontal de «El Juego de Mesa»: en móvil
+   * GSAP lo ancla (`pin`), y mientras dura el anclaje la sección y sus paneles
+   * están en `position: fixed` — su caja ya no dice nada del documento. Quien
+   * conserva el recorrido real es el `pin-spacer` que GSAP deja en su sitio, y
+   * dentro de él cada panel vive a su fracción del trayecto (el mismo reparto
+   * que usa el `snap` del ScrollTrigger). En escritorio no hay anclaje alguno
+   * y cada panel se alcanza directamente.
+   */
+  function glideOffsetFor(target, headerHeight) {
+    var pinned = target.closest('[data-mode="pinned"]');
+    var spacer = pinned && pinned.parentElement
+      && pinned.parentElement.classList.contains("pin-spacer")
+      ? pinned.parentElement
+      : null;
+
+    if (!spacer) {
+      return target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+    }
+
+    var panels = pinned.querySelectorAll(".hdc-narrative-section");
+    var index = Array.prototype.indexOf.call(panels, target);
+    var travel = Math.max(0, spacer.offsetHeight - window.innerHeight);
+    var ratio = panels.length > 1 && index > 0 ? index / (panels.length - 1) : 0;
+    // Anclada, la sección se pega al borde superior: aquí el header no descuenta.
+    return spacer.getBoundingClientRect().top + window.pageYOffset + travel * ratio;
+  }
+
   function initAnchorGlide() {
     document.addEventListener("click", function (event) {
       var source = elementTarget(event);
-      var anchor = source && source.closest('a[href^="#"]');
+      var anchor = source && source.closest('a[href*="#"]');
       if (!anchor) return;
       var href = anchor.getAttribute("href");
       if (!href || href === "#") return;
-      var target = document.getElementById(href.slice(1));
+      var hashIndex = href.indexOf("#");
+      if (hashIndex === -1) return;
+      var path = href.slice(0, hashIndex);
+      var targetId = href.slice(hashIndex + 1);
+      if (!targetId) return;
+
+      var currentPath = window.location.pathname;
+      if (path && path !== currentPath && !(currentPath === "/" && (path === "/" || path === ""))) {
+        return;
+      }
+
+      var target = document.getElementById(targetId);
       if (!target) return;
+
       event.preventDefault();
       var header = document.querySelector(".navbar");
       var offset = header ? header.offsetHeight : 0;
       var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
         || document.documentElement.dataset.elysiumMotion === "reduced";
+
       window.scrollTo({
-        top: target.getBoundingClientRect().top + window.pageYOffset - offset,
+        top: Math.max(0, glideOffsetFor(target, offset)),
         behavior: reduced ? "auto" : "smooth"
       });
       if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");

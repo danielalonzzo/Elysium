@@ -28,6 +28,14 @@
 *
 * Eventos: window → 'elysium:preloader:done' (al retirarse del DOM)
 * API: window.ElysiumPreloader.dismiss() (retirada manual anticipada)
+* window.ElysiumPreloader.hold() / .release() (retenciones, ver abajo)
+*
+* RETENCIONES. `load` avisa de que el documento y sus recursos están, no de que
+* la pieza pesada de la página (un lienzo WebGL, un mapa) haya pintado su primer
+* fotograma: sin esto el overlay se retira antes de tiempo y se ve el montaje a
+* medias. Quien tenga algo que terminar llama a `hold()` en cuanto se carga su
+* módulo —antes de `load`— y a `release()` cuando de verdad está en pantalla. El
+* timeout de seguridad sigue mandando por encima de cualquier retención.
 * ══════════════════════════════════════════════════════════════════════════════
 */
 (function () {
@@ -133,7 +141,10 @@ if (document.body) { mount(); }
 else { document.addEventListener('DOMContentLoaded', mount); }
 
 // ── Retirada en dos fases con duración mínima garantizada ─────────────────
-function dismiss() {
+var holds = 0;
+var documentReady = false;
+
+function retire() {
 if (dismissed) return;
 dismissed = true;
 
@@ -150,13 +161,34 @@ window.dispatchEvent(new Event('elysium:preloader:done'));
 }, remaining);
 }
 
+/** El documento está listo; se retira salvo que quede alguna retención viva. */
+function dismiss() {
+documentReady = true;
+if (holds > 0) return;
+retire();
+}
+
+/** Retiene la retirada. Sin efecto si el overlay ya se está yendo. */
+function hold() {
+if (dismissed) return;
+holds += 1;
+}
+
+/** Suelta una retención; la última dispara la retirada si `load` ya pasó. */
+function release() {
+if (holds === 0) return;
+holds -= 1;
+if (holds === 0 && documentReady) retire();
+}
+
 if (document.readyState === 'complete') { dismiss(); }
 else { window.addEventListener('load', dismiss); }
 
-// Timeout de seguridad: nunca dejar al usuario atrapado tras el overlay
-setTimeout(dismiss, cfg.maxDuration);
+// Timeout de seguridad: nunca dejar al usuario atrapado tras el overlay, ni
+// siquiera si una retención se queda colgada por un error de la página.
+setTimeout(retire, cfg.maxDuration);
 
 // ── API pública ───────────────────────────────────────────────────────────
-window.ElysiumPreloader = { dismiss: dismiss };
+window.ElysiumPreloader = { dismiss: dismiss, hold: hold, release: release };
 
 })();
