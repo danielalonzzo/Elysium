@@ -2,5 +2,5 @@
 2:I[75497,["/historia-de-costa-rica/_next/static/chunks/05tqy455wbvu9.js","/historia-de-costa-rica/_next/static/chunks/0v657rsp8pow0.js"],"Shop"]
 3:I[89606,["/historia-de-costa-rica/_next/static/chunks/05tqy455wbvu9.js"],"OutletBoundary"]
 4:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"children":["$","$L2",null,{}]}],[["$","script","script-0",{"src":"/historia-de-costa-rica/_next/static/chunks/0v657rsp8pow0.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"47xl5TwSxapXUJXqPPawf"}
+0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"children":["$","$L2",null,{}]}],[["$","script","script-0",{"src":"/historia-de-costa-rica/_next/static/chunks/0v657rsp8pow0.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"GiEiARuMpK252ywRpoGkC"}
 5:null
