@@ -606,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Auth: prefill, tier detection, remote resume ─────────────────────────
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            window.location.href = 'profiles.html';
+            window.location.href = 'profiles';
             return;
         }
         currentUser = user;
@@ -733,7 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // página (la navegación destruye el AudioContext).
             submitted = true;
             window.ElysiumAudio?.play('success');
-            setTimeout(() => { window.location.href = 'thank-you.html'; }, 500);
+            setTimeout(() => { window.location.href = 'thank-you'; }, 500);
         } catch (error) {
             console.error('Detailed error submitting onboarding:', error);
             window.ElysiumAudio?.play('error');

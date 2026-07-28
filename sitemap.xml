@@ -13,160 +13,167 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/services.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/services.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/services.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/services.html"/>
+    <loc>https://elysiumdr.eu/services</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/services"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/services"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/services"/>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/portfolio.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/portfolio.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/portfolio.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/portfolio.html"/>
+    <loc>https://elysiumdr.eu/portfolio</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/portfolio"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/portfolio"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/portfolio"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/research.html</loc>
+    <loc>https://elysiumdr.eu/research</loc>
     <lastmod>2026-07-19</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research"/>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/about.html</loc>
+    <loc>https://elysiumdr.eu/about</loc>
     <lastmod>2026-07-19</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/about.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/about.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/about.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/about"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/about"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/about"/>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/contact.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/contact.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/contact.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/contact.html"/>
+    <loc>https://elysiumdr.eu/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/contact"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/contact"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/contact"/>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/daniel-morales.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/daniel-morales.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/daniel-morales.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/daniel-morales.html"/>
+    <loc>https://elysiumdr.eu/daniel-morales</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/daniel-morales"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/daniel-morales"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/daniel-morales"/>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- Legal pages -->
   <url>
-    <loc>https://elysiumdr.eu/terms.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/terms.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/terms.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/terms.html"/>
+    <loc>https://elysiumdr.eu/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/terms"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/terms"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/terms"/>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/privacy.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/privacy.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/privacy.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/privacy.html"/>
+    <loc>https://elysiumdr.eu/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/privacy"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/privacy"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/privacy"/>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <!-- Portfolio Cases -->
   <url>
-    <loc>https://elysiumdr.eu/case-pmorais.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/case-pmorais.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/case-pmorais.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/case-pmorais.html"/>
+    <loc>https://elysiumdr.eu/case-pmorais</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/case-pmorais"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/case-pmorais"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/case-pmorais"/>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/case-valtrix.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/case-valtrix.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/case-valtrix.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/case-valtrix.html"/>
+    <loc>https://elysiumdr.eu/case-valtrix</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/case-valtrix"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/case-valtrix"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/case-valtrix"/>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/case-moyra.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/case-moyra.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/case-moyra.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/case-moyra.html"/>
+    <loc>https://elysiumdr.eu/case-moyra</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/case-moyra"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/case-moyra"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/case-moyra"/>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/review-pmorais.html</loc>
+    <loc>https://elysiumdr.eu/review-pmorais</loc>
     <lastmod>2026-07-18</lastmod>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/review-pmorais.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/review-pmorais.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/review-pmorais.html"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/review-pmorais"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/review-pmorais"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/review-pmorais"/>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- Research Papers -->
   <url>
-    <loc>https://elysiumdr.eu/research/ontology-research.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research/ontology-research.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research/ontology-research.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research/ontology-research.html"/>
+    <loc>https://elysiumdr.eu/research/ontology-research</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research/ontology-research"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research/ontology-research"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research/ontology-research"/>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/research/data-driven-sme-intelligence.html</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research/data-driven-sme-intelligence.html"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research/data-driven-sme-intelligence.html"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research/data-driven-sme-intelligence.html"/>
+    <loc>https://elysiumdr.eu/research/data-driven-sme-intelligence</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research/data-driven-sme-intelligence"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research/data-driven-sme-intelligence"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research/data-driven-sme-intelligence"/>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- Spanish pages -->
   <url><loc>https://elysiumdr.eu/es/</loc><lastmod>2026-07-19</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://elysiumdr.eu/es/services.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://elysiumdr.eu/es/portfolio.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://elysiumdr.eu/es/research.html</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://elysiumdr.eu/es/about.html</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://elysiumdr.eu/es/contact.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://elysiumdr.eu/es/daniel-morales.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://elysiumdr.eu/es/terms.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://elysiumdr.eu/es/privacy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://elysiumdr.eu/es/case-pmorais.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/es/case-valtrix.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/es/case-moyra.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/es/review-pmorais.html</loc><lastmod>2026-07-18</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/es/research/ontology-research.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/es/research/data-driven-sme-intelligence.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/es/services</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://elysiumdr.eu/es/portfolio</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://elysiumdr.eu/es/research</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/es/about</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/es/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://elysiumdr.eu/es/daniel-morales</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/es/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://elysiumdr.eu/es/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://elysiumdr.eu/es/case-pmorais</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/es/case-valtrix</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/es/case-moyra</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/es/review-pmorais</loc><lastmod>2026-07-18</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/es/research/ontology-research</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/es/research/data-driven-sme-intelligence</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+
+  <!-- Landings regionales (hreflang es-ES / es-CR) -->
+  <url><loc>https://elysiumdr.eu/es/infraestructura-digital-pymes-espana</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
   <!-- Portuguese pages -->
   <url><loc>https://elysiumdr.eu/pt/</loc><lastmod>2026-07-19</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/services.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/portfolio.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/research.html</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/about.html</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/contact.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/daniel-morales.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/terms.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/privacy.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/case-pmorais.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/case-valtrix.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/case-moyra.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/review-pmorais.html</loc><lastmod>2026-07-18</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/research/ontology-research.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/research/data-driven-sme-intelligence.html</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/services</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/portfolio</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/research</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/about</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/daniel-morales</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/case-pmorais</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/case-valtrix</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/case-moyra</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/review-pmorais</loc><lastmod>2026-07-18</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/research/ontology-research</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/research/data-driven-sme-intelligence</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+
+  <!-- Landing regional (hreflang pt-PT) -->
+  <url><loc>https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
   <!-- AI/LLM Content Files -->
   <url>

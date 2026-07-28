@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auth Guard
     onAuthStateChanged(auth, async (user) => {
         if (!user || user.email !== SUPER_ADMIN_EMAIL) {
-            window.location.href = 'profiles.html';
+            window.location.href = 'profiles';
             return;
         }
         
@@ -781,7 +781,7 @@ function applyTranslations() {
     
     // Update logo link to localized index
     if (brandLink) {
-        brandLink.href = currentLang === 'en' ? 'index.html' : `${currentLang}/index.html`;
+        brandLink.href = currentLang === 'en' ? './' : `${currentLang}/`;
     }
     
     if (label) label.textContent = currentLang.toUpperCase();

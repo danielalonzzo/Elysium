@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('stripe_session_id');
 
     const sessionId = new URLSearchParams(window.location.search).get('session_id');
-    const dashboardLink = document.querySelector('a[href="profiles.html"]');
+    const dashboardLink = document.querySelector('a[href="profiles"]');
     if (!sessionId || !dashboardLink) return;
 
     const target = new URL(dashboardLink.href, window.location.origin);

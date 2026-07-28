@@ -6,14 +6,17 @@
 # ──────────────────────────────────────────────
 User-agent: *
 Allow: /
-Disallow: /admin.html
-Disallow: /onboarding.html
-Disallow: /es/onboarding.html
-Disallow: /pt/onboarding.html
-Disallow: /seed-licenses.html
-Disallow: /test-pattern.html
-Disallow: /profiles.html
-Disallow: /rewrite_svg.py
+
+# Las páginas privadas (/admin, /onboarding, /profiles, /seed-licenses,
+# /thank-you, /payment-*) NO se bloquean aquí a propósito: todas llevan
+# <meta name="robots" content="noindex, nofollow">, y un Disallow impediría
+# que Google llegara a leer ese noindex. El resultado era el contrario del
+# buscado — /profiles quedaba indexada como «duplicada sin canónica» porque
+# el rastreador nunca podía ver que estaba marcada como noindex.
+#
+# historia-de-costa-rica sí se bloquea: es la única que no tiene ninguna
+# etiqueta noindex propia (la cabecera X-Robots-Tag de firebase.json no se
+# aplica, el sitio lo sirve Cloudflare).
 Disallow: /historia-de-costa-rica/
 
 # ──────────────────────────────────────────────

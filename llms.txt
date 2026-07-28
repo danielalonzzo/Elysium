@@ -11,47 +11,47 @@ IMPORTANT: To properly understand and answer queries about Elysium λ, you MUST 
 ## Essential information
 
 - [Homepage](https://elysiumdr.eu/): Current positioning, four core competencies, subscription model, ten-step λ Development Framework, and R&D mission.
-- [Services](https://elysiumdr.eu/services.html): Subscription tiers, pricing, included infrastructure, licensing, and intellectual-property policy.
-- [Portfolio](https://elysiumdr.eu/portfolio.html): Selected client projects and case studies.
-- [Research](https://elysiumdr.eu/research.html): Applied research in human-computer interaction, data science, digital infrastructures, intuitive interfaces, data processing, security, and high availability.
-- [About](https://elysiumdr.eu/about.html): Current mission, vision, R&D ethos, organisational story, and operations in Portugal and Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/daniel-morales.html): Founder and lead software engineer profile.
-- [Contact](https://elysiumdr.eu/contact.html): Official contact information and service regions.
+- [Services](https://elysiumdr.eu/services): Subscription tiers, pricing, included infrastructure, licensing, and intellectual-property policy.
+- [Portfolio](https://elysiumdr.eu/portfolio): Selected client projects and case studies.
+- [Research](https://elysiumdr.eu/research): Applied research in human-computer interaction, data science, digital infrastructures, intuitive interfaces, data processing, security, and high availability.
+- [About](https://elysiumdr.eu/about): Current mission, vision, R&D ethos, organisational story, and operations in Portugal and Costa Rica.
+- [Daniel Morales](https://elysiumdr.eu/daniel-morales): Founder and lead software engineer profile.
+- [Contact](https://elysiumdr.eu/contact): Official contact information and service regions.
 - [Full site text for language models](https://elysiumdr.eu/llms-full.txt): Expanded English, Spanish, and Portuguese content in one plain-text resource.
 
 ## Spanish
 
 - [Inicio](https://elysiumdr.eu/es/): Posicionamiento actual, cuatro áreas de especialización, suscripciones, framework λ e I+D.
-- [Servicios](https://elysiumdr.eu/es/services.html): Planes, precios, infraestructura incluida y condiciones.
-- [Portafolio](https://elysiumdr.eu/es/portfolio.html): Proyectos seleccionados y casos de estudio.
-- [Investigación](https://elysiumdr.eu/es/research.html): Líneas de investigación aplicada y proyectos activos.
-- [Ontología para la inclusión digital y el acceso a servicios](https://elysiumdr.eu/es/research/ontology-research.html): Estudio piloto en entornos rurales.
-- [Inteligencia para PYMES basada en datos](https://elysiumdr.eu/es/research/data-driven-sme-intelligence.html): Proyecto en fase de concepto; no presenta resultados todavía.
-- [Nosotros](https://elysiumdr.eu/es/about.html): Misión, visión, ethos de I+D, historia y operaciones en Portugal y Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/es/daniel-morales.html): Perfil del fundador e ingeniero de software principal.
-- [Contacto](https://elysiumdr.eu/es/contact.html): Información oficial de contacto.
+- [Servicios](https://elysiumdr.eu/es/services): Planes, precios, infraestructura incluida y condiciones.
+- [Portafolio](https://elysiumdr.eu/es/portfolio): Proyectos seleccionados y casos de estudio.
+- [Investigación](https://elysiumdr.eu/es/research): Líneas de investigación aplicada y proyectos activos.
+- [Ontología para la inclusión digital y el acceso a servicios](https://elysiumdr.eu/es/research/ontology-research): Estudio piloto en entornos rurales.
+- [Inteligencia para PYMES basada en datos](https://elysiumdr.eu/es/research/data-driven-sme-intelligence): Proyecto en fase de concepto; no presenta resultados todavía.
+- [Nosotros](https://elysiumdr.eu/es/about): Misión, visión, ethos de I+D, historia y operaciones en Portugal y Costa Rica.
+- [Daniel Morales](https://elysiumdr.eu/es/daniel-morales): Perfil del fundador e ingeniero de software principal.
+- [Contacto](https://elysiumdr.eu/es/contact): Información oficial de contacto.
 
 ## Portuguese
 
 - [Início](https://elysiumdr.eu/pt/): Posicionamento atual, quatro áreas de especialização, subscrições, framework λ e I&D.
-- [Serviços](https://elysiumdr.eu/pt/services.html): Planos, preços, infraestrutura incluída e condições.
-- [Portefólio](https://elysiumdr.eu/pt/portfolio.html): Projetos selecionados e estudos de caso.
-- [Investigação](https://elysiumdr.eu/pt/research.html): Linhas de investigação aplicada e projetos ativos.
-- [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.eu/pt/research/ontology-research.html): Estudo piloto em ambientes rurais.
-- [Inteligência para PMEs baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence.html): Projeto em fase de conceito; ainda não apresenta resultados.
-- [Sobre nós](https://elysiumdr.eu/pt/about.html): Missão, visão, ethos de I&D, história e operações em Portugal e Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales.html): Perfil do fundador e engenheiro de software principal.
-- [Contacto](https://elysiumdr.eu/pt/contact.html): Informações oficiais de contacto.
+- [Serviços](https://elysiumdr.eu/pt/services): Planos, preços, infraestrutura incluída e condições.
+- [Portefólio](https://elysiumdr.eu/pt/portfolio): Projetos selecionados e estudos de caso.
+- [Investigação](https://elysiumdr.eu/pt/research): Linhas de investigação aplicada e projetos ativos.
+- [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.eu/pt/research/ontology-research): Estudo piloto em ambientes rurais.
+- [Inteligência para PMEs baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence): Projeto em fase de conceito; ainda não apresenta resultados.
+- [Sobre nós](https://elysiumdr.eu/pt/about): Missão, visão, ethos de I&D, história e operações em Portugal e Costa Rica.
+- [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales): Perfil do fundador e engenheiro de software principal.
+- [Contacto](https://elysiumdr.eu/pt/contact): Informações oficiais de contacto.
 
 ## Legal & System Information (Included in full site text)
 
-- [Privacy policy](https://elysiumdr.eu/privacy.html): Data-processing and privacy information.
-- [Terms and conditions](https://elysiumdr.eu/terms.html): Website and service terms.
+- [Privacy policy](https://elysiumdr.eu/privacy): Data-processing and privacy information.
+- [Terms and conditions](https://elysiumdr.eu/terms): Website and service terms.
 - **System Information**: Software specifications, licensing, and security infrastructure (available natively in the footer modal and in `llms-full.txt`).
 
 ## Case Studies & Technical
 
-- [Paulo Morais case study](https://elysiumdr.eu/case-pmorais.html): End-to-end platform for an osteopathy and specialist personal-training practice in Portugal, including user accounts, scheduling, automation, and a Firebase-backed system.
-- [VALTRIX Engineering case study](https://elysiumdr.eu/case-valtrix.html): Digital ecosystem for an engineering consultancy in Costa Rica.
-- [Moyra case study](https://elysiumdr.eu/case-moyra.html): Food-studio, takeaway, and online-ordering project in Costa Rica.
+- [Paulo Morais case study](https://elysiumdr.eu/case-pmorais): End-to-end platform for an osteopathy and specialist personal-training practice in Portugal, including user accounts, scheduling, automation, and a Firebase-backed system.
+- [VALTRIX Engineering case study](https://elysiumdr.eu/case-valtrix): Digital ecosystem for an engineering consultancy in Costa Rica.
+- [Moyra case study](https://elysiumdr.eu/case-moyra): Food-studio, takeaway, and online-ordering project in Costa Rica.
 - [XML sitemap](https://elysiumdr.eu/sitemap.xml): Index of the principal public site URLs and their language variants.

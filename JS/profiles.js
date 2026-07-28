@@ -402,9 +402,9 @@ onAuthStateChanged(auth, async user => {
 
         // Super-admin redirect
         if (user.email === SUPER_ADMIN_EMAIL && sessionStorage.getItem('dev_mode') !== 'true') {
-            if (!window.location.pathname.includes('admin.html')) {
+            if (!window.location.pathname.includes('/admin')) {
                 const localized = pathParts.some(p => p === 'es' || p === 'pt');
-                window.location.href = localized ? '../admin.html' : 'admin.html';
+                window.location.href = localized ? '../admin' : 'admin';
             }
             return;
         }
@@ -501,8 +501,8 @@ onAuthStateChanged(auth, async user => {
         authSection?.classList.remove('hidden');
         profileSection?.classList.add('hidden');
 
-        if (window.location.pathname.includes('onboarding.html')) {
-            window.location.href = isEs ? '../profiles.html' : isPt ? '../profiles.html' : 'profiles.html';
+        if (window.location.pathname.includes('/onboarding')) {
+            window.location.href = isEs ? '../profiles' : isPt ? '../profiles' : 'profiles';
         }
     }
 });
@@ -1034,7 +1034,7 @@ function attachOnboardingReminders() {
     if (!document.getElementById('onboarding-float-btn')) {
         const btn = document.createElement('a');
         btn.id        = 'onboarding-float-btn';
-        btn.href      = isEs ? '../onboarding.html' : isPt ? '../onboarding.html' : 'onboarding.html';
+        btn.href      = isEs ? '../onboarding' : isPt ? '../onboarding' : 'onboarding';
         btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.2rem;height:1.2rem;"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/></svg>${t.onboarding_float_label}`;
         btn.style.cssText = `position:fixed;bottom:2rem;right:2rem;z-index:9998;background:var(--color-accent);color:#fff;padding:0.9rem 1.4rem;border-radius:50px;text-decoration:none;display:flex;align-items:center;gap:0.5rem;font-weight:700;font-size:0.85rem;box-shadow:0 4px 20px rgba(41,151,255,0.45);animation:onboarding-pulse 2s infinite;`;
         document.body.appendChild(btn);
@@ -1075,7 +1075,7 @@ function showOnboardingPopup() {
             <div style="width:64px;height:64px;border-radius:50%;background:rgba(41,151,255,0.1);border:2px solid var(--color-accent);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:1.8rem;">📋</div>
             <h3 style="color:var(--color-platinum);margin-bottom:0.75rem;">${t.onboarding_popup_title}</h3>
             <p style="color:var(--color-text-secondary);line-height:1.65;margin-bottom:2rem;font-size:0.9rem;">${t.onboarding_popup_body}</p>
-            <a id="onboarding-popup-start" href="${isEs ? '../onboarding.html' : isPt ? '../onboarding.html' : 'onboarding.html'}" class="btn btn-primary" style="width:100%;display:block;margin-bottom:0.75rem;">${t.onboarding_popup_btn}</a>
+            <a id="onboarding-popup-start" href="${isEs ? '../onboarding' : isPt ? '../onboarding' : 'onboarding'}" class="btn btn-primary" style="width:100%;display:block;margin-bottom:0.75rem;">${t.onboarding_popup_btn}</a>
             <button id="onboarding-popup-later" style="background:transparent;border:1px solid var(--glass-border);color:var(--color-text-secondary);padding:0.75rem 2rem;border-radius:8px;cursor:pointer;width:100%;font-size:0.875rem;">${t.onboarding_popup_later}</button>
         </div>
     `;
@@ -1165,7 +1165,7 @@ if (signupForm) {
                 createdAt:  serverTimestamp()
             }).catch(err => console.warn('Activity log failed:', err));
 
-            // 4. Redirect to dashboard (profiles.html — no onboarding yet)
+            // 4. Redirect to dashboard (/profiles — no onboarding yet)
             // Auth state observer will handle the UI render
             playSound('success');
             isSigningUp = false;

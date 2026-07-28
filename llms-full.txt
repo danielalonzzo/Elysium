@@ -67,7 +67,7 @@ SUBSCRIPTION OPTIONS SHOWN ON THE HOMEPAGE:
 - Advanced Maintenance: EUR 120/month or EUR 1,440/year.
 - Independent Hosting Maintenance: EUR 99/year.
 - Independent Custom CRM: EUR 50/month, optionally EUR 600/year.
-See https://elysiumdr.eu/services.html for the complete scope and conditions.
+See https://elysiumdr.eu/services for the complete scope and conditions.
 
 λ DEVELOPMENT FRAMEWORK — SCIENTIFIC METHODOLOGY:
 1. Current Operational Environment — analyse data flows, daily processes, and
@@ -102,7 +102,7 @@ TEAM AND CURRENT SOCIAL PROOF:
 - Featured partner review: Paulo Morais, founder of Consciênciavaliativa —
   Unipessoal Lda, describes improved communication, visibility, and client
   acquisition after the website project. Full review:
-  https://elysiumdr.eu/review-pmorais.html
+  https://elysiumdr.eu/review-pmorais
 
 Contact: info@elysiumdr.eu
 Phone/WhatsApp: +351 934086075
@@ -110,7 +110,7 @@ Social: @elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
 https://www.linkedin.com/company/elysiumdr (LinkedIn)
 
 --- SERVICES PAGE ---
-URL: https://elysiumdr.eu/services.html
+URL: https://elysiumdr.eu/services
 
 Title: Services — Elysium λ Development & Research
 Description: Zero Development Costs: High-performance digital infrastructure included in your monthly subscription.
@@ -169,7 +169,7 @@ TRANSPARENCY & LICENSING:
   we offer an auditing and valuation process for project buyout.
 
 --- PORTFOLIO PAGE ---
-URL: https://elysiumdr.eu/portfolio.html
+URL: https://elysiumdr.eu/portfolio
 
 Title: Portfolio — Elysium λ Development & Research
 
@@ -180,23 +180,23 @@ Type: Osteopathy and specialist personal training practice.
 Work: End-to-end functional platform with frontend, backend, Firebase database,
 user accounts, appointment scheduling, service organisation, automation,
 responsive presentation, and European privacy compliance.
-Case study: https://elysiumdr.eu/case-pmorais.html
-Review: https://elysiumdr.eu/review-pmorais.html
+Case study: https://elysiumdr.eu/case-pmorais
+Review: https://elysiumdr.eu/review-pmorais
 
 ONCORE (Portugal)
 Type: Cancer Recovery & Performance Center.
 Work: Premium clinical and physical recovery experience for cancer survivors.
-Portfolio: https://elysiumdr.eu/ONCORE/index-en.html
+Portfolio: https://elysiumdr.eu/ONCORE/index-en
 
 VALTRIX Engineering (Costa Rica)
 Type: Engineering consultancy firm
 Work: Full digital ecosystem development.
-Case study: https://elysiumdr.eu/case-valtrix.html
+Case study: https://elysiumdr.eu/case-valtrix
 
 Moyra (Costa Rica)
 Type: Food studio, takeaway, and online ordering.
 Work: Digital presence and online-ordering experience.
-Case study: https://elysiumdr.eu/case-moyra.html
+Case study: https://elysiumdr.eu/case-moyra
 
 Dr. Johnny Piedra (Costa Rica)
 Type: Advanced urology and minimally invasive surgery.
@@ -209,7 +209,7 @@ Work: Web application and client-portal experience for pet-care services.
 Portfolio entry: https://elysiumdr.eu/puravidapets/
 
 --- RESEARCH PAGE ---
-URL: https://elysiumdr.eu/research.html
+URL: https://elysiumdr.eu/research
 
 Title: Research — Elysium λ Development & Research
 
@@ -227,7 +227,7 @@ Digital Infrastructures through three current lines:
    Cloud infrastructures developed with high-level encryption standards.
 
 --- ABOUT PAGE ---
-URL: https://elysiumdr.eu/about.html
+URL: https://elysiumdr.eu/about
 
 Title: Our Ethos — Elysium λ Development & Research
 Description: Mission, vision, R&D ethos, and story of Elysium λ Development &
@@ -280,7 +280,7 @@ ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
 
 --- DANIEL MORALES PAGE ---
-URL: https://elysiumdr.eu/daniel-morales.html
+URL: https://elysiumdr.eu/daniel-morales
 
 Title: Daniel Morales — Elysium λ Development & Research
 Full name: Daniel Alonso Morales Ávila
@@ -359,7 +359,7 @@ Machine Learning-Assisted Development (Antigravity / Google Gemini),
 Performance Optimisation, SEO, Software Engineering, UX/UI Design.
 
 --- CONTACT PAGE ---
-URL: https://elysiumdr.eu/contact.html
+URL: https://elysiumdr.eu/contact
 
 Title: Contact — Elysium λ Development & Research
 Email: info@elysiumdr.eu
@@ -369,7 +369,7 @@ Service area: Portugal, Spain, Costa Rica, European Union, Ibero-America
 
 
 --- TERMS AND CONDITIONS ---
-URL: https://elysiumdr.eu/terms.html
+URL: https://elysiumdr.eu/terms
 
 λ
 
@@ -456,7 +456,7 @@ Our platform also implements HSTS, Content Security Policy (CSP) Level 3, and HM
 We reserve the right to update these Terms at any time. The "Last Updated" date at the top of this page will reflect the most recent revision. Continued use of our services after any modification constitutes acceptance of the updated Terms.
 
 --- PRIVACY POLICY ---
-URL: https://elysiumdr.eu/privacy.html
+URL: https://elysiumdr.eu/privacy
 
 λ
 
@@ -674,7 +674,7 @@ OPCIONES DE SUSCRIPCIÓN MOSTRADAS EN INICIO:
 - Mantenimiento Avanzado: 120 EUR/mes o 1.440 EUR/año.
 - Mantenimiento de Hosting independiente: 99 EUR/año.
 - CRM personalizado independiente: 50 EUR/mes u opcionalmente 600 EUR/año.
-Consulta https://elysiumdr.eu/es/services.html para el alcance y condiciones.
+Consulta https://elysiumdr.eu/es/services para el alcance y condiciones.
 
 FRAMEWORK DE DESARROLLO λ — METODOLOGÍA CIENTÍFICA:
 1. Entorno Operativo Actual — analizar flujos de datos, procesos diarios y sector.
@@ -703,7 +703,7 @@ EQUIPO Y TESTIMONIO ACTUAL:
 - Testimonio destacado: Paulo Morais, fundador de Consciênciavaliativa —
   Unipessoal Lda, describe mejoras en comunicación, visibilidad y captación de
   clientes tras el proyecto. Reseña completa:
-  https://elysiumdr.eu/es/review-pmorais.html
+  https://elysiumdr.eu/es/review-pmorais
 
 Contacto: info@elysiumdr.eu
 Teléfono/WhatsApp: +351 934086075
@@ -711,7 +711,7 @@ Redes: @elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
 https://www.linkedin.com/company/elysiumdr (LinkedIn)
 
 --- PÁGINA DE SERVICIOS ---
-URL: https://elysiumdr.eu/es/services.html
+URL: https://elysiumdr.eu/es/services
 
 Título: Servicios — Elysium λ Development & Research
 Descripción: Desarrollo web profesional, diseño, mantenimiento y soporte para
@@ -762,7 +762,7 @@ PLANES DE SUSCRIPCIÓN:
    - Acceso directo y centralizado desde tu portal seguro de cliente Elysium.
 
 --- PÁGINA DE INVESTIGACIÓN ---
-URL: https://elysiumdr.eu/es/research.html
+URL: https://elysiumdr.eu/es/research
 
 Título: Investigación — Elysium λ Development & Research
 
@@ -790,7 +790,7 @@ PROYECTOS DE INVESTIGACIÓN ACTIVOS:
    minimizando sesgo, exclusión y opacidad y maximizando la utilidad social.
    Objetivo: diseñar y evaluar un prototipo reproducible de knowledge graph y
    recomendación con evaluación ética y de utilidad social.
-   URL: https://elysiumdr.eu/es/research/ontology-research.html
+   URL: https://elysiumdr.eu/es/research/ontology-research
 
 2. Inteligencia para PYMES Basada en Datos: Aplicación del Aprendizaje
    Automático para la Extracción de Conocimiento Operativo en Pequeñas y
@@ -802,10 +802,10 @@ PROYECTOS DE INVESTIGACIÓN ACTIVOS:
    explicaciones en lenguaje natural influyen en la confianza y adopción.
    No hay resultados publicados todavía: las secciones de resumen, metodología,
    observaciones, limitaciones y trabajo futuro están pendientes.
-   URL: https://elysiumdr.eu/es/research/data-driven-sme-intelligence.html
+   URL: https://elysiumdr.eu/es/research/data-driven-sme-intelligence
 
 --- SOBRE NOSOTROS ---
-URL: https://elysiumdr.eu/es/about.html
+URL: https://elysiumdr.eu/es/about
 
 Título: Nuestro Ethos — Elysium λ Development & Research
 
@@ -856,7 +856,7 @@ ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
 
 --- DANIEL MORALES ---
-URL: https://elysiumdr.eu/es/daniel-morales.html
+URL: https://elysiumdr.eu/es/daniel-morales
 
 Nombre completo: Daniel Alonso Morales Ávila
 Cargo: Fundador e Ingeniero Informático
@@ -871,7 +871,7 @@ estructuradas y escalables. Como Fundador de Elysium λ Development & Research,
 lidera iniciativas en desarrollo web, consultoría técnica e investigación aplicada.
 
 --- CONTACTO ---
-URL: https://elysiumdr.eu/es/contact.html
+URL: https://elysiumdr.eu/es/contact
 
 Email: info@elysiumdr.eu
 WhatsApp: +351 934086075
@@ -933,7 +933,7 @@ OPÇÕES DE SUBSCRIÇÃO APRESENTADAS NA PÁGINA INICIAL:
 - Manutenção Avançada: 120 EUR/mês ou 1.440 EUR/ano.
 - Manutenção de Hosting independente: 99 EUR/ano.
 - CRM personalizado independente: 50 EUR/mês ou, opcionalmente, 600 EUR/ano.
-Consulte https://elysiumdr.eu/pt/services.html para o âmbito e as condições.
+Consulte https://elysiumdr.eu/pt/services para o âmbito e as condições.
 
 FRAMEWORK DE DESENVOLVIMENTO λ — METODOLOGIA CIENTÍFICA:
 1. Ambiente Operacional Atual — analisar fluxos de dados, processos e setor.
@@ -962,7 +962,7 @@ EQUIPA E TESTEMUNHO ATUAL:
 - Testemunho em destaque: Paulo Morais, fundador da Consciênciavaliativa —
   Unipessoal Lda, descreve melhorias na comunicação, visibilidade e aquisição
   de clientes após o projeto. Testemunho completo:
-  https://elysiumdr.eu/pt/review-pmorais.html
+  https://elysiumdr.eu/pt/review-pmorais
 
 Contacto: info@elysiumdr.eu
 Telefone/WhatsApp: +351 934086075
@@ -970,7 +970,7 @@ Redes sociais: @elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
 https://www.linkedin.com/company/elysiumdr (LinkedIn)
 
 --- PÁGINA DE SERVIÇOS ---
-URL: https://elysiumdr.eu/pt/services.html
+URL: https://elysiumdr.eu/pt/services
 
 Título: Serviços — Elysium λ Development & Research
 Descrição: Desenvolvimento web profissional, design, manutenção e suporte para
@@ -1021,7 +1021,7 @@ PLANOS DE SUBSCRIÇÃO:
    - Acesso directo e centralizado a partir do seu portal seguro de cliente Elysium.
 
 --- PÁGINA DE INVESTIGAÇÃO ---
-URL: https://elysiumdr.eu/pt/research.html
+URL: https://elysiumdr.eu/pt/research
 
 Título: Investigação — Elysium λ Development & Research
 
@@ -1049,7 +1049,7 @@ PROJETOS DE INVESTIGAÇÃO ATIVOS:
    minimizando viés, exclusão e opacidade e maximizando a utilidade social.
    Objetivo: desenhar e avaliar um protótipo reprodutível de knowledge graph e
    recomendação com avaliação ética e de utilidade social.
-   URL: https://elysiumdr.eu/pt/research/ontology-research.html
+   URL: https://elysiumdr.eu/pt/research/ontology-research
 
 2. Inteligência para PMEs Baseada em Dados: Aplicação da Aprendizagem
    Automática para a Extração de Conhecimento Operacional em Pequenas e
@@ -1061,10 +1061,10 @@ PROJETOS DE INVESTIGAÇÃO ATIVOS:
    as explicações em linguagem natural influenciam a confiança e a adoção.
    Não existem resultados publicados: as secções de resumo, metodologia,
    observações, limitações e trabalho futuro continuam pendentes.
-   URL: https://elysiumdr.eu/pt/research/data-driven-sme-intelligence.html
+   URL: https://elysiumdr.eu/pt/research/data-driven-sme-intelligence
 
 --- SOBRE NÓS ---
-URL: https://elysiumdr.eu/pt/about.html
+URL: https://elysiumdr.eu/pt/about
 
 Título: O Nosso Ethos — Elysium λ Development & Research
 
@@ -1113,7 +1113,7 @@ ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
 
 --- DANIEL MORALES ---
-URL: https://elysiumdr.eu/pt/daniel-morales.html
+URL: https://elysiumdr.eu/pt/daniel-morales
 
 Nome completo: Daniel Alonso Morales Ávila
 Cargo: Fundador e Engenheiro Informático
@@ -1130,7 +1130,7 @@ aplicada, entregando soluções que integram rigor de engenharia com impacto rea
 e mensurável.
 
 --- CONTACTO ---
-URL: https://elysiumdr.eu/pt/contact.html
+URL: https://elysiumdr.eu/pt/contact
 
 Email: info@elysiumdr.eu
 WhatsApp: +351 934086075

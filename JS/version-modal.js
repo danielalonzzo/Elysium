@@ -76,8 +76,8 @@
             devLink:        'Elysium \u03bb Development & Research',
             copyright:      '\u00a9 2026 Elysium \u03bb Development & Research. All rights reserved.',
             // Links
-            termsHref:      'terms.html',
-            privacyHref:    'privacy.html',
+            termsHref:      'terms',
+            privacyHref:    'privacy',
         },
         es: {
             subtitle:       'INFORMACIÓN DEL SISTEMA',
@@ -120,8 +120,8 @@
             devBy:          'Desarrollado por',
             devLink:        'Elysium \u03bb Development & Research',
             copyright:      '\u00a9 2026 Elysium \u03bb Development & Research. Todos los derechos reservados.',
-            termsHref:      'terms.html',
-            privacyHref:    'privacy.html',
+            termsHref:      'terms',
+            privacyHref:    'privacy',
         },
         pt: {
             subtitle:       'INFORMAÇÃO DO SISTEMA',
@@ -164,8 +164,8 @@
             devBy:          'Desenvolvido por',
             devLink:        'Elysium \u03bb Development & Research',
             copyright:      '\u00a9 2026 Elysium \u03bb Development & Research. Todos os direitos reservados.',
-            termsHref:      'privacy.html',
-            privacyHref:    'privacy.html',
+            termsHref:      'privacy',
+            privacyHref:    'privacy',
         }
     };
 
@@ -180,13 +180,16 @@
         return '2026-07';
     }
 
-    // ── Resolve links relative to current page depth ──────────────────────────
+    // ── Resolve links from the site root ─────────────────────────────────────
+    // Contaba los segmentos de la ruta para construir los «../» necesarios, lo
+    // que dependía de la profundidad de la página. Con las URLs sin extensión
+    // ese conteo se desajusta (/about ya cuenta como un segmento), y solo
+    // seguía funcionando porque el navegador recorta los «../» sobrantes al
+    // llegar a la raíz. Una ruta absoluta es correcta a cualquier profundidad.
     function resolveHref(enPath, esPath, ptPath) {
-        var segments = window.location.pathname.split('/').filter(function(s) { return s && s.indexOf('.') === -1; });
-        var prefix = segments.length > 0 ? '../'.repeat(segments.length) : '';
-        if (locale === 'pt') return prefix + ptPath;
-        if (locale === 'es') return prefix + esPath;
-        return prefix + enPath;
+        if (locale === 'pt') return '/' + ptPath;
+        if (locale === 'es') return '/' + esPath;
+        return '/' + enPath;
     }
 
     // ── Inject CSS (once) ─────────────────────────────────────────────────────
@@ -391,8 +394,8 @@
     // ── Build & mount modal ───────────────────────────────────────────────────
     function buildModal() {
         var build      = getBuildDate();
-        var termsHref  = resolveHref('terms.html',   'es/terms.html',   'pt/terms.html');
-        var privHref   = resolveHref('privacy.html', 'es/privacy.html', 'pt/privacy.html');
+        var termsHref  = resolveHref('terms',   'es/terms',   'pt/terms');
+        var privHref   = resolveHref('privacy', 'es/privacy', 'pt/privacy');
 
         var isAudioMuted = window.ElysiumAudio ? window.ElysiumAudio.isMuted() : (localStorage.getItem('ely-audio-muted') === '1');
         var audioVolPercent = Math.round((window.ElysiumAudio ? window.ElysiumAudio.getVolume() : parseFloat(localStorage.getItem('ely-audio-volume') || '0.6')) * 100);
