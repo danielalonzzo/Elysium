@@ -2,8 +2,6 @@
 
 ## La regla que lo explica todo
 
-En `firebase.json`, el sitio se sirve con **`"public": "."`**.
-
 **La raíz de este repositorio es la raíz de la web.** No hay carpeta `dist/` que
 envuelva el sitio: lo que ves en la raíz es lo que hay en `elysiumdr.eu`. De ahí
 salen las dos cosas que más desconciertan:
@@ -15,6 +13,34 @@ salen las dos cosas que más desconciertan:
    listas de despliegue: `firebase.json` (`hosting.ignore`), `.assetsignore`
    (assets del Worker de Cloudflare) y `.cloudflareignore`. Si algo entra y no se
    actualizan las tres, se publica.
+
+## Quién sirve el sitio (y por qué importa)
+
+Lo sirve **Cloudflare Workers static assets**. Se despliega solo: un push a
+`main` en GitHub dispara el build. `firebase.json` sigue en el repositorio y
+`"public": "."` describe bien la idea de que la raíz es la web, pero **Firebase
+Hosting no atiende el dominio**, así que nada de lo que se configure ahí llega a
+producción. Es la confusión más cara del repositorio: costó que la política de
+seguridad entera llevara meses sin aplicarse y que Search Console se llenara de
+avisos de indexación. Dos consecuencias que hay que tener presentes siempre:
+
+1. **Las URLs públicas no llevan `.html`.** Cloudflare aplica `html_handling:
+   auto-trailing-slash`: `/about.html` responde 307 hacia `/about`,
+   `/index.html` hacia `/`, y `/es` hacia `/es/`. La URL canónica de una página
+   es la de sin extensión. Cualquier enlace, `canonical`, `og:url` o entrada del
+   sitemap escrita con `.html` apunta a una redirección.
+2. **Las cabeceras se configuran en `_headers`, no en `firebase.json`.** Ahí
+   están la CSP, HSTS y las demás. Cuidado con una regla del formato: si dos
+   bloques declaran la misma cabecera, Cloudflare **une los valores con una
+   coma**, y dos CSP unidas se aplican como intersección. Un bloque específico
+   tiene que desprender primero la general con `! Content-Security-Policy`.
+
+Para probar en local, `python3 -m http.server` engaña: sirve los ficheros tal
+cual, así que `/about.html` funciona y `/about` da 404 — justo al revés que en
+producción. Usa **`scripts/serve-local.py`**, que replica el `html_handling` y
+aplica `_headers`. Está versionado a la fuerza, como
+`publish-historia-de-costa-rica.sh`: `*.py` y `*.sh` están en `.gitignore` para
+los scripts de usar y tirar, no para las herramientas del repositorio.
 
 ## Dónde está cada cosa
 
@@ -78,7 +104,12 @@ pierde en la siguiente publicación:
 - `CV/` — los europass en EN/ES/PT.
 - `research/` — páginas de investigación propias.
 - `scripts/` — utilidades y el script de publicación.
-- `firestore.rules`, `storage.rules`, `firebase.json`, `_redirects`.
+- `_headers` y `_redirects` — las cabeceras y las redirecciones que aplica
+  Cloudflare. Cuidado: son de los pocos ficheros que empiezan por `_` y **sí**
+  tienen que subir (Cloudflare los lee y no los publica); la convención de más
+  abajo vale para carpetas.
+- `firestore.rules`, `storage.rules`, `firebase.json` — este último ya no sirve
+  el dominio; ver «Quién sirve el sitio».
 
 ## Qué hay en Prototipos
 
