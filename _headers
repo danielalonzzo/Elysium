@@ -39,11 +39,12 @@
   ! Content-Security-Policy
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';
 
-# «Historia de Costa Rica» empotra Spotify y YouTube, y no necesita nada de
-# Firebase ni de las CDN. Lleva su propia CSP, más estrecha en todo lo demás.
+# «Demo-arbol» no necesita nada de Firebase ni de las CDN, y ya no incrusta
+# ningún reproductor de terceros: `frame-src 'none'`. Si alguna vez vuelve a
+# empotrar Spotify o YouTube, hay que abrirles hueco aquí.
 # El `noindex` es la única protección que tiene: es la única carpeta publicada
 # sin etiqueta propia, y por eso sigue además en el `Disallow` de robots.txt.
-/historia-de-costa-rica/*
+/Demo-arbol/*
   ! Content-Security-Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src https://open.spotify.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self';
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';
   X-Robots-Tag: noindex, nofollow

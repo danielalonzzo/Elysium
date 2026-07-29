@@ -1,5 +1,0 @@
-1:"$Sreact.fragment"
-2:I[89606,["/historia-de-costa-rica/_next/static/chunks/23b3ot_5df4e1.js"],"OutletBoundary"]
-3:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"hdc-notfound","children":["$","div",null,{"children":[["$","p",null,{"className":"hdc-eyebrow","children":"Error 404"}],["$","h1",null,{"children":"Este capítulo no existe"}],["$","p",null,{"className":"hdc-lead","children":"La página que buscas no está en nuestra línea del tiempo."}],["$","a",null,{"className":"hdc-btn hdc-btn--solid","href":"#top","children":"Volver al inicio"}]]}]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"zMkGiTxFtO9ZcjgzXBaYk"}
-4:null

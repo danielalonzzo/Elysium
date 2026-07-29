@@ -19,7 +19,7 @@ node_modules/
 
 # Salidas de compilación de los prototipos: las genera el script de publicación,
 # y lo que se versiona es la carpeta ya publicada en la raíz.
-Prototipos/historia-de-costa-rica/out/
+Prototipos/Demo-arbol/out/
 Prototipos/Regalarte/dist/
 Prototipos/Regalarte/build/
 .next/

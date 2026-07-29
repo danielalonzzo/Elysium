@@ -14,10 +14,10 @@ Allow: /
 # buscado — /profiles quedaba indexada como «duplicada sin canónica» porque
 # el rastreador nunca podía ver que estaba marcada como noindex.
 #
-# historia-de-costa-rica sí se bloquea: es la única que no tiene ninguna
-# etiqueta noindex propia (la cabecera X-Robots-Tag de firebase.json no se
-# aplica, el sitio lo sirve Cloudflare).
-Disallow: /historia-de-costa-rica/
+# Demo-arbol sí se bloquea: es la única que no tiene ninguna etiqueta noindex
+# propia (la cabecera X-Robots-Tag de firebase.json no se aplica, el sitio lo
+# sirve Cloudflare; la buena es la de `_headers`).
+Disallow: /Demo-arbol/
 
 # ──────────────────────────────────────────────
 # AI CRAWLERS — Explicitly allowed

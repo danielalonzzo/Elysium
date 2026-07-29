@@ -103,7 +103,7 @@
         ]
       },
       {
-        "source": "/historia-de-costa-rica/**",
+        "source": "/Demo-arbol/**",
         "headers": [
           {
             "key": "X-Robots-Tag",
@@ -111,7 +111,7 @@
           },
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src https://open.spotify.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+            "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
           }
         ]
       }

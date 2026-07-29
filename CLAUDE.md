@@ -39,7 +39,7 @@ Para probar en local, `python3 -m http.server` engaña: sirve los ficheros tal
 cual, así que `/about.html` funciona y `/about` da 404 — justo al revés que en
 producción. Usa **`scripts/serve-local.py`**, que replica el `html_handling` y
 aplica `_headers`. Está versionado a la fuerza, como
-`publish-historia-de-costa-rica.sh`: `*.py` y `*.sh` están en `.gitignore` para
+`publish-demo-arbol.sh`: `*.py` y `*.sh` están en `.gitignore` para
 los scripts de usar y tirar, no para las herramientas del repositorio.
 
 ## Dónde está cada cosa
@@ -80,7 +80,7 @@ su nombre, y `portfolio.html` los enlaza:
 | `Dr-Johnny-Piedra/` | `/Dr-Johnny-Piedra/` | la propia carpeta |
 | `VALTRIX Engineering/` | `/VALTRIX Engineering/` | la propia carpeta |
 | `proyecto/` | `/proyecto/` | la propia carpeta |
-| `historia-de-costa-rica/` | `/historia-de-costa-rica/` | `Prototipos/historia-de-costa-rica/` |
+| `Demo-arbol/` | `/Demo-arbol/` | `Prototipos/Demo-arbol/` |
 | `puravidapets/` | `/puravidapets/` | `Prototipos/puravidapets/` |
 
 Las cuatro primeras son HTML plano: la carpeta es a la vez el proyecto y el
@@ -89,9 +89,8 @@ sitio, y se trabaja directamente ahí.
 Las dos últimas son **producto compilado**. Editarlas a mano no sirve de nada, se
 pierde en la siguiente publicación:
 
-- `historia-de-costa-rica/` la genera entera
-  `scripts/publish-historia-de-costa-rica.sh` desde
-  `Prototipos/historia-de-costa-rica/` (Next 16).
+- `Demo-arbol/` la genera entera `scripts/publish-demo-arbol.sh` desde
+  `Prototipos/Demo-arbol/` (Next 16).
 - `puravidapets/` es el `vite build` de `Prototipos/puravidapets/`. El
   `index.html` de la fuente es el punto de entrada de Vite y apunta a
   `/src/main.jsx`: en producción no funciona, por eso lo que se publica es la
@@ -116,8 +115,10 @@ pierde en la siguiente publicación:
 Lo que no se puede servir tal cual. **Está excluido de las tres listas de
 despliegue**, porque si no se serviría en `elysiumdr.eu/Prototipos/`:
 
-- `historia-de-costa-rica/` — aplicación Next 16. Tiene su propio `CLAUDE.md`;
-  léelo antes de tocarlo. Se publica con el script, en la raíz.
+- `Demo-arbol/` — aplicación Next 16. Es la demo de primer contacto del
+  portafolio y **está vacía de contenido a propósito**: se enseña para mostrar
+  la arquitectura, no un proyecto. Tiene su propio `CLAUDE.md`; léelo antes de
+  tocarla. Se publica con el script, en la raíz.
 - `puravidapets/` — aplicación Vite/React. Se publica con `vite build`, en la
   raíz.
 - `Regalarte/` — aplicación Next que se despliega como **Worker propio** en
@@ -154,6 +155,6 @@ Es la causa principal de la confusión al entrar:
   propósito, porque el sitio se despliega desde el repositorio. Van marcadas como
   generadas en `.gitattributes` para que no ensucien los `git diff`.
 - **Un solo git.** Ningún proyecto tiene repositorio, rama ni remoto propios
-  mientras viva aquí. `Regalarte/` e `historia-de-costa-rica/` traían uno de
+  mientras viva aquí. `Regalarte/` y `Demo-arbol/` traían uno de
   antes; se retiró y su historial quedó guardado como `.bundle` en
   `λ/_git-backup/`, fuera del repositorio.

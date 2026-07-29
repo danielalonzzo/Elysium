@@ -1,0 +1,48 @@
+# dependencies
+# `node_modules` es un enlace simbólico a `node_modules.nosync`: el sufijo
+# `.nosync` es la marca que hace que iCloud Drive NO sincronice la carpeta.
+# Sin eso, iCloud intenta subir cada archivo temporal que escribe el compilador
+# y acaba sembrando duplicados de conflicto («archivo 2.js», «carpeta 3»).
+/node_modules
+/node_modules.nosync
+/.pnp
+.pnp.*
+
+# next.js — mismo motivo: fuera de la sincronización de iCloud.
+/.next
+/.next.nosync/
+/out/
+# build del export estático (scripts/publish-demo-arbol.sh)
+/.next-export.nosync/
+
+# production
+/build
+/dist/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+
+# typescript
+*.tsbuildinfo
+
+# NOTA: `_comercial/` NO se ignora en git — se conserva como memoria del
+# proyecto (§3.1). Sí queda fuera del despliegue: Next solo publica `public/`,
+# así que la carpeta nunca llega al sitio servido.
+
+# Duplicados de conflicto que iCloud crea pese al sufijo `.nosync`.
+# Las dos primeras líneas cubren los archivos («config 2.js»); las dos últimas,
+# las carpetas y todo lo que no lleva extensión («node_modules 2»), que se
+# colaban porque los patrones anteriores exigen un punto detrás del número.
+*\ 2.*
+*\ 3.*
+*\ 2
+*\ 3
