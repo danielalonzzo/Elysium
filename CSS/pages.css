@@ -116,7 +116,7 @@
 
 .timeline-section .timeline-item {
     position: sticky !important;
-    top: calc(var(--header-height, 80px) + 160px) !important;
+    top: calc(var(--header-height, 80px) + 240px) !important;
 }
 
 /* Incremental z-index so newer cards always cover older ones */
@@ -224,36 +224,46 @@
     z-index: 1;
 }
 
-/* MOBILE RESPONSIVE (Línea al borde izquierdo) */
 @media (max-width: 900px) {
     .timeline-track {
-        left: 20px;
-        transform: none;
+        left: 20px !important;
+        transform: none !important;
     }
     
-    .timeline-item {
-        width: 100%;
-        padding-left: 60px;
-        padding-right: 0;
+    .timeline-item,
+    .timeline-item.left,
+    .timeline-item.right,
+    .timeline-section .timeline-item,
+    .timeline-section .timeline-item.left,
+    .timeline-section .timeline-item.right {
+        width: 100% !important;
+        padding-left: 60px !important;
+        padding-right: 0 !important;
         align-items: flex-start !important;
         text-align: left !important;
         left: 0 !important;
-        margin-left: 0 !important; /* Fix for mobile to override desktop right margin */
+        margin-left: 0 !important;
+        top: calc(var(--header-height, 60px) + 210px) !important;
     }
     
     .timeline-item.left .timeline-dot,
-    .timeline-item.right .timeline-dot {
-        left: 12px;
-        right: auto;
+    .timeline-item.right .timeline-dot,
+    .timeline-section .timeline-item.left .timeline-dot,
+    .timeline-section .timeline-item.right .timeline-dot {
+        left: 12px !important;
+        right: auto !important;
     }
 
-    .step-number {
+    .step-number,
+    .timeline-section .step-number,
+    .timeline-section .timeline-item.left .step-number {
         right: 20px !important;
         left: auto !important;
     }
 
-    .timeline-content {
-        max-width: 100%;
+    .timeline-content,
+    .timeline-section .timeline-content {
+        max-width: 100% !important;
     }
 }
 

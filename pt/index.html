@@ -2,14 +2,6 @@
 <html lang="pt-PT">
 
 <head>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-NDDNWMFH');</script>
-    <!-- End Google Tag Manager -->
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -101,17 +93,8 @@
     }
     </script>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
-        rel="stylesheet">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="../CSS/base.css">
-    <link rel="stylesheet" href="../CSS/components.css">
-    <link rel="stylesheet" href="../CSS/pages.css">
+    <!-- Route-specific, minified production CSS -->
+    <link rel="stylesheet" href="../CSS/home.v20260729.min.css" fetchpriority="high">
 
     <!-- Favicon suite -->
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
@@ -122,22 +105,15 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Saltar para o conteúdo principal</a>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDDNWMFH"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
-    <!-- Premium Preloader -->
-    <div id="elysium-preloader">
-        <div class="preloader-content">
-            <span class="preloader-lambda">λ</span>
-        </div>
-    </div>
-
-
     <nav class="navbar">
         <div class="container">
             <a href="./" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
-            <div class="nav-links">
+            <div class="nav-links" id="primary-navigation">
                 <a href="services" class="nav-link">Serviços</a>
                 <a href="portfolio" class="nav-link">Portefólio</a>
                 <a href="research" class="nav-link">Investigação</a>
@@ -146,23 +122,25 @@
                 <a href="contact" class="btn btn-primary">Contacto</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Selecionar idioma"><span class="lang-current-label">PT</span> <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                        aria-label="Selecionar idioma"><span class="lang-current-label">PT</span> <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
-                        <a href="../" role="menuitem">English <img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="../es/" role="menuitem">Español <img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="./" role="menuitem">Português <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="../" role="menuitem">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="../es/" role="menuitem">Español <img src="../Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="./" role="menuitem">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                     </div>
                 </div>
             </div>
-            <div class="mobile-toggle">☰</div>
+            <button type="button" class="mobile-toggle" aria-label="Abrir menu de navegação"
+                aria-controls="primary-navigation" aria-expanded="false">☰</button>
         </div>
     </nav>
 
+    <main id="main-content">
     <header class="hero">
         <!-- Animated Lambda (premium text-reveal effect) -->
-        <div class="hero-symbol-bg">λ</div>
-        <div class="hero-content animate-on-scroll">
+        <div class="hero-symbol-bg" aria-hidden="true">λ</div>
+        <div class="hero-content">
             <p class="hero-subtitle">Development & Research</p>
             <h1>Infraestrutura Digital para PME: <span class="hero-title-suffix">Sem Custos de Desenvolvimento</span></h1>
             <div class="hero-cta">
@@ -176,131 +154,131 @@
         style="padding: 2rem 0; text-align: center; border-bottom: 1px solid var(--glass-border); overflow: hidden; background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(255, 255, 255, 0.02) 50%, rgba(0,0,0,0));">
         <div class="container animate-on-scroll">
             <p
-                style="opacity: 0.5; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem;">
+                style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.5rem; color: var(--color-text-secondary);">
                 As nossas ferramentas</p>
             <div class="logos">
                 <div class="logos-slide">
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Antigravity.png" alt="Antigravity" />
+                        <img src="../Images/Optimized/antigravity-128.webp" alt="Antigravity" width="128" height="118" loading="lazy" decoding="async">
                         <span>Antigravity</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/GitHub.png" alt="GitHub" />
+                        <img src="../Images/Optimized/github-128.webp" alt="GitHub" width="128" height="128" loading="lazy" decoding="async">
                         <span>GitHub</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/HTML5.png" alt="HTML5" />
+                        <img src="../Images/Optimized/html5-128.webp" alt="HTML5" width="128" height="128" loading="lazy" decoding="async">
                         <span>HTML5</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/CSS3.png" alt="CSS3" />
+                        <img src="../Images/Optimized/css3-128.webp" alt="CSS3" width="128" height="128" loading="lazy" decoding="async">
                         <span>CSS3</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/JavaScript.png" alt="JavaScript" />
+                        <img src="../Images/Optimized/javascript-128.webp" alt="JavaScript" width="128" height="128" loading="lazy" decoding="async">
                         <span>JavaScript</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Cloudflare.png" alt="Cloudflare" />
+                        <img src="../Images/Optimized/cloudflare-128.webp" alt="Cloudflare" width="128" height="128" loading="lazy" decoding="async">
                         <span>Cloudflare</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/IONOS.svg" alt="IONOS" />
+                        <img src="../Images/OUR TOOLS/IONOS.svg" alt="IONOS" width="128" height="128" loading="lazy" decoding="async">
                         <span>IONOS</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Python.png" alt="Python" />
+                        <img src="../Images/Optimized/python-128.webp" alt="Python" width="128" height="128" loading="lazy" decoding="async">
                         <span>Python</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Firebase.png" alt="Firebase" />
+                        <img src="../Images/Optimized/firebase-128.webp" alt="Firebase" width="128" height="128" loading="lazy" decoding="async">
                         <span>Firebase</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Git.png" alt="Git" />
+                        <img src="../Images/Optimized/git-128.webp" alt="Git" width="128" height="128" loading="lazy" decoding="async">
                         <span>Git</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/NPM.png" alt="NPM" />
+                        <img src="../Images/Optimized/npm-128.webp" alt="NPM" width="128" height="128" loading="lazy" decoding="async">
                         <span>NPM</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Node.js.png" alt="Node.js" />
+                        <img src="../Images/Optimized/nodejs-128.webp" alt="Node.js" width="128" height="128" loading="lazy" decoding="async">
                         <span>Node.js</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/cPanel.png" alt="cPanel" />
+                        <img src="../Images/Optimized/cpanel-128.webp" alt="cPanel" width="128" height="128" loading="lazy" decoding="async">
                         <span>cPanel</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/stripe.jpeg" alt="Stripe" />
+                        <img src="../Images/Optimized/stripe-128.webp" alt="Stripe" width="128" height="128" loading="lazy" decoding="async">
                         <span>Stripe</span>
                     </div>
                 </div>
                 <!-- Duplicate for infinite loop -->
-                <div class="logos-slide">
+                <div class="logos-slide" aria-hidden="true">
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Antigravity.png" alt="Antigravity" />
+                        <img src="../Images/Optimized/antigravity-128.webp" alt="Antigravity" width="128" height="118" loading="lazy" decoding="async">
                         <span>Antigravity</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/GitHub.png" alt="GitHub" />
+                        <img src="../Images/Optimized/github-128.webp" alt="GitHub" width="128" height="128" loading="lazy" decoding="async">
                         <span>GitHub</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/HTML5.png" alt="HTML5" />
+                        <img src="../Images/Optimized/html5-128.webp" alt="HTML5" width="128" height="128" loading="lazy" decoding="async">
                         <span>HTML5</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/CSS3.png" alt="CSS3" />
+                        <img src="../Images/Optimized/css3-128.webp" alt="CSS3" width="128" height="128" loading="lazy" decoding="async">
                         <span>CSS3</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/JavaScript.png" alt="JavaScript" />
+                        <img src="../Images/Optimized/javascript-128.webp" alt="JavaScript" width="128" height="128" loading="lazy" decoding="async">
                         <span>JavaScript</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Cloudflare.png" alt="Cloudflare" />
+                        <img src="../Images/Optimized/cloudflare-128.webp" alt="Cloudflare" width="128" height="128" loading="lazy" decoding="async">
                         <span>Cloudflare</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/IONOS.svg" alt="IONOS" />
+                        <img src="../Images/OUR TOOLS/IONOS.svg" alt="IONOS" width="128" height="128" loading="lazy" decoding="async">
                         <span>IONOS</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Python.png" alt="Python" />
+                        <img src="../Images/Optimized/python-128.webp" alt="Python" width="128" height="128" loading="lazy" decoding="async">
                         <span>Python</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Firebase.png" alt="Firebase" />
+                        <img src="../Images/Optimized/firebase-128.webp" alt="Firebase" width="128" height="128" loading="lazy" decoding="async">
                         <span>Firebase</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Git.png" alt="Git" />
+                        <img src="../Images/Optimized/git-128.webp" alt="Git" width="128" height="128" loading="lazy" decoding="async">
                         <span>Git</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/NPM.png" alt="NPM" />
+                        <img src="../Images/Optimized/npm-128.webp" alt="NPM" width="128" height="128" loading="lazy" decoding="async">
                         <span>NPM</span>
                     </div>
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/Node.js.png" alt="Node.js" />
+                        <img src="../Images/Optimized/nodejs-128.webp" alt="Node.js" width="128" height="128" loading="lazy" decoding="async">
                         <span>Node.js</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/cPanel.png" alt="cPanel" />
+                        <img src="../Images/Optimized/cpanel-128.webp" alt="cPanel" width="128" height="128" loading="lazy" decoding="async">
                         <span>cPanel</span>
                     </div>
 
                     <div class="logo-item">
-                        <img src="../Images/OUR TOOLS/stripe.jpeg" alt="Stripe" />
+                        <img src="../Images/Optimized/stripe-128.webp" alt="Stripe" width="128" height="128" loading="lazy" decoding="async">
                         <span>Stripe</span>
                     </div>
                 </div>
@@ -315,8 +293,9 @@
                 <p>Infraestrutura Digital Incluída na sua Subscrição Mensal</p>
             </div>
             <div class="card-grid">
-                <div class="card animate-on-scroll delay-1" onclick="this.classList.toggle('expanded')">
-                    <div class="card-number">01</div>
+                <div class="card animate-on-scroll delay-1" role="button" tabindex="0"
+                    aria-haspopup="dialog" aria-controls="premiumServiceModal">
+                    <div class="card-number" aria-hidden="true">01</div>
                     <div class="card-glow"></div>
                     <div class="card-summary">
                         <p>Desenhamos interfaces ergonómicas e adaptadas ao comportamento humano</p>
@@ -330,8 +309,9 @@
                         </ul>
                     </div>
                 </div>
-                <div class="card animate-on-scroll delay-2" onclick="this.classList.toggle('expanded')">
-                    <div class="card-number">02</div>
+                <div class="card animate-on-scroll delay-2" role="button" tabindex="0"
+                    aria-haspopup="dialog" aria-controls="premiumServiceModal">
+                    <div class="card-number" aria-hidden="true">02</div>
                     <div class="card-glow"></div>
                     <div class="card-summary">
                         <p>Desenvolvemos a infraestrutura digital na nuvem (base de dados)</p>
@@ -345,8 +325,9 @@
                         </ul>
                     </div>
                 </div>
-                <div class="card animate-on-scroll delay-3" onclick="this.classList.toggle('expanded')">
-                    <div class="card-number">03</div>
+                <div class="card animate-on-scroll delay-3" role="button" tabindex="0"
+                    aria-haspopup="dialog" aria-controls="premiumServiceModal">
+                    <div class="card-number" aria-hidden="true">03</div>
                     <div class="card-glow"></div>
                     <div class="card-summary">
                         <p>Programamos Sistemas de Gestão (CRM) à Medida</p>
@@ -360,8 +341,9 @@
                         </ul>
                     </div>
                 </div>
-                <div class="card animate-on-scroll delay-4" onclick="this.classList.toggle('expanded')">
-                    <div class="card-number">04</div>
+                <div class="card animate-on-scroll delay-4" role="button" tabindex="0"
+                    aria-haspopup="dialog" aria-controls="premiumServiceModal">
+                    <div class="card-number" aria-hidden="true">04</div>
                     <div class="card-glow"></div>
                     <div class="card-summary">
                         <p>Implementamos os mais altos padrões de cibersegurança e protocolos de governação</p>
@@ -386,13 +368,13 @@
                 <div class="currency-switcher-container" style="margin-top: 2rem;">
                     <div class="currency-toggle">
                         <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
-                            <span class="currency-flag"><img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
+                            <span class="currency-flag"><img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
                         </button>
                         <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
-                            <span class="currency-flag"><img src="../Images/Banderas/estados-unidos.png" alt="US" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
+                            <span class="currency-flag"><img src="../Images/Optimized/flag-us-64.webp" alt="US" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
                         </button>
                         <button class="currency-btn" data-currency="CRC" aria-label="Costa Rican Colon">
-                            <span class="currency-flag"><img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
+                            <span class="currency-flag"><img src="../Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
                         </button>
                     </div>
                 </div>
@@ -541,42 +523,48 @@
                 <div class="unified-pricing-grid">
                     <!-- Basic Plan -->
                     <div class="pricing-col">
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção Básica</h4>
+                        <h3 class="home-subheading">Manutenção Básica</h3>
                         <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="70">70 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mês</span></p>
-                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="840">840 €</span> / ano</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">Opcional: <span class="dynamic-price" data-base-price="840">840 €</span> / ano</div>
                         <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
                             <li style="margin-bottom: 0.5rem;">✓ <strong>Inclui Manutenção Hosting</strong></li>
                             <li style="margin-bottom: 0.5rem;">✓ Desenvolvimento web corporativo</li>
                             <li>✓ Design fluido Mobile-first</li>
                         </ul>
-                        <a href="../profiles?subscribe=basic_maintenance" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                        <a href="../profiles?subscribe=basic_maintenance" class="btn"
+                            aria-label="Subscrever a Manutenção Básica"
+                            style="margin-top: 2rem; width: 100%;">Subscrever</a>
                     </div>
 
                     <!-- Preferential Plan -->
                     <div class="pricing-col">
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção Preferencial</h4>
+                        <h3 class="home-subheading">Manutenção Preferencial</h3>
                         <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="99">99 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mês</span></p>
-                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="1188">1188 €</span> / ano</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">Opcional: <span class="dynamic-price" data-base-price="1188">1188 €</span> / ano</div>
                         <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
                             <li style="margin-bottom: 0.5rem;">✓ <strong>Inclui funcionalidades Básicas</strong></li>
                             <li style="margin-bottom: 0.5rem;">✓ Suporte multi-idioma</li>
                             <li>✓ Adaptação modo Claro/Escuro</li>
                         </ul>
-                        <a href="../profiles?subscribe=preferential_maintenance" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                        <a href="../profiles?subscribe=preferential_maintenance" class="btn"
+                            aria-label="Subscrever a Manutenção Preferencial"
+                            style="margin-top: 2rem; width: 100%;">Subscrever</a>
                     </div>
 
                     <!-- Advanced Plan (Featured) -->
                     <div class="pricing-col pricing-col-popular">
                         <div class="popular-badge">Mais Popular</div>
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção Avançada</h4>
+                        <h3 class="home-subheading">Manutenção Avançada</h3>
                         <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="120">120 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mês</span></p>
-                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="1440">1440 €</span> / ano</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">Opcional: <span class="dynamic-price" data-base-price="1440">1440 €</span> / ano</div>
                         <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
                             <li style="margin-bottom: 0.5rem;">✓ <strong>Inclui funcionalidades Preferenciais</strong></li>
                             <li style="margin-bottom: 0.5rem;">✓ Plataforma CRM privada</li>
                             <li>✓ Software personalizado escalável</li>
                         </ul>
-                        <a href="../profiles?subscribe=advanced_maintenance" class="btn" style="margin-top: 2rem; width: 100%; background: rgba(41, 151, 255, 0.1); border-color: var(--color-accent);">Subscrever</a>
+                        <a href="../profiles?subscribe=advanced_maintenance" class="btn"
+                            aria-label="Subscrever a Manutenção Avançada"
+                            style="margin-top: 2rem; width: 100%; background: rgba(41, 151, 255, 0.1); border-color: var(--color-accent);">Subscrever</a>
                     </div>
                 </div>
             </div>
@@ -647,8 +635,8 @@
                 <a href="daniel-morales" class="developer-card developer-card-link">
                     <div class="developer-card-content">
                         <span class="developer-photo" aria-hidden="true">
-                            <img src="../Images/Daniel%20Morales.jpg" alt="Daniel Alonso Morales Ávila" width="64"
-                                height="64">
+                            <img src="../Images/Optimized/daniel-morales-160.webp" alt="Daniel Alonso Morales Ávila"
+                                width="160" height="160" loading="lazy" decoding="async">
                         </span>
                         <div class="developer-info">
                             <span class="developer-name">Daniel Alonso<br>Morales Ávila</span>
@@ -679,7 +667,7 @@
                 <div class="timeline-item left animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">01</div>
+                        <div class="step-number" aria-hidden="true">01</div>
                         <h3 class="step-title">Ambiente Operacional Atual</h3>
                         <p class="step-desc">Analisando os seus fluxos de dados, processos diários e o contexto da sua indústria.</p>
                     </div>
@@ -688,7 +676,7 @@
                 <div class="timeline-item right animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">02</div>
+                        <div class="step-number" aria-hidden="true">02</div>
                         <h3 class="step-title">Estado da Arte e Limitações</h3>
                         <p class="step-desc">Documentamos as infraestruturas tecnológicas que a sua empresa já utiliza.</p>
                     </div>
@@ -697,7 +685,7 @@
                 <div class="timeline-item left animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">03</div>
+                        <div class="step-number" aria-hidden="true">03</div>
                         <h3 class="step-title">Variáveis Críticas</h3>
                         <p class="step-desc">Detetamos os processos manuais, a gestão de dados e as vulnerabilidades estruturais.</p>
                     </div>
@@ -706,7 +694,7 @@
                 <div class="timeline-item right animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">04</div>
+                        <div class="step-number" aria-hidden="true">04</div>
                         <h3 class="step-title">Definição do Problema</h3>
                         <p class="step-desc">Definimos o problema central que a nova infraestrutura digital deve resolver.</p>
                     </div>
@@ -715,7 +703,7 @@
                 <div class="timeline-item left animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">05</div>
+                        <div class="step-number" aria-hidden="true">05</div>
                         <h3 class="step-title">Impacto</h3>
                         <p class="step-desc">Mitigação de riscos, eliminação de tempos mortos e aumento da presença digital.</p>
                     </div>
@@ -724,7 +712,7 @@
                 <div class="timeline-item right animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">06</div>
+                        <div class="step-number" aria-hidden="true">06</div>
                         <h3 class="step-title">Arquitetura</h3>
                         <p class="step-desc">Propomos a infraestrutura digital (ex. um ecossistema SaaS, um CRM à medida ou um redesenho do seu site atual).</p>
                     </div>
@@ -733,7 +721,7 @@
                 <div class="timeline-item left animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">07</div>
+                        <div class="step-number" aria-hidden="true">07</div>
                         <h3 class="step-title">Seleção de Tecnologias</h3>
                         <p class="step-desc">Protocolos de segurança, bases de dados e sistemas integrados.</p>
                     </div>
@@ -742,7 +730,7 @@
                 <div class="timeline-item right animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">08</div>
+                        <div class="step-number" aria-hidden="true">08</div>
                         <h3 class="step-title">Design, Desenvolvimento e Base de Dados</h3>
                         <p class="step-desc">Construímos o ecossistema digital do seu projeto.</p>
                     </div>
@@ -751,7 +739,7 @@
                 <div class="timeline-item left animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">09</div>
+                        <div class="step-number" aria-hidden="true">09</div>
                         <h3 class="step-title">QA e Auditoria</h3>
                         <p class="step-desc">Realização de testes, validação de mecanismos de segurança (Controlo de Acessos) e auditorias de conformidade normativa (RGPD/N°8968).</p>
                     </div>
@@ -760,7 +748,7 @@
                 <div class="timeline-item right animate-on-scroll">
                     <div class="timeline-dot"></div>
                     <div class="timeline-content glass-panel">
-                        <div class="step-number">10</div>
+                        <div class="step-number" aria-hidden="true">10</div>
                         <h3 class="step-title">Entrega e Formação</h3>
                         <p class="step-desc">Lançamento do sistema, sincronização final de dados e formação da equipa.</p>
                     </div>
@@ -779,7 +767,7 @@
                 </div>
                 <div class="animate-on-scroll delay-1"
                     style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
-                    <h4>Declaração de Missão</h4>
+                    <h3 class="home-subheading">Declaração de Missão</h3>
                     <p style="margin-bottom: 0;">Democratizar o acesso à infraestrutura digital, dotando as PMEs de ecossistemas tecnológicos acessíveis que automatizam os seus processos e garantem a sua escalabilidade.</p>
                 </div>
             </div>
@@ -797,7 +785,9 @@
                     </blockquote>
                     <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem;">
                         <div style="width: 56px; height: 56px; border-radius: 50%; overflow: hidden; border: 2px solid var(--color-accent); flex-shrink: 0;">
-                            <img src="../Images/Portfolio/logo_ios_android.png" alt="Paulo Morais" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="../Images/Optimized/paulo-morais-112.webp" alt="Paulo Morais" width="112"
+                                height="112" loading="lazy" decoding="async"
+                                style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <div style="text-align: left;">
                             <div style="font-weight: 700; color: var(--color-text-primary); font-size: 1rem;">Paulo Morais</div>
@@ -805,7 +795,7 @@
                             <div style="color: var(--color-text-secondary); font-size: 0.8rem;">Fundador da Consciênciavaliativa - Unipessoal Lda</div>
                         </div>
                     </div>
-                    <div style="text-align: right; margin-top: 1.5rem; font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary); opacity: 0.6;">
+                    <div style="text-align: right; margin-top: 1.5rem; font-size: 0.75rem; font-weight: 500; color: var(--color-text-secondary);">
                         Leia a avaliação completa &rarr;
                     </div>
                 </div>
@@ -829,13 +819,13 @@
                 <div class="currency-switcher-container" style="margin-top: 2rem;">
                     <div class="currency-toggle">
                         <button class="currency-btn active" data-currency="EUR" aria-label="Euro">
-                            <span class="currency-flag"><img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
+                            <span class="currency-flag"><img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> EUR
                         </button>
                         <button class="currency-btn" data-currency="USD" aria-label="US Dollar">
-                            <span class="currency-flag"><img src="../Images/Banderas/estados-unidos.png" alt="US" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
+                            <span class="currency-flag"><img src="../Images/Optimized/flag-us-64.webp" alt="US" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> USD
                         </button>
                         <button class="currency-btn" data-currency="CRC" aria-label="Costa Rican Colon">
-                            <span class="currency-flag"><img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
+                            <span class="currency-flag"><img src="../Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> CRC
                         </button>
                     </div>
                 </div>
@@ -870,29 +860,33 @@
                 <div class="unified-pricing-grid-2col">
                     <!-- Hosting Plan -->
                     <div class="pricing-col" style="flex: 0 0 85%; min-width: 280px; scroll-snap-align: center;">
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">Manutenção de Alojamento</h4>
+                        <h3 class="home-subheading">Manutenção de Alojamento</h3>
                         <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="99">99 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ anuais</span></p>
-                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Faturamento anual</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">Faturamento anual</div>
                         <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
                             <li style="margin-bottom: 0.5rem;">✓ Gestão de domínio e identidade digital da sua marca</li>
                             <li style="margin-bottom: 0.5rem;">✓ Alojamento web em servidores de alta disponibilidade</li>
                             <li style="margin-bottom: 0.5rem;">✓ Manutenção base da infraestrutura</li>
-                            <li style="margin-bottom: 0.5rem; opacity: 0.7;"><i>*O desenvolvimento da página web não está incluído</i></li>
+                            <li style="margin-bottom: 0.5rem;"><i>*O desenvolvimento da página web não está incluído</i></li>
                         </ul>
-                        <a href="../profiles?subscribe=domain_hosting" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                        <a href="../profiles?subscribe=domain_hosting" class="btn"
+                            aria-label="Subscrever a Manutenção de Alojamento"
+                            style="margin-top: 2rem; width: 100%;">Subscrever</a>
                     </div>
 
                     <!-- CRM Plan -->
                     <div class="pricing-col" style="flex: 0 0 85%; min-width: 280px; scroll-snap-align: center; border-right: none;">
-                        <h4 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--color-platinum);">CRM Personalizado</h4>
+                        <h3 class="home-subheading">CRM Personalizado</h3>
                         <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="50">50 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ mensais</span></p>
-                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem; opacity: 0.7;">Opcional: <span class="dynamic-price" data-base-price="600">600 €</span> / ano</div>
+                        <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">Opcional: <span class="dynamic-price" data-base-price="600">600 €</span> / ano</div>
                         <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
                             <li style="margin-bottom: 0.5rem;">✓ Painel de controlo intuitivo e elegante</li>
                             <li style="margin-bottom: 0.5rem;">✓ Ambiente de trabalho 100% confidencial</li>
                             <li style="margin-bottom: 0.5rem;">✓ Acesso direto a partir do seu portal de cliente</li>
                         </ul>
-                        <a href="../profiles?subscribe=custom_core_crm" class="btn" style="margin-top: 2rem; width: 100%;">Subscrever</a>
+                        <a href="../profiles?subscribe=custom_core_crm" class="btn"
+                            aria-label="Subscrever o CRM Personalizado"
+                            style="margin-top: 2rem; width: 100%;">Subscrever</a>
                     </div>
                 </div>
             </div>
@@ -910,6 +904,7 @@
             <a href="contact" class="btn btn-primary">Agendar consulta</a>
         </div>
     </section>
+    </main>
 
     <footer>
         <div class="container">
@@ -921,12 +916,12 @@
                         <div class="lang-switcher-dropdown footer-lang-switcher">
                             <button type="button" class="lang-switcher-trigger" aria-expanded="false"
                                 aria-haspopup="true" aria-label="Selecionar idioma"><span
-                                    class="lang-current-label">PT</span> <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
+                                    class="lang-current-label">PT</span> <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
                                     aria-hidden="true">▼</span></button>
                             <div class="lang-switcher-menu" role="menu">
-                                <a href="../" role="menuitem">English <img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="../es/" role="menuitem">Español <img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="./" role="menuitem">Português <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="../" role="menuitem">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="../es/" role="menuitem">Español <img src="../Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="./" role="menuitem">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                             </div>
                         </div>
                     </div>
@@ -934,7 +929,7 @@
                     <p class="footer-service-note">Também no Brasil e noutros países lusófonos e hispânicos.</p>
                 </div>
                 <div class="footer-col">
-                    <h4>Empresa</h4>
+                    <h3>Empresa</h3>
                     <ul class="footer-links">
                         <li><a href="about">Sobre nós</a></li>
                         <li><a href="services">Serviços</a></li>
@@ -944,7 +939,7 @@
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Legal</h4>
+                    <h3>Legal</h3>
                     <ul class="footer-links">
                         <li><a href="privacy">Política de privacidade</a></li>
                         <li><a href="terms">Termos de serviço</a></li>
@@ -953,7 +948,7 @@
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Ligação</h4>
+                    <h3>Ligação</h3>
                     <ul class="footer-links">
                         <li><a href="https://www.linkedin.com/company/elysiumdr" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
                         <li><a href="https://x.com/elysiumdr?s=21">Twitter</a></li>
@@ -966,16 +961,12 @@
             </div>
             <div class="footer-bottom">
                 <span>&copy; 2026 Elysium λ Development & Research. Todos os direitos reservados.</span>
-                <span class="brand-symbol footer-lambda">λ</span>
+                <span class="brand-symbol footer-lambda" aria-hidden="true">λ</span>
             </div>
         </div>
     </footer>
 
-    <script src="../JS/main.js"></script>
-    <script src="../JS/elysium-mouse.js"></script>
-    <script src="../JS/elysium-audio.js"></script>
-    <script src="../JS/version-modal.js"></script>
-    <script src="../JS/service-modal.js"></script>
+    <script src="../JS/home.v20260729.min.js"></script>
 </body>
 
 </html>

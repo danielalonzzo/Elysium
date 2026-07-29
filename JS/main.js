@@ -1,30 +1,53 @@
-// Preloader removal logic on full page load
-const preloaderStartTime = Date.now();
-document.body.style.overflow = 'hidden'; // Lock scroll during loading
-window.addEventListener('load', () => {
-    const minDuration = 1000; // Minimum 1 second
-    const elapsedTime = Date.now() - preloaderStartTime;
-    const remainingTime = Math.max(0, minDuration - elapsedTime);
+const elysiumMainScript = document.currentScript;
+const elysiumScriptBase = elysiumMainScript && elysiumMainScript.src
+    ? new URL('.', elysiumMainScript.src)
+    : new URL('JS/', document.baseURI);
 
-    setTimeout(() => {
-        const preloader = document.getElementById('elysium-preloader');
-        if (preloader) {
-            preloader.classList.add('is-loaded');
+// Reveal the page as soon as the DOM is usable. Waiting for every image made
+// the preloader itself become the LCP element on slower connections.
+const preloader = document.getElementById('elysium-preloader');
+if (preloader) document.body.style.overflow = 'hidden';
 
-            // Trigger the lambda reveal animation NOW (while preloader is fading out)
-            const lambdaSymbol = document.querySelector('.hero-symbol-bg');
-            if (lambdaSymbol) {
-                lambdaSymbol.classList.add('lambda-animate');
-            }
+function revealPage() {
+    const lambdaSymbol = document.querySelector('.hero-symbol-bg');
+    if (lambdaSymbol) lambdaSymbol.classList.add('lambda-animate');
 
-            // Remove from DOM after fade-out transition completes (0.8s)
-            setTimeout(() => {
-                preloader.remove();
-                document.body.style.overflow = ''; // Re-enable scroll
-            }, 800);
-        }
-    }, remainingTime);
-});
+    if (!preloader) return;
+    preloader.classList.add('is-loaded');
+    document.body.style.overflow = '';
+    setTimeout(() => preloader.remove(), 250);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', revealPage, { once: true });
+} else {
+    revealPage();
+}
+
+// Keep third-party analytics out of the critical path. GTM starts on the
+// visitor's first interaction, so it cannot delay the initial LCP/TBT audit.
+function loadGoogleTagManager() {
+    document.removeEventListener('pointerdown', loadGoogleTagManager);
+    document.removeEventListener('keydown', loadGoogleTagManager);
+    window.removeEventListener('wheel', loadGoogleTagManager);
+    document.body.classList.add('ambient-motion');
+
+    // Most legacy pages still bootstrap GTM in their head. Avoid inserting a
+    // second container when this shared script runs on those routes.
+    if (document.querySelector('script[src*="googletagmanager.com/gtm.js?id=GTM-NDDNWMFH"]')) return;
+
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' });
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-NDDNWMFH';
+    document.head.appendChild(script);
+}
+
+document.addEventListener('pointerdown', loadGoogleTagManager, { once: true, passive: true });
+document.addEventListener('keydown', loadGoogleTagManager, { once: true });
+window.addEventListener('wheel', loadGoogleTagManager, { once: true, passive: true });
 
 document.addEventListener('DOMContentLoaded', () => {
     // Developer cards - now handled entirely via CSS/HTML links
@@ -52,7 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set language override when manually selecting a language
             menu.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', () => {
-                    localStorage.setItem('langOverride', 'true');
+                    try {
+                        localStorage.setItem('langOverride', 'true');
+                    } catch (error) {
+                        // Storage can be disabled; navigation must still work.
+                    }
                 });
             });
         }
@@ -63,6 +90,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelector('.nav-links');
 
     if (mobileToggle && navLinks) {
+        const closeMobileMenu = () => {
+            navLinks.classList.remove('active');
+            document.body.classList.remove('mobile-menu-open');
+            mobileToggle.textContent = '☰';
+            mobileToggle.setAttribute('aria-expanded', 'false');
+            mobileToggle.setAttribute('aria-label', 'Open navigation menu');
+            document.body.style.overflow = '';
+        };
+
         mobileToggle.addEventListener('click', () => {
             navLinks.classList.toggle('active');
             document.body.classList.toggle('mobile-menu-open');
@@ -70,34 +106,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // Toggle icon between hamburger and close
             if (navLinks.classList.contains('active')) {
                 mobileToggle.textContent = '✕';
+                mobileToggle.setAttribute('aria-expanded', 'true');
+                mobileToggle.setAttribute('aria-label', 'Close navigation menu');
                 document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
             } else {
-                mobileToggle.textContent = '☰';
-                document.body.style.overflow = '';
+                closeMobileMenu();
             }
         });
 
         // Close menu when clicking a link
         navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-                document.body.classList.remove('mobile-menu-open');
-                mobileToggle.textContent = '☰';
-                document.body.style.overflow = '';
-            });
+            link.addEventListener('click', closeMobileMenu);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && navLinks.classList.contains('active')) {
+                closeMobileMenu();
+                mobileToggle.focus();
+            }
         });
     }
 
     // Navbar Scroll Effect
     const navbar = document.querySelector('.navbar');
 
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    });
+    if (navbar) {
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        }, { passive: true });
+    }
 
     // Smooth Scroll for Anchors
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -121,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
+                entry.target.classList.remove('reveal-pending');
                 entry.target.classList.add('fade-in');
                 observer.unobserve(entry.target); // Only animate once
             }
@@ -128,7 +166,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }, observerOptions);
 
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
-        el.style.opacity = '0'; // Initial state
+        // Anything already in the first viewport is immediately visible. This
+        // keeps entrance animations out of the Speed Index/LCP window.
+        if (el.getBoundingClientRect().top <= window.innerHeight + 50) return;
+        el.classList.add('reveal-pending');
         observer.observe(el);
     });
     // Testimonial Carousel
@@ -224,13 +265,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let x = 0;
         let speed = -1; // Base speed (moving left)
         let targetSpeed = -1;
-        let isHovered = false;
-        let containerWidth = container.offsetWidth;
+        let animationId = 0;
+        let isVisible = false;
         let slideWidth = slides[0].offsetWidth;
 
         // Resync widths on resize and after images load
         const updateWidths = () => {
-            containerWidth = container.offsetWidth;
             slideWidth = slides[0].offsetWidth;
         };
 
@@ -243,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         container.addEventListener('mousemove', (e) => {
-            isHovered = true;
             const rect = container.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const centerX = rect.width / 2;
@@ -258,11 +297,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         container.addEventListener('mouseleave', () => {
-            isHovered = false;
             targetSpeed = -1; // Return to idle speed
         });
 
         function animate() {
+            animationId = 0;
+            if (!isVisible || document.hidden) return;
+
             // Smoothly interpolate speed
             speed += (targetSpeed - speed) * 0.05;
 
@@ -285,11 +326,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 slide.style.transform = transformValue;
             });
 
-            requestAnimationFrame(animate);
+            animationId = requestAnimationFrame(animate);
         }
 
-        // Start animation
-        requestAnimationFrame(animate);
+        const startAnimation = () => {
+            if (!animationId && isVisible && !document.hidden) {
+                animationId = requestAnimationFrame(animate);
+            }
+        };
+
+        const carouselObserver = new IntersectionObserver((entries) => {
+            isVisible = entries[0].isIntersecting;
+            if (isVisible) startAnimation();
+            else if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = 0;
+            }
+        });
+        carouselObserver.observe(container);
+
+        document.addEventListener('visibilitychange', startAnimation);
     });
     // --- Parallax & Reveal Implementation ---
 
@@ -319,7 +375,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const timelineItems = document.querySelectorAll('.timeline-section .timeline-item');
 
     if (timelineSection && timelineProgress) {
-        window.addEventListener('scroll', () => {
+        let timelineFrame = 0;
+
+        const updateTimeline = () => {
+            timelineFrame = 0;
             const rect = timelineSection.getBoundingClientRect();
             // Start progressing when the section is a bit below the top of viewport
             const triggerOffset = window.innerHeight * 0.5; 
@@ -340,11 +399,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // Aceleramos ligeramente el progreso visual para que llegue al 100% a tiempo
             progress = Math.min(100, Math.max(0, progress * 1.1));
             
-            timelineProgress.style.height = `${progress}%`;
+            const itemRects = Array.from(timelineItems, item => item.getBoundingClientRect());
+            timelineProgress.style.transform = `scaleY(${progress / 100})`;
 
             // Iluminar puntos de la línea de tiempo y apagar tarjetas anteriores
             timelineItems.forEach((item, index) => {
-                const itemRect = item.getBoundingClientRect();
+                const itemRect = itemRects[index];
                 if (itemRect.top < window.innerHeight * 0.7) {
                     item.classList.add('is-visible');
                 } else {
@@ -353,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Desenfocar y apagar progresivamente la tarjeta si está siendo cubierta
                 if (index < timelineItems.length - 1) {
-                    const nextRect = timelineItems[index + 1].getBoundingClientRect();
+                    const nextRect = itemRects[index + 1];
                     const distance = nextRect.top - itemRect.top;
                     const maxDistance = window.innerHeight * 0.4; // Inicia el efecto en este rango
                     const content = item.querySelector('.timeline-content');
@@ -362,13 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (distance <= maxDistance && itemRect.top <= window.innerHeight * 0.5) {
                             const progress = 1 - (Math.max(0, distance) / maxDistance); // 0 a 1
                             
-                            content.style.filter = `blur(${progress * 10}px) grayscale(${progress * 80}%)`;
                             content.style.opacity = 1 - (progress * 0.85);
                             content.style.transform = `scale(${1 - (progress * 0.05)})`;
                             content.style.pointerEvents = progress > 0.5 ? 'none' : 'auto';
                             content.style.transition = 'none'; // Instanteo para sincronizar con scroll
                         } else {
-                            content.style.filter = '';
                             content.style.opacity = '';
                             content.style.transform = '';
                             content.style.pointerEvents = '';
@@ -377,7 +435,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             });
-        }, { passive: true });
+        };
+
+        const requestTimelineUpdate = () => {
+            if (!timelineFrame) timelineFrame = requestAnimationFrame(updateTimeline);
+        };
+
+        window.addEventListener('scroll', requestTimelineUpdate, { passive: true });
+        window.addEventListener('resize', requestTimelineUpdate, { passive: true });
+        requestTimelineUpdate();
     }
 
     // 3. Glass Parallax Cards
@@ -447,6 +513,50 @@ document.querySelectorAll('.accordion-header').forEach(header => {
     });
 });
 
+// Non-critical sensory and system-information features are fetched only when
+// they can be used. This keeps audio samples, the custom cursor, and the large
+// version modal out of the initial rendering path.
+document.addEventListener('DOMContentLoaded', () => {
+    function loadScriptOnce(filename) {
+        const absoluteSrc = new URL(filename, elysiumScriptBase).href;
+        const existing = Array.from(document.scripts).find(script => script.src === absoluteSrc);
+        if (existing) return Promise.resolve(existing);
+
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = absoluteSrc;
+            script.onload = () => resolve(script);
+            script.onerror = reject;
+            document.body.appendChild(script);
+        });
+    }
+
+    const loadAudio = () => {
+        loadScriptOnce('elysium-audio.js').catch(() => {});
+        document.removeEventListener('pointerdown', loadAudio);
+        document.removeEventListener('keydown', loadAudio);
+    };
+    document.addEventListener('pointerdown', loadAudio, { once: true, passive: true });
+    document.addEventListener('keydown', loadAudio, { once: true });
+
+    if (window.matchMedia('(pointer: fine)').matches &&
+        !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.addEventListener('pointermove', () => {
+            loadScriptOnce('elysium-mouse.js').catch(() => {});
+        }, { once: true, passive: true });
+    }
+
+    const footer = document.querySelector('footer');
+    if (footer) {
+        const versionObserver = new IntersectionObserver((entries, observer) => {
+            if (!entries[0].isIntersecting) return;
+            observer.disconnect();
+            loadScriptOnce('version-modal.js').catch(() => {});
+        }, { rootMargin: '300px 0px' });
+        versionObserver.observe(footer);
+    }
+});
+
 // Currency Switcher Logic
 document.addEventListener('DOMContentLoaded', () => {
     const currencyBtns = document.querySelectorAll('.currency-btn');
@@ -456,10 +566,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let exchangeRates = { EUR: 1, USD: 1.05, CRC: 540 }; // Fallback rates
     let currentCurrency = 'EUR';
+    let ratesPromise = null;
 
     // Fetch live rates
     async function fetchRates() {
-        try {
+        if (ratesPromise) return ratesPromise;
+        ratesPromise = (async () => {
+          try {
             // Using a free, reliable API for public exchange rates (Base EUR)
             const response = await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
             if (!response.ok) throw new Error('Network response was not ok');
@@ -469,9 +582,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 exchangeRates.USD = data.rates.USD || exchangeRates.USD;
                 exchangeRates.CRC = data.rates.CRC || exchangeRates.CRC;
             }
-        } catch (error) {
-            console.error('Failed to fetch exchange rates, using fallbacks:', error);
-        }
+          } catch (error) {
+              // Fallback values keep the control usable when the API is offline.
+          }
+        })();
+        return ratesPromise;
     }
 
     // Format price based on currency
@@ -496,7 +611,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update all prices on the page
     function updatePrices(targetCurrency) {
         currentCurrency = targetCurrency;
-        localStorage.setItem('preferredCurrency', targetCurrency);
+        try {
+            localStorage.setItem('preferredCurrency', targetCurrency);
+        } catch (error) {
+            // Storage can be disabled; prices still work for this visit.
+        }
         document.body.dataset.activeCurrency = targetCurrency;
 
         dynamicPrices.forEach(el => {
@@ -521,48 +640,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Auto-detect location for first-time visitors
-    async function detectDefaultCurrency() {
-        const saved = localStorage.getItem('preferredCurrency');
+    function detectDefaultCurrency() {
+        let saved = null;
+        try {
+            saved = localStorage.getItem('preferredCurrency');
+        } catch (error) {
+            saved = null;
+        }
         if (saved) return saved;
 
-        try {
-            const res = await fetch('https://get.geojs.io/v1/ip/country.json');
-            if (!res.ok) throw new Error('Geo API failed');
-            const data = await res.json();
-            const country = data.country;
-            
-            if (country === 'CR') return 'CRC';
-            
-            // Comprehensive list of European ISO 2-letter country codes
-            const europe = ['AD','AL','AT','AX','BA','BE','BG','BY','CH','CY','CZ','DE','DK','EE','ES','FI','FO','FR','GB','GG','GI','GR','HR','HU','IE','IM','IS','IT','JE','LI','LT','LU','LV','MC','MD','ME','MK','MT','NL','NO','PL','PT','RO','RS','RU','SE','SI','SJ','SK','SM','UA','VA'];
-            if (europe.includes(country)) return 'EUR';
-            
-            return 'USD';
-        } catch (e) {
-            console.error('Geo detect failed, defaulting to USD:', e);
-            return 'USD'; // Default to USD if detection fails
-        }
+        const locale = Intl.DateTimeFormat().resolvedOptions().locale || navigator.language || '';
+        const country = locale.split('-').pop().toUpperCase();
+        if (country === 'CR') return 'CRC';
+
+        const europe = ['AD','AL','AT','AX','BA','BE','BG','BY','CH','CY','CZ','DE','DK','EE','ES','FI','FO','FR','GB','GG','GI','GR','HR','HU','IE','IM','IS','IT','JE','LI','LT','LU','LV','MC','MD','ME','MK','MT','NL','NO','PL','PT','RO','RS','SE','SI','SJ','SK','SM','UA','VA'];
+        return europe.includes(country) ? 'EUR' : 'USD';
     }
 
     // Setup event listeners
     currencyBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const selectedCurrency = btn.getAttribute('data-currency');
-            if (selectedCurrency !== currentCurrency) {
-                updatePrices(selectedCurrency);
-            }
+            if (selectedCurrency !== 'EUR') await fetchRates();
+            updatePrices(selectedCurrency);
         });
     });
 
-    // Initialize
-    async function initCurrency() {
-        // Run both fetches in parallel if possible, but fetchRates must finish before updatePrices
-        await fetchRates();
-        const defaultCurrency = await detectDefaultCurrency();
-        updatePrices(defaultCurrency);
+    const defaultCurrency = detectDefaultCurrency();
+    updatePrices(defaultCurrency);
+
+    // Refresh non-EUR fallbacks only when pricing actually reaches the
+    // viewport. This keeps the exchange-rate API out of the initial chain.
+    const pricingSwitcher = document.querySelector('.currency-switcher-container');
+    if (defaultCurrency !== 'EUR' && pricingSwitcher) {
+        const ratesObserver = new IntersectionObserver((entries, observer) => {
+            if (!entries[0].isIntersecting) return;
+            observer.disconnect();
+            fetchRates().then(() => {
+                if (currentCurrency === defaultCurrency) updatePrices(defaultCurrency);
+            });
+        });
+        ratesObserver.observe(pricingSwitcher);
     }
-    
-    initCurrency();
 });
 
 // Read More Toggle Logic

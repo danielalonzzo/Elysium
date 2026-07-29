@@ -11,7 +11,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+    transition: opacity 0.25s ease, visibility 0.25s;
 }
 
 #elysium-preloader.is-loaded {
@@ -341,7 +341,8 @@
 /* Discreet footer service-area note */
 .footer-service-note {
     font-size: 0.7rem;
-    opacity: 0.5;
+    color: var(--color-text-secondary);
+    opacity: 1;
     margin-top: 0.35rem;
     font-weight: 400;
 }
@@ -369,6 +370,10 @@
     font-size: 1.5rem;
     cursor: pointer;
     color: var(--color-platinum);
+    background: transparent;
+    border: 0;
+    padding: 0.5rem;
+    line-height: 1;
 }
 
 /* Hero Section */
@@ -421,7 +426,7 @@
     color: var(--color-text-secondary);
     background: none;
     -webkit-text-fill-color: var(--color-text-secondary);
-    opacity: 0.6;
+    opacity: 0.9;
     margin-top: 0.5rem;
     letter-spacing: normal;
 }
@@ -461,48 +466,15 @@
     pointer-events: none;
     user-select: none;
     
-    /* Estado inicial oculto. El inset negativo superior, inferior e izquierdo permite que el resplandor se expanda sin recortes rectangulares */
-    opacity: 0;
-    clip-path: inset(-100% 100% -100% -100%);
+    /* Static decorative state: it is visible on the first paint without
+       extending Speed Index or competing with the hero copy. */
+    opacity: 0.12;
+    transform: translate(-50%, -50%);
 }
 
-/* Animación activada por JS al terminar el loading */
+/* Kept as a hook for older pages that still add this class. */
 .hero-symbol-bg.lambda-animate {
-    animation: 
-        lambda-sweep-reveal 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
-        lambda-flash-glow 3s ease-out 0.8s forwards;
-}
-
-/* 1 — Revelado de izquierda a derecha (escribiéndose) */
-@keyframes lambda-sweep-reveal {
-    0% {
-        opacity: 0.9;
-        /* Recortado desde la derecha, con espacio libre en los otros bordes para el destello */
-        clip-path: inset(-100% 100% -100% -100%);
-    }
-    100% {
-        opacity: 0.9;
-        /* Totalmente revelado, permitiendo que el destello escape en todas direcciones */
-        clip-path: inset(-100% -100% -100% -100%);
-    }
-}
-
-/* 2 — Destello final y congelación en estado discreto */
-@keyframes lambda-flash-glow {
-    0% {
-        opacity: 0.9;
-        filter: drop-shadow(0 0 0px rgba(41, 151, 255, 0));
-    }
-    10% {
-        /* Fuerte destello (flash) justo después de que termina de escribirse */
-        opacity: 1;
-        filter: drop-shadow(0 0 40px rgba(41, 151, 255, 0.9)) drop-shadow(0 0 80px rgba(255, 255, 255, 0.6));
-    }
-    100% {
-        /* Estado final congelado: opacidad baja para ser un fondo muy sutil y premium */
-        opacity: 0.15;
-        filter: drop-shadow(0 0 15px rgba(41, 151, 255, 0.15));
-    }
+    opacity: 0.12;
 }
 
 /* Cards (Metallic/Glass Panels) */
@@ -639,34 +611,7 @@ section {
     position: relative;
 }
 
-/* Sea Waves Background Effect (Centered on Cards via JS) */
-.sea-waves-background {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-}
-.sea-waves-background .wave {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid rgba(41, 151, 255, 0.2);
-    box-shadow: inset 0 0 50px rgba(41, 151, 255, 0.05), 0 0 20px rgba(41, 151, 255, 0.05);
-    /* Start exactly at the card borders so it's instantly visible */
-    width: 350px;
-    height: 350px;
-    margin-top: -175px;
-    margin-left: -175px;
-    animation: seaRipples 8s infinite ease-out;
-    opacity: 0;
-}
-@keyframes seaRipples {
-    0% { transform: scale(0.9); opacity: 0; border-width: 2px; }
-    30% { opacity: 0.5; }
-    80% { transform: scale(4.0); opacity: 0; border-width: 0; }
-    100% { transform: scale(4.0); opacity: 0; border-width: 0; }
-}
-
-/* Ensure the grid sits above the waves */
+/* Ensure the interactive grid sits above the section background. */
 .services .container, .services .card-grid {
     position: relative;
     z-index: 1;
@@ -695,26 +640,26 @@ section {
     pointer-events: none;
     z-index: 0;
     animation: interactiveCardGlow 8s infinite ease-in-out;
-    border: 1px solid transparent;
+    border: 1px solid rgba(41, 151, 255, 0.4);
+    box-shadow: 0 0 45px rgba(41, 151, 255, 0.5), inset 0 0 25px rgba(41, 151, 255, 0.2);
+    opacity: 0;
 }
 
 /* Calm, elegant heartbeat peaking at 30% to sync perfectly with a slow wave */
 @keyframes interactiveCardGlow {
     0%, 100% { 
-        box-shadow: 0 0 0 rgba(41, 151, 255, 0), inset 0 0 0 rgba(41, 151, 255, 0); 
-        border-color: rgba(41, 151, 255, 0);
+        opacity: 0;
         transform: scale(1);
     }
     30% { 
-        box-shadow: 0 0 45px rgba(41, 151, 255, 0.5), inset 0 0 25px rgba(41, 151, 255, 0.2); 
-        border-color: rgba(41, 151, 255, 0.4);
+        opacity: 1;
         transform: scale(1.01);
     }
 }
 
 @keyframes activeCardTopGlow {
-    0%, 100% { width: 0; opacity: 0; }
-    30% { width: 70%; opacity: 1; }
+    0%, 100% { transform: translateX(-50%) scaleX(0); opacity: 0; }
+    30% { transform: translateX(-50%) scaleX(1); opacity: 1; }
 }
 
 @keyframes cardContentVibrate {
@@ -729,6 +674,8 @@ section {
 }
 
 .services .card .card-glow {
+    width: 70%;
+    transform-origin: center;
     animation: activeCardTopGlow 8s infinite ease-in-out;
 }
 
@@ -741,6 +688,7 @@ section {
     box-shadow: 0 10px 40px rgba(41, 151, 255, 0.5), inset 0 0 25px rgba(41, 151, 255, 0.3);
     border-color: rgba(41, 151, 255, 0.7);
     transform: scale(1.015);
+    opacity: 1;
 }
 
 .services .card:hover .card-summary,
@@ -979,12 +927,13 @@ section {
     background: transparent;
     border: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .currency-btn:hover {
     color: var(--color-platinum);
     background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-1px);
 }
 
 .currency-btn.active {
@@ -1531,6 +1480,7 @@ footer {
     }
 }
 
+.footer-col h3,
 .footer-col h4 {
     margin-bottom: var(--space-md);
     font-size: 0.9rem;
@@ -1544,7 +1494,7 @@ footer {
 }
 
 .footer-links a {
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
     font-size: 0.95rem;
     transition: color var(--transition-fast);
 }
@@ -1559,7 +1509,7 @@ footer {
     padding-top: var(--space-md);
     display: flex;
     justify-content: space-between;
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
     font-size: 0.8rem;
 }
 
@@ -1582,6 +1532,11 @@ footer {
 }
 
 .animate-on-scroll {
+    opacity: 1;
+    transform: none;
+}
+
+.animate-on-scroll.reveal-pending {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 1s ease, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);

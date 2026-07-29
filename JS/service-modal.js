@@ -9,11 +9,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         // 1. Inject the dialog HTML into the DOM
         const dialogHTML = `
-            <dialog id="premiumServiceModal" class="premium-service-modal">
+            <dialog id="premiumServiceModal" class="premium-service-modal" aria-labelledby="premiumServiceModalTitle">
                 <div class="premium-modal-content">
                     <button id="premiumServiceModalClose" class="premium-modal-close" aria-label="Close modal">&times;</button>
                     <div class="premium-modal-body" id="premiumServiceModalBody">
-                        <!-- Content injected dynamically -->
+                        <h2 id="premiumServiceModalTitle"></h2>
+                        <div id="premiumServiceModalDetails"></div>
                     </div>
                 </div>
             </dialog>
@@ -21,9 +22,11 @@
         document.body.insertAdjacentHTML('beforeend', dialogHTML);
 
         const modal = document.getElementById('premiumServiceModal');
-        const modalBody = document.getElementById('premiumServiceModalBody');
+        const modalTitle = document.getElementById('premiumServiceModalTitle');
+        const modalDetails = document.getElementById('premiumServiceModalDetails');
         const closeBtn = document.getElementById('premiumServiceModalClose');
         const cards = document.querySelectorAll('.services .card');
+        let activeCard = null;
 
         if (!modal || cards.length === 0) return;
 
@@ -33,32 +36,53 @@
             card.removeAttribute('onclick');
             card.classList.remove('expanded');
             
-            card.addEventListener('click', function () {
+            const openCard = function () {
                 const detailsElement = this.querySelector('.card-details');
+                const summaryElement = this.querySelector('.card-summary p');
                 if (detailsElement) {
-                    modalBody.innerHTML = detailsElement.innerHTML;
+                    activeCard = this;
+                    modalTitle.textContent = summaryElement ? summaryElement.textContent : '';
+                    modalDetails.innerHTML = detailsElement.innerHTML;
                     // Reset closing state if any
                     modal.classList.remove('closing');
                     modal.showModal();
                     // Prevent background scrolling
                     document.body.style.overflow = 'hidden';
+                    closeBtn.focus();
                 }
+            };
+
+            card.addEventListener('click', openCard);
+            card.addEventListener('keydown', function (event) {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                openCard.call(this);
             });
         });
 
         // 3. Close modal logic with animation
+        const finishClosing = () => {
+            if (!modal.open) return;
+            modal.classList.remove('closing');
+            modal.close();
+            document.body.style.overflow = '';
+            if (activeCard) activeCard.focus();
+        };
+
         const closeModal = () => {
+            if (!modal.open || modal.classList.contains('closing')) return;
             modal.classList.add('closing');
-            
+
             // Wait for animation to finish before calling native .close()
             modal.addEventListener('animationend', function handler(e) {
                 if (e.animationName === 'modalFadeOut') {
-                    modal.classList.remove('closing');
-                    modal.close();
                     modal.removeEventListener('animationend', handler);
-                    document.body.style.overflow = '';
+                    finishClosing();
                 }
             });
+            // Fallback for browsers or reduced-motion settings that suppress
+            // animation events.
+            setTimeout(finishClosing, 450);
         };
 
         closeBtn.addEventListener('click', closeModal);
@@ -71,50 +95,10 @@
                 closeModal();
             }
         });
-        // 4. Inject Sea Waves Background aligned exactly with each card (all .services sections)
-        const allServicesSections = document.querySelectorAll('.services');
 
-        allServicesSections.forEach(servicesSection => {
-            const cardGrid = servicesSection.querySelector('.card-grid');
-            if (!cardGrid) return;
-
-            // Let waves bleed out naturally for a more expansive effect
-
-            const wavesContainer = document.createElement('div');
-            wavesContainer.className = 'sea-waves-background';
-            servicesSection.insertBefore(wavesContainer, servicesSection.firstChild);
-
-            const sectionCards = cardGrid.querySelectorAll('.card');
-            const waves = [];
-
-            // Create 1 ripple per card that expands in perfect sync with the 8-second card glow cycle
-            sectionCards.forEach((card, index) => {
-                const wave = document.createElement('div');
-                wave.className = 'wave';
-                // Sync the wave expansion perfectly with the card's 2-second spaced pulse
-                const delay = index * 2;
-                wave.style.animationDelay = delay + 's';
-                wavesContainer.appendChild(wave);
-                waves.push({ card, wave });
-            });
-
-            // Function to precisely position the wave origins exactly behind each card
-            const updateWavePositions = () => {
-                const containerRect = wavesContainer.getBoundingClientRect();
-                waves.forEach(({ card, wave }) => {
-                    const cardRect = card.getBoundingClientRect();
-                    // Calculate precise center point
-                    const centerX = (cardRect.left - containerRect.left) + (cardRect.width / 2);
-                    const centerY = (cardRect.top - containerRect.top) + (cardRect.height / 2);
-
-                    wave.style.left = centerX + 'px';
-                    wave.style.top = centerY + 'px';
-                });
-            };
-
-            // Wait slightly to ensure layout has settled before calculating positions
-            setTimeout(updateWavePositions, 200);
-            window.addEventListener('resize', updateWavePositions);
+        modal.addEventListener('cancel', function (event) {
+            event.preventDefault();
+            closeModal();
         });
     });
 })();
