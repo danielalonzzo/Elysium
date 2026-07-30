@@ -5,7 +5,9 @@ const elysiumScriptBase = elysiumMainScript && elysiumMainScript.src
 
 // The lambda is a short inter-page transition, never an initial-load screen.
 const navigationMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-const navigationTransitionDuration = 260;
+// Long enough for the restored pulse and light sweep to be perceptible, while
+// remaining a brief route transition rather than an initial-load gate.
+const navigationTransitionDuration = 520;
 let navigationInProgress = false;
 let navigationTimer = 0;
 let navigationRecoveryTimer = 0;

@@ -14,7 +14,7 @@
     pointer-events: none;
     contain: paint;
     transform: translateZ(0);
-    transition: opacity 0.22s ease, visibility 0s linear 0.22s;
+    transition: opacity 0.16s ease, visibility 0s linear 0.16s;
 }
 
 #elysium-preloader.is-leaving {
@@ -27,7 +27,7 @@
 #elysium-preloader .preloader-content {
     opacity: 0;
     transform: translate3d(0, 8px, 0) scale(0.92);
-    transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: opacity 0.14s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 #elysium-preloader.is-leaving .preloader-content {
@@ -36,15 +36,48 @@
 }
 
 .preloader-lambda {
+    display: inline-block;
     font-size: 8rem;
     font-weight: 200;
     font-family: -apple-system, sans-serif;
     color: transparent;
-    background: linear-gradient(120deg, rgba(255, 255, 255, 0.35), #fff 50%, rgba(41, 151, 255, 0.65));
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.1) 30%, #fff 50%, rgba(255, 255, 255, 0.1) 70%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     position: relative;
     filter: drop-shadow(0 0 28px rgba(41, 151, 255, 0.55));
+}
+
+#elysium-preloader.is-leaving .preloader-lambda {
+    animation:
+        lambda-navigation-pulse 0.8s infinite alternate ease-in-out,
+        lambda-navigation-shine 0.85s linear infinite;
+    will-change: transform;
+}
+
+@keyframes lambda-navigation-pulse {
+    0% {
+        transform: translateZ(0) scale(0.95);
+        text-shadow: 0 0 20px rgba(41, 151, 255, 0.2);
+    }
+
+    100% {
+        transform: translateZ(0) scale(1.05);
+        text-shadow:
+            0 0 50px rgba(41, 151, 255, 0.9),
+            0 0 100px rgba(41, 151, 255, 0.6);
+    }
+}
+
+@keyframes lambda-navigation-shine {
+    0% {
+        background-position: 200% center;
+    }
+
+    100% {
+        background-position: -200% center;
+    }
 }
 
 
@@ -800,6 +833,11 @@ section {
     #elysium-preloader,
     #elysium-preloader .preloader-content {
         transition: none;
+    }
+
+    #elysium-preloader.is-leaving .preloader-lambda {
+        animation: none;
+        transform: none;
     }
 
     .services-pulsar-layer {

@@ -61,6 +61,15 @@
 /JS/service-modal.v20260730.min.js
   Cache-Control: public, max-age=31536000, immutable
 
+/CSS/home.v2026073002.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/CSS/home-critical.v2026073002.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/JS/home.v2026073002.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
 /Images/Optimized/*
   Cache-Control: public, max-age=31536000, immutable
 
