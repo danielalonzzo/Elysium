@@ -3062,10 +3062,6 @@ textarea.form-control {
     background: rgba(41, 151, 255, 0.1);
     border-color: rgba(41, 151, 255, 0.4);
 }
-
-    gap: 0.35rem;
-}
-
 .btn-suspend:hover             { background: rgba(255,59,48,0.14); border-color: rgba(255,59,48,0.45); color: #ff3b30; }
 .btn-suspend.is-active         { background: rgba(0,200,117,0.08); border-color: rgba(0,200,117,0.22); color: #00c875; }
 .btn-suspend.is-active:hover   { background: rgba(0,200,117,0.15); border-color: rgba(0,200,117,0.45); }
@@ -4371,5 +4367,4 @@ body[data-active-currency="CRC"] .matrix-plan-optional {
     font-size: 0.65rem !important;
     white-space: normal !important;
 }
-
 

@@ -25,10 +25,40 @@
 /index.html
   Cache-Control: no-cache, max-age=0, must-revalidate
 
+/es
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/es/
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/es/index.html
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/pt
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/pt/
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/pt/index.html
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 /CSS/home.v20260729.min.css
   Cache-Control: public, max-age=31536000, immutable
 
 /JS/home.v20260729.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/CSS/home.v20260730.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/CSS/home-critical.v20260730.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/JS/home.v20260730.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/JS/service-modal.v20260730.min.js
   Cache-Control: public, max-age=31536000, immutable
 
 /Images/Optimized/*

@@ -1,22 +1,38 @@
 /* Components CSS - Navbar, Hero, Buttons, Cards */
 
-/* --- Preloader (Loading Page) --- */
+/* --- Lambda page transition (navigation only; never an initial-load blocker) --- */
 #elysium-preloader {
     position: fixed;
     inset: 0;
     background-color: var(--color-bg-primary);
-    /* Solid dark blue #020410 */
-    opacity: 1;
     z-index: 999999;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: opacity 0.25s ease, visibility 0.25s;
-}
-
-#elysium-preloader.is-loaded {
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
+    contain: paint;
+    transform: translateZ(0);
+    transition: opacity 0.22s ease, visibility 0s linear 0.22s;
+}
+
+#elysium-preloader.is-leaving {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition-delay: 0s;
+}
+
+#elysium-preloader .preloader-content {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.92);
+    transition: opacity 0.18s ease, transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#elysium-preloader.is-leaving .preloader-content {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
 }
 
 .preloader-lambda {
@@ -24,37 +40,11 @@
     font-weight: 200;
     font-family: -apple-system, sans-serif;
     color: transparent;
-    background: linear-gradient(120deg, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0.1) 70%);
-    background-size: 200% auto;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.35), #fff 50%, rgba(41, 151, 255, 0.65));
     -webkit-background-clip: text;
     background-clip: text;
     position: relative;
-    /* Combined pulse glow and shining light */
-    animation:
-        lambda-pulse 2s infinite alternate ease-in-out,
-        lambda-shine 2s linear infinite;
-}
-
-@keyframes lambda-pulse {
-    0% {
-        transform: scale(0.95);
-        text-shadow: 0 0 20px rgba(41, 151, 255, 0.2);
-    }
-
-    100% {
-        transform: scale(1.05);
-        text-shadow: 0 0 50px rgba(41, 151, 255, 0.9), 0 0 100px rgba(41, 151, 255, 0.6);
-    }
-}
-
-@keyframes lambda-shine {
-    0% {
-        background-position: 200% center;
-    }
-
-    100% {
-        background-position: -200% center;
-    }
+    filter: drop-shadow(0 0 28px rgba(41, 151, 255, 0.55));
 }
 
 
@@ -570,18 +560,19 @@
     position: absolute;
     top: 0;
     left: 50%;
-    transform: translateX(-50%);
-    width: 0;
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    width: 100%;
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--color-blue), transparent);
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.6s ease;
     box-shadow: 0 0 15px var(--color-blue);
     opacity: 0;
     z-index: 2;
 }
 
 .card:hover .card-glow {
-    width: 100%;
+    transform: translateX(-50%) scaleX(1);
     opacity: 1;
 }
 
@@ -611,10 +602,102 @@ section {
     position: relative;
 }
 
-/* Ensure the interactive grid sits above the section background. */
-.services .container, .services .card-grid {
+/* Pulsars live in an absolutely-positioned paint layer behind the cards. */
+.services {
+    position: relative;
+    isolation: isolate;
+}
+
+.services .container,
+.services .card-grid,
+.services > .section-header {
     position: relative;
     z-index: 1;
+}
+
+.services-pulsar-layer {
+    --service-wave-size: clamp(170px, 20vw, 280px);
+    --service-wave-end-scale: 3.6;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    contain: paint;
+    transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+
+.services-pulsar-layer.is-positioning {
+    opacity: 0;
+    visibility: hidden;
+    transition: none;
+}
+
+.services-pulsar-layer.is-positioned {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.service-pulsar-origin {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate3d(0, 0, 0);
+}
+
+.services-pulsar-layer.is-positioned .service-pulsar-origin {
+    opacity: 1;
+}
+
+.service-pulsar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--service-wave-size);
+    height: var(--service-wave-size);
+    border: 1px solid rgba(41, 151, 255, 0.58);
+    border-radius: 50%;
+    box-shadow: 0 0 24px rgba(41, 151, 255, 0.32), inset 0 0 20px rgba(41, 151, 255, 0.12);
+    opacity: 0;
+    transform: translate3d(-50%, -50%, 0) scale(0.9);
+    animation: servicePulsarWave 8s ease-out var(--service-pulse-delay, 0s) infinite;
+    animation-play-state: paused;
+}
+
+.services.pulsars-active .service-pulsar {
+    animation-play-state: running;
+    will-change: transform, opacity;
+}
+
+@keyframes servicePulsarWave {
+    0% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) scale(0.9);
+    }
+
+    12% {
+        opacity: 0.08;
+    }
+
+    30% {
+        opacity: 0.46;
+    }
+
+    72% {
+        opacity: 0.14;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate3d(-50%, -50%, 0) scale(var(--service-wave-end-scale));
+    }
 }
 
 .services .card {
@@ -659,7 +742,7 @@ section {
 
 @keyframes activeCardTopGlow {
     0%, 100% { transform: translateX(-50%) scaleX(0); opacity: 0; }
-    30% { transform: translateX(-50%) scaleX(1); opacity: 1; }
+    30% { transform: translateX(-50%) scaleX(0.7); opacity: 1; }
 }
 
 @keyframes cardContentVibrate {
@@ -674,7 +757,7 @@ section {
 }
 
 .services .card .card-glow {
-    width: 70%;
+    width: 100%;
     transform-origin: center;
     animation: activeCardTopGlow 8s infinite ease-in-out;
 }
@@ -697,7 +780,7 @@ section {
 }
 
 .services .card:hover .card-glow {
-    width: 100%;
+    transform: translateX(-50%) scaleX(1);
     opacity: 1;
 }
 
@@ -705,6 +788,30 @@ section {
 .card-grid .card:nth-child(2)::before, .card-grid .card:nth-child(2) .card-glow, .card-grid .card:nth-child(2) .card-summary { animation-delay: 2s; }
 .card-grid .card:nth-child(3)::before, .card-grid .card:nth-child(3) .card-glow, .card-grid .card:nth-child(3) .card-summary { animation-delay: 4s; }
 .card-grid .card:nth-child(4)::before, .card-grid .card:nth-child(4) .card-glow, .card-grid .card:nth-child(4) .card-summary { animation-delay: 6s; }
+
+@media (max-width: 768px) {
+    .services-pulsar-layer {
+        --service-wave-size: 160px;
+        --service-wave-end-scale: 2.9;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #elysium-preloader,
+    #elysium-preloader .preloader-content {
+        transition: none;
+    }
+
+    .services-pulsar-layer {
+        display: none;
+    }
+
+    .services .card::before,
+    .services .card .card-summary,
+    .services .card .card-glow {
+        animation: none;
+    }
+}
 
 /* Premium Modal Native <dialog> */
 .premium-service-modal {

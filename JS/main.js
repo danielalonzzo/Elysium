@@ -3,26 +3,122 @@ const elysiumScriptBase = elysiumMainScript && elysiumMainScript.src
     ? new URL('.', elysiumMainScript.src)
     : new URL('JS/', document.baseURI);
 
-// Reveal the page as soon as the DOM is usable. Waiting for every image made
-// the preloader itself become the LCP element on slower connections.
-const preloader = document.getElementById('elysium-preloader');
-if (preloader) document.body.style.overflow = 'hidden';
+// The lambda is a short inter-page transition, never an initial-load screen.
+const navigationMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+const navigationTransitionDuration = 260;
+let navigationInProgress = false;
+let navigationTimer = 0;
+let navigationRecoveryTimer = 0;
 
-function revealPage() {
-    const lambdaSymbol = document.querySelector('.hero-symbol-bg');
-    if (lambdaSymbol) lambdaSymbol.classList.add('lambda-animate');
-
-    if (!preloader) return;
-    preloader.classList.add('is-loaded');
-    document.body.style.overflow = '';
-    setTimeout(() => preloader.remove(), 250);
+function normalizeNavigationOverlay(overlay) {
+    if (!overlay) return null;
+    overlay.classList.remove('is-loaded', 'is-leaving');
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.setAttribute('inert', '');
+    return overlay;
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', revealPage, { once: true });
-} else {
-    revealPage();
+function getNavigationOverlay() {
+    let overlay = document.getElementById('elysium-preloader');
+    if (overlay) return normalizeNavigationOverlay(overlay);
+
+    overlay = document.createElement('div');
+    overlay.id = 'elysium-preloader';
+    overlay.setAttribute('aria-hidden', 'true');
+    overlay.setAttribute('inert', '');
+
+    const content = document.createElement('div');
+    content.className = 'preloader-content';
+
+    const lambda = document.createElement('span');
+    lambda.className = 'preloader-lambda';
+    lambda.setAttribute('aria-hidden', 'true');
+    lambda.textContent = 'λ';
+
+    content.appendChild(lambda);
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+    return overlay;
 }
+
+function resetNavigationTransition() {
+    navigationInProgress = false;
+    clearTimeout(navigationTimer);
+    clearTimeout(navigationRecoveryTimer);
+    navigationTimer = 0;
+    navigationRecoveryTimer = 0;
+    normalizeNavigationOverlay(document.getElementById('elysium-preloader'));
+}
+
+function getNavigationDestination(event) {
+    if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+    ) return null;
+
+    const eventTarget = event.target;
+    const target = eventTarget instanceof Element ? eventTarget : eventTarget && eventTarget.parentElement;
+    const link = target && target.closest('a[href]');
+    if (!link || link.hasAttribute('download') || link.closest('[data-no-transition]')) return null;
+    if (link.getAttribute('aria-disabled') === 'true' || link.isContentEditable) return null;
+
+    const linkTarget = (link.getAttribute('target') || '').toLowerCase();
+    if (linkTarget && linkTarget !== '_self') return null;
+
+    const rawHref = (link.getAttribute('href') || '').trim();
+    if (!rawHref || rawHref === '#' || rawHref.startsWith('#')) return null;
+
+    let destination;
+    try {
+        destination = new URL(rawHref, window.location.href);
+    } catch (error) {
+        return null;
+    }
+
+    if (!['http:', 'https:'].includes(destination.protocol) || destination.origin !== window.location.origin) {
+        return null;
+    }
+
+    const current = new URL(window.location.href);
+    const sameDocument = destination.pathname === current.pathname && destination.search === current.search;
+    if (sameDocument) return null;
+
+    return destination;
+}
+
+function handleNavigationTransition(event) {
+    const destination = getNavigationDestination(event);
+    if (!destination || navigationMotionQuery.matches) return;
+
+    event.preventDefault();
+    if (navigationInProgress) return;
+    navigationInProgress = true;
+
+    const overlay = getNavigationOverlay();
+
+    requestAnimationFrame(() => {
+        overlay.classList.add('is-leaving');
+
+        navigationTimer = window.setTimeout(() => {
+            window.location.assign(destination.href);
+        }, navigationTransitionDuration);
+
+        // If navigation is cancelled by the browser or a development tool,
+        // restore the current page instead of leaving an inert overlay behind.
+        navigationRecoveryTimer = window.setTimeout(resetNavigationTransition, 8000);
+    });
+}
+
+normalizeNavigationOverlay(document.getElementById('elysium-preloader'));
+document.addEventListener('click', handleNavigationTransition);
+window.addEventListener('pageshow', resetNavigationTransition);
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) resetNavigationTransition();
+});
 
 // Keep third-party analytics out of the critical path. GTM starts on the
 // visitor's first interaction, so it cannot delay the initial LCP/TBT audit.
@@ -69,8 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 langDropdown.classList.remove('is-open');
                 trigger.setAttribute('aria-expanded', 'false');
             });
-
-            menu.addEventListener('click', (e) => e.stopPropagation());
 
             // Set language override when manually selecting a language
             menu.querySelectorAll('a').forEach(link => {
@@ -544,6 +638,35 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('pointermove', () => {
             loadScriptOnce('elysium-mouse.js').catch(() => {});
         }, { once: true, passive: true });
+    }
+
+    const servicesSection = document.querySelector('.services');
+    if (servicesSection) {
+        const serviceScriptName = elysiumMainScript && /home\.v\d+\.min\.js$/.test(elysiumMainScript.src)
+            ? 'service-modal.v20260730.min.js'
+            : 'service-modal.js';
+        let servicesLoaded = false;
+        const loadServices = () => {
+            if (servicesLoaded) return;
+            servicesLoaded = true;
+            loadScriptOnce(serviceScriptName).catch(() => {
+                servicesLoaded = false;
+            });
+        };
+
+        if ('IntersectionObserver' in window) {
+            const servicesObserver = new IntersectionObserver((entries, observer) => {
+                if (!entries[0].isIntersecting) return;
+                observer.disconnect();
+                loadServices();
+            }, { rootMargin: '0px 0px -15% 0px' });
+            servicesObserver.observe(servicesSection);
+        } else {
+            loadServices();
+        }
+
+        servicesSection.addEventListener('pointerenter', loadServices, { once: true, passive: true });
+        servicesSection.addEventListener('focusin', loadServices, { once: true });
     }
 
     const footer = document.querySelector('footer');
