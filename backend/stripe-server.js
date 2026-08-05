@@ -34,9 +34,9 @@ const GRACE_PERIOD_DAYS = 15;
 
 const PLANS = {
   hosting:      { code: 'H0ST', label: 'Domain & Hosting' },
-  basic:        { code: 'ECO1', label: 'Basic Maintenance' },
-  preferential: { code: 'ECO2', label: 'Preferential Maintenance' },
-  advanced:     { code: 'ECO3', label: 'Advanced Maintenance' },
+  basic:        { code: 'EC01', label: 'Presence' },
+  preferential: { code: 'EC02', label: 'System' },
+  advanced:     { code: 'EC03', label: 'Operations' },
   crm:          { code: 'CRMP', label: 'Custom Core CRM' }
 };
 
@@ -44,6 +44,10 @@ const PERIOD_CODES = { monthly: 'M3N1', annual: 'ANL1' };
 
 // These are the lookup keys already used by the site, plus explicit annual
 // variants. They can be replaced without a code deploy via STRIPE_LOOKUP_KEYS_JSON.
+// The `*_maintenance` names predate renaming the plans to Presence / System /
+// Operations. They stay as they are on purpose: a lookup key is the identifier
+// of a live Stripe Price, and renaming it would orphan every running
+// subscription. Only the customer-facing labels above changed.
 const DEFAULT_LOOKUP_KEYS = {
   hosting:      { annual: 'domain_hosting' },
   basic:        { monthly: 'basic_maintenance',        annual: 'basic_maintenance_annual' },

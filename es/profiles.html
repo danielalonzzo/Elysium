@@ -94,6 +94,16 @@
             border: 1px solid rgba(255, 68, 68, 0.2);
             text-align: center;
         }
+
+        /* Same box, neutral tone: an outcome that is not an error but is not a
+           confirmation either. */
+        #error-message.is-notice {
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--text-secondary, #a9b1bd);
+            border-color: rgba(16, 185, 129, 0.25);
+            text-align: left;
+            line-height: 1.5;
+        }
         
         .profile-view {
             text-align: center;
@@ -185,10 +195,31 @@
                                 <label class="form-label">Contraseña</label>
                                 <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
                             </div>
+                            <div style="text-align: right; margin-top: -0.5rem;">
+                                <a href="#" id="show-reset-password" style="font-size: 0.85rem; color: var(--accent-blue); text-decoration: none;">¿Olvidó su contraseña?</a>
+                            </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Entrar</button>
                         </form>
                         <div class="auth-toggle">
                             ¿No tiene una cuenta? <a href="#" id="show-signup">Cree una</a>
+                        </div>
+                    </div>
+
+                    <!-- Reset Password Form -->
+                    <div id="reset-password-view" class="hidden">
+                        <div class="auth-header">
+                            <h2>Restablecer Contraseña</h2>
+                            <p>Ingrese su correo para recibir un enlace</p>
+                        </div>
+                        <form id="reset-password-form">
+                            <div class="form-group">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" id="reset-email" class="form-control" required placeholder="nombre@empresa.com">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Enviar enlace</button>
+                        </form>
+                        <div class="auth-toggle">
+                            ¿Recordó su contraseña? <a href="#" id="back-to-login">Inicie sesión</a>
                         </div>
                     </div>
 

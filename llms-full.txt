@@ -62,13 +62,12 @@ CORE COMPETENCIES:
      No. 8968, and applicable local privacy rules.
 
 SUBSCRIPTION OPTIONS SHOWN ON THE HOMEPAGE:
-- Basic Maintenance: EUR 70/month or EUR 840/year.
-- Preferential Maintenance: EUR 99/month or EUR 1,188/year.
-- Advanced Maintenance: EUR 120/month or EUR 1,440/year.
+- Presence: EUR 70/month or EUR 700/year.
+- System: EUR 99/month or EUR 990/year.
+- Operations: EUR 120/month or EUR 1,200/year.
 - Independent Hosting Maintenance: EUR 99/year.
-- Independent Custom CRM: EUR 50/month, optionally EUR 600/year.
+Annual billing is the equivalent of two months free.
 See https://elysiumdr.eu/services for the complete scope and conditions.
-
 λ DEVELOPMENT FRAMEWORK — SCIENTIFIC METHODOLOGY:
 1. Current Operational Environment — analyse data flows, daily processes, and
    the client's industry context.
@@ -125,39 +124,32 @@ operational security, and high lead retention.
 
 SUBSCRIPTION TIERS:
 
-1. Hosting Maintenance — €99/year (The Operational Core)
+1. Hosting — €99/year (infrastructure only)
    - Domain management and brand digital identity.
    - Web hosting on high-availability servers (always online).
    - Base infrastructure maintenance and updates.
+   - Website development is not included.
 
-2. Basic Maintenance — €70/month or €840/year (Level 1 Ecosystem)
-   - Includes Hosting Maintenance.
-   - Complete development of your corporate website.
-   - Fluid design flawlessly adapted for mobile devices.
-   - Ultra-fast loading times to prevent customer drop-off.
-   - Inclusive and accessible structure for all types of users.
-   - Contact forms shielded against spam and malicious attacks.
-   - Advanced security protocols to protect your brand's reputation.
-   - Full compliance with global data privacy regulations (GDPR).
+2. Presence — €70/month or €700/year
+   - Website, domain, email and hosting.
+   - Online booking with automatic reminders, which is what removes no-shows.
+   - Client records.
+   - GDPR compliance and legal notices kept current.
+   - One hour of changes per month.
 
-3. Preferential Maintenance — €99/month or €1,188/year (Level 2 Ecosystem)
-   - Includes all Basic features.
-   - Architecture prepared for future commerce and sales integrations.
-   - Global expansion: Perfectly structured multi-language website.
-   - Smart visual design (automatic adaptation to light/dark modes).
-   - Real-time currency conversion engine for international clients.
+3. System — €99/month or €990/year
+   - Everything in Presence.
+   - Private client area where each client logs in and sees their own history.
+   - Administrator CRM.
+   - Availability and cancellation management.
+   - Up to 3 professionals. Two hours of changes per month.
 
-4. Advanced Maintenance — €120/month or €1,440/year (Level 3 Ecosystem)
-   - Includes all Preferential features.
-   - Private platform to manage your clients and operations (CRM).
-   - User system with restricted permissions and access levels.
-   - Custom-built software that scales alongside your business growth.
-   - Cloud databases protected by the highest industry standards.
-
-5. Custom Core CRM — €50/month or €600/year (Independent add-on module)
-   - Intuitive, elegant, and exceptionally easy-to-use control panel.
-   - 100% confidential workspace entirely separated from your public site.
-   - Direct and centralised access from your secure Elysium client portal.
+4. Operations — €120/month or €1,200/year
+   - Everything in System.
+   - Online payments and session packs with running balances.
+   - Occupancy and no-show reporting.
+   - Custom-built software that scales alongside the business.
+   - Unlimited professionals. Four hours of changes per month.
 
 TRANSPARENCY & LICENSING:
 - Zero Development Cost: Elysium assumes 100% of initial engineering.
@@ -669,13 +661,12 @@ en la nube, el software de gestión y la seguridad evolucionen con cada negocio.
    - Cumplimiento con el RGPD, la Ley N.º 8968 de Costa Rica y la normativa local.
 
 OPCIONES DE SUSCRIPCIÓN MOSTRADAS EN INICIO:
-- Mantenimiento Básico: 70 EUR/mes o 840 EUR/año.
-- Mantenimiento Preferencial: 99 EUR/mes o 1.188 EUR/año.
-- Mantenimiento Avanzado: 120 EUR/mes o 1.440 EUR/año.
+- Presencia: 70 EUR/mes o 700 EUR/año.
+- Sistema: 99 EUR/mes o 990 EUR/año.
+- Operación: 120 EUR/mes o 1.200 EUR/año.
 - Mantenimiento de Hosting independiente: 99 EUR/año.
-- CRM personalizado independiente: 50 EUR/mes u opcionalmente 600 EUR/año.
+La facturación anual equivale a dos meses gratis.
 Consulta https://elysiumdr.eu/es/services para el alcance y condiciones.
-
 FRAMEWORK DE DESARROLLO λ — METODOLOGÍA CIENTÍFICA:
 1. Entorno Operativo Actual — analizar flujos de datos, procesos diarios y sector.
 2. Estado del Arte y Limitaciones — documentar la infraestructura existente.
@@ -727,39 +718,32 @@ seguridad operativa y alta retención de clientes.
 
 PLANES DE SUSCRIPCIÓN:
 
-1. Mantenimiento de Hosting — €99/año (El Núcleo Operativo)
+1. Alojamiento — €99/año (solo infraestructura)
    - Gestión del dominio e identidad digital de marca.
    - Alojamiento web en servidores de alta disponibilidad (siempre en línea).
    - Mantenimiento y actualizaciones de infraestructura base.
+   - El desarrollo de la web no está incluido.
 
-2. Mantenimiento Básico — €70/mes o €840/año (Ecosistema Nivel 1)
-   - Incluye Mantenimiento de Hosting.
-   - Desarrollo completo de tu sitio web corporativo.
-   - Diseño fluido perfectamente adaptado para dispositivos móviles.
-   - Tiempos de carga ultrarrápidos para evitar la pérdida de clientes.
-   - Estructura inclusiva y accesible para todo tipo de usuarios.
-   - Formularios de contacto protegidos contra spam y ataques maliciosos.
-   - Protocolos de seguridad avanzados para proteger la reputación de tu marca.
-   - Cumplimiento total con las regulaciones globales de privacidad (RGPD).
+2. Presencia — €70/mes o €700/año
+   - Web, dominio, correo y alojamiento.
+   - Agenda pública con recordatorios automáticos, que es lo que elimina las ausencias.
+   - Ficha de cliente.
+   - Cumplimiento del RGPD y avisos legales al día.
+   - Una hora de cambios al mes.
 
-3. Mantenimiento Preferencial — €99/mes o €1.188/año (Ecosistema Nivel 2)
-   - Incluye todas las funcionalidades Básicas.
-   - Arquitectura preparada para futuras integraciones de comercio y ventas.
-   - Expansión global: sitio web multilingüe perfectamente estructurado.
-   - Diseño visual inteligente (adaptación automática a modos claro/oscuro).
-   - Motor de conversión de divisas en tiempo real para clientes internacionales.
+3. Sistema — €99/mes o €990/año
+   - Todo lo del plan Presencia.
+   - Área privada donde cada cliente accede y consulta su propio historial.
+   - CRM del administrador.
+   - Gestión de disponibilidad y cancelaciones.
+   - Hasta 3 profesionales. Dos horas de cambios al mes.
 
-4. Mantenimiento Avanzado — €120/mes o €1.440/año (Ecosistema Nivel 3)
-   - Incluye todas las funcionalidades Preferenciales.
-   - Plataforma privada para gestionar clientes y operaciones (CRM).
-   - Sistema de usuarios con permisos restringidos y niveles de acceso.
-   - Software a medida que escala junto con el crecimiento de tu negocio.
-   - Bases de datos en la nube protegidas por los más altos estándares.
-
-5. CRM Core Personalizado — €50/mes o €600/año (módulo complementario independiente)
-   - Panel de control intuitivo, elegante y excepcionalmente fácil de usar.
-   - Espacio de trabajo 100% confidencial, separado de tu sitio público.
-   - Acceso directo y centralizado desde tu portal seguro de cliente Elysium.
+4. Operación — €120/mes o €1.200/año
+   - Todo lo del plan Sistema.
+   - Cobro online y bonos de sesiones con saldo.
+   - Informes de ocupación y ausencias.
+   - Software a medida que escala junto con el crecimiento del negocio.
+   - Profesionales ilimitados. Cuatro horas de cambios al mes.
 
 --- PÁGINA DE INVESTIGACIÓN ---
 URL: https://elysiumdr.eu/es/research
@@ -928,13 +912,12 @@ o software de gestão e a segurança evoluam com cada negócio.
    - Conformidade com o RGPD, a Lei N.º 8968 da Costa Rica e normas locais.
 
 OPÇÕES DE SUBSCRIÇÃO APRESENTADAS NA PÁGINA INICIAL:
-- Manutenção Básica: 70 EUR/mês ou 840 EUR/ano.
-- Manutenção Preferencial: 99 EUR/mês ou 1.188 EUR/ano.
-- Manutenção Avançada: 120 EUR/mês ou 1.440 EUR/ano.
-- Manutenção de Hosting independente: 99 EUR/ano.
-- CRM personalizado independente: 50 EUR/mês ou, opcionalmente, 600 EUR/ano.
+- Presença: 70 EUR/mês ou 700 EUR/ano.
+- Sistema: 99 EUR/mês ou 990 EUR/ano.
+- Operação: 120 EUR/mês ou 1.200 EUR/ano.
+- Manutenção de Alojamento independente: 99 EUR/ano.
+A facturação anual equivale a dois meses grátis.
 Consulte https://elysiumdr.eu/pt/services para o âmbito e as condições.
-
 FRAMEWORK DE DESENVOLVIMENTO λ — METODOLOGIA CIENTÍFICA:
 1. Ambiente Operacional Atual — analisar fluxos de dados, processos e setor.
 2. Estado da Arte e Limitações — documentar a infraestrutura existente.
@@ -986,39 +969,32 @@ segurança operacional e alta retenção de clientes.
 
 PLANOS DE SUBSCRIÇÃO:
 
-1. Manutenção de Hosting — €99/ano (O Núcleo Operacional)
-   - Gestão do domínio e identidade digital de marca.
+1. Alojamento — €99/ano (apenas infraestrutura)
+   - Gestão do domínio e identidade digital da marca.
    - Alojamento web em servidores de alta disponibilidade (sempre online).
-   - Manutenção e actualizações de infraestrutura base.
+   - Manutenção e actualizações da infraestrutura base.
+   - O desenvolvimento do site não está incluído.
 
-2. Manutenção Básica — €70/mês ou €840/ano (Ecossistema Nível 1)
-   - Inclui Manutenção de Hosting.
-   - Desenvolvimento completo do seu website corporativo.
-   - Design fluido perfeitamente adaptado para dispositivos móveis.
-   - Tempos de carregamento ultra-rápidos para evitar perda de clientes.
-   - Estrutura inclusiva e acessível para todos os tipos de utilizadores.
-   - Formulários de contacto protegidos contra spam e ataques maliciosos.
-   - Protocolos de segurança avançados para proteger a reputação da sua marca.
-   - Conformidade total com os regulamentos globais de privacidade (RGPD).
+2. Presença — €70/mês ou €700/ano
+   - Site, domínio, correio e alojamento.
+   - Agenda pública com lembretes automáticos, que é o que elimina as faltas.
+   - Ficha de cliente.
+   - Conformidade com o RGPD e avisos legais actualizados.
+   - Uma hora de alterações por mês.
 
-3. Manutenção Preferencial — €99/mês ou €1.188/ano (Ecossistema Nível 2)
-   - Inclui todas as funcionalidades Básicas.
-   - Arquitectura preparada para futuras integrações de comércio e vendas.
-   - Expansão global: website multilingue perfeitamente estruturado.
-   - Design visual inteligente (adaptação automática a modos claro/escuro).
-   - Motor de conversão de divisas em tempo real para clientes internacionais.
+3. Sistema — €99/mês ou €990/ano
+   - Tudo o que inclui o plano Presença.
+   - Área privada onde cada cliente acede e consulta o seu próprio histórico.
+   - CRM do administrador.
+   - Gestão de disponibilidade e cancelamentos.
+   - Até 3 profissionais. Duas horas de alterações por mês.
 
-4. Manutenção Avançada — €120/mês ou €1.440/ano (Ecossistema Nível 3)
-   - Inclui todas as funcionalidades Preferenciais.
-   - Plataforma privada para gerir clientes e operações (CRM).
-   - Sistema de utilizadores com permissões restritas e níveis de acesso.
-   - Software à medida que escala com o crescimento do seu negócio.
-   - Bases de dados na cloud protegidas pelos mais altos padrões da indústria.
-
-5. CRM Core Personalizado — €50/mês ou €600/ano (módulo complementar independente)
-   - Painel de controlo intuitivo, elegante e excepcionalmente fácil de usar.
-   - Espaço de trabalho 100% confidencial, separado do seu site público.
-   - Acesso directo e centralizado a partir do seu portal seguro de cliente Elysium.
+4. Operação — €120/mês ou €1.200/ano
+   - Tudo o que inclui o plano Sistema.
+   - Pagamento online e pacotes de sessões com saldo.
+   - Relatórios de ocupação e faltas.
+   - Software à medida que escala com o crescimento do negócio.
+   - Profissionais ilimitados. Quatro horas de alterações por mês.
 
 --- PÁGINA DE INVESTIGAÇÃO ---
 URL: https://elysiumdr.eu/pt/research

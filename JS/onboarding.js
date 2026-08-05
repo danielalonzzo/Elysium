@@ -39,9 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const VALID_TIERS = ['hosting', 'basic', 'preferential', 'advanced', 'crm'];
     const PLAN_LABELS = {
         hosting: 'Domain & Hosting',
-        basic: 'Basic Maintenance',
-        preferential: 'Preferential Maintenance',
-        advanced: 'Advanced Maintenance',
+        basic: 'Presence',
+        preferential: 'System',
+        advanced: 'Operations',
         crm: 'Custom Core CRM'
     };
 

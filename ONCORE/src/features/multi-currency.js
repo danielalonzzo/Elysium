@@ -7,7 +7,7 @@
  *  divisa elegida por el visitante, con tipos de cambio cacheados 12 h y
  *  formato local vía `Intl.NumberFormat`.
  *
- *  ESTADO EN ESTE PROYECTO: el plan contratado (Advanced Maintenance) incluye
+ *  ESTADO EN ESTE PROYECTO: el plan contratado (Operación) incluye
  *  la función, y el motor se entrega completo, pero ONCORE no publica precios
  *  en el sitio: los programas clínicos se presupuestan tras la avaliação
  *  inicial. Por eso el módulo se autodesactiva si no encuentra ningún

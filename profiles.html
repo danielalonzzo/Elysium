@@ -191,6 +191,16 @@
             border: 1px solid rgba(255, 68, 68, 0.2);
             text-align: center;
         }
+
+        /* Same box, neutral tone: an outcome that is not an error but is not a
+           confirmation either. */
+        #error-message.is-notice {
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--text-secondary, #a9b1bd);
+            border-color: rgba(16, 185, 129, 0.25);
+            text-align: left;
+            line-height: 1.5;
+        }
         
         .profile-view {
             text-align: center;
@@ -282,10 +292,31 @@
                                 <label class="form-label">Password</label>
                                 <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
                             </div>
+                            <div style="text-align: right; margin-top: -0.5rem;">
+                                <a href="#" id="show-reset-password" style="font-size: 0.85rem; color: var(--accent-blue); text-decoration: none;">Forgot password?</a>
+                            </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
                         </form>
                         <div class="auth-toggle">
                             Don't have an account? <a href="#" id="show-signup">Create one</a>
+                        </div>
+                    </div>
+
+                    <!-- Reset Password Form -->
+                    <div id="reset-password-view" class="hidden">
+                        <div class="auth-header">
+                            <h2>Reset Password</h2>
+                            <p>Enter your email to receive a reset link</p>
+                        </div>
+                        <form id="reset-password-form">
+                            <div class="form-group">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" id="reset-email" class="form-control" required placeholder="name@company.com">
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Send Reset Link</button>
+                        </form>
+                        <div class="auth-toggle">
+                            Remembered your password? <a href="#" id="back-to-login">Sign in</a>
                         </div>
                     </div>
 
@@ -578,13 +609,15 @@
                             <!-- Plan 2 -->
                             <div class="sub-card">
                                 <div>
-                                    <h4 class="sub-title">Basic Maintenance</h4>
-                                    <p class="sub-subtitle">Level 1 Ecosystem.</p>
+                                    <h4 class="sub-title">Presence</h4>
+                                    <p class="sub-subtitle">Your storefront and your calendar.</p>
                                     <p class="sub-price">€70 <span class="sub-period">/ month</span></p>
                                     <ul class="sub-features">
-                                        <li>Includes Hosting Maintenance</li>
-                                        <li>Corporate website development</li>
-                                        <li>Mobile-first fluid design</li>
+                                        <li>Website, domain, email and hosting</li>
+                                        <li>Online booking with automatic reminders</li>
+                                        <li>Client records</li>
+                                        <li>GDPR compliance kept current</li>
+                                        <li>One hour of changes per month</li>
                                     </ul>
                                 </div>
                                 <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="basic">Subscribe</button>
@@ -594,13 +627,15 @@
                             <div class="sub-card featured-sub">
                                 <div class="featured-badge">Most Popular</div>
                                 <div>
-                                    <h4 class="sub-title">Preferential Maintenance</h4>
-                                    <p class="sub-subtitle">Level 2 Ecosystem.</p>
+                                    <h4 class="sub-title">System</h4>
+                                    <p class="sub-subtitle">Where your client history lives.</p>
                                     <p class="sub-price">€99 <span class="sub-period">/ month</span></p>
                                     <ul class="sub-features">
-                                        <li>Includes Basic features</li>
-                                        <li>Multi-language support</li>
-                                        <li>Light/Dark mode adaptation</li>
+                                        <li>Everything in Presence</li>
+                                        <li>Private client area with login and history</li>
+                                        <li>Administrator CRM</li>
+                                        <li>Availability and cancellation management</li>
+                                        <li>Up to 3 professionals · two hours of changes</li>
                                     </ul>
                                 </div>
                                 <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="preferential">Subscribe</button>
@@ -609,33 +644,21 @@
                             <!-- Plan 4 -->
                             <div class="sub-card">
                                 <div>
-                                    <h4 class="sub-title">Advanced Maintenance</h4>
-                                    <p class="sub-subtitle">Level 3 Ecosystem.</p>
+                                    <h4 class="sub-title">Operations</h4>
+                                    <p class="sub-subtitle">Where the money moves.</p>
                                     <p class="sub-price">€120 <span class="sub-period">/ month</span></p>
                                     <ul class="sub-features">
-                                        <li>Includes Preferential features</li>
-                                        <li>Private CRM platform</li>
+                                        <li>Everything in System</li>
+                                        <li>Online payments and session packs</li>
+                                        <li>Occupancy and no-show reporting</li>
                                         <li>Custom-built scalable software</li>
+                                        <li>Unlimited professionals · four hours of changes</li>
                                     </ul>
                                 </div>
                                 <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="advanced">Subscribe</button>
                             </div>
 
                             <!-- Plan 5 -->
-                            <div class="sub-card">
-                                <div>
-                                    <h4 class="sub-title">Custom Core CRM</h4>
-                                    <p class="sub-subtitle">Independent module.</p>
-                                    <p class="sub-price">€50 <span class="sub-period">/ month</span></p>
-                                    <ul class="sub-features">
-                                        <li>Intuitive control panel</li>
-                                        <li>100% confidential workspace</li>
-                                        <li>Direct centralized access</li>
-                                    </ul>
-                                </div>
-                                <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="crm">Subscribe</button>
-                            </div>
-
                         </div>
                     </div>
                 </div>

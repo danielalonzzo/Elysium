@@ -67,40 +67,86 @@
     {
       "@context": "https://schema.org",
       "@type": "Service",
+      "name": "Infraestrutura digital por subscrição",
       "provider": {
         "@type": "Organization",
         "name": "Elysium λ Development & Research"
       },
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
-        "name": "Web Services",
+        "name": "Planos de subscrição",
         "itemListElement": [
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Corporate Websites"
+              "name": "Alojamento",
+              "description": "Domínio, correio e alojamento para um site já existente."
             },
-            "priceCurrency": "EUR",
-            "price": "100"
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "99",
+              "priceCurrency": "EUR",
+              "referenceQuantity": {
+                "@type": "QuantitativeValue",
+                "value": 1,
+                "unitCode": "ANN"
+              }
+            }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Custom Web Applications"
+              "name": "Presença",
+              "description": "Site, agenda pública com lembretes automáticos e ficha de cliente."
             },
-            "priceCurrency": "EUR",
-            "price": "649"
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "70",
+              "priceCurrency": "EUR",
+              "referenceQuantity": {
+                "@type": "QuantitativeValue",
+                "value": 1,
+                "unitCode": "MON"
+              }
+            }
           },
           {
             "@type": "Offer",
             "itemOffered": {
               "@type": "Service",
-              "name": "Maintenance & Retainers"
+              "name": "Sistema",
+              "description": "Acrescenta a área privada do cliente com acesso e histórico e o CRM do administrador."
             },
-            "priceCurrency": "EUR",
-            "price": "59"
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "99",
+              "priceCurrency": "EUR",
+              "referenceQuantity": {
+                "@type": "QuantitativeValue",
+                "value": 1,
+                "unitCode": "MON"
+              }
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Operação",
+              "description": "Acrescenta pagamento online, pacotes de sessões e relatórios de ocupação."
+            },
+            "priceSpecification": {
+              "@type": "UnitPriceSpecification",
+              "price": "120",
+              "priceCurrency": "EUR",
+              "referenceQuantity": {
+                "@type": "QuantitativeValue",
+                "value": 1,
+                "unitCode": "MON"
+              }
+            }
           }
         ]
       }
@@ -201,15 +247,15 @@
                         <!-- Header cell -->
                         <div class="matrix-label-cell matrix-label-header">Funcionalidades</div>
                         <!-- Body cells -->
-                        <div class="matrix-label-cell">Gestão de Domínio e Servidores</div>
-                        <div class="matrix-label-cell">Desenvolvimento Web Corporativo Completo</div>
-                        <div class="matrix-label-cell">Design Responsivo (Móveis e Tablets)</div>
-                        <div class="matrix-label-cell">Segurança Avançada e Conformidade com o RGPD</div>
-                        <div class="matrix-label-cell">Estrutura Multilíngue Global</div>
-                        <div class="matrix-label-cell">Design Inteligente Claro/Escuro</div>
-                        <div class="matrix-label-cell">Conversão de Moedas em Tempo Real</div>
-                        <div class="matrix-label-cell">Plataforma Privada CRM Independiente</div>
-                        <div class="matrix-label-cell">Cargos, Permissões e Ambiente Confidencial</div>
+                        <div class="matrix-label-cell">Domínio, correio e alojamento</div>
+                        <div class="matrix-label-cell">Desenvolvimento do site</div>
+                        <div class="matrix-label-cell">Agenda pública com lembretes automáticos</div>
+                        <div class="matrix-label-cell">Ficha de cliente</div>
+                        <div class="matrix-label-cell">Conformidade RGPD e avisos legais</div>
+                        <div class="matrix-label-cell">Área privada do cliente com acesso e histórico</div>
+                        <div class="matrix-label-cell">CRM do administrador</div>
+                        <div class="matrix-label-cell">Pagamento online e pacotes de sessões</div>
+                        <div class="matrix-label-cell">Relatórios de ocupação e faltas</div>
                     </div>
 
                     <!-- RIGHT: Horizontally scrollable plans -->
@@ -219,7 +265,7 @@
                             <!-- Plan: Hosting -->
                             <div class="matrix-plan-col">
                                 <div class="matrix-plan-header">
-                                    <h4 class="matrix-plan-title">Manutenção de<br>Hosting</h4>
+                                    <h4 class="matrix-plan-title">Alojamento</h4>
                                     <p class="matrix-price"><span class="dynamic-price" data-base-price="99">99 €</span> <span class="matrix-price-period">/ anuais</span></p>
                                     <div class="matrix-plan-optional" style="font-size: 0.7rem; margin-bottom: 0.5rem; opacity: 0; pointer-events:none;">—</div>
                                     <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=domain_hosting" class="btn">Assinar</a></div>
@@ -238,16 +284,16 @@
                             <!-- Plan: Básico -->
                             <div class="matrix-plan-col">
                                 <div class="matrix-plan-header">
-                                    <h4 class="matrix-plan-title">Manutenção<br>Básica</h4>
+                                    <h4 class="matrix-plan-title">Presença</h4>
                                     <p class="matrix-price"><span class="dynamic-price" data-base-price="70">70 €</span> <span class="matrix-price-period">/ mes</span></p>
-                                    <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="840">840 €</span> <span class="matrix-price-period">/ ano</span></div>
+                                    <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="700">700 €</span> <span class="matrix-price-period">/ ano</span></div>
                                     <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=basic_maintenance" class="btn">Assinar</a></div>
                                 </div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
@@ -257,9 +303,9 @@
                             <!-- Plan: Preferencial -->
                             <div class="matrix-plan-col">
                                 <div class="matrix-plan-header">
-                                    <h4 class="matrix-plan-title">Manutenção<br>Preferencial</h4>
+                                    <h4 class="matrix-plan-title">Sistema</h4>
                                     <p class="matrix-price"><span class="dynamic-price" data-base-price="99">99 €</span> <span class="matrix-price-period">/ mes</span></p>
-                                    <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="1188">1188 €</span> <span class="matrix-price-period">/ ano</span></div>
+                                    <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="990">990 €</span> <span class="matrix-price-period">/ ano</span></div>
                                     <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=preferential_maintenance" class="btn">Assinar</a></div>
                                 </div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
@@ -277,9 +323,9 @@
                             <div class="matrix-plan-col matrix-plan-col-popular">
                                 <div class="matrix-plan-header">
                                     <div class="matrix-popular-badge">Mais Popular</div>
-                                    <h4 class="matrix-plan-title">Manutenção<br>Avançada</h4>
+                                    <h4 class="matrix-plan-title">Operação</h4>
                                     <p class="matrix-price"><span class="dynamic-price" data-base-price="120">120 €</span> <span class="matrix-price-period">/ mes</span></p>
-                                    <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="1440">1440 €</span> <span class="matrix-price-period">/ ano</span></div>
+                                    <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="1200">1200 €</span> <span class="matrix-price-period">/ ano</span></div>
                                     <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=advanced_maintenance" class="btn btn-primary" style="background: rgba(41,151,255,0.25); border-color:var(--color-accent); color:#fff !important; font-weight:600;">Assinar</a></div>
                                 </div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
@@ -293,24 +339,6 @@
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                             </div>
 
-                            <!-- Plan: CRM -->
-                            <div class="matrix-plan-col">
-                                <div class="matrix-plan-header">
-                                    <h4 class="matrix-plan-title">CRM<br>Personalizado</h4>
-                                    <p class="matrix-price"><span class="dynamic-price" data-base-price="50">50 €</span> <span class="matrix-price-period">/ mes</span></p>
-                                    <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="600">600 €</span> <span class="matrix-price-period">/ ano</span></div>
-                                    <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=custom_core_crm" class="btn">Assinar</a></div>
-                                </div>
-                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                            </div>
 
                         </div>
                     </div>

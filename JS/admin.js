@@ -29,9 +29,9 @@ const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
 
 const SUBSCRIPTION_PLANS = {
     hosting:      { code: 'H0ST', label: 'Domain & Hosting' },
-    basic:        { code: 'EC01', label: 'Basic Maintenance' },
-    preferential: { code: 'EC02', label: 'Preferential Maintenance' },
-    advanced:     { code: 'EC03', label: 'Advanced Maintenance' },
+    basic:        { code: 'EC01', label: 'Presence' },
+    preferential: { code: 'EC02', label: 'System' },
+    advanced:     { code: 'EC03', label: 'Operations' },
     crm:          { code: 'CRMP', label: 'Custom Core CRM' }
 };
 
@@ -2422,10 +2422,10 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                         <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Plan</label>
                         <select id="sub-plan-select" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                             <option value="hosting"      ${member.subscription?.planType === 'hosting'      ? 'selected' : ''}>Domain & Hosting (€99/yr)</option>
-                            <option value="basic"        ${member.subscription?.planType === 'basic'        ? 'selected' : ''}>Basic Maintenance (€70/mo)</option>
-                            <option value="preferential" ${member.subscription?.planType === 'preferential' ? 'selected' : ''}>Preferential Maintenance (€99/mo)</option>
-                            <option value="advanced"     ${member.subscription?.planType === 'advanced'     ? 'selected' : ''}>Advanced Maintenance (€120/mo)</option>
-                            <option value="crm"          ${member.subscription?.planType === 'crm'          ? 'selected' : ''}>Custom Core CRM (€50/mo)</option>
+                            <option value="basic"        ${member.subscription?.planType === 'basic'        ? 'selected' : ''}>Presence (€70/mo)</option>
+                            <option value="preferential" ${member.subscription?.planType === 'preferential' ? 'selected' : ''}>System (€99/mo)</option>
+                            <option value="advanced"     ${member.subscription?.planType === 'advanced'     ? 'selected' : ''}>Operations (€120/mo)</option>
+                            <option value="crm"          ${member.subscription?.planType === 'crm'          ? 'selected' : ''}>Custom Core CRM (€50/mo) — legacy, no longer sold</option>
                         </select>
                     </div>
                     <div>

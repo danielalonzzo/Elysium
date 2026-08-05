@@ -4,7 +4,8 @@ import {
     createUserWithEmailAndPassword, 
     onAuthStateChanged, 
     signOut,
-    updateProfile
+    updateProfile,
+    sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     doc, 
@@ -33,10 +34,13 @@ const GRACE_PERIOD_DAYS = 15;
 // Plan definitions — single source of truth
 const PLANS = {
     hosting:      { code: 'H0ST', label: 'Domain & Hosting',          price: { monthly: null, annual: 99 },    period: 'annual',  tier: 1 },
-    basic:        { code: 'ECO1', label: 'Basic Maintenance',          price: { monthly: 70,   annual: 700 },   period: 'monthly', tier: 2 },
-    preferential: { code: 'ECO2', label: 'Preferential Maintenance',  price: { monthly: 99,   annual: 990 },   period: 'monthly', tier: 3 },
-    advanced:     { code: 'ECO3', label: 'Advanced Maintenance',       price: { monthly: 120,  annual: 1200 },  period: 'monthly', tier: 4 },
-    crm:          { code: 'CRMP', label: 'Custom Core CRM',            price: { monthly: 50,   annual: 500 },   period: 'monthly', tier: 4 }
+    basic:        { code: 'EC01', label: 'Presence',                   price: { monthly: 70,   annual: 700 },   period: 'monthly', tier: 2 },
+    preferential: { code: 'EC02', label: 'System',                     price: { monthly: 99,   annual: 990 },   period: 'monthly', tier: 3 },
+    advanced:     { code: 'EC03', label: 'Operations',                 price: { monthly: 120,  annual: 1200 },  period: 'monthly', tier: 4 },
+    // Retired from the public catalogue: the CRM is what justifies moving up a
+    // tier, not a cheaper add-on that undercuts Operations. Kept here so the
+    // members already subscribed to it keep resolving their plan and licence.
+    crm:          { code: 'CRMP', label: 'Custom Core CRM',            price: { monthly: 50,   annual: 500 },   period: 'monthly', tier: 4, retired: true }
 };
 
 const PERIOD_CODES = { monthly: 'M3N1', annual: 'ANL1' };
@@ -59,6 +63,7 @@ let currentUserData = null;
 // ── DOM References ────────────────────────────────────────────────────────────
 const loginView          = document.getElementById('login-view');
 const signupView         = document.getElementById('signup-view');
+const resetPasswordView  = document.getElementById('reset-password-view');
 const authSection        = document.getElementById('auth-section');
 const profileSection     = document.getElementById('profile-section');
 const errorMsg           = document.getElementById('error-message');
@@ -69,8 +74,11 @@ const showProspect       = document.getElementById('show-prospect');
 const showProspectFromSignup  = document.getElementById('show-prospect-from-signup');
 const showLoginFromProspect   = document.getElementById('show-login-from-prospect');
 const showSignupFromProspect  = document.getElementById('show-signup-from-prospect');
+const showResetPassword       = document.getElementById('show-reset-password');
+const backToLogin             = document.getElementById('back-to-login');
 const loginForm          = document.getElementById('login-form');
 const signupForm         = document.getElementById('signup-form');
+const resetPasswordForm  = document.getElementById('reset-password-form');
 const prospectForm       = document.getElementById('prospect-form');
 const logoutBtn          = document.getElementById('logoutBtn');
 
@@ -109,9 +117,9 @@ const i18n = {
         onboarding_popup_later: "Remind me later",
         onboarding_float_label: "Onboarding",
         plan_hosting:    "Domain & Hosting",
-        plan_basic:      "Basic Maintenance",
-        plan_preferential: "Preferential Maintenance",
-        plan_advanced:   "Advanced Maintenance",
+        plan_basic:      "Presence",
+        plan_preferential: "System",
+        plan_advanced:   "Operations",
         plan_crm:        "Custom Core CRM",
         per_month:       "/ month",
         per_year:        "/ year",
@@ -123,7 +131,16 @@ const i18n = {
         hosting_license:      "License Code",
         billing_history:      "Payment History",
         no_payments:          "No payment records yet.",
-        save_changes:         "Save Changes"
+        save_changes:         "Save Changes",
+        reset_sending:        "Sending…",
+        reset_sent_btn:       "Check your inbox",
+        // Neutral on purpose: Firebase resolves successfully even when no
+        // account exists, so promising "sent" would be a lie half the time.
+        reset_sent_notice:    "If an account exists for {email}, the reset link is on its way. It can take a couple of minutes — check your spam folder, the sender is noreply@elysiumdr-eu.firebaseapp.com.",
+        reset_invalid_email:  "That email address doesn't look valid. Please check it and try again.",
+        reset_too_many:       "Too many attempts. Wait a few minutes before requesting another link.",
+        reset_network:        "Could not reach the authentication server. Check your connection and try again.",
+        reset_failed:         "Could not send the reset link. Please try again or write to info@elysiumdr.eu."
     },
     es: {
         noSub_title:   "Bienvenido a Elysium λ",
@@ -152,9 +169,9 @@ const i18n = {
         onboarding_popup_later: "Recordarme luego",
         onboarding_float_label: "Onboarding",
         plan_hosting:    "Dominio y Hosting",
-        plan_basic:      "Mantenimiento Básico",
-        plan_preferential: "Mantenimiento Preferencial",
-        plan_advanced:   "Mantenimiento Avanzado",
+        plan_basic:      "Presencia",
+        plan_preferential: "Sistema",
+        plan_advanced:   "Operación",
         plan_crm:        "CRM Personalizado",
         per_month:       "/ mes",
         per_year:        "/ año",
@@ -166,7 +183,14 @@ const i18n = {
         hosting_license:      "Código de Licencia",
         billing_history:      "Historial de Pagos",
         no_payments:          "Aún no hay registros de pago.",
-        save_changes:         "Guardar Cambios"
+        save_changes:         "Guardar Cambios",
+        reset_sending:        "Enviando…",
+        reset_sent_btn:       "Revisa tu correo",
+        reset_sent_notice:    "Si existe una cuenta para {email}, el enlace de recuperación va en camino. Puede tardar un par de minutos — revisa la carpeta de spam, el remitente es noreply@elysiumdr-eu.firebaseapp.com.",
+        reset_invalid_email:  "Esa dirección de correo no parece válida. Verifícala e inténtalo de nuevo.",
+        reset_too_many:       "Demasiados intentos. Espera unos minutos antes de pedir otro enlace.",
+        reset_network:        "No se pudo contactar con el servidor de autenticación. Revisa tu conexión e inténtalo de nuevo.",
+        reset_failed:         "No se pudo enviar el enlace. Inténtalo de nuevo o escribe a info@elysiumdr.eu."
     },
     pt: {
         noSub_title:   "Bem-vindo ao Elysium λ",
@@ -195,9 +219,9 @@ const i18n = {
         onboarding_popup_later: "Lembrar mais tarde",
         onboarding_float_label: "Onboarding",
         plan_hosting:    "Domínio e Alojamento",
-        plan_basic:      "Manutenção Básica",
-        plan_preferential: "Manutenção Preferencial",
-        plan_advanced:   "Manutenção Avançada",
+        plan_basic:      "Presença",
+        plan_preferential: "Sistema",
+        plan_advanced:   "Operação",
         plan_crm:        "CRM Personalizado",
         per_month:       "/ mês",
         per_year:        "/ ano",
@@ -209,7 +233,14 @@ const i18n = {
         hosting_license:      "Código de Licença",
         billing_history:      "Histórico de Pagamentos",
         no_payments:          "Ainda não existem registos de pagamento.",
-        save_changes:         "Guardar Alterações"
+        save_changes:         "Guardar Alterações",
+        reset_sending:        "A enviar…",
+        reset_sent_btn:       "Verifique o seu email",
+        reset_sent_notice:    "Se existir uma conta para {email}, o link de recuperação está a caminho. Pode demorar alguns minutos — verifique a pasta de spam, o remetente é noreply@elysiumdr-eu.firebaseapp.com.",
+        reset_invalid_email:  "Esse endereço de email não parece válido. Verifique-o e tente novamente.",
+        reset_too_many:       "Demasiadas tentativas. Aguarde alguns minutos antes de pedir outro link.",
+        reset_network:        "Não foi possível contactar o servidor de autenticação. Verifique a sua ligação e tente novamente.",
+        reset_failed:         "Não foi possível enviar o link. Tente novamente ou escreva para info@elysiumdr.eu."
     }
 };
 
@@ -225,7 +256,21 @@ function showError(text) {
     playSound('error');
     if (!errorMsg) return;
     errorMsg.textContent = text;
+    errorMsg.classList.remove('is-notice');
     errorMsg.classList.remove('hidden');
+}
+
+// Same box, neutral colours: used when the outcome is genuinely not an error
+// but must not be dressed up as a confirmation either.
+function showNotice(text) {
+    if (!errorMsg) return;
+    errorMsg.textContent = text;
+    errorMsg.classList.add('is-notice');
+    errorMsg.classList.remove('hidden');
+}
+
+function hideMessage() {
+    errorMsg?.classList.add('hidden');
 }
 
 function formatDate(ts) {
@@ -339,12 +384,32 @@ if (showSignup) showSignup.addEventListener('click', e => {
     e.preventDefault();
     loginView?.classList.add('hidden');
     prospectView?.classList.add('hidden');
+    resetPasswordView?.classList.add('hidden');
     signupView?.classList.remove('hidden');
     errorMsg?.classList.add('hidden');
 });
 
 if (showLogin) showLogin.addEventListener('click', e => {
     e.preventDefault();
+    signupView?.classList.add('hidden');
+    prospectView?.classList.add('hidden');
+    resetPasswordView?.classList.add('hidden');
+    loginView?.classList.remove('hidden');
+    errorMsg?.classList.add('hidden');
+});
+
+if (showResetPassword) showResetPassword.addEventListener('click', e => {
+    e.preventDefault();
+    loginView?.classList.add('hidden');
+    signupView?.classList.add('hidden');
+    prospectView?.classList.add('hidden');
+    resetPasswordView?.classList.remove('hidden');
+    errorMsg?.classList.add('hidden');
+});
+
+if (backToLogin) backToLogin.addEventListener('click', e => {
+    e.preventDefault();
+    resetPasswordView?.classList.add('hidden');
     signupView?.classList.add('hidden');
     prospectView?.classList.add('hidden');
     loginView?.classList.remove('hidden');
@@ -438,7 +503,7 @@ onAuthStateChanged(auth, async user => {
                 if (userData.licenseCode && !userData.subscription) {
                     const migrated = {
                         planType:      'basic', // conservative default
-                        planLabel:     'Basic Maintenance',
+                        planLabel:     'Presence',
                         billingCycle:  'monthly',
                         status:        'active',
                         licenseCode:   userData.licenseCode,
@@ -1103,6 +1168,104 @@ if (loginForm) {
                       lang === 'pt' ? 'Credenciais inválidas. Por favor verifique o seu email e palavra-passe.' :
                       'Invalid credentials. Please check your email and password.');
         }
+    });
+}
+
+// ── RESET PASSWORD ────────────────────────────────────────────────────────────
+// This project has Firebase's email enumeration protection enabled, so
+// sendPasswordResetEmail resolves successfully even when the address has no
+// account. That is why the old "Link Sent!" confirmation was misleading: it
+// appeared for a mistyped address exactly as it did for a real one, and the
+// member then waited for an email that was never going to arrive. The only
+// honest confirmation is a conditional one, and it has to name the sender so
+// the message can be found in a spam folder.
+
+// The reset link lands on Firebase's action handler; this is where the member
+// is sent afterwards, in their own language.
+const RESET_CONTINUE_PATH = { en: '/profiles', es: '/es/profiles', pt: '/pt/profiles' };
+
+// A continue URL is only accepted if the site's domain is on Firebase Auth's
+// authorised-domains list. If it is not, the SDK rejects the whole call — so
+// fall back to a plain reset rather than leave the member with no email at all.
+async function sendResetEmail(email) {
+    try {
+        await sendPasswordResetEmail(auth, email, {
+            url: `${window.location.origin}${RESET_CONTINUE_PATH[lang] || RESET_CONTINUE_PATH.en}`,
+            handleCodeInApp: false
+        });
+    } catch (error) {
+        const code = error?.code || '';
+        if (code !== 'auth/unauthorized-continue-uri' &&
+            code !== 'auth/invalid-continue-uri' &&
+            code !== 'auth/missing-continue-uri') throw error;
+        console.warn(`[reset-password] continue URL rejected (${code}); retrying without it. ` +
+                     `Add ${window.location.hostname} to Firebase Auth → Settings → Authorised domains.`);
+        await sendPasswordResetEmail(auth, email);
+    }
+}
+
+if (resetPasswordForm) {
+    const resetBtn = resetPasswordForm.querySelector('button[type="submit"]');
+    const resetBtnLabel = resetBtn?.textContent || '';
+    let resetInFlight = false;
+
+    resetPasswordForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        // Repeated submits are what trips auth/too-many-requests, after which
+        // Firebase quietly stops sending for a while.
+        if (resetInFlight) return;
+
+        const email = (document.getElementById('reset-email')?.value || '').trim().toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showError(t.reset_invalid_email);
+            return;
+        }
+
+        resetInFlight = true;
+        hideMessage();
+        if (resetBtn) {
+            resetBtn.disabled = true;
+            resetBtn.textContent = t.reset_sending;
+        }
+        // Firebase localises the email body from this.
+        auth.languageCode = lang;
+
+        try {
+            await sendResetEmail(email);
+            playSound('success');
+            showNotice(t.reset_sent_notice.replace('{email}', email));
+            if (resetBtn) {
+                resetBtn.textContent = t.reset_sent_btn;
+                resetBtn.style.backgroundColor = '#10b981';
+            }
+            resetPasswordForm.reset();
+        } catch (error) {
+            // Without the code every failure looked identical and was
+            // impossible to diagnose from a member's report.
+            console.error('[reset-password]', error?.code || error);
+            showError(
+                error?.code === 'auth/invalid-email'          ? t.reset_invalid_email :
+                error?.code === 'auth/too-many-requests'      ? t.reset_too_many :
+                error?.code === 'auth/network-request-failed' ? t.reset_network :
+                t.reset_failed
+            );
+            if (resetBtn) {
+                resetBtn.disabled = false;
+                resetBtn.textContent = resetBtnLabel;
+            }
+            resetInFlight = false;
+            return;
+        }
+
+        // Long enough that a second click is a deliberate retry, not impatience.
+        setTimeout(() => {
+            if (resetBtn) {
+                resetBtn.disabled = false;
+                resetBtn.textContent = resetBtnLabel;
+                resetBtn.style.backgroundColor = '';
+            }
+            resetInFlight = false;
+        }, 8000);
     });
 }
 

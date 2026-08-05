@@ -44,6 +44,8 @@ CLAUDE.md
 scripts/
 *.py
 *.sh
+*.log
+firebase-debug.log
 **/.env
 **/.env.*
 firestore.rules
