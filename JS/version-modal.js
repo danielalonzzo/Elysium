@@ -1,7 +1,7 @@
 /**
  * ══════════════════════════════════════════════════════════════════════════════
  *  Elysium λ — System Info Modal
- *  version-modal.js  |  v1.5.3
+ *  version-modal.js  |  v1.5.4
  *
  *  Design: Matches pmorais.pt reference — clean light modal, row-divider
  *  layout, amber accent links, sectioned with small-caps labels.
@@ -15,7 +15,7 @@
     'use strict';
 
     // ── Configuration ─────────────────────────────────────────────────────────
-    var APP_VERSION       = 'V1.5.3';
+    var APP_VERSION       = 'V1.5.4';
     var MODAL_ID          = 'elysium-system-info-modal';
     var VERSION_TAG_CLASS = 'elysium-version-tag';
     var ACCENT            = '#2997ff';   // Elysium brand electric blue

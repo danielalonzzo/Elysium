@@ -1,132 +1,821 @@
-/* Admin CRM extensions: agenda and onboarding delivery history. */
+/* ===========================================================================
+   Elysium λ — Admin CRM
+   The admin runs inside the same shell as the customer portal: admin.html
+   wraps everything in `.customer-portal.is-admin`, so CSS/customer-portal.css
+   supplies the sidebar, cards, tables, buttons, chips and form fields.
+   This file only holds what is exclusive to the CRM — the pipeline board, the
+   agenda, the partner grid and the client profile — written against the same
+   `--portal-*` tokens so both products stay visually identical.
+   ========================================================================== */
 
-.agenda-header {
-    align-items: center;
+/* Shell ------------------------------------------------------------------ */
+
+/* The portal switches views with `hidden`; the CRM has always used `.active`
+   and JS/admin.js depends on it. Keep that contract. */
+.customer-portal.is-admin .portal-section {
+    display: none;
 }
 
-.agenda-layout {
+.customer-portal.is-admin .portal-section.active {
+    display: block;
+}
+
+.customer-portal.is-admin .portal-main > * {
+    width: min(100%, var(--portal-content-width));
+    margin-inline: auto;
+}
+
+.customer-portal.is-admin .portal-header {
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.customer-portal.is-admin .dashboard-date {
+    flex: 0 0 auto;
+    padding: 0.42rem 0.8rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.72rem;
+    font-weight: 620;
+}
+
+/* Language lives in the sidebar footer: the portfolio navbar is gone. */
+.customer-portal.is-admin .admin-lang-switch {
     display: grid;
-    grid-template-columns: minmax(340px, 0.86fr) minmax(430px, 1.14fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.2rem;
+    padding: 0.2rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.78rem;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.customer-portal.is-admin .admin-lang-switch .lang-select {
+    appearance: none;
+    min-height: 2rem;
+    padding: 0.3rem 0.2rem;
+    border: 0;
+    border-radius: 0.6rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.68rem;
+    font-weight: 720;
+    letter-spacing: 0.06em;
+    background: transparent;
+    cursor: pointer;
+    transition: color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .admin-lang-switch .lang-select:hover {
+    color: var(--color-text-primary, #e1e1e5);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.customer-portal.is-admin .admin-lang-switch .lang-select[aria-pressed="true"] {
+    color: #ddebff;
+    background: rgba(41, 151, 255, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(41, 151, 255, 0.24);
+}
+
+/* A plan name or a date is not a figure: at the numeric KPI size they wrap over
+   three lines and swamp the card. */
+.customer-portal.is-admin .portal-kpi-value.is-text {
+    font-size: clamp(1.05rem, 1.9vw, 1.4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-wrap: balance;
+}
+
+.customer-portal.is-admin .loader-container {
+    display: grid;
+    min-height: 8rem;
+    place-items: center;
+}
+
+/* The CRM writes plenty of inline `.form-control` inputs. Give them the same
+   field treatment the portal uses so nothing looks bolted on. */
+.customer-portal.is-admin :where(.form-control, .crm-search-bar) {
+    width: 100%;
+    min-height: 2.7rem;
+    padding: 0.68rem 0.85rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.8rem;
+    outline: none;
+    color: var(--color-text-primary, #e1e1e5);
+    font: inherit;
+    font-size: 0.84rem;
+    background: rgba(255, 255, 255, 0.035);
+    color-scheme: dark;
+    transition: border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease), box-shadow var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin :where(.form-control, .crm-search-bar):focus {
+    border-color: rgba(41, 151, 255, 0.68);
+    background: rgba(41, 151, 255, 0.055);
+    box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.1);
+}
+
+.customer-portal.is-admin select.form-control option {
+    color: #f7f8fb;
+    background: #071022;
+}
+
+/* Overview --------------------------------------------------------------- */
+
+.customer-portal.is-admin .overview-panel {
+    padding: clamp(1rem, 2.2vw, 1.5rem);
+}
+
+.customer-portal.is-admin .overview-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--portal-border);
+}
+
+.customer-portal.is-admin .overview-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.86rem;
+    font-weight: 690;
+    letter-spacing: -0.01em;
+}
+
+.customer-portal.is-admin .overview-panel-title svg {
+    color: var(--portal-info);
+}
+
+.customer-portal.is-admin .overview-panel-link {
+    flex: 0 0 auto;
+    color: var(--portal-info);
+    font-size: 0.72rem;
+    font-weight: 690;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .overview-panel-link:hover {
+    color: #8bc8ff;
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+}
+
+.customer-portal.is-admin .overview-bottom-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
     align-items: start;
 }
 
-.agenda-panel {
-    min-width: 0;
-    padding: 1.5rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    background:
-        radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.08), transparent 38%),
-        var(--glass-bg);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.14);
+/* Activity feed */
+.customer-portal.is-admin .feed-list {
+    display: grid;
+    gap: 0.15rem;
 }
 
-.agenda-panel-heading {
+.customer-portal.is-admin .feed-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.85rem;
+    padding: 0.7rem 0;
+}
+
+.customer-portal.is-admin .feed-item-dot {
+    position: relative;
+    z-index: 1;
+    width: 0.62rem;
+    height: 0.62rem;
+    margin-top: 0.32rem;
+    border-radius: 50%;
+    background: var(--portal-info);
+    box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.14);
+}
+
+.customer-portal.is-admin .feed-dot-join {
+    position: absolute;
+    top: 1.35rem;
+    bottom: -0.5rem;
+    left: 0.29rem;
+    width: 1px;
+    background: var(--portal-border);
+}
+
+.customer-portal.is-admin .feed-item:last-child .feed-dot-join {
+    display: none;
+}
+
+.customer-portal.is-admin .feed-item-title {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.82rem;
+    font-weight: 640;
+    line-height: 1.35;
+}
+
+.customer-portal.is-admin :where(.feed-item-sub, .feed-item-time) {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.71rem;
+    line-height: 1.4;
+}
+
+.customer-portal.is-admin .feed-item-time {
+    margin-top: 0.15rem;
+    opacity: 0.75;
+}
+
+/* Pipeline snapshot */
+.customer-portal.is-admin .pipeline-snapshot {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.customer-portal.is-admin .pipeline-snapshot-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.3rem 0.75rem;
+    align-items: center;
+}
+
+.customer-portal.is-admin .pipeline-snapshot-label {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.74rem;
+    font-weight: 620;
+}
+
+.customer-portal.is-admin .pipeline-snapshot-count {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.78rem;
+    font-weight: 720;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .pipeline-snapshot-bar {
+    grid-column: 1 / -1;
+    height: 0.36rem;
+    overflow: hidden;
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.customer-portal.is-admin .pipeline-snapshot-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--stage-color, var(--portal-info)), color-mix(in srgb, var(--stage-color, var(--portal-info)) 55%, transparent));
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Pipeline board --------------------------------------------------------- */
+
+.customer-portal.is-admin .pipeline-board {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     gap: 1rem;
-    padding-bottom: 1.1rem;
-    margin-bottom: 1.25rem;
-    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(160, 165, 181, 0.3) transparent;
 }
 
-.agenda-panel-heading h2 {
+.customer-portal.is-admin .pipeline-column {
+    display: flex;
+    flex: 0 0 18rem;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1rem 0.85rem;
+    border: 1px solid var(--portal-border);
+    border-top: 2px solid var(--stage-color, var(--portal-info));
+    border-radius: 1.15rem;
+    background: linear-gradient(145deg, rgba(15, 29, 55, 0.7), var(--portal-surface));
+    scroll-snap-align: start;
+}
+
+/* Stage palette — the CRM's own identity, kept as-is. */
+.customer-portal.is-admin .stage-prospect      { --stage-color: #ffab00; }
+.customer-portal.is-admin .stage-first_contact { --stage-color: #8b93a8; }
+.customer-portal.is-admin .stage-prototyping   { --stage-color: #d4af37; }
+.customer-portal.is-admin .stage-development   { --stage-color: #2997ff; }
+.customer-portal.is-admin .stage-delivery      { --stage-color: #a855f7; }
+.customer-portal.is-admin .stage-maintenance   { --stage-color: #00c875; }
+
+.customer-portal.is-admin .pipeline-col-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .pipeline-col-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--stage-color, var(--portal-info));
+    box-shadow: 0 0 0.7rem var(--stage-color, var(--portal-info));
+}
+
+.customer-portal.is-admin .pipeline-col-title {
+    flex: 1 1 auto;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.73rem;
+    font-weight: 730;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .pipeline-col-count {
+    flex: 0 0 auto;
+    min-width: 1.35rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.66rem;
+    font-weight: 730;
+    text-align: center;
+}
+
+.customer-portal.is-admin .pipeline-col-cards {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.customer-portal.is-admin .pipeline-col-empty {
+    padding: 1.4rem 0.75rem;
+    border: 1px dashed var(--portal-border);
+    border-radius: 0.9rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.72rem;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.customer-portal.is-admin .pipeline-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.65rem;
+    padding: 0.7rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+    transition: border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease), transform var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .pipeline-card:hover {
+    border-color: rgba(41, 151, 255, 0.35);
+    background: rgba(41, 151, 255, 0.07);
+    transform: translateY(-0.1rem);
+}
+
+.customer-portal.is-admin .pipeline-card-avatar {
+    display: grid;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(41, 151, 255, 0.3);
+    border-radius: 0.65rem;
+    color: #cfe6ff;
+    font-size: 0.72rem;
+    font-weight: 730;
+    background: linear-gradient(145deg, rgba(41, 151, 255, 0.24), rgba(41, 151, 255, 0.06));
+}
+
+.customer-portal.is-admin .pipeline-card-body {
+    min-width: 0;
+}
+
+.customer-portal.is-admin :where(.pipeline-card-name, .pipeline-card-company) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .pipeline-card-name {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.8rem;
+    font-weight: 660;
+}
+
+.customer-portal.is-admin .pipeline-card-company {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.69rem;
+}
+
+/* Partners: toolbar and grid --------------------------------------------- */
+
+.customer-portal.is-admin .crm-toolbar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 1.5rem;
+    padding: 0.85rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 1.15rem;
+    background: linear-gradient(145deg, rgba(15, 29, 55, 0.7), var(--portal-surface));
+}
+
+.customer-portal.is-admin .crm-search-wrapper {
+    position: relative;
+    flex: 1 1 16rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .crm-search-wrapper > svg {
+    position: absolute;
+    top: 50%;
+    left: 0.8rem;
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.customer-portal.is-admin .crm-search-bar {
+    padding-left: 2.3rem;
+}
+
+.customer-portal.is-admin .crm-sort-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    min-height: 2.7rem;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.8rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 640;
+    background: rgba(255, 255, 255, 0.035);
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .crm-sort-toggle:hover {
+    border-color: rgba(41, 151, 255, 0.35);
+    color: var(--color-text-primary, #e1e1e5);
+}
+
+.customer-portal.is-admin .crm-sort-toggle svg {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.customer-portal.is-admin .crm-filter-pills {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.customer-portal.is-admin .crm-pill {
+    appearance: none;
+    padding: 0.42rem 0.78rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--radius-pill, 9999px);
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.71rem;
+    font-weight: 660;
+    background: transparent;
+    cursor: pointer;
+    transition: color var(--transition-fast, 0.2s ease), border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .crm-pill:hover {
+    border-color: var(--portal-border-strong);
+    color: var(--color-text-primary, #e1e1e5);
+}
+
+.customer-portal.is-admin .crm-pill.active {
+    border-color: rgba(41, 151, 255, 0.38);
+    color: #ddebff;
+    background: rgba(41, 151, 255, 0.14);
+}
+
+.customer-portal.is-admin .crm-results-count {
+    flex: 0 0 auto;
+    margin-left: auto;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.71rem;
+}
+
+.customer-portal.is-admin .clients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: 1rem;
+}
+
+.customer-portal.is-admin .client-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: clamp(1rem, 2.2vw, 1.35rem);
+    border: 1px solid var(--portal-border);
+    border-radius: clamp(1rem, 2vw, var(--radius-md, 24px));
+    background: linear-gradient(145deg, rgba(15, 29, 55, 0.78), var(--portal-surface));
+    box-shadow: var(--portal-shadow-soft);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+    cursor: pointer;
+    transition: border-color var(--transition-fast, 0.2s ease), box-shadow var(--transition-fast, 0.2s ease), transform var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .client-card:hover {
+    border-color: var(--portal-border-strong);
+    box-shadow: var(--portal-shadow);
+    transform: translateY(-0.18rem);
+}
+
+.customer-portal.is-admin .client-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .client-card-avatar {
+    display: grid;
+    width: 2.65rem;
+    height: 2.65rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(41, 151, 255, 0.38);
+    border-radius: 0.9rem;
+    color: #fff;
+    font-size: 0.86rem;
+    font-weight: 750;
+    background: linear-gradient(145deg, #2f9cff, #125ecb);
+    box-shadow: 0 8px 22px rgba(41, 151, 255, 0.2);
+}
+
+.customer-portal.is-admin .client-info {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.customer-portal.is-admin :where(.client-name, .client-company, .client-meta-email) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .client-name {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.92rem;
+    font-weight: 680;
+    line-height: 1.3;
+}
+
+.customer-portal.is-admin .client-company {
+    margin-top: 0.12rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.74rem;
+}
+
+.customer-portal.is-admin .client-projects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.customer-portal.is-admin .client-projects span {
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.68rem;
+    font-weight: 620;
+}
+
+.customer-portal.is-admin .client-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--portal-border);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.72rem;
+}
+
+.customer-portal.is-admin .client-joined {
+    flex: 0 0 auto;
+    opacity: 0.75;
+}
+
+/* Licenses --------------------------------------------------------------- */
+
+.customer-portal.is-admin .licenses-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+}
+
+.customer-portal.is-admin .license-metric {
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.73rem;
+    font-weight: 640;
+}
+
+.customer-portal.is-admin .license-metric strong {
+    color: var(--color-text-primary, #e1e1e5);
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .license-code-cell {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+}
+
+.customer-portal.is-admin .license-empty {
+    padding: 2rem 1rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    text-align: center;
+}
+
+.customer-portal.is-admin .license-source {
+    font-size: 0.7rem;
+    font-weight: 680;
+}
+
+.customer-portal.is-admin .license-source-auto   { color: #a78bfa; }
+.customer-portal.is-admin .license-source-manual { color: var(--portal-info); }
+
+.customer-portal.is-admin .portal-table td small {
+    display: block;
+    margin-top: 0.12rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.68rem;
+}
+
+.customer-portal.is-admin .license-row {
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .portal-link {
+    color: var(--portal-info);
+    text-decoration: none;
+}
+
+.customer-portal.is-admin .portal-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+}
+
+.customer-portal.is-admin .contact-message-cell {
+    max-width: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Agenda ----------------------------------------------------------------- */
+
+.customer-portal.is-admin .agenda-layout {
+    display: grid;
+    grid-template-columns: minmax(21rem, 0.86fr) minmax(27rem, 1.14fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.customer-portal.is-admin .agenda-panel {
+    min-width: 0;
+    padding: clamp(1rem, 2.2vw, 1.5rem);
+    border: 1px solid var(--portal-border);
+    border-radius: clamp(1rem, 2vw, var(--radius-md, 24px));
+    background:
+        radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.09), transparent 38%),
+        linear-gradient(145deg, rgba(15, 29, 55, 0.78), var(--portal-surface));
+    box-shadow: var(--portal-shadow-soft);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+}
+
+.customer-portal.is-admin .agenda-panel-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--portal-border);
+}
+
+.customer-portal.is-admin .agenda-list-heading {
+    align-items: center;
+}
+
+.customer-portal.is-admin .agenda-panel-heading h2 {
     margin: 0.18rem 0 0;
-    color: var(--color-text-primary);
-    font-size: 1.15rem;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 1.05rem;
+    font-weight: 690;
     letter-spacing: -0.02em;
 }
 
-.agenda-eyebrow {
-    color: var(--color-accent);
+.customer-portal.is-admin .agenda-eyebrow {
+    color: var(--portal-info);
     font-size: 0.68rem;
-    font-weight: 700;
+    font-weight: 760;
     letter-spacing: 0.13em;
     text-transform: uppercase;
 }
 
-.agenda-timezone-chip {
+.customer-portal.is-admin .agenda-timezone-chip {
     flex: 0 0 auto;
     padding: 0.34rem 0.58rem;
     border: 1px solid rgba(41, 151, 255, 0.25);
-    border-radius: 999px;
-    color: var(--color-accent);
+    border-radius: var(--radius-pill, 9999px);
     background: rgba(41, 151, 255, 0.08);
+    color: var(--portal-info);
     font-size: 0.66rem;
-    font-weight: 700;
+    font-weight: 720;
     letter-spacing: 0.05em;
 }
 
-.meeting-form-grid {
+.customer-portal.is-admin .meeting-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
 }
 
-.meeting-field {
+.customer-portal.is-admin .meeting-field {
     display: flex;
     min-width: 0;
     flex-direction: column;
     gap: 0.45rem;
 }
 
-.meeting-field-wide {
+.customer-portal.is-admin .meeting-field-wide {
     grid-column: 1 / -1;
 }
 
-.meeting-field > span {
-    color: var(--color-text-secondary);
+.customer-portal.is-admin .meeting-field > span {
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.72rem;
     font-weight: 650;
     letter-spacing: 0.045em;
 }
 
-.meeting-field input,
-.meeting-field select,
-.meeting-field textarea {
+.customer-portal.is-admin .meeting-field :where(input, select, textarea) {
     width: 100%;
-    min-height: 44px;
+    min-height: 2.75rem;
     padding: 0.72rem 0.8rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 11px;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.8rem;
     outline: none;
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--color-text-primary);
+    color: var(--color-text-primary, #e1e1e5);
     font: inherit;
     font-size: 0.84rem;
+    background: rgba(255, 255, 255, 0.035);
     color-scheme: dark;
-    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    transition: border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease), box-shadow var(--transition-fast, 0.2s ease);
 }
 
-.meeting-field select option {
+.customer-portal.is-admin .meeting-field select option {
     color: #f7f8fb;
     background: #071022;
 }
 
-.meeting-field textarea {
-    min-height: 96px;
-    resize: vertical;
+.customer-portal.is-admin .meeting-field textarea {
+    min-height: 6rem;
     line-height: 1.55;
+    resize: vertical;
 }
 
-.meeting-field input:focus,
-.meeting-field select:focus,
-.meeting-field textarea:focus {
+.customer-portal.is-admin .meeting-field :where(input, select, textarea):focus {
     border-color: rgba(41, 151, 255, 0.68);
     background: rgba(41, 151, 255, 0.055);
     box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.1);
 }
 
-.meeting-field input[aria-invalid='true'],
-.meeting-field select[aria-invalid='true'],
-.meeting-field textarea[aria-invalid='true'] {
-    border-color: rgba(255, 91, 84, 0.72);
-    box-shadow: 0 0 0 3px rgba(255, 91, 84, 0.09);
+.customer-portal.is-admin .meeting-field :where(input, select, textarea)[aria-invalid="true"] {
+    border-color: rgba(255, 118, 118, 0.72);
+    box-shadow: 0 0 0 3px rgba(255, 118, 118, 0.09);
 }
 
-.meeting-form-footer {
+.customer-portal.is-admin .meeting-form-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -134,45 +823,41 @@
     margin-top: 1.25rem;
 }
 
-.meeting-form-footer .btn {
+.customer-portal.is-admin .meeting-form-footer .btn {
     flex: 0 0 auto;
-    min-width: 150px;
+    min-width: 9.5rem;
 }
 
-.meeting-form-message {
+.customer-portal.is-admin .meeting-form-message {
     min-height: 1.2em;
     margin: 0;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.76rem;
     line-height: 1.45;
 }
 
-.meeting-form-message.is-success { color: #42d99a; }
-.meeting-form-message.is-warning { color: #ffc04d; }
-.meeting-form-message.is-error { color: #ff7770; }
+.customer-portal.is-admin .meeting-form-message.is-success { color: var(--portal-success); }
+.customer-portal.is-admin .meeting-form-message.is-warning { color: var(--portal-warning); }
+.customer-portal.is-admin .meeting-form-message.is-error   { color: var(--portal-danger); }
 
-.agenda-list-heading {
-    align-items: center;
-}
-
-.agenda-refresh {
+.customer-portal.is-admin .agenda-refresh {
     padding: 0.45rem 0.7rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 9px;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.6rem;
     background: rgba(255, 255, 255, 0.035);
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font: inherit;
     font-size: 0.72rem;
     cursor: pointer;
 }
 
-.agenda-refresh:hover,
-.agenda-refresh:focus-visible {
+.customer-portal.is-admin .agenda-refresh:hover,
+.customer-portal.is-admin .agenda-refresh:focus-visible {
     border-color: rgba(41, 151, 255, 0.5);
-    color: var(--color-accent);
+    color: var(--portal-info);
 }
 
-.agenda-filters {
+.customer-portal.is-admin .agenda-filters {
     display: flex;
     gap: 0.45rem;
     margin-bottom: 1.1rem;
@@ -180,232 +865,913 @@
     scrollbar-width: none;
 }
 
-.agenda-filters::-webkit-scrollbar { display: none; }
+.customer-portal.is-admin .agenda-filters::-webkit-scrollbar { display: none; }
 
-.agenda-filter {
+.customer-portal.is-admin .agenda-filter {
     flex: 0 0 auto;
     padding: 0.45rem 0.75rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 999px;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--radius-pill, 9999px);
     background: transparent;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font: inherit;
     font-size: 0.71rem;
-    font-weight: 600;
+    font-weight: 660;
     cursor: pointer;
 }
 
-.agenda-filter.is-active {
+.customer-portal.is-admin .agenda-filter.is-active {
     border-color: rgba(41, 151, 255, 0.38);
-    background: rgba(41, 151, 255, 0.12);
-    color: var(--color-accent);
+    background: rgba(41, 151, 255, 0.14);
+    color: #ddebff;
 }
 
-.agenda-filter:focus-visible,
-.meeting-cancel-btn:focus-visible,
-.submission-selector:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-}
-
-.agenda-meeting-list {
+.customer-portal.is-admin .agenda-meeting-list {
     display: grid;
+    min-height: 10.5rem;
     gap: 0.8rem;
-    min-height: 170px;
 }
 
-.agenda-empty {
+.customer-portal.is-admin .agenda-empty {
     display: grid;
-    min-height: 170px;
+    min-height: 10.5rem;
     place-items: center;
     padding: 1.5rem;
-    border: 1px dashed var(--glass-border);
-    border-radius: 14px;
-    color: var(--color-text-secondary);
-    text-align: center;
+    border: 1px dashed var(--portal-border);
+    border-radius: 0.9rem;
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.82rem;
+    text-align: center;
 }
 
-.meeting-card {
+.customer-portal.is-admin .meeting-card {
     display: grid;
-    grid-template-columns: 4px minmax(0, 1fr);
+    grid-template-columns: 0.25rem minmax(0, 1fr);
     overflow: hidden;
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    background: rgba(3, 8, 22, 0.35);
+    border: 1px solid var(--portal-border);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.03);
 }
 
-.meeting-card-accent {
-    background: #2997ff;
-}
+.customer-portal.is-admin .meeting-card-accent { background: var(--portal-info); }
+.customer-portal.is-admin .meeting-card.is-past .meeting-card-accent { background: #7d8799; }
+.customer-portal.is-admin .meeting-card.is-cancelled .meeting-card-accent { background: var(--portal-danger); }
+.customer-portal.is-admin .meeting-card.is-cancelled { opacity: 0.72; }
 
-.meeting-card.is-past .meeting-card-accent { background: #7d8799; }
-.meeting-card.is-cancelled .meeting-card-accent { background: #ff6b63; }
-.meeting-card.is-cancelled { opacity: 0.72; }
-
-.meeting-card-body {
+.customer-portal.is-admin .meeting-card-body {
     min-width: 0;
     padding: 1rem;
 }
 
-.meeting-card-head,
-.meeting-card-footer,
-.meeting-card-meta {
+.customer-portal.is-admin :where(.meeting-card-head, .meeting-card-footer, .meeting-card-meta) {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 0.8rem;
 }
 
-.meeting-card-title {
+.customer-portal.is-admin .meeting-card-title {
     margin: 0;
-    color: var(--color-text-primary);
-    font-size: 0.94rem;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.9rem;
+    font-weight: 660;
     line-height: 1.35;
 }
 
-.meeting-card-client {
+.customer-portal.is-admin .meeting-card-client {
     margin-top: 0.2rem;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.73rem;
 }
 
-.meeting-status {
+.customer-portal.is-admin .meeting-status {
     flex: 0 0 auto;
     padding: 0.23rem 0.5rem;
     border: 1px solid rgba(41, 151, 255, 0.25);
-    border-radius: 999px;
-    color: var(--color-accent);
+    border-radius: var(--radius-pill, 9999px);
     background: rgba(41, 151, 255, 0.08);
+    color: var(--portal-info);
     font-size: 0.62rem;
-    font-weight: 700;
+    font-weight: 730;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
-.meeting-card.is-past .meeting-status {
+.customer-portal.is-admin .meeting-card.is-past .meeting-status {
     border-color: rgba(151, 160, 176, 0.25);
-    color: #a7b0c1;
     background: rgba(151, 160, 176, 0.08);
+    color: #a7b0c1;
 }
 
-.meeting-card.is-cancelled .meeting-status {
-    border-color: rgba(255, 107, 99, 0.28);
+.customer-portal.is-admin .meeting-card.is-cancelled .meeting-status {
+    border-color: rgba(255, 118, 118, 0.28);
+    background: rgba(255, 118, 118, 0.08);
     color: #ff8a84;
-    background: rgba(255, 107, 99, 0.08);
 }
 
-.meeting-time-grid {
+.customer-portal.is-admin .meeting-time-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.55rem;
     margin: 0.85rem 0;
 }
 
-.meeting-time-zone {
+.customer-portal.is-admin .meeting-time-zone {
     padding: 0.7rem;
     border: 1px solid rgba(255, 255, 255, 0.065);
-    border-radius: 10px;
+    border-radius: 0.65rem;
     background: rgba(255, 255, 255, 0.025);
 }
 
-.meeting-time-zone span {
+.customer-portal.is-admin .meeting-time-zone span {
     display: block;
     margin-bottom: 0.22rem;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.61rem;
-    font-weight: 700;
+    font-weight: 730;
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
-.meeting-time-zone strong {
-    color: var(--color-text-primary);
+.customer-portal.is-admin .meeting-time-zone strong {
+    color: var(--color-text-primary, #e1e1e5);
     font-size: 0.78rem;
     line-height: 1.4;
 }
 
-.meeting-card-meta {
-    justify-content: flex-start;
+.customer-portal.is-admin .meeting-card-meta {
     flex-wrap: wrap;
-    color: var(--color-text-secondary);
+    justify-content: flex-start;
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.68rem;
 }
 
-.meeting-card-meta span + span::before {
-    content: '·';
+.customer-portal.is-admin .meeting-card-meta span + span::before {
+    content: "·";
     margin-right: 0.8rem;
     opacity: 0.55;
 }
 
-.meeting-card-footer {
+.customer-portal.is-admin .meeting-card-footer {
     align-items: center;
     margin-top: 0.9rem;
     padding-top: 0.8rem;
     border-top: 1px solid rgba(255, 255, 255, 0.055);
 }
 
-.meeting-join-link {
-    color: var(--color-accent);
+.customer-portal.is-admin .meeting-join-link {
+    color: var(--portal-info);
     font-size: 0.72rem;
-    font-weight: 650;
+    font-weight: 660;
     text-decoration: none;
 }
 
-.meeting-join-link:hover { text-decoration: underline; }
+.customer-portal.is-admin .meeting-join-link:hover { text-decoration: underline; }
 
-.meeting-cancel-btn {
+.customer-portal.is-admin .meeting-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.customer-portal.is-admin :where(.meeting-action-btn, .meeting-cancel-btn) {
     padding: 0.38rem 0.58rem;
-    border: 1px solid rgba(255, 107, 99, 0.22);
-    border-radius: 8px;
-    background: rgba(255, 107, 99, 0.06);
-    color: #ff8a84;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.55rem;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-secondary, #a0a5b5);
     font: inherit;
     font-size: 0.68rem;
+    text-decoration: none;
     cursor: pointer;
 }
 
-.meeting-cancel-btn:disabled {
+.customer-portal.is-admin .meeting-action-btn:hover {
+    border-color: rgba(41, 151, 255, 0.4);
+    color: var(--color-text-primary, #e1e1e5);
+}
+
+.customer-portal.is-admin .meeting-cancel-btn {
+    border-color: rgba(255, 118, 118, 0.22);
+    background: rgba(255, 118, 118, 0.06);
+    color: #ff8a84;
+}
+
+.customer-portal.is-admin .meeting-cancel-btn:disabled {
     opacity: 0.45;
     cursor: wait;
 }
 
-/* Nobody sends the invitation for us: the calendar file and the prefilled
-   email sit right on the card. */
-.meeting-card-actions {
+.customer-portal.is-admin :where(.agenda-filter, .meeting-cancel-btn, .submission-selector):focus-visible {
+    outline: 2px solid var(--portal-info);
+    outline-offset: 2px;
+}
+
+.customer-portal.is-admin .client-duplicate-badge {
+    margin-top: 0.6rem;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid rgba(255, 171, 0, 0.3);
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 171, 0, 0.09);
+    color: #ffab00;
+    font-size: 0.65rem;
+    font-weight: 720;
+    text-align: center;
+}
+
+/* ===========================================================================
+   Client profile — a full page, not a drawer.
+   ========================================================================== */
+
+.customer-portal.is-admin .admin-profile-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    padding: 0.4rem 0.7rem 0.4rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill, 9999px);
+    background: transparent;
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 660;
+    cursor: pointer;
+    transition: color var(--transition-fast, 0.2s ease), border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .admin-profile-back:hover {
+    border-color: var(--portal-border);
+    color: var(--color-text-primary, #e1e1e5);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.customer-portal.is-admin .admin-profile-back svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.customer-portal.is-admin .admin-profile-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.85rem 1.25rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: clamp(1.1rem, 2.4vw, 1.65rem);
+    border: 1px solid var(--portal-border);
+    border-radius: clamp(1rem, 2vw, var(--radius-md, 24px));
+    background:
+        radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.1), transparent 42%),
+        linear-gradient(145deg, rgba(15, 29, 55, 0.8), var(--portal-surface));
+    box-shadow: var(--portal-shadow-soft);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+}
+
+.customer-portal.is-admin .admin-profile-avatar {
+    display: grid;
+    width: 3.75rem;
+    height: 3.75rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(41, 151, 255, 0.38);
+    border-radius: 1.15rem;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 750;
+    background: linear-gradient(145deg, #2f9cff, #125ecb);
+    box-shadow: 0 10px 28px rgba(41, 151, 255, 0.22);
+}
+
+.customer-portal.is-admin .admin-profile-identity {
+    min-width: 0;
+}
+
+.customer-portal.is-admin .admin-profile-identity h1 {
+    margin: 0;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 720;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+}
+
+.customer-portal.is-admin .admin-profile-subtitle {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem 0.75rem;
+    margin: 0.35rem 0 0;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.78rem;
+}
+
+.customer-portal.is-admin .admin-profile-subtitle a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.customer-portal.is-admin .admin-profile-subtitle a:hover {
+    color: var(--portal-info);
+    text-decoration: underline;
+    text-underline-offset: 0.2rem;
+}
+
+.customer-portal.is-admin .admin-profile-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
-    align-items: center;
+    margin-top: 0.65rem;
 }
 
-.meeting-action-btn {
-    padding: 0.38rem 0.58rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--color-text-secondary);
+.customer-portal.is-admin .admin-profile-actions {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* Project selector: several projects live under one partner. */
+.customer-portal.is-admin .project-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+}
+
+.customer-portal.is-admin .project-tab-btn {
+    appearance: none;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--radius-pill, 9999px);
+    background: transparent;
+    color: var(--color-text-secondary, #a0a5b5);
     font: inherit;
+    font-size: 0.74rem;
+    font-weight: 660;
+    cursor: pointer;
+    transition: color var(--transition-fast, 0.2s ease), border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .project-tab-btn:hover {
+    border-color: var(--portal-border-strong);
+    color: var(--color-text-primary, #e1e1e5);
+}
+
+.customer-portal.is-admin .project-tab-btn.active {
+    border-color: rgba(41, 151, 255, 0.38);
+    background: rgba(41, 151, 255, 0.14);
+    color: #ddebff;
+}
+
+/* Profile tabs */
+.customer-portal.is-admin .portal-tabs {
+    position: relative;
+    display: flex;
+    gap: 0.2rem;
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.35rem;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--portal-border);
+    scrollbar-width: none;
+}
+
+.customer-portal.is-admin .portal-tabs::-webkit-scrollbar { display: none; }
+
+.customer-portal.is-admin .portal-tab {
+    appearance: none;
+    position: relative;
+    flex: 0 0 auto;
+    padding: 0.6rem 0.95rem;
+    border: 0;
+    border-radius: 0.7rem 0.7rem 0 0;
+    background: transparent;
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 660;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .portal-tab::after {
+    content: "";
+    position: absolute;
+    right: 0.55rem;
+    bottom: -0.35rem;
+    left: 0.55rem;
+    height: 0.13rem;
+    border-radius: var(--radius-pill, 9999px) var(--radius-pill, 9999px) 0 0;
+    background: var(--portal-info);
+    box-shadow: 0 0 14px var(--color-accent-glow, rgba(41, 151, 255, 0.5));
+    opacity: 0;
+    transform: scaleX(0.4);
+    transition: opacity var(--transition-fast, 0.2s ease), transform var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .portal-tab:hover {
+    color: var(--color-text-primary, #e1e1e5);
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.customer-portal.is-admin .portal-tab[aria-selected="true"] {
+    color: #ddebff;
+}
+
+.customer-portal.is-admin .portal-tab[aria-selected="true"]::after {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.customer-portal.is-admin .portal-tab-count {
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.07);
+    font-size: 0.64rem;
+    font-weight: 740;
+}
+
+.customer-portal.is-admin .portal-tab-panel {
+    animation: portal-view-enter 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Profile sections reuse .detail-section from the old panel, restyled. */
+.customer-portal.is-admin .portal-tab-panel .detail-section {
+    margin-bottom: 1.5rem;
+    padding: clamp(1rem, 2.2vw, 1.5rem);
+    border: 1px solid var(--portal-border);
+    border-radius: clamp(1rem, 2vw, var(--radius-md, 24px));
+    background: linear-gradient(145deg, rgba(15, 29, 55, 0.78), var(--portal-surface));
+    box-shadow: var(--portal-shadow-soft);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+}
+
+.customer-portal.is-admin .portal-tab-panel .detail-section > h3 {
+    margin: 0 0 1.25rem;
+    padding: 0 0 0.7rem;
+    border-bottom: 1px solid var(--portal-border);
+    color: var(--portal-info);
+    font-size: 0.7rem;
+    font-weight: 760;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 1.1rem 1.75rem;
+}
+
+.customer-portal.is-admin .info-item label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.66rem;
+    font-weight: 720;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.72;
+}
+
+.customer-portal.is-admin .info-item :where(span, p) {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.88rem;
+    line-height: 1.5;
+}
+
+/* Documents: the upload that finally works ------------------------------- */
+
+.customer-portal.is-admin .report-list {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.customer-portal.is-admin .report-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.customer-portal.is-admin .report-info {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .report-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    color: var(--portal-info);
+}
+
+.customer-portal.is-admin .report-title {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.84rem;
+    font-weight: 640;
+}
+
+.customer-portal.is-admin .report-date {
+    margin-top: 0.12rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.71rem;
+}
+
+.customer-portal.is-admin .report-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.35rem;
+}
+
+.customer-portal.is-admin .report-btn {
+    display: grid;
+    width: 2.1rem;
+    height: 2.1rem;
+    place-items: center;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-secondary, #a0a5b5);
+    cursor: pointer;
+    transition: border-color var(--transition-fast, 0.2s ease), color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .report-btn:hover {
+    border-color: rgba(41, 151, 255, 0.4);
+    color: var(--portal-info);
+    background: rgba(41, 151, 255, 0.08);
+}
+
+.customer-portal.is-admin .report-btn.btn-delete:hover {
+    border-color: rgba(255, 118, 118, 0.4);
+    color: #ff8a84;
+    background: rgba(255, 118, 118, 0.08);
+}
+
+.customer-portal.is-admin .report-upload-card {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(0.9rem, 2vw, 1.25rem);
+    border: 1px solid var(--portal-border);
+    border-radius: 1.1rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.customer-portal.is-admin .report-upload-card h4 {
+    margin: 0;
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.68rem;
-    text-decoration: none;
+    font-weight: 740;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .report-inputs-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 0.7rem;
+}
+
+.customer-portal.is-admin .report-upload-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+/* The old pattern layered a transparent file input over a `pointer-events:
+   none` button and never positioned it, so the button was dead. This one is a
+   plain <label for> over a visually hidden input: native, keyboard reachable,
+   and it also accepts a drop. */
+.customer-portal.is-admin .portal-dropzone {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 18rem;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px dashed var(--portal-border-strong);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
+}
+
+.customer-portal.is-admin .portal-dropzone:hover,
+.customer-portal.is-admin .portal-dropzone:focus-within {
+    border-color: rgba(41, 151, 255, 0.5);
+    background: rgba(41, 151, 255, 0.05);
+}
+
+.customer-portal.is-admin .portal-dropzone.is-dragover {
+    border-color: rgba(41, 151, 255, 0.8);
+    border-style: solid;
+    background: rgba(41, 151, 255, 0.11);
+}
+
+.customer-portal.is-admin .portal-dropzone-icon {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(41, 151, 255, 0.28);
+    border-radius: 0.7rem;
+    background: rgba(41, 151, 255, 0.1);
+    color: var(--portal-info);
+}
+
+.customer-portal.is-admin .portal-dropzone-icon svg {
+    width: 1.05rem;
+    height: 1.05rem;
+}
+
+.customer-portal.is-admin .portal-dropzone-copy {
+    min-width: 0;
+}
+
+.customer-portal.is-admin .portal-dropzone-name {
+    display: block;
+    overflow: hidden;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.8rem;
+    font-weight: 640;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .portal-dropzone-hint {
+    display: block;
+    margin-top: 0.1rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.69rem;
+}
+
+.customer-portal.is-admin .portal-upload-progress {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+}
+
+.customer-portal.is-admin .portal-upload-progress[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .portal-upload-track {
+    height: 0.36rem;
+    overflow: hidden;
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.customer-portal.is-admin .portal-upload-fill {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #2d9fff, #7bc4ff);
+    transition: width 0.25s ease;
+}
+
+.customer-portal.is-admin .portal-upload-label {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.69rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Pipeline stepper inside the profile */
+.customer-portal.is-admin .pipeline-stepper {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.customer-portal.is-admin .pipeline-stepper::-webkit-scrollbar { display: none; }
+
+.customer-portal.is-admin .pipeline-step {
+    position: relative;
+    display: grid;
+    flex: 1 1 0;
+    min-width: 5.5rem;
+    justify-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem;
     cursor: pointer;
 }
 
-.meeting-action-btn:hover {
-    border-color: rgba(41, 151, 255, 0.4);
-    color: var(--color-text-primary);
+.customer-portal.is-admin .step-circle {
+    display: grid;
+    width: 2.1rem;
+    height: 2.1rem;
+    place-items: center;
+    border: 1px solid var(--portal-border-strong);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.76rem;
+    font-weight: 730;
+    transition: border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease), color var(--transition-fast, 0.2s ease);
 }
 
-/* Every onboarding delivery remains individually selectable. */
-.onboarding-history {
-    margin: 0 0 2rem;
-    padding: 1.25rem;
+.customer-portal.is-admin .step-label {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.68rem;
+    font-weight: 620;
+    text-align: center;
+}
+
+.customer-portal.is-admin .step-line {
+    position: absolute;
+    top: 1.3rem;
+    left: calc(50% + 1.35rem);
+    width: calc(100% - 2.7rem);
+    height: 1px;
+    background: var(--portal-border);
+}
+
+.customer-portal.is-admin .pipeline-step.completed .step-circle {
+    border-color: rgba(64, 216, 150, 0.45);
+    background: rgba(64, 216, 150, 0.13);
+    color: var(--portal-success);
+}
+
+.customer-portal.is-admin .pipeline-step.completed + .pipeline-step .step-line,
+.customer-portal.is-admin .pipeline-step.completed .step-line {
+    background: rgba(64, 216, 150, 0.4);
+}
+
+.customer-portal.is-admin .pipeline-step.active .step-circle {
+    border-color: rgba(41, 151, 255, 0.6);
+    background: rgba(41, 151, 255, 0.18);
+    color: #ddebff;
+    box-shadow: 0 0 0 4px rgba(41, 151, 255, 0.09);
+}
+
+.customer-portal.is-admin .pipeline-step.active .step-label {
+    color: var(--color-text-primary, #e1e1e5);
+    font-weight: 700;
+}
+
+.customer-portal.is-admin .pipeline-step:hover .step-circle {
+    border-color: rgba(41, 151, 255, 0.45);
+}
+
+/* Financials */
+.customer-portal.is-admin .fin-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .fin-card {
+    padding: 0.95rem 1rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Client timeline */
+.customer-portal.is-admin .tl-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.9rem;
+    padding-bottom: 1.1rem;
+}
+
+.customer-portal.is-admin .tl-node {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    place-items: center;
+    border: 1px solid var(--portal-border-strong);
+    border-radius: 50%;
+    background: var(--portal-surface-solid);
+    color: var(--portal-info);
+}
+
+.customer-portal.is-admin .tl-card {
+    min-width: 0;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.customer-portal.is-admin .tl-card-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .tl-label {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.82rem;
+    font-weight: 650;
+}
+
+.customer-portal.is-admin :where(.tl-date, .tl-time, .tl-meta, .tl-desc, .tl-actor) {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.71rem;
+    line-height: 1.45;
+}
+
+.customer-portal.is-admin .tl-stage-flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.customer-portal.is-admin .tl-stage-pill {
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--portal-border);
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.65rem;
+    font-weight: 690;
+}
+
+.customer-portal.is-admin .tl-stage-pill-active {
+    border-color: rgba(41, 151, 255, 0.4);
+    background: rgba(41, 151, 255, 0.14);
+    color: #ddebff;
+}
+
+.customer-portal.is-admin .tl-arrow {
+    color: var(--color-text-secondary, #a0a5b5);
+    opacity: 0.6;
+}
+
+.customer-portal.is-admin .timeline-empty {
+    padding: 2rem 1rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+/* Notes */
+.customer-portal.is-admin .admin-notes-area {
+    width: 100%;
+    min-height: 7rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.85rem;
+    outline: none;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-primary, #e1e1e5);
+    font: inherit;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    resize: vertical;
+    color-scheme: dark;
+}
+
+.customer-portal.is-admin .admin-notes-area:focus {
+    border-color: rgba(41, 151, 255, 0.68);
+    background: rgba(41, 151, 255, 0.055);
+    box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.1);
+}
+
+.customer-portal.is-admin .admin-notes-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+/* Onboarding delivery history ------------------------------------------- */
+
+.customer-portal.is-admin .onboarding-history {
+    display: block;
+    margin: 0 0 1.5rem;
+    padding: clamp(1rem, 2.2vw, 1.35rem);
     border: 1px solid rgba(41, 151, 255, 0.23);
-    border-radius: 16px;
+    border-radius: clamp(1rem, 2vw, var(--radius-md, 24px));
     background: rgba(41, 151, 255, 0.045);
 }
 
-.onboarding-history-head {
+.customer-portal.is-admin .onboarding-history-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -413,61 +1779,60 @@
     margin-bottom: 1rem;
 }
 
-.onboarding-history-head h3 {
+.customer-portal.is-admin .onboarding-history-head h3 {
     margin: 0;
     padding: 0;
     border: 0;
-    color: var(--color-text-primary);
+    color: var(--color-text-primary, #e1e1e5);
     font-size: 0.92rem;
+    font-weight: 680;
     letter-spacing: normal;
     text-transform: none;
 }
 
-.onboarding-history-head p {
+.customer-portal.is-admin .onboarding-history-head p {
     margin: 0.3rem 0 0;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.72rem;
 }
 
-.onboarding-history-count {
+.customer-portal.is-admin .onboarding-history-count {
     flex: 0 0 auto;
     padding: 0.28rem 0.55rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill, 9999px);
     background: rgba(41, 151, 255, 0.12);
-    color: var(--color-accent);
+    color: var(--portal-info);
     font-size: 0.65rem;
-    font-weight: 700;
+    font-weight: 730;
 }
 
-/* The onboarding is filled by the admin with the client: the entry point to
-   that session lives next to the delivery history. */
-.onboarding-history-aside {
+.customer-portal.is-admin .onboarding-history-aside {
     display: flex;
     flex: 0 0 auto;
     align-items: center;
     gap: 0.75rem;
 }
 
-.onboarding-history-aside .btn {
+.customer-portal.is-admin .onboarding-history-aside .btn {
     flex: 0 0 auto;
     white-space: nowrap;
 }
 
-.onboarding-session-hint {
+.customer-portal.is-admin .onboarding-session-hint {
     margin: 0.35rem 0 0;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.72rem;
     opacity: 0.85;
 }
 
-.onboarding-session-actions {
+.customer-portal.is-admin .onboarding-session-actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
     margin-bottom: 1.1rem;
 }
 
-.submission-timeline {
+.customer-portal.is-admin .submission-timeline {
     display: flex;
     gap: 0.65rem;
     padding-bottom: 0.2rem;
@@ -475,102 +1840,205 @@
     scrollbar-width: thin;
 }
 
-.submission-selector {
+.customer-portal.is-admin .submission-selector {
     position: relative;
-    flex: 0 0 min(210px, 72vw);
+    flex: 0 0 min(13rem, 72vw);
     padding: 0.78rem 0.85rem 0.78rem 1rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.8rem;
     background: rgba(255, 255, 255, 0.025);
-    color: var(--color-text-secondary);
-    text-align: left;
+    color: var(--color-text-secondary, #a0a5b5);
     font: inherit;
+    text-align: left;
     cursor: pointer;
 }
 
-.submission-selector::before {
-    content: '';
+.customer-portal.is-admin .submission-selector::before {
+    content: "";
     position: absolute;
     top: 0.8rem;
     bottom: 0.8rem;
     left: 0;
-    width: 3px;
-    border-radius: 0 4px 4px 0;
+    width: 0.19rem;
+    border-radius: 0 0.25rem 0.25rem 0;
     background: rgba(151, 160, 176, 0.45);
 }
 
-.submission-selector.is-active {
+.customer-portal.is-admin .submission-selector.is-active {
     border-color: rgba(41, 151, 255, 0.42);
     background: rgba(41, 151, 255, 0.1);
-    color: var(--color-text-primary);
+    color: var(--color-text-primary, #e1e1e5);
 }
 
-.submission-selector.is-active::before { background: var(--color-accent); }
+.customer-portal.is-admin .submission-selector.is-active::before { background: var(--portal-info); }
 
-.submission-selector strong,
-.submission-selector span {
+.customer-portal.is-admin :where(.submission-selector strong, .submission-selector span) {
     display: block;
 }
 
-.submission-selector strong {
+.customer-portal.is-admin .submission-selector strong {
     margin-bottom: 0.24rem;
     font-size: 0.76rem;
 }
 
-.submission-selector span {
+.customer-portal.is-admin .submission-selector span {
     font-size: 0.65rem;
     line-height: 1.4;
 }
 
-.submission-selected-meta {
+.customer-portal.is-admin .submission-selected-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 1rem;
     margin: -0.5rem 0 1.5rem;
-    color: var(--color-text-secondary);
+    color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.7rem;
 }
 
-@media (max-width: 1120px) {
-    .agenda-layout { grid-template-columns: 1fr; }
+/* Suspended accounts ----------------------------------------------------- */
+
+.customer-portal.is-admin .suspended-detail-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(255, 118, 118, 0.28);
+    border-radius: 0.9rem;
+    background: rgba(255, 118, 118, 0.07);
+    color: #ffc2c2;
+    font-size: 0.8rem;
 }
 
-@media (max-width: 768px) {
-    .agenda-header { align-items: flex-start; }
-    .agenda-panel { padding: 1.05rem; border-radius: 16px; }
-    .meeting-form-grid { grid-template-columns: 1fr; }
-    .meeting-field-wide { grid-column: auto; }
-    .meeting-form-footer { align-items: stretch; flex-direction: column; }
-    .meeting-form-footer .btn { width: 100%; }
-    .meeting-time-grid { grid-template-columns: 1fr; }
-    .onboarding-history-head { flex-direction: column; }
-    .onboarding-history-aside { width: 100%; justify-content: space-between; }
+.customer-portal.is-admin :where(.suspended-badge, .suspended-title-tag) {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(255, 118, 118, 0.3);
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 118, 118, 0.1);
+    color: #ff8a84;
+    font-size: 0.62rem;
+    font-weight: 730;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
 
-    .sidebar-nav {
-        justify-content: flex-start;
-        overflow-x: auto;
-        scrollbar-width: none;
+/* Responsive ------------------------------------------------------------- */
+
+@media (max-width: 70rem) {
+    .customer-portal.is-admin .agenda-layout,
+    .customer-portal.is-admin .overview-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 56rem) {
+    .customer-portal.is-admin .admin-profile-header {
+        grid-template-columns: auto minmax(0, 1fr);
     }
 
-    .sidebar-nav::-webkit-scrollbar { display: none; }
-    .sidebar-nav .nav-item { min-width: 58px; }
+    .customer-portal.is-admin .admin-profile-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 48rem) {
+    .customer-portal.is-admin .crm-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .customer-portal.is-admin .crm-search-wrapper,
+    .customer-portal.is-admin .crm-filter-pills {
+        flex: 0 0 auto;
+    }
+
+    .customer-portal.is-admin .crm-results-count {
+        margin-left: 0;
+    }
+
+    .customer-portal.is-admin .meeting-form-grid,
+    .customer-portal.is-admin .meeting-time-grid,
+    .customer-portal.is-admin .report-inputs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .customer-portal.is-admin .meeting-field-wide {
+        grid-column: auto;
+    }
+
+    .customer-portal.is-admin .meeting-form-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .customer-portal.is-admin .meeting-form-footer .btn {
+        width: 100%;
+    }
+
+    .customer-portal.is-admin .onboarding-history-head {
+        flex-direction: column;
+    }
+
+    .customer-portal.is-admin .onboarding-history-aside {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .customer-portal.is-admin .admin-profile-header {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: start;
+    }
+
+    .customer-portal.is-admin .report-upload-footer .btn {
+        width: 100%;
+    }
+
+    /* Tables become stacked cards, same as the customer portal. */
+    .customer-portal.is-admin .portal-table thead {
+        display: none;
+    }
+
+    .customer-portal.is-admin .portal-table,
+    .customer-portal.is-admin .portal-table tbody,
+    .customer-portal.is-admin .portal-table tr,
+    .customer-portal.is-admin .portal-table td {
+        display: block;
+        min-width: 0;
+    }
+
+    .customer-portal.is-admin .portal-table tr {
+        margin-bottom: 0.6rem;
+        padding: 0.5rem 0.25rem;
+        border: 1px solid var(--portal-border);
+        border-radius: 0.85rem;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .customer-portal.is-admin .portal-table td {
+        display: grid;
+        grid-template-columns: minmax(0, 8rem) minmax(0, 1fr);
+        gap: 0.75rem;
+        border: 0;
+    }
+
+    .customer-portal.is-admin .portal-table td::before {
+        content: attr(data-label);
+        color: var(--color-text-secondary, #a0a5b5);
+        font-size: 0.66rem;
+        font-weight: 720;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .agenda-panel,
-    .submission-selector { transition: none; }
-}
-
-/* Prospect whose email already belongs to a registered client: one person,
-   two cards, until they are merged. */
-.client-duplicate-badge {
-    margin-top: 0.6rem;
-    padding: 0.3rem 0.55rem;
-    border: 1px solid rgba(255, 171, 0, 0.3);
-    border-radius: 999px;
-    background: rgba(255, 171, 0, 0.09);
-    color: #ffab00;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-align: center;
+    .customer-portal.is-admin .portal-tab-panel,
+    .customer-portal.is-admin .pipeline-card,
+    .customer-portal.is-admin .client-card,
+    .customer-portal.is-admin .agenda-panel,
+    .customer-portal.is-admin .submission-selector {
+        animation: none;
+        transition: none;
+    }
 }

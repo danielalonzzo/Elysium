@@ -18,10 +18,9 @@ import {
     runTransaction,
     onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { 
-    ref, 
-    uploadBytes,
-    uploadBytesResumable, 
+import {
+    ref,
+    uploadBytesResumable,
     getDownloadURL,
     deleteObject
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
@@ -76,6 +75,8 @@ let _detailRenderVersion = 0; // prevents stale async detail renderers writing i
 let _agendaMeetings = [];
 let _agendaFilter = 'upcoming';
 let _agendaLoadVersion = 0;
+let _profileReturnTab = 'clients'; // section to go back to when the profile closes
+let _profileTab = 'summary';       // active tab inside the client profile
 
 const PORTUGAL_TIME_ZONE = 'Europe/Lisbon';
 const ADMIN_AGENDA_PREVIEW = ['localhost', '127.0.0.1'].includes(location.hostname)
@@ -213,12 +214,21 @@ function adminTimestampMillis(value) {
     return Number.isFinite(millis) ? millis : 0;
 }
 
-function closeClientDetail() {
+/**
+ * Tears the client profile down: cancels in-flight renders, drops the Co-Pilot
+ * draft listener and empties the section so the next partner starts clean.
+ */
+function closeClientProfile() {
     _detailLoadVersion++;
     _detailRenderVersion++;
     if (_draftUnsub) { _draftUnsub(); _draftUnsub = null; }
-    const overlay = document.getElementById('client-detail-overlay');
-    if (overlay) overlay.style.display = 'none';
+    if (clientRevenueChartInstance) { clientRevenueChartInstance.destroy(); clientRevenueChartInstance = null; }
+    const section = document.getElementById('client-profile');
+    if (section) {
+        section.classList.remove('active');
+        const content = document.getElementById('detail-content');
+        if (content) content.innerHTML = '';
+    }
 }
 
 /** Animate a progress bar fill after a paint frame */
@@ -233,6 +243,147 @@ function animateProgress(el, pct) {
 function initials(name) {
     if (!name) return '?';
     return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+}
+
+/* ── File uploads ────────────────────────────────────────────────────────
+   The previous widget stacked a transparent <input type="file"> and a button
+   with `pointer-events: none`, but never positioned the input over it — the
+   visible button was inert and nothing could be uploaded. A plain <label for>
+   over a visually hidden input needs no positioning at all, is reachable by
+   keyboard, and leaves the surrounding box free to accept a drop.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/** Markup for a drop zone whose label opens the native file picker. */
+function fileDropzone(inputId, labelId, placeholder, accept = 'application/pdf,image/*') {
+    const t = translations[currentLang];
+    return `
+        <div class="portal-dropzone" data-dropzone-for="${esc(inputId)}">
+            <input type="file" id="${esc(inputId)}" class="portal-sr-only" accept="${esc(accept)}">
+            <span class="portal-dropzone-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </span>
+            <label class="portal-dropzone-copy" for="${esc(inputId)}">
+                <span class="portal-dropzone-name" id="${esc(labelId)}">${esc(placeholder)}</span>
+                <span class="portal-dropzone-hint">${esc(t.upload_hint)}</span>
+            </label>
+        </div>`;
+}
+
+/** Markup for the progress bar that goes with a drop zone. */
+function uploadProgress(prefix) {
+    return `
+        <div class="portal-upload-progress" id="${esc(prefix)}-progress" hidden>
+            <div class="portal-upload-track"><div class="portal-upload-fill" id="${esc(prefix)}-progress-fill"></div></div>
+            <span class="portal-upload-label" id="${esc(prefix)}-progress-label"></span>
+        </div>`;
+}
+
+/** Wires clicking, dropping and the filename echo for one drop zone. */
+function bindDropzone(inputId, labelId, placeholder) {
+    const input = document.getElementById(inputId);
+    const zone = document.querySelector(`.portal-dropzone[data-dropzone-for="${inputId}"]`);
+    const label = document.getElementById(labelId);
+    if (!input || !zone) return;
+
+    const showName = () => {
+        if (!label) return;
+        const file = input.files?.[0];
+        label.textContent = file
+            ? (file.name.length > 34 ? `${file.name.slice(0, 31)}…` : file.name)
+            : placeholder;
+    };
+
+    // The <label> already opens the picker; anywhere else in the zone should too.
+    zone.addEventListener('click', event => {
+        if (event.target.closest('label, input')) return;
+        input.click();
+    });
+    input.addEventListener('change', showName);
+
+    ['dragenter', 'dragover'].forEach(type => zone.addEventListener(type, event => {
+        event.preventDefault();
+        zone.classList.add('is-dragover');
+    }));
+    ['dragleave', 'dragend'].forEach(type => zone.addEventListener(type, () => {
+        zone.classList.remove('is-dragover');
+    }));
+    zone.addEventListener('drop', event => {
+        event.preventDefault();
+        zone.classList.remove('is-dragover');
+        const dropped = event.dataTransfer?.files?.[0];
+        if (!dropped) return;
+        const transfer = new DataTransfer();
+        transfer.items.add(dropped);
+        input.files = transfer.files;
+        showName();
+    });
+}
+
+/**
+ * Uploads with real progress. The old code raced `uploadBytes` against a 15 s
+ * timeout: past that it reported a failure while the upload kept going, so the
+ * file was orphaned in Storage. A resumable upload can be watched and, if it
+ * genuinely fails, reports why.
+ */
+function uploadFileWithProgress(storageRef, file, prefix) {
+    const t = translations[currentLang];
+    const wrap = document.getElementById(`${prefix}-progress`);
+    const fill = document.getElementById(`${prefix}-progress-fill`);
+    const label = document.getElementById(`${prefix}-progress-label`);
+    if (wrap) wrap.hidden = false;
+
+    return new Promise((resolve, reject) => {
+        const task = uploadBytesResumable(storageRef, file);
+        task.on('state_changed',
+            snapshot => {
+                const pct = snapshot.totalBytes
+                    ? Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+                    : 0;
+                if (fill) fill.style.width = `${pct}%`;
+                if (label) label.textContent = `${t.upload_progress} ${pct}%`;
+            },
+            error => {
+                if (wrap) wrap.hidden = true;
+                reject(error);
+            },
+            async () => {
+                try {
+                    const url = await getDownloadURL(task.snapshot.ref);
+                    if (wrap) wrap.hidden = true;
+                    resolve(url);
+                } catch (error) {
+                    if (wrap) wrap.hidden = true;
+                    reject(error);
+                }
+            }
+        );
+    });
+}
+
+/** Turns a Firebase Storage error code into something an admin can act on. */
+function storageErrorMessage(error) {
+    const t = translations[currentLang];
+    switch (error?.code) {
+        case 'storage/unauthorized':
+        case 'storage/unauthenticated':
+            return t.upload_failed_permission;
+        case 'storage/retry-limit-exceeded':
+        case 'storage/canceled':
+            return t.upload_failed_network;
+        case 'storage/quota-exceeded':
+            return t.upload_failed_size;
+        default:
+            return `${t.upload_failed_generic} ${error?.message || ''}`.trim();
+    }
+}
+
+/** Shows or clears an inline `.portal-alert`, instead of an alert() dialog. */
+function setInlineAlert(elementId, message, kind = 'is-error') {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    element.className = `portal-alert ${kind}`;
+    element.textContent = message || '';
+    element.hidden = !message;
 }
 
 const translations = {
@@ -254,6 +405,10 @@ const translations = {
         table_status: "Status",
         table_assigned: "Assigned To",
         table_used: "Used At",
+        table_client: "Client",
+        table_plan: "Plan",
+        table_origin: "Origin",
+        table_renewal: "Next renewal",
         unnamed_client: "Unnamed Client",
         no_company: "No Company",
         completed: "✓ Completed",
@@ -373,6 +528,24 @@ const translations = {
         project_link: "Project Link",
         save_link: "Save Link",
         download_pdf: "Download PDF",
+        back_to_list: "Back",
+        member_since: "Member since",
+        suspended_tag: "Suspended",
+        tab_summary: "Summary",
+        tab_billing: "Subscription & payments",
+        tab_documents: "Documents",
+        tab_onboarding: "Onboarding",
+        tab_activity: "Activity",
+        kpi_revenue: "Registered income",
+        kpi_plan: "Active plan",
+        kpi_next_billing: "Next billing",
+        kpi_deliveries: "Onboarding deliveries",
+        upload_hint: "PDF or image · drop it here or click",
+        upload_progress: "Uploading",
+        upload_failed_permission: "Storage refused the upload. Sign in again as the administrator.",
+        upload_failed_network: "The connection dropped during the upload. Try again.",
+        upload_failed_size: "The file exceeds the storage quota.",
+        upload_failed_generic: "The file could not be uploaded.",
         saving: "Saving...",
         saved: "Saved!",
         stage_contact: "First Contact",
@@ -410,6 +583,10 @@ const translations = {
         table_status: "Estado",
         table_assigned: "Asignado a",
         table_used: "Usado en",
+        table_client: "Cliente",
+        table_plan: "Plan",
+        table_origin: "Origen",
+        table_renewal: "Próxima renovación",
         unnamed_client: "Cliente sin nombre",
         no_company: "Sin Empresa",
         completed: "✓ Completado",
@@ -530,6 +707,24 @@ const translations = {
         project_link: "Enlace del Proyecto",
         save_link: "Guardar Enlace",
         download_pdf: "Descargar PDF",
+        back_to_list: "Volver",
+        member_since: "Cliente desde",
+        suspended_tag: "Suspendida",
+        tab_summary: "Resumen",
+        tab_billing: "Suscripción y pagos",
+        tab_documents: "Documentos",
+        tab_onboarding: "Onboarding",
+        tab_activity: "Actividad",
+        kpi_revenue: "Ingresos registrados",
+        kpi_plan: "Plan activo",
+        kpi_next_billing: "Próximo cobro",
+        kpi_deliveries: "Entregas de onboarding",
+        upload_hint: "PDF o imagen · suéltalo aquí o haz clic",
+        upload_progress: "Subiendo",
+        upload_failed_permission: "Storage ha rechazado la subida. Vuelve a entrar como administrador.",
+        upload_failed_network: "Se ha cortado la conexión durante la subida. Inténtalo otra vez.",
+        upload_failed_size: "El archivo supera la cuota de almacenamiento.",
+        upload_failed_generic: "No se ha podido subir el archivo.",
         saving: "Guardando...",
         saved: "¡Guardado!",
         stage_contact: "Primer Contacto",
@@ -567,6 +762,10 @@ const translations = {
         table_status: "Status",
         table_assigned: "Atribuído a",
         table_used: "Usado em",
+        table_client: "Cliente",
+        table_plan: "Plano",
+        table_origin: "Origem",
+        table_renewal: "Próxima renovação",
         unnamed_client: "Cliente sem nome",
         no_company: "Sem Empresa",
         completed: "✓ Concluído",
@@ -686,6 +885,24 @@ const translations = {
         project_link: "Link do Projecto",
         save_link: "Salvar Link",
         download_pdf: "Baixar PDF",
+        back_to_list: "Voltar",
+        member_since: "Cliente desde",
+        suspended_tag: "Suspensa",
+        tab_summary: "Resumo",
+        tab_billing: "Subscrição e pagamentos",
+        tab_documents: "Documentos",
+        tab_onboarding: "Onboarding",
+        tab_activity: "Atividade",
+        kpi_revenue: "Receitas registadas",
+        kpi_plan: "Plano ativo",
+        kpi_next_billing: "Próxima cobrança",
+        kpi_deliveries: "Entregas de onboarding",
+        upload_hint: "PDF ou imagem · largue aqui ou clique",
+        upload_progress: "A carregar",
+        upload_failed_permission: "O Storage recusou o carregamento. Volte a entrar como administrador.",
+        upload_failed_network: "A ligação caiu durante o carregamento. Tente de novo.",
+        upload_failed_size: "O ficheiro excede a quota de armazenamento.",
+        upload_failed_generic: "Não foi possível carregar o ficheiro.",
         saving: "Salvando...",
         saved: "Salvo!",
         stage_contact: "Primeiro Contacto",
@@ -1312,7 +1529,7 @@ function applyAgendaTranslations() {
         const el = document.getElementById(id);
         if (el) el.textContent = value;
     });
-    const nav = document.querySelector('[data-target="agenda"] span:not(.sidebar-badge)');
+    const nav = document.querySelector('[data-target="agenda"] .portal-nav-text');
     if (nav) nav.textContent = c.nav;
     const title = document.getElementById('meeting-title');
     const notes = document.getElementById('meeting-notes');
@@ -1399,51 +1616,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Mobile Navigation Toggle
-    const mobileToggle = document.querySelector('.mobile-toggle');
-    const navLinks = document.querySelector('.nav-links');
-
-    if (mobileToggle && navLinks) {
-        mobileToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            document.body.classList.toggle('mobile-menu-open');
-
-            // Toggle icon between hamburger and close
-            if (navLinks.classList.contains('active')) {
-                mobileToggle.textContent = '✕';
-                document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
-            } else {
-                mobileToggle.textContent = '☰';
-                document.body.style.overflow = '';
-            }
-        });
-
-        // Close menu when clicking a language select
-        document.querySelectorAll('.lang-select').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-                document.body.classList.remove('mobile-menu-open');
-                mobileToggle.textContent = '☰';
-                document.body.style.overflow = '';
-            });
+    // Mobile: the sidebar is a bottom tab bar and the hamburger expands it.
+    const menuToggle = document.getElementById('admin-menu-toggle');
+    const sidebar = document.getElementById('portal-sidebar');
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', () => {
+            const open = sidebar.classList.toggle('is-open');
+            menuToggle.setAttribute('aria-expanded', String(open));
         });
     }
 
-    // Language switcher
-    const langTrigger = document.querySelector('.lang-switcher-trigger');
-    const langDropdown = document.querySelector('.lang-switcher-dropdown');
-    
-    if (langTrigger) {
-        langTrigger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            langDropdown.classList.toggle('is-open');
-        });
-    }
-
-    document.addEventListener('click', () => {
-        if (langDropdown) langDropdown.classList.remove('is-open');
-    });
-
+    // Language switcher, now in the sidebar footer
     document.querySelectorAll('.lang-select').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1452,9 +1635,9 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('elysium_lang', lang);
             localStorage.setItem('langOverride', 'true');
             applyTranslations();
-            
+
             // Reload current section views to apply translations to dynamic content
-            const activeSection = document.querySelector('.admin-section.active').id;
+            const activeSection = document.querySelector('.portal-section.active')?.id;
             if (activeSection === 'overview') loadStats();
             else if (activeSection === 'clients') loadClients();
             else if (activeSection === 'licenses') loadLicenses();
@@ -1464,31 +1647,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Sidebar Navigation
-    const navItems = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('.admin-section');
-
-    function navigateTo(target) {
-        navItems.forEach(i => i.classList.remove('active'));
-        document.querySelector(`.nav-item[data-target="${target}"]`)?.classList.add('active');
-
-        sections.forEach(s => {
-            s.classList.remove('active');
-            if (s.id === target) s.classList.add('active');
-        });
-
-        localStorage.setItem('elysium_admin_tab', target);
-
-        if (target === 'overview') loadStats();
-        if (target === 'clients') loadClients();
-        if (target === 'pipeline') loadPipeline();
-        if (target === 'licenses') loadLicenses();
-        if (target === 'contacts') loadContacts();
-        if (target === 'agenda') loadAgenda();
-        else _agendaLoadVersion++;
-    }
-
-    navItems.forEach(item => {
+    document.querySelectorAll('.portal-nav-item').forEach(item => {
         item.addEventListener('click', () => navigateTo(item.dataset.target));
     });
 
@@ -1497,47 +1656,88 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', () => navigateTo(link.dataset.targetNav));
     });
 
+    document.getElementById('devViewBtn')?.addEventListener('click', () => {
+        sessionStorage.setItem('dev_mode', 'true');
+        window.location.href = 'profiles';
+    });
+
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', () => {
         signOut(auth);
     });
 
-    // Modal Close
-    const detailOverlay = document.getElementById('client-detail-overlay');
-    document.getElementById('close-detail').addEventListener('click', closeClientDetail);
-
-    detailOverlay.addEventListener('click', (e) => {
-        if (e.target === detailOverlay) closeClientDetail();
+    // Browser Back leaves the client profile and returns to the list it came from.
+    window.addEventListener('popstate', () => {
+        const requested = new URLSearchParams(window.location.search).get('client');
+        if (requested) openClientFromDeepLink(requested, { push: false });
+        else if (document.getElementById('client-profile')?.classList.contains('active')) {
+            navigateTo(_profileReturnTab, { push: false });
+        }
     });
 });
 
+/**
+ * Switches the CRM to one of the sidebar sections. Also the way out of the
+ * client profile, which is a section without a sidebar entry.
+ */
+function navigateTo(target, { push = true } = {}) {
+    closeClientProfile();
+
+    document.querySelectorAll('.portal-nav-item').forEach(item => {
+        const isActive = item.dataset.target === target;
+        item.classList.toggle('active', isActive);
+        item.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
+
+    document.querySelectorAll('.portal-section').forEach(section => {
+        section.classList.toggle('active', section.id === target);
+    });
+
+    document.getElementById('portal-sidebar')?.classList.remove('is-open');
+    document.getElementById('admin-menu-toggle')?.setAttribute('aria-expanded', 'false');
+    document.getElementById('portal-main')?.scrollTo({ top: 0 });
+
+    localStorage.setItem('elysium_admin_tab', target);
+
+    // Drop the ?client= deep link once the profile is left behind.
+    if (push && new URLSearchParams(window.location.search).has('client')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('client');
+        window.history.pushState({}, '', url);
+    }
+
+    if (target === 'overview') loadStats();
+    if (target === 'clients') loadClients();
+    if (target === 'pipeline') loadPipeline();
+    if (target === 'licenses') loadLicenses();
+    if (target === 'contacts') loadContacts();
+    if (target === 'agenda') loadAgenda();
+    else _agendaLoadVersion++;
+}
+
 function applyTranslations() {
     const t = translations[currentLang];
-    
-    // Update navbar current label and logo link
-    const label = document.querySelector('.lang-current-label');
-    const brandLink = document.querySelector('.nav-brand');
-    
-    // Update logo link to localized index
-    if (brandLink) {
-        brandLink.href = currentLang === 'en' ? './' : `${currentLang}/`;
-    }
-    
-    if (label) label.textContent = currentLang.toUpperCase();
-    
-    const flagEl = document.querySelector('.lang-current-flag');
-    if (flagEl) flagEl.innerHTML = `<img src="${t.flagSrc}" alt="${t.flagAlt}" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;">`;
 
-    // Update Sidebar nav labels (each nav-item has an SVG + span, target only the span)
-    const navOverview  = document.querySelector('[data-target="overview"] span:not(.sidebar-badge)');
-    const navPipeline  = document.querySelector('[data-target="pipeline"] span:not(.sidebar-badge)');
-    const navClients   = document.querySelector('[data-target="clients"] span:not(.sidebar-badge)');
-    const navLicenses  = document.querySelector('[data-target="licenses"] span:not(.sidebar-badge)');
+    // Brand links back to the localized index
+    document.querySelectorAll('.portal-brand').forEach(link => {
+        link.href = currentLang === 'en' ? './' : `${currentLang}/`;
+    });
+
+    // Segmented language switch in the sidebar footer
+    document.querySelectorAll('.admin-lang-switch .lang-select').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.lang === currentLang));
+    });
+
+    // Update sidebar nav labels (each item has an SVG, a label and maybe a badge)
+    const navOverview  = document.querySelector('[data-target="overview"] .portal-nav-text');
+    const navPipeline  = document.querySelector('[data-target="pipeline"] .portal-nav-text');
+    const navClients   = document.querySelector('[data-target="clients"] .portal-nav-text');
+    const navLicenses  = document.querySelector('[data-target="licenses"] .portal-nav-text');
     if (navOverview) navOverview.textContent = t.nav_overview;
     if (navPipeline) navPipeline.textContent = 'Pipeline';
     if (navClients)  navClients.textContent  = t.nav_clients;
     if (navLicenses) navLicenses.textContent = t.nav_licenses;
-    const navContacts = document.querySelector('[data-target="contacts"] span:not(.sidebar-badge)');
+    const navContacts = document.querySelector('[data-target="contacts"] .portal-nav-text');
     if (navContacts) navContacts.textContent = t.nav_contacts || "Inquiries";
 
     // Logout button has SVG + span — only update the span
@@ -1565,14 +1765,19 @@ function applyTranslations() {
     if (conH1) conH1.textContent = t.contacts_title || "Inquiries";
     if (conP)  conP.textContent  = t.contacts_desc || "Review contact form submissions.";
 
-    // Update table headers
-    const ths = document.querySelectorAll('.admin-table th');
-    if (ths.length > 0) {
-        ths[0].textContent = t.table_code;
-        ths[1].textContent = t.table_status;
-        ths[2].textContent = t.table_assigned;
-        ths[3].textContent = t.table_used;
-    }
+    // Update the licenses table headers
+    const licenseHeaders = {
+        'th-lic-code': t.table_code,
+        'th-lic-client': t.table_client,
+        'th-lic-plan': t.table_plan,
+        'th-lic-origin': t.table_origin,
+        'th-lic-status': t.table_status,
+        'th-lic-renewal': t.table_renewal
+    };
+    Object.entries(licenseHeaders).forEach(([id, label]) => {
+        const cell = document.getElementById(id);
+        if (cell && label) cell.textContent = label;
+    });
 
     const thDate = document.getElementById('th-date');
     const thName = document.getElementById('th-name');
@@ -1604,14 +1809,16 @@ async function initDashboard() {
     }
 
     // Restore saved tab visually
-    const navItems = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('.admin-section');
+    document.querySelectorAll('.portal-nav-item').forEach(item => {
+        const isActive = item.dataset.target === savedTab;
+        item.classList.toggle('active', isActive);
+        item.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
 
-    navItems.forEach(i => i.classList.remove('active'));
-    document.querySelector(`.nav-item[data-target="${savedTab}"]`)?.classList.add('active');
-
-    sections.forEach(s => s.classList.remove('active'));
-    document.getElementById(savedTab)?.classList.add('active');
+    document.querySelectorAll('.portal-section').forEach(section => {
+        section.classList.toggle('active', section.id === savedTab);
+    });
+    _profileReturnTab = savedTab === 'client-profile' ? 'clients' : savedTab;
 
     // Load content for the active tab
     if (savedTab === 'overview')  loadStats();
@@ -1623,26 +1830,23 @@ async function initDashboard() {
 
     // Deep link used when returning from a guided onboarding session
     const requestedClient = new URLSearchParams(window.location.search).get('client');
-    if (requestedClient) openClientFromDeepLink(requestedClient);
+    if (requestedClient) openClientFromDeepLink(requestedClient, { push: false });
 }
 
-/** Opens a client card straight from /admin?client=<uid>. */
-async function openClientFromDeepLink(userId) {
+/** Opens a client profile straight from /admin?client=<uid>. */
+async function openClientFromDeepLink(userId, options = {}) {
     try {
         const cached = _allClients.find(client => client.id === userId);
         if (cached) {
-            showClientDetail(userId, cached);
+            showClientDetail(userId, cached, null, null, options);
             return;
         }
         const memberSnap = await getDoc(doc(db, 'members', userId));
-        if (memberSnap.exists()) showClientDetail(userId, { id: userId, ...memberSnap.data() });
+        if (memberSnap.exists()) {
+            showClientDetail(userId, { id: userId, ...memberSnap.data() }, null, null, options);
+        }
     } catch (error) {
         logger.error('Could not open the requested client:', error);
-    } finally {
-        // Clean the URL so a refresh does not reopen the panel
-        const url = new URL(window.location.href);
-        url.searchParams.delete('client');
-        window.history.replaceState({}, '', url);
     }
 }
 
@@ -1824,7 +2028,11 @@ async function loadStats() {
 
     } catch (error) {
         logger.error('Error loading stats:', error);
-        statsContainer.innerHTML = `<p class="color-text-error">${t.error_stats}<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
+        statsContainer.innerHTML = `
+            <div class="portal-state portal-error" style="grid-column: 1 / -1;">
+                <div class="portal-state-title">${esc(t.error_stats)}</div>
+                <div class="portal-state-description">${esc(error.message)}</div>
+            </div>`;
     }
 }
 
@@ -2347,6 +2555,9 @@ function renderClientGrid(clients, t) {
         const isSuspended = data.isDeactivated === true;
         const stage       = getPartnerStage(data);
         const stageLabels = { prospect: 'Prospect', onboarding: 'Onboarding', active: 'Active', delivered: 'Delivered' };
+        // The portal's status chip carries the colour: prospect is neutral,
+        // onboarding is in progress, active and delivered are done.
+        const stageChip = { prospect: 'is-neutral', onboarding: 'is-warning', active: 'is-success', delivered: 'is-active' };
         // Surfaced on the grid so a duplicate is obvious before opening the card
         const duplicateOf = data.role === 'prospect' ? registeredClientMatchingEmail(data.email) : null;
 
@@ -2356,16 +2567,17 @@ function renderClientGrid(clients, t) {
         card.innerHTML = `
             <div class="client-card-header">
                 <div class="client-card-avatar">${esc(initials(data.name))}</div>
-                <span class="client-card-stage-badge stage-badge-${stage}">${stageLabels[stage]}</span>
+                <div class="client-info">
+                    <div class="client-name">${esc(data.name || t.unnamed_client)}</div>
+                    <div class="client-company">${esc(data.company || t.no_company)}</div>
+                </div>
+                <span class="portal-status ${stageChip[stage] || 'is-neutral'}">${stageLabels[stage]}</span>
             </div>
-            <div class="client-name">${esc(data.name || t.unnamed_client)}</div>
-            <div class="client-company">${esc(data.company || t.no_company)}</div>
-            ${data.projects && data.projects.length > 0 ? 
-                `<div class="client-projects" style="font-size:0.75rem; color:var(--color-text-secondary); margin-top:8px; margin-bottom:8px;">
-                    ${data.projects.map(p => `<span style="background:var(--glass-bg); padding:2px 6px; border-radius:4px; margin-right:4px; border:1px solid var(--glass-border); display:inline-block; margin-bottom:4px;">${esc(p.name || 'Unnamed Project')}</span>`).join('')}
-                </div>` 
-                : ''}
-            <div class="client-meta" style="margin-top:auto; padding-top:12px;">
+            ${data.projects && data.projects.length > 0 ? `
+                <div class="client-projects">
+                    ${data.projects.map(p => `<span>${esc(p.name || 'Unnamed Project')}</span>`).join('')}
+                </div>` : ''}
+            <div class="client-meta">
                 <span class="client-meta-email" title="${esc(data.email)}">${esc(data.email)}</span>
                 <span class="client-joined">${timeAgo(data.createdAt)}</span>
             </div>
@@ -2463,12 +2675,12 @@ async function loadLicenses() {
             tr.dataset.userId = data.userId;
             tr.className = 'license-row';
             tr.innerHTML = `
-                <td class="license-code-cell">${esc(data.licenseCode)}</td>
-                <td><strong>${esc(data.userName)}</strong><small>${esc(data.userEmail)}</small></td>
-                <td><strong>${esc(data.planLabel || data.planType || '—')}</strong><small>${esc(cycle)}</small></td>
-                <td><span class="license-source ${sourceClass}">${esc(source)}</span></td>
-                <td><span class="status-badge status-${esc(status)}">${esc(displayStatus)}</span></td>
-                <td>${esc(renewal)}</td>
+                <td data-label="${esc(t.table_code)}" class="license-code-cell">${esc(data.licenseCode)}</td>
+                <td data-label="${esc(t.table_client)}"><strong>${esc(data.userName)}</strong><small>${esc(data.userEmail)}</small></td>
+                <td data-label="${esc(t.table_plan)}"><strong>${esc(data.planLabel || data.planType || '—')}</strong><small>${esc(cycle)}</small></td>
+                <td data-label="${esc(t.table_origin)}"><span class="license-source ${sourceClass}">${esc(source)}</span></td>
+                <td data-label="${esc(t.table_status)}"><span class="portal-status status-${esc(status)}">${esc(displayStatus)}</span></td>
+                <td data-label="${esc(t.table_renewal)}">${esc(renewal)}</td>
             `;
             licensesList.appendChild(tr);
         });
@@ -2482,19 +2694,47 @@ async function loadLicenses() {
         });
     } catch (error) {
         logger.error("Error loading licenses:", error);
-        licensesList.innerHTML = `<tr><td colspan="6" class="color-text-error">${t.error_licenses}<br><small style="font-size: 0.8em; opacity: 0.8;">${esc(error.message)}</small></td></tr>`;
+        licensesList.innerHTML = `<tr><td colspan="6" class="license-empty">${esc(t.error_licenses)}<br><small>${esc(error.message)}</small></td></tr>`;
     }
 }
 
-async function showClientDetail(userId, memberData, selectedProjectId = null, selectedSubmissionId = null) {
+/**
+ * Opens the full client profile. It is a section of the CRM like any other,
+ * only without a sidebar entry: it is reached from a partner card, the
+ * pipeline, the timeline or /admin?client=<uid>.
+ */
+async function showClientDetail(userId, memberData, selectedProjectId = null, selectedSubmissionId = null, { push = true, keepTab = false } = {}) {
     const detailLoadVersion = ++_detailLoadVersion;
-    const detailOverlay = document.getElementById('client-detail-overlay');
+    _detailRenderVersion++;
+
+    // Remember where to go back to, unless we are already inside a profile.
+    const currentSection = document.querySelector('.portal-section.active')?.id;
+    if (currentSection && currentSection !== 'client-profile') _profileReturnTab = currentSection;
+    if (!keepTab) _profileTab = 'summary';
+
+    document.querySelectorAll('.portal-section').forEach(section => {
+        section.classList.toggle('active', section.id === 'client-profile');
+    });
+    // No sidebar entry owns this view.
+    document.querySelectorAll('.portal-nav-item').forEach(item => {
+        item.classList.remove('active');
+        item.setAttribute('aria-current', 'false');
+    });
+    document.getElementById('portal-sidebar')?.classList.remove('is-open');
+    document.getElementById('portal-main')?.scrollTo({ top: 0 });
+
+    if (push) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('client', userId);
+        window.history.pushState({ client: userId }, '', url);
+    }
+
     const detailContent = document.getElementById('detail-content');
-    detailContent.innerHTML = '<div class="premium-loader"></div>';
-    detailOverlay.style.display = 'flex';
+    detailContent.innerHTML = '<div class="loader-container"><div class="premium-loader"></div></div>';
 
     // Stop any Co-Pilot draft listener from a previously opened client
     if (_draftUnsub) { _draftUnsub(); _draftUnsub = null; }
+    if (clientRevenueChartInstance) { clientRevenueChartInstance.destroy(); clientRevenueChartInstance = null; }
 
     try {
         if (!selectedProjectId && memberData.projects && memberData.projects.length > 0) {
@@ -2519,7 +2759,11 @@ async function showClientDetail(userId, memberData, selectedProjectId = null, se
     } catch (error) {
         if (detailLoadVersion !== _detailLoadVersion) return;
         logger.error("Error showing client detail:", error);
-        detailContent.innerHTML = `<p class="color-text-error">Error loading client detail.<br><small style="font-size: 0.8em; opacity: 0.8;">${esc(error.message)}</small></p>`;
+        detailContent.innerHTML = `
+            <div class="portal-state portal-error">
+                <div class="portal-state-title">Error loading client detail.</div>
+                <div class="portal-state-description">${esc(error.message)}</div>
+            </div>`;
     }
 }
 
@@ -2929,6 +3173,11 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
         return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
     };
+    const fmtShortDate = (ts) => {
+        if (!ts) return null;
+        const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    };
     const fmtTime = (ts) => {
         if (!ts) return '';
         const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
@@ -3000,29 +3249,118 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Reactivate Account`
         : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Suspend Account`;
 
+    // ── Profile header ────────────────────────────────────────────────────
+    const subscription = member.subscription || null;
+    const subStatus = subscription?.planType ? subscriptionStatus(subscription) : null;
+    const subStatusLabels = {
+        active: 'Active', pending_payment: 'Payment pending',
+        suspended: 'Suspended', canceled: 'Canceled', cancelled: 'Canceled'
+    };
+    const stageKey = currentProject.projectStage || member.projectStage
+        || (member.role === 'prospect' ? 'prospect' : 'first_contact');
+    const stageLabels = {
+        prospect: 'Prospect',
+        first_contact: t.stage_contact || 'First Contact',
+        prototyping: t.stage_proto || 'Prototyping',
+        development: t.stage_dev || 'Development',
+        delivery: t.stage_delivery || 'Delivery',
+        maintenance: t.stage_maint || 'Maintenance'
+    };
+
+    // Income registered against this project, taken from its own documents.
+    // Currencies are kept apart: adding euros to colones would be a lie.
+    const revenueByCurrency = reports.reduce((totals, report) => {
+        const value = parseFloat(report.amount);
+        if (!Number.isFinite(value)) return totals;
+        const code = report.currency || fin.currency || 'EUR';
+        totals[code] = (totals[code] || 0) + value;
+        return totals;
+    }, {});
+    const revenueLabel = Object.keys(revenueByCurrency).length
+        ? Object.entries(revenueByCurrency)
+            .map(([code, value]) => `${currencyMap[code] || code}${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
+            .join(' · ')
+        : `${curSym}0`;
+
+    const kpiIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${paths}</svg>`;
+
+    const profileTabs = [
+        { id: 'summary',    label: t.tab_summary },
+        { id: 'billing',    label: t.tab_billing },
+        { id: 'documents',  label: t.tab_documents,  count: reports.length },
+        { id: 'onboarding', label: t.tab_onboarding, count: chronologicalSubmissions.length },
+        { id: 'activity',   label: t.tab_activity }
+    ];
+
     detailContent.innerHTML = `
+        <button type="button" class="admin-profile-back" id="btn-profile-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            ${esc(t.back_to_list)}
+        </button>
+
         ${isSuspended ? `
         <div class="suspended-detail-banner">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
             This account has been suspended.
         </div>` : ''}
-        <div class="dashboard-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; padding-right: 80px;">
-            <div>
-                <h1 style="font-size: 3rem;">${esc(member.name)}${isSuspended ? '<span class="suspended-title-tag">Suspended</span>' : ''}</h1>
-                <p class="color-text-secondary">${esc(member.company || t.no_company)}</p>
-                <div style="margin-top:0.75rem; display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-                    <span class="onboarding-status ${projectOnboardingCompleted ? 'status-done' : 'status-pending'}">
-                        ${projectOnboardingCompleted ? t.completed : t.pending}
-                    </span>
-                    <button id="btn-suspend-toggle" class="btn-suspend ${isSuspended ? 'is-active' : ''}">
-                        ${suspendBtnLabel}
-                    </button>
+        <header class="admin-profile-header">
+            <div class="admin-profile-avatar" aria-hidden="true">${esc(initials(member.name || member.company))}</div>
+            <div class="admin-profile-identity">
+                <h1>${esc(member.name || t.unnamed_client)}</h1>
+                <p class="admin-profile-subtitle">
+                    <span>${esc(member.company || t.no_company)}</span>
+                    ${member.email ? `<a href="mailto:${esc(member.email)}">${esc(member.email)}</a>` : ''}
+                    ${member.country ? `<span>${esc(member.country)}</span>` : ''}
+                    ${registrationDate ? `<span>${esc(t.member_since)} ${esc(registrationDate)}</span>` : ''}
+                </p>
+                <div class="admin-profile-chips">
+                    <span class="portal-status ${stageKey === 'prospect' ? 'is-neutral' : 'is-active'}">${esc(stageLabels[stageKey] || stageKey)}</span>
+                    ${subStatus ? `<span class="portal-status ${esc(subStatus)}">${esc(subStatusLabels[subStatus] || subStatus)}</span>` : ''}
+                    <span class="portal-status ${projectOnboardingCompleted ? 'is-success' : 'is-warning'}">${projectOnboardingCompleted ? esc(t.completed) : esc(t.pending)}</span>
+                    ${subscription?.licenseCode ? `<span class="portal-status is-neutral">${esc(subscription.licenseCode)}</span>` : ''}
+                    ${isSuspended ? `<span class="portal-status is-error">${esc(t.suspended_tag)}</span>` : ''}
                 </div>
             </div>
-            <button id="btn-download-pdf" class="btn btn-outline" style="min-width: 140px; margin-top: 0.5rem;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 1rem; height: 1rem; margin-right: 0.5rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                ${t.download_pdf}
-            </button>
+            <div class="admin-profile-actions">
+                <button type="button" id="btn-download-pdf" class="portal-button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    ${esc(t.download_pdf)}
+                </button>
+                <button type="button" id="btn-suspend-toggle" class="portal-button ${isSuspended ? 'is-accent' : 'is-danger'}">
+                    ${suspendBtnLabel}
+                </button>
+            </div>
+        </header>
+
+        <div class="portal-kpi-grid">
+            <div class="portal-kpi-card">
+                <div class="portal-kpi-head">
+                    <div class="portal-kpi-icon">${kpiIcon('<line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>')}</div>
+                </div>
+                <div class="portal-kpi-value">${esc(revenueLabel)}</div>
+                <div class="portal-kpi-label">${esc(t.kpi_revenue)}</div>
+            </div>
+            <div class="portal-kpi-card${subStatus === 'active' ? ' is-success' : (subStatus ? ' is-warning' : '')}">
+                <div class="portal-kpi-head">
+                    <div class="portal-kpi-icon">${kpiIcon('<rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line>')}</div>
+                </div>
+                <div class="portal-kpi-value is-text">${esc(subscription?.planLabel || subscription?.planType || '—')}</div>
+                <div class="portal-kpi-label">${esc(t.kpi_plan)}</div>
+            </div>
+            <div class="portal-kpi-card">
+                <div class="portal-kpi-head">
+                    <div class="portal-kpi-icon">${kpiIcon('<rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path>')}</div>
+                </div>
+                <div class="portal-kpi-value is-text">${esc((subscription?.nextBillingDate && fmtShortDate(subscription.nextBillingDate)) || '—')}</div>
+                <div class="portal-kpi-label">${esc(t.kpi_next_billing)}</div>
+            </div>
+            <div class="portal-kpi-card${projectOnboardingCompleted ? ' is-success' : ''}">
+                <div class="portal-kpi-head">
+                    <div class="portal-kpi-icon">${kpiIcon('<path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>')}</div>
+                </div>
+                <div class="portal-kpi-value">${chronologicalSubmissions.length}</div>
+                <div class="portal-kpi-label">${esc(t.kpi_deliveries)}</div>
+            </div>
         </div>
 
         ${projectOnboardingCompleted && (currentProject.projectStage || 'first_contact') === 'first_contact' ? `
@@ -3031,7 +3369,49 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             <button id="btn-suggest-prototyping" class="btn btn-outline" style="min-width: 170px;">${L.suggest_btn}</button>
         </div>
         ` : ''}
+        ${projects.length > 1 ? `
+        <div class="project-tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+            ${projects.map((p, idx) => `
+                <button class="project-tab-btn ${p.id === currentProject.id ? 'active' : ''}" data-project-id="${esc(p.id)}" style="background: none; border: none; padding: 0.5rem 1rem; color: ${p.id === currentProject.id ? 'var(--color-accent)' : 'var(--color-text-secondary)'}; cursor: pointer; border-bottom: ${p.id === currentProject.id ? '2px solid var(--color-accent)' : '2px solid transparent'};">
+                    ${esc(p.name || `Proyecto ${idx + 1}`)}
+                </button>
+            `).join('')}
+        </div>
+        ` : ''}
+        <nav class="portal-tabs" role="tablist" aria-label="${esc(member.name || '')}">
+            ${profileTabs.map(tab => `
+                <button type="button" role="tab" class="portal-tab" id="profile-tab-${tab.id}"
+                    data-profile-tab="${tab.id}" aria-controls="profile-panel-${tab.id}"
+                    aria-selected="${tab.id === _profileTab ? 'true' : 'false'}">
+                    ${esc(tab.label)}${tab.count ? `<span class="portal-tab-count">${tab.count}</span>` : ''}
+                </button>`).join('')}
+        </nav>
 
+        ${profileTabs.map(tab => `
+            <div class="portal-tab-panel" role="tabpanel" id="profile-panel-${tab.id}"
+                aria-labelledby="profile-tab-${tab.id}"${tab.id === _profileTab ? '' : ' hidden'}></div>`).join('')}
+    `;
+
+    // Every tab fills its own container, so an unbalanced tag inside one block
+    // can never spill into the next one — the drawer used to carry two.
+    const profilePanels = {
+        summary: `
+        <div class="detail-section" style="background: rgba(41, 151, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(41, 151, 255, 0.2);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
+                <h3 style="color: var(--color-accent); margin:0;">${t.project_link_title}</h3>
+                <button id="btn-edit-project" class="report-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+            </div>
+            
+            <div id="project-link-view">
+                ${projectUrl ? `<a href="${esc(projectUrl)}" target="_blank" rel="noopener" style="color:#fff; text-decoration:underline; font-size:1.1rem;">${esc(projectUrl)}</a>` : `<span style="opacity:0.5;">-</span>`}
+            </div>
+
+            <div id="project-link-edit" style="display: none; gap: 1rem;">
+                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${esc(currentProject.projectUrl || '')}" style="flex: 1;">
+                <button id="btn-save-project" class="btn btn-primary">${t.save_link}</button>
+            </div>
+            <p id="project-save-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;">${t.saved}</p>
+        </div>
         ${member.role === 'prospect' ? `
         <div class="detail-section" style="background: rgba(255, 171, 0, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(255, 171, 0, 0.2);">
             <h3 style="color: #ffab00; margin-top:0; margin-bottom: 1rem;">Prospect Details</h3>
@@ -3062,7 +3442,6 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             })()}
         </div>
         ` : ''}
-
         ${currentProject.prospectInquiry ? `
         <div class="detail-section" style="background: rgba(255, 171, 0, 0.05); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(255, 171, 0, 0.2);">
             <h3 style="color: #ffab00; margin-top:0; margin-bottom: 0.75rem;">Original enquiry</h3>
@@ -3075,34 +3454,51 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             ${currentProject.prospectInquiry.description ? `<p style="margin:1rem 0 0; line-height:1.5;">${f(currentProject.prospectInquiry.description)}</p>` : ''}
         </div>
         ` : ''}
-
-        ${projects.length > 1 ? `
-        <div class="project-tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
-            ${projects.map((p, idx) => `
-                <button class="project-tab-btn ${p.id === currentProject.id ? 'active' : ''}" data-project-id="${esc(p.id)}" style="background: none; border: none; padding: 0.5rem 1rem; color: ${p.id === currentProject.id ? 'var(--color-accent)' : 'var(--color-text-secondary)'}; cursor: pointer; border-bottom: ${p.id === currentProject.id ? '2px solid var(--color-accent)' : '2px solid transparent'};">
-                    ${esc(p.name || `Proyecto ${idx + 1}`)}
-                </button>
-            `).join('')}
-        </div>
-        ` : ''}
-
-        <div class="detail-section" style="background: rgba(41, 151, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(41, 151, 255, 0.2);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
-                <h3 style="color: var(--color-accent); margin:0;">${t.project_link_title}</h3>
-                <button id="btn-edit-project" class="report-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+        <!-- ── Project Pipeline & Revenue ── -->
+        <div class="detail-section" style="margin-bottom: 2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--color-accent); margin:0;">Activity & Notes (Pipeline & Revenue)</h3>
             </div>
             
-            <div id="project-link-view">
-                ${projectUrl ? `<a href="${esc(projectUrl)}" target="_blank" rel="noopener" style="color:#fff; text-decoration:underline; font-size:1.1rem;">${esc(projectUrl)}</a>` : `<span style="opacity:0.5;">-</span>`}
+            <!-- Pipeline / Stepper -->
+            <div class="project-pipeline-container" style="margin-bottom: 2rem;">
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Current Stage (Click to update)</label>
+                <div class="pipeline-stepper" id="pipeline-stepper-ui">
+                    ${['prospect', 'first_contact', 'prototyping', 'development', 'delivery', 'maintenance'].map((stage, idx, arr) => {
+                        const defaultStage = member.role === 'prospect' ? 'prospect' : 'first_contact';
+                        const currentStageIdx = arr.indexOf(currentProject?.projectStage || member.projectStage || defaultStage);
+                        const isCompleted = idx < currentStageIdx;
+                        const isActive = idx === currentStageIdx;
+                        let statusClass = isActive ? 'active' : (isCompleted ? 'completed' : 'pending');
+                        const labels = {
+                            prospect: 'Prospect',
+                            first_contact: t.stage_contact || 'First Contact',
+                            prototyping: t.stage_proto || 'Prototyping',
+                            development: t.stage_dev || 'Development',
+                            delivery: t.stage_delivery || 'Delivery',
+                            maintenance: t.stage_maint || 'Maintenance'
+                        };
+                        return `
+                        <div class="pipeline-step ${statusClass}" data-stage="${stage}">
+                            <div class="step-circle">${isCompleted ? '✓' : (idx + 1)}</div>
+                            <div class="step-label">${labels[stage]}</div>
+                            ${idx < arr.length - 1 ? '<div class="step-line"></div>' : ''}
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div id="pipeline-save-msg" style="display:none; color:#00c875; font-size:0.85rem; margin-top:0.5rem;">${t.saved}</div>
             </div>
 
-            <div id="project-link-edit" style="display: none; gap: 1rem;">
-                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${esc(currentProject.projectUrl || '')}" style="flex: 1;">
-                <button id="btn-save-project" class="btn btn-primary">${t.save_link}</button>
+            <!-- Client Revenue Chart -->
+            <div class="client-revenue-container">
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Income Overview</label>
+                <div style="height: 200px; width: 100%; position: relative;">
+                    <canvas id="clientRevenueChart"></canvas>
+                </div>
             </div>
-            <p id="project-save-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;">${t.saved}</p>
         </div>
-
+        `,
+        billing: `
         <!-- ── Financials & Reports ── -->
         <div class="detail-section" style="margin-bottom: 2rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
@@ -3155,8 +3551,6 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             </div>
 
         </div>
-        </div>
-
         <!-- ── SUBSCRIPTION MANAGEMENT (Admin) ── -->
         <div class="detail-section" style="margin-bottom: 2rem; border: 1px solid rgba(41,151,255,0.25); border-radius: var(--radius-md); padding: 1.5rem; background: rgba(41,151,255,0.04);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--glass-border); padding-bottom:0.75rem;">
@@ -3286,13 +3680,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <div id="sub-license-preview" style="margin:-0.25rem 0 1rem;font:600 0.78rem/1.4 monospace;color:var(--color-accent);"></div>
                 <div style="margin-bottom:1rem;">
                     <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Invoice PDF (optional)</label>
-                    <div class="report-file-input-wrapper">
-                        <input type="file" id="sub-invoice-file" accept="application/pdf,image/*">
-                        <div class="report-file-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            <span id="sub-invoice-label">Choose invoice file...</span>
-                        </div>
-                    </div>
+                    ${fileDropzone('sub-invoice-file', 'sub-invoice-label', t.choose_file)}
+                    ${uploadProgress('sub-invoice')}
                 </div>
                 <div style="display:flex;gap:1rem;align-items:center;">
                     <button id="btn-assign-subscription" class="btn btn-primary">
@@ -3308,7 +3697,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <div id="sub-payment-list"><div class="premium-loader" style="width:24px;height:24px;"></div></div>
             </div>
         </div>
-
+        `,
+        documents: `
         <div class="detail-section" style="margin-bottom: 2rem;">
             <h3 style="color: var(--color-accent); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">${t.invoices_reports}</h3>
             
@@ -3352,62 +3742,15 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     </div>
                 </div>
                 <div class="report-upload-footer">
-                    <div class="report-file-input-wrapper">
-                        <input type="file" id="report-file-input" accept="application/pdf,image/*">
-                        <div class="report-file-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            <span id="report-file-name-label">${t.choose_file}</span>
-                        </div>
-                    </div>
-                    <button id="btn-add-report" class="btn btn-primary" style="padding: 0.65rem 1.5rem;">${t.upload_btn}</button>
+                    ${fileDropzone('report-file-input', 'report-file-name-label', t.choose_file)}
+                    <button id="btn-add-report" class="btn btn-primary">${t.upload_btn}</button>
                 </div>
+                ${uploadProgress('report')}
+                <div id="report-upload-alert" class="portal-alert is-error" hidden role="alert"></div>
             </div>
         </div>
-
-        <!-- ── Project Pipeline & Revenue ── -->
-        <div class="detail-section" style="margin-bottom: 2rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-                <h3 style="color: var(--color-accent); margin:0;">Activity & Notes (Pipeline & Revenue)</h3>
-            </div>
-            
-            <!-- Pipeline / Stepper -->
-            <div class="project-pipeline-container" style="margin-bottom: 2rem;">
-                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Current Stage (Click to update)</label>
-                <div class="pipeline-stepper" id="pipeline-stepper-ui">
-                    ${['prospect', 'first_contact', 'prototyping', 'development', 'delivery', 'maintenance'].map((stage, idx, arr) => {
-                        const defaultStage = member.role === 'prospect' ? 'prospect' : 'first_contact';
-                        const currentStageIdx = arr.indexOf(currentProject?.projectStage || member.projectStage || defaultStage);
-                        const isCompleted = idx < currentStageIdx;
-                        const isActive = idx === currentStageIdx;
-                        let statusClass = isActive ? 'active' : (isCompleted ? 'completed' : 'pending');
-                        const labels = {
-                            prospect: 'Prospect',
-                            first_contact: t.stage_contact || 'First Contact',
-                            prototyping: t.stage_proto || 'Prototyping',
-                            development: t.stage_dev || 'Development',
-                            delivery: t.stage_delivery || 'Delivery',
-                            maintenance: t.stage_maint || 'Maintenance'
-                        };
-                        return `
-                        <div class="pipeline-step ${statusClass}" data-stage="${stage}">
-                            <div class="step-circle">${isCompleted ? '✓' : (idx + 1)}</div>
-                            <div class="step-label">${labels[stage]}</div>
-                            ${idx < arr.length - 1 ? '<div class="step-line"></div>' : ''}
-                        </div>`;
-                    }).join('')}
-                </div>
-                <div id="pipeline-save-msg" style="display:none; color:#00c875; font-size:0.85rem; margin-top:0.5rem;">${t.saved}</div>
-            </div>
-
-            <!-- Client Revenue Chart -->
-            <div class="client-revenue-container">
-                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Income Overview</label>
-                <div style="height: 200px; width: 100%; position: relative;">
-                    <canvas id="clientRevenueChart"></canvas>
-                </div>
-            </div>
-        </div>
-
+        `,
+        onboarding: `
         <div class="onboarding-history">
             <div class="onboarding-history-head">
                 <div>
@@ -3445,7 +3788,6 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             <span>${esc(onboardingDate || '—')} ${esc(onboardingTime || '')}</span>
             <span>${esc(historyCopy.formVersion)}${formVersion}</span>
         </div>` : ''}
-
         <div id="pdf-content-wrapper">
             ${onboarding ? (Number(formVersion) >= 2 ? renderOnboardingV2(onboarding) : `
             <!-- Step 1: Primary Contact Info -->
@@ -3711,9 +4053,6 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 </div>
             `}
         </div>
-
-        </div>
-
         <!-- ── Guided onboarding session in progress (admin-only view) ── -->
         <div class="detail-section" style="margin-bottom: 2.5rem; border: 1px solid rgba(0, 200, 117, 0.25); background: rgba(0, 200, 117, 0.04); border-radius: var(--radius-md); padding: 1.5rem;">
             <h3 style="margin-top: 0;">${L.copilot_title}</h3>
@@ -3721,7 +4060,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <p class="timeline-empty">${L.copilot_waiting}</p>
             </div>
         </div>
-
+        `,
+        activity: `
         <!-- ── Client Timeline (Vista 360) ─────────────────────── -->
         <div class="detail-section" style="margin-bottom: 2.5rem;">
             <h3>Activity Timeline</h3>
@@ -3729,7 +4069,6 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <p class="timeline-empty">Loading activity…</p>
             </div>
         </div>
-
         <!-- ── Admin Notes ─────────────────────────────────────── -->
         <div class="admin-notes-section">
             <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:0.6rem; font-weight:600; opacity:0.7;">Internal Notes (admin only)</label>
@@ -3739,7 +4078,32 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <span id="notes-save-msg" class="admin-notes-save-msg"></span>
             </div>
         </div>
-    `;
+        `
+    };
+
+    Object.entries(profilePanels).forEach(([panelId, html]) => {
+        const panel = document.getElementById(`profile-panel-${panelId}`);
+        if (panel) panel.innerHTML = html;
+    });
+
+    // ── Tab switching ─────────────────────────────────────────────────────
+    detailContent.querySelectorAll('[data-profile-tab]').forEach(button => {
+        button.addEventListener('click', () => {
+            _profileTab = button.dataset.profileTab;
+            detailContent.querySelectorAll('[data-profile-tab]').forEach(other => {
+                other.setAttribute('aria-selected', String(other === button));
+            });
+            detailContent.querySelectorAll('.portal-tab-panel').forEach(panel => {
+                panel.hidden = panel.id !== `profile-panel-${_profileTab}`;
+            });
+            // Chart.js can only measure the canvas once its panel is visible.
+            if (_profileTab === 'summary') renderClientRevenueChart(currentProject);
+        });
+    });
+
+    document.getElementById('btn-profile-back')?.addEventListener('click', () => {
+        navigateTo(_profileReturnTab);
+    });
 
     // Load the Vista 360 timeline from the activity ledger (async, non-blocking)
     loadClientTimeline(userId, member, detailRenderVersion);
@@ -3884,7 +4248,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
 
                 setTimeout(() => {
                     if (detailRenderVersion === _detailRenderVersion) {
-                        closeClientDetail();
+                        // showClientDetail tears the previous profile down itself.
                         showClientDetail(targetId, { ...targetMemberData, id: targetId, projects: targetProjects }, newProjectId);
                     }
                 }, 1200);
@@ -3934,7 +4298,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             // Re-render to update the view mode
             setTimeout(() => {
                 if (detailRenderVersion === _detailRenderVersion) {
-                    showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null);
+                    showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null, { push: false, keepTab: true });
                 }
             }, 500);
         } catch (error) {
@@ -3988,7 +4352,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 setTimeout(() => {
                     msg.style.display = 'none';
                     if (detailRenderVersion === _detailRenderVersion) {
-                        showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null); // Re-render to show read mode
+                        showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null, { push: false, keepTab: true }); // Re-render to show read mode
                     }
                 }, 500);
             } catch (err) {
@@ -4000,22 +4364,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     }
 
     // ── SUBSCRIPTION MANAGEMENT LISTENERS ──
-    const subInvoiceFile  = document.getElementById('sub-invoice-file');
-    const subInvoiceLabel = document.getElementById('sub-invoice-label');
-    if (subInvoiceFile && subInvoiceLabel) {
-        subInvoiceFile.addEventListener('change', (e) => {
-            const f = e.target.files[0];
-            if (f) {
-                let name = f.name;
-                if (name.length > 30) name = name.substring(0, 27) + '...';
-                subInvoiceLabel.textContent = name;
-                subInvoiceLabel.style.color = '#fff';
-            } else {
-                subInvoiceLabel.textContent = 'Choose invoice file...';
-                subInvoiceLabel.style.color = '';
-            }
-        });
-    }
+    bindDropzone('sub-invoice-file', 'sub-invoice-label', t.choose_file);
 
     // Correct the live subscription in place: status and renewal date only, so
     // the license code and its contract stay consistent with what was issued.
@@ -4156,8 +4505,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     const ts = Date.now();
                     const safeName = invoiceFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
                     const storageRef = ref(storage, `members/${userId}/invoices/${ts}_${safeName}`);
-                    const uploadSnap = await uploadBytes(storageRef, invoiceFile);
-                    invoiceUrl = await getDownloadURL(uploadSnap.ref);
+                    invoiceUrl = await uploadFileWithProgress(storageRef, invoiceFile, 'sub-invoice');
                 }
 
                 // Build subscription object
@@ -4269,14 +4617,19 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                             userId,
                             { ...member, subscription, licenseCode, businessId },
                             currentProject.id,
-                            selectedSubmission?.id || null
+                            selectedSubmission?.id || null,
+                            { push: false, keepTab: true }
                         );
                     }
                 }, 1500);
 
             } catch (err) {
                 logger.error('Assign subscription:', err);
-                alert('Error: ' + err.message);
+                msgEl.textContent = String(err?.code || '').startsWith('storage/')
+                    ? storageErrorMessage(err)
+                    : err.message;
+                msgEl.style.display = 'inline';
+                msgEl.style.color = '#ff7676';
             }
             btnAssignSub.disabled = false;
             btnAssignSub.textContent = member.subscription ? 'Register External Payment' : 'Activate Subscription';
@@ -4325,23 +4678,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         }
     })();
 
-    const fileInputEl = document.getElementById('report-file-input');
-    const fileNameLabel = document.getElementById('report-file-name-label');
-    if (fileInputEl && fileNameLabel) {
-        fileInputEl.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                // Truncate name if it's too long
-                let name = file.name;
-                if (name.length > 25) name = name.substring(0, 22) + '...';
-                fileNameLabel.textContent = name;
-                fileNameLabel.style.color = '#fff';
-            } else {
-                fileNameLabel.textContent = 'Choose File...';
-                fileNameLabel.style.color = '';
-            }
-        });
-    }
+    bindDropzone('report-file-input', 'report-file-name-label', t.choose_file);
 
     const btnAddReport = document.getElementById('btn-add-report');
     if (btnAddReport) {
@@ -4353,39 +4690,32 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             const fileInput = document.getElementById('report-file-input');
             const file = fileInput.files[0];
             
-            if (!title || !file) return alert(t.error_title_file);
-            
+            setInlineAlert('report-upload-alert', '');
+            if (!title || !file) return setInlineAlert('report-upload-alert', t.error_title_file, 'is-warning');
+
             btnAddReport.disabled = true;
             btnAddReport.textContent = t.uploading;
-            
+
             try {
-                // Upload file to Firebase Storage
                 const timestamp = Date.now();
                 const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
                 const filePath = `members/${userId}/reports/${timestamp}_${safeName}`;
                 const storageRef = ref(storage, filePath);
-                
-                // Use uploadBytes instead of uploadBytesResumable to avoid infinite hangs,
-                // and wrap it in a timeout (15 seconds max)
-                const uploadPromise = uploadBytes(storageRef, file);
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error("Upload timed out (15s). Please check your internet connection or Storage Rules.")), 15000);
-                });
-                
-                const uploadTask = await Promise.race([uploadPromise, timeoutPromise]);
-                const downloadURL = await getDownloadURL(uploadTask.ref);
-                
+                const downloadURL = await uploadFileWithProgress(storageRef, file, 'report');
+
                 // Add to Firestore array
                 const newReports = [...(currentProject.reports || []), { title, date, amount, currency, url: downloadURL, filePath }];
                 await updateCurrentProjectFields({ reports: newReports });
                 logActivity(userId, member.name, 'report_added', { projectId: currentProject.id || null, title });
 
-                // Re-render
+                // Re-render, landing back on the documents tab
                 if (detailRenderVersion === _detailRenderVersion) {
-                    showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null);
+                    _profileTab = 'documents';
+                    showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null, { push: false, keepTab: true });
                 }
             } catch (err) {
-                alert(t.error_upload + ' ' + err.message);
+                logger.error('Report upload failed:', err);
+                setInlineAlert('report-upload-alert', storageErrorMessage(err));
                 btnAddReport.disabled = false;
                 btnAddReport.textContent = t.upload_btn;
             }
@@ -4840,7 +5170,8 @@ function renderClientRevenueChart(clientData) {
 async function loadContacts() {
     const contactsList = document.getElementById('contacts-list');
     const badge = document.getElementById('sidebar-contacts-count');
-    contactsList.innerHTML = '<tr><td colspan="5"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>';
+    const t = translations[currentLang];
+    contactsList.innerHTML = '<tr><td colspan="6"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>';
 
     try {
         const q = query(collection(db, 'contacts'), orderBy('submittedAt', 'desc'));
@@ -4849,7 +5180,7 @@ async function loadContacts() {
         if (badge) badge.textContent = snap.size;
         
         if (snap.empty) {
-            contactsList.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-text-secondary); padding: 2rem;">No inquiries found.</td></tr>';
+            contactsList.innerHTML = '<tr><td colspan="6" class="license-empty">No inquiries found.</td></tr>';
             return;
         }
 
@@ -4859,18 +5190,18 @@ async function loadContacts() {
             const date = data.submittedAt ? new Date(data.submittedAt.seconds * 1000).toLocaleDateString() : '-';
             html += `
                 <tr>
-                    <td>${date}</td>
-                    <td><strong>${esc(data.name) || '-'}</strong></td>
-                    <td><a href="mailto:${esc(data.email) || ''}" style="color: var(--color-accent); text-decoration: none;">${esc(data.email) || '-'}</a></td>
-                    <td><a href="tel:${esc(data.phone) || ''}" style="color: var(--color-accent); text-decoration: none;">${esc(data.phone) || '-'}</a></td>
-                    <td><span class="status-badge" style="background: rgba(41, 151, 255, 0.1); color: var(--color-accent);">${esc(data.service) || '-'}</span></td>
-                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(data.message) || ''}">${esc(data.message) || '-'}</td>
+                    <td data-label="${esc(t.table_date || 'Date')}">${date}</td>
+                    <td data-label="${esc(t.table_name || 'Name')}"><strong>${esc(data.name) || '-'}</strong></td>
+                    <td data-label="${esc(t.table_email || 'Email')}"><a href="mailto:${esc(data.email) || ''}" class="portal-link">${esc(data.email) || '-'}</a></td>
+                    <td data-label="${esc(t.table_phone || 'Phone')}"><a href="tel:${esc(data.phone) || ''}" class="portal-link">${esc(data.phone) || '-'}</a></td>
+                    <td data-label="${esc(t.table_service || 'Interest')}"><span class="portal-status">${esc(data.service) || '-'}</span></td>
+                    <td data-label="${esc(t.table_message || 'Message')}" class="contact-message-cell" title="${esc(data.message) || ''}">${esc(data.message) || '-'}</td>
                 </tr>
             `;
         });
         contactsList.innerHTML = html;
     } catch (e) {
         logger.error("Error loading contacts:", e);
-        contactsList.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #ff4444; padding: 2rem;">Error loading inquiries.</td></tr>';
+        contactsList.innerHTML = '<tr><td colspan="6" class="license-empty">Error loading inquiries.</td></tr>';
     }
 }

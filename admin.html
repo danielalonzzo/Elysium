@@ -22,7 +22,10 @@
     <link rel="stylesheet" href="CSS/base.css">
     <link rel="stylesheet" href="CSS/components.css">
     <link rel="stylesheet" href="CSS/pages.css">
-    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026080603">
+    <!-- The admin CRM shares the customer portal's design system: the shell,
+         cards, tables, buttons and chips all come from this stylesheet. -->
+    <link rel="stylesheet" href="CSS/customer-portal.css?v=2026080606">
+    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026080606">
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
@@ -40,65 +43,54 @@
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <a href="./" class="nav-brand">
-                <span class="brand-symbol">λ</span> ELYSIUM
-            </a>
-            <div class="nav-links">
-                <div class="lang-switcher-dropdown">
-                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Select language"><span class="lang-current-label">EN</span> <span class="lang-current-flag"><img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></span> <span
-                            class="lang-arrow" aria-hidden="true">▼</span></button>
-                    <div class="lang-switcher-menu" role="menu">
-                        <a href="#" class="lang-select" data-lang="en" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="#" class="lang-select" data-lang="es" role="menuitem">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="#" class="lang-select" data-lang="pt" role="menuitem">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                    </div>
-                </div>
-            </div>
-            <div class="mobile-toggle">☰</div>
-        </div>
-    </nav>
-
     <!-- ═══════════════════════════════════════════════════════
-         PROFESSIONAL SIDEBAR
+         PORTAL SHELL — same design system as the customer portal
     ═══════════════════════════════════════════════════════ -->
-    <aside class="admin-sidebar">
+    <div class="customer-portal is-admin" id="admin-portal">
+
+    <header class="portal-mobile-header">
+        <a class="portal-brand" href="./" aria-label="Elysium"><span>λ</span> ELYSIUM</a>
+        <button type="button" class="portal-mobile-menu" id="admin-menu-toggle" aria-expanded="false" aria-controls="portal-sidebar">
+            <span aria-hidden="true">☰</span><span class="portal-sr-only">Menu</span>
+        </button>
+    </header>
+
+    <aside class="portal-sidebar" id="portal-sidebar">
 
         <!-- Admin Identity Header -->
-        <div class="sidebar-admin-header">
-            <div class="sidebar-admin-avatar">λ</div>
-            <div class="sidebar-admin-info">
-                <div class="sidebar-admin-name">Super Admin</div>
-                <div class="sidebar-admin-role">Elysium λ CRM</div>
+        <a class="portal-brand" href="./" aria-label="Elysium"><span>λ</span> ELYSIUM</a>
+
+        <div class="portal-user-card">
+            <div class="sidebar-admin-avatar" aria-hidden="true">λ</div>
+            <div>
+                <strong>Super Admin</strong>
+                <span>Elysium λ CRM</span>
             </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="sidebar-nav">
-            <div class="sidebar-nav-group-label">Workspace</div>
+        <nav class="portal-nav" aria-label="Admin CRM">
+            <div class="portal-nav-label">Workspace</div>
 
-            <div class="nav-item active" data-target="overview" id="nav-overview">
+            <button type="button" class="portal-nav-item active" data-target="overview" id="nav-overview" aria-current="page">
                 <!-- Overview icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                     <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
                 </svg>
-                <span>Overview</span>
-            </div>
+                <span class="portal-nav-text">Overview</span>
+            </button>
 
-            <div class="nav-item" data-target="pipeline" id="nav-pipeline">
+            <button type="button" class="portal-nav-item" data-target="pipeline" id="nav-pipeline">
                 <!-- Pipeline icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
                 </svg>
-                <span>Pipeline</span>
-                <span class="sidebar-badge" id="sidebar-pipeline-count">0</span>
-            </div>
+                <span class="portal-nav-text">Pipeline</span>
+                <span class="portal-nav-badge" id="sidebar-pipeline-count">0</span>
+            </button>
 
-            <div class="nav-item" data-target="clients" id="nav-clients">
+            <button type="button" class="portal-nav-item" data-target="clients" id="nav-clients">
                 <!-- Clients icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -106,59 +98,64 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
-                <span>Partners</span>
-                <span class="sidebar-badge" id="sidebar-clients-count">0</span>
-            </div>
+                <span class="portal-nav-text">Partners</span>
+                <span class="portal-nav-badge" id="sidebar-clients-count">0</span>
+            </button>
 
-            <div class="nav-item" data-target="agenda" id="nav-agenda">
+            <button type="button" class="portal-nav-item" data-target="agenda" id="nav-agenda">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="5" width="18" height="16" rx="2"/>
                     <path d="M16 3v4M8 3v4M3 10h18"/>
                     <path d="m9 16 2 2 4-5"/>
                 </svg>
-                <span>Agenda</span>
-                <span class="sidebar-badge" id="sidebar-agenda-count">0</span>
-            </div>
+                <span class="portal-nav-text">Agenda</span>
+                <span class="portal-nav-badge" id="sidebar-agenda-count">0</span>
+            </button>
 
-            <div class="nav-item" data-target="licenses" id="nav-licenses">
+            <button type="button" class="portal-nav-item" data-target="licenses" id="nav-licenses">
                 <!-- Licenses icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
-                <span>Licenses</span>
-            </div>
+                <span class="portal-nav-text">Licenses</span>
+            </button>
 
-            <div class="nav-item" data-target="contacts" id="nav-contacts">
+            <button type="button" class="portal-nav-item" data-target="contacts" id="nav-contacts">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                     <polyline points="22,6 12,13 2,6"/>
                 </svg>
-                <span>Inquiries</span>
-                <span class="sidebar-badge" id="sidebar-contacts-count">0</span>
-            </div>
+                <span class="portal-nav-text">Inquiries</span>
+                <span class="portal-nav-badge" id="sidebar-contacts-count">0</span>
+            </button>
 
-            <div class="nav-item" data-target="prototypes" id="nav-prototypes">
+            <button type="button" class="portal-nav-item" data-target="prototypes" id="nav-prototypes">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="12 2 2 7 12 12 22 7 12 2"/>
                     <polyline points="2 17 12 22 22 17"/>
                     <polyline points="2 12 12 17 22 12"/>
                 </svg>
-                <span>Prototypes</span>
-            </div>
+                <span class="portal-nav-text">Prototypes</span>
+            </button>
         </nav>
 
         <!-- Sidebar Footer -->
-        <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 0.5rem;">
-            <button onclick="sessionStorage.setItem('dev_mode', 'true'); window.location.href='profiles'" class="sidebar-logout-btn" style="color: var(--color-accent); border-color: rgba(41, 151, 255, 0.2); background: rgba(41, 151, 255, 0.05); justify-content: flex-start; padding: 0.75rem 1rem;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+        <div class="portal-sidebar-footer">
+            <div class="admin-lang-switch" role="group" aria-label="Language">
+                <button type="button" class="lang-select" data-lang="en" aria-pressed="true">EN</button>
+                <button type="button" class="lang-select" data-lang="es" aria-pressed="false">ES</button>
+                <button type="button" class="lang-select" data-lang="pt" aria-pressed="false">PT</button>
+            </div>
+            <button type="button" id="devViewBtn" class="portal-support-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 20h9"></path>
                     <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                 </svg>
                 <span>Dev View</span>
             </button>
-            <button id="logoutBtn" class="sidebar-logout-btn" style="justify-content: flex-start; padding: 0.75rem 1rem;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+            <button type="button" id="logoutBtn" class="sidebar-logout-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                     <polyline points="16 17 21 12 16 7"/>
                     <line x1="21" y1="12" x2="9" y2="12"/>
@@ -171,11 +168,11 @@
     <!-- ═══════════════════════════════════════════════════════
          MAIN CONTENT
     ═══════════════════════════════════════════════════════ -->
-    <main class="admin-main">
+    <main class="portal-main" id="portal-main" tabindex="-1">
 
         <!-- ─── OVERVIEW ──────────────────────────────────────── -->
-        <section id="overview" class="admin-section active">
-            <div class="dashboard-header">
+        <section id="overview" class="portal-section active">
+            <div class="portal-header">
                 <div>
                     <h1 id="overview-title">Dashboard</h1>
                     <p class="color-text-secondary" id="overview-subtitle">Welcome back, Super Admin.</p>
@@ -189,7 +186,7 @@
             </div>
 
             <!-- Global Revenue Chart -->
-            <div class="overview-panel" style="margin-bottom: 2rem;">
+            <div class="portal-card overview-panel" style="margin-bottom: 2rem;">
                 <div class="overview-panel-header">
                     <h3 class="overview-panel-title">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
@@ -208,7 +205,7 @@
             <div class="overview-bottom-grid">
 
                 <!-- Recent Activity Feed -->
-                <div class="overview-panel">
+                <div class="portal-card overview-panel">
                     <div class="overview-panel-header">
                         <h3 class="overview-panel-title">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
@@ -224,7 +221,7 @@
                 </div>
 
                 <!-- Pipeline Summary -->
-                <div class="overview-panel">
+                <div class="portal-card overview-panel">
                     <div class="overview-panel-header">
                         <h3 class="overview-panel-title">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
@@ -245,8 +242,8 @@
         </section>
 
         <!-- ─── PIPELINE ──────────────────────────────────────── -->
-        <section id="pipeline" class="admin-section">
-            <div class="dashboard-header">
+        <section id="pipeline" class="portal-section">
+            <div class="portal-header">
                 <div>
                     <h1>Pipeline</h1>
                     <p class="color-text-secondary">Track partner progress across project stages.</p>
@@ -260,8 +257,8 @@
         </section>
 
         <!-- ─── CLIENTS / PARTNERS ────────────────────────────── -->
-        <section id="clients" class="admin-section">
-            <div class="dashboard-header">
+        <section id="clients" class="portal-section">
+            <div class="portal-header">
                 <div>
                     <h1>Partners</h1>
                     <p class="color-text-secondary">Manage and view all registered partners.</p>
@@ -302,8 +299,8 @@
 
         <!-- ─── LICENSES ──────────────────────────────────────── -->
         <!-- ─── AGENDA / CLIENT MEETINGS ─── -->
-        <section id="agenda" class="admin-section">
-            <div class="dashboard-header agenda-header">
+        <section id="agenda" class="portal-section">
+            <div class="portal-header agenda-header">
                 <div>
                     <h1 id="agenda-title">Agenda</h1>
                     <p class="color-text-secondary" id="agenda-desc">Schedule and monitor client meetings across time zones.</p>
@@ -414,24 +411,24 @@
             </div>
         </section>
 
-        <section id="licenses" class="admin-section">
-            <div class="dashboard-header">
+        <section id="licenses" class="portal-section">
+            <div class="portal-header">
                 <div>
                     <h1>Licenses</h1>
                     <p class="color-text-secondary">Licenses assigned by active subscriptions, whether paid online or recorded manually.</p>
                 </div>
             </div>
             <div id="licenses-summary" class="licenses-summary" aria-live="polite"></div>
-            <div style="overflow-x: auto;">
-                <table class="admin-table">
+            <div class="portal-table-wrap">
+                <table class="portal-table">
                     <thead>
                         <tr>
-                            <th>Code</th>
-                            <th>Client</th>
-                            <th>Plan</th>
-                            <th>Origin</th>
-                            <th>Status</th>
-                            <th>Next renewal</th>
+                            <th id="th-lic-code">Code</th>
+                            <th id="th-lic-client">Client</th>
+                            <th id="th-lic-plan">Plan</th>
+                            <th id="th-lic-origin">Origin</th>
+                            <th id="th-lic-status">Status</th>
+                            <th id="th-lic-renewal">Next renewal</th>
                         </tr>
                     </thead>
                     <tbody id="licenses-list">
@@ -444,15 +441,15 @@
         </section>
 
         <!-- ─── CONTACTS / INQUIRIES ────────────────────────────── -->
-        <section id="contacts" class="admin-section">
-            <div class="dashboard-header">
+        <section id="contacts" class="portal-section">
+            <div class="portal-header">
                 <div>
                     <h1 id="contacts-title">Inquiries</h1>
                     <p class="color-text-secondary" id="contacts-desc">Review contact form submissions.</p>
                 </div>
             </div>
-            <div style="overflow-x: auto;">
-                <table class="admin-table">
+            <div class="portal-table-wrap">
+                <table class="portal-table">
                     <thead>
                         <tr>
                             <th id="th-date">Date</th>
@@ -473,15 +470,13 @@
         </section>
 
         <!-- ─── PROTOTYPES ──────────────────────────────────────── -->
-        <section id="prototypes" class="admin-section">
-            <div class="dashboard-header" style="margin-bottom: 1.5rem;">
+        <section id="prototypes" class="portal-section">
+            <div class="portal-header" style="margin-bottom: 1.5rem;">
                 <div>
                     <h1 id="prototypes-title">Prototypes</h1>
                     <p class="color-text-secondary" id="prototypes-desc">Exclusive internal concepts, client prototypes and interactive demos.</p>
                 </div>
-                <div style="font-size: 0.85rem; color: var(--color-accent); font-weight: 600; padding: 0.4rem 0.8rem; background: rgba(41, 151, 255, 0.1); border: 1px solid rgba(41, 151, 255, 0.2); border-radius: 20px; display: inline-flex; align-items: center; gap: 0.4rem;">
-                    🔒 Admin Only Access
-                </div>
+                <span class="portal-status">Admin only access</span>
             </div>
 
             <!-- iOS Filter Capsule (Identical to Portfolio) -->
@@ -600,22 +595,24 @@
             </div>
         </section>
 
-    </main>
-
-    <!-- Client Detail Overlay -->
-    <div class="detail-overlay" id="client-detail-overlay">
-        <div class="detail-panel">
-            <button class="close-detail" id="close-detail">&times;</button>
+        <!-- ─── CLIENT PROFILE ──────────────────────────────────
+             Full page for one partner. Not in the sidebar: it is
+             reached from a partner card, the pipeline or a deep link.
+        ─────────────────────────────────────────────────────── -->
+        <section id="client-profile" class="portal-section">
             <div id="detail-content">
                 <!-- Content injected by JS -->
             </div>
-        </div>
-    </div>
+        </section>
+
+    </main>
+
+    </div><!-- /.customer-portal -->
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="JS/admin.js?v=2026080603"></script>
+    <script type="module" src="JS/admin.js?v=2026080606"></script>
     <script src="JS/version-modal.js"></script>
 </body>
 </html>
