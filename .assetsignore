@@ -56,3 +56,4 @@ wrangler.jsonc
 .assetsignore
 .gitignore
 .gitattributes
+worker/**

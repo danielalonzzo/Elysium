@@ -13,6 +13,7 @@
       "**/node_modules/**",
       "**/*.nosync/**",
       "backend/**",
+      "worker/**",
       "_fuentes/**",
       "Prototipos/**",
       "scripts/**",

@@ -11,10 +11,24 @@ password-reset email.
 1. Install dependencies with `npm install` in this directory.
 2. Configure the variables shown in `.env.example`. In managed Google hosting,
    Application Default Credentials can replace `GOOGLE_APPLICATION_CREDENTIALS`.
-3. Expose the service at the site's `/api/billing/*` route (recommended), or set
-   `window.ELYSIUM_BILLING_API_URL` to the service origin before
-   `JS/profiles.js` loads. If a separate origin is used, also add it to the
-   site's Content Security Policy `connect-src` directive.
+3. Expose the service under the site's `/api/*` path. `worker/index.js` already
+   does this: `wrangler.jsonc` runs it first for `/api/*` only and it forwards
+   those requests to the origin in the Worker variable `ELYSIUM_API_ORIGIN`.
+   Set it once the service has a URL:
+
+       npx wrangler secret put ELYSIUM_API_ORIGIN
+       # https://elysium-billing-xxxx.europe-west1.run.app
+
+   Everything outside `/api/*` never reaches the Worker, so the site's static
+   `html_handling` and `_headers` behave exactly as before. Keeping the service
+   on the same origin also avoids CORS and needs no Content Security Policy
+   change. Alternatively, set `window.ELYSIUM_API_URL` to the service origin in
+   `admin.html` and add that origin to the `connect-src` directive in
+   `_headers`; the service's own CORS allowlist already accepts `elysiumdr.eu`.
+
+   Until `ELYSIUM_API_ORIGIN` is set, `/api/*` answers `503` with
+   `code: api_not_configured`, and the CRM's agenda says the service is not
+   reachable instead of failing silently.
 4. In Stripe, send these events to `/api/billing/webhook`:
    `checkout.session.completed`, `checkout.session.expired`,
    `checkout.session.async_payment_succeeded`,
@@ -33,10 +47,16 @@ password-reset email.
    records), then set `RESEND_API_KEY`, `MEETING_FROM_EMAIL` and optionally
    `PASSWORD_RESET_FROM_EMAIL`. The sender values may use the form
    `Elysium <meetings@elysiumdr.eu>`.
-7. Set `ADMIN_EMAILS` to the comma-separated fallback administrator allowlist.
+7. Set `ADMIN_NOTIFICATION_EMAIL` to the address that receives the
+   administrator's copy of every meeting confirmation and cancellation. It
+   falls back to the first `ADMIN_EMAILS` entry. The client and the
+   administrator get two different messages, each with its own Resend
+   idempotency key, so a retry after a partial failure only re-sends the one
+   that never left.
+8. Set `ADMIN_EMAILS` to the comma-separated fallback administrator allowlist.
    Custom Firebase claims `admin: true` or `role: admin|root|super_admin` are
    also accepted. All administrator tokens must have a verified email.
-8. `TRUST_PROXY_HOPS` defaults to `1`, matching the intended single trusted
+9. `TRUST_PROXY_HOPS` defaults to `1`, matching the intended single trusted
    production ingress hop. Change it to match the actual deployment topology;
    password-reset IP throttling uses Express's resulting `request.ip`.
 

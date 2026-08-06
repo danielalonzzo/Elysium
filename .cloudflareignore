@@ -27,4 +27,4 @@ CLAUDE.md
 **/_comercial/
 **/node_modules/
 **/*.nosync/
-
+worker/

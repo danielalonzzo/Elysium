@@ -1709,6 +1709,7 @@ function agendaApiErrorMessage(error, fallback) {
     const c = agendaCopy();
     switch (error?.code) {
         case 'api_not_configured':
+        case 'api_unreachable':
         case '404':
             return c.apiMissing;
         case 'api_timeout': return c.apiTimeout;
