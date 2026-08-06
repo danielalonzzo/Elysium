@@ -11,12 +11,39 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
-    
-    // Allowlist of fields the owner may modify. Everything else — subscription,
-    // role, adminNotes, finance, CRM data — is admin-only.
-    function updatesOnlyUserEditableFields() {
-      return request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['projects', 'onboardingCompleted', 'onboardingCompletedAt', 'lastUpdated']);
+
+    function isSafeShortText(value, maxLength) {
+      return value is string
+        && value.size() > 0
+        && value.size() <= maxLength
+        && !value.matches('.*[<>].*');
+    }
+
+    function isOptionalText(value, maxLength) {
+      return value == null || (value is string && value.size() <= maxLength && !value.matches('.*[<>].*'));
+    }
+
+    // Personal fields are owner-editable. The onboarding and the projects are
+    // admin-owned: the onboarding is filled by the administrator together with
+    // the client, and projects carry delivery stages, financials, reports and
+    // trusted URLs.
+    function isValidProfileUpdate() {
+      let affected = request.resource.data.diff(resource.data).affectedKeys();
+      return affected.hasOnly([
+          'name', 'company', 'phone', 'billingEmail', 'preferredLanguage', 'lastUpdated'
+        ])
+        && affected.hasAll(['lastUpdated'])
+        && hasValidEditableProfile();
+    }
+
+    function hasValidEditableProfile() {
+      return isSafeShortText(request.resource.data.name, 120)
+        && (!('company' in request.resource.data) || isOptionalText(request.resource.data.company, 120))
+        && (!('phone' in request.resource.data) || isOptionalText(request.resource.data.phone, 40))
+        && (!('billingEmail' in request.resource.data) || isOptionalText(request.resource.data.billingEmail, 254))
+        && (!('preferredLanguage' in request.resource.data)
+          || request.resource.data.preferredLanguage in ['en', 'es', 'pt'])
+        && request.resource.data.lastUpdated == request.time;
     }
 
     // Initial registration doc: fixed shape, no self-granted role or subscription
@@ -24,6 +51,11 @@ service cloud.firestore {
       return request.resource.data.keys().hasOnly(
           ['name', 'company', 'email', 'role', 'subscription', 'onboardingCompleted', 'createdAt']
         )
+        && isSafeShortText(request.resource.data.name, 120)
+        && isOptionalText(request.resource.data.company, 120)
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.createdAt == request.time
         && request.resource.data.role == 'partner'
         && request.resource.data.subscription == null
         && request.resource.data.email.lower() == request.auth.token.email.lower();
@@ -35,8 +67,8 @@ service cloud.firestore {
       allow read: if isOwner(userId);
       // On create: owner can create their own doc (initial registration)
       allow create: if isOwner(userId) && isValidNewMember();
-      // On update: owner can update ONLY allowlisted fields
-      allow update: if isOwner(userId) && updatesOnlyUserEditableFields();
+      // On update: owner can update ONLY allowlisted profile fields
+      allow update: if isOwner(userId) && isValidProfileUpdate();
     }
 
     // ── Licenses ──────────────────────────────────────────────────────────────
@@ -48,25 +80,38 @@ service cloud.firestore {
     }
 
     // ── Onboarding Submissions ────────────────────────────────────────────────
+    // The onboarding is filled by the administrator together with the client
+    // and published from the CRM, so members only read their own deliveries.
     match /onboarding_submissions/{submissionId} {
       allow read, write: if isSuperAdmin();
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
-    
-    // ── Onboarding Drafts (live guided-session sync) ──────────────────────────
-    // Autosaved while the client fills the onboarding form so the admin can
-    // observe progress in real time from the CRM Co-Pilot panel.
-    // Doc id == client uid. The client clears their draft after submission.
-    match /onboarding_drafts/{userId} {
+
+    // ── Onboarding Drafts (guided-session autosave) ───────────────────────────
+    // Autosaved while the administrator fills the form with the client. The
+    // client reads it so their portal can show the session in progress, and it
+    // is deleted when the delivery is published. One document per client/project.
+    match /onboarding_drafts/{draftId} {
       allow read, write: if isSuperAdmin();
-      allow read, create, update, delete: if isOwner(userId);
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // ── Prospects ────────────────────────────────────────────────────────────
     match /prospects/{prospectId} {
       allow read, write: if isSuperAdmin();
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+          'name', 'company', 'email', 'projectDescription',
+          'isExistingClient', 'licenseCode', 'createdAt', 'status'
+        ])
+        && isSafeShortText(request.resource.data.name, 120)
+        && isSafeShortText(request.resource.data.company, 120)
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && isOptionalText(request.resource.data.projectDescription, 2000)
+        && request.resource.data.isExistingClient is bool
+        && isOptionalText(request.resource.data.licenseCode, 40)
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
     }
 
     // ── Contacts ─────────────────────────────────────────────────────────────
@@ -84,17 +129,35 @@ service cloud.firestore {
       // No self-creation — payments created by admin or backend only
     }
 
+    // ── Meetings / Agenda ───────────────────────────────────────────────────
+    // The administrator schedules and cancels meetings from the CRM, the same
+    // way licenses and payments are written. The client reads their own so the
+    // portal can show what is coming; the invitation is sent by the admin.
+    match /meetings/{meetingId} {
+      allow read, write: if isSuperAdmin();
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
     // ── Activities (append-only audit log) ────────────────────────────────────
     // Immutable ledger of CRM events. No update/delete for anyone — including
     // admin — so history stays trustworthy. Cleanup only via Firebase console.
     match /activities/{activityId} {
       allow read, create: if isSuperAdmin();
-      // Members may log a restricted set of events about themselves,
-      // stamped with the server clock (no backdating)
+      // A member may only log their own registration, stamped with the server
+      // clock (no backdating). Onboarding events are written by the admin.
       allow create: if request.auth != null
         && request.resource.data.memberId == request.auth.uid
         && request.resource.data.actorUid == request.auth.uid
-        && request.resource.data.type in ['member_registered', 'onboarding_completed']
+        && request.resource.data.keys().hasOnly([
+          'memberId', 'memberName', 'type', 'payload', 'actorUid',
+          'actorEmail', 'actorRole', 'createdAt'
+        ])
+        && request.resource.data.type == 'member_registered'
+        && request.resource.data.actorEmail == request.auth.token.email
+        && request.resource.data.actorRole == 'member'
+        && isOptionalText(request.resource.data.memberName, 120)
+        && request.resource.data.payload is map
+        && request.resource.data.payload.keys().hasOnly([])
         && request.resource.data.createdAt == request.time;
     }
   }

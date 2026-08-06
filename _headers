@@ -43,6 +43,31 @@
 /pt/index.html
   Cache-Control: no-cache, max-age=0, must-revalidate
 
+# Account, onboarding and CRM shells must move in lockstep with their JS.
+/profiles
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/profiles.html
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/es/profiles*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/pt/profiles*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/onboarding*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/es/onboarding*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/pt/onboarding*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/admin*
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 /CSS/home.v20260729.min.css
   Cache-Control: public, max-age=31536000, immutable
 
@@ -70,6 +95,26 @@
 /JS/home.v2026073002.min.js
   Cache-Control: public, max-age=31536000, immutable
 
+# Authentication and portal assets change together. Keep their cache policy
+# explicit so a member never receives a new dashboard shell with stale logic.
+/JS/profiles.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/JS/onboarding.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/JS/admin.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/JS/firebase-config.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/CSS/customer-portal.css
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/CSS/admin-portal.css
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 /Images/Optimized/*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -80,7 +125,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
   X-Elysium-Compliance: GDPR-EU-2016-679 / CR-Ley-8968 / ISO-27001 / SOC2
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com https://*.firebasestorage.app wss://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://api.exchangerate-api.com https://get.geojs.io; frame-src 'self' https://www.googletagmanager.com https://elysiumdr-eu.firebaseapp.com https://moyracr.com https://pmorais.pt https://regalarte.danielalonzzo.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self';
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com https://*.firebasestorage.app wss://*.firebaseio.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://api.exchangerate-api.com https://get.geojs.io; frame-src 'self' https://www.googletagmanager.com https://elysiumdr-eu.firebaseapp.com https://moyracr.com https://www.moyracr.com https://pmorais.pt https://www.pmorais.pt https://regalarte.danielalonzzo.workers.dev; object-src 'none'; base-uri 'self'; form-action 'self';
 
 # El sitio del Dr. Johnny Piedra carga los iconos Phosphor desde unpkg, la
 # única dependencia externa de los subsitios que no usa ya el portafolio. Va en

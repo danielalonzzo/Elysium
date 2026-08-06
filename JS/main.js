@@ -235,8 +235,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Smooth Scroll for Anchors
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href');
+            // `href="#"` is used by auth view toggles. It is not a valid CSS
+            // selector and must be left to the component-specific listener.
+            if (!targetId || targetId === '#') return;
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const target = document.querySelector(targetId);
             if (target) {
                 target.scrollIntoView({
                     behavior: 'smooth'

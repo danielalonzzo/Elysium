@@ -4368,3 +4368,44 @@ body[data-active-currency="CRC"] .matrix-plan-optional {
     white-space: normal !important;
 }
 
+
+/* ── Guided onboarding session (admin) ─────────────────────────────────────
+   The onboarding is filled by the administrator together with the client, so
+   the form states plainly whose data is being written. Injected by
+   JS/onboarding.js, which keeps the three localized pages in sync. */
+.admin-session-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1rem;
+    margin-bottom: 2rem;
+    padding: 0.85rem 1.1rem;
+    border: 1px solid rgba(0, 200, 117, 0.28);
+    border-radius: var(--radius-md);
+    background: rgba(0, 200, 117, 0.06);
+    font-size: 0.8rem;
+}
+
+.admin-session-badge {
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(0, 200, 117, 0.16);
+    color: #00c875;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.admin-session-who {
+    flex: 1 1 12rem;
+    color: var(--color-text-secondary);
+}
+
+.admin-session-back {
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    text-decoration: none;
+}
+
+.admin-session-back:hover { text-decoration: underline; }

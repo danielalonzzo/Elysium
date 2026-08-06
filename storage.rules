@@ -6,37 +6,66 @@ service firebase.storage {
       return request.auth != null && request.auth.token.email == 'danielalonzzo@icloud.com';
     }
 
-    // ── Client files (invoices, reports) ─────────────────────────────────────
-    // Uploaded and deleted by admin only; each client can read only their own.
-    match /members/{userId}/{allPaths=**} {
+    function subscriptionAllowsAccess(member) {
+      let subscription = member.subscription;
+      return subscription != null
+        && (
+          (
+            subscription.status == 'active'
+            && (
+              !('source' in subscription)
+              || subscription.source != 'stripe'
+              || !('accessGranted' in subscription)
+              || subscription.accessGranted == true
+            )
+            && (
+              !('nextBillingDate' in subscription)
+              || subscription.nextBillingDate == null
+              || request.time <= subscription.nextBillingDate + duration.value(15, 'd')
+            )
+          )
+          || (
+            subscription.status == 'pending_payment'
+            && subscription.accessGranted == true
+            && (
+              (
+                'gracePeriodEnd' in subscription
+                && subscription.gracePeriodEnd != null
+                && request.time <= subscription.gracePeriodEnd
+              )
+              || (
+                (!('gracePeriodEnd' in subscription) || subscription.gracePeriodEnd == null)
+                && 'nextBillingDate' in subscription
+                && subscription.nextBillingDate != null
+                && request.time <= subscription.nextBillingDate + duration.value(15, 'd')
+              )
+            )
+          )
+        );
+    }
+
+    function memberHasLicensedAccess(userId) {
+      let member = firestore.get(/databases/(default)/documents/members/$(userId)).data;
+      return request.auth != null
+        && request.auth.uid == userId
+        && (!('isDeactivated' in member) || member.isDeactivated != true)
+        && subscriptionAllowsAccess(member);
+    }
+
+    // Invoices remain available to their owner for accounting and legal
+    // history, even after a subscription ends.
+    match /members/{userId}/invoices/{allPaths=**} {
       allow read: if isSuperAdmin() || (request.auth != null && request.auth.uid == userId);
       allow write: if isSuperAdmin();
     }
 
-    // ── Onboarding asset ingestion ───────────────────────────────────────────
-    // Clients upload brand/content/data files during the guided onboarding
-    // session. Scoped to their own folder, capped per file, and restricted to
-    // safe content types (images, PDF, vector, spreadsheets, docs).
-    match /members/{userId}/onboarding/{allPaths=**} {
-      allow read: if isSuperAdmin() || (request.auth != null && request.auth.uid == userId);
-      allow create, update: if request.auth != null
-        && request.auth.uid == userId
-        && request.resource.size < 25 * 1024 * 1024
-        && (
-          request.resource.contentType.matches('image/.*')
-          || request.resource.contentType in [
-            'application/pdf',
-            'application/postscript',
-            'text/csv',
-            'text/plain',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/zip'
-          ]
-        );
-      allow delete: if isSuperAdmin() || (request.auth != null && request.auth.uid == userId);
+    // ── Client files (invoices, reports, onboarding assets) ──────────────────
+    // Uploaded and deleted by admin only; each client can read only their own.
+    // Onboarding assets are ingested by the administrator during the guided
+    // session, so nothing a delivery references can be destroyed from a browser.
+    match /members/{userId}/{allPaths=**} {
+      allow read: if isSuperAdmin() || memberHasLicensedAccess(userId);
+      allow write: if isSuperAdmin();
     }
 
     // ── Everything else: admin only ──────────────────────────────────────────

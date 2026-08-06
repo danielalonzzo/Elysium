@@ -15,6 +15,7 @@ import {
     addDoc,
     serverTimestamp,
     writeBatch,
+    runTransaction,
     onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { 
@@ -69,7 +70,16 @@ const logger = {
 let _allClients   = [];
 let _sortAZ       = true;    // true = A→Z, false = newest first
 let _activeFilter = 'all';   // pipeline stage filter on clients tab
-let _draftUnsub   = null;    // live onboarding-draft listener (Co-Pilot panel)
+let _draftUnsub   = null;    // live listener for the guided onboarding session
+let _detailLoadVersion = 0;  // prevents a slow client request replacing a newer one
+let _detailRenderVersion = 0; // prevents stale async detail renderers writing into a newer view
+let _agendaMeetings = [];
+let _agendaFilter = 'upcoming';
+let _agendaLoadVersion = 0;
+
+const PORTUGAL_TIME_ZONE = 'Europe/Lisbon';
+const ADMIN_AGENDA_PREVIEW = ['localhost', '127.0.0.1'].includes(location.hostname)
+    && new URLSearchParams(location.search).get('adminPreview') === 'agenda';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 /**
@@ -80,9 +90,10 @@ let _draftUnsub   = null;    // live onboarding-draft listener (Co-Pilot panel)
  * Delivered  → has deliveredAt field set
  */
 function getPartnerStage(data) {
-    if (data.deliveredAt)                        return 'delivered';
-    if (data.projectUrl)                         return 'active';
-    if (data.onboardingCompleted)                return 'onboarding';
+    const projects = Array.isArray(data.projects) ? data.projects : [];
+    if (data.deliveredAt || projects.some(project => project?.deliveredAt)) return 'delivered';
+    if (data.projectUrl || projects.some(project => project?.projectUrl)) return 'active';
+    if (data.onboardingCompleted || projects.some(project => project?.onboardingCompleted)) return 'onboarding';
     return 'prospect';
 }
 
@@ -91,6 +102,46 @@ function esc(str) {
     return String(str ?? '').replace(/[&<>"']/g, ch => (
         { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
     ));
+}
+
+/** Normalize untrusted links and reject executable/non-web URL schemes. */
+function safeUrl(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+    try {
+        const parsed = new URL(raw);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : '';
+    } catch {
+        return '';
+    }
+}
+
+/**
+ * Firestore rejects `undefined` anywhere in a payload. Client objects assembled
+ * in memory carry undefined keys whenever the source doc lacks that field, so
+ * strip them before writing. Class instances (Timestamp, Date, GeoPoint…) are
+ * returned untouched: rebuilding them as plain objects would corrupt them.
+ */
+function stripUndefined(value) {
+    if (Array.isArray(value)) return value.map(stripUndefined);
+    if (value === null || typeof value !== 'object') return value;
+    const proto = Object.getPrototypeOf(value);
+    if (proto !== Object.prototype && proto !== null) return value;
+
+    const clean = {};
+    for (const [key, val] of Object.entries(value)) {
+        if (val === undefined) continue;
+        clean[key] = stripUndefined(val);
+    }
+    return clean;
+}
+
+/** Firestore timestamp or date → the YYYY-MM-DD an <input type="date"> needs. */
+function adminDateInputValue(value) {
+    if (!value) return '';
+    const date = value.seconds ? new Date(value.seconds * 1000) : new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 function formatAdminDate(value) {
@@ -104,19 +155,21 @@ function formatAdminDate(value) {
 function subscriptionStatus(subscription) {
     if (!subscription) return null;
     const storedStatus = subscription.status || 'active';
-    if (!subscription.nextBillingDate || ['suspended', 'canceled', 'cancelled'].includes(storedStatus)) return storedStatus;
-
-    const renewal = subscription.nextBillingDate.seconds
-        ? subscription.nextBillingDate.seconds * 1000
-        : new Date(subscription.nextBillingDate).getTime();
-    if (!Number.isFinite(renewal) || Date.now() <= renewal) return storedStatus;
-
-    const grace = subscription.gracePeriodEnd
-        ? (subscription.gracePeriodEnd.seconds
-            ? subscription.gracePeriodEnd.seconds * 1000
-            : new Date(subscription.gracePeriodEnd).getTime())
-        : renewal + (15 * 86400000);
-    return Date.now() > grace ? 'suspended' : 'pending_payment';
+    if (['suspended', 'canceled', 'cancelled'].includes(storedStatus)) return storedStatus;
+    const renewal = adminTimestampMillis(subscription.nextBillingDate);
+    const renewalGrace = renewal ? renewal + (15 * 86400000) : 0;
+    const paymentGrace = adminTimestampMillis(subscription.gracePeriodEnd) || renewalGrace;
+    if (storedStatus === 'pending_payment') {
+        return !paymentGrace || Date.now() > paymentGrace ? 'suspended' : storedStatus;
+    }
+    if (storedStatus === 'active') {
+        if (subscription.source === 'stripe'
+            && Object.hasOwn(subscription, 'accessGranted')
+            && subscription.accessGranted !== true) return 'pending_payment';
+        if (renewalGrace && Date.now() > renewalGrace) return 'suspended';
+        if (renewal && Date.now() > renewal) return 'pending_payment';
+    }
+    return storedStatus;
 }
 
 /**
@@ -150,6 +203,22 @@ function timeAgo(ts) {
     if (days  <  2) return 'yesterday';
     if (days  < 30) return `${days}d ago`;
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function adminTimestampMillis(value) {
+    if (!value) return 0;
+    if (typeof value.toMillis === 'function') return value.toMillis();
+    if (Number.isFinite(value.seconds)) return value.seconds * 1000;
+    const millis = new Date(value).getTime();
+    return Number.isFinite(millis) ? millis : 0;
+}
+
+function closeClientDetail() {
+    _detailLoadVersion++;
+    _detailRenderVersion++;
+    if (_draftUnsub) { _draftUnsub(); _draftUnsub = null; }
+    const overlay = document.getElementById('client-detail-overlay');
+    if (overlay) overlay.style.display = 'none';
 }
 
 /** Animate a progress bar fill after a paint frame */
@@ -638,28 +707,697 @@ const translations = {
     }
 };
 
+const AGENDA_COPY = {
+    en: {
+        nav: 'Agenda', title: 'Agenda', description: 'Schedule and monitor client meetings across time zones.',
+        formEyebrow: 'New appointment', formTitle: 'Schedule a client meeting', listEyebrow: 'Client calendar', listTitle: 'Meetings',
+        client: 'Client', clientPlaceholder: 'Select a client…', meetingTitle: 'Meeting title', titlePlaceholder: 'Project review',
+        date: 'Date', time: 'Time', duration: 'Duration', adminZone: 'Admin time zone (IANA)', clientZone: 'Client time zone (IANA)', clientRegion: 'Client region / country', regionPlaceholder: 'Costa Rica',
+        link: 'HTTPS meeting link', notes: 'Notes for the client', notesPlaceholder: 'These notes are included in the confirmation email.',
+        create: 'Create meeting', creating: 'Creating…', refresh: 'Refresh', upcoming: 'Upcoming', past: 'Past', cancelled: 'Cancelled', all: 'All',
+        loadError: 'Meetings could not be loaded.', empty: 'No meetings in this view.',
+        invalidZone: 'Enter valid IANA time zones.', invalidLink: 'The meeting link must use HTTPS.', invalidDate: 'Choose a valid future date and time.',
+        required: 'Complete every required field.', createdOk: 'Meeting saved. Send the client the invitation or the email.',
+        createFailed: 'The meeting could not be saved.', cancelFailed: 'The meeting could not be cancelled.',
+        cancel: 'Cancel', cancelling: 'Cancelling…', cancelConfirm: 'Cancel this meeting?',
+        cancelledOk: 'Meeting cancelled. Let the client know.',
+        join: 'Open meeting', portugalTime: 'Portugal time', clientTime: 'Client time', durationShort: 'min',
+        downloadIcs: 'Calendar file', notifyClient: 'Email the client',
+        mailSubject: 'Meeting', mailCancelledSubject: 'Cancelled meeting',
+        preview: 'Local QA fixture. No real meeting or email actions are performed.',
+        submissionsTitle: 'Onboarding deliveries', submissionsHelp: 'Complete project history; select any delivery to inspect it.',
+        submission: 'Delivery', submissionsCount: count => `${count} ${count === 1 ? 'delivery' : 'deliveries'}`, formVersion: 'Form v',
+        accountOnboarding: 'Account onboarding', archivedProject: 'Archived project'
+    },
+    es: {
+        nav: 'Agenda', title: 'Agenda', description: 'Programa y supervisa reuniones con clientes entre zonas horarias.',
+        formEyebrow: 'Nueva cita', formTitle: 'Programar reunión con cliente', listEyebrow: 'Calendario de clientes', listTitle: 'Reuniones',
+        client: 'Cliente', clientPlaceholder: 'Selecciona un cliente…', meetingTitle: 'Título de la reunión', titlePlaceholder: 'Revisión del proyecto',
+        date: 'Fecha', time: 'Hora', duration: 'Duración', adminZone: 'Zona del admin (IANA)', clientZone: 'Zona del cliente (IANA)', clientRegion: 'Región o país del cliente', regionPlaceholder: 'Costa Rica',
+        link: 'Enlace HTTPS de la reunión', notes: 'Notas para el cliente', notesPlaceholder: 'Estas notas se incluirán en el correo de confirmación.',
+        create: 'Crear reunión', creating: 'Creando…', refresh: 'Actualizar', upcoming: 'Próximas', past: 'Pasadas', cancelled: 'Canceladas', all: 'Todas',
+        loadError: 'No se pudieron cargar las reuniones.', empty: 'No hay reuniones en esta vista.',
+        invalidZone: 'Introduce zonas horarias IANA válidas.', invalidLink: 'El enlace de la reunión debe usar HTTPS.', invalidDate: 'Elige una fecha y hora futuras válidas.',
+        required: 'Completa todos los campos obligatorios.', createdOk: 'Reunión guardada. Envía al cliente la invitación o el correo.',
+        createFailed: 'No se pudo guardar la reunión.', cancelFailed: 'No se pudo cancelar la reunión.',
+        cancel: 'Cancelar', cancelling: 'Cancelando…', cancelConfirm: '¿Cancelar esta reunión?',
+        cancelledOk: 'Reunión cancelada. Avisa al cliente.',
+        join: 'Abrir reunión', portugalTime: 'Hora Portugal', clientTime: 'Hora cliente', durationShort: 'min',
+        downloadIcs: 'Archivo de calendario', notifyClient: 'Escribir al cliente',
+        mailSubject: 'Reunión', mailCancelledSubject: 'Reunión cancelada',
+        preview: 'Fixture local de QA. No se ejecutan reuniones ni correos reales.',
+        submissionsTitle: 'Entregas de onboarding', submissionsHelp: 'Historial completo del proyecto; selecciona cualquier entrega para revisarla.',
+        submission: 'Entrega', submissionsCount: count => `${count} ${count === 1 ? 'entrega' : 'entregas'}`, formVersion: 'Formulario v',
+        accountOnboarding: 'Onboarding de cuenta', archivedProject: 'Proyecto archivado'
+    },
+    pt: {
+        nav: 'Agenda', title: 'Agenda', description: 'Agende e acompanhe reuniões com clientes entre fusos horários.',
+        formEyebrow: 'Nova marcação', formTitle: 'Agendar reunião com cliente', listEyebrow: 'Calendário de clientes', listTitle: 'Reuniões',
+        client: 'Cliente', clientPlaceholder: 'Selecione um cliente…', meetingTitle: 'Título da reunião', titlePlaceholder: 'Revisão do projeto',
+        date: 'Data', time: 'Hora', duration: 'Duração', adminZone: 'Fuso do admin (IANA)', clientZone: 'Fuso do cliente (IANA)', clientRegion: 'Região ou país do cliente', regionPlaceholder: 'Costa Rica',
+        link: 'Link HTTPS da reunião', notes: 'Notas para o cliente', notesPlaceholder: 'Estas notas serão incluídas no email de confirmação.',
+        create: 'Criar reunião', creating: 'A criar…', refresh: 'Atualizar', upcoming: 'Próximas', past: 'Passadas', cancelled: 'Canceladas', all: 'Todas',
+        loadError: 'Não foi possível carregar as reuniões.', empty: 'Não existem reuniões nesta vista.',
+        invalidZone: 'Introduza fusos horários IANA válidos.', invalidLink: 'O link da reunião deve usar HTTPS.', invalidDate: 'Escolha uma data e hora futuras válidas.',
+        required: 'Preencha todos os campos obrigatórios.', createdOk: 'Reunião guardada. Envie ao cliente o convite ou o email.',
+        createFailed: 'Não foi possível guardar a reunião.', cancelFailed: 'Não foi possível cancelar a reunião.',
+        cancel: 'Cancelar', cancelling: 'A cancelar…', cancelConfirm: 'Cancelar esta reunião?',
+        cancelledOk: 'Reunião cancelada. Avise o cliente.',
+        join: 'Abrir reunião', portugalTime: 'Hora de Portugal', clientTime: 'Hora do cliente', durationShort: 'min',
+        downloadIcs: 'Ficheiro de calendário', notifyClient: 'Escrever ao cliente',
+        mailSubject: 'Reunião', mailCancelledSubject: 'Reunião cancelada',
+        preview: 'Fixture local de QA. Não são executadas reuniões nem emails reais.',
+        submissionsTitle: 'Entregas de onboarding', submissionsHelp: 'Histórico completo do projeto; selecione qualquer entrega para a consultar.',
+        submission: 'Entrega', submissionsCount: count => `${count} ${count === 1 ? 'entrega' : 'entregas'}`, formVersion: 'Formulário v',
+        accountOnboarding: 'Onboarding da conta', archivedProject: 'Projeto arquivado'
+    }
+};
+
 let currentLang = localStorage.getItem('elysium_lang') || 'en';
 
+function agendaCopy() {
+    return AGENDA_COPY[currentLang] || AGENDA_COPY.en;
+}
+
+function isIanaTimeZone(value) {
+    try {
+        new Intl.DateTimeFormat('en-GB', { timeZone: String(value || '') }).format();
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function zonedParts(date, timeZone) {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone,
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(date);
+    return Object.fromEntries(parts.filter(part => part.type !== 'literal').map(part => [part.type, Number(part.value)]));
+}
+
+function timeZoneOffsetMillis(date, timeZone) {
+    const p = zonedParts(date, timeZone);
+    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - date.getTime();
+}
+
+/** Convert an admin-entered wall-clock value in an IANA zone into UTC. */
+function zonedLocalToDate(dateValue, timeValue, timeZone) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue) || !/^\d{2}:\d{2}$/.test(timeValue) || !isIanaTimeZone(timeZone)) return null;
+    const [year, month, day] = dateValue.split('-').map(Number);
+    const [hour, minute] = timeValue.split(':').map(Number);
+    const desiredUtc = Date.UTC(year, month - 1, day, hour, minute, 0);
+    let candidate = new Date(desiredUtc - timeZoneOffsetMillis(new Date(desiredUtc), timeZone));
+    candidate = new Date(desiredUtc - timeZoneOffsetMillis(candidate, timeZone));
+    const check = zonedParts(candidate, timeZone);
+    if (check.year !== year || check.month !== month || check.day !== day || check.hour !== hour || check.minute !== minute) return null;
+    return candidate;
+}
+
+function agendaDefaultWallClock() {
+    const rounded = new Date(Math.ceil((Date.now() + 45 * 60000) / (15 * 60000)) * (15 * 60000));
+    const p = zonedParts(rounded, PORTUGAL_TIME_ZONE);
+    return {
+        date: `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`,
+        time: `${String(p.hour).padStart(2, '0')}:${String(p.minute).padStart(2, '0')}`
+    };
+}
+
+function inferredClientTimeZone(client) {
+    const explicit = client?.clientTimeZone || client?.timeZone || client?.timezone || client?.regionTimeZone;
+    if (isIanaTimeZone(explicit)) return explicit;
+    const country = String(client?.country || client?.contactCountry || '').toLowerCase();
+    if (country.includes('costa rica')) return 'America/Costa_Rica';
+    if (country.includes('spain') || country.includes('españa')) return 'Europe/Madrid';
+    if (country.includes('portugal')) return PORTUGAL_TIME_ZONE;
+    return '';
+}
+
+function safeHttpsUrl(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    try {
+        const parsed = new URL(raw);
+        return parsed.protocol === 'https:' ? parsed.href : '';
+    } catch {
+        return '';
+    }
+}
+
+function meetingStartMillis(meeting) {
+    return adminTimestampMillis(
+        meeting?.startsAt || meeting?.startAt || meeting?.startTime || meeting?.scheduledAt || meeting?.dateTime
+    );
+}
+
+function normalizeMeeting(raw, fallbackId = '') {
+    const data = raw && typeof raw === 'object' ? raw : {};
+    let startsAt = data.startsAt || data.startAt || data.startTime || data.scheduledAt || data.dateTime || null;
+    if (!meetingStartMillis({ startsAt }) && data.date && data.time && isIanaTimeZone(data.adminTimeZone || data.timeZone)) {
+        startsAt = zonedLocalToDate(data.date, data.time, data.adminTimeZone || data.timeZone)?.toISOString() || null;
+    }
+    const userId = String(data.userId || data.clientId || '');
+    const client = _allClients.find(item => String(item.id) === userId);
+    const status = String(data.status || '').toLowerCase();
+    return {
+        id: String(data.id || data.meetingId || fallbackId || ''),
+        userId,
+        clientName: String(data.clientName || data.userName || client?.name || client?.company || ''),
+        clientEmail: String(data.clientEmail || data.userEmail || client?.email || ''),
+        clientRegion: String(data.clientRegion || client?.country || client?.region || ''),
+        title: String(data.title || data.summary || ''),
+        startsAt,
+        durationMinutes: Math.min(480, Math.max(1, Number(data.durationMinutes || data.duration || 60) || 60)),
+        adminTimeZone: isIanaTimeZone(data.adminTimeZone) ? data.adminTimeZone : PORTUGAL_TIME_ZONE,
+        clientTimeZone: isIanaTimeZone(data.clientTimeZone) ? data.clientTimeZone : (inferredClientTimeZone(client) || PORTUGAL_TIME_ZONE),
+        meetingUrl: safeHttpsUrl(data.meetingUrl || data.url || data.link),
+        notes: String(data.notes || ''),
+        status,
+        cancelledAt: data.cancelledAt || data.canceledAt || null,
+        createdAt: data.createdAt || null
+    };
+}
+
+function meetingDisplayStatus(meeting) {
+    if (meeting.cancelledAt || ['cancelled', 'canceled'].includes(meeting.status)) return 'cancelled';
+    const start = meetingStartMillis(meeting);
+    if (!start) return 'past';
+    return start + meeting.durationMinutes * 60000 <= Date.now() ? 'past' : 'upcoming';
+}
+
+function formatMeetingZoned(meeting, timeZone) {
+    const millis = meetingStartMillis(meeting);
+    if (!millis || !isIanaTimeZone(timeZone)) return '—';
+    const locale = currentLang === 'es' ? 'es-ES' : currentLang === 'pt' ? 'pt-PT' : 'en-GB';
+    return new Intl.DateTimeFormat(locale, {
+        timeZone,
+        weekday: 'short', day: '2-digit', month: 'short',
+        hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
+    }).format(new Date(millis));
+}
+
+function submissionMatchesProject(submission, selectedProjectId) {
+    const submissionProjectId = submission?.projectId == null ? null : String(submission.projectId);
+    const projectId = selectedProjectId == null ? null : String(selectedProjectId);
+    if (submissionProjectId === projectId) return true;
+    return submissionProjectId == null && ['legacy', 'project-1'].includes(projectId);
+}
+
+// ── Meetings: written straight to Firestore ─────────────────────────────────
+// There used to be a trusted /api/meetings service here. It was never deployed,
+// so every creation failed with "the meeting backend is not configured". The
+// administrator already writes licenses and payments directly under the
+// isSuperAdmin() rule; meetings now work the same way. Instead of a server
+// sending mail, each meeting offers a calendar file and a prefilled email.
+
+function meetingIcsText(meeting) {
+    const pad = value => String(value).padStart(2, '0');
+    const utc = date => `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}`
+        + `T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`;
+    const escapeText = value => String(value ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\r?\n/g, '\\n');
+    // RFC 5545 asks for 75-octet lines; continuation lines start with a space.
+    const fold = line => line.match(/.{1,73}/g)?.join('\r\n ') ?? line;
+
+    const start = new Date(meetingStartMillis(meeting));
+    const end = new Date(start.getTime() + meeting.durationMinutes * 60000);
+    const description = [meeting.notes, meeting.meetingUrl].filter(Boolean).join('\n\n');
+
+    return [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Elysium//CRM//EN',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        `UID:${meeting.id || crypto.randomUUID()}@elysiumdr.eu`,
+        `DTSTAMP:${utc(new Date())}`,
+        `DTSTART:${utc(start)}`,
+        `DTEND:${utc(end)}`,
+        fold(`SUMMARY:${escapeText(meeting.title)}`),
+        description ? fold(`DESCRIPTION:${escapeText(description)}`) : '',
+        meeting.meetingUrl ? fold(`LOCATION:${escapeText(meeting.meetingUrl)}`) : '',
+        meeting.meetingUrl ? fold(`URL:${escapeText(meeting.meetingUrl)}`) : '',
+        'END:VEVENT',
+        'END:VCALENDAR'
+    ].filter(Boolean).join('\r\n');
+}
+
+function downloadMeetingIcs(meeting) {
+    const blob = new Blob([meetingIcsText(meeting)], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${String(meeting.title || 'meeting').replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 60)}.ics`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/** Prefilled email to the client, opened in the administrator's mail app. */
+function meetingMailtoUrl(meeting, cancelled = false) {
+    const c = agendaCopy();
+    const body = [
+        `${c.meetingTitle}: ${meeting.title}`,
+        `${c.portugalTime}: ${formatMeetingZoned(meeting, PORTUGAL_TIME_ZONE)}`,
+        `${c.clientTime} (${meeting.clientTimeZone}): ${formatMeetingZoned(meeting, meeting.clientTimeZone)}`,
+        `${c.duration}: ${meeting.durationMinutes} ${c.durationShort}`,
+        meeting.meetingUrl ? `${c.link}: ${meeting.meetingUrl}` : '',
+        meeting.notes ? `\n${meeting.notes}` : ''
+    ].filter(Boolean).join('\n');
+    const subject = `${cancelled ? c.mailCancelledSubject : c.mailSubject}: ${meeting.title}`;
+    return `mailto:${encodeURIComponent(meeting.clientEmail || '')}`
+        + `?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function setAgendaMessage(message, type = '') {
+    const el = document.getElementById('meeting-form-message');
+    if (!el) return;
+    el.className = `meeting-form-message${type ? ` is-${type}` : ''}`;
+    el.textContent = message || '';
+}
+
+function registeredAgendaClients() {
+    return _allClients
+        .filter(client => client && client.role !== 'prospect'
+            && client.role !== 'admin' && client.role !== 'root'
+            && client.email !== SUPER_ADMIN_EMAIL)
+        .sort((a, b) => String(a.name || a.company || '').localeCompare(String(b.name || b.company || ''), undefined, { sensitivity: 'base' }));
+}
+
+/**
+ * The registered client that shares an email with a prospect. The same person
+ * arriving twice — once through the enquiry form, once as a signed-up member —
+ * must end up in a single profile, and the email is what ties them together.
+ */
+function registeredClientMatchingEmail(email) {
+    const normalized = String(email || '').trim().toLowerCase();
+    if (!normalized) return null;
+    return registeredAgendaClients()
+        .find(client => String(client.email || '').trim().toLowerCase() === normalized) || null;
+}
+
+async function ensureAgendaClients(loadVersion) {
+    if (registeredAgendaClients().length || ADMIN_AGENDA_PREVIEW) return;
+    const snap = await getDocs(collection(db, 'members'));
+    if (loadVersion !== _agendaLoadVersion) return;
+    snap.docs.forEach(item => {
+        const data = item.data();
+        if (data.role === 'admin' || data.role === 'root' || data.email === SUPER_ADMIN_EMAIL) return;
+        const existingIndex = _allClients.findIndex(client => client.id === item.id);
+        const record = { ...data, id: item.id };
+        if (existingIndex === -1) _allClients.push(record);
+        else _allClients[existingIndex] = { ..._allClients[existingIndex], ...record };
+    });
+}
+
+function renderAgendaClientOptions() {
+    const select = document.getElementById('meeting-client');
+    if (!select) return;
+    const selected = select.value;
+    const c = agendaCopy();
+    const clients = registeredAgendaClients();
+    select.innerHTML = `<option value="">${esc(c.clientPlaceholder)}</option>${clients.map(client => {
+        const label = client.name || client.company || client.email || c.client;
+        const detail = client.company && client.company !== label ? ` · ${client.company}` : '';
+        return `<option value="${esc(client.id)}">${esc(label + detail)}</option>`;
+    }).join('')}`;
+    if (clients.some(client => String(client.id) === selected)) select.value = selected;
+}
+
+function updateAgendaCount() {
+    const badge = document.getElementById('sidebar-agenda-count');
+    if (badge) badge.textContent = _agendaMeetings.filter(meeting => meetingDisplayStatus(meeting) === 'upcoming').length;
+}
+
+function renderAgendaMeetings() {
+    const container = document.getElementById('agenda-meeting-list');
+    if (!container) return;
+    const c = agendaCopy();
+    const filtered = _agendaMeetings
+        .filter(meeting => _agendaFilter === 'all' || meetingDisplayStatus(meeting) === _agendaFilter)
+        .sort((a, b) => {
+            const delta = meetingStartMillis(a) - meetingStartMillis(b);
+            return _agendaFilter === 'upcoming' ? delta : -delta;
+        });
+
+    updateAgendaCount();
+    if (!filtered.length) {
+        container.innerHTML = `<div class="agenda-empty">${esc(c.empty)}</div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(meeting => {
+        const status = meetingDisplayStatus(meeting);
+        const clientLabel = meeting.clientName || meeting.clientEmail || c.client;
+        const link = safeHttpsUrl(meeting.meetingUrl);
+        const canCancel = status === 'upcoming' && meeting.id;
+        return `
+            <article class="meeting-card is-${status}">
+                <div class="meeting-card-accent" aria-hidden="true"></div>
+                <div class="meeting-card-body">
+                    <div class="meeting-card-head">
+                        <div>
+                            <h3 class="meeting-card-title">${esc(meeting.title || c.listTitle)}</h3>
+                            <div class="meeting-card-client">${esc(clientLabel)}${meeting.clientEmail ? ` · ${esc(meeting.clientEmail)}` : ''}</div>
+                        </div>
+                        <span class="meeting-status">${esc(c[status] || status)}</span>
+                    </div>
+                    <div class="meeting-time-grid">
+                        <div class="meeting-time-zone">
+                            <span>${esc(c.portugalTime)}</span>
+                            <strong>${esc(formatMeetingZoned(meeting, PORTUGAL_TIME_ZONE))}</strong>
+                        </div>
+                        <div class="meeting-time-zone">
+                            <span>${esc(c.clientTime)} · ${esc(meeting.clientTimeZone)}</span>
+                            <strong>${esc(formatMeetingZoned(meeting, meeting.clientTimeZone))}</strong>
+                        </div>
+                    </div>
+                    <div class="meeting-card-meta">
+                        <span>${meeting.durationMinutes} ${esc(c.durationShort)}</span>
+                        ${meeting.notes ? `<span>${esc(meeting.notes)}</span>` : ''}
+                    </div>
+                    <div class="meeting-card-footer">
+                        ${link ? `<a class="meeting-join-link" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(c.join)}</a>` : '<span></span>'}
+                        <div class="meeting-card-actions">
+                            <button type="button" class="meeting-action-btn" data-meeting-ics="${esc(meeting.id)}">${esc(c.downloadIcs)}</button>
+                            ${meeting.clientEmail ? `<a class="meeting-action-btn" href="${esc(meetingMailtoUrl(meeting, status === 'cancelled'))}">${esc(c.notifyClient)}</a>` : ''}
+                            ${canCancel ? `<button type="button" class="meeting-cancel-btn" data-meeting-id="${esc(meeting.id)}">${esc(c.cancel)}</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </article>`;
+    }).join('');
+
+    container.querySelectorAll('.meeting-cancel-btn').forEach(button => {
+        button.addEventListener('click', () => cancelAgendaMeeting(button.dataset.meetingId, button));
+    });
+    container.querySelectorAll('[data-meeting-ics]').forEach(button => {
+        button.addEventListener('click', () => {
+            const meeting = _agendaMeetings.find(item => item.id === button.dataset.meetingIcs);
+            if (meeting) downloadMeetingIcs(meeting);
+        });
+    });
+}
+
+function agendaPreviewFixtures() {
+    if (!registeredAgendaClients().length) {
+        _allClients.push({
+            id: 'preview-client', name: 'Sofía Ramírez', company: 'Pura Vida Studio',
+            email: 'sofia@example.com', country: 'Costa Rica', clientTimeZone: 'America/Costa_Rica', role: 'client'
+        });
+    }
+    const hour = 60 * 60000;
+    return [
+        normalizeMeeting({
+            id: 'preview-next', userId: 'preview-client', title: 'Revisión de arquitectura',
+            startsAt: new Date(Date.now() + 26 * hour).toISOString(), durationMinutes: 60,
+            clientTimeZone: 'America/Costa_Rica', meetingUrl: 'https://meet.google.com/example-preview',
+            notes: 'Validar alcance y próximos hitos.', status: 'scheduled'
+        }),
+        normalizeMeeting({
+            id: 'preview-queued', userId: 'preview-client', title: 'Seguimiento de onboarding',
+            startsAt: new Date(Date.now() + 74 * hour).toISOString(), durationMinutes: 45,
+            clientTimeZone: 'America/Costa_Rica', meetingUrl: 'https://meet.google.com/example-queued',
+            status: 'scheduled'
+        }),
+        normalizeMeeting({
+            id: 'preview-past', userId: 'preview-client', title: 'Descubrimiento inicial',
+            startsAt: new Date(Date.now() - 50 * hour).toISOString(), durationMinutes: 60,
+            clientTimeZone: 'America/Costa_Rica', status: 'scheduled'
+        }),
+        normalizeMeeting({
+            id: 'preview-cancelled', userId: 'preview-client', title: 'Demo de prototipo',
+            startsAt: new Date(Date.now() + 8 * hour).toISOString(), durationMinutes: 30,
+            clientTimeZone: 'America/Costa_Rica', status: 'cancelled', cancelledAt: new Date().toISOString()
+        })
+    ];
+}
+
+async function loadAgenda() {
+    const loadVersion = ++_agendaLoadVersion;
+    const container = document.getElementById('agenda-meeting-list');
+    if (container) container.innerHTML = '<div class="premium-loader"></div>';
+
+    if (ADMIN_AGENDA_PREVIEW) {
+        _agendaMeetings = agendaPreviewFixtures();
+        renderAgendaClientOptions();
+        renderAgendaMeetings();
+        setAgendaMessage(agendaCopy().preview, 'warning');
+        return;
+    }
+
+    try {
+        await ensureAgendaClients(loadVersion);
+        if (loadVersion !== _agendaLoadVersion) return;
+        renderAgendaClientOptions();
+
+        const snap = await getDocs(collection(db, 'meetings'));
+        if (loadVersion !== _agendaLoadVersion) return;
+        _agendaMeetings = snap.docs.map(item => normalizeMeeting(item.data(), item.id));
+        renderAgendaMeetings();
+    } catch (error) {
+        if (loadVersion !== _agendaLoadVersion) return;
+        logger.error('Agenda load failed:', error);
+        _agendaMeetings = [];
+        if (container) container.innerHTML = `<div class="agenda-empty">${esc(agendaCopy().loadError)}</div>`;
+        updateAgendaCount();
+    }
+}
+
+async function createAgendaMeeting(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const c = agendaCopy();
+    setAgendaMessage('');
+    form.querySelectorAll('[aria-invalid="true"]').forEach(input => input.removeAttribute('aria-invalid'));
+    if (!form.reportValidity()) {
+        setAgendaMessage(c.required, 'error');
+        return;
+    }
+
+    const clientId = document.getElementById('meeting-client').value;
+    const client = registeredAgendaClients().find(item => String(item.id) === clientId);
+    const adminTimeZone = document.getElementById('meeting-admin-zone').value.trim();
+    const clientTimeZone = document.getElementById('meeting-client-zone').value.trim();
+    const clientRegion = document.getElementById('meeting-client-region').value.trim();
+    const meetingUrlInput = document.getElementById('meeting-link');
+    const meetingUrl = safeHttpsUrl(meetingUrlInput.value);
+    const startsAt = zonedLocalToDate(
+        document.getElementById('meeting-date').value,
+        document.getElementById('meeting-time').value,
+        adminTimeZone
+    );
+
+    if (!isIanaTimeZone(adminTimeZone) || !isIanaTimeZone(clientTimeZone)) {
+        ['meeting-admin-zone', 'meeting-client-zone'].forEach(id => document.getElementById(id).setAttribute('aria-invalid', 'true'));
+        setAgendaMessage(c.invalidZone, 'error');
+        return;
+    }
+    if (!meetingUrl) {
+        meetingUrlInput.setAttribute('aria-invalid', 'true');
+        setAgendaMessage(c.invalidLink, 'error');
+        return;
+    }
+    if (!startsAt || startsAt.getTime() <= Date.now()) {
+        document.getElementById('meeting-date').setAttribute('aria-invalid', 'true');
+        document.getElementById('meeting-time').setAttribute('aria-invalid', 'true');
+        setAgendaMessage(c.invalidDate, 'error');
+        return;
+    }
+    if (!client) {
+        document.getElementById('meeting-client').setAttribute('aria-invalid', 'true');
+        setAgendaMessage(c.required, 'error');
+        return;
+    }
+
+    const record = {
+        userId: client.id,
+        clientName: client.name || client.company || '',
+        clientEmail: client.email || '',
+        clientRegion,
+        title: document.getElementById('meeting-title').value.trim().slice(0, 160),
+        startsAt: startsAt.toISOString(),
+        durationMinutes: Number(document.getElementById('meeting-duration').value) || 60,
+        adminTimeZone,
+        clientTimeZone,
+        meetingUrl,
+        notes: document.getElementById('meeting-notes').value.trim().slice(0, 2000),
+        status: 'scheduled',
+        locale: ['en', 'es', 'pt'].includes(client.preferredLanguage)
+            ? client.preferredLanguage
+            : (['en', 'es', 'pt'].includes(currentLang) ? currentLang : 'en'),
+        createdBy: auth.currentUser?.email || null,
+        createdAt: serverTimestamp()
+    };
+
+    const button = document.getElementById('meeting-create-btn');
+    button.disabled = true;
+    button.textContent = c.creating;
+
+    try {
+        const reference = await addDoc(collection(db, 'meetings'), record);
+        const created = normalizeMeeting({ ...record, createdAt: new Date().toISOString() }, reference.id);
+        _agendaMeetings = [created, ..._agendaMeetings.filter(meeting => meeting.id !== created.id)];
+        renderAgendaMeetings();
+        logActivity(client.id, client.name, 'meeting_scheduled', {
+            meetingId: reference.id, title: created.title, startsAt: created.startsAt
+        });
+        setAgendaMessage(c.createdOk, 'success');
+
+        const keepAdminZone = adminTimeZone;
+        form.reset();
+        document.getElementById('meeting-admin-zone').value = keepAdminZone;
+        const next = agendaDefaultWallClock();
+        document.getElementById('meeting-date').value = next.date;
+        document.getElementById('meeting-time').value = next.time;
+    } catch (error) {
+        logger.error('Meeting creation failed:', error);
+        setAgendaMessage(`${c.createFailed} ${error?.message || ''}`.trim(), 'error');
+    } finally {
+        button.disabled = false;
+        button.textContent = c.create;
+    }
+}
+
+async function cancelAgendaMeeting(meetingId, button) {
+    const c = agendaCopy();
+    const meeting = _agendaMeetings.find(item => item.id === meetingId);
+    if (!meeting || !confirm(c.cancelConfirm)) return;
+    button.disabled = true;
+    button.textContent = c.cancelling;
+    setAgendaMessage('');
+    try {
+        await updateDoc(doc(db, 'meetings', meetingId), {
+            status: 'cancelled',
+            cancelledAt: serverTimestamp()
+        });
+        _agendaMeetings = _agendaMeetings.map(item => item.id === meetingId
+            ? normalizeMeeting({ ...item, status: 'cancelled', cancelledAt: new Date().toISOString() }, meetingId)
+            : item);
+        logActivity(meeting.userId, meeting.clientName, 'meeting_cancelled', {
+            meetingId, title: meeting.title
+        });
+        setAgendaMessage(c.cancelledOk, 'success');
+        renderAgendaMeetings();
+    } catch (error) {
+        logger.error('Meeting cancellation failed:', error);
+        setAgendaMessage(`${c.cancelFailed} ${error?.message || ''}`.trim(), 'error');
+        button.disabled = false;
+        button.textContent = c.cancel;
+    }
+}
+
+function applyAgendaTranslations() {
+    const c = agendaCopy();
+    const textById = {
+        'agenda-title': c.title, 'agenda-desc': c.description,
+        'agenda-form-eyebrow': c.formEyebrow, 'agenda-form-title': c.formTitle,
+        'agenda-list-eyebrow': c.listEyebrow, 'agenda-list-title': c.listTitle,
+        'meeting-client-label': c.client, 'meeting-title-label': c.meetingTitle,
+        'meeting-date-label': c.date, 'meeting-time-label': c.time,
+        'meeting-duration-label': c.duration, 'meeting-admin-zone-label': c.adminZone,
+        'meeting-client-zone-label': c.clientZone, 'meeting-client-region-label': c.clientRegion,
+        'meeting-link-label': c.link,
+        'meeting-notes-label': c.notes, 'meeting-create-btn': c.create,
+        'agenda-refresh': c.refresh
+    };
+    Object.entries(textById).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    });
+    const nav = document.querySelector('[data-target="agenda"] span:not(.sidebar-badge)');
+    if (nav) nav.textContent = c.nav;
+    const title = document.getElementById('meeting-title');
+    const notes = document.getElementById('meeting-notes');
+    const region = document.getElementById('meeting-client-region');
+    if (title) title.placeholder = c.titlePlaceholder;
+    if (notes) notes.placeholder = c.notesPlaceholder;
+    if (region) region.placeholder = c.regionPlaceholder;
+    const refresh = document.getElementById('agenda-refresh');
+    if (refresh) refresh.setAttribute('aria-label', c.refresh);
+    document.querySelectorAll('.agenda-filter').forEach(button => {
+        button.textContent = c[button.dataset.agendaFilter] || button.dataset.agendaFilter;
+    });
+    renderAgendaClientOptions();
+    renderAgendaMeetings();
+}
+
+function initAgendaControls() {
+    const form = document.getElementById('meeting-form');
+    if (!form) return;
+    const defaults = agendaDefaultWallClock();
+    const dateInput = document.getElementById('meeting-date');
+    const timeInput = document.getElementById('meeting-time');
+    dateInput.min = defaults.date;
+    if (!dateInput.value) dateInput.value = defaults.date;
+    if (!timeInput.value) timeInput.value = defaults.time;
+
+    const datalist = document.getElementById('iana-timezones');
+    const commonZones = ['Europe/Lisbon', 'Europe/Madrid', 'Europe/London', 'America/Costa_Rica', 'America/New_York', 'America/Mexico_City', 'America/Bogota', 'America/Sao_Paulo', 'UTC'];
+    const zones = typeof Intl.supportedValuesOf === 'function' ? Intl.supportedValuesOf('timeZone') : commonZones;
+    const fragment = document.createDocumentFragment();
+    [...new Set([...commonZones, ...zones])].sort().forEach(zone => {
+        const option = document.createElement('option');
+        option.value = zone;
+        fragment.appendChild(option);
+    });
+    datalist.replaceChildren(fragment);
+
+    document.getElementById('meeting-client').addEventListener('change', event => {
+        const client = registeredAgendaClients().find(item => String(item.id) === event.target.value);
+        const zone = inferredClientTimeZone(client);
+        if (zone) document.getElementById('meeting-client-zone').value = zone;
+        document.getElementById('meeting-client-region').value = client?.country || client?.region || '';
+        event.target.removeAttribute('aria-invalid');
+    });
+    form.addEventListener('input', event => event.target.removeAttribute?.('aria-invalid'));
+    form.addEventListener('submit', createAgendaMeeting);
+    document.getElementById('agenda-refresh').addEventListener('click', loadAgenda);
+    document.querySelectorAll('.agenda-filter').forEach(button => {
+        button.addEventListener('click', () => {
+            _agendaFilter = button.dataset.agendaFilter;
+            document.querySelectorAll('.agenda-filter').forEach(item => item.classList.toggle('is-active', item === button));
+            renderAgendaMeetings();
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Auth Guard
-    onAuthStateChanged(auth, async (user) => {
-        if (!user || user.email !== SUPER_ADMIN_EMAIL) {
-            window.location.href = 'profiles';
-            return;
-        }
-        
+    initAgendaControls();
+
+    const launchDashboard = (isPreview = false) => {
         // Remove preloader
         const preloader = document.getElementById('elysium-preloader');
         if (preloader) {
             setTimeout(() => {
                 preloader.classList.add('is-loaded');
                 setTimeout(() => preloader.remove(), 800);
-            }, 1000);
+            }, isPreview ? 0 : 1000);
         }
 
         applyTranslations();
         initDashboard();
-    });
+    };
+
+    if (ADMIN_AGENDA_PREVIEW) {
+        launchDashboard(true);
+    } else {
+        // Auth Guard
+        onAuthStateChanged(auth, async (user) => {
+            if (!user || user.email !== SUPER_ADMIN_EMAIL) {
+                window.location.href = 'profiles';
+                return;
+            }
+            launchDashboard(false);
+        });
+    }
 
     // Mobile Navigation Toggle
     const mobileToggle = document.querySelector('.mobile-toggle');
@@ -722,6 +1460,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (activeSection === 'licenses') loadLicenses();
             else if (activeSection === 'pipeline') loadPipeline();
             else if (activeSection === 'contacts') loadContacts();
+            else if (activeSection === 'agenda') renderAgendaMeetings();
         });
     });
 
@@ -745,6 +1484,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target === 'pipeline') loadPipeline();
         if (target === 'licenses') loadLicenses();
         if (target === 'contacts') loadContacts();
+        if (target === 'agenda') loadAgenda();
+        else _agendaLoadVersion++;
     }
 
     navItems.forEach(item => {
@@ -763,12 +1504,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Modal Close
     const detailOverlay = document.getElementById('client-detail-overlay');
-    document.getElementById('close-detail').addEventListener('click', () => {
-        detailOverlay.style.display = 'none';
-    });
+    document.getElementById('close-detail').addEventListener('click', closeClientDetail);
 
     detailOverlay.addEventListener('click', (e) => {
-        if (e.target === detailOverlay) detailOverlay.style.display = 'none';
+        if (e.target === detailOverlay) closeClientDetail();
     });
 });
 
@@ -847,10 +1586,13 @@ function applyTranslations() {
     if (thPhone) thPhone.textContent = t.table_phone || "Phone";
     if (thService) thService.textContent = t.table_service || "Interest";
     if (thMessage) thMessage.textContent = t.table_message || "Message";
+
+    applyAgendaTranslations();
 }
 
 async function initDashboard() {
-    const savedTab = localStorage.getItem('elysium_admin_tab') || 'overview';
+    const requestedTab = ADMIN_AGENDA_PREVIEW ? 'agenda' : (localStorage.getItem('elysium_admin_tab') || 'overview');
+    const savedTab = document.getElementById(requestedTab) ? requestedTab : 'overview';
 
     // Set dashboard date
     const dateEl = document.getElementById('dashboard-date');
@@ -877,6 +1619,31 @@ async function initDashboard() {
     if (savedTab === 'pipeline')  loadPipeline();
     if (savedTab === 'licenses')  loadLicenses();
     if (savedTab === 'contacts')  loadContacts();
+    if (savedTab === 'agenda')    loadAgenda();
+
+    // Deep link used when returning from a guided onboarding session
+    const requestedClient = new URLSearchParams(window.location.search).get('client');
+    if (requestedClient) openClientFromDeepLink(requestedClient);
+}
+
+/** Opens a client card straight from /admin?client=<uid>. */
+async function openClientFromDeepLink(userId) {
+    try {
+        const cached = _allClients.find(client => client.id === userId);
+        if (cached) {
+            showClientDetail(userId, cached);
+            return;
+        }
+        const memberSnap = await getDoc(doc(db, 'members', userId));
+        if (memberSnap.exists()) showClientDetail(userId, { id: userId, ...memberSnap.data() });
+    } catch (error) {
+        logger.error('Could not open the requested client:', error);
+    } finally {
+        // Clean the URL so a refresh does not reopen the panel
+        const url = new URL(window.location.href);
+        url.searchParams.delete('client');
+        window.history.replaceState({}, '', url);
+    }
 }
 
 async function loadStats() {
@@ -891,7 +1658,7 @@ async function loadStats() {
         try {
             prospectsSnap = await getDocs(collection(db, 'prospects'));
         } catch (e) {
-            console.warn('Could not load prospects (permission denied or missing collection).', e);
+            logger.warn('Could not load prospects (permission denied or missing collection).', e);
         }
         
         // Filter real partners
@@ -944,20 +1711,20 @@ async function loadStats() {
                     if (needsUpdate) {
                         data.projects = cleanedProjects;
                         // Fire and forget update to clean the database
-                        updateDoc(doc(db, 'members', d.id), { projects: cleanedProjects }).catch(console.error);
+                        updateDoc(doc(db, 'members', d.id), { projects: cleanedProjects }).catch(logger.error);
                     }
                 }
 
-                return { id: d.id, ...data };
+                return { ...data, id: d.id };
             });
             
             // Add prospects to _allClients, giving them a role to identify them
             if (prospectsSnap) {
                 prospectsSnap.forEach(d => {
                     _allClients.push({
+                        ...d.data(),
                         id: d.id,
-                        role: 'prospect', // mark as prospect specifically
-                        ...d.data()
+                        role: 'prospect' // trusted discriminator; Firestore data cannot override it
                     });
                 });
             }
@@ -966,7 +1733,18 @@ async function loadStats() {
         const totalPartners     = partnerDocs.length;
         const completedOB       = partnerDocs.filter(d => d.data().onboardingCompleted).length;
         const onboardingRate    = totalPartners > 0 ? Math.round((completedOB / totalPartners) * 100) : 0;
-        const activeProjects    = partnerDocs.filter(d => d.data().projectUrl).length;
+        const totalProjects     = partnerDocs.reduce((count, item) => {
+            const data = item.data();
+            const projects = Array.isArray(data.projects) ? data.projects : [];
+            return count + (projects.length ? projects.length : data.projectUrl || data.projectStage ? 1 : 0);
+        }, 0);
+        const activeProjects    = partnerDocs.reduce((count, item) => {
+            const data = item.data();
+            const projects = Array.isArray(data.projects) ? data.projects : [];
+            return count + (projects.length
+                ? projects.filter(project => project?.projectUrl).length
+                : data.projectUrl ? 1 : 0);
+        }, 0);
         const subscribedPartners = partnerDocs.filter(d => d.data().subscription?.licenseCode);
         const totalLicenses      = subscribedPartners.length;
         const activeLicenses     = subscribedPartners.filter(d => subscriptionStatus(d.data().subscription) === 'active').length;
@@ -984,7 +1762,7 @@ async function loadStats() {
             const contactsBadge = document.getElementById('sidebar-contacts-count');
             if (contactsBadge) contactsBadge.textContent = contactsSnap.size;
         } catch (e) {
-            console.warn('Could not load contacts count.', e);
+            logger.warn('Could not load contacts count.', e);
         }
 
         logger.log(`Stats — partners: ${totalPartners}, OB rate: ${onboardingRate}%, active: ${activeProjects}`);
@@ -1020,7 +1798,7 @@ async function loadStats() {
             }) +
             kpiCard({
                 id: 'active', value: activeProjects, label: 'Active Projects',
-                sub: `${totalPartners - activeProjects} awaiting`, progressLabel: `${totalPartners > 0 ? Math.round((activeProjects/totalPartners)*100) : 0}%`,
+                sub: `${Math.max(0, totalProjects - activeProjects)} awaiting`, progressLabel: `${totalProjects > 0 ? Math.round((activeProjects/totalProjects)*100) : 0}%`,
                 colorClass: 'kpi-gold', trendClass: 'trend-neutral', trend: 'Projects',
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
             }) +
@@ -1036,7 +1814,7 @@ async function loadStats() {
         // Animate progress bars after render
         animateProgress(document.getElementById('kpi-fill-partners'), onboardingRate);
         animateProgress(document.getElementById('kpi-fill-rate'),     onboardingRate);
-        animateProgress(document.getElementById('kpi-fill-active'),   totalPartners > 0 ? (activeProjects / totalPartners) * 100 : 0);
+        animateProgress(document.getElementById('kpi-fill-active'),   totalProjects > 0 ? (activeProjects / totalProjects) * 100 : 0);
         animateProgress(document.getElementById('kpi-fill-licenses'), licenseHealth);
 
         // Load supplementary panels
@@ -1071,6 +1849,8 @@ const ACTIVITY_PRESENTATION = {
     financials_updated:    { dot: 'feed-dot-project', icon: 'file',    label: 'Financial terms updated', sub: () => 'Financials updated' },
     report_added:          { dot: 'feed-dot-project', icon: 'file',    label: 'Report delivered',       sub: p => p.title ? `Report added · ${p.title}` : 'Report added' },
     report_removed:        { dot: 'feed-dot-suspend', icon: 'file',    label: 'Report removed',         sub: p => p.title ? `Report removed · ${p.title}` : 'Report removed' },
+    meeting_scheduled:     { dot: 'feed-dot-project', icon: 'check',   label: 'Meeting scheduled',      sub: p => p.title ? `Meeting · ${p.title}` : 'Meeting scheduled' },
+    meeting_cancelled:     { dot: 'feed-dot-suspend', icon: 'slash',   label: 'Meeting cancelled',      sub: p => p.title ? `Cancelled · ${p.title}` : 'Meeting cancelled' },
     subscription_assigned: { dot: 'feed-dot-onboard', icon: 'file',    label: 'Subscription activated', sub: p => `Subscription assigned${p.planType ? ' · ' + p.planType : ''}` },
     subscription_updated:  { dot: 'feed-dot-project', icon: 'file',    label: 'Subscription updated',   sub: p => `Status: ${p.status || 'updated'}` },
     subscription_payment_received: { dot: 'feed-dot-onboard', icon: 'check', label: 'Subscription payment received', sub: p => `License renewed${p.planType ? ' · ' + p.planType : ''}` },
@@ -1175,18 +1955,22 @@ async function loadRecentActivity() {
 }
 
 // ── CLIENT TIMELINE (Vista 360, inside detail panel) ────────────────────────
-async function loadClientTimeline(userId, member) {
+async function loadClientTimeline(userId, member, renderVersion = _detailRenderVersion) {
     const container = document.getElementById('client-timeline-container');
     if (!container) return;
+    const isCurrent = () => renderVersion === _detailRenderVersion
+        && document.getElementById('client-timeline-container') === container;
 
     let acts = [];
     try {
         // Equality-only query → automatic single-field index; sorted client-side
         // so no composite-index deploy is required.
         const snap = await getDocs(query(collection(db, 'activities'), where('memberId', '==', userId), limit(100)));
+        if (!isCurrent()) return;
         acts = snap.docs.map(d => d.data());
         acts.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
     } catch (err) {
+        if (!isCurrent()) return;
         logger.warn('Client timeline unavailable:', err);
         container.innerHTML = `<p class="timeline-empty">Activity log unavailable.</p>`;
         return;
@@ -1244,6 +2028,7 @@ async function loadClientTimeline(userId, member) {
             </div>`);
     }
 
+    if (!isCurrent()) return;
     container.innerHTML = items.length === 0
         ? `<p class="timeline-empty">No recorded activity yet. New events will appear here as they happen.</p>`
         : `<div class="tl">${items.join('')}</div>`;
@@ -1322,20 +2107,20 @@ async function loadPipeline() {
         snap.forEach(docSnap => {
             const data = docSnap.data();
             if (data.email === SUPER_ADMIN_EMAIL || data.role === 'admin' || data.role === 'root') return;
-            _allClients.push({ id: docSnap.id, ...data });
+            _allClients.push({ ...data, id: docSnap.id });
         });
         
         try {
             const prospectsSnap = await getDocs(collection(db, 'prospects'));
             prospectsSnap.forEach(d => {
                 _allClients.push({
+                    ...d.data(),
                     id: d.id,
-                    role: 'prospect',
-                    ...d.data()
+                    role: 'prospect'
                 });
             });
         } catch(e) {
-            console.warn("Could not load prospects for pipeline: ", e);
+            logger.warn("Could not load prospects for pipeline: ", e);
         }
     }
 
@@ -1436,20 +2221,20 @@ async function loadClients() {
                 data.role === 'admin' ||
                 data.role === 'root'
             ) return;
-            _allClients.push({ id: docSnap.id, ...data });
+            _allClients.push({ ...data, id: docSnap.id });
         });
         
         try {
             const prospectsSnap = await getDocs(collection(db, 'prospects'));
             prospectsSnap.forEach(d => {
                 _allClients.push({
+                    ...d.data(),
                     id: d.id,
-                    role: 'prospect', // mark as prospect specifically
-                    ...d.data()
+                    role: 'prospect' // trusted discriminator; Firestore data cannot override it
                 });
             });
         } catch(e) {
-            console.warn("Could not load prospects for grid: ", e);
+            logger.warn("Could not load prospects for grid: ", e);
         }
 
         logger.log(`Loaded ${_allClients.length} partners and prospects from Firestore.`);
@@ -1562,27 +2347,30 @@ function renderClientGrid(clients, t) {
         const isSuspended = data.isDeactivated === true;
         const stage       = getPartnerStage(data);
         const stageLabels = { prospect: 'Prospect', onboarding: 'Onboarding', active: 'Active', delivered: 'Delivered' };
+        // Surfaced on the grid so a duplicate is obvious before opening the card
+        const duplicateOf = data.role === 'prospect' ? registeredClientMatchingEmail(data.email) : null;
 
         const card = document.createElement('div');
         card.className = `client-card${isSuspended ? ' is-suspended' : ''}`;
         card.setAttribute('data-stage', stage);
         card.innerHTML = `
             <div class="client-card-header">
-                <div class="client-card-avatar">${initials(data.name)}</div>
+                <div class="client-card-avatar">${esc(initials(data.name))}</div>
                 <span class="client-card-stage-badge stage-badge-${stage}">${stageLabels[stage]}</span>
             </div>
-            <div class="client-name">${data.name || t.unnamed_client}</div>
-            <div class="client-company">${data.company || t.no_company}</div>
+            <div class="client-name">${esc(data.name || t.unnamed_client)}</div>
+            <div class="client-company">${esc(data.company || t.no_company)}</div>
             ${data.projects && data.projects.length > 0 ? 
                 `<div class="client-projects" style="font-size:0.75rem; color:var(--color-text-secondary); margin-top:8px; margin-bottom:8px;">
-                    ${data.projects.map(p => `<span style="background:var(--glass-bg); padding:2px 6px; border-radius:4px; margin-right:4px; border:1px solid var(--glass-border); display:inline-block; margin-bottom:4px;">${p.name || 'Unnamed Project'}</span>`).join('')}
+                    ${data.projects.map(p => `<span style="background:var(--glass-bg); padding:2px 6px; border-radius:4px; margin-right:4px; border:1px solid var(--glass-border); display:inline-block; margin-bottom:4px;">${esc(p.name || 'Unnamed Project')}</span>`).join('')}
                 </div>` 
                 : ''}
             <div class="client-meta" style="margin-top:auto; padding-top:12px;">
-                <span class="client-meta-email" title="${data.email}">${data.email}</span>
+                <span class="client-meta-email" title="${esc(data.email)}">${esc(data.email)}</span>
                 <span class="client-joined">${timeAgo(data.createdAt)}</span>
             </div>
             ${isSuspended ? '<div class="suspended-badge">Suspended</div>' : ''}
+            ${duplicateOf ? `<div class="client-duplicate-badge" title="${esc(duplicateOf.email)}">Already a client · merge</div>` : ''}
         `;
         card.addEventListener('click', () => showClientDetail(data.id, data));
         clientsList.appendChild(card);
@@ -1619,7 +2407,7 @@ async function loadLicenses() {
                 userId: memberDoc.id,
                 userName: member.name || member.company || '—',
                 userEmail: member.email || '—',
-                memberRecord: { id: memberDoc.id, ...member },
+                memberRecord: { ...member, id: memberDoc.id },
                 ...sub,
                 status: subscriptionStatus(sub)
             }];
@@ -1693,12 +2481,13 @@ async function loadLicenses() {
             });
         });
     } catch (error) {
-        console.error("Error loading licenses:", error);
+        logger.error("Error loading licenses:", error);
         licensesList.innerHTML = `<tr><td colspan="6" class="color-text-error">${t.error_licenses}<br><small style="font-size: 0.8em; opacity: 0.8;">${esc(error.message)}</small></td></tr>`;
     }
 }
 
-async function showClientDetail(userId, memberData, selectedProjectId = null) {
+async function showClientDetail(userId, memberData, selectedProjectId = null, selectedSubmissionId = null) {
+    const detailLoadVersion = ++_detailLoadVersion;
     const detailOverlay = document.getElementById('client-detail-overlay');
     const detailContent = document.getElementById('detail-content');
     detailContent.innerHTML = '<div class="premium-loader"></div>';
@@ -1712,41 +2501,25 @@ async function showClientDetail(userId, memberData, selectedProjectId = null) {
             selectedProjectId = memberData.projects[0].id;
         }
 
-        // Fetch onboarding submission
+        // Fetch the complete onboarding delivery history. Sorting happens in
+        // memory to avoid a composite index and every matching delivery remains
+        // selectable in the detail panel.
         const q = query(collection(db, 'onboarding_submissions'), where('userId', '==', userId));
         const submissionSnap = await getDocs(q);
-        let onboardingData = null;
-        let submissionTimestamp = null;
-        let submissionVersion = 1;
-
-        if (!submissionSnap.empty) {
-            let subDoc = null;
-            if (selectedProjectId) {
-                const exactMatch = submissionSnap.docs.find(d => d.data().projectId === selectedProjectId);
-                if (exactMatch) {
-                    subDoc = exactMatch.data();
-                } else if (selectedProjectId === 'project-1' || selectedProjectId === 'legacy') {
-                    const legacyMatch = submissionSnap.docs.find(d => !d.data().projectId);
-                    if (legacyMatch) subDoc = legacyMatch.data();
-                }
-            } else {
-                // Should not happen since we default to the first project, but fallback safely
-                subDoc = submissionSnap.docs[0].data();
-            }
-
-            if (subDoc) {
-                onboardingData      = subDoc.formData;
-                submissionTimestamp = subDoc.submittedAt || subDoc.createdAt || null;
-                submissionVersion   = Number(subDoc.formVersion) || 1;
-            }
-        }
+        if (detailLoadVersion !== _detailLoadVersion) return;
+        const submissions = submissionSnap.docs
+            .map(item => ({ ...item.data(), id: item.id }))
+            .sort((a, b) => adminTimestampMillis(a.submittedAt || a.createdAt)
+                - adminTimestampMillis(b.submittedAt || b.createdAt));
 
         logger.log(`Loaded detail for partner: ${memberData.name} (${userId})`);
 
-        renderDetail(memberData, onboardingData, userId, submissionTimestamp, selectedProjectId, submissionVersion);
+        if (detailLoadVersion !== _detailLoadVersion) return;
+        renderDetail(memberData, submissions, userId, selectedProjectId, selectedSubmissionId);
     } catch (error) {
+        if (detailLoadVersion !== _detailLoadVersion) return;
         logger.error("Error showing client detail:", error);
-        detailContent.innerHTML = `<p class="color-text-error">Error loading client detail.<br><small style="font-size: 0.8em; opacity: 0.8;">${error.message}</small></p>`;
+        detailContent.innerHTML = `<p class="color-text-error">Error loading client detail.<br><small style="font-size: 0.8em; opacity: 0.8;">${esc(error.message)}</small></p>`;
     }
 }
 
@@ -1783,9 +2556,13 @@ const V2_LABELS = {
         deadline: 'Target launch date', launch_event: 'Tied to event', tester: 'Acceptance tester / training',
         privacy: 'Privacy consent', files_consent: 'Files processing consent', marketing: 'Marketing consent',
         accepted: 'Accepted', rejected: 'Not granted', none: '—',
-        copilot_title: 'Co-Pilot — Live Onboarding Session',
-        copilot_waiting: 'Waiting for the client to start the onboarding…',
+        copilot_title: 'Guided onboarding session',
+        copilot_waiting: 'No session in progress for this project.',
         copilot_module: 'Current module', copilot_updated: 'Last update', copilot_files: 'Files uploaded',
+        session_hint: 'Fill it with the client; once published, it appears in their portal.',
+        session_fill: 'Fill the onboarding', session_continue: 'Continue the session',
+        session_update: 'Update the onboarding', session_discard: 'Discard draft',
+        session_discard_confirm: 'Discard this unfinished session? Published deliveries are not affected.',
         suggest_proto: 'Onboarding completed — this project is still in First Contact.',
         suggest_btn: 'Move to Prototyping'
     },
@@ -1818,9 +2595,13 @@ const V2_LABELS = {
         deadline: 'Fecha objetivo de lanzamiento', launch_event: 'Ligado a evento', tester: 'Tester de aceptación / formación',
         privacy: 'Consentimiento de privacidad', files_consent: 'Consentimiento de archivos', marketing: 'Consentimiento de marketing',
         accepted: 'Aceptado', rejected: 'No otorgado', none: '—',
-        copilot_title: 'Co-Piloto — Sesión de Onboarding en Vivo',
-        copilot_waiting: 'Esperando a que el cliente comience el onboarding…',
+        copilot_title: 'Sesión de onboarding conjunta',
+        copilot_waiting: 'No hay ninguna sesión en curso para este proyecto.',
         copilot_module: 'Módulo actual', copilot_updated: 'Última actualización', copilot_files: 'Archivos subidos',
+        session_hint: 'Rellénalo con el cliente; al publicarlo aparece en su perfil.',
+        session_fill: 'Rellenar onboarding', session_continue: 'Continuar sesión',
+        session_update: 'Actualizar onboarding', session_discard: 'Descartar borrador',
+        session_discard_confirm: '¿Descartar esta sesión sin terminar? Las entregas publicadas no se tocan.',
         suggest_proto: 'Onboarding completado — este proyecto sigue en Primer Contacto.',
         suggest_btn: 'Mover a Prototipado'
     },
@@ -1853,9 +2634,13 @@ const V2_LABELS = {
         deadline: 'Data-alvo de lançamento', launch_event: 'Ligado a evento', tester: 'Tester de aceitação / formação',
         privacy: 'Consentimento de privacidade', files_consent: 'Consentimento de ficheiros', marketing: 'Consentimento de marketing',
         accepted: 'Aceite', rejected: 'Não concedido', none: '—',
-        copilot_title: 'Co-Piloto — Sessão de Onboarding ao Vivo',
-        copilot_waiting: 'A aguardar que o cliente inicie o onboarding…',
+        copilot_title: 'Sessão de onboarding conjunta',
+        copilot_waiting: 'Não há nenhuma sessão em curso para este projeto.',
         copilot_module: 'Módulo atual', copilot_updated: 'Última atualização', copilot_files: 'Ficheiros carregados',
+        session_hint: 'Preencha-o com o cliente; ao publicar, aparece no perfil dele.',
+        session_fill: 'Preencher onboarding', session_continue: 'Continuar sessão',
+        session_update: 'Atualizar onboarding', session_discard: 'Descartar rascunho',
+        session_discard_confirm: 'Descartar esta sessão por terminar? As entregas publicadas não são afetadas.',
         suggest_proto: 'Onboarding concluído — este projeto ainda está em Primeiro Contacto.',
         suggest_btn: 'Mover para Prototipagem'
     }
@@ -1882,8 +2667,9 @@ function renderOnboardingV2(ob) {
     const filesHTML = files.length
         ? `<div class="tag-list">${files.map(f => {
             const label = `${esc(f.name || 'file')}${f.category ? ` (${esc(f.category)})` : ''}`;
-            return f.url
-                ? `<a class="tag" href="${esc(f.url)}" target="_blank" rel="noopener" style="text-decoration: none;">${label}</a>`
+            const fileUrl = safeUrl(f.url);
+            return fileUrl
+                ? `<a class="tag" href="${esc(fileUrl)}" target="_blank" rel="noopener" style="text-decoration: none;">${label}</a>`
                 : `<span class="tag">${label}</span>`;
         }).join('')}</div>`
         : `<span>${L.no_files}</span>`;
@@ -2014,20 +2800,56 @@ function renderOnboardingV2(ob) {
     `;
 }
 
-/** Co-Pilot: live view of the client's onboarding draft while they fill it. */
-function watchOnboardingDraft(userId) {
+/**
+ * URL of the guided onboarding form for a client, in the client's own language.
+ * The onboarding is filled by the admin next to the client, so the session runs
+ * in the language the client reads. `update` seeds the form with the latest
+ * delivery and publishes a new version instead of touching the old one.
+ */
+function onboardingSessionUrl(userId, member, projectId = null, update = false) {
+    const lang = ['en', 'es', 'pt'].includes(member?.preferredLanguage)
+        ? member.preferredLanguage
+        : currentLang;
+    const base = lang === 'en' ? '/onboarding' : `/${lang}/onboarding`;
+    const params = new URLSearchParams({ client: userId });
+    if (projectId != null && String(projectId).length && String(projectId) !== 'legacy') {
+        params.set('projectId', String(projectId));
+    }
+    if (update) params.set('repeat', '1');
+    return `${base}?${params.toString()}`;
+}
+
+/** Live view of the onboarding session in progress for this client/project. */
+function watchOnboardingDraft(userId, member, selectedProjectId = null) {
     const container = document.getElementById('copilot-draft-container');
     if (!container) return;
     if (_draftUnsub) { _draftUnsub(); _draftUnsub = null; }
 
     const L = V2_LABELS[currentLang] || V2_LABELS.en;
 
-    _draftUnsub = onSnapshot(doc(db, 'onboarding_drafts', userId), (snap) => {
-        if (!snap.exists()) {
+    _draftUnsub = onSnapshot(query(
+        collection(db, 'onboarding_drafts'),
+        where('userId', '==', userId)
+    ), (snap) => {
+        if (snap.empty) {
             container.innerHTML = `<p class="timeline-empty">${L.copilot_waiting}</p>`;
             return;
         }
-        const d = snap.data();
+        const normalizedProjectId = selectedProjectId == null ? null : String(selectedProjectId);
+        let matchingDrafts = snap.docs.filter(item => {
+            const draftProjectId = item.data().projectId == null ? null : String(item.data().projectId);
+            return draftProjectId === normalizedProjectId;
+        });
+        if (!matchingDrafts.length && ['legacy', 'project-1'].includes(normalizedProjectId)) {
+            matchingDrafts = snap.docs.filter(item => item.data().projectId == null);
+        }
+        if (!matchingDrafts.length) {
+            container.innerHTML = `<p class="timeline-empty">${L.copilot_waiting}</p>`;
+            return;
+        }
+        const latestDraft = matchingDrafts.sort((a, b) =>
+            adminTimestampMillis(b.data().updatedAt) - adminTimestampMillis(a.data().updatedAt))[0];
+        const d = latestDraft.data();
         const data = d.data || {};
         const answered = Object.entries(data).filter(([, v]) =>
             Array.isArray(v) ? v.length > 0 : (v !== '' && v !== null && v !== undefined && v !== false));
@@ -2038,24 +2860,46 @@ function watchOnboardingDraft(userId) {
             return `<div class="info-item"><label>${esc(k.replace(/_/g, ' '))}</label><span>${esc(val).replace(/_/g, ' ')}</span></div>`;
         }).join('');
 
+        const resumeUrl = onboardingSessionUrl(userId, member, selectedProjectId,
+            latestDraft.id.endsWith('__repeat'));
+
         container.innerHTML = `
             <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: 0.85rem; color: var(--color-text-secondary);">
                 <span>${L.copilot_module}: <strong style="color: var(--color-platinum);">${Number(d.currentModule) || 1}${d.totalModules ? `/${d.totalModules}` : ''}</strong>${d.currentModuleLabel ? ` — ${esc(d.currentModuleLabel)}` : ''}</span>
                 <span>${L.copilot_updated}: <strong style="color: var(--color-platinum);">${d.updatedAt ? timeAgo(d.updatedAt) : '—'}</strong></span>
                 <span>${L.copilot_files}: <strong style="color: var(--color-platinum);">${files.length}</strong></span>
             </div>
+            <div class="onboarding-session-actions">
+                <a class="btn btn-primary" href="${esc(resumeUrl)}">${L.session_continue}</a>
+                <button type="button" class="btn" id="btn-discard-draft" data-draft-id="${esc(latestDraft.id)}">${L.session_discard}</button>
+            </div>
             ${answered.length ? `<div class="info-grid">${rows}</div>` : `<p class="timeline-empty">${L.copilot_waiting}</p>`}
         `;
+
+        container.querySelector('#btn-discard-draft')?.addEventListener('click', async (event) => {
+            if (!confirm(L.session_discard_confirm)) return;
+            const button = event.currentTarget;
+            button.disabled = true;
+            try {
+                await deleteDoc(doc(db, 'onboarding_drafts', button.dataset.draftId));
+            } catch (error) {
+                logger.error('Could not discard onboarding draft:', error);
+                button.disabled = false;
+            }
+        });
     }, (err) => {
         logger.error('Co-Pilot draft listener error:', err);
         container.innerHTML = `<p class="timeline-empty">${esc(err.message)}</p>`;
     });
 }
 
-function renderDetail(member, onboarding, userId, submissionTimestamp = null, selectedProjectId = null, formVersion = 1) {
+function renderDetail(member, submissions, userId, selectedProjectId = null, selectedSubmissionId = null) {
+    const detailRenderVersion = ++_detailRenderVersion;
     const detailContent = document.getElementById('detail-content');
     const t = translations[currentLang];
     const L = V2_LABELS[currentLang] || V2_LABELS.en;
+    const historyCopy = agendaCopy();
+    const allSubmissions = Array.isArray(submissions) ? submissions : [];
     const isSuspended = member.isDeactivated === true;
     const existingContractUnit = member.subscription?.contractUnit
         || (member.subscription?.billingCycle === 'annual' ? 'years' : 'months');
@@ -2066,11 +2910,11 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     // Helper to format list items as tags
     const renderTags = (items) => {
         if (!items || !Array.isArray(items) || items.length === 0) return t.none;
-        return `<div class="tag-list">${items.map(i => `<span class="tag">${i}</span>`).join('')}</div>`;
+        return `<div class="tag-list">${items.map(i => `<span class="tag">${esc(i)}</span>`).join('')}</div>`;
     };
 
     // Helper to render field
-    const f = (val) => val || '-';
+    const f = (val) => val ? esc(val) : '-';
     
     // Helper for yes/no translation
     const yn = (val) => {
@@ -2093,8 +2937,6 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
 
     const registrationDate = fmtDate(member.createdAt);
     const registrationTime = fmtTime(member.createdAt);
-    const onboardingDate   = fmtDate(submissionTimestamp);
-    const onboardingTime   = fmtTime(submissionTimestamp);
 
     // ── Find Current Project ──
     const projects = member.projects || [];
@@ -2102,7 +2944,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     
     // Fallback to legacy root fields if no project is found (e.g. before migration runs properly)
     if (!currentProject) {
-        currentProject = {
+        // stripUndefined: a client with no legacy root fields would otherwise
+        // carry undefined values straight into the first write of this project.
+        currentProject = stripUndefined({
             id: 'legacy',
             name: member.company || member.name || 'Proyecto 1',
             projectUrl: member.projectUrl,
@@ -2111,13 +2955,42 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             reports: member.reports,
             timeline: member.timeline,
             projectDescription: member.projectDescription
-        };
+        });
     }
+    const chronologicalSubmissions = [...allSubmissions]
+        .sort((a, b) => adminTimestampMillis(a.submittedAt || a.createdAt)
+            - adminTimestampMillis(b.submittedAt || b.createdAt));
+    const projectSubmissions = chronologicalSubmissions
+        .filter(submission => submissionMatchesProject(submission, currentProject.id))
+    const requestedSubmission = chronologicalSubmissions.find(submission => submission.id === selectedSubmissionId);
+    const selectedSubmission = requestedSubmission
+        || projectSubmissions[projectSubmissions.length - 1]
+        || null;
+    const submissionGroupKey = submission => submission?.projectId == null ? '__account__' : String(submission.projectId);
+    const submissionProjectLabel = submission => {
+        if (submission?.projectId == null) return historyCopy.accountOnboarding;
+        const matchingProject = projects.find(project => String(project.id) === String(submission.projectId));
+        return matchingProject?.name || `${historyCopy.archivedProject} · ${String(submission.projectId)}`;
+    };
+    const submissionRepeatNumber = submission => chronologicalSubmissions
+        .filter(candidate => submissionGroupKey(candidate) === submissionGroupKey(submission))
+        .findIndex(candidate => candidate.id === submission.id) + 1;
+    const onboarding = selectedSubmission?.formData || null;
+    const submissionTimestamp = selectedSubmission?.submittedAt || selectedSubmission?.createdAt || null;
+    const formVersion = Number(selectedSubmission?.formVersion) || 1;
+    const onboardingDate = fmtDate(submissionTimestamp);
+    const onboardingTime = fmtTime(submissionTimestamp);
+    const projectOnboardingCompleted = projectSubmissions.length > 0
+        || currentProject.onboardingCompleted === true
+        || (member.onboardingCompleted === true
+            && (currentProject.id === 'legacy'
+                || String(member.lastOnboardingProjectId) === String(currentProject.id)));
 
     // ── Prepare Financials & Reports data
     const fin = currentProject.financials || { projectCost: 0, maintenanceFee: 0, discount: '', status: 'prospect', currency: 'EUR' };
     const reports = currentProject.reports || [];
     const customTimeline = currentProject.timeline || [];
+    const projectUrl = safeUrl(currentProject.projectUrl);
     
     const currencyMap = { 'EUR': '€', 'USD': '$', 'CRC': '₡' };
     const curSym = currencyMap[fin.currency] || '€';
@@ -2135,11 +3008,11 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
         </div>` : ''}
         <div class="dashboard-header" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-start; padding-right: 80px;">
             <div>
-                <h1 style="font-size: 3rem;">${member.name}${isSuspended ? '<span class="suspended-title-tag">Suspended</span>' : ''}</h1>
-                <p class="color-text-secondary">${member.company || t.no_company}</p>
+                <h1 style="font-size: 3rem;">${esc(member.name)}${isSuspended ? '<span class="suspended-title-tag">Suspended</span>' : ''}</h1>
+                <p class="color-text-secondary">${esc(member.company || t.no_company)}</p>
                 <div style="margin-top:0.75rem; display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-                    <span class="onboarding-status ${member.onboardingCompleted ? 'status-done' : 'status-pending'}">
-                        ${member.onboardingCompleted ? t.completed : t.pending}
+                    <span class="onboarding-status ${projectOnboardingCompleted ? 'status-done' : 'status-pending'}">
+                        ${projectOnboardingCompleted ? t.completed : t.pending}
                     </span>
                     <button id="btn-suspend-toggle" class="btn-suspend ${isSuspended ? 'is-active' : ''}">
                         ${suspendBtnLabel}
@@ -2152,7 +3025,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             </button>
         </div>
 
-        ${member.onboardingCompleted && (currentProject.projectStage || 'first_contact') === 'first_contact' ? `
+        ${projectOnboardingCompleted && (currentProject.projectStage || 'first_contact') === 'first_contact' ? `
         <div id="stage-suggestion-banner" style="display: flex; align-items: center; gap: 1rem; justify-content: space-between; flex-wrap: wrap; background: rgba(41, 151, 255, 0.07); border: 1px solid rgba(41, 151, 255, 0.25); border-radius: var(--radius-md); padding: 1rem 1.5rem; margin-bottom: 2rem;">
             <span style="font-size: 0.9rem;">${L.suggest_proto}</span>
             <button id="btn-suggest-prototyping" class="btn btn-outline" style="min-width: 170px;">${L.suggest_btn}</button>
@@ -2167,22 +3040,47 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 <p style="margin:0; line-height: 1.5;">${f(currentProject.projectDescription)}</p>
             </div>
             
-            <div style="display: flex; gap: 1rem; align-items: flex-end;">
-                <div style="flex: 1;">
-                    <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">Existing License Code (if any)</label>
-                    <input type="text" id="prospect-link-license" class="form-control" value="${member.licenseCode || ''}" placeholder="ELY-XXXX-XXXX-XXXX">
+            ${(() => {
+                // Linking used to demand a license code, so a registered client
+                // without a subscription could never be merged. The obvious key
+                // is the email, and it is preselected when it matches.
+                const matchByEmail = registeredClientMatchingEmail(member.email);
+                const options = registeredAgendaClients();
+                return `
+            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 240px;">
+                    <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">Registered client to merge into</label>
+                    <select id="prospect-link-target" class="form-control">
+                        <option value="">Select a client…</option>
+                        ${options.map(client => `<option value="${esc(client.id)}" ${matchByEmail?.id === client.id ? 'selected' : ''}>${esc(client.name || client.company || client.email)}${client.email ? ` · ${esc(client.email)}` : ''}</option>`).join('')}
+                    </select>
                 </div>
-                <button id="btn-link-prospect" class="btn btn-primary" style="background: #ffab00; color: #000; border-color: #ffab00;">Vincular con Cliente Registrado</button>
+                <button id="btn-link-prospect" class="btn btn-primary" style="background: #ffab00; color: #000; border-color: #ffab00;">Unificar en un solo perfil</button>
             </div>
-            <p id="prospect-link-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none; color: #00c875;">Linked successfully!</p>
+            ${matchByEmail ? `<p style="margin-top:0.5rem; font-size:0.85rem; color:#00c875;">Same email as a registered client: ${esc(matchByEmail.name || matchByEmail.company || matchByEmail.email)}.</p>` : ''}
+            <p id="prospect-link-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none; color: #00c875;">Linked successfully!</p>`;
+            })()}
+        </div>
+        ` : ''}
+
+        ${currentProject.prospectInquiry ? `
+        <div class="detail-section" style="background: rgba(255, 171, 0, 0.05); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(255, 171, 0, 0.2);">
+            <h3 style="color: #ffab00; margin-top:0; margin-bottom: 0.75rem;">Original enquiry</h3>
+            <div class="info-grid">
+                <div class="info-item"><label>Name</label><span>${f(currentProject.prospectInquiry.name)}</span></div>
+                <div class="info-item"><label>Company</label><span>${f(currentProject.prospectInquiry.company)}</span></div>
+                <div class="info-item"><label>Email</label><span>${f(currentProject.prospectInquiry.email)}</span></div>
+                <div class="info-item"><label>Received</label><span>${esc(formatAdminDate(currentProject.prospectInquiry.receivedAt) || '—')}</span></div>
+            </div>
+            ${currentProject.prospectInquiry.description ? `<p style="margin:1rem 0 0; line-height:1.5;">${f(currentProject.prospectInquiry.description)}</p>` : ''}
         </div>
         ` : ''}
 
         ${projects.length > 1 ? `
         <div class="project-tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
             ${projects.map((p, idx) => `
-                <button class="project-tab-btn ${p.id === currentProject.id ? 'active' : ''}" data-project-id="${p.id}" style="background: none; border: none; padding: 0.5rem 1rem; color: ${p.id === currentProject.id ? 'var(--color-accent)' : 'var(--color-text-secondary)'}; cursor: pointer; border-bottom: ${p.id === currentProject.id ? '2px solid var(--color-accent)' : '2px solid transparent'};">
-                    ${p.name || `Proyecto ${idx + 1}`}
+                <button class="project-tab-btn ${p.id === currentProject.id ? 'active' : ''}" data-project-id="${esc(p.id)}" style="background: none; border: none; padding: 0.5rem 1rem; color: ${p.id === currentProject.id ? 'var(--color-accent)' : 'var(--color-text-secondary)'}; cursor: pointer; border-bottom: ${p.id === currentProject.id ? '2px solid var(--color-accent)' : '2px solid transparent'};">
+                    ${esc(p.name || `Proyecto ${idx + 1}`)}
                 </button>
             `).join('')}
         </div>
@@ -2195,11 +3093,11 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             </div>
             
             <div id="project-link-view">
-                ${currentProject.projectUrl ? `<a href="${currentProject.projectUrl}" target="_blank" style="color:#fff; text-decoration:underline; font-size:1.1rem;">${currentProject.projectUrl}</a>` : `<span style="opacity:0.5;">-</span>`}
+                ${projectUrl ? `<a href="${esc(projectUrl)}" target="_blank" rel="noopener" style="color:#fff; text-decoration:underline; font-size:1.1rem;">${esc(projectUrl)}</a>` : `<span style="opacity:0.5;">-</span>`}
             </div>
 
             <div id="project-link-edit" style="display: none; gap: 1rem;">
-                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${currentProject.projectUrl || ''}" style="flex: 1;">
+                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${esc(currentProject.projectUrl || '')}" style="flex: 1;">
                 <button id="btn-save-project" class="btn btn-primary">${t.save_link}</button>
             </div>
             <p id="project-save-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;">${t.saved}</p>
@@ -2214,10 +3112,10 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             
             <div id="fin-view-mode">
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:1rem; background:rgba(0,0,0,0.15); padding:1rem; border-radius:var(--radius-sm); margin-bottom:2rem;">
-                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.project_cost}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${fin.projectCost}</div></div>
-                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.monthly_fee}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${fin.maintenanceFee}</div></div>
-                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.discount}</div><div style="font-size:1.2rem; font-weight:700;">${fin.discount || '-'}</div></div>
-                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">Status</div><div style="font-size:1rem; font-weight:500; color:var(--color-accent);">${t['status_' + (fin.status === 'active_maintenance' ? 'active' : fin.status === 'free_tier' ? 'free' : fin.status === 'development' ? 'dev' : 'prospect')] || fin.status}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.project_cost}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${esc(fin.projectCost)}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.monthly_fee}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${esc(fin.maintenanceFee)}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.discount}</div><div style="font-size:1.2rem; font-weight:700;">${esc(fin.discount || '-')}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">Status</div><div style="font-size:1rem; font-weight:500; color:var(--color-accent);">${esc(t['status_' + (fin.status === 'active_maintenance' ? 'active' : fin.status === 'free_tier' ? 'free' : fin.status === 'development' ? 'dev' : 'prospect')] || fin.status)}</div></div>
                 </div>
             </div>
 
@@ -2225,17 +3123,17 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 <div class="fin-card-grid">
                     <div class="fin-card">
                         <label>${t.project_cost}</label>
-                        <input type="number" id="fin-cost" value="${fin.projectCost}">
+                        <input type="number" id="fin-cost" value="${esc(fin.projectCost)}">
                         <span class="currency-symbol">${curSym}</span>
                     </div>
                     <div class="fin-card">
                         <label>${t.monthly_fee}</label>
-                        <input type="number" id="fin-fee" value="${fin.maintenanceFee}">
+                        <input type="number" id="fin-fee" value="${esc(fin.maintenanceFee)}">
                         <span class="currency-symbol">${curSym}</span>
                     </div>
                     <div class="fin-card">
                         <label>${t.discount}</label>
-                        <input type="text" id="fin-discount" value="${fin.discount || ''}" placeholder="e.g. 40%">
+                        <input type="text" id="fin-discount" value="${esc(fin.discount || '')}" placeholder="e.g. 40%">
                     </div>
                 </div>
                 
@@ -2256,103 +3154,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 </div>
             </div>
 
-            <h3 style="color: var(--color-accent); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">${t.invoices_reports}</h3>
-            
-            <div class="report-list" id="report-list-container">
-                ${reports.length === 0 ? `<p style="opacity: 0.5; font-size: 0.85rem;">${t.no_reports}</p>` : ''}
-                ${reports.map((r, i) => `
-                    <div class="report-item">
-                        <div class="report-info">
-                            <svg class="report-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                            <div>
-                                <div class="report-title">${r.title}</div>
-                                <div class="report-date">
-                                    ${r.date} ${r.amount ? `&middot; <strong style="color:var(--color-accent)">${currencyMap[r.currency] || curSym}${r.amount}</strong>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="report-actions">
-                            <a href="${r.url}" target="_blank" class="report-btn" title="View/Download">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                            </a>
-                            <button class="report-btn btn-delete btn-delete-report" data-index="${i}" title="Delete">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-            
-            <div class="report-upload-card">
-                <h4>${t.upload_new}</h4>
-                <div class="report-inputs-grid">
-                    <input type="text" id="report-title-input" placeholder="${t.title_placeholder}">
-                    <input type="date" id="report-date-input" title="Date">
-                    <div style="display:flex; gap:0.25rem;">
-                        <input type="number" id="report-amount-input" placeholder="${t.amount_placeholder}" style="flex:1;">
-                        <select id="report-currency-input" style="width: 60px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 0.65rem 0.25rem; border-radius: var(--radius-sm); color: var(--color-text-primary); font-size: 0.85rem;">
-                            <option value="EUR" ${(!fin.currency || fin.currency === 'EUR') ? 'selected' : ''}>€</option>
-                            <option value="USD" ${fin.currency === 'USD' ? 'selected' : ''}>$</option>
-                            <option value="CRC" ${fin.currency === 'CRC' ? 'selected' : ''}>₡</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="report-upload-footer">
-                    <div class="report-file-input-wrapper">
-                        <input type="file" id="report-file-input" accept="application/pdf,image/*">
-                        <div class="report-file-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                            <span id="report-file-name-label">${t.choose_file}</span>
-                        </div>
-                    </div>
-                    <button id="btn-add-report" class="btn btn-primary" style="padding: 0.65rem 1.5rem;">${t.upload_btn}</button>
-                </div>
-            </div>
         </div>
-        </div>
-
-        <!-- ── Project Pipeline & Revenue ── -->
-        <div class="detail-section" style="margin-bottom: 2rem;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-                <h3 style="color: var(--color-accent); margin:0;">Activity & Notes (Pipeline & Revenue)</h3>
-            </div>
-            
-            <!-- Pipeline / Stepper -->
-            <div class="project-pipeline-container" style="margin-bottom: 2rem;">
-                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Current Stage (Click to update)</label>
-                <div class="pipeline-stepper" id="pipeline-stepper-ui">
-                    ${['prospect', 'first_contact', 'prototyping', 'development', 'delivery', 'maintenance'].map((stage, idx, arr) => {
-                        const defaultStage = member.role === 'prospect' ? 'prospect' : 'first_contact';
-                        const currentStageIdx = arr.indexOf(currentProject?.projectStage || member.projectStage || defaultStage);
-                        const isCompleted = idx < currentStageIdx;
-                        const isActive = idx === currentStageIdx;
-                        let statusClass = isActive ? 'active' : (isCompleted ? 'completed' : 'pending');
-                        const labels = {
-                            prospect: 'Prospect',
-                            first_contact: t.stage_contact || 'First Contact',
-                            prototyping: t.stage_proto || 'Prototyping',
-                            development: t.stage_dev || 'Development',
-                            delivery: t.stage_delivery || 'Delivery',
-                            maintenance: t.stage_maint || 'Maintenance'
-                        };
-                        return `
-                        <div class="pipeline-step ${statusClass}" data-stage="${stage}">
-                            <div class="step-circle">${isCompleted ? '✓' : (idx + 1)}</div>
-                            <div class="step-label">${labels[stage]}</div>
-                            ${idx < arr.length - 1 ? '<div class="step-line"></div>' : ''}
-                        </div>`;
-                    }).join('')}
-                </div>
-                <div id="pipeline-save-msg" style="display:none; color:#00c875; font-size:0.85rem; margin-top:0.5rem;">${t.saved}</div>
-            </div>
-
-            <!-- Client Revenue Chart -->
-            <div class="client-revenue-container">
-                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Income Overview</label>
-                <div style="height: 200px; width: 100%; position: relative;">
-                    <canvas id="clientRevenueChart"></canvas>
-                </div>
-            </div>
         </div>
 
         <!-- ── SUBSCRIPTION MANAGEMENT (Admin) ── -->
@@ -2365,7 +3167,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                     const status = subscriptionStatus(sub);
                     const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444', canceled: '#ff4444', cancelled: '#ff4444' };
                     const color = statusColors[status] || '#888';
-                    return `<span style="font-size:0.8rem;font-weight:700;color:${color};">● ${(status || '').replace('_', ' ').toUpperCase()}</span>`;
+                    return `<span style="font-size:0.8rem;font-weight:700;color:${color};">● ${esc((status || '').replace('_', ' ').toUpperCase())}</span>`;
                 })()}
             </div>
 
@@ -2381,11 +3183,11 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Plan</div>
-                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);">${sub.planLabel || sub.planType}</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);">${esc(sub.planLabel || sub.planType)}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Status</div>
-                            <div style="font-size:0.9rem;font-weight:700;color:${col};">${statusLabels[status] || status}</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:${col};">${esc(statusLabels[status] || status)}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Origin</div>
@@ -2401,12 +3203,31 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">License Code</div>
-                            <div style="font-size:0.8rem;font-weight:700;color:var(--color-accent);font-family:monospace;letter-spacing:0.05em;">${sub.licenseCode || '—'}</div>
+                            <div style="font-size:0.8rem;font-weight:700;color:var(--color-accent);font-family:monospace;letter-spacing:0.05em;">${esc(sub.licenseCode || '—')}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Next Billing</div>
                             <div style="font-size:0.9rem;color:var(--color-platinum);">${sub.nextBillingDate ? fmtDate(sub.nextBillingDate) : '—'}</div>
                         </div>
+                    </div>
+
+                    <!-- Correcting the live subscription, without reissuing the
+                         license: plan and contract changes go through the form
+                         below, which regenerates the deterministic code. -->
+                    <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--glass-border);">
+                        <div style="flex:1;min-width:150px;">
+                            <label style="display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Status</label>
+                            <select id="sub-edit-status" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                                ${['active', 'pending_payment', 'suspended', 'canceled'].map(value =>
+                                    `<option value="${value}" ${status === value ? 'selected' : ''}>${esc(statusLabels[value] || value)}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div style="flex:1;min-width:150px;">
+                            <label style="display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Next billing date</label>
+                            <input type="date" id="sub-edit-next-billing" class="form-control" value="${esc(adminDateInputValue(sub.nextBillingDate))}" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                        </div>
+                        <button id="btn-save-subscription" class="btn btn-outline">Save changes</button>
+                        <span id="sub-edit-msg" style="display:none;color:#00c875;font-size:0.85rem;align-self:center;"></span>
                     </div>`;
                 }
                 return '';
@@ -2487,6 +3308,143 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 <div id="sub-payment-list"><div class="premium-loader" style="width:24px;height:24px;"></div></div>
             </div>
         </div>
+
+        <div class="detail-section" style="margin-bottom: 2rem;">
+            <h3 style="color: var(--color-accent); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">${t.invoices_reports}</h3>
+            
+            <div class="report-list" id="report-list-container">
+                ${reports.length === 0 ? `<p style="opacity: 0.5; font-size: 0.85rem;">${t.no_reports}</p>` : ''}
+                ${reports.map((r, i) => `
+                    <div class="report-item">
+                        <div class="report-info">
+                            <svg class="report-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            <div>
+                                <div class="report-title">${esc(r.title)}</div>
+                                <div class="report-date">
+                                    ${esc(r.date)} ${r.amount ? `&middot; <strong style="color:var(--color-accent)">${currencyMap[r.currency] || curSym}${esc(r.amount)}</strong>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-actions">
+                            ${safeUrl(r.url) ? `<a href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener" class="report-btn" title="View/Download">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                            </a>` : ''}
+                            <button class="report-btn btn-delete btn-delete-report" data-index="${i}" title="Delete">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="report-upload-card">
+                <h4>${t.upload_new}</h4>
+                <div class="report-inputs-grid">
+                    <input type="text" id="report-title-input" placeholder="${t.title_placeholder}">
+                    <input type="date" id="report-date-input" title="Date">
+                    <div style="display:flex; gap:0.25rem;">
+                        <input type="number" id="report-amount-input" placeholder="${t.amount_placeholder}" style="flex:1;">
+                        <select id="report-currency-input" style="width: 60px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 0.65rem 0.25rem; border-radius: var(--radius-sm); color: var(--color-text-primary); font-size: 0.85rem;">
+                            <option value="EUR" ${(!fin.currency || fin.currency === 'EUR') ? 'selected' : ''}>€</option>
+                            <option value="USD" ${fin.currency === 'USD' ? 'selected' : ''}>$</option>
+                            <option value="CRC" ${fin.currency === 'CRC' ? 'selected' : ''}>₡</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="report-upload-footer">
+                    <div class="report-file-input-wrapper">
+                        <input type="file" id="report-file-input" accept="application/pdf,image/*">
+                        <div class="report-file-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                            <span id="report-file-name-label">${t.choose_file}</span>
+                        </div>
+                    </div>
+                    <button id="btn-add-report" class="btn btn-primary" style="padding: 0.65rem 1.5rem;">${t.upload_btn}</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Project Pipeline & Revenue ── -->
+        <div class="detail-section" style="margin-bottom: 2rem;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--color-accent); margin:0;">Activity & Notes (Pipeline & Revenue)</h3>
+            </div>
+            
+            <!-- Pipeline / Stepper -->
+            <div class="project-pipeline-container" style="margin-bottom: 2rem;">
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Current Stage (Click to update)</label>
+                <div class="pipeline-stepper" id="pipeline-stepper-ui">
+                    ${['prospect', 'first_contact', 'prototyping', 'development', 'delivery', 'maintenance'].map((stage, idx, arr) => {
+                        const defaultStage = member.role === 'prospect' ? 'prospect' : 'first_contact';
+                        const currentStageIdx = arr.indexOf(currentProject?.projectStage || member.projectStage || defaultStage);
+                        const isCompleted = idx < currentStageIdx;
+                        const isActive = idx === currentStageIdx;
+                        let statusClass = isActive ? 'active' : (isCompleted ? 'completed' : 'pending');
+                        const labels = {
+                            prospect: 'Prospect',
+                            first_contact: t.stage_contact || 'First Contact',
+                            prototyping: t.stage_proto || 'Prototyping',
+                            development: t.stage_dev || 'Development',
+                            delivery: t.stage_delivery || 'Delivery',
+                            maintenance: t.stage_maint || 'Maintenance'
+                        };
+                        return `
+                        <div class="pipeline-step ${statusClass}" data-stage="${stage}">
+                            <div class="step-circle">${isCompleted ? '✓' : (idx + 1)}</div>
+                            <div class="step-label">${labels[stage]}</div>
+                            ${idx < arr.length - 1 ? '<div class="step-line"></div>' : ''}
+                        </div>`;
+                    }).join('')}
+                </div>
+                <div id="pipeline-save-msg" style="display:none; color:#00c875; font-size:0.85rem; margin-top:0.5rem;">${t.saved}</div>
+            </div>
+
+            <!-- Client Revenue Chart -->
+            <div class="client-revenue-container">
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Income Overview</label>
+                <div style="height: 200px; width: 100%; position: relative;">
+                    <canvas id="clientRevenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="onboarding-history">
+            <div class="onboarding-history-head">
+                <div>
+                    <h3>${esc(historyCopy.submissionsTitle)}</h3>
+                    <p>${esc(historyCopy.submissionsHelp)}</p>
+                    <p class="onboarding-session-hint">${L.session_hint}</p>
+                </div>
+                <div class="onboarding-history-aside">
+                    <span class="onboarding-history-count">${esc(historyCopy.submissionsCount(chronologicalSubmissions.length))}</span>
+                    <a class="btn btn-primary" href="${esc(onboardingSessionUrl(userId, member, currentProject.id, projectSubmissions.length > 0))}">
+                        ${projectSubmissions.length ? L.session_update : L.session_fill}
+                    </a>
+                </div>
+            </div>
+            ${chronologicalSubmissions.length ? `
+                <div class="submission-timeline" role="tablist" aria-label="${esc(historyCopy.submissionsTitle)}">
+                    ${chronologicalSubmissions.map(submission => {
+                        const timestamp = submission.submittedAt || submission.createdAt || null;
+                        const isSelected = submission.id === selectedSubmission?.id;
+                        return `<button type="button" role="tab" aria-selected="${isSelected ? 'true' : 'false'}"
+                            class="submission-selector ${isSelected ? 'is-active' : ''}"
+                            data-submission-id="${esc(submission.id)}">
+                            <strong>${esc(historyCopy.submission)} #${submissionRepeatNumber(submission)}</strong>
+                            <span>${esc(submissionProjectLabel(submission))}</span>
+                            <span>${esc(fmtDate(timestamp) || '—')} ${esc(fmtTime(timestamp) || '')}</span>
+                            <span>${esc(historyCopy.formVersion)}${Number(submission.formVersion) || 1}</span>
+                        </button>`;
+                    }).join('')}
+                </div>` : `<p class="timeline-empty">${esc(t.onboarding_empty)}</p>`}
+        </div>
+
+        ${selectedSubmission ? `<div class="submission-selected-meta">
+            <span><strong>${esc(historyCopy.submission)} #${submissionRepeatNumber(selectedSubmission)}</strong></span>
+            <span>${esc(submissionProjectLabel(selectedSubmission))}</span>
+            <span>${esc(onboardingDate || '—')} ${esc(onboardingTime || '')}</span>
+            <span>${esc(historyCopy.formVersion)}${formVersion}</span>
+        </div>` : ''}
 
         <div id="pdf-content-wrapper">
             ${onboarding ? (Number(formVersion) >= 2 ? renderOnboardingV2(onboarding) : `
@@ -2756,15 +3714,13 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
 
         </div>
 
-        ${!member.onboardingCompleted ? `
-        <!-- ── Co-Pilot: live onboarding draft (admin-only view) ── -->
+        <!-- ── Guided onboarding session in progress (admin-only view) ── -->
         <div class="detail-section" style="margin-bottom: 2.5rem; border: 1px solid rgba(0, 200, 117, 0.25); background: rgba(0, 200, 117, 0.04); border-radius: var(--radius-md); padding: 1.5rem;">
             <h3 style="margin-top: 0;">${L.copilot_title}</h3>
             <div id="copilot-draft-container">
                 <p class="timeline-empty">${L.copilot_waiting}</p>
             </div>
         </div>
-        ` : ''}
 
         <!-- ── Client Timeline (Vista 360) ─────────────────────── -->
         <div class="detail-section" style="margin-bottom: 2.5rem;">
@@ -2777,7 +3733,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
         <!-- ── Admin Notes ─────────────────────────────────────── -->
         <div class="admin-notes-section">
             <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:0.6rem; font-weight:600; opacity:0.7;">Internal Notes (admin only)</label>
-            <textarea id="admin-notes-input" class="admin-notes-area" placeholder="Add private notes about this partner…">${member.adminNotes || ''}</textarea>
+            <textarea id="admin-notes-input" class="admin-notes-area" placeholder="Add private notes about this partner…">${esc(member.adminNotes || '')}</textarea>
             <div class="admin-notes-actions">
                 <button id="btn-save-notes" class="btn btn-primary" style="min-width:120px;">Save Note</button>
                 <span id="notes-save-msg" class="admin-notes-save-msg"></span>
@@ -2786,32 +3742,39 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     `;
 
     // Load the Vista 360 timeline from the activity ledger (async, non-blocking)
-    loadClientTimeline(userId, member);
+    loadClientTimeline(userId, member, detailRenderVersion);
 
-    // Co-Pilot: follow the client's onboarding draft in real time
-    if (!member.onboardingCompleted) watchOnboardingDraft(userId);
+    // Follow the guided onboarding session for this project in real time
+    watchOnboardingDraft(userId, member, currentProject.id);
 
     // ── Helper to update project fields ──
     const updateCurrentProjectFields = async (updates) => {
-        if (!member.projects) member.projects = [];
-        
-        Object.assign(currentProject, updates);
-        
-        const projIndex = member.projects.findIndex(p => p.id === currentProject.id);
+        const existingProjects = Array.isArray(member.projects) ? member.projects : [];
+        const updatedProject = stripUndefined({ ...currentProject, ...updates });
+        const nextProjects = existingProjects.map(project => stripUndefined({ ...project }));
+        const projIndex = nextProjects.findIndex(project => project.id === currentProject.id);
         if (projIndex !== -1) {
-            member.projects[projIndex] = currentProject;
+            nextProjects[projIndex] = updatedProject;
         } else {
             // Handle legacy project being pushed back
-            member.projects.push(currentProject);
+            nextProjects.push(updatedProject);
         }
 
-        await updateDoc(doc(db, 'members', userId), { projects: member.projects });
-        
+        await updateDoc(doc(db, 'members', userId), { projects: nextProjects });
+        currentProject = updatedProject;
+        member.projects = nextProjects;
         const idx = _allClients.findIndex(c => c.id === userId);
-        if (idx !== -1) _allClients[idx].projects = member.projects;
+        if (idx !== -1) _allClients[idx].projects = nextProjects;
     };
 
     // ── Event Listeners ──────────────────────────────────────────────────────
+
+    document.querySelectorAll('.submission-selector').forEach(button => {
+        button.addEventListener('click', () => {
+            if (detailRenderVersion !== _detailRenderVersion) return;
+            renderDetail(member, allSubmissions, userId, currentProject.id, button.dataset.submissionId);
+        });
+    });
 
     // Pipeline suggestion: onboarding done but project still in first_contact
     const btnSuggestProto = document.getElementById('btn-suggest-prototyping');
@@ -2835,8 +3798,7 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const pid = btn.getAttribute('data-project-id');
-            // Must fetch the specific onboarding submission for the new project
-            showClientDetail(userId, member, pid);
+            renderDetail(member, allSubmissions, userId, pid, null);
         });
     });
 
@@ -2844,44 +3806,31 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     const btnLinkProspect = document.getElementById('btn-link-prospect');
     if (btnLinkProspect) {
         btnLinkProspect.addEventListener('click', async () => {
-            const licenseInput = document.getElementById('prospect-link-license').value.trim();
+            const targetId = document.getElementById('prospect-link-target').value;
             const msgEl = document.getElementById('prospect-link-msg');
-            
-            if (!licenseInput) {
-                msgEl.textContent = 'Please provide a license code.';
+            const fail = message => {
+                msgEl.textContent = message;
                 msgEl.style.color = '#f44336';
                 msgEl.style.display = 'block';
-                return;
-            }
+            };
+
+            if (!targetId) return fail('Select the registered client to merge into.');
 
             btnLinkProspect.disabled = true;
-            btnLinkProspect.textContent = 'Linking...';
+            btnLinkProspect.textContent = 'Unificando…';
 
             try {
-                // 1. Verify license exists
-                const licenseRef = doc(db, 'licenses', licenseInput);
-                const licenseSnap = await getDoc(licenseRef);
-                
-                if (!licenseSnap.exists()) {
-                    throw new Error('Invalid license code.');
-                }
+                const targetRef = doc(db, 'members', targetId);
+                const targetSnap = await getDoc(targetRef);
+                if (!targetSnap.exists()) throw new Error('That client no longer exists.');
+                const targetMemberData = targetSnap.data();
 
-                // 2. Find the auth user who holds this license
-                const membersQuery = query(collection(db, 'members'), where('licenseCode', '==', licenseInput));
-                const targetMembersSnap = await getDocs(membersQuery);
-                
-                if (targetMembersSnap.empty) {
-                    throw new Error('No user found with this license code.');
-                }
-                
-                const targetDoc = targetMembersSnap.docs[0];
-                const targetMemberData = targetDoc.data();
-                
-                // 3. Prepare projects array
-                let targetProjects = targetMemberData.projects || [];
-                if (targetProjects.length === 0 && (targetMemberData.projectUrl || targetMemberData.onboardingCompleted)) {
-                    // Legacy migration for target member if not already done
-                    targetProjects.push({
+                const targetProjects = Array.isArray(targetMemberData.projects)
+                    ? targetMemberData.projects.map(project => stripUndefined({ ...project }))
+                    : [];
+                // Legacy accounts keep their single project in root fields
+                if (!targetProjects.length && (targetMemberData.projectUrl || targetMemberData.onboardingCompleted)) {
+                    targetProjects.push(stripUndefined({
                         id: 'project-1',
                         name: targetMemberData.company || targetMemberData.name || 'Proyecto 1',
                         projectUrl: targetMemberData.projectUrl || null,
@@ -2890,62 +3839,60 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                         reports: targetMemberData.reports || [],
                         timeline: targetMemberData.timeline || [],
                         projectDescription: targetMemberData.projectDescription || ''
-                    });
+                    }));
                 }
-                
-                // 4. Create new project from prospect data
-                const newProjectId = 'proj_' + userId;
-                if (!targetProjects.find(p => p.id === newProjectId)) {
-                    const newProject = {
+
+                const newProjectId = `proj_${userId}`;
+                if (!targetProjects.some(project => project.id === newProjectId)) {
+                    targetProjects.push(stripUndefined({
                         id: newProjectId,
-                        name: member.company || 'New Project',
+                        name: member.company || member.name || 'New Project',
                         projectStage: 'prospect',
                         onboardingCompleted: false,
                         projectDescription: member.projectDescription || '',
                         financials: { projectCost: 0, maintenanceFee: 0, discount: '', status: 'prospect', currency: 'EUR' },
                         reports: [],
                         timeline: [],
-                        linkedFromProspect: true
-                    };
-                    
-                    targetProjects.push(newProject);
+                        linkedFromProspect: true,
+                        // The original enquiry travels with the project instead of
+                        // disappearing with the prospect document.
+                        prospectInquiry: {
+                            name: member.name || null,
+                            company: member.company || null,
+                            email: member.email || null,
+                            description: member.projectDescription || null,
+                            licenseCode: member.licenseCode || null,
+                            receivedAt: member.createdAt || null
+                        }
+                    }));
                 }
-                
-                // 5. Update target member
-                await updateDoc(doc(db, 'members', targetDoc.id), { projects: targetProjects });
-                logActivity(targetDoc.id, targetMemberData.name, 'prospect_promoted', { prospectId: userId, prospectName: member.name || null, projectId: newProjectId });
-                
-                // 6. Delete the prospect document
+
+                await updateDoc(targetRef, { projects: targetProjects });
+                logActivity(targetId, targetMemberData.name, 'prospect_promoted', {
+                    prospectId: userId, prospectName: member.name || null, projectId: newProjectId
+                });
                 await deleteDoc(doc(db, 'prospects', userId));
-                
-                msgEl.textContent = 'Linked successfully! The prospect has been converted to a project on the target account.';
+
+                msgEl.textContent = 'Merged. The enquiry is now a project on that client.';
                 msgEl.style.color = '#00c875';
                 msgEl.style.display = 'block';
-                
-                // 7. Update in-memory & close modal
-                const pIndex = _allClients.findIndex(c => c.id === userId);
-                if (pIndex !== -1) {
-                    _allClients.splice(pIndex, 1); // Remove prospect
-                }
-                
-                const mIndex = _allClients.findIndex(c => c.id === targetDoc.id);
-                if (mIndex !== -1) {
-                    _allClients[mIndex].projects = targetProjects;
-                }
-                
-                setTimeout(() => {
-                    const detailOverlay = document.getElementById('client-detail-overlay');
-                    if (detailOverlay) detailOverlay.style.display = 'none';
-                    loadStats(); // refresh view
-                }, 1500);
 
+                const prospectIndex = _allClients.findIndex(client => client.id === userId);
+                if (prospectIndex !== -1) _allClients.splice(prospectIndex, 1);
+                const targetIndex = _allClients.findIndex(client => client.id === targetId);
+                if (targetIndex !== -1) _allClients[targetIndex].projects = targetProjects;
+
+                setTimeout(() => {
+                    if (detailRenderVersion === _detailRenderVersion) {
+                        closeClientDetail();
+                        showClientDetail(targetId, { ...targetMemberData, id: targetId, projects: targetProjects }, newProjectId);
+                    }
+                }, 1200);
             } catch (err) {
-                msgEl.textContent = err.message;
-                msgEl.style.color = '#f44336';
-                msgEl.style.display = 'block';
+                fail(err.message);
+                btnLinkProspect.disabled = false;
+                btnLinkProspect.textContent = 'Unificar en un solo perfil';
             }
-            btnLinkProspect.disabled = false;
-            btnLinkProspect.textContent = 'Vincular con Cliente Registrado';
         });
     }
 
@@ -2965,7 +3912,14 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
     const msgLabel = document.getElementById('project-save-msg');
     
     saveBtn.addEventListener('click', async () => {
-        const url = document.getElementById('project-url-input').value.trim();
+        const rawUrl = document.getElementById('project-url-input').value.trim();
+        const url = safeUrl(rawUrl);
+        if (rawUrl && !url) {
+            msgLabel.textContent = 'Please enter a valid HTTP(S) URL.';
+            msgLabel.style.color = '#f44336';
+            msgLabel.style.display = 'block';
+            return;
+        }
         saveBtn.disabled = true;
         saveBtn.textContent = t.saving;
         msgLabel.style.display = 'none';
@@ -2979,7 +3933,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             
             // Re-render to update the view mode
             setTimeout(() => {
-                showClientDetail(userId, member);
+                if (detailRenderVersion === _detailRenderVersion) {
+                    showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null);
+                }
             }, 500);
         } catch (error) {
             logger.error('Save project URL:', error);
@@ -3031,7 +3987,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 
                 setTimeout(() => {
                     msg.style.display = 'none';
-                    showClientDetail(userId, member); // Re-render to show read mode
+                    if (detailRenderVersion === _detailRenderVersion) {
+                        showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null); // Re-render to show read mode
+                    }
                 }, 500);
             } catch (err) {
                 alert('Error saving financials: ' + err.message);
@@ -3055,6 +4013,60 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
             } else {
                 subInvoiceLabel.textContent = 'Choose invoice file...';
                 subInvoiceLabel.style.color = '';
+            }
+        });
+    }
+
+    // Correct the live subscription in place: status and renewal date only, so
+    // the license code and its contract stay consistent with what was issued.
+    const btnSaveSubscription = document.getElementById('btn-save-subscription');
+    if (btnSaveSubscription) {
+        btnSaveSubscription.addEventListener('click', async () => {
+            const statusValue = document.getElementById('sub-edit-status').value;
+            const nextBillingValue = document.getElementById('sub-edit-next-billing').value;
+            const msgEl = document.getElementById('sub-edit-msg');
+            const show = (text, colour) => {
+                msgEl.textContent = text;
+                msgEl.style.color = colour;
+                msgEl.style.display = 'inline';
+            };
+
+            btnSaveSubscription.disabled = true;
+            const originalLabel = btnSaveSubscription.textContent;
+            btnSaveSubscription.textContent = 'Saving…';
+            try {
+                const subscription = {
+                    ...member.subscription,
+                    status: statusValue,
+                    // An explicit entitlement keeps the portal and the rules in
+                    // step with what the administrator just decided.
+                    accessGranted: ['active', 'pending_payment'].includes(statusValue),
+                    nextBillingDate: nextBillingValue ? new Date(`${nextBillingValue}T12:00:00`) : null,
+                    updatedAt: serverTimestamp()
+                };
+                await updateDoc(doc(db, 'members', userId), { subscription });
+                if (subscription.licenseCode) {
+                    await setDoc(doc(db, 'licenses', subscription.licenseCode), {
+                        status: statusValue,
+                        nextBillingDate: subscription.nextBillingDate,
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                }
+                logActivity(userId, member.name, 'subscription_updated', { status: statusValue });
+                member.subscription = subscription;
+                const cacheIndex = _allClients.findIndex(client => client.id === userId);
+                if (cacheIndex !== -1) _allClients[cacheIndex].subscription = subscription;
+                show('Saved.', '#00c875');
+                setTimeout(() => {
+                    if (detailRenderVersion === _detailRenderVersion) {
+                        renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                    }
+                }, 900);
+            } catch (error) {
+                logger.error('Subscription update failed:', error);
+                show(error.message, '#f44336');
+                btnSaveSubscription.disabled = false;
+                btnSaveSubscription.textContent = originalLabel;
             }
         });
     }
@@ -3117,6 +4129,21 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 const manualLicense = buildManualLicense(planType, contractUnit, contractLength, businessId);
                 const previousLicense = member.subscription?.licenseCode || member.licenseCode || null;
                 const { licenseCode, periodCode } = manualLicense;
+                const memberRef = doc(db, 'members', userId);
+                const licenseRef = doc(db, 'licenses', licenseCode);
+                const paymentRef = doc(collection(db, 'subscription_payments'));
+                const previousLicenseRef = previousLicense && previousLicense !== licenseCode
+                    ? doc(db, 'licenses', previousLicense)
+                    : null;
+
+                // Fail before uploading an invoice when the deterministic
+                // identifier already belongs to a different account. The
+                // transaction below repeats this check to close the race.
+                const existingLicenseBeforeUpload = await getDoc(licenseRef);
+                if (existingLicenseBeforeUpload.exists()
+                    && existingLicenseBeforeUpload.data().userId !== userId) {
+                    throw new Error('This license identifier is already assigned to another account. Check the business ID.');
+                }
 
                 // Compute next billing date
                 const nextDate = new Date(d);
@@ -3157,54 +4184,61 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
 
                 // Member, license and payment are committed together so the CRM
                 // can never show a paid subscription without its license.
-                const memberRef = doc(db, 'members', userId);
-                const licenseRef = doc(db, 'licenses', licenseCode);
-                const paymentRef = doc(collection(db, 'subscription_payments'));
-                const batch = writeBatch(db);
-                batch.update(memberRef, { subscription, licenseCode, businessId });
-                batch.set(licenseRef, {
-                    code: licenseCode,
-                    userId,
-                    userName: member.name || null,
-                    userEmail: member.email || null,
-                    planType,
-                    planLabel: SUBSCRIPTION_PLANS[planType].label,
-                    billingCycle: cycle,
-                    contractUnit,
-                    contractLength,
-                    contractPeriodCode: periodCode,
-                    businessId,
-                    status: 'active',
-                    source: 'manual',
-                    assignedTo: member.name || member.email,
-                    assignedAt: member.subscription?.startDate || d,
-                    nextBillingDate: nextDate,
-                    updatedAt: serverTimestamp()
-                }, { merge: true });
-                batch.set(paymentRef, {
-                    userId,
-                    userName: member.name || null,
-                    userEmail: member.email || null,
-                    planType,
-                    planLabel: SUBSCRIPTION_PLANS[planType].label,
-                    billingCycle: cycle,
-                    contractUnit,
-                    contractLength,
-                    contractPeriodCode: periodCode,
-                    businessId,
-                    licenseCode,
-                    amount,
-                    currency,
-                    invoiceUrl,
-                    paymentDate: d,
-                    recordedAt: serverTimestamp(),
-                    recordedBy: 'admin',
-                    source: 'manual'
+                await runTransaction(db, async transaction => {
+                    const existingLicense = await transaction.get(licenseRef);
+                    const previousLicenseSnap = previousLicenseRef
+                        ? await transaction.get(previousLicenseRef)
+                        : null;
+                    if (existingLicense.exists() && existingLicense.data().userId !== userId) {
+                        throw new Error('This license identifier is already assigned to another account. Check the business ID.');
+                    }
+
+                    transaction.update(memberRef, { subscription, licenseCode, businessId });
+                    transaction.set(licenseRef, {
+                        code: licenseCode,
+                        userId,
+                        userName: member.name || null,
+                        userEmail: member.email || null,
+                        planType,
+                        planLabel: SUBSCRIPTION_PLANS[planType].label,
+                        billingCycle: cycle,
+                        contractUnit,
+                        contractLength,
+                        contractPeriodCode: periodCode,
+                        businessId,
+                        status: 'active',
+                        source: 'manual',
+                        assignedTo: member.name || member.email,
+                        assignedAt: member.subscription?.startDate || d,
+                        nextBillingDate: nextDate,
+                        updatedAt: serverTimestamp()
+                    }, { merge: true });
+                    transaction.set(paymentRef, {
+                        userId,
+                        userName: member.name || null,
+                        userEmail: member.email || null,
+                        planType,
+                        planLabel: SUBSCRIPTION_PLANS[planType].label,
+                        billingCycle: cycle,
+                        contractUnit,
+                        contractLength,
+                        contractPeriodCode: periodCode,
+                        businessId,
+                        licenseCode,
+                        amount,
+                        currency,
+                        invoiceUrl,
+                        paymentDate: d,
+                        recordedAt: serverTimestamp(),
+                        recordedBy: 'admin',
+                        source: 'manual'
+                    });
+                    if (previousLicenseRef
+                        && previousLicenseSnap.exists()
+                        && previousLicenseSnap.data().userId === userId) {
+                        transaction.delete(previousLicenseRef);
+                    }
                 });
-                if (previousLicense && previousLicense !== licenseCode) {
-                    batch.delete(doc(db, 'licenses', previousLicense));
-                }
-                await batch.commit();
 
                 logActivity(userId, member.name, 'subscription_assigned', {
                     planType,
@@ -3229,7 +4263,16 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 msgEl.style.color = '#00c875';
 
                 // Reload detail after 1.5s
-                setTimeout(() => showClientDetail(userId, { ...member, subscription, licenseCode, businessId }), 1500);
+                setTimeout(() => {
+                    if (detailRenderVersion === _detailRenderVersion) {
+                        showClientDetail(
+                            userId,
+                            { ...member, subscription, licenseCode, businessId },
+                            currentProject.id,
+                            selectedSubmission?.id || null
+                        );
+                    }
+                }, 1500);
 
             } catch (err) {
                 logger.error('Assign subscription:', err);
@@ -3245,30 +4288,38 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
         const listEl = document.getElementById('sub-payment-list');
         if (!listEl) return;
         try {
-            const q = query(collection(db, 'subscription_payments'), where('userId', '==', userId), orderBy('paymentDate', 'desc'));
+            // Equality-only query avoids requiring an undeployed composite
+            // index; this client's small history is sorted safely in memory.
+            const q = query(collection(db, 'subscription_payments'), where('userId', '==', userId));
             const snap = await getDocs(q);
+            if (detailRenderVersion !== _detailRenderVersion
+                || document.getElementById('sub-payment-list') !== listEl) return;
             if (snap.empty) {
                 listEl.innerHTML = '<p style="font-size:0.85rem;opacity:0.5;">No payments recorded yet.</p>';
                 return;
             }
             const currMap = { EUR: '€', USD: '$', CRC: '₡' };
-            listEl.innerHTML = snap.docs.map(d => {
-                const p = d.data();
+            const payments = snap.docs
+                .map(item => item.data())
+                .sort((a, b) => adminTimestampMillis(b.paymentDate) - adminTimestampMillis(a.paymentDate));
+            listEl.innerHTML = payments.map(p => {
                 const dateStr = p.paymentDate?.seconds ? new Date(p.paymentDate.seconds * 1000).toLocaleDateString() : (p.paymentDate || '—');
                 const sym = currMap[p.currency] || '€';
+                const invoiceUrl = safeUrl(p.invoiceUrl);
                 return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--glass-border);gap:1rem;">
                     <div>
-                        <div style="font-size:0.85rem;font-weight:600;color:var(--color-platinum);">${p.planLabel || p.planType}</div>
-                        <div style="font-size:0.75rem;color:var(--color-text-secondary);">${dateStr} · <span style="font-family:monospace;color:var(--color-accent);">${p.licenseCode}</span></div>
+                        <div style="font-size:0.85rem;font-weight:600;color:var(--color-platinum);">${esc(p.planLabel || p.planType)}</div>
+                        <div style="font-size:0.75rem;color:var(--color-text-secondary);">${esc(dateStr)} · <span style="font-family:monospace;color:var(--color-accent);">${esc(p.licenseCode)}</span></div>
                     </div>
                     <div style="display:flex;gap:0.75rem;align-items:center;">
-                        <span style="font-weight:700;color:#00c875;">${sym}${p.amount || 0}</span>
-                        ${p.invoiceUrl ? `<a href="${p.invoiceUrl}" target="_blank" class="report-btn" title="Download Invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>` : ''}
+                        <span style="font-weight:700;color:#00c875;">${sym}${esc(p.amount || 0)}</span>
+                        ${invoiceUrl ? `<a href="${esc(invoiceUrl)}" target="_blank" rel="noopener" class="report-btn" title="Download Invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>` : ''}
                     </div>
                 </div>`;
             }).join('');
         } catch (err) {
-            console.warn('Payment history load:', err);
+            if (detailRenderVersion !== _detailRenderVersion) return;
+            logger.warn('Payment history load:', err);
             const listEl2 = document.getElementById('sub-payment-list');
             if (listEl2) listEl2.innerHTML = '<p style="font-size:0.8rem;opacity:0.5;">Could not load history.</p>';
         }
@@ -3330,7 +4381,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 logActivity(userId, member.name, 'report_added', { projectId: currentProject.id || null, title });
 
                 // Re-render
-                showClientDetail(userId, member);
+                if (detailRenderVersion === _detailRenderVersion) {
+                    showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null);
+                }
             } catch (err) {
                 alert(t.error_upload + ' ' + err.message);
                 btnAddReport.disabled = false;
@@ -3352,13 +4405,15 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 // 1. Delete from Storage if filePath exists
                 if (reportToDelete.filePath) {
                     const storageRef = ref(storage, reportToDelete.filePath);
-                    await deleteObject(storageRef).catch(e => console.warn('Could not delete from storage:', e));
+                    await deleteObject(storageRef).catch(e => logger.warn('Could not delete from storage:', e));
                 }
                 
                 // 2. Delete from Firestore
                 await updateCurrentProjectFields({ reports: newReports });
                 logActivity(userId, member.name, 'report_removed', { projectId: currentProject.id || null, title: reportToDelete.title || null });
-                renderDetail(member, onboarding, userId, submissionTimestamp, currentProject.id);
+                if (detailRenderVersion === _detailRenderVersion) {
+                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                }
             } catch (err) {
                 alert('Error deleting report: ' + err.message);
             }
@@ -3379,7 +4434,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 logActivity(userId, member.name, 'stage_changed', { projectId: currentProject.id || null, fromStage, toStage: newStage });
                 
                 // Re-render UI to update colors
-                renderDetail(member, onboarding, userId, submissionTimestamp, currentProject.id);
+                if (detailRenderVersion === _detailRenderVersion) {
+                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                }
                 
                 // Show saved msg
                 setTimeout(() => {
@@ -3455,7 +4512,9 @@ function renderDetail(member, onboarding, userId, submissionTimestamp = null, se
                 logger.log(`Account ${newState ? 'suspended' : 'reactivated'} for ${member.name}`);
 
                 // Re-render detail panel to reflect new state
-                renderDetail(member, onboarding, userId, submissionTimestamp);
+                if (detailRenderVersion === _detailRenderVersion) {
+                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                }
 
                 // Refresh client grid in background
                 const term = document.getElementById('crm-search')?.value.trim().toLowerCase() || '';
@@ -3575,7 +4634,7 @@ function generateClientPDF(member, onboarding, t) {
     };
 
     html2pdf().set(opt).from(container).save().catch(error => {
-        console.error("PDF generation failed:", error);
+        logger.error("PDF generation failed:", error);
         alert("Failed to create PDF. Please try again.");
     });
 }

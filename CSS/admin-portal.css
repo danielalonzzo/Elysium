@@ -1,0 +1,576 @@
+/* Admin CRM extensions: agenda and onboarding delivery history. */
+
+.agenda-header {
+    align-items: center;
+}
+
+.agenda-layout {
+    display: grid;
+    grid-template-columns: minmax(340px, 0.86fr) minmax(430px, 1.14fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.agenda-panel {
+    min-width: 0;
+    padding: 1.5rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.08), transparent 38%),
+        var(--glass-bg);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.14);
+}
+
+.agenda-panel-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-bottom: 1.1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.agenda-panel-heading h2 {
+    margin: 0.18rem 0 0;
+    color: var(--color-text-primary);
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+}
+
+.agenda-eyebrow {
+    color: var(--color-accent);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+}
+
+.agenda-timezone-chip {
+    flex: 0 0 auto;
+    padding: 0.34rem 0.58rem;
+    border: 1px solid rgba(41, 151, 255, 0.25);
+    border-radius: 999px;
+    color: var(--color-accent);
+    background: rgba(41, 151, 255, 0.08);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.meeting-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.meeting-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.meeting-field-wide {
+    grid-column: 1 / -1;
+}
+
+.meeting-field > span {
+    color: var(--color-text-secondary);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.045em;
+}
+
+.meeting-field input,
+.meeting-field select,
+.meeting-field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.72rem 0.8rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 11px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-primary);
+    font: inherit;
+    font-size: 0.84rem;
+    color-scheme: dark;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meeting-field select option {
+    color: #f7f8fb;
+    background: #071022;
+}
+
+.meeting-field textarea {
+    min-height: 96px;
+    resize: vertical;
+    line-height: 1.55;
+}
+
+.meeting-field input:focus,
+.meeting-field select:focus,
+.meeting-field textarea:focus {
+    border-color: rgba(41, 151, 255, 0.68);
+    background: rgba(41, 151, 255, 0.055);
+    box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.1);
+}
+
+.meeting-field input[aria-invalid='true'],
+.meeting-field select[aria-invalid='true'],
+.meeting-field textarea[aria-invalid='true'] {
+    border-color: rgba(255, 91, 84, 0.72);
+    box-shadow: 0 0 0 3px rgba(255, 91, 84, 0.09);
+}
+
+.meeting-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.meeting-form-footer .btn {
+    flex: 0 0 auto;
+    min-width: 150px;
+}
+
+.meeting-form-message {
+    min-height: 1.2em;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+.meeting-form-message.is-success { color: #42d99a; }
+.meeting-form-message.is-warning { color: #ffc04d; }
+.meeting-form-message.is-error { color: #ff7770; }
+
+.agenda-list-heading {
+    align-items: center;
+}
+
+.agenda-refresh {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+}
+
+.agenda-refresh:hover,
+.agenda-refresh:focus-visible {
+    border-color: rgba(41, 151, 255, 0.5);
+    color: var(--color-accent);
+}
+
+.agenda-filters {
+    display: flex;
+    gap: 0.45rem;
+    margin-bottom: 1.1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.agenda-filters::-webkit-scrollbar { display: none; }
+
+.agenda-filter {
+    flex: 0 0 auto;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 0.71rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.agenda-filter.is-active {
+    border-color: rgba(41, 151, 255, 0.38);
+    background: rgba(41, 151, 255, 0.12);
+    color: var(--color-accent);
+}
+
+.agenda-filter:focus-visible,
+.meeting-cancel-btn:focus-visible,
+.submission-selector:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.agenda-meeting-list {
+    display: grid;
+    gap: 0.8rem;
+    min-height: 170px;
+}
+
+.agenda-empty {
+    display: grid;
+    min-height: 170px;
+    place-items: center;
+    padding: 1.5rem;
+    border: 1px dashed var(--glass-border);
+    border-radius: 14px;
+    color: var(--color-text-secondary);
+    text-align: center;
+    font-size: 0.82rem;
+}
+
+.meeting-card {
+    display: grid;
+    grid-template-columns: 4px minmax(0, 1fr);
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    background: rgba(3, 8, 22, 0.35);
+}
+
+.meeting-card-accent {
+    background: #2997ff;
+}
+
+.meeting-card.is-past .meeting-card-accent { background: #7d8799; }
+.meeting-card.is-cancelled .meeting-card-accent { background: #ff6b63; }
+.meeting-card.is-cancelled { opacity: 0.72; }
+
+.meeting-card-body {
+    min-width: 0;
+    padding: 1rem;
+}
+
+.meeting-card-head,
+.meeting-card-footer,
+.meeting-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.8rem;
+}
+
+.meeting-card-title {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 0.94rem;
+    line-height: 1.35;
+}
+
+.meeting-card-client {
+    margin-top: 0.2rem;
+    color: var(--color-text-secondary);
+    font-size: 0.73rem;
+}
+
+.meeting-status {
+    flex: 0 0 auto;
+    padding: 0.23rem 0.5rem;
+    border: 1px solid rgba(41, 151, 255, 0.25);
+    border-radius: 999px;
+    color: var(--color-accent);
+    background: rgba(41, 151, 255, 0.08);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.meeting-card.is-past .meeting-status {
+    border-color: rgba(151, 160, 176, 0.25);
+    color: #a7b0c1;
+    background: rgba(151, 160, 176, 0.08);
+}
+
+.meeting-card.is-cancelled .meeting-status {
+    border-color: rgba(255, 107, 99, 0.28);
+    color: #ff8a84;
+    background: rgba(255, 107, 99, 0.08);
+}
+
+.meeting-time-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    margin: 0.85rem 0;
+}
+
+.meeting-time-zone {
+    padding: 0.7rem;
+    border: 1px solid rgba(255, 255, 255, 0.065);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.meeting-time-zone span {
+    display: block;
+    margin-bottom: 0.22rem;
+    color: var(--color-text-secondary);
+    font-size: 0.61rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.meeting-time-zone strong {
+    color: var(--color-text-primary);
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+.meeting-card-meta {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    color: var(--color-text-secondary);
+    font-size: 0.68rem;
+}
+
+.meeting-card-meta span + span::before {
+    content: '·';
+    margin-right: 0.8rem;
+    opacity: 0.55;
+}
+
+.meeting-card-footer {
+    align-items: center;
+    margin-top: 0.9rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.meeting-join-link {
+    color: var(--color-accent);
+    font-size: 0.72rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.meeting-join-link:hover { text-decoration: underline; }
+
+.meeting-cancel-btn {
+    padding: 0.38rem 0.58rem;
+    border: 1px solid rgba(255, 107, 99, 0.22);
+    border-radius: 8px;
+    background: rgba(255, 107, 99, 0.06);
+    color: #ff8a84;
+    font: inherit;
+    font-size: 0.68rem;
+    cursor: pointer;
+}
+
+.meeting-cancel-btn:disabled {
+    opacity: 0.45;
+    cursor: wait;
+}
+
+/* Nobody sends the invitation for us: the calendar file and the prefilled
+   email sit right on the card. */
+.meeting-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.meeting-action-btn {
+    padding: 0.38rem 0.58rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 0.68rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.meeting-action-btn:hover {
+    border-color: rgba(41, 151, 255, 0.4);
+    color: var(--color-text-primary);
+}
+
+/* Every onboarding delivery remains individually selectable. */
+.onboarding-history {
+    margin: 0 0 2rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(41, 151, 255, 0.23);
+    border-radius: 16px;
+    background: rgba(41, 151, 255, 0.045);
+}
+
+.onboarding-history-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.onboarding-history-head h3 {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    color: var(--color-text-primary);
+    font-size: 0.92rem;
+    letter-spacing: normal;
+    text-transform: none;
+}
+
+.onboarding-history-head p {
+    margin: 0.3rem 0 0;
+    color: var(--color-text-secondary);
+    font-size: 0.72rem;
+}
+
+.onboarding-history-count {
+    flex: 0 0 auto;
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(41, 151, 255, 0.12);
+    color: var(--color-accent);
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+/* The onboarding is filled by the admin with the client: the entry point to
+   that session lives next to the delivery history. */
+.onboarding-history-aside {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.onboarding-history-aside .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.onboarding-session-hint {
+    margin: 0.35rem 0 0;
+    color: var(--color-text-secondary);
+    font-size: 0.72rem;
+    opacity: 0.85;
+}
+
+.onboarding-session-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1.1rem;
+}
+
+.submission-timeline {
+    display: flex;
+    gap: 0.65rem;
+    padding-bottom: 0.2rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.submission-selector {
+    position: relative;
+    flex: 0 0 min(210px, 72vw);
+    padding: 0.78rem 0.85rem 0.78rem 1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--color-text-secondary);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+
+.submission-selector::before {
+    content: '';
+    position: absolute;
+    top: 0.8rem;
+    bottom: 0.8rem;
+    left: 0;
+    width: 3px;
+    border-radius: 0 4px 4px 0;
+    background: rgba(151, 160, 176, 0.45);
+}
+
+.submission-selector.is-active {
+    border-color: rgba(41, 151, 255, 0.42);
+    background: rgba(41, 151, 255, 0.1);
+    color: var(--color-text-primary);
+}
+
+.submission-selector.is-active::before { background: var(--color-accent); }
+
+.submission-selector strong,
+.submission-selector span {
+    display: block;
+}
+
+.submission-selector strong {
+    margin-bottom: 0.24rem;
+    font-size: 0.76rem;
+}
+
+.submission-selector span {
+    font-size: 0.65rem;
+    line-height: 1.4;
+}
+
+.submission-selected-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: -0.5rem 0 1.5rem;
+    color: var(--color-text-secondary);
+    font-size: 0.7rem;
+}
+
+@media (max-width: 1120px) {
+    .agenda-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .agenda-header { align-items: flex-start; }
+    .agenda-panel { padding: 1.05rem; border-radius: 16px; }
+    .meeting-form-grid { grid-template-columns: 1fr; }
+    .meeting-field-wide { grid-column: auto; }
+    .meeting-form-footer { align-items: stretch; flex-direction: column; }
+    .meeting-form-footer .btn { width: 100%; }
+    .meeting-time-grid { grid-template-columns: 1fr; }
+    .onboarding-history-head { flex-direction: column; }
+    .onboarding-history-aside { width: 100%; justify-content: space-between; }
+
+    .sidebar-nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .sidebar-nav::-webkit-scrollbar { display: none; }
+    .sidebar-nav .nav-item { min-width: 58px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .agenda-panel,
+    .submission-selector { transition: none; }
+}
+
+/* Prospect whose email already belongs to a registered client: one person,
+   two cards, until they are merged. */
+.client-duplicate-badge {
+    margin-top: 0.6rem;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid rgba(255, 171, 0, 0.3);
+    border-radius: 999px;
+    background: rgba(255, 171, 0, 0.09);
+    color: #ffab00;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-align: center;
+}
