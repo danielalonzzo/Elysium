@@ -610,6 +610,11 @@
     </div><!-- /.customer-portal -->
 
     <!-- Scripts -->
+    <!-- The agenda books meetings through elysium-billing: only the service can
+         send the confirmation, the admin copy and the calendar invitation.
+         Served under /api on this same origin; set window.ELYSIUM_API_URL
+         instead if it ever moves to its own host (and add it to connect-src). -->
+    <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="JS/admin.js?v=2026080606"></script>

@@ -1552,6 +1552,111 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* Payment ledger */
+
+.customer-portal.is-admin #sub-payment-history {
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--portal-border);
+}
+
+.customer-portal.is-admin .payment-history-title {
+    margin: 0 0 1rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.68rem;
+    font-weight: 740;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .payment-history-empty {
+    padding: 1.5rem 0;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.customer-portal.is-admin .payment-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--portal-border);
+}
+
+.customer-portal.is-admin .payment-row:last-child {
+    border-bottom: 0;
+}
+
+.customer-portal.is-admin .payment-row-main {
+    min-width: 0;
+}
+
+.customer-portal.is-admin .payment-row-title {
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.84rem;
+    font-weight: 650;
+}
+
+.customer-portal.is-admin .payment-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    margin-top: 0.15rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.71rem;
+}
+
+.customer-portal.is-admin .payment-row-meta > * + *::before {
+    content: "·";
+    margin-right: 0.5rem;
+    opacity: 0.55;
+}
+
+.customer-portal.is-admin .payment-row-license {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    color: var(--portal-info);
+}
+
+.customer-portal.is-admin .payment-row-side {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .payment-row-amount {
+    color: var(--portal-success);
+    font-size: 0.9rem;
+    font-weight: 730;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Receipts filed in the wrong place */
+.customer-portal.is-admin .receipts-notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    margin: 1.25rem 0 0;
+}
+
+.customer-portal.is-admin .report-list + .receipts-notice,
+.customer-portal.is-admin .receipts-notice + .report-list {
+    margin-top: 1.25rem;
+}
+
+.customer-portal.is-admin .receipts-notice .portal-notice-text {
+    flex: 1 1 18rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .receipts-notice .portal-button {
+    flex: 0 0 auto;
+}
+
 /* Pipeline stepper inside the profile */
 .customer-portal.is-admin .pipeline-stepper {
     display: flex;

@@ -377,6 +377,146 @@ function storageErrorMessage(error) {
     }
 }
 
+/* ── Payment ledger ──────────────────────────────────────────────────────
+   `subscription_payments` is the record of money received: the CRM's payment
+   history and the client's own billing tab both read it. A payment receipt
+   filed as a project document never reaches it, so the client sees the file
+   under Documents with no amount, plan or invoice column.
+   ───────────────────────────────────────────────────────────────────────── */
+
+const CURRENCY_SYMBOLS = { EUR: '€', USD: '$', CRC: '₡' };
+
+/** One row per payment, newest first. */
+function renderPaymentHistory(payments, t) {
+    if (!payments.length) return `<p class="payment-history-empty">${esc(t.no_payments)}</p>`;
+    return payments.map(payment => {
+        const symbol = CURRENCY_SYMBOLS[payment.currency] || '€';
+        const invoiceUrl = safeUrl(payment.invoiceUrl);
+        const heading = payment.title || payment.planLabel || payment.planType || '—';
+        const paidOn = formatAdminDate(payment.paymentDate) || '—';
+        return `
+            <div class="payment-row">
+                <div class="payment-row-main">
+                    <div class="payment-row-title">${esc(heading)}</div>
+                    <div class="payment-row-meta">
+                        <span>${esc(paidOn)}</span>
+                        ${payment.licenseCode ? `<span class="payment-row-license">${esc(payment.licenseCode)}</span>` : ''}
+                        ${payment.source === 'stripe' ? '<span>Stripe</span>' : '<span>Manual</span>'}
+                    </div>
+                </div>
+                <div class="payment-row-side">
+                    <span class="payment-row-amount">${symbol}${esc(payment.amount ?? 0)}</span>
+                    ${invoiceUrl ? `<a href="${esc(invoiceUrl)}" target="_blank" rel="noopener" class="report-btn" title="${esc(t.view_invoice)}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </a>` : ''}
+                </div>
+            </div>`;
+    }).join('');
+}
+
+/**
+ * Turns a project document into a payment record.
+ * Deterministic id from the stored file path, so moving the same receipt twice
+ * overwrites one record instead of duplicating the income.
+ */
+function receiptToPayment(report, userId, member) {
+    const subscription = member.subscription || null;
+    const paymentDate = report.date ? new Date(`${report.date}T12:00:00`) : null;
+    // The stored file path already carries a timestamp, so it is unique per
+    // receipt. Entries filed before uploads recorded a path fall back to their
+    // own contents, which is enough to keep a repeated run from duplicating.
+    const fingerprint = report.filePath
+        || `${userId}_${report.title || ''}_${report.date || ''}_${report.amount || ''}`;
+    return {
+        id: `receipt_${fingerprint.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`.slice(0, 480),
+        data: {
+            userId,
+            userName: member.name || null,
+            userEmail: member.email || null,
+            title: report.title || null,
+            planType: subscription?.planType || null,
+            planLabel: subscription?.planLabel || null,
+            billingCycle: subscription?.billingCycle || null,
+            licenseCode: subscription?.licenseCode || member.licenseCode || null,
+            businessId: subscription?.businessId || member.businessId || null,
+            amount: parseFloat(report.amount),
+            currency: report.currency || 'EUR',
+            invoiceUrl: report.url || null,
+            invoicePath: report.filePath || null,
+            paymentDate: Number.isNaN(paymentDate?.getTime()) ? null : paymentDate,
+            recordedAt: serverTimestamp(),
+            recordedBy: 'admin',
+            source: 'manual',
+            migratedFrom: 'project_document'
+        }
+    };
+}
+
+/* ── Platform API ────────────────────────────────────────────────────────
+   Scheduling a meeting has to travel through `elysium-billing`: the browser
+   cannot send the confirmation email or the calendar invitation, and writing
+   the meeting straight to Firestore skips the endpoint that does. Same
+   convention as the customer portal, so both read one configuration.
+   ───────────────────────────────────────────────────────────────────────── */
+
+const ADMIN_API_TIMEOUT_MS = 20000;
+
+function platformApiOrigin() {
+    return String(window.ELYSIUM_API_URL || window.ELYSIUM_BILLING_API_URL || '').trim().replace(/\/$/, '');
+}
+
+function platformApiConfigured() {
+    return Boolean(platformApiOrigin())
+        || window.ELYSIUM_API_SAME_ORIGIN === true
+        || window.ELYSIUM_BILLING_SAME_ORIGIN === true;
+}
+
+/**
+ * Calls the platform service as the signed-in administrator. Throws with the
+ * service's own error code so the caller can tell "not deployed" apart from
+ * "the data was rejected".
+ */
+async function platformRequest(path, { method = 'POST', body = null, headers = {} } = {}) {
+    if (!platformApiConfigured()) {
+        const error = new Error('The platform service is not configured.');
+        error.code = 'api_not_configured';
+        throw error;
+    }
+    const user = auth.currentUser;
+    if (!user) {
+        const error = new Error('Not signed in.');
+        error.code = 'unauthenticated';
+        throw error;
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), ADMIN_API_TIMEOUT_MS);
+    try {
+        const token = await user.getIdToken();
+        const response = await fetch(`${platformApiOrigin()}${path}`, {
+            method,
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', ...headers },
+            body: body ? JSON.stringify(body) : null,
+            signal: controller.signal
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            const error = new Error(payload.error || `Request failed (${response.status}).`);
+            error.code = payload.code || String(response.status);
+            throw error;
+        }
+        return payload;
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            const timeout = new Error('The platform service did not answer in time.');
+            timeout.code = 'api_timeout';
+            throw timeout;
+        }
+        throw error;
+    } finally {
+        window.clearTimeout(timer);
+    }
+}
+
 /** Shows or clears an inline `.portal-alert`, instead of an alert() dialog. */
 function setInlineAlert(elementId, message, kind = 'is-error') {
     const element = document.getElementById(elementId);
@@ -529,6 +669,16 @@ const translations = {
         save_link: "Save Link",
         download_pdf: "Download PDF",
         back_to_list: "Back",
+        payment_history: "Payment history",
+        no_payments: "No payments recorded yet.",
+        view_invoice: "View invoice",
+        receipts_here: n => `${n} of these documents carry an amount, so they are payment receipts. Filed here they never reach the ledger and the client sees them under Documents instead of Billing.`,
+        receipts_elsewhere: n => `${n} payment receipt${n === 1 ? '' : 's'} still filed under Documents are missing from this history.`,
+        move_receipts: "Move to payment history",
+        move_receipt_one: "Register as payment",
+        move_receipts_confirm: n => `Move ${n} receipt${n === 1 ? '' : 's'} to the payment history? The file stays where it is; the client will see it under Billing, with its amount.`,
+        moving_receipts: "Moving…",
+        move_receipts_failed: "Could not move the receipts:",
         member_since: "Member since",
         suspended_tag: "Suspended",
         tab_summary: "Summary",
@@ -708,6 +858,16 @@ const translations = {
         save_link: "Guardar Enlace",
         download_pdf: "Descargar PDF",
         back_to_list: "Volver",
+        payment_history: "Historial de pagos",
+        no_payments: "Todavía no hay pagos registrados.",
+        view_invoice: "Ver factura",
+        receipts_here: n => `${n} de estos documentos llevan importe, así que son comprobantes de pago. Aquí no llegan al libro de pagos y el cliente los ve en Documentos en vez de en Facturación.`,
+        receipts_elsewhere: n => `Faltan en este historial ${n} comprobante${n === 1 ? '' : 's'} de pago que siguen archivados en Documentos.`,
+        move_receipts: "Mover al historial de pagos",
+        move_receipt_one: "Registrar como pago",
+        move_receipts_confirm: n => `¿Mover ${n} comprobante${n === 1 ? '' : 's'} al historial de pagos? El archivo se queda donde está; el cliente lo verá en Facturación, con su importe.`,
+        moving_receipts: "Moviendo…",
+        move_receipts_failed: "No se han podido mover los comprobantes:",
         member_since: "Cliente desde",
         suspended_tag: "Suspendida",
         tab_summary: "Resumen",
@@ -886,6 +1046,16 @@ const translations = {
         save_link: "Salvar Link",
         download_pdf: "Baixar PDF",
         back_to_list: "Voltar",
+        payment_history: "Histórico de pagamentos",
+        no_payments: "Ainda não há pagamentos registados.",
+        view_invoice: "Ver fatura",
+        receipts_here: n => `${n} destes documentos têm montante, ou seja, são comprovativos de pagamento. Aqui não chegam ao livro de pagamentos e o cliente vê-os em Documentos em vez de Faturação.`,
+        receipts_elsewhere: n => `Faltam neste histórico ${n} comprovativo${n === 1 ? '' : 's'} de pagamento ainda arquivados em Documentos.`,
+        move_receipts: "Mover para o histórico de pagamentos",
+        move_receipt_one: "Registar como pagamento",
+        move_receipts_confirm: n => `Mover ${n} comprovativo${n === 1 ? '' : 's'} para o histórico de pagamentos? O ficheiro fica onde está; o cliente vê-lo-á em Faturação, com o seu montante.`,
+        moving_receipts: "A mover…",
+        move_receipts_failed: "Não foi possível mover os comprovativos:",
         member_since: "Cliente desde",
         suspended_tag: "Suspensa",
         tab_summary: "Resumo",
@@ -936,6 +1106,11 @@ const AGENDA_COPY = {
         invalidZone: 'Enter valid IANA time zones.', invalidLink: 'The meeting link must use HTTPS.', invalidDate: 'Choose a valid future date and time.',
         required: 'Complete every required field.', createdOk: 'Meeting saved. Send the client the invitation or the email.',
         createFailed: 'The meeting could not be saved.', cancelFailed: 'The meeting could not be cancelled.',
+        apiMissing: 'The Elysium platform service is not reachable, so no confirmation email can be sent. Deploy elysium-billing at /api and try again.',
+        apiTimeout: 'The platform service did not answer. The meeting may not have been saved — reload the agenda before trying again.',
+        emailMissing: 'Email delivery is not configured on the service (RESEND_API_KEY and MEETING_FROM_EMAIL).',
+        clientNoEmail: 'This client has no email address on file, so nothing can be sent to them.',
+        duplicate: 'A different meeting was already booked with this identifier. Change the time or the duration.',
         cancel: 'Cancel', cancelling: 'Cancelling…', cancelConfirm: 'Cancel this meeting?',
         cancelledOk: 'Meeting cancelled. Let the client know.',
         join: 'Open meeting', portugalTime: 'Portugal time', clientTime: 'Client time', durationShort: 'min',
@@ -957,6 +1132,11 @@ const AGENDA_COPY = {
         invalidZone: 'Introduce zonas horarias IANA válidas.', invalidLink: 'El enlace de la reunión debe usar HTTPS.', invalidDate: 'Elige una fecha y hora futuras válidas.',
         required: 'Completa todos los campos obligatorios.', createdOk: 'Reunión guardada. Envía al cliente la invitación o el correo.',
         createFailed: 'No se pudo guardar la reunión.', cancelFailed: 'No se pudo cancelar la reunión.',
+        apiMissing: 'No se alcanza el servicio de Elysium, así que no puede salir el correo de confirmación. Despliega elysium-billing en /api y vuelve a intentarlo.',
+        apiTimeout: 'El servicio no ha respondido. Puede que la reunión no se haya guardado — recarga la agenda antes de repetir.',
+        emailMissing: 'El envío de correo no está configurado en el servicio (RESEND_API_KEY y MEETING_FROM_EMAIL).',
+        clientNoEmail: 'Este cliente no tiene correo registrado, así que no se le puede enviar nada.',
+        duplicate: 'Ya había otra reunión con este identificador. Cambia la hora o la duración.',
         cancel: 'Cancelar', cancelling: 'Cancelando…', cancelConfirm: '¿Cancelar esta reunión?',
         cancelledOk: 'Reunión cancelada. Avisa al cliente.',
         join: 'Abrir reunión', portugalTime: 'Hora Portugal', clientTime: 'Hora cliente', durationShort: 'min',
@@ -978,6 +1158,11 @@ const AGENDA_COPY = {
         invalidZone: 'Introduza fusos horários IANA válidos.', invalidLink: 'O link da reunião deve usar HTTPS.', invalidDate: 'Escolha uma data e hora futuras válidas.',
         required: 'Preencha todos os campos obrigatórios.', createdOk: 'Reunião guardada. Envie ao cliente o convite ou o email.',
         createFailed: 'Não foi possível guardar a reunião.', cancelFailed: 'Não foi possível cancelar a reunião.',
+        apiMissing: 'O serviço da Elysium não está acessível, por isso não pode sair o email de confirmação. Publique elysium-billing em /api e tente de novo.',
+        apiTimeout: 'O serviço não respondeu. A reunião pode não ter ficado guardada — recarregue a agenda antes de repetir.',
+        emailMissing: 'O envio de email não está configurado no serviço (RESEND_API_KEY e MEETING_FROM_EMAIL).',
+        clientNoEmail: 'Este cliente não tem email registado, por isso não lhe pode ser enviado nada.',
+        duplicate: 'Já existia outra reunião com este identificador. Altere a hora ou a duração.',
         cancel: 'Cancelar', cancelling: 'A cancelar…', cancelConfirm: 'Cancelar esta reunião?',
         cancelledOk: 'Reunião cancelada. Avise o cliente.',
         join: 'Abrir reunião', portugalTime: 'Hora de Portugal', clientTime: 'Hora do cliente', durationShort: 'min',
@@ -1434,24 +1619,24 @@ async function createAgendaMeeting(event) {
         return;
     }
 
-    const record = {
+    // The service owns the write: it re-reads the member to stamp the real name
+    // and address, then sends the confirmation, the administrator's copy and
+    // the calendar invitation. Writing to Firestore from here would skip all of
+    // that, which is exactly why no email ever arrived.
+    const payload = {
         userId: client.id,
-        clientName: client.name || client.company || '',
-        clientEmail: client.email || '',
         clientRegion,
         title: document.getElementById('meeting-title').value.trim().slice(0, 160),
-        startsAt: startsAt.toISOString(),
+        date: document.getElementById('meeting-date').value,
+        time: document.getElementById('meeting-time').value,
         durationMinutes: Number(document.getElementById('meeting-duration').value) || 60,
         adminTimeZone,
         clientTimeZone,
         meetingUrl,
         notes: document.getElementById('meeting-notes').value.trim().slice(0, 2000),
-        status: 'scheduled',
         locale: ['en', 'es', 'pt'].includes(client.preferredLanguage)
             ? client.preferredLanguage
-            : (['en', 'es', 'pt'].includes(currentLang) ? currentLang : 'en'),
-        createdBy: auth.currentUser?.email || null,
-        createdAt: serverTimestamp()
+            : (['en', 'es', 'pt'].includes(currentLang) ? currentLang : 'en')
     };
 
     const button = document.getElementById('meeting-create-btn');
@@ -1459,12 +1644,17 @@ async function createAgendaMeeting(event) {
     button.textContent = c.creating;
 
     try {
-        const reference = await addDoc(collection(db, 'meetings'), record);
-        const created = normalizeMeeting({ ...record, createdAt: new Date().toISOString() }, reference.id);
+        // A retry after a dropped connection must not book the meeting twice.
+        const idempotencyKey = `crm-${client.id}-${startsAt.getTime()}-${payload.durationMinutes}`;
+        const result = await platformRequest('/api/meetings', {
+            body: payload,
+            headers: { 'Idempotency-Key': idempotencyKey }
+        });
+        const created = normalizeMeeting(result.meeting || {}, result.meeting?.id || result.id);
         _agendaMeetings = [created, ..._agendaMeetings.filter(meeting => meeting.id !== created.id)];
         renderAgendaMeetings();
         logActivity(client.id, client.name, 'meeting_scheduled', {
-            meetingId: reference.id, title: created.title, startsAt: created.startsAt
+            meetingId: created.id, title: created.title, startsAt: created.startsAt
         });
         setAgendaMessage(c.createdOk, 'success');
 
@@ -1476,7 +1666,7 @@ async function createAgendaMeeting(event) {
         document.getElementById('meeting-time').value = next.time;
     } catch (error) {
         logger.error('Meeting creation failed:', error);
-        setAgendaMessage(`${c.createFailed} ${error?.message || ''}`.trim(), 'error');
+        setAgendaMessage(agendaApiErrorMessage(error, c.createFailed), 'error');
     } finally {
         button.disabled = false;
         button.textContent = c.create;
@@ -1491,12 +1681,11 @@ async function cancelAgendaMeeting(meetingId, button) {
     button.textContent = c.cancelling;
     setAgendaMessage('');
     try {
-        await updateDoc(doc(db, 'meetings', meetingId), {
-            status: 'cancelled',
-            cancelledAt: serverTimestamp()
-        });
+        // Cancelling also has to tell the client and withdraw the calendar
+        // entry, so it goes through the service like the booking does.
+        const result = await platformRequest(`/api/meetings/${encodeURIComponent(meetingId)}/cancel`, { body: {} });
         _agendaMeetings = _agendaMeetings.map(item => item.id === meetingId
-            ? normalizeMeeting({ ...item, status: 'cancelled', cancelledAt: new Date().toISOString() }, meetingId)
+            ? normalizeMeeting(result.meeting || { ...item, status: 'cancelled', cancelledAt: new Date().toISOString() }, meetingId)
             : item);
         logActivity(meeting.userId, meeting.clientName, 'meeting_cancelled', {
             meetingId, title: meeting.title
@@ -1505,9 +1694,28 @@ async function cancelAgendaMeeting(meetingId, button) {
         renderAgendaMeetings();
     } catch (error) {
         logger.error('Meeting cancellation failed:', error);
-        setAgendaMessage(`${c.cancelFailed} ${error?.message || ''}`.trim(), 'error');
+        setAgendaMessage(agendaApiErrorMessage(error, c.cancelFailed), 'error');
         button.disabled = false;
         button.textContent = c.cancel;
+    }
+}
+
+/**
+ * Turns a platform-service failure into something the administrator can act
+ * on. "Not deployed" and "the client has no address" are very different
+ * problems and the agenda used to report both as the same red line.
+ */
+function agendaApiErrorMessage(error, fallback) {
+    const c = agendaCopy();
+    switch (error?.code) {
+        case 'api_not_configured':
+        case '404':
+            return c.apiMissing;
+        case 'api_timeout': return c.apiTimeout;
+        case 'email_not_configured': return c.emailMissing;
+        case 'invalid_member_email': return c.clientNoEmail;
+        case 'idempotency_conflict': return c.duplicate;
+        default: return `${fallback} ${error?.message || ''}`.trim();
     }
 }
 
@@ -2741,21 +2949,27 @@ async function showClientDetail(userId, memberData, selectedProjectId = null, se
             selectedProjectId = memberData.projects[0].id;
         }
 
-        // Fetch the complete onboarding delivery history. Sorting happens in
-        // memory to avoid a composite index and every matching delivery remains
-        // selectable in the detail panel.
-        const q = query(collection(db, 'onboarding_submissions'), where('userId', '==', userId));
-        const submissionSnap = await getDocs(q);
+        // Onboarding deliveries and the payment ledger are both equality-only
+        // queries, so neither needs a composite index; sorting happens in
+        // memory. Payments are fetched here, not inside the billing tab, so the
+        // income KPI reads the same ledger the history renders.
+        const [submissionSnap, paymentSnap] = await Promise.all([
+            getDocs(query(collection(db, 'onboarding_submissions'), where('userId', '==', userId))),
+            getDocs(query(collection(db, 'subscription_payments'), where('userId', '==', userId)))
+        ]);
         if (detailLoadVersion !== _detailLoadVersion) return;
         const submissions = submissionSnap.docs
             .map(item => ({ ...item.data(), id: item.id }))
             .sort((a, b) => adminTimestampMillis(a.submittedAt || a.createdAt)
                 - adminTimestampMillis(b.submittedAt || b.createdAt));
+        const payments = paymentSnap.docs
+            .map(item => ({ id: item.id, ...item.data() }))
+            .sort((a, b) => adminTimestampMillis(b.paymentDate) - adminTimestampMillis(a.paymentDate));
 
         logger.log(`Loaded detail for partner: ${memberData.name} (${userId})`);
 
         if (detailLoadVersion !== _detailLoadVersion) return;
-        renderDetail(memberData, submissions, userId, selectedProjectId, selectedSubmissionId);
+        renderDetail(memberData, submissions, userId, selectedProjectId, selectedSubmissionId, payments);
     } catch (error) {
         if (detailLoadVersion !== _detailLoadVersion) return;
         logger.error("Error showing client detail:", error);
@@ -3137,13 +3351,14 @@ function watchOnboardingDraft(userId, member, selectedProjectId = null) {
     });
 }
 
-function renderDetail(member, submissions, userId, selectedProjectId = null, selectedSubmissionId = null) {
+function renderDetail(member, submissions, userId, selectedProjectId = null, selectedSubmissionId = null, payments = []) {
     const detailRenderVersion = ++_detailRenderVersion;
     const detailContent = document.getElementById('detail-content');
     const t = translations[currentLang];
     const L = V2_LABELS[currentLang] || V2_LABELS.en;
     const historyCopy = agendaCopy();
     const allSubmissions = Array.isArray(submissions) ? submissions : [];
+    const allPayments = Array.isArray(payments) ? payments : [];
     const isSuspended = member.isDeactivated === true;
     const existingContractUnit = member.subscription?.contractUnit
         || (member.subscription?.billingCycle === 'annual' ? 'years' : 'months');
@@ -3238,6 +3453,10 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     // ── Prepare Financials & Reports data
     const fin = currentProject.financials || { projectCost: 0, maintenanceFee: 0, discount: '', status: 'prospect', currency: 'EUR' };
     const reports = currentProject.reports || [];
+    // A document carrying an amount is a payment receipt filed in the wrong
+    // place: the client sees it under Documents instead of Billing, and it
+    // never reaches the payment ledger. These are the ones offered for moving.
+    const pendingReceipts = reports.filter(report => Number.isFinite(parseFloat(report.amount)));
     const customTimeline = currentProject.timeline || [];
     const projectUrl = safeUrl(currentProject.projectUrl);
     
@@ -3267,15 +3486,23 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         maintenance: t.stage_maint || 'Maintenance'
     };
 
-    // Income registered against this project, taken from its own documents.
-    // Currencies are kept apart: adding euros to colones would be a lie.
-    const revenueByCurrency = reports.reduce((totals, report) => {
-        const value = parseFloat(report.amount);
+    // Registered income comes from the payment ledger, which is what the client
+    // sees in their own billing tab. Documents that still carry an amount are
+    // added on top: they are receipts nobody has moved across yet, and moving
+    // one deletes it from `reports` as it creates the payment, so the two
+    // sources can never count the same money twice.
+    // Currencies are kept apart — adding euros to colones would be a lie.
+    const addAmount = (totals, rawAmount, rawCurrency) => {
+        const value = parseFloat(rawAmount);
         if (!Number.isFinite(value)) return totals;
-        const code = report.currency || fin.currency || 'EUR';
+        const code = rawCurrency || fin.currency || 'EUR';
         totals[code] = (totals[code] || 0) + value;
         return totals;
-    }, {});
+    };
+    const revenueByCurrency = pendingReceipts.reduce(
+        (totals, report) => addAmount(totals, report.amount, report.currency),
+        allPayments.reduce((totals, payment) => addAmount(totals, payment.amount, payment.currency), {})
+    );
     const revenueLabel = Object.keys(revenueByCurrency).length
         ? Object.entries(revenueByCurrency)
             .map(([code, value]) => `${currencyMap[code] || code}${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
@@ -3692,9 +3919,14 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             </div>
 
             <!-- Payment History for this client -->
-            <div id="sub-payment-history" style="margin-top:2rem;">
-                <h4 style="font-size:0.85rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:1rem;border-top:1px solid var(--glass-border);padding-top:1rem;">Payment History</h4>
-                <div id="sub-payment-list"><div class="premium-loader" style="width:24px;height:24px;"></div></div>
+            <div id="sub-payment-history">
+                <h4 class="payment-history-title">${esc(t.payment_history)}</h4>
+                <div id="sub-payment-list">${renderPaymentHistory(allPayments, t)}</div>
+                ${pendingReceipts.length ? `
+                <div class="portal-notice is-warning receipts-notice">
+                    <div class="portal-notice-text">${esc(t.receipts_elsewhere(pendingReceipts.length))}</div>
+                    <button type="button" class="portal-button is-accent" data-move-receipts="all">${esc(t.move_receipts)}</button>
+                </div>` : ''}
             </div>
         </div>
         `,
@@ -3702,8 +3934,14 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         <div class="detail-section" style="margin-bottom: 2rem;">
             <h3 style="color: var(--color-accent); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">${t.invoices_reports}</h3>
             
+            ${pendingReceipts.length ? `
+            <div class="portal-notice is-warning receipts-notice">
+                <div class="portal-notice-text">${esc(t.receipts_here(pendingReceipts.length))}</div>
+                <button type="button" class="portal-button is-accent" data-move-receipts="all">${esc(t.move_receipts)}</button>
+            </div>` : ''}
+
             <div class="report-list" id="report-list-container">
-                ${reports.length === 0 ? `<p style="opacity: 0.5; font-size: 0.85rem;">${t.no_reports}</p>` : ''}
+                ${reports.length === 0 ? `<p class="payment-history-empty">${esc(t.no_reports)}</p>` : ''}
                 ${reports.map((r, i) => `
                     <div class="report-item">
                         <div class="report-info">
@@ -3716,6 +3954,9 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                             </div>
                         </div>
                         <div class="report-actions">
+                            ${Number.isFinite(parseFloat(r.amount)) ? `<button type="button" class="report-btn btn-move-receipt" data-index="${i}" title="${esc(t.move_receipt_one)}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                            </button>` : ''}
                             ${safeUrl(r.url) ? `<a href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener" class="report-btn" title="View/Download">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             </a>` : ''}
@@ -4131,12 +4372,74 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         if (idx !== -1) _allClients[idx].projects = nextProjects;
     };
 
+    /**
+     * Files a project document where a payment receipt belongs: the
+     * `subscription_payments` ledger, which the CRM's payment history and the
+     * client's own billing tab both read.
+     *
+     * Payments are written before the documents are removed. The record id is
+     * derived from the stored file path, so a run that fails halfway can simply
+     * be repeated: the same receipt overwrites its own record instead of
+     * booking the income twice.
+     */
+    const moveReceiptsToLedger = async (indices, button) => {
+        const chosen = indices
+            .map(index => ({ index, report: reports[index] }))
+            .filter(entry => entry.report && Number.isFinite(parseFloat(entry.report.amount)));
+        if (!chosen.length) return;
+        if (!confirm(t.move_receipts_confirm(chosen.length))) return;
+
+        const originalLabel = button.textContent;
+        button.disabled = true;
+        button.textContent = t.moving_receipts;
+
+        try {
+            const batch = writeBatch(db);
+            chosen.forEach(({ report }) => {
+                const { id, data } = receiptToPayment(report, userId, member);
+                batch.set(doc(db, 'subscription_payments', id), data);
+            });
+            await batch.commit();
+
+            const moved = new Set(chosen.map(entry => entry.index));
+            await updateCurrentProjectFields({ reports: reports.filter((_, i) => !moved.has(i)) });
+            chosen.forEach(({ report }) => logActivity(userId, member.name, 'payment_recorded', {
+                projectId: currentProject.id || null,
+                title: report.title || null,
+                amount: parseFloat(report.amount),
+                currency: report.currency || 'EUR',
+                migratedFrom: 'project_document'
+            }));
+
+            if (detailRenderVersion === _detailRenderVersion) {
+                _profileTab = 'billing';
+                showClientDetail(userId, member, currentProject.id, selectedSubmission?.id || null,
+                    { push: false, keepTab: true });
+            }
+        } catch (err) {
+            logger.error('Moving receipts to the payment ledger failed:', err);
+            alert(`${t.move_receipts_failed} ${err.message}`);
+            button.disabled = false;
+            button.textContent = originalLabel;
+        }
+    };
+
+    document.querySelectorAll('[data-move-receipts="all"]').forEach(button => {
+        button.addEventListener('click', () => moveReceiptsToLedger(
+            reports.map((_, index) => index), button));
+    });
+
+    document.querySelectorAll('.btn-move-receipt').forEach(button => {
+        button.addEventListener('click', () => moveReceiptsToLedger(
+            [Number(button.dataset.index)], button));
+    });
+
     // ── Event Listeners ──────────────────────────────────────────────────────
 
     document.querySelectorAll('.submission-selector').forEach(button => {
         button.addEventListener('click', () => {
             if (detailRenderVersion !== _detailRenderVersion) return;
-            renderDetail(member, allSubmissions, userId, currentProject.id, button.dataset.submissionId);
+            renderDetail(member, allSubmissions, userId, currentProject.id, button.dataset.submissionId, allPayments);
         });
     });
 
@@ -4162,7 +4465,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const pid = btn.getAttribute('data-project-id');
-            renderDetail(member, allSubmissions, userId, pid, null);
+            renderDetail(member, allSubmissions, userId, pid, null, allPayments);
         });
     });
 
@@ -4408,7 +4711,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 show('Saved.', '#00c875');
                 setTimeout(() => {
                     if (detailRenderVersion === _detailRenderVersion) {
-                        renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                        renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
                     }
                 }, 900);
             } catch (error) {
@@ -4637,47 +4940,6 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     }
 
     // Load payment history for this client
-    (async () => {
-        const listEl = document.getElementById('sub-payment-list');
-        if (!listEl) return;
-        try {
-            // Equality-only query avoids requiring an undeployed composite
-            // index; this client's small history is sorted safely in memory.
-            const q = query(collection(db, 'subscription_payments'), where('userId', '==', userId));
-            const snap = await getDocs(q);
-            if (detailRenderVersion !== _detailRenderVersion
-                || document.getElementById('sub-payment-list') !== listEl) return;
-            if (snap.empty) {
-                listEl.innerHTML = '<p style="font-size:0.85rem;opacity:0.5;">No payments recorded yet.</p>';
-                return;
-            }
-            const currMap = { EUR: '€', USD: '$', CRC: '₡' };
-            const payments = snap.docs
-                .map(item => item.data())
-                .sort((a, b) => adminTimestampMillis(b.paymentDate) - adminTimestampMillis(a.paymentDate));
-            listEl.innerHTML = payments.map(p => {
-                const dateStr = p.paymentDate?.seconds ? new Date(p.paymentDate.seconds * 1000).toLocaleDateString() : (p.paymentDate || '—');
-                const sym = currMap[p.currency] || '€';
-                const invoiceUrl = safeUrl(p.invoiceUrl);
-                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 0;border-bottom:1px solid var(--glass-border);gap:1rem;">
-                    <div>
-                        <div style="font-size:0.85rem;font-weight:600;color:var(--color-platinum);">${esc(p.planLabel || p.planType)}</div>
-                        <div style="font-size:0.75rem;color:var(--color-text-secondary);">${esc(dateStr)} · <span style="font-family:monospace;color:var(--color-accent);">${esc(p.licenseCode)}</span></div>
-                    </div>
-                    <div style="display:flex;gap:0.75rem;align-items:center;">
-                        <span style="font-weight:700;color:#00c875;">${sym}${esc(p.amount || 0)}</span>
-                        ${invoiceUrl ? `<a href="${esc(invoiceUrl)}" target="_blank" rel="noopener" class="report-btn" title="Download Invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>` : ''}
-                    </div>
-                </div>`;
-            }).join('');
-        } catch (err) {
-            if (detailRenderVersion !== _detailRenderVersion) return;
-            logger.warn('Payment history load:', err);
-            const listEl2 = document.getElementById('sub-payment-list');
-            if (listEl2) listEl2.innerHTML = '<p style="font-size:0.8rem;opacity:0.5;">Could not load history.</p>';
-        }
-    })();
-
     bindDropzone('report-file-input', 'report-file-name-label', t.choose_file);
 
     const btnAddReport = document.getElementById('btn-add-report');
@@ -4742,7 +5004,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 await updateCurrentProjectFields({ reports: newReports });
                 logActivity(userId, member.name, 'report_removed', { projectId: currentProject.id || null, title: reportToDelete.title || null });
                 if (detailRenderVersion === _detailRenderVersion) {
-                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
                 }
             } catch (err) {
                 alert('Error deleting report: ' + err.message);
@@ -4765,7 +5027,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 
                 // Re-render UI to update colors
                 if (detailRenderVersion === _detailRenderVersion) {
-                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
                 }
                 
                 // Show saved msg
@@ -4843,7 +5105,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
 
                 // Re-render detail panel to reflect new state
                 if (detailRenderVersion === _detailRenderVersion) {
-                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null);
+                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
                 }
 
                 // Refresh client grid in background

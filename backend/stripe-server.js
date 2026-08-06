@@ -52,6 +52,11 @@ const SUPER_ADMIN_EMAILS = new Set(
 );
 const passwordResetAttempts = new Map();
 
+/** The site's public origin, used in links that travel inside emails. */
+function publicBaseUrl() {
+  return String(process.env.PUBLIC_BASE_URL || 'https://elysiumdr.eu').replace(/\/$/, '');
+}
+
 const PLANS = {
   hosting:      { code: 'H0ST', label: 'Domain & Hosting', amountMinor: { annual: 9900 } },
   basic:        { code: 'EC01', label: 'Presence', amountMinor: { monthly: 7000, annual: 70000 } },
@@ -1230,19 +1235,34 @@ const MEETING_COPY = {
     confirmed: 'Meeting confirmed', cancelled: 'Meeting cancelled', hello: 'Hello',
     intro: 'Your meeting with Elysium has been scheduled.', cancelledIntro: 'This Elysium meeting has been cancelled.',
     yourTime: 'Your local time', adminTime: 'Elysium time', duration: 'Duration', region: 'Client region',
-    join: 'Join meeting', minutes: 'minutes', notes: 'Notes', subjectConfirmed: 'Meeting confirmed', subjectCancelled: 'Meeting cancelled'
+    join: 'Join meeting', minutes: 'minutes', notes: 'Notes', subjectConfirmed: 'Meeting confirmed', subjectCancelled: 'Meeting cancelled',
+    adminHeading: 'New meeting in the agenda', adminHeadingCancelled: 'Meeting removed from the agenda',
+    adminIntro: 'The confirmation and the calendar invitation have already been sent to the client.',
+    adminIntroCancelled: 'The client has been told the meeting will not take place.',
+    adminClient: 'Client', adminEmail: 'Email', adminOpenCrm: 'Open in the CRM',
+    adminSubjectConfirmed: 'New meeting', adminSubjectCancelled: 'Meeting cancelled'
   },
   es: {
     confirmed: 'Reunión confirmada', cancelled: 'Reunión cancelada', hello: 'Hola',
     intro: 'Tu reunión con Elysium ha sido agendada.', cancelledIntro: 'Esta reunión con Elysium ha sido cancelada.',
     yourTime: 'Tu hora local', adminTime: 'Hora de Elysium', duration: 'Duración', region: 'Región del cliente',
-    join: 'Acceder a la reunión', minutes: 'minutos', notes: 'Notas', subjectConfirmed: 'Reunión confirmada', subjectCancelled: 'Reunión cancelada'
+    join: 'Acceder a la reunión', minutes: 'minutos', notes: 'Notas', subjectConfirmed: 'Reunión confirmada', subjectCancelled: 'Reunión cancelada',
+    adminHeading: 'Nueva reunión en la agenda', adminHeadingCancelled: 'Reunión retirada de la agenda',
+    adminIntro: 'La confirmación y la invitación de calendario ya han salido hacia el cliente.',
+    adminIntroCancelled: 'Se ha avisado al cliente de que la reunión no se celebrará.',
+    adminClient: 'Cliente', adminEmail: 'Correo', adminOpenCrm: 'Abrir en el CRM',
+    adminSubjectConfirmed: 'Nueva reunión', adminSubjectCancelled: 'Reunión cancelada'
   },
   pt: {
     confirmed: 'Reunião confirmada', cancelled: 'Reunião cancelada', hello: 'Olá',
     intro: 'A sua reunião com a Elysium foi agendada.', cancelledIntro: 'Esta reunião com a Elysium foi cancelada.',
     yourTime: 'A sua hora local', adminTime: 'Hora da Elysium', duration: 'Duração', region: 'Região do cliente',
-    join: 'Entrar na reunião', minutes: 'minutos', notes: 'Notas', subjectConfirmed: 'Reunião confirmada', subjectCancelled: 'Reunião cancelada'
+    join: 'Entrar na reunião', minutes: 'minutos', notes: 'Notas', subjectConfirmed: 'Reunião confirmada', subjectCancelled: 'Reunião cancelada',
+    adminHeading: 'Nova reunião na agenda', adminHeadingCancelled: 'Reunião retirada da agenda',
+    adminIntro: 'A confirmação e o convite de calendário já seguiram para o cliente.',
+    adminIntroCancelled: 'O cliente foi avisado de que a reunião não se vai realizar.',
+    adminClient: 'Cliente', adminEmail: 'Email', adminOpenCrm: 'Abrir no CRM',
+    adminSubjectConfirmed: 'Nova reunião', adminSubjectCancelled: 'Reunião cancelada'
   }
 };
 
@@ -1348,11 +1368,74 @@ function buildMeetingIcs(meeting, kind = 'confirmation', now = new Date()) {
   return `${lines.map(foldIcsLine).join('\r\n')}\r\n`;
 }
 
-function meetingResendPayload(meeting, kind = 'confirmation') {
-  const email = buildMeetingEmail(meeting, kind);
+/**
+ * The administrator's own copy. Same theme, different job: it confirms the
+ * client has already been told, and carries the details the CRM needs at a
+ * glance — who, which address, and a link straight to their profile.
+ */
+function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
+  const locale = normalizedLocale(meeting.locale);
+  const copy = MEETING_COPY[locale];
+  const cancelled = kind === 'cancellation';
+  const heading = cancelled ? copy.adminHeadingCancelled : copy.adminHeading;
+  const intro = cancelled ? copy.adminIntroCancelled : copy.adminIntro;
+  const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
+  const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
+  const notes = meeting.cancellationReason || meeting.notes || '';
+  const crmUrl = `${publicBaseUrl()}/admin?client=${encodeURIComponent(meeting.userId || '')}`;
+  const row = (label, value, extra = '') => `
+      <tr><td style="padding:13px 0;border-top:1px solid #1c466e;color:#8fabca;font-size:13px">${escapeHtml(label)}</td><td style="padding:13px 0;border-top:1px solid #1c466e;text-align:right">${escapeHtml(value)}${extra}</td></tr>`;
+  const content = `
+    <p style="margin:0 0 8px;color:#7fc9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">${escapeHtml(heading)}</p>
+    <h1 style="margin:0 0 18px;color:#fff;font-size:27px;line-height:1.25">${escapeHtml(meeting.title)}</h1>
+    <p style="margin:0 0 24px;color:#c8d8e9;font-size:16px;line-height:1.6">${escapeHtml(intro)}</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#092441;border-radius:12px;padding:6px 18px;color:#eaf3ff">
+      <tr><td style="padding:13px 0;color:#8fabca;font-size:13px">${escapeHtml(copy.adminClient)}</td><td style="padding:13px 0;text-align:right;font-weight:700">${escapeHtml(meeting.clientName || '—')}</td></tr>
+      ${row(copy.adminEmail, meeting.clientEmail || '—')}
+      ${row(copy.adminTime, adminDate, `<br><span style="color:#8fabca;font-size:12px">${escapeHtml(meeting.adminTimeZone)}</span>`)}
+      ${row(copy.yourTime, clientDate, `<br><span style="color:#8fabca;font-size:12px">${escapeHtml(meeting.clientTimeZone)}</span>`)}
+      ${row(copy.duration, `${Number(meeting.durationMinutes)} ${copy.minutes}`)}
+      ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone || '—')}
+    </table>
+    ${notes ? `<p style="margin:22px 0 0;color:#a9bed3;font-size:14px;line-height:1.55"><strong style="color:#eaf3ff">${escapeHtml(copy.notes)}:</strong> ${escapeHtml(notes)}</p>` : ''}
+    <p style="margin:28px 0 4px">
+      ${cancelled ? '' : `<a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:#fff;color:#071a33;text-decoration:none;font-weight:700;padding:14px 24px;border-radius:999px">${escapeHtml(copy.join)}</a>&nbsp;`}
+      <a href="${escapeHtml(crmUrl)}" style="display:inline-block;border:1px solid #23598a;color:#cfe6ff;text-decoration:none;font-weight:700;padding:13px 23px;border-radius:999px">${escapeHtml(copy.adminOpenCrm)}</a>
+    </p>`;
+  const subjectLabel = cancelled ? copy.adminSubjectCancelled : copy.adminSubjectConfirmed;
+  const who = meeting.clientName || meeting.clientEmail || '';
+  const text = [
+    `${heading}: ${meeting.title}`,
+    `${copy.adminClient}: ${who}`,
+    `${copy.adminEmail}: ${meeting.clientEmail || '—'}`,
+    `${copy.adminTime}: ${adminDate} (${meeting.adminTimeZone})`,
+    `${copy.yourTime}: ${clientDate} (${meeting.clientTimeZone})`,
+    `${copy.duration}: ${meeting.durationMinutes} ${copy.minutes}`,
+    !cancelled ? `${copy.join}: ${meeting.meetingUrl}` : '',
+    notes ? `${copy.notes}: ${notes}` : '',
+    `${copy.adminOpenCrm}: ${crmUrl}`
+  ].filter(Boolean).join('\n');
+  return {
+    subject: `${subjectLabel} · ${who} · ${meeting.title}`.trim(),
+    html: emailTheme(content, `${subjectLabel}: ${meeting.title}`),
+    text
+  };
+}
+
+/** Where the administrator's copy goes. */
+function adminNotificationEmail() {
+  return normalizedEmail(process.env.ADMIN_NOTIFICATION_EMAIL)
+    || [...SUPER_ADMIN_EMAILS][0]
+    || null;
+}
+
+function meetingResendPayload(meeting, kind = 'confirmation', audience = 'client') {
+  const email = audience === 'admin'
+    ? buildMeetingAdminEmail(meeting, kind)
+    : buildMeetingEmail(meeting, kind);
   return {
     from: process.env.MEETING_FROM_EMAIL || '',
-    to: [meeting.clientEmail],
+    to: [audience === 'admin' ? adminNotificationEmail() : meeting.clientEmail],
     subject: email.subject,
     html: email.html,
     text: email.text,
@@ -1465,19 +1548,26 @@ async function deliverMeetingNotification(meetingId, kind, fetchImpl = globalThi
   }
 
   try {
-    const providerResult = await sendResendEmail(
-      meetingResendPayload({ id: meetingId, ...latestMeeting }, kind),
-      claim.idempotencyKey,
-      fetchImpl
-    );
+    // The client is told, and so is the administrator. Both go out under the
+    // same claim with their own idempotency key, so a retry after a partial
+    // failure re-sends only the one that never left.
+    const meeting = { id: meetingId, ...latestMeeting };
+    const adminEmail = adminNotificationEmail();
+    const [providerResult, adminResult] = await Promise.all([
+      sendResendEmail(meetingResendPayload(meeting, kind, 'client'), claim.idempotencyKey, fetchImpl),
+      adminEmail
+        ? sendResendEmail(meetingResendPayload(meeting, kind, 'admin'), `${claim.idempotencyKey}-admin`, fetchImpl)
+        : Promise.resolve(null)
+    ]);
     await finishMeetingNotification(meetingId, kind, claim.attemptId, {
       status: 'sent',
       provider: 'resend',
       providerMessageId: providerResult.id,
+      adminMessageId: adminResult?.id || null,
       sentAt: FieldValue.serverTimestamp(),
       lastError: null
     });
-    return { kind: 'sent', providerMessageId: providerResult.id };
+    return { kind: 'sent', providerMessageId: providerResult.id, adminMessageId: adminResult?.id || null };
   } catch (error) {
     await finishMeetingNotification(meetingId, kind, claim.attemptId, {
       status: 'failed',
@@ -2263,6 +2353,8 @@ module.exports = {
   formattedZonedDate,
   escapeHtml,
   buildMeetingEmail,
+  buildMeetingAdminEmail,
+  adminNotificationEmail,
   buildMeetingIcs,
   meetingResendPayload,
   sendResendEmail,

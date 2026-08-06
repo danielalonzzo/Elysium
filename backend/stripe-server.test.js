@@ -39,6 +39,7 @@ const {
   buildMeetingEmail,
   buildMeetingIcs,
   meetingResendPayload,
+  adminNotificationEmail,
   sendResendEmail,
   serializeMeeting,
   passwordResetRateLimited,
@@ -356,6 +357,35 @@ test('sends Resend payload with provider idempotency and no live request', async
   assert.equal(captured.url, 'https://api.resend.com/emails');
   assert.equal(captured.options.headers['Idempotency-Key'], 'meeting-key-123');
   assert.equal(captured.options.headers.Authorization, 'Bearer re_test_elysium_unit_tests');
+});
+
+test('addresses the administrator separately from the client', () => {
+  const meeting = emailMeeting();
+  const client = meetingResendPayload(meeting, 'confirmation', 'client');
+  const admin = meetingResendPayload(meeting, 'confirmation', 'admin');
+
+  // Two different messages, two different recipients: the client is never
+  // handed the administrator's address and vice versa.
+  assert.deepEqual(client.to, ['ana@example.com']);
+  assert.deepEqual(admin.to, [adminNotificationEmail()]);
+  assert.notEqual(client.subject, admin.subject);
+
+  // The administrator's copy carries what the CRM needs and stays escaped.
+  assert.match(admin.subject, /Ana & Co/);
+  assert.match(admin.html, /Nueva reuni\u00f3n en la agenda/);
+  assert.match(admin.html, /Ana &amp; Co/);
+  assert.ok(!admin.html.includes('Ana & Co'), 'client name must be HTML-escaped');
+  assert.match(admin.html, /\/admin\?client=client_123/);
+  assert.match(admin.text, /ana@example\.com/);
+
+  // Both still carry the calendar invitation.
+  assert.equal(client.attachments[0].filename, 'elysium-meeting.ics');
+  assert.equal(admin.attachments[0].filename, 'elysium-meeting.ics');
+
+  // A cancellation swaps the wording and drops the join button.
+  const cancelled = meetingResendPayload(meeting, 'cancellation', 'admin');
+  assert.match(cancelled.html, /Reuni\u00f3n retirada de la agenda/);
+  assert.ok(!cancelled.html.includes(meeting.meetingUrl));
 });
 
 test('serializes meeting and nested delivery timestamps as ISO strings', () => {
