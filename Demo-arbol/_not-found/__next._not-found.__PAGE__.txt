@@ -1,5 +1,5 @@
 1:"$Sreact.fragment"
 2:I[89606,["/Demo-arbol/_next/static/chunks/2460lr47smgd3.js"],"OutletBoundary"]
 3:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"hdc-notfound","children":["$","div",null,{"children":[["$","p",null,{"className":"hdc-eyebrow","children":"404"}],["$","h1",null,{}],["$","p",null,{"className":"hdc-lead"}],["$","a",null,{"className":"hdc-btn hdc-btn--solid","href":"#top","aria-label":"Volver al inicio"}]]}]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"RDlBpeN4nsvEpu0yaTVBa"}
+0:{"rsc":["$","$1","c",{"children":[["$","main",null,{"className":"hdc-notfound","children":["$","div",null,{"children":[["$","p",null,{"className":"hdc-eyebrow","children":"404"}],["$","h1",null,{}],["$","p",null,{"className":"hdc-lead"}],["$","a",null,{"className":"hdc-btn hdc-btn--solid","href":"#top","aria-label":"Volver al inicio"}]]}]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"Y1Cp5Aq5ncGJQnFW-1a1A"}
 4:null

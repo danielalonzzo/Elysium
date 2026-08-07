@@ -34,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [socialImage],
     },
     other: {
-      "app-version": "V1.5.2",
+      "app-version": "V1.5.5",
     },
   };
 }

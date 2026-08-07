@@ -1,9 +1,10 @@
 const functions = require('firebase-functions/v1');
 const admin = require('firebase-admin');
 const crypto = require('crypto');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
 admin.initializeApp();
-const db = admin.firestore();
+const db = getFirestore();
 
 // ===== Helpers from Elysium Backend =====
 
@@ -365,7 +366,7 @@ exports.onMeetingWritten = functions
           provider: 'resend',
           providerMessageId: providerResult.id,
           adminMessageId: adminResult?.id || null,
-          sentAt: admin.firestore.FieldValue.serverTimestamp()
+          sentAt: FieldValue.serverTimestamp()
         }
       });
       
@@ -378,7 +379,7 @@ exports.onMeetingWritten = functions
         [`notifications.${kind}`]: {
           status: 'failed',
           lastError: error.message || 'email_delivery_failed',
-          failedAt: admin.firestore.FieldValue.serverTimestamp()
+          failedAt: FieldValue.serverTimestamp()
         }
       });
       
