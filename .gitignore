@@ -31,3 +31,11 @@ Prototipos/Regalarte/build/
 # Registros locales de las herramientas de despliegue.
 firebase-debug.log
 *.log
+
+# Secretos. Ninguna regla cubría `functions/.env`, así que un `git add
+# functions/` habría fijado su clave en el historial para siempre — y del
+# historial no se borra, sólo se reescribe. Los `.env.example` sí se versionan:
+# documentan qué variables hacen falta, sin ningún valor.
+.env
+.env.*
+!.env.example

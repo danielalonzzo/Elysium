@@ -4,8 +4,22 @@ service cloud.firestore {
   match /databases/{database}/documents {
     
     // ── Helper Functions ──────────────────────────────────────────────────────
+    // El rol de administrador es el custom claim `admin`, no una dirección de
+    // correo. Con el correo codificado aquí, en `storage.rules` y en dos
+    // ficheros de JS, añadir un socio o cambiar de dirección obligaba a
+    // redesplegar las reglas de seguridad.
+    //
+    // MIGRACIÓN: mientras el claim no esté puesto en la cuenta se sigue
+    // aceptando el correo, para no quedarse fuera del propio CRM. Ponlo con
+    // `node scripts/set-admin-claim.mjs <email>` y después retira la segunda
+    // mitad de esta condición, la de `storage.rules` y la de `isAdminUser()`
+    // en `JS/admin.js` y `JS/profiles.js`.
     function isSuperAdmin() {
-      return request.auth != null && request.auth.token.email == 'danielalonzzo@icloud.com';
+      return request.auth != null
+        && (
+          ('admin' in request.auth.token && request.auth.token.admin == true)
+          || request.auth.token.email == 'danielalonzzo@icloud.com'
+        );
     }
     
     function isOwner(userId) {
@@ -21,6 +35,21 @@ service cloud.firestore {
 
     function isOptionalText(value, maxLength) {
       return value == null || (value is string && value.size() <= maxLength && !value.matches('.*[<>].*'));
+    }
+
+    // Los seis valores del <select> de los tres `contact.html`.
+    //
+    // OJO al llamarla: `service` es palabra reservada del lenguaje de reglas —
+    // es la declaración `service cloud.firestore` de la línea 3 — así que el
+    // campo NO se puede leer como `request.resource.data.service`. El
+    // compilador no se queja del campo, sino del operador siguiente
+    // («Unexpected 'in'»), que despista mucho. Hay que usar corchetes:
+    // `request.resource.data['service']`.
+    //
+    // La lista va en una sola línea porque tampoco admite un literal multilínea
+    // después de `in`.
+    function isKnownContactService(value) {
+      return value in ['basic-maintenance', 'preferential-maintenance', 'advanced-maintenance', 'hosting-maintenance', 'research', 'other'];
     }
 
     // Personal fields are owner-editable. The onboarding and the projects are
@@ -115,13 +144,38 @@ service cloud.firestore {
     }
 
     // ── Contacts ─────────────────────────────────────────────────────────────
+    // El formulario público escribe aquí sin autenticarse: es la única puerta
+    // anónima del proyecto. Sin forma fija ni límite de tamaño, cualquiera podía
+    // llenar la colección con documentos de 1 MB, y el CRM los descarga enteros.
+    // La forma admitida es exactamente la que envían los tres `contact.html`.
+    //
+    // `message` sí admite `<` y `>`, a diferencia de `name`: es prosa libre y el
+    // CRM la pinta escapada (`esc(data.message)` en loadContacts), así que
+    // rechazarlos sólo tiraría consultas legítimas («mejorar > 50%»).
     match /contacts/{contactId} {
       allow read, write: if isSuperAdmin();
-      allow create: if true;
+      allow create: if request.resource.data.keys().hasOnly([
+          'name', 'email', 'phone', 'service', 'message', 'lang', 'submittedAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'name', 'email', 'service', 'message', 'lang', 'submittedAt'
+        ])
+        && isSafeShortText(request.resource.data.name, 120)
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 254
+        && (!('phone' in request.resource.data)
+          || isOptionalText(request.resource.data.phone, 40))
+        && isKnownContactService(request.resource.data['service'])
+        && request.resource.data.message is string
+        && request.resource.data.message.size() > 0
+        && request.resource.data.message.size() <= 5000
+        && request.resource.data.lang in ['en', 'es', 'pt']
+        && request.resource.data.submittedAt == request.time;
     }
 
     // ── Subscription Payments ─────────────────────────────────────────────────
-    // All payment records: manual (admin-assigned) + automatic (Stripe webhook)
+    // Todos los pagos, asignados por el administrador desde el CRM.
     match /subscription_payments/{paymentId} {
       allow read, write: if isSuperAdmin();
       // Owner can only read their own payment records

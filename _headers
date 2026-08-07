@@ -109,6 +109,12 @@
 /JS/firebase-config.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
+# Reglas de negocio compartidas por el CRM, el portal y el onboarding. Si se
+# cachea por separado, una de las tres páginas puede quedarse con una versión
+# antigua y volver a discrepar de las otras — que es justo lo que se arregló.
+/JS/elysium-domain.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 /CSS/customer-portal.css
   Cache-Control: no-cache, max-age=0, must-revalidate
 

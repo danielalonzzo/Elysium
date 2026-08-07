@@ -16,6 +16,7 @@ import {
     uploadBytesResumable,
     getDownloadURL
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import { projectIdsMatch } from './elysium-domain.js';
 
 const IS_DEV = ['localhost', '127.0.0.1', 'web.app'].some(h => location.hostname.includes(h));
 const logger = {
@@ -231,9 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return Number.isFinite(millis) ? millis : 0;
         };
         if (status === 'active') {
-            if (subscription.source === 'stripe'
-                && Object.hasOwn(subscription, 'accessGranted')
-                && subscription.accessGranted !== true) return false;
             const renewal = toMillis(subscription.nextBillingDate);
             return !renewal || Date.now() <= renewal + 15 * 86400000;
         }
@@ -510,10 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function projectIdMatches(candidate, target = currentProjectId()) {
-        const candidateId = candidate == null ? null : String(candidate);
-        const targetId = target == null ? null : String(target);
-        return candidateId === targetId
-            || (candidateId === null && ['legacy', 'project-1'].includes(targetId));
+        return projectIdsMatch(candidate, target);
     }
 
     function draftDocumentId(userId = targetUserId, projectId = currentProjectId()) {
@@ -1081,13 +1076,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     authorEmail: currentUser.email || null,
                     submittedAt: serverTimestamp()
                 });
-                batch.update(memberRef, {
+                // La bandera del proyecto, no sólo la de la cuenta. Marcar sólo
+                // `members.onboardingCompleted` obligaba al CRM y al portal a
+                // deducir a cuál de los proyectos se refería, y cada uno lo
+                // deducía distinto: el mismo cliente salía «Completado» en el
+                // CRM y «Sin iniciar» en su propio portal.
+                const memberUpdate = {
                     onboardingCompleted: true,
                     onboardingCompletedAt: serverTimestamp(),
                     lastOnboardingProjectId: projectId,
                     lastOnboardingSubmissionId: submissionRef.id,
                     lastUpdated: serverTimestamp()
-                });
+                };
+                const existingProjects = Array.isArray(memberSnap.data().projects)
+                    ? memberSnap.data().projects
+                    : [];
+                if (existingProjects.some(project => projectIdsMatch(project?.id, projectId))) {
+                    memberUpdate.projects = existingProjects.map(project =>
+                        projectIdsMatch(project?.id, projectId)
+                            ? { ...project, onboardingCompleted: true }
+                            : project);
+                }
+                batch.update(memberRef, memberUpdate);
                 batch.set(activityRef, {
                     memberId: targetUserId,
                     memberName: memberSnap.data().name || null,

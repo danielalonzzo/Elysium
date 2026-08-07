@@ -189,15 +189,15 @@
                     <form action="#" method="POST" id="contactForm">
                         <div class="form-group">
                             <label for="name" class="form-label">Nombre completo</label>
-                            <input type="text" id="name" name="name" class="form-control" required>
+                            <input type="text" id="name" name="name" class="form-control" maxlength="120" required>
                         </div>
                         <div class="form-group">
                             <label for="email" class="form-label">Correo electrónico</label>
-                            <input type="email" id="email" name="email" class="form-control" required>
+                            <input type="email" id="email" name="email" class="form-control" maxlength="254" required>
                         </div>
                         <div class="form-group">
                             <label for="phone" class="form-label">Número de teléfono (opcional)</label>
-                            <input type="tel" id="phone" name="phone" class="form-control">
+                            <input type="tel" id="phone" name="phone" class="form-control" maxlength="40">
                         </div>
                         <div class="form-group">
                             <label for="service" class="form-label">Interés</label>
@@ -213,7 +213,7 @@
                         </div>
                         <div class="form-group">
                             <label for="message" class="form-label">Detalles del proyecto</label>
-                            <textarea id="message" name="message" class="form-control" required></textarea>
+                            <textarea id="message" name="message" class="form-control" maxlength="5000" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Enviar mensaje</button>
                     </form>
@@ -339,12 +339,15 @@
             btn.textContent = 'Enviando...';
 
             try {
+                // Los límites coinciden con los de `firestore.rules`, para que
+                // ningún envío legítimo lo rechace el servidor. `name` pierde
+                // los `<>` que la regla no admite; el mensaje sí los conserva.
                 await addDoc(collection(db, 'contacts'), {
-                    name: form.name.value,
-                    email: form.email.value,
-                    phone: window.iti ? window.iti.getNumber() : form.phone.value || '',
+                    name: form.name.value.trim().replace(/[<>]/g, '').slice(0, 120),
+                    email: form.email.value.trim().slice(0, 254),
+                    phone: ((window.iti ? window.iti.getNumber() : form.phone.value) || '').trim().slice(0, 40),
                     service: form.service.value,
-                    message: form.message.value,
+                    message: form.message.value.trim().slice(0, 5000),
                     lang: 'es',
                     submittedAt: serverTimestamp()
                 });

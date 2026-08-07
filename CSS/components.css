@@ -654,11 +654,9 @@ section {
     position: absolute;
     inset: 0;
     z-index: 0;
-    overflow: hidden;
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    contain: paint;
     transition: opacity 0.2s ease, visibility 0s linear 0.2s;
 }
 
@@ -2682,4 +2680,26 @@ footer {
 }
 .custom-modal p {
     color: var(--color-text-secondary);
+}
+
+/* Grayscale Logos Carousel */
+.logos.logos-grayscale .logo-item img {
+    filter: grayscale(1) brightness(1.5) opacity(0.7) !important;
+    width: 130px !important;
+    height: 50px !important;
+    object-fit: contain !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+.logos.logos-grayscale .logo-item:hover img {
+    -webkit-filter: grayscale(0%) brightness(100%) opacity(100%) !important;
+    filter: grayscale(0%) brightness(100%) opacity(100%) !important;
+    transform: scale(1.1) !important;
+    background: transparent !important;
+}
+.logos.logos-grayscale .logo-item {
+    width: 180px !important;
 }

@@ -42,9 +42,7 @@ export default {
         const target = new URL(url.pathname + url.search, origin);
 
         // Se reenvía tal cual: el método, las cabeceras (Authorization,
-        // Idempotency-Key) y el cuerpo sin decodificar — el webhook de Stripe
-        // valida su firma sobre los bytes originales, así que no se pueden
-        // tocar.
+        // Idempotency-Key) y el cuerpo sin tocar.
         const upstream = new Request(target, request);
         upstream.headers.set('X-Forwarded-Host', url.host);
         upstream.headers.set('X-Forwarded-Proto', url.protocol.replace(':', ''));

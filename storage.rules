@@ -2,8 +2,15 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    // Mismo criterio que `firestore.rules`: el custom claim `admin`, con el
+    // correo aceptado todavía mientras dura la migración. Ver la nota larga
+    // allí antes de retirar la segunda mitad.
     function isSuperAdmin() {
-      return request.auth != null && request.auth.token.email == 'danielalonzzo@icloud.com';
+      return request.auth != null
+        && (
+          ('admin' in request.auth.token && request.auth.token.admin == true)
+          || request.auth.token.email == 'danielalonzzo@icloud.com'
+        );
     }
 
     function subscriptionAllowsAccess(member) {
@@ -12,12 +19,6 @@ service firebase.storage {
         && (
           (
             subscription.status == 'active'
-            && (
-              !('source' in subscription)
-              || subscription.source != 'stripe'
-              || !('accessGranted' in subscription)
-              || subscription.accessGranted == true
-            )
             && (
               !('nextBillingDate' in subscription)
               || subscription.nextBillingDate == null

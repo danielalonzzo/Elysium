@@ -1,20 +1,19 @@
 {
-  "name": "elysium-billing",
+  "name": "elysium-platform",
   "version": "1.0.0",
   "private": true,
   "description": "Transactional billing, meetings and account email service for Elysium CRM",
-  "main": "stripe-server.js",
+  "main": "platform-server.js",
   "scripts": {
-    "start": "node stripe-server.js",
-    "check": "node --check stripe-server.js && node --check stripe-server.test.js",
-    "test": "node --test stripe-server.test.js"
+    "start": "node platform-server.js",
+    "check": "node --check platform-server.js && node --check platform-server.test.js",
+    "test": "node --test platform-server.test.js"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
     "express": "^5.2.1",
-    "firebase-admin": "^14.1.0",
-    "stripe": "^22.3.1"
+    "firebase-admin": "^14.1.0"
   }
 }

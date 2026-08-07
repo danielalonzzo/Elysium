@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "source": "functions"
+  },
   "firestore": {
     "rules": "firestore.rules"
   },
@@ -13,6 +16,7 @@
       "**/node_modules/**",
       "**/*.nosync/**",
       "backend/**",
+      "functions/**",
       "worker/**",
       "_fuentes/**",
       "Prototipos/**",

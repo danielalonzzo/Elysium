@@ -1075,12 +1075,18 @@
 .customer-portal :where(.portal-status, .status-chip).warning,
 .customer-portal :where(.portal-status, .status-chip).pending,
 .customer-portal :where(.portal-status, .status-chip).pending_payment,
+/* La tabla de Licencias del CRM emite `status-${status}`, así que necesita el
+   nombre con prefijo además del suelto. Sin él caía al azul informativo de la
+   regla base: los dos estados que más deben destacar se veían neutros. */
+.customer-portal :where(.portal-status, .status-chip).status-pending_payment,
 .customer-portal :where(.portal-status, .status-chip).in-progress { --status-color: var(--portal-warning); }
 .customer-portal :where(.portal-status, .status-chip).is-error,
 .customer-portal :where(.portal-status, .status-chip).is-suspended,
 .customer-portal :where(.portal-status, .status-chip).status-error,
 .customer-portal :where(.portal-status, .status-chip).status-suspended,
 .customer-portal :where(.portal-status, .status-chip).status-cancelled,
+/* Firestore guarda la grafía americana `canceled`; la británica ya estaba. */
+.customer-portal :where(.portal-status, .status-chip).status-canceled,
 .customer-portal :where(.portal-status, .status-chip).error,
 .customer-portal :where(.portal-status, .status-chip).suspended,
 .customer-portal :where(.portal-status, .status-chip).canceled,

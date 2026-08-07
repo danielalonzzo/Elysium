@@ -3,6 +3,7 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { 
     collection,
     getDocs,
+    getCountFromServer,
     doc,
     getDoc,
     query,
@@ -24,8 +25,44 @@ import {
     getDownloadURL,
     deleteObject
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+import {
+    timestampMillis as adminTimestampMillis,
+    subscriptionStatus,
+    LEGACY_PROJECT_ID,
+    canonicalProjectId,
+    isLegacyProjectId,
+    projectIdsMatch,
+    submissionMatchesProject,
+    completedProjectIds,
+    projectOnboardingCompleted as isProjectOnboardingCompleted,
+    revenueByCurrency,
+    formatRevenue,
+    CURRENCY_SYMBOLS
+} from './elysium-domain.js';
 
 const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+
+/**
+ * Quién es administrador. La respuesta la da el custom claim `admin`, que es lo
+ * que ya comprueba el backend (`isFirebaseAdmin`) y lo que comprueban ahora las
+ * reglas de Firestore y de Storage.
+ *
+ * Mientras dure la migración se acepta también el correo histórico. La
+ * comparación va en minúsculas: la de antes era sensible a mayúsculas aquí y no
+ * en `profiles.js`, así que las dos páginas podían discrepar sobre la misma
+ * cuenta. Retira esta segunda mitad cuando el claim esté puesto — ver la nota
+ * de `firestore.rules`.
+ */
+async function isAdminUser(user) {
+    if (!user) return false;
+    try {
+        const token = await user.getIdTokenResult();
+        if (token?.claims?.admin === true) return true;
+    } catch (error) {
+        logger.warn('Could not read the admin claim:', error);
+    }
+    return String(user.email || '').toLowerCase() === SUPER_ADMIN_EMAIL;
+}
 
 const SUBSCRIPTION_PLANS = {
     hosting:      { code: 'H0ST', label: 'Domain & Hosting' },
@@ -36,9 +73,8 @@ const SUBSCRIPTION_PLANS = {
 };
 
 /**
- * External/manual licenses encode the commercial agreement itself:
- * ELY-{plan}-{M3N|ANL}{1..9}-{business tax/registration ID}.
- * Stripe licenses keep their separate webhook-derived identifier.
+ * Las licencias codifican el acuerdo comercial:
+ * ELY-{plan}-{M3N|ANL}{1..9}-{identificación fiscal del negocio}.
  */
 function buildManualLicense(planType, contractUnit, contractLength, businessId) {
     const planCode = SUBSCRIPTION_PLANS[planType]?.code || 'CSTM';
@@ -153,26 +189,6 @@ function formatAdminDate(value) {
     return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function subscriptionStatus(subscription) {
-    if (!subscription) return null;
-    const storedStatus = subscription.status || 'active';
-    if (['suspended', 'canceled', 'cancelled'].includes(storedStatus)) return storedStatus;
-    const renewal = adminTimestampMillis(subscription.nextBillingDate);
-    const renewalGrace = renewal ? renewal + (15 * 86400000) : 0;
-    const paymentGrace = adminTimestampMillis(subscription.gracePeriodEnd) || renewalGrace;
-    if (storedStatus === 'pending_payment') {
-        return !paymentGrace || Date.now() > paymentGrace ? 'suspended' : storedStatus;
-    }
-    if (storedStatus === 'active') {
-        if (subscription.source === 'stripe'
-            && Object.hasOwn(subscription, 'accessGranted')
-            && subscription.accessGranted !== true) return 'pending_payment';
-        if (renewalGrace && Date.now() > renewalGrace) return 'suspended';
-        if (renewal && Date.now() > renewal) return 'pending_payment';
-    }
-    return storedStatus;
-}
-
 /**
  * Append an event to the immutable activity log (fire-and-forget).
  * Never blocks or fails the operation that triggered it.
@@ -204,14 +220,6 @@ function timeAgo(ts) {
     if (days  <  2) return 'yesterday';
     if (days  < 30) return `${days}d ago`;
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
-
-function adminTimestampMillis(value) {
-    if (!value) return 0;
-    if (typeof value.toMillis === 'function') return value.toMillis();
-    if (Number.isFinite(value.seconds)) return value.seconds * 1000;
-    const millis = new Date(value).getTime();
-    return Number.isFinite(millis) ? millis : 0;
 }
 
 /**
@@ -384,8 +392,6 @@ function storageErrorMessage(error) {
    under Documents with no amount, plan or invoice column.
    ───────────────────────────────────────────────────────────────────────── */
 
-const CURRENCY_SYMBOLS = { EUR: '€', USD: '$', CRC: '₡' };
-
 /** One row per payment, newest first. */
 function renderPaymentHistory(payments, t) {
     if (!payments.length) return `<p class="payment-history-empty">${esc(t.no_payments)}</p>`;
@@ -401,7 +407,6 @@ function renderPaymentHistory(payments, t) {
                     <div class="payment-row-meta">
                         <span>${esc(paidOn)}</span>
                         ${payment.licenseCode ? `<span class="payment-row-license">${esc(payment.licenseCode)}</span>` : ''}
-                        ${payment.source === 'stripe' ? '<span>Stripe</span>' : '<span>Manual</span>'}
                     </div>
                 </div>
                 <div class="payment-row-side">
@@ -712,6 +717,7 @@ const translations = {
         table_phone: "Phone",
         table_service: "Interest",
         table_message: "Message",
+        contacts_truncated: n => `Showing the ${n} most recent inquiries. Older ones remain in Firestore.`,
         flagSrc: "Images/Banderas/union-europea.png",
         flagAlt: "EU"
     },
@@ -901,6 +907,7 @@ const translations = {
         table_phone: "Teléfono",
         table_service: "Interés",
         table_message: "Mensaje",
+        contacts_truncated: n => `Se muestran las ${n} consultas más recientes. Las anteriores siguen en Firestore.`,
         flagSrc: "Images/Banderas/costa-rica.png",
         flagAlt: "CR"
     },
@@ -1089,6 +1096,7 @@ const translations = {
         table_phone: "Telefone",
         table_service: "Interesse",
         table_message: "Mensagem",
+        contacts_truncated: n => `A mostrar as ${n} consultas mais recentes. As anteriores continuam no Firestore.`,
         flagSrc: "Images/Banderas/portugal.png",
         flagAlt: "PT"
     }
@@ -1109,6 +1117,7 @@ const AGENDA_COPY = {
         apiMissing: 'The Elysium platform service is not reachable, so no confirmation email can be sent. Deploy elysium-billing at /api and try again.',
         apiTimeout: 'The platform service did not answer. The meeting may not have been saved — reload the agenda before trying again.',
         emailMissing: 'Email delivery is not configured on the service (RESEND_API_KEY and MEETING_FROM_EMAIL).',
+        emailNotSent: 'The confirmation email could not be sent — tell the client yourself.',
         clientNoEmail: 'This client has no email address on file, so nothing can be sent to them.',
         duplicate: 'A different meeting was already booked with this identifier. Change the time or the duration.',
         cancel: 'Cancel', cancelling: 'Cancelling…', cancelConfirm: 'Cancel this meeting?',
@@ -1135,6 +1144,7 @@ const AGENDA_COPY = {
         apiMissing: 'No se alcanza el servicio de Elysium, así que no puede salir el correo de confirmación. Despliega elysium-billing en /api y vuelve a intentarlo.',
         apiTimeout: 'El servicio no ha respondido. Puede que la reunión no se haya guardado — recarga la agenda antes de repetir.',
         emailMissing: 'El envío de correo no está configurado en el servicio (RESEND_API_KEY y MEETING_FROM_EMAIL).',
+        emailNotSent: 'No se pudo enviar el correo de confirmación — avisa tú al cliente.',
         clientNoEmail: 'Este cliente no tiene correo registrado, así que no se le puede enviar nada.',
         duplicate: 'Ya había otra reunión con este identificador. Cambia la hora o la duración.',
         cancel: 'Cancelar', cancelling: 'Cancelando…', cancelConfirm: '¿Cancelar esta reunión?',
@@ -1161,6 +1171,7 @@ const AGENDA_COPY = {
         apiMissing: 'O serviço da Elysium não está acessível, por isso não pode sair o email de confirmação. Publique elysium-billing em /api e tente de novo.',
         apiTimeout: 'O serviço não respondeu. A reunião pode não ter ficado guardada — recarregue a agenda antes de repetir.',
         emailMissing: 'O envio de email não está configurado no serviço (RESEND_API_KEY e MEETING_FROM_EMAIL).',
+        emailNotSent: 'Não foi possível enviar o email de confirmação — avise o cliente você mesmo.',
         clientNoEmail: 'Este cliente não tem email registado, por isso não lhe pode ser enviado nada.',
         duplicate: 'Já existia outra reunião com este identificador. Altere a hora ou a duração.',
         cancel: 'Cancelar', cancelling: 'A cancelar…', cancelConfirm: 'Cancelar esta reunião?',
@@ -1298,13 +1309,6 @@ function formatMeetingZoned(meeting, timeZone) {
         weekday: 'short', day: '2-digit', month: 'short',
         hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
     }).format(new Date(millis));
-}
-
-function submissionMatchesProject(submission, selectedProjectId) {
-    const submissionProjectId = submission?.projectId == null ? null : String(submission.projectId);
-    const projectId = selectedProjectId == null ? null : String(selectedProjectId);
-    if (submissionProjectId === projectId) return true;
-    return submissionProjectId == null && ['legacy', 'project-1'].includes(projectId);
 }
 
 // ── Meetings: written straight to Firestore ─────────────────────────────────
@@ -1656,7 +1660,12 @@ async function createAgendaMeeting(event) {
         logActivity(client.id, client.name, 'meeting_scheduled', {
             meetingId: created.id, title: created.title, startsAt: created.startsAt
         });
-        setAgendaMessage(c.createdOk, 'success');
+        // El servicio ya dice si el correo salió. Un fallo de envío no anula la
+        // reunión, pero tiene que verse: antes devolvía siempre «pending» y el
+        // administrador se quedaba creyendo que el cliente había sido avisado.
+        setAgendaMessage(...(result.emailStatus === 'sent'
+            ? [c.createdOk, 'success']
+            : [`${c.createdOk} ${agendaEmailWarning(result.emailStatus, c)}`, 'warning']));
 
         const keepAdminZone = adminTimeZone;
         form.reset();
@@ -1690,7 +1699,9 @@ async function cancelAgendaMeeting(meetingId, button) {
         logActivity(meeting.userId, meeting.clientName, 'meeting_cancelled', {
             meetingId, title: meeting.title
         });
-        setAgendaMessage(c.cancelledOk, 'success');
+        setAgendaMessage(...(result.emailStatus === 'sent'
+            ? [c.cancelledOk, 'success']
+            : [`${c.cancelledOk} ${agendaEmailWarning(result.emailStatus, c)}`, 'warning']));
         renderAgendaMeetings();
     } catch (error) {
         logger.error('Meeting cancellation failed:', error);
@@ -1705,6 +1716,12 @@ async function cancelAgendaMeeting(meetingId, button) {
  * on. "Not deployed" and "the client has no address" are very different
  * problems and the agenda used to report both as the same red line.
  */
+/** Qué decirle al administrador cuando la reunión se guardó pero el correo no salió. */
+function agendaEmailWarning(emailStatus, c) {
+    if (emailStatus === 'not_configured') return c.emailMissing;
+    return c.emailNotSent;
+}
+
 function agendaApiErrorMessage(error, fallback) {
     const c = agendaCopy();
     switch (error?.code) {
@@ -1817,7 +1834,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         // Auth Guard
         onAuthStateChanged(auth, async (user) => {
-            if (!user || user.email !== SUPER_ADMIN_EMAIL) {
+            if (!await isAdminUser(user)) {
                 window.location.href = 'profiles';
                 return;
             }
@@ -2086,13 +2103,16 @@ async function loadStats() {
                 const data = d.data();
                 
                 // --- Legacy Migration for Projects ---
-                // If they don't have a projects array but have legacy data, create one project from the root fields
+                // If they don't have a projects array but have legacy data, create one project from the root fields.
+                // El identificador es LEGACY_PROJECT_ID en todas partes: esta
+                // pantalla usaba 'project-1' y el perfil 'legacy', así que cuál
+                // se acababa guardando dependía de por dónde hubieras entrado.
                 if (!data.projects) {
                     data.projects = [];
                     // Even if they don't have projectUrl, they might have a project in progress (onboarding)
                     if (data.projectUrl || data.onboardingCompleted || data.financials || data.projectStage) {
                         data.projects.push({
-                            id: 'project-1',
+                            id: LEGACY_PROJECT_ID,
                             name: data.company || data.name || 'Proyecto 1',
                             projectUrl: data.projectUrl || null,
                             projectStage: data.projectStage || 'first_contact',
@@ -2161,7 +2181,6 @@ async function loadStats() {
         const subscribedPartners = partnerDocs.filter(d => d.data().subscription?.licenseCode);
         const totalLicenses      = subscribedPartners.length;
         const activeLicenses     = subscribedPartners.filter(d => subscriptionStatus(d.data().subscription) === 'active').length;
-        const automaticLicenses  = subscribedPartners.filter(d => d.data().subscription?.source === 'stripe').length;
         const licenseHealth      = totalLicenses > 0 ? Math.round((activeLicenses / totalLicenses) * 100) : 0;
 
         // Update sidebar counts
@@ -2171,9 +2190,11 @@ async function loadStats() {
         if (sidebarPipeline)  sidebarPipeline.textContent  = activeProjects;
 
         try {
-            const contactsSnap = await getDocs(collection(db, 'contacts'));
+            // Aggregation query: one billed read instead of downloading every
+            // inquiry just to print its count in a sidebar badge.
+            const contactsCount = await getCountFromServer(collection(db, 'contacts'));
             const contactsBadge = document.getElementById('sidebar-contacts-count');
-            if (contactsBadge) contactsBadge.textContent = contactsSnap.size;
+            if (contactsBadge) contactsBadge.textContent = contactsCount.data().count;
         } catch (e) {
             logger.warn('Could not load contacts count.', e);
         }
@@ -2217,7 +2238,7 @@ async function loadStats() {
             }) +
             kpiCard({
                 id: 'licenses', value: activeLicenses, label: 'Active Subscription Licenses',
-                sub: `${totalLicenses} assigned`, progressLabel: `${automaticLicenses} automatic`,
+                sub: `${totalLicenses} assigned`, progressLabel: `${licenseHealth}% healthy`,
                 colorClass: licenseHealth >= 80 ? 'kpi-green' : 'kpi-blue',
                 trendClass: 'trend-neutral',
                 trend: totalLicenses ? `${licenseHealth}% active` : 'No subscriptions',
@@ -2233,7 +2254,7 @@ async function loadStats() {
         // Load supplementary panels
         loadRecentActivity();
         loadPipelineSnapshot();
-        renderGlobalRevenueChart();
+        renderGlobalRevenueChart().catch(error => logger.warn('Global revenue chart failed:', error));
 
     } catch (error) {
         logger.error('Error loading stats:', error);
@@ -2845,14 +2866,13 @@ async function loadLicenses() {
             acc.total += 1;
             acc.active += status === 'active' ? 1 : 0;
             acc.attention += ['pending_payment', 'suspended'].includes(status) ? 1 : 0;
-            acc.automatic += item.source === 'stripe' ? 1 : 0;
             return acc;
-        }, { total: 0, active: 0, attention: 0, automatic: 0 });
+        }, { total: 0, active: 0, attention: 0 });
 
         const copy = {
-            en: { total: 'Assigned', active: 'Active', attention: 'Needs attention', automatic: 'Automatic', empty: 'No subscription licenses have been assigned yet.', manual: 'Manual', stripe: 'Web / Stripe', legacy: 'Legacy', monthly: 'Monthly', annual: 'Annual', pending_payment: 'Payment pending', suspended: 'Suspended', canceled: 'Canceled', cancelled: 'Canceled' },
-            es: { total: 'Asignadas', active: 'Activas', attention: 'Requieren atención', automatic: 'Automáticas', empty: 'Aún no hay licencias asignadas por suscripción.', manual: 'Manual', stripe: 'Web / Stripe', legacy: 'Anterior', monthly: 'Mensual', annual: 'Anual', pending_payment: 'Pago pendiente', suspended: 'Suspendida', canceled: 'Cancelada', cancelled: 'Cancelada' },
-            pt: { total: 'Atribuídas', active: 'Ativas', attention: 'Requer atenção', automatic: 'Automáticas', empty: 'Ainda não existem licenças atribuídas por subscrição.', manual: 'Manual', stripe: 'Web / Stripe', legacy: 'Anterior', monthly: 'Mensal', annual: 'Anual', pending_payment: 'Pagamento pendente', suspended: 'Suspensa', canceled: 'Cancelada', cancelled: 'Cancelada' }
+            en: { total: 'Assigned', active: 'Active', attention: 'Needs attention', empty: 'No subscription licenses have been assigned yet.', manual: 'Manual', legacy: 'Legacy', monthly: 'Monthly', annual: 'Annual', pending_payment: 'Payment pending', suspended: 'Suspended', canceled: 'Canceled', cancelled: 'Canceled' },
+            es: { total: 'Asignadas', active: 'Activas', attention: 'Requieren atención', empty: 'Aún no hay licencias asignadas por suscripción.', manual: 'Manual', legacy: 'Anterior', monthly: 'Mensual', annual: 'Anual', pending_payment: 'Pago pendiente', suspended: 'Suspendida', canceled: 'Cancelada', cancelled: 'Cancelada' },
+            pt: { total: 'Atribuídas', active: 'Ativas', attention: 'Requer atenção', empty: 'Ainda não existem licenças atribuídas por subscrição.', manual: 'Manual', legacy: 'Anterior', monthly: 'Mensal', annual: 'Anual', pending_payment: 'Pagamento pendente', suspended: 'Suspensa', canceled: 'Cancelada', cancelled: 'Cancelada' }
         }[currentLang] || null;
 
         if (summary) {
@@ -2860,7 +2880,6 @@ async function loadLicenses() {
                 [counts.total, copy.total, 'license-metric-blue'],
                 [counts.active, copy.active, 'license-metric-green'],
                 [counts.attention, copy.attention, 'license-metric-gold'],
-                [counts.automatic, copy.automatic, 'license-metric-purple']
             ].map(([value, label, cls]) => `
                 <div class="license-metric ${cls}">
                     <strong>${value}</strong><span>${label}</span>
@@ -2876,8 +2895,8 @@ async function loadLicenses() {
         licenses.forEach((data) => {
             const status = data.status || 'active';
             const displayStatus = copy[status] || (status === 'active' ? copy.active : status.replaceAll('_', ' '));
-            const source = data.source === 'stripe' ? copy.stripe : data.source === 'legacy' ? copy.legacy : copy.manual;
-            const sourceClass = data.source === 'stripe' ? 'license-source-auto' : 'license-source-manual';
+            const source = data.source === 'legacy' ? copy.legacy : copy.manual;
+            const sourceClass = 'license-source-manual';
             const cycle = data.contractPeriodCode || copy[data.billingCycle] || data.billingCycle || '—';
             const renewal = formatAdminDate(data.nextBillingDate);
             const tr = document.createElement('tr');
@@ -3271,7 +3290,7 @@ function onboardingSessionUrl(userId, member, projectId = null, update = false) 
         : currentLang;
     const base = lang === 'en' ? '/onboarding' : `/${lang}/onboarding`;
     const params = new URLSearchParams({ client: userId });
-    if (projectId != null && String(projectId).length && String(projectId) !== 'legacy') {
+    if (!isLegacyProjectId(projectId)) {
         params.set('projectId', String(projectId));
     }
     if (update) params.set('repeat', '1');
@@ -3294,14 +3313,10 @@ function watchOnboardingDraft(userId, member, selectedProjectId = null) {
             container.innerHTML = `<p class="timeline-empty">${L.copilot_waiting}</p>`;
             return;
         }
-        const normalizedProjectId = selectedProjectId == null ? null : String(selectedProjectId);
-        let matchingDrafts = snap.docs.filter(item => {
-            const draftProjectId = item.data().projectId == null ? null : String(item.data().projectId);
-            return draftProjectId === normalizedProjectId;
-        });
-        if (!matchingDrafts.length && ['legacy', 'project-1'].includes(normalizedProjectId)) {
-            matchingDrafts = snap.docs.filter(item => item.data().projectId == null);
-        }
+        // Un borrador sin `projectId` es del proyecto heredado; la equivalencia
+        // la resuelve el módulo compartido, igual que en el portal del cliente.
+        const matchingDrafts = snap.docs
+            .filter(item => projectIdsMatch(item.data().projectId, selectedProjectId));
         if (!matchingDrafts.length) {
             container.innerHTML = `<p class="timeline-empty">${L.copilot_waiting}</p>`;
             return;
@@ -3412,7 +3427,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         // stripUndefined: a client with no legacy root fields would otherwise
         // carry undefined values straight into the first write of this project.
         currentProject = stripUndefined({
-            id: 'legacy',
+            id: LEGACY_PROJECT_ID,
             name: member.company || member.name || 'Proyecto 1',
             projectUrl: member.projectUrl,
             projectStage: member.projectStage,
@@ -3431,11 +3446,12 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     const selectedSubmission = requestedSubmission
         || projectSubmissions[projectSubmissions.length - 1]
         || null;
-    const submissionGroupKey = submission => submission?.projectId == null ? '__account__' : String(submission.projectId);
+    const submissionGroupKey = submission => canonicalProjectId(submission?.projectId);
     const submissionProjectLabel = submission => {
-        if (submission?.projectId == null) return historyCopy.accountOnboarding;
-        const matchingProject = projects.find(project => String(project.id) === String(submission.projectId));
-        return matchingProject?.name || `${historyCopy.archivedProject} · ${String(submission.projectId)}`;
+        const matchingProject = projects.find(project => projectIdsMatch(project.id, submission?.projectId));
+        if (matchingProject) return matchingProject.name;
+        if (isLegacyProjectId(submission?.projectId)) return historyCopy.accountOnboarding;
+        return `${historyCopy.archivedProject} · ${String(submission.projectId)}`;
     };
     const submissionRepeatNumber = submission => chronologicalSubmissions
         .filter(candidate => submissionGroupKey(candidate) === submissionGroupKey(submission))
@@ -3445,11 +3461,11 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     const formVersion = Number(selectedSubmission?.formVersion) || 1;
     const onboardingDate = fmtDate(submissionTimestamp);
     const onboardingTime = fmtTime(submissionTimestamp);
-    const projectOnboardingCompleted = projectSubmissions.length > 0
-        || currentProject.onboardingCompleted === true
-        || (member.onboardingCompleted === true
-            && (currentProject.id === 'legacy'
-                || String(member.lastOnboardingProjectId) === String(currentProject.id)));
+    // El mismo predicado que usa el portal del cliente. Antes cada lado tenía
+    // el suyo y no coincidían: el CRM daba por completado un onboarding que el
+    // cliente veía como «Sin iniciar» en su propio portal.
+    const projectOnboardingCompleted = isProjectOnboardingCompleted(
+        currentProject, member, completedProjectIds(chronologicalSubmissions));
 
     // ── Prepare Financials & Reports data
     const fin = currentProject.financials || { projectCost: 0, maintenanceFee: 0, discount: '', status: 'prospect', currency: 'EUR' };
@@ -3461,8 +3477,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     const customTimeline = currentProject.timeline || [];
     const projectUrl = safeUrl(currentProject.projectUrl);
     
-    const currencyMap = { 'EUR': '€', 'USD': '$', 'CRC': '₡' };
-    const curSym = currencyMap[fin.currency] || '€';
+    const curSym = CURRENCY_SYMBOLS[fin.currency] || '€';
 
     // ── Build suspend button label
     const suspendBtnLabel = isSuspended
@@ -3487,28 +3502,13 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         maintenance: t.stage_maint || 'Maintenance'
     };
 
-    // Registered income comes from the payment ledger, which is what the client
-    // sees in their own billing tab. Documents that still carry an amount are
-    // added on top: they are receipts nobody has moved across yet, and moving
-    // one deletes it from `reports` as it creates the payment, so the two
-    // sources can never count the same money twice.
-    // Currencies are kept apart — adding euros to colones would be a lie.
-    const addAmount = (totals, rawAmount, rawCurrency) => {
-        const value = parseFloat(rawAmount);
-        if (!Number.isFinite(value)) return totals;
-        const code = rawCurrency || fin.currency || 'EUR';
-        totals[code] = (totals[code] || 0) + value;
-        return totals;
-    };
-    const revenueByCurrency = pendingReceipts.reduce(
-        (totals, report) => addAmount(totals, report.amount, report.currency),
-        allPayments.reduce((totals, payment) => addAmount(totals, payment.amount, payment.currency), {})
-    );
-    const revenueLabel = Object.keys(revenueByCurrency).length
-        ? Object.entries(revenueByCurrency)
-            .map(([code, value]) => `${currencyMap[code] || code}${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`)
-            .join(' · ')
-        : `${curSym}0`;
+    // El dinero cobrado sale del libro de pagos y sólo de ahí — lo mismo que ve
+    // el cliente en su pestaña de facturación, y lo mismo que alimenta las dos
+    // gráficas. Antes el KPI sumaba además los documentos con importe: cambiaba
+    // al cambiar de proyecto (los pagos son de la cuenta, los documentos del
+    // proyecto abierto) y contaba dos veces si el traslado al libro fallaba a
+    // medias. Los comprobantes sin trasladar se avisan aparte, no se suman.
+    const revenueLabel = formatRevenue(revenueByCurrency(allPayments), curSym);
 
     const kpiIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${paths}</svg>`;
 
@@ -3800,7 +3800,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     const statusLabels = { active: 'Active', pending_payment: 'Payment Pending', suspended: 'Suspended', canceled: 'Canceled', cancelled: 'Canceled' };
                     const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444', canceled: '#ff4444', cancelled: '#ff4444' };
                     const col = statusColors[status] || '#888';
-                    const sourceLabel = sub.source === 'stripe' ? 'Web / Stripe' : sub.source === 'legacy' ? 'Legacy' : 'Manual / External';
+                    const sourceLabel = sub.source === 'legacy' ? 'Legacy' : 'Manual / External';
                     return `
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
@@ -3950,7 +3950,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                             <div>
                                 <div class="report-title">${esc(r.title)}</div>
                                 <div class="report-date">
-                                    ${esc(r.date)} ${r.amount ? `&middot; <strong style="color:var(--color-accent)">${currencyMap[r.currency] || curSym}${esc(r.amount)}</strong>` : ''}
+                                    ${esc(r.date)} ${r.amount ? `&middot; <strong style="color:var(--color-accent)">${CURRENCY_SYMBOLS[r.currency] || curSym}${esc(r.amount)}</strong>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -4339,7 +4339,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 panel.hidden = panel.id !== `profile-panel-${_profileTab}`;
             });
             // Chart.js can only measure the canvas once its panel is visible.
-            if (_profileTab === 'summary') renderClientRevenueChart(currentProject);
+            if (_profileTab === 'summary') renderClientRevenueChart(allPayments);
         });
     });
 
@@ -4354,23 +4354,34 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     watchOnboardingDraft(userId, member, currentProject.id);
 
     // ── Helper to update project fields ──
-    const updateCurrentProjectFields = async (updates) => {
+    // Separado en «calcular» y «aplicar» para que una escritura que tenga que
+    // ir en el mismo lote que otra cosa (mover comprobantes al libro de pagos)
+    // pueda reutilizar exactamente la misma construcción del array.
+    const projectsWithCurrentFields = (updates) => {
         const existingProjects = Array.isArray(member.projects) ? member.projects : [];
         const updatedProject = stripUndefined({ ...currentProject, ...updates });
         const nextProjects = existingProjects.map(project => stripUndefined({ ...project }));
-        const projIndex = nextProjects.findIndex(project => project.id === currentProject.id);
+        const projIndex = nextProjects.findIndex(project => projectIdsMatch(project.id, currentProject.id));
         if (projIndex !== -1) {
             nextProjects[projIndex] = updatedProject;
         } else {
             // Handle legacy project being pushed back
             nextProjects.push(updatedProject);
         }
+        return nextProjects;
+    };
 
-        await updateDoc(doc(db, 'members', userId), { projects: nextProjects });
-        currentProject = updatedProject;
+    const applyProjectFieldsLocally = (nextProjects, updates) => {
+        currentProject = stripUndefined({ ...currentProject, ...updates });
         member.projects = nextProjects;
         const idx = _allClients.findIndex(c => c.id === userId);
         if (idx !== -1) _allClients[idx].projects = nextProjects;
+    };
+
+    const updateCurrentProjectFields = async (updates) => {
+        const nextProjects = projectsWithCurrentFields(updates);
+        await updateDoc(doc(db, 'members', userId), { projects: nextProjects });
+        applyProjectFieldsLocally(nextProjects, updates);
     };
 
     /**
@@ -4395,15 +4406,23 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         button.textContent = t.moving_receipts;
 
         try {
+            // Los pagos y la retirada de los documentos van en el MISMO lote.
+            // Antes eran dos escrituras seguidas: si la segunda fallaba, el
+            // importe quedaba en las dos fuentes a la vez.
+            const moved = new Set(chosen.map(entry => entry.index));
+            const nextProjects = projectsWithCurrentFields({
+                reports: reports.filter((_, i) => !moved.has(i))
+            });
+
             const batch = writeBatch(db);
             chosen.forEach(({ report }) => {
                 const { id, data } = receiptToPayment(report, userId, member);
                 batch.set(doc(db, 'subscription_payments', id), data);
             });
+            batch.update(doc(db, 'members', userId), { projects: nextProjects });
             await batch.commit();
+            applyProjectFieldsLocally(nextProjects, { reports: reports.filter((_, i) => !moved.has(i)) });
 
-            const moved = new Set(chosen.map(entry => entry.index));
-            await updateCurrentProjectFields({ reports: reports.filter((_, i) => !moved.has(i)) });
             chosen.forEach(({ report }) => logActivity(userId, member.name, 'payment_recorded', {
                 projectId: currentProject.id || null,
                 title: report.title || null,
@@ -4499,7 +4518,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 // Legacy accounts keep their single project in root fields
                 if (!targetProjects.length && (targetMemberData.projectUrl || targetMemberData.onboardingCompleted)) {
                     targetProjects.push(stripUndefined({
-                        id: 'project-1',
+                        id: LEGACY_PROJECT_ID,
                         name: targetMemberData.company || targetMemberData.name || 'Proyecto 1',
                         projectUrl: targetMemberData.projectUrl || null,
                         projectStage: targetMemberData.projectStage || 'first_contact',
@@ -4697,14 +4716,37 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     nextBillingDate: nextBillingValue ? new Date(`${nextBillingValue}T12:00:00`) : null,
                     updatedAt: serverTimestamp()
                 };
-                await updateDoc(doc(db, 'members', userId), { subscription });
-                if (subscription.licenseCode) {
-                    await setDoc(doc(db, 'licenses', subscription.licenseCode), {
-                        status: statusValue,
-                        nextBillingDate: subscription.nextBillingDate,
-                        updatedAt: serverTimestamp()
-                    }, { merge: true });
-                }
+                // Miembro y licencia se guardan juntos, y la licencia lleva
+                // SIEMPRE su `userId`. Antes se escribía con `merge` y sin él:
+                // si el documento de licencia no existía —suscripción heredada—,
+                // quedaba un registro sin dueño que ni el cliente podía leer
+                // (`allow get` compara `userId`) ni el CRM podía reasignar
+                // después, porque `undefined !== uid` hacía saltar el aviso de
+                // «licencia asignada a otra cuenta». Sin salida desde el CRM.
+                await runTransaction(db, async transaction => {
+                    const memberRef = doc(db, 'members', userId);
+                    const licenseRef = subscription.licenseCode
+                        ? doc(db, 'licenses', subscription.licenseCode)
+                        : null;
+                    const existingLicense = licenseRef ? await transaction.get(licenseRef) : null;
+                    if (existingLicense?.exists() && existingLicense.data().userId
+                        && existingLicense.data().userId !== userId) {
+                        throw new Error('This license identifier belongs to another account.');
+                    }
+
+                    transaction.update(memberRef, { subscription });
+                    if (licenseRef) {
+                        transaction.set(licenseRef, {
+                            code: subscription.licenseCode,
+                            userId,
+                            userName: member.name || null,
+                            userEmail: member.email || null,
+                            status: statusValue,
+                            nextBillingDate: subscription.nextBillingDate,
+                            updatedAt: serverTimestamp()
+                        }, { merge: true });
+                    }
+                });
                 logActivity(userId, member.name, 'subscription_updated', { status: statusValue });
                 member.subscription = subscription;
                 const cacheIndex = _allClients.findIndex(client => client.id === userId);
@@ -4829,10 +4871,16 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     contractStartDate: d,
                     nextBillingDate: nextDate,
                     gracePeriodEnd: null,
-                    stripeCustomerId: null,
-                    stripeSubscriptionId: null,
                     updatedAt: serverTimestamp()
                 };
+
+                // This same form corrects a plan or a contract, not only money
+                // received: its own button says "Update Subscription". Booking a
+                // payment unconditionally put a 0 € row in the billing history
+                // the client reads. Record one only when there is an amount — or
+                // when an invoice was uploaded, so the file is never orphaned in
+                // Storage with nothing pointing at it.
+                const recordsPayment = amount > 0 || Boolean(invoiceUrl);
 
                 // Member, license and payment are committed together so the CRM
                 // can never show a paid subscription without its license.
@@ -4865,26 +4913,28 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                         nextBillingDate: nextDate,
                         updatedAt: serverTimestamp()
                     }, { merge: true });
-                    transaction.set(paymentRef, {
-                        userId,
-                        userName: member.name || null,
-                        userEmail: member.email || null,
-                        planType,
-                        planLabel: SUBSCRIPTION_PLANS[planType].label,
-                        billingCycle: cycle,
-                        contractUnit,
-                        contractLength,
-                        contractPeriodCode: periodCode,
-                        businessId,
-                        licenseCode,
-                        amount,
-                        currency,
-                        invoiceUrl,
-                        paymentDate: d,
-                        recordedAt: serverTimestamp(),
-                        recordedBy: 'admin',
-                        source: 'manual'
-                    });
+                    if (recordsPayment) {
+                        transaction.set(paymentRef, {
+                            userId,
+                            userName: member.name || null,
+                            userEmail: member.email || null,
+                            planType,
+                            planLabel: SUBSCRIPTION_PLANS[planType].label,
+                            billingCycle: cycle,
+                            contractUnit,
+                            contractLength,
+                            contractPeriodCode: periodCode,
+                            businessId,
+                            licenseCode,
+                            amount,
+                            currency,
+                            invoiceUrl,
+                            paymentDate: d,
+                            recordedAt: serverTimestamp(),
+                            recordedBy: 'admin',
+                            source: 'manual'
+                        });
+                    }
                     if (previousLicenseRef
                         && previousLicenseSnap.exists()
                         && previousLicenseSnap.data().userId === userId) {
@@ -4899,7 +4949,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     businessId,
                     licenseCode,
                     amount,
-                    currency
+                    currency,
+                    paymentRecorded: recordsPayment
                 });
 
                 // Update in-memory cache
@@ -4910,7 +4961,9 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     _allClients[cacheIdx].businessId = businessId;
                 }
 
-                msgEl.textContent = `✓ Subscription activated! License: ${licenseCode}`;
+                msgEl.textContent = recordsPayment
+                    ? `✓ Subscription saved and payment recorded. License: ${licenseCode}`
+                    : `✓ Subscription saved. No payment recorded (amount was 0). License: ${licenseCode}`;
                 msgEl.style.display = 'inline';
                 msgEl.style.color = '#00c875';
 
@@ -5078,11 +5131,11 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             notesBtn.textContent = 'Save Note';
             setTimeout(() => notesMsgEl.classList.remove('is-visible'), 3000);
         });
-        // Render Revenue Chart
-        setTimeout(() => {
-            renderClientRevenueChart(currentProject);
-        }, 50);
     }
+
+    // La gráfica de ingresos es del panel Resumen y no tiene nada que ver con
+    // el botón de notas, dentro de cuyo bloque estaba metida.
+    setTimeout(() => renderClientRevenueChart(allPayments), 50);
 
     // Suspend / Reactivate Toggle
     const suspendBtn = document.getElementById('btn-suspend-toggle');
@@ -5239,59 +5292,50 @@ window.generateClientPDF = generateClientPDF;
 let globalRevenueChartInstance = null;
 let clientRevenueChartInstance = null;
 
-function renderGlobalRevenueChart() {
+/**
+ * Ingresos globales de los últimos 6 meses, leídos del libro de pagos.
+ *
+ * Antes recorría `projects[].reports` de cada cliente, así que la gráfica de
+ * portada del CRM ignoraba todo lo registrado como pago: sólo veía documentos
+ * pago manual: sólo veía documentos subidos que casualmente llevaban importe.
+ */
+async function renderGlobalRevenueChart() {
     const canvas = document.getElementById('globalRevenueChart');
     if (!canvas) return;
-    
-    // Process _allClients to get revenue by month and currency
-    const monthlyData = {}; // Format: { 'YYYY-MM': { EUR: 0, USD: 0, CRC: 0 } }
-    
+
+    const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    const monthlyData = {}; // { 'YYYY-MM': { EUR: 0, USD: 0, CRC: 0 } }
+
     // Pre-fill last 6 months so chart always has context even if empty
+    const since = new Date();
+    since.setMonth(since.getMonth() - 5);
+    since.setDate(1);
+    since.setHours(0, 0, 0, 0);
     for (let i = 5; i >= 0; i--) {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
-        const k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        monthlyData[k] = { EUR: 0, USD: 0, CRC: 0 };
+        monthlyData[monthKey(d)] = { EUR: 0, USD: 0, CRC: 0 };
     }
-    
-    _allClients.forEach(client => {
-        const processReports = (reports) => {
-            if (reports && Array.isArray(reports)) {
-                reports.forEach(r => {
-                    if (!r.amount) return;
-                    const amt = parseFloat(r.amount) || 0;
-                    const cur = r.currency || 'EUR';
-                    
-                    let mKey = null;
-                    if (r.date && typeof r.date === 'string' && r.date.length >= 7) {
-                        mKey = r.date.substring(0, 7); // Format: 'YYYY-MM'
-                    } else if (r.timestamp) {
-                        const dateObj = new Date(r.timestamp);
-                        if (!isNaN(dateObj.getTime())) {
-                            mKey = dateObj.getFullYear() + '-' + String(dateObj.getMonth() + 1).padStart(2, '0');
-                        }
-                    }
-                    
-                    if (!mKey) {
-                        const d = new Date();
-                        mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-                    }
-                    
-                    if (monthlyData[mKey] !== undefined) {
-                        if (monthlyData[mKey][cur] !== undefined) {
-                            monthlyData[mKey][cur] += amt;
-                        }
-                    }
-                });
-            }
-        };
 
-        if (client.projects && Array.isArray(client.projects)) {
-            client.projects.forEach(p => processReports(p.reports));
-        } else {
-            processReports(client.reports);
-        }
-    });
+    try {
+        // Rango sobre un solo campo: índice automático, sin desplegar nada.
+        const snap = await getDocs(query(
+            collection(db, 'subscription_payments'),
+            where('paymentDate', '>=', since)
+        ));
+        snap.docs.forEach(item => {
+            const payment = item.data();
+            const amount = parseFloat(payment.amount);
+            if (!Number.isFinite(amount)) return;
+            const millis = adminTimestampMillis(payment.paymentDate);
+            if (!millis) return;
+            const bucket = monthlyData[monthKey(new Date(millis))];
+            const currency = payment.currency || 'EUR';
+            if (bucket && bucket[currency] !== undefined) bucket[currency] += amount;
+        });
+    } catch (error) {
+        logger.warn('Global revenue chart: payment ledger unavailable.', error);
+    }
 
     const labels = Object.keys(monthlyData).sort();
     const dataEUR = labels.map(l => monthlyData[l].EUR);
@@ -5355,41 +5399,48 @@ function renderGlobalRevenueChart() {
     });
 }
 
-function renderClientRevenueChart(clientData) {
+/**
+ * Ingresos de un cliente, del libro de pagos — la misma fuente que el KPI de
+ * arriba y que la pestaña de facturación del propio cliente. Leía
+ * `project.reports`, así que en cuanto un comprobante se trasladaba al libro la
+ * gráfica se quedaba vacía mientras el KPI seguía contando el importe.
+ */
+function renderClientRevenueChart(payments) {
     const canvas = document.getElementById('clientRevenueChart');
     if (!canvas) return;
 
     if (clientRevenueChartInstance) {
         clientRevenueChartInstance.destroy();
+        clientRevenueChartInstance = null;
     }
 
-    const reports = clientData.reports || [];
-    const validReports = reports.filter(r => r.amount && parseFloat(r.amount) > 0);
-    
-    if (validReports.length === 0) {
-        canvas.parentElement.innerHTML = '<p class="color-text-secondary" style="font-size: 0.9em;">No financial data available yet.</p>';
+    const placeholder = canvas.parentElement?.querySelector('.revenue-chart-empty');
+    if (placeholder) placeholder.remove();
+
+    const paid = (payments || [])
+        .filter(payment => Number.isFinite(parseFloat(payment.amount)) && parseFloat(payment.amount) > 0)
+        .sort((a, b) => adminTimestampMillis(a.paymentDate) - adminTimestampMillis(b.paymentDate));
+
+    if (paid.length === 0) {
+        // Se oculta el canvas, no se destruye: borrarlo dejaba la gráfica sin
+        // sitio al que volver hasta un re-render completo del perfil.
+        canvas.hidden = true;
+        canvas.insertAdjacentHTML('afterend',
+            `<p class="revenue-chart-empty color-text-secondary" style="font-size:0.9em;">${esc(translations[currentLang].no_payments)}</p>`);
         return;
     }
+    canvas.hidden = false;
 
-    // Sort valid reports by date ascending
-    validReports.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
-
-    const labels = validReports.map(r => {
-        if (!r.date) return 'Unk';
-        const parts = r.date.split('-');
-        if (parts.length === 3) {
-            const d = new Date(parts[0], parts[1] - 1, parts[2]);
-            return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-        }
-        return r.date;
+    const labels = paid.map(payment => {
+        const millis = adminTimestampMillis(payment.paymentDate);
+        return millis
+            ? new Date(millis).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+            : '—';
     });
-    
-    const data = validReports.map(r => parseFloat(r.amount));
-    // Determine main currency
-    const mainCur = validReports[0].currency || 'EUR';
-    let curSymbol = '€';
-    if (mainCur === 'USD') curSymbol = '$';
-    if (mainCur === 'CRC') curSymbol = '₡';
+
+    const data = paid.map(payment => parseFloat(payment.amount));
+    const mainCur = paid[0].currency || 'EUR';
+    const curSymbol = CURRENCY_SYMBOLS[mainCur] || '€';
 
     const ctx = canvas.getContext('2d');
 
@@ -5430,6 +5481,10 @@ function renderClientRevenueChart(clientData) {
     });
 }
 
+// Newest page shown in the Inquiries table. The badge still reports the true
+// total through an aggregation query.
+const CONTACTS_PAGE_SIZE = 200;
+
 async function loadContacts() {
     const contactsList = document.getElementById('contacts-list');
     const badge = document.getElementById('sidebar-contacts-count');
@@ -5437,11 +5492,20 @@ async function loadContacts() {
     contactsList.innerHTML = '<tr><td colspan="6"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>';
 
     try {
-        const q = query(collection(db, 'contacts'), orderBy('submittedAt', 'desc'));
+        // Unbounded before: the whole collection came down on every visit, and
+        // it is the one collection an anonymous form can grow.
+        const q = query(collection(db, 'contacts'), orderBy('submittedAt', 'desc'), limit(CONTACTS_PAGE_SIZE));
         const snap = await getDocs(q);
-        
-        if (badge) badge.textContent = snap.size;
-        
+
+        // The badge counts every inquiry; the table shows the newest page.
+        try {
+            const total = await getCountFromServer(collection(db, 'contacts'));
+            if (badge) badge.textContent = total.data().count;
+        } catch (countError) {
+            logger.warn('Could not count contacts.', countError);
+            if (badge) badge.textContent = snap.size;
+        }
+
         if (snap.empty) {
             contactsList.innerHTML = '<tr><td colspan="6" class="license-empty">No inquiries found.</td></tr>';
             return;
@@ -5462,6 +5526,9 @@ async function loadContacts() {
                 </tr>
             `;
         });
+        if (snap.size === CONTACTS_PAGE_SIZE) {
+            html += `<tr><td colspan="6" class="license-empty">${esc(t.contacts_truncated(CONTACTS_PAGE_SIZE))}</td></tr>`;
+        }
         contactsList.innerHTML = html;
     } catch (e) {
         logger.error("Error loading contacts:", e);

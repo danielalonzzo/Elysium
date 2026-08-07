@@ -1,0 +1,1163 @@
+'use strict';
+
+/**
+ * Elysium platform service.
+ *
+ * Agenda de reuniones (creación, cancelación y los correos que las acompañan) y
+ * recuperación de contraseña. Las suscripciones y licencias las asigna el
+ * administrador desde el CRM y viven en Firestore; aquí no se cobra nada.
+ */
+const crypto = require('node:crypto');
+const express = require('express');
+const { applicationDefault, getApps, initializeApp } = require('firebase-admin/app');
+const { FieldValue, Timestamp, getFirestore } = require('firebase-admin/firestore');
+const { getAuth } = require('firebase-admin/auth');
+
+if (getApps().length === 0) {
+  initializeApp({ credential: applicationDefault() });
+}
+
+const db = getFirestore();
+const firebaseAuth = getAuth();
+const app = express();
+const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '1', 10);
+// Production runs behind one trusted ingress hop (Cloud Run/Cloudflare proxy),
+// allowing Express to expose the originating address through request.ip.
+app.set('trust proxy', Number.isInteger(trustProxyHops) && trustProxyHops >= 0 ? trustProxyHops : 1);
+const PORT = Number(process.env.PORT || 4242);
+const MEETING_EMAIL_LEASE_MS = 2 * 60 * 1000;
+const MAX_MEETING_RANGE_DAYS = 370;
+const PASSWORD_RESET_WINDOW_MS = 60 * 60 * 1000;
+const PASSWORD_RESET_EMAIL_LIMIT = 5;
+const PASSWORD_RESET_IP_LIMIT = 20;
+const SUPER_ADMIN_EMAILS = new Set(
+  String(process.env.ADMIN_EMAILS || 'danielalonzzo@icloud.com')
+    .split(',')
+    .map(value => value.trim().toLowerCase())
+    .filter(Boolean)
+);
+const passwordResetAttempts = new Map();
+
+/** The site's public origin, used in links that travel inside emails. */
+function publicBaseUrl() {
+  return String(process.env.PUBLIC_BASE_URL || 'https://elysiumdr.eu').replace(/\/$/, '');
+}
+
+const configuredOrigins = (process.env.ALLOWED_ORIGINS || [
+  'https://elysiumdr.eu',
+  'https://www.elysiumdr.eu',
+  'http://localhost:8787',
+  'http://localhost:4242',
+  'http://localhost:8123',
+  'http://127.0.0.1:8787',
+  'http://127.0.0.1:8123'
+].join(','))
+  .split(',')
+  .map(origin => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+const allowedOrigins = new Set(configuredOrigins);
+
+app.use((request, response, next) => {
+  const origin = String(request.get('origin') || '').replace(/\/$/, '');
+  if (allowedOrigins.has(origin)) {
+    response.set('Access-Control-Allow-Origin', origin);
+    response.set('Vary', 'Origin');
+    response.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, Idempotency-Key');
+    response.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  }
+  if (request.method === 'OPTIONS') return response.sendStatus(204);
+  return next();
+});
+
+function timestampMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toMillis === 'function') return value.toMillis();
+  if (Number.isFinite(value.seconds)) return value.seconds * 1000;
+  if (value instanceof Date) return value.getTime();
+  return Number(value) || 0;
+}
+
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '64kb' }));
+
+async function requireFirebaseUser(request, response, next) {
+  try {
+    response.set('Cache-Control', 'no-store');
+    const authorization = request.get('authorization') || '';
+    const match = authorization.match(/^Bearer\s+(.+)$/i);
+    if (!match) return response.status(401).json({ error: 'Authentication required.' });
+    request.firebaseUser = await firebaseAuth.verifyIdToken(match[1], true);
+    if (!request.firebaseUser.email || request.firebaseUser.email_verified !== true) {
+      return response.status(403).json({
+        error: 'Verify your email address before continuing.',
+        code: 'email_not_verified'
+      });
+    }
+    return next();
+  } catch (error) {
+    return response.status(401).json({ error: 'Invalid or expired authentication token.' });
+  }
+}
+
+function isFirebaseAdmin(identity) {
+  if (!identity || identity.email_verified !== true) return false;
+  const role = String(identity.role || '').toLowerCase();
+  return identity.admin === true
+    || ['admin', 'root', 'super_admin'].includes(role)
+    || SUPER_ADMIN_EMAILS.has(String(identity.email || '').toLowerCase());
+}
+
+function requireFirebaseAdmin(request, response, next) {
+  if (!isFirebaseAdmin(request.firebaseUser)) {
+    return response.status(403).json({ error: 'Administrator access required.', code: 'admin_required' });
+  }
+  return next();
+}
+
+class MeetingValidationError extends Error {
+  constructor(message, code, field = null) {
+    super(message);
+    this.name = 'MeetingValidationError';
+    this.code = code;
+    this.field = field;
+  }
+}
+
+function normalizedEmail(value) {
+  const email = String(value || '').trim().toLowerCase();
+  return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : null;
+}
+
+function normalizedLocale(value) {
+  const locale = String(value || '').toLowerCase().split(/[-_]/)[0];
+  return ['en', 'es', 'pt'].includes(locale) ? locale : 'en';
+}
+
+function safePlainText(value, field, maxLength, { required = false } = {}) {
+  const text = String(value || '').trim();
+  if (required && !text) {
+    throw new MeetingValidationError(`${field} is required.`, 'required', field);
+  }
+  if (text.length > maxLength || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) {
+    throw new MeetingValidationError(`${field} is invalid.`, 'invalid_text', field);
+  }
+  return text;
+}
+
+function normalizedHttpsUrl(value) {
+  const raw = String(value || '').trim();
+  if (!raw || raw.length > 2048) {
+    throw new MeetingValidationError('A meeting link is required.', 'invalid_meeting_url', 'meetingUrl');
+  }
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== 'https:' || !url.hostname || url.username || url.password) throw new Error('invalid');
+    return url.toString();
+  } catch (_error) {
+    throw new MeetingValidationError('The meeting link must be a valid HTTPS URL.', 'invalid_meeting_url', 'meetingUrl');
+  }
+}
+
+function validateIanaTimeZone(value, field) {
+  const timeZone = String(value || '').trim();
+  if (!timeZone || timeZone.length > 100) {
+    throw new MeetingValidationError(`${field} is required.`, 'invalid_time_zone', field);
+  }
+  try {
+    new Intl.DateTimeFormat('en', { timeZone }).format(0);
+    return timeZone;
+  } catch (_error) {
+    throw new MeetingValidationError(`${field} must be a valid IANA time zone.`, 'invalid_time_zone', field);
+  }
+}
+
+function zonedDateParts(instantMillis, timeZone, existingFormatter = null) {
+  const formatter = existingFormatter || new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      calendar: 'gregory',
+      numberingSystem: 'latn',
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  const parts = Object.fromEntries(
+    formatter.formatToParts(new Date(instantMillis))
+      .filter(part => part.type !== 'literal')
+      .map(part => [part.type, Number(part.value)])
+  );
+  return {
+    year: parts.year,
+    month: parts.month,
+    day: parts.day,
+    hour: parts.hour,
+    minute: parts.minute
+  };
+}
+
+/**
+ * Converts an explicitly zoned wall-clock value into one UTC instant. A local
+ * time inside a DST gap has no match; a local time inside a DST fold has two.
+ * Both are rejected so the admin must choose an unambiguous time.
+ */
+function resolveZonedLocalDateTime(date, time, timeZone) {
+  const dateMatch = String(date || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const timeMatch = String(time || '').match(/^(\d{2}):(\d{2})$/);
+  if (!dateMatch) throw new MeetingValidationError('Date must use YYYY-MM-DD.', 'invalid_date', 'date');
+  if (!timeMatch) throw new MeetingValidationError('Time must use HH:mm.', 'invalid_time', 'time');
+
+  const wanted = {
+    year: Number(dateMatch[1]),
+    month: Number(dateMatch[2]),
+    day: Number(dateMatch[3]),
+    hour: Number(timeMatch[1]),
+    minute: Number(timeMatch[2])
+  };
+  const dateCheck = new Date(Date.UTC(wanted.year, wanted.month - 1, wanted.day));
+  if (dateCheck.getUTCFullYear() !== wanted.year
+    || dateCheck.getUTCMonth() !== wanted.month - 1
+    || dateCheck.getUTCDate() !== wanted.day) {
+    throw new MeetingValidationError('Date is not valid.', 'invalid_date', 'date');
+  }
+  if (wanted.hour > 23 || wanted.minute > 59) {
+    throw new MeetingValidationError('Time is not valid.', 'invalid_time', 'time');
+  }
+
+  const zone = validateIanaTimeZone(timeZone, 'adminTimeZone');
+  const nominalUtc = Date.UTC(wanted.year, wanted.month - 1, wanted.day, wanted.hour, wanted.minute);
+  const matches = [];
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: zone,
+    calendar: 'gregory',
+    numberingSystem: 'latn',
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+  for (let offsetMinutes = -16 * 60; offsetMinutes <= 16 * 60; offsetMinutes += 1) {
+    const candidate = nominalUtc + offsetMinutes * 60_000;
+    const parts = zonedDateParts(candidate, zone, formatter);
+    if (parts.year === wanted.year
+      && parts.month === wanted.month
+      && parts.day === wanted.day
+      && parts.hour === wanted.hour
+      && parts.minute === wanted.minute) {
+      matches.push(candidate);
+    }
+  }
+  const uniqueMatches = [...new Set(matches)];
+  if (uniqueMatches.length === 0) {
+    throw new MeetingValidationError(
+      'That local time does not exist because of a daylight-saving transition.',
+      'nonexistent_local_time',
+      'time'
+    );
+  }
+  if (uniqueMatches.length > 1) {
+    throw new MeetingValidationError(
+      'That local time occurs twice because of a daylight-saving transition. Choose another time.',
+      'ambiguous_local_time',
+      'time'
+    );
+  }
+  return new Date(uniqueMatches[0]);
+}
+
+function normalizeMeetingInput(body, nowMillis = Date.now()) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    throw new MeetingValidationError('Invalid request body.', 'invalid_body');
+  }
+  const userId = safePlainText(body.userId, 'userId', 128, { required: true });
+  if (!/^[A-Za-z0-9:_-]+$/.test(userId)) {
+    throw new MeetingValidationError('userId is invalid.', 'invalid_user_id', 'userId');
+  }
+  const title = safePlainText(body.title, 'title', 160, { required: true });
+  const notes = safePlainText(body.notes, 'notes', 2000);
+  const clientRegion = safePlainText(body.clientRegion, 'clientRegion', 100);
+  const meetingUrl = normalizedHttpsUrl(body.meetingUrl);
+  const adminTimeZone = validateIanaTimeZone(body.adminTimeZone, 'adminTimeZone');
+  const clientTimeZone = validateIanaTimeZone(body.clientTimeZone, 'clientTimeZone');
+  const date = String(body.date || '');
+  const time = String(body.time || '');
+  const startAt = resolveZonedLocalDateTime(date, time, adminTimeZone);
+  const durationMinutes = Number(body.durationMinutes);
+  if (!Number.isInteger(durationMinutes) || durationMinutes < 15 || durationMinutes > 480) {
+    throw new MeetingValidationError(
+      'Duration must be a whole number between 15 and 480 minutes.',
+      'invalid_duration',
+      'durationMinutes'
+    );
+  }
+  if (startAt.getTime() < nowMillis - 5 * 60_000) {
+    throw new MeetingValidationError('Meeting time is in the past.', 'meeting_in_past', 'date');
+  }
+  return {
+    userId,
+    title,
+    notes,
+    clientRegion: clientRegion || clientTimeZone,
+    meetingUrl,
+    adminTimeZone,
+    clientTimeZone,
+    date,
+    time,
+    durationMinutes,
+    startAt,
+    endAt: new Date(startAt.getTime() + durationMinutes * 60_000),
+    locale: body.locale ? normalizedLocale(body.locale) : null
+  };
+}
+
+function normalizedIdempotencyKey(value) {
+  const key = String(value || '').trim();
+  if (key.length < 8 || key.length > 128 || !/^[A-Za-z0-9._:-]+$/.test(key)) {
+    throw new MeetingValidationError(
+      'A valid Idempotency-Key header is required.',
+      'invalid_idempotency_key',
+      'idempotencyKey'
+    );
+  }
+  return key;
+}
+
+function meetingIdForRequest(adminUid, idempotencyKey) {
+  return `mtg_${crypto.createHash('sha256').update(`${adminUid}\u0000${idempotencyKey}`).digest('hex').slice(0, 40)}`;
+}
+
+function meetingRequestFingerprint(meeting) {
+  const canonical = {
+    userId: meeting.userId,
+    title: meeting.title,
+    notes: meeting.notes,
+    clientRegion: meeting.clientRegion,
+    meetingUrl: meeting.meetingUrl,
+    adminTimeZone: meeting.adminTimeZone,
+    clientTimeZone: meeting.clientTimeZone,
+    date: meeting.date,
+    time: meeting.time,
+    durationMinutes: meeting.durationMinutes,
+    locale: meeting.locale
+  };
+  return crypto.createHash('sha256').update(JSON.stringify(canonical)).digest('hex');
+}
+
+function dateFromFirestore(value) {
+  if (value instanceof Date) return value;
+  if (value && typeof value.toDate === 'function') return value.toDate();
+  if (value && Number.isFinite(value.seconds)) return new Date(value.seconds * 1000);
+  return new Date(value);
+}
+
+function formattedZonedDate(value, timeZone, locale = 'en') {
+  const locales = { en: 'en-GB', es: 'es-ES', pt: 'pt-PT' };
+  return new Intl.DateTimeFormat(locales[normalizedLocale(locale)], {
+    timeZone,
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  }).format(dateFromFirestore(value));
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function emailTheme(content, preheader = '') {
+  return `<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;background:#030a16;color:#eaf3ff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(preheader)}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030a16;padding:40px 12px">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px">
+        <tr><td style="padding:0 8px 32px;color:#fff;font-size:24px;font-weight:800;letter-spacing:.05em"><span style="color:#28a8ff">λ</span> ELYSIUM</td></tr>
+        <tr><td style="background:#07152b;border:1px solid #142e4d;border-radius:24px;padding:48px 40px;box-shadow:0 12px 40px rgba(0,0,0,0.4)">${content}</td></tr>
+        <tr><td style="padding:32px 8px;color:#6482a3;font-size:13px;line-height:1.6;text-align:center">Elysium Digital Experiences<br>elysiumdr.eu</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+}
+
+const MEETING_COPY = {
+  en: {
+    confirmed: 'Meeting confirmed', cancelled: 'Meeting cancelled', hello: 'Hello',
+    intro: 'Your meeting with Elysium has been scheduled.', cancelledIntro: 'This Elysium meeting has been cancelled.',
+    yourTime: 'Your local time', adminTime: 'Elysium time', duration: 'Duration', region: 'Client region',
+    join: 'Join meeting', minutes: 'minutes', notes: 'Notes', subjectConfirmed: 'Meeting confirmed', subjectCancelled: 'Meeting cancelled',
+    adminHeading: 'New meeting in the agenda', adminHeadingCancelled: 'Meeting removed from the agenda',
+    adminIntro: 'The confirmation and the calendar invitation have already been sent to the client.',
+    adminIntroCancelled: 'The client has been told the meeting will not take place.',
+    adminClient: 'Client', adminEmail: 'Email', adminOpenCrm: 'Open in the CRM',
+    adminSubjectConfirmed: 'New meeting', adminSubjectCancelled: 'Meeting cancelled'
+  },
+  es: {
+    confirmed: 'Reunión confirmada', cancelled: 'Reunión cancelada', hello: 'Hola',
+    intro: 'Tu reunión con Elysium ha sido agendada.', cancelledIntro: 'Esta reunión con Elysium ha sido cancelada.',
+    yourTime: 'Tu hora local', adminTime: 'Hora de Elysium', duration: 'Duración', region: 'Región del cliente',
+    join: 'Acceder a la reunión', minutes: 'minutos', notes: 'Notas', subjectConfirmed: 'Reunión confirmada', subjectCancelled: 'Reunión cancelada',
+    adminHeading: 'Nueva reunión en la agenda', adminHeadingCancelled: 'Reunión retirada de la agenda',
+    adminIntro: 'La confirmación y la invitación de calendario ya han salido hacia el cliente.',
+    adminIntroCancelled: 'Se ha avisado al cliente de que la reunión no se celebrará.',
+    adminClient: 'Cliente', adminEmail: 'Correo', adminOpenCrm: 'Abrir en el CRM',
+    adminSubjectConfirmed: 'Nueva reunión', adminSubjectCancelled: 'Reunión cancelada'
+  },
+  pt: {
+    confirmed: 'Reunião confirmada', cancelled: 'Reunião cancelada', hello: 'Olá',
+    intro: 'A sua reunião com a Elysium foi agendada.', cancelledIntro: 'Esta reunião com a Elysium foi cancelada.',
+    yourTime: 'A sua hora local', adminTime: 'Hora da Elysium', duration: 'Duração', region: 'Região do cliente',
+    join: 'Entrar na reunião', minutes: 'minutos', notes: 'Notas', subjectConfirmed: 'Reunião confirmada', subjectCancelled: 'Reunião cancelada',
+    adminHeading: 'Nova reunião na agenda', adminHeadingCancelled: 'Reunião retirada da agenda',
+    adminIntro: 'A confirmação e o convite de calendário já seguiram para o cliente.',
+    adminIntroCancelled: 'O cliente foi avisado de que a reunião não se vai realizar.',
+    adminClient: 'Cliente', adminEmail: 'Email', adminOpenCrm: 'Abrir no CRM',
+    adminSubjectConfirmed: 'Nova reunião', adminSubjectCancelled: 'Reunião cancelada'
+  }
+};
+
+function buildMeetingEmail(meeting, kind = 'confirmation') {
+  const locale = normalizedLocale(meeting.locale);
+  const copy = MEETING_COPY[locale];
+  const cancelled = kind === 'cancellation';
+  const heading = cancelled ? copy.cancelled : copy.confirmed;
+  const intro = cancelled ? copy.cancelledIntro : copy.intro;
+  const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
+  const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
+  const notes = meeting.cancellationReason || meeting.notes || '';
+  const button = cancelled ? '' : `
+    <p style="margin:32px 0 4px"><a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.3)">${escapeHtml(copy.join)}</a></p>`;
+  const content = `
+    <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(heading)}</p>
+    <h1 style="margin:0 0 20px;color:#fff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(meeting.title)}</h1>
+    <p style="margin:0 0 32px;color:#a3c2e0;font-size:16px;line-height:1.6">${escapeHtml(copy.hello)} ${escapeHtml(meeting.clientName || '')}, ${escapeHtml(intro)}</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030a16;border:1px solid #142a4a;border-radius:16px;padding:8px 24px;color:#eaf3ff">
+      <tr><td style="padding:16px 0;color:#6482a3;font-size:14px">${escapeHtml(copy.yourTime)}</td><td style="padding:16px 0;text-align:right;font-weight:600;font-size:15px">${escapeHtml(clientDate)}<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.clientTimeZone)}</span></td></tr>
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(copy.adminTime)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${escapeHtml(adminDate)}<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.adminTimeZone)}</span></td></tr>
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(copy.duration)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${Number(meeting.durationMinutes)} ${escapeHtml(copy.minutes)}</td></tr>
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(copy.region)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${escapeHtml(meeting.clientRegion || meeting.clientTimeZone)}</td></tr>
+    </table>
+    ${notes ? `<div style="margin:28px 0 0;background:#0a1930;border-left:4px solid #28a8ff;padding:16px 20px;border-radius:0 12px 12px 0"><p style="margin:0;color:#a3c2e0;font-size:15px;line-height:1.6"><strong style="color:#fff;display:block;margin-bottom:4px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
+    ${button}`;
+  const subjectLabel = cancelled ? copy.subjectCancelled : copy.subjectConfirmed;
+  const text = [
+    `${heading}: ${meeting.title}`,
+    `${copy.yourTime}: ${clientDate} (${meeting.clientTimeZone})`,
+    `${copy.adminTime}: ${adminDate} (${meeting.adminTimeZone})`,
+    `${copy.duration}: ${meeting.durationMinutes} ${copy.minutes}`,
+    !cancelled ? `${copy.join}: ${meeting.meetingUrl}` : '',
+    notes ? `${copy.notes}: ${notes}` : ''
+  ].filter(Boolean).join('\n');
+  return {
+    subject: `${subjectLabel} · ${meeting.title}`,
+    html: emailTheme(content, `${subjectLabel}: ${meeting.title}`),
+    text
+  };
+}
+
+function icsEscape(value) {
+  return String(value || '')
+    .replaceAll('\\', '\\\\')
+    .replaceAll('\r\n', '\\n')
+    .replaceAll('\n', '\\n')
+    .replaceAll(',', '\\,')
+    .replaceAll(';', '\\;');
+}
+
+function foldIcsLine(line) {
+  const chunks = [];
+  let chunk = '';
+  for (const character of String(line)) {
+    if (Buffer.byteLength(chunk + character, 'utf8') > 73) {
+      chunks.push(chunk);
+      chunk = character;
+    } else {
+      chunk += character;
+    }
+  }
+  chunks.push(chunk);
+  return chunks.join('\r\n ');
+}
+
+function icsUtc(value) {
+  return dateFromFirestore(value).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+}
+
+function extractEmailAddress(value) {
+  const match = String(value || '').match(/<([^>]+)>/);
+  return normalizedEmail(match ? match[1] : value) || 'hello@elysiumdr.eu';
+}
+
+function buildMeetingIcs(meeting, kind = 'confirmation', now = new Date()) {
+  const cancelled = kind === 'cancellation';
+  const organizerEmail = extractEmailAddress(process.env.MEETING_FROM_EMAIL || 'hello@elysiumdr.eu');
+  const description = cancelled
+    ? `Cancelled: ${meeting.title}`
+    : `${meeting.notes || ''}${meeting.notes ? '\n\n' : ''}${meeting.meetingUrl}`;
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'PRODID:-//Elysium Digital Experiences//Meetings//EN',
+    'VERSION:2.0',
+    'CALSCALE:GREGORIAN',
+    `METHOD:${cancelled ? 'CANCEL' : 'REQUEST'}`,
+    'BEGIN:VEVENT',
+    `UID:${icsEscape(meeting.id)}@elysiumdr.eu`,
+    `DTSTAMP:${icsUtc(now)}`,
+    `DTSTART:${icsUtc(meeting.startAt)}`,
+    `DTEND:${icsUtc(meeting.endAt)}`,
+    `SEQUENCE:${cancelled ? 1 : 0}`,
+    `STATUS:${cancelled ? 'CANCELLED' : 'CONFIRMED'}`,
+    `SUMMARY:${icsEscape(meeting.title)}`,
+    `DESCRIPTION:${icsEscape(description)}`,
+    `URL:${icsEscape(meeting.meetingUrl)}`,
+    `ORGANIZER;CN=Elysium:mailto:${organizerEmail}`,
+    `ATTENDEE;CN=${icsEscape(meeting.clientName || meeting.clientEmail)};RSVP=TRUE:mailto:${meeting.clientEmail}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ];
+  return `${lines.map(foldIcsLine).join('\r\n')}\r\n`;
+}
+
+/**
+ * The administrator's own copy. Same theme, different job: it confirms the
+ * client has already been told, and carries the details the CRM needs at a
+ * glance — who, which address, and a link straight to their profile.
+ */
+function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
+  const locale = normalizedLocale(meeting.locale);
+  const copy = MEETING_COPY[locale];
+  const cancelled = kind === 'cancellation';
+  const heading = cancelled ? copy.adminHeadingCancelled : copy.adminHeading;
+  const intro = cancelled ? copy.adminIntroCancelled : copy.adminIntro;
+  const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
+  const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
+  const notes = meeting.cancellationReason || meeting.notes || '';
+  const crmUrl = `${publicBaseUrl()}/admin?client=${encodeURIComponent(meeting.userId || '')}`;
+  const row = (label, value, extra = '') => `
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(label)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${escapeHtml(value)}${extra}</td></tr>`;
+  const buttonGroup = `
+    <p style="margin:32px 0 4px">
+      ${cancelled ? '' : `<a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.3)">${escapeHtml(copy.join)}</a>&nbsp;&nbsp;&nbsp;`}
+      <a href="${escapeHtml(crmUrl)}" style="display:inline-block;border:1px solid #28a8ff;color:#28a8ff;text-decoration:none;font-weight:600;padding:15px 27px;border-radius:999px;font-size:15px;letter-spacing:0.02em">${escapeHtml(copy.adminOpenCrm)}</a>
+    </p>`;
+  const content = `
+    <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(heading)}</p>
+    <h1 style="margin:0 0 20px;color:#fff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(meeting.title)}</h1>
+    <p style="margin:0 0 32px;color:#a3c2e0;font-size:16px;line-height:1.6">${escapeHtml(intro)}</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030a16;border:1px solid #142a4a;border-radius:16px;padding:8px 24px;color:#eaf3ff">
+      <tr><td style="padding:16px 0;color:#6482a3;font-size:14px">${escapeHtml(copy.adminClient)}</td><td style="padding:16px 0;text-align:right;font-weight:600;font-size:15px">${escapeHtml(meeting.clientName || '—')}</td></tr>
+      ${row(copy.adminEmail, meeting.clientEmail || '—')}
+      ${row(copy.adminTime, adminDate, `<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.adminTimeZone)}</span>`)}
+      ${row(copy.yourTime, clientDate, `<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.clientTimeZone)}</span>`)}
+      ${row(copy.duration, `${Number(meeting.durationMinutes)} ${copy.minutes}`)}
+      ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone || '—')}
+    </table>
+    ${notes ? `<div style="margin:28px 0 0;background:#0a1930;border-left:4px solid #28a8ff;padding:16px 20px;border-radius:0 12px 12px 0"><p style="margin:0;color:#a3c2e0;font-size:15px;line-height:1.6"><strong style="color:#fff;display:block;margin-bottom:4px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
+    ${buttonGroup}`;
+  const subjectLabel = cancelled ? copy.adminSubjectCancelled : copy.adminSubjectConfirmed;
+  const who = meeting.clientName || meeting.clientEmail || '';
+  const text = [
+    `${heading}: ${meeting.title}`,
+    `${copy.adminClient}: ${who}`,
+    `${copy.adminEmail}: ${meeting.clientEmail || '—'}`,
+    `${copy.adminTime}: ${adminDate} (${meeting.adminTimeZone})`,
+    `${copy.yourTime}: ${clientDate} (${meeting.clientTimeZone})`,
+    `${copy.duration}: ${meeting.durationMinutes} ${copy.minutes}`,
+    !cancelled ? `${copy.join}: ${meeting.meetingUrl}` : '',
+    notes ? `${copy.notes}: ${notes}` : '',
+    `${copy.adminOpenCrm}: ${crmUrl}`
+  ].filter(Boolean).join('\n');
+  return {
+    subject: `${subjectLabel} · ${who} · ${meeting.title}`.trim(),
+    html: emailTheme(content, `${subjectLabel}: ${meeting.title}`),
+    text
+  };
+}
+
+/** Where the administrator's copy goes. */
+function adminNotificationEmail() {
+  return normalizedEmail(process.env.ADMIN_NOTIFICATION_EMAIL)
+    || [...SUPER_ADMIN_EMAILS][0]
+    || null;
+}
+
+function meetingResendPayload(meeting, kind = 'confirmation', audience = 'client') {
+  const email = audience === 'admin'
+    ? buildMeetingAdminEmail(meeting, kind)
+    : buildMeetingEmail(meeting, kind);
+  return {
+    from: process.env.MEETING_FROM_EMAIL || '',
+    to: [audience === 'admin' ? adminNotificationEmail() : meeting.clientEmail],
+    subject: email.subject,
+    html: email.html,
+    text: email.text,
+    attachments: [{
+      filename: kind === 'cancellation' ? 'elysium-meeting-cancelled.ics' : 'elysium-meeting.ics',
+      content: Buffer.from(buildMeetingIcs(meeting, kind), 'utf8').toString('base64')
+    }]
+  };
+}
+
+async function sendResendEmail(payload, idempotencyKey, fetchImpl = globalThis.fetch) {
+  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
+  if (!apiKey || !payload.from) {
+    const error = new Error('Email delivery is not configured.');
+    error.code = 'email_not_configured';
+    throw error;
+  }
+  if (typeof fetchImpl !== 'function') throw new Error('fetch is unavailable.');
+  const result = await fetchImpl('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': idempotencyKey
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!result.ok) {
+    const error = new Error(`Email provider rejected the request (${result.status}).`);
+    error.code = 'email_delivery_failed';
+    error.status = result.status;
+    throw error;
+  }
+  const data = await result.json();
+  if (!data?.id) {
+    const error = new Error('Email provider returned no delivery ID.');
+    error.code = 'email_delivery_failed';
+    throw error;
+  }
+  return data;
+}
+
+function meetingNotificationPath(kind) {
+  if (!['confirmation', 'cancellation'].includes(kind)) throw new Error('Invalid notification kind.');
+  return `notifications.${kind}`;
+}
+
+async function claimMeetingNotification(meetingId, kind, nowMillis = Date.now()) {
+  const meetingRef = db.collection('meetings').doc(meetingId);
+  return db.runTransaction(async transaction => {
+    const snapshot = await transaction.get(meetingRef);
+    if (!snapshot.exists) return { kind: 'missing' };
+    const meeting = snapshot.data();
+    if (kind === 'confirmation' && meeting.status !== 'scheduled') return { kind: 'suppressed', meeting };
+    if (kind === 'cancellation' && meeting.status !== 'cancelled') return { kind: 'suppressed', meeting };
+    const current = meeting.notifications?.[kind] || {};
+    if (current.status === 'sent') return { kind: 'sent', meeting, delivery: current };
+    if (current.status === 'sending' && timestampMillis(current.leaseUntil) > nowMillis) {
+      return { kind: 'in_progress', meeting, delivery: current };
+    }
+    const attemptId = crypto.randomUUID();
+    const idempotencyKey = `elysium-meeting-${kind}-${meetingId}`;
+    const delivery = {
+      ...current,
+      status: 'sending',
+      attemptId,
+      idempotencyKey,
+      attemptCount: Number(current.attemptCount || 0) + 1,
+      leaseUntil: Timestamp.fromMillis(nowMillis + MEETING_EMAIL_LEASE_MS),
+      updatedAt: FieldValue.serverTimestamp()
+    };
+    transaction.update(meetingRef, { [meetingNotificationPath(kind)]: delivery });
+    return { kind: 'claimed', meeting: { id: meetingId, ...meeting }, attemptId, idempotencyKey };
+  });
+}
+
+async function finishMeetingNotification(meetingId, kind, attemptId, patch) {
+  const meetingRef = db.collection('meetings').doc(meetingId);
+  return db.runTransaction(async transaction => {
+    const snapshot = await transaction.get(meetingRef);
+    if (!snapshot.exists) return false;
+    const meeting = snapshot.data();
+    const current = meeting.notifications?.[kind] || {};
+    if (current.attemptId !== attemptId) return false;
+    transaction.update(meetingRef, {
+      [meetingNotificationPath(kind)]: {
+        ...current,
+        ...patch,
+        leaseUntil: null,
+        updatedAt: FieldValue.serverTimestamp()
+      }
+    });
+    return true;
+  });
+}
+
+/**
+ * Envía la notificación de una reunión y traduce el resultado a algo que el CRM
+ * pueda enseñar.
+ *
+ * `deliverMeetingNotification` estaba escrita entera —reserva por lease,
+ * idempotencia, reintentos, copia al administrador— pero no la llamaba nadie:
+ * la creación de la reunión dejaba `notifications.confirmation.status` en
+ * `pending` y ahí se quedaba para siempre. No es que el correo fallara, es que
+ * nunca se intentaba, así que ninguna reunión ha confirmado nunca.
+ *
+ * Nunca lanza: una reunión guardada no puede convertirse en un error HTTP
+ * porque el proveedor de correo esté caído. Y reintentar es seguro, porque el
+ * claim y la Idempotency-Key impiden el envío doble.
+ */
+async function dispatchMeetingEmail(meetingId, kind, fetchImpl = globalThis.fetch) {
+  try {
+    const result = await deliverMeetingNotification(meetingId, kind, fetchImpl);
+    return result.kind;
+  } catch (error) {
+    console.error(
+      `Meeting ${kind} email failed for ${meetingId}:`,
+      error.code || error.message || 'unknown_error'
+    );
+    return error.code === 'email_not_configured' ? 'not_configured' : 'failed';
+  }
+}
+
+async function deliverMeetingNotification(meetingId, kind, fetchImpl = globalThis.fetch) {
+  const claim = await claimMeetingNotification(meetingId, kind);
+  if (claim.kind !== 'claimed') return claim;
+
+  // Re-read after claiming to avoid sending a confirmation that was cancelled
+  // immediately before the external provider call.
+  const latestSnapshot = await db.collection('meetings').doc(meetingId).get();
+  const latestMeeting = latestSnapshot.data();
+  if (!latestMeeting
+    || kind === 'confirmation' && latestMeeting.status !== 'scheduled'
+    || kind === 'cancellation' && latestMeeting.status !== 'cancelled') {
+    await finishMeetingNotification(meetingId, kind, claim.attemptId, { status: 'suppressed' });
+    return { kind: 'suppressed' };
+  }
+
+  try {
+    // The client is told, and so is the administrator. Both go out under the
+    // same claim with their own idempotency key, so a retry after a partial
+    // failure re-sends only the one that never left.
+    const meeting = { id: meetingId, ...latestMeeting };
+    const adminEmail = adminNotificationEmail();
+    const [providerResult, adminResult] = await Promise.all([
+      sendResendEmail(meetingResendPayload(meeting, kind, 'client'), claim.idempotencyKey, fetchImpl),
+      adminEmail
+        ? sendResendEmail(meetingResendPayload(meeting, kind, 'admin'), `${claim.idempotencyKey}-admin`, fetchImpl)
+        : Promise.resolve(null)
+    ]);
+    await finishMeetingNotification(meetingId, kind, claim.attemptId, {
+      status: 'sent',
+      provider: 'resend',
+      providerMessageId: providerResult.id,
+      adminMessageId: adminResult?.id || null,
+      sentAt: FieldValue.serverTimestamp(),
+      lastError: null
+    });
+    return { kind: 'sent', providerMessageId: providerResult.id, adminMessageId: adminResult?.id || null };
+  } catch (error) {
+    await finishMeetingNotification(meetingId, kind, claim.attemptId, {
+      status: 'failed',
+      lastError: error.code || 'email_delivery_failed',
+      failedAt: FieldValue.serverTimestamp()
+    });
+    throw error;
+  }
+}
+
+function serializeMeeting(id, meeting) {
+  function serializeValue(value) {
+    if (value instanceof Date) return value.toISOString();
+    if (value && typeof value.toDate === 'function') return value.toDate().toISOString();
+    if (Array.isArray(value)) return value.map(serializeValue);
+    if (value && typeof value === 'object') {
+      return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, serializeValue(child)]));
+    }
+    return value;
+  }
+  return { id, ...serializeValue(meeting) };
+}
+
+function passwordResetRateLimited(key, limit, nowMillis = Date.now(), attempts = passwordResetAttempts) {
+  const current = attempts.get(key);
+  if (!current || current.resetAt <= nowMillis) {
+    attempts.set(key, { count: 1, resetAt: nowMillis + PASSWORD_RESET_WINDOW_MS });
+    return false;
+  }
+  current.count += 1;
+  return current.count > limit;
+}
+
+function cleanupPasswordResetAttempts(nowMillis = Date.now()) {
+  if (passwordResetAttempts.size < 1000) return;
+  for (const [key, value] of passwordResetAttempts) {
+    if (value.resetAt <= nowMillis) passwordResetAttempts.delete(key);
+  }
+}
+
+function passwordResetEmail(email, resetLink, locale = 'en') {
+  const language = normalizedLocale(locale);
+  const copy = {
+    en: { subject: 'Reset your Elysium password', heading: 'Reset your password', intro: 'We received a request to reset your Elysium password.', button: 'Choose a new password', expiry: 'For your security, use this link only once. If you did not request it, you can ignore this email.' },
+    es: { subject: 'Restablece tu contraseña de Elysium', heading: 'Restablece tu contraseña', intro: 'Recibimos una solicitud para restablecer tu contraseña de Elysium.', button: 'Elegir una nueva contraseña', expiry: 'Por tu seguridad, utiliza este enlace una sola vez. Si no hiciste la solicitud, puedes ignorar este correo.' },
+    pt: { subject: 'Repor a palavra-passe da Elysium', heading: 'Repor a palavra-passe', intro: 'Recebemos um pedido para repor a sua palavra-passe da Elysium.', button: 'Escolher uma nova palavra-passe', expiry: 'Para sua segurança, utilize esta ligação apenas uma vez. Se não fez o pedido, pode ignorar este email.' }
+  }[language];
+  const content = `
+    <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">Elysium Security</p>
+    <h1 style="margin:0 0 20px;color:#fff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(copy.heading)}</h1>
+    <p style="margin:0 0 32px;color:#a3c2e0;font-size:16px;line-height:1.6">${escapeHtml(copy.intro)}</p>
+    <p style="margin:0 0 32px"><a href="${escapeHtml(resetLink)}" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.3)">${escapeHtml(copy.button)}</a></p>
+    <p style="margin:0;color:#6482a3;font-size:13px;line-height:1.6">${escapeHtml(copy.expiry)}</p>`;
+  return {
+    from: process.env.PASSWORD_RESET_FROM_EMAIL || process.env.MEETING_FROM_EMAIL || '',
+    to: [email],
+    subject: copy.subject,
+    html: emailTheme(content, copy.subject),
+    text: `${copy.intro}\n${copy.button}: ${resetLink}\n\n${copy.expiry}`
+  };
+}
+
+function passwordResetEmailConfigured() {
+  return Boolean(
+    String(process.env.RESEND_API_KEY || '').trim()
+    && String(process.env.PASSWORD_RESET_FROM_EMAIL || process.env.MEETING_FROM_EMAIL || '').trim()
+  );
+}
+
+function passwordResetContinueUrl(locale) {
+  const base = String(process.env.PUBLIC_BASE_URL || 'https://elysiumdr.eu').replace(/\/$/, '');
+  const prefix = normalizedLocale(locale) === 'en' ? '' : `/${normalizedLocale(locale)}`;
+  return `${base}${prefix}/profiles?passwordReset=complete`;
+}
+
+function resetAttemptKey(kind, value) {
+  return `${kind}:${crypto.createHash('sha256').update(String(value || '')).digest('hex')}`;
+}
+
+async function minimumResponseDelay(startedAt, milliseconds = 650) {
+  const remaining = milliseconds - (Date.now() - startedAt);
+  if (remaining > 0) await new Promise(resolve => setTimeout(resolve, remaining));
+}
+
+app.post('/api/auth/password-reset', async (request, response) => {
+  const startedAt = Date.now();
+  const genericResponse = {
+    ok: true,
+    message: 'If an eligible account exists, a password reset email will arrive shortly.'
+  };
+  response.set('Cache-Control', 'no-store');
+  if (!passwordResetEmailConfigured()) {
+    await minimumResponseDelay(startedAt);
+    return response.status(503).json({
+      ok: false,
+      error: 'Password reset email is not configured.',
+      code: 'email_not_configured'
+    });
+  }
+  const email = normalizedEmail(request.body?.email);
+  const locale = normalizedLocale(request.body?.locale);
+  const remoteAddress = request.ip || 'unknown';
+  cleanupPasswordResetAttempts(startedAt);
+  const limited = !email
+    || passwordResetRateLimited(resetAttemptKey('ip', remoteAddress), PASSWORD_RESET_IP_LIMIT, startedAt)
+    || passwordResetRateLimited(resetAttemptKey('email', email), PASSWORD_RESET_EMAIL_LIMIT, startedAt);
+
+  if (!limited) {
+    try {
+      const account = await firebaseAuth.getUserByEmail(email);
+      if (!account.disabled) {
+        const resetLink = await firebaseAuth.generatePasswordResetLink(email, {
+          url: passwordResetContinueUrl(locale),
+          handleCodeInApp: false
+        });
+        const deliveryKey = `elysium-password-reset-${crypto.createHash('sha256').update(resetLink).digest('hex')}`;
+        await sendResendEmail(passwordResetEmail(email, resetLink, locale), deliveryKey);
+      }
+    } catch (error) {
+      // The response is deliberately identical for missing accounts, disabled
+      // accounts, provider failures and successful sends. Operational errors
+      // remain visible in server logs without printing the requested address.
+      if (error?.code !== 'auth/user-not-found') {
+        console.error('Password reset delivery failed:', error?.code || error?.message || 'unknown_error');
+      }
+    }
+  }
+
+  await minimumResponseDelay(startedAt);
+  return response.status(202).json(genericResponse);
+});
+
+app.get('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (request, response) => {
+  try {
+    const now = Date.now();
+    const from = request.query.from ? new Date(String(request.query.from)) : new Date(now - 7 * 86400_000);
+    const to = request.query.to ? new Date(String(request.query.to)) : new Date(now + 360 * 86400_000);
+    if (!Number.isFinite(from.getTime())
+      || !Number.isFinite(to.getTime())
+      || to <= from
+      || to.getTime() - from.getTime() > MAX_MEETING_RANGE_DAYS * 86400_000) {
+      return response.status(400).json({
+        error: `Meeting range must be valid and no longer than ${MAX_MEETING_RANGE_DAYS} days.`,
+        code: 'invalid_meeting_range'
+      });
+    }
+    const requestedUserId = request.query.userId ? String(request.query.userId) : null;
+    if (requestedUserId && !/^[A-Za-z0-9:_-]{1,128}$/.test(requestedUserId)) {
+      return response.status(400).json({ error: 'Invalid userId.', code: 'invalid_user_id' });
+    }
+    const snapshot = await db.collection('meetings')
+      .where('startAt', '>=', Timestamp.fromDate(from))
+      .where('startAt', '<=', Timestamp.fromDate(to))
+      .orderBy('startAt', 'asc')
+      .limit(250)
+      .get();
+    const meetings = snapshot.docs
+      .filter(document => !requestedUserId || document.data().userId === requestedUserId)
+      .map(document => serializeMeeting(document.id, document.data()));
+    return response.json({ meetings });
+  } catch (error) {
+    console.error('Meeting list failed:', error);
+    return response.status(500).json({ error: 'Unable to load meetings.', code: 'meeting_list_failed' });
+  }
+});
+
+app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (request, response) => {
+  try {
+    const normalized = normalizeMeetingInput(request.body);
+    const idempotencyKey = normalizedIdempotencyKey(
+      request.get('idempotency-key') || request.body?.idempotencyKey
+    );
+    const meetingId = meetingIdForRequest(request.firebaseUser.uid, idempotencyKey);
+    const fingerprint = meetingRequestFingerprint(normalized);
+    const meetingRef = db.collection('meetings').doc(meetingId);
+    const memberRef = db.collection('members').doc(normalized.userId);
+    const result = await db.runTransaction(async transaction => {
+      const [memberSnapshot, meetingSnapshot] = await Promise.all([
+        transaction.get(memberRef),
+        transaction.get(meetingRef)
+      ]);
+      if (!memberSnapshot.exists) return { kind: 'missing_member' };
+      const member = memberSnapshot.data();
+      if (member.isDeactivated === true) return { kind: 'deactivated_member' };
+      if (['admin', 'root'].includes(String(member.role || '').toLowerCase())
+        || SUPER_ADMIN_EMAILS.has(String(member.email || '').toLowerCase())) {
+        return { kind: 'invalid_member' };
+      }
+      const clientEmail = normalizedEmail(member.email);
+      if (!clientEmail) return { kind: 'invalid_member_email' };
+
+      if (meetingSnapshot.exists) {
+        const existing = meetingSnapshot.data();
+        if (existing.requestFingerprint !== fingerprint) return { kind: 'idempotency_conflict' };
+        return { kind: 'existing', meeting: existing };
+      }
+
+      const now = FieldValue.serverTimestamp();
+      const meeting = {
+        userId: normalized.userId,
+        clientName: safePlainText(member.name || member.company || 'Elysium client', 'clientName', 160, { required: true }),
+        clientEmail,
+        clientRegion: normalized.clientRegion,
+        clientTimeZone: normalized.clientTimeZone,
+        adminTimeZone: normalized.adminTimeZone,
+        title: normalized.title,
+        notes: normalized.notes,
+        meetingUrl: normalized.meetingUrl,
+        localDate: normalized.date,
+        localTime: normalized.time,
+        durationMinutes: normalized.durationMinutes,
+        startAt: Timestamp.fromDate(normalized.startAt),
+        endAt: Timestamp.fromDate(normalized.endAt),
+        locale: normalized.locale || normalizedLocale(member.preferredLanguage),
+        status: 'scheduled',
+        requestFingerprint: fingerprint,
+        notifications: {
+          confirmation: {
+            status: 'pending',
+            attemptCount: 0,
+            idempotencyKey: `elysium-meeting-confirmation-${meetingId}`,
+            requestedAt: now
+          }
+        },
+        audit: {
+          createdByUid: request.firebaseUser.uid,
+          createdByEmail: String(request.firebaseUser.email || '').toLowerCase(),
+          createdAt: now,
+          updatedByUid: request.firebaseUser.uid,
+          updatedByEmail: String(request.firebaseUser.email || '').toLowerCase(),
+          updatedAt: now
+        },
+        createdAt: now,
+        updatedAt: now
+      };
+      transaction.create(meetingRef, meeting);
+      transaction.set(db.collection('activities').doc(`meeting_created_${meetingId}`), {
+        memberId: normalized.userId,
+        memberName: meeting.clientName,
+        type: 'meeting_created',
+        payload: {
+          meetingId,
+          title: normalized.title,
+          startAt: meeting.startAt,
+          adminTimeZone: normalized.adminTimeZone,
+          clientTimeZone: normalized.clientTimeZone
+        },
+        actorUid: request.firebaseUser.uid,
+        actorEmail: String(request.firebaseUser.email || '').toLowerCase(),
+        actorRole: 'admin',
+        createdAt: now
+      }, { merge: true });
+      return { kind: 'created', meeting };
+    });
+
+    if (result.kind === 'missing_member') {
+      return response.status(404).json({ error: 'Client profile not found.', code: 'member_not_found' });
+    }
+    if (result.kind === 'deactivated_member') {
+      return response.status(409).json({ error: 'This client account is deactivated.', code: 'member_deactivated' });
+    }
+    if (result.kind === 'invalid_member' || result.kind === 'invalid_member_email') {
+      return response.status(400).json({ error: 'The selected record is not an eligible client.', code: result.kind });
+    }
+    if (result.kind === 'idempotency_conflict') {
+      return response.status(409).json({
+        error: 'This idempotency key was already used for a different meeting.',
+        code: 'idempotency_conflict'
+      });
+    }
+
+    // El envío va antes de responder para que el CRM diga si el correo salió
+    // de verdad, en vez de un «pending» eterno que no significaba nada.
+    const emailStatus = await dispatchMeetingEmail(meetingId, 'confirmation');
+    const persisted = await meetingRef.get();
+    const status = result.kind === 'created' ? 201 : 200;
+    return response.status(status).json({
+      meeting: serializeMeeting(meetingId, persisted.data()),
+      emailStatus,
+      idempotent: result.kind === 'existing'
+    });
+  } catch (error) {
+    if (error instanceof MeetingValidationError) {
+      return response.status(400).json({ error: error.message, code: error.code, field: error.field });
+    }
+    console.error('Meeting creation failed:', error);
+    return response.status(500).json({ error: 'Unable to schedule meeting.', code: 'meeting_create_failed' });
+  }
+});
+
+app.post('/api/meetings/:meetingId/cancel', requireFirebaseUser, requireFirebaseAdmin, async (request, response) => {
+  try {
+    const meetingId = String(request.params.meetingId || '');
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(meetingId)) {
+      return response.status(400).json({ error: 'Invalid meeting ID.', code: 'invalid_meeting_id' });
+    }
+    const reason = safePlainText(request.body?.reason, 'reason', 500);
+    const meetingRef = db.collection('meetings').doc(meetingId);
+    const result = await db.runTransaction(async transaction => {
+      const snapshot = await transaction.get(meetingRef);
+      if (!snapshot.exists) return { kind: 'missing' };
+      const meeting = snapshot.data();
+      if (meeting.status === 'cancelled') return { kind: 'existing', meeting };
+      if (meeting.status !== 'scheduled') return { kind: 'invalid_status', meeting };
+      const now = FieldValue.serverTimestamp();
+      transaction.update(meetingRef, {
+        status: 'cancelled',
+        cancellationReason: reason || null,
+        cancelledAt: now,
+        cancelledByUid: request.firebaseUser.uid,
+        cancelledByEmail: String(request.firebaseUser.email || '').toLowerCase(),
+        'notifications.cancellation': {
+          status: 'pending',
+          attemptCount: 0,
+          idempotencyKey: `elysium-meeting-cancellation-${meetingId}`,
+          requestedAt: now
+        },
+        'audit.updatedByUid': request.firebaseUser.uid,
+        'audit.updatedByEmail': String(request.firebaseUser.email || '').toLowerCase(),
+        'audit.updatedAt': now,
+        updatedAt: now
+      });
+      transaction.set(db.collection('activities').doc(`meeting_cancelled_${meetingId}`), {
+        memberId: meeting.userId,
+        memberName: meeting.clientName || null,
+        type: 'meeting_cancelled',
+        payload: { meetingId, title: meeting.title, reason: reason || null },
+        actorUid: request.firebaseUser.uid,
+        actorEmail: String(request.firebaseUser.email || '').toLowerCase(),
+        actorRole: 'admin',
+        createdAt: now
+      }, { merge: true });
+      return { kind: 'cancelled', meeting: { ...meeting, status: 'cancelled' } };
+    });
+    if (result.kind === 'missing') {
+      return response.status(404).json({ error: 'Meeting not found.', code: 'meeting_not_found' });
+    }
+    if (result.kind === 'invalid_status') {
+      return response.status(409).json({ error: 'Only scheduled meetings can be cancelled.', code: 'invalid_meeting_status' });
+    }
+
+    // Cancelar también avisa al cliente y retira la entrada de calendario.
+    const emailStatus = await dispatchMeetingEmail(meetingId, 'cancellation');
+    const persisted = await meetingRef.get();
+    return response.status(200).json({
+      meeting: serializeMeeting(meetingId, persisted.data()),
+      emailStatus,
+      idempotent: result.kind === 'existing'
+    });
+  } catch (error) {
+    if (error instanceof MeetingValidationError) {
+      return response.status(400).json({ error: error.message, code: error.code, field: error.field });
+    }
+    console.error('Meeting cancellation failed:', error);
+    return response.status(500).json({ error: 'Unable to cancel meeting.', code: 'meeting_cancel_failed' });
+  }
+});
+
+app.get(['/health', '/api/health', '/api/billing/health'], (_request, response) => {
+  response.json({ ok: true, service: 'elysium-platform-api' });
+});
+
+if (require.main === module) {
+  app.listen(PORT, error => {
+    if (error) {
+      console.error('Unable to start Elysium billing service:', error);
+      process.exitCode = 1;
+      return;
+    }
+    console.log(`Elysium platform service listening on port ${PORT}`);
+  });
+}
+
+module.exports = {
+  app,
+  MeetingValidationError,
+  deliverMeetingNotification,
+  dispatchMeetingEmail,
+  isFirebaseAdmin,
+  normalizedEmail,
+  normalizedLocale,
+  validateIanaTimeZone,
+  resolveZonedLocalDateTime,
+  normalizeMeetingInput,
+  normalizedIdempotencyKey,
+  meetingIdForRequest,
+  meetingRequestFingerprint,
+  formattedZonedDate,
+  escapeHtml,
+  buildMeetingEmail,
+  buildMeetingAdminEmail,
+  adminNotificationEmail,
+  buildMeetingIcs,
+  meetingResendPayload,
+  sendResendEmail,
+  serializeMeeting,
+  passwordResetRateLimited,
+  passwordResetEmail,
+  passwordResetEmailConfigured,
+  passwordResetContinueUrl
+};

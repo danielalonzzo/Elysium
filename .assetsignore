@@ -5,6 +5,10 @@
 *.pxd
 node_modules/
 backend/**
+# `functions/` son las Cloud Functions (el correo de las reuniones). Código de
+# servidor, no assets: sin esta regla se serviría en
+# «elysiumdr.eu/functions/index.js».
+functions/**
 **/node_modules/**
 **/.git/
 # «Prototipos/» es material de trabajo que vive dentro del repositorio: fuentes

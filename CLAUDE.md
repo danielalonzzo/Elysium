@@ -98,8 +98,9 @@ pierde en la siguiente publicación:
 
 **Lo propio de Elysium, que no son páginas:**
 
-- `backend/` — `elysium-billing`, el puente entre Stripe y Firebase que provisiona
-  las licencias del CRM.
+- `backend/` — `elysium-platform`, el servicio que agenda las reuniones, envía
+  sus correos y atiende la recuperación de contraseña. Las licencias las asigna
+  el administrador desde el CRM.
 - `CV/` — los europass en EN/ES/PT.
 - `research/` — páginas de investigación propias.
 - `scripts/` — utilidades y el script de publicación.

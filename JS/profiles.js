@@ -22,6 +22,16 @@ import {
     getDocs,
     onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import {
+    timestampMillis,
+    subscriptionStatus,
+    projectIdsMatch,
+    isLegacyProjectId,
+    submissionMatchesProject,
+    completedProjectIds,
+    projectOnboardingCompleted as isProjectOnboardingCompleted,
+    normalizeProjects as normalizeProjectList
+} from './elysium-domain.js';
 
 const IS_DEV = ['localhost', '127.0.0.1', 'web.app'].some(h => location.hostname.includes(h));
 const logger = {
@@ -31,8 +41,6 @@ const logger = {
 };
 
 const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
-const GRACE_PERIOD_DAYS = 15;
-const BILLING_REQUEST_TIMEOUT_MS = 15_000;
 
 const PLANS = {
     hosting:      { code: 'H0ST', price: { monthly: null, annual: 99 },    tier: 1 },
@@ -74,14 +82,14 @@ const COPY = {
         download: 'Open document', amount: 'Amount', date: 'Date',
         subscriptionTitle: 'Plans and subscription', subscriptionLead: 'See your current service and compare the available options.',
         monthly: 'Monthly', annual: 'Annual', twoMonthsIncluded: '2 months included', selectPlan: 'Choose plan', currentPlanButton: 'Current plan',
-        managePlan: 'Manage billing', contactPlan: 'Request this plan', planHosting: 'Domain & Hosting', planBasic: 'Presence',
+        contactPlan: 'Request this plan', planHosting: 'Domain & Hosting', planBasic: 'Presence',
         planPreferential: 'System', planAdvanced: 'Operations', perMonth: '/ month', perYear: '/ year', mostPopular: 'Most popular',
         hostingFeatures: ['Domain management and identity', 'High-availability hosting', 'Infrastructure updates'],
         basicFeatures: ['Website, domain, email and hosting', 'Online booking and client records', 'One hour of changes per month'],
         preferentialFeatures: ['Everything in Presence', 'Multiple languages and adaptive interface', 'Advanced integrations and automation'],
         advancedFeatures: ['Everything in System', 'Private operational dashboard', 'Custom scalable software'],
-        planDialogTitle: 'Subscription request', checkoutBody: 'Secure online activation is available when billing infrastructure is connected.',
-        checkoutPay: 'Continue to secure payment', checkoutLoading: 'Opening secure payment…', checkoutUnavailable: 'Online checkout is being configured. You can still request this plan directly and we will activate it with you.',
+        planDialogTitle: 'Subscription request', planRequestBody: 'Tell us and we will activate this plan with you. Your team sets it up and the licence appears here.',
+        viewPlans: 'View plans',
         contactUs: 'Request by email', close: 'Close', billingTitle: 'Billing history', billingLead: 'Payments and invoices associated with your account.',
         noPayments: 'No payments have been recorded yet.', loadPayments: 'Load billing history', retry: 'Try again', paymentUnavailable: 'Billing history could not be loaded.',
         method: 'Method', invoice: 'Invoice', license: 'License', manual: 'Manual', online: 'Online', viewInvoice: 'View invoice',
@@ -102,7 +110,6 @@ const COPY = {
         passwordMismatch: 'The passwords do not match.', emailInUse: 'That email is already registered. Sign in or recover your password.',
         registrationFailed: 'The account could not be created. Try again.', projectRequestFailed: 'The request could not be sent. Try again.',
         projectRequestSent: 'Your request was sent. We will contact you shortly.', subscriptionAttention: 'Your subscription needs attention.',
-        billingBackendMissing: 'Online billing is not connected yet; direct plan requests remain available.',
         previewTitle: 'Project preview'
     },
     es: {
@@ -130,14 +137,14 @@ const COPY = {
         download: 'Abrir documento', amount: 'Importe', date: 'Fecha',
         subscriptionTitle: 'Planes y suscripción', subscriptionLead: 'Consulta tu servicio actual y compara las opciones disponibles.',
         monthly: 'Mensual', annual: 'Anual', twoMonthsIncluded: '2 meses incluidos', selectPlan: 'Elegir plan', currentPlanButton: 'Plan actual',
-        managePlan: 'Gestionar facturación', contactPlan: 'Solicitar este plan', planHosting: 'Dominio y Hosting', planBasic: 'Presencia',
+        contactPlan: 'Solicitar este plan', planHosting: 'Dominio y Hosting', planBasic: 'Presencia',
         planPreferential: 'Sistema', planAdvanced: 'Operación', perMonth: '/ mes', perYear: '/ año', mostPopular: 'Más popular',
         hostingFeatures: ['Gestión de dominio e identidad', 'Hosting de alta disponibilidad', 'Actualizaciones de infraestructura'],
         basicFeatures: ['Web, dominio, correo y hosting', 'Reservas online y registro de clientes', 'Una hora de cambios al mes'],
         preferentialFeatures: ['Todo lo incluido en Presencia', 'Varios idiomas e interfaz adaptable', 'Integraciones y automatización avanzada'],
         advancedFeatures: ['Todo lo incluido en Sistema', 'Panel operativo privado', 'Software personalizado y escalable'],
-        planDialogTitle: 'Solicitud de suscripción', checkoutBody: 'La activación online segura estará disponible al conectar la infraestructura de cobro.',
-        checkoutPay: 'Continuar al pago seguro', checkoutLoading: 'Abriendo pago seguro…', checkoutUnavailable: 'El pago online se está configurando. Puedes solicitar el plan directamente y lo activaremos contigo.',
+        planDialogTitle: 'Solicitud de suscripción', planRequestBody: 'Cuéntanoslo y activamos el plan contigo. Tu equipo lo configura y la licencia aparece aquí.',
+        viewPlans: 'Ver planes',
         contactUs: 'Solicitar por correo', close: 'Cerrar', billingTitle: 'Historial de facturación', billingLead: 'Pagos y facturas asociados a tu cuenta.',
         noPayments: 'Todavía no hay pagos registrados.', loadPayments: 'Cargar historial', retry: 'Reintentar', paymentUnavailable: 'No se pudo cargar el historial de facturación.',
         method: 'Método', invoice: 'Factura', license: 'Licencia', manual: 'Manual', online: 'Online', viewInvoice: 'Ver factura',
@@ -158,7 +165,6 @@ const COPY = {
         passwordMismatch: 'Las contraseñas no coinciden.', emailInUse: 'Ese correo ya está registrado. Inicia sesión o recupera la contraseña.',
         registrationFailed: 'No se pudo crear la cuenta. Inténtalo de nuevo.', projectRequestFailed: 'No se pudo enviar la solicitud. Inténtalo de nuevo.',
         projectRequestSent: 'Tu solicitud fue enviada. Te contactaremos pronto.', subscriptionAttention: 'Tu suscripción requiere atención.',
-        billingBackendMissing: 'La facturación online aún no está conectada; la solicitud directa de planes sigue disponible.',
         previewTitle: 'Vista previa del proyecto'
     },
     pt: {
@@ -186,14 +192,14 @@ const COPY = {
         download: 'Abrir documento', amount: 'Montante', date: 'Data',
         subscriptionTitle: 'Planos e subscrição', subscriptionLead: 'Consulte o seu serviço atual e compare as opções disponíveis.',
         monthly: 'Mensal', annual: 'Anual', twoMonthsIncluded: '2 meses incluídos', selectPlan: 'Escolher plano', currentPlanButton: 'Plano atual',
-        managePlan: 'Gerir faturação', contactPlan: 'Pedir este plano', planHosting: 'Domínio e Alojamento', planBasic: 'Presença',
+        contactPlan: 'Pedir este plano', planHosting: 'Domínio e Alojamento', planBasic: 'Presença',
         planPreferential: 'Sistema', planAdvanced: 'Operação', perMonth: '/ mês', perYear: '/ ano', mostPopular: 'Mais popular',
         hostingFeatures: ['Gestão de domínio e identidade', 'Alojamento de alta disponibilidade', 'Atualizações de infraestrutura'],
         basicFeatures: ['Site, domínio, email e alojamento', 'Marcações online e registo de clientes', 'Uma hora de alterações por mês'],
         preferentialFeatures: ['Tudo o que está incluído em Presença', 'Vários idiomas e interface adaptável', 'Integrações e automatização avançada'],
         advancedFeatures: ['Tudo o que está incluído em Sistema', 'Painel operacional privado', 'Software personalizado e escalável'],
-        planDialogTitle: 'Pedido de subscrição', checkoutBody: 'A ativação online segura estará disponível quando a infraestrutura de pagamento estiver ligada.',
-        checkoutPay: 'Continuar para pagamento seguro', checkoutLoading: 'A abrir pagamento seguro…', checkoutUnavailable: 'O pagamento online está a ser configurado. Pode pedir o plano diretamente e faremos a ativação consigo.',
+        planDialogTitle: 'Pedido de subscrição', planRequestBody: 'Diga-nos e ativamos o plano consigo. A sua equipa configura-o e a licença aparece aqui.',
+        viewPlans: 'Ver planos',
         contactUs: 'Pedir por email', close: 'Fechar', billingTitle: 'Histórico de faturação', billingLead: 'Pagamentos e faturas associados à sua conta.',
         noPayments: 'Ainda não existem pagamentos registados.', loadPayments: 'Carregar histórico', retry: 'Tentar novamente', paymentUnavailable: 'Não foi possível carregar o histórico de faturação.',
         method: 'Método', invoice: 'Fatura', license: 'Licença', manual: 'Manual', online: 'Online', viewInvoice: 'Ver fatura',
@@ -214,7 +220,6 @@ const COPY = {
         passwordMismatch: 'As palavras-passe não coincidem.', emailInUse: 'Esse email já está registado. Inicie sessão ou recupere a palavra-passe.',
         registrationFailed: 'Não foi possível criar a conta. Tente novamente.', projectRequestFailed: 'Não foi possível enviar o pedido. Tente novamente.',
         projectRequestSent: 'O seu pedido foi enviado. Entraremos em contacto em breve.', subscriptionAttention: 'A sua subscrição requer atenção.',
-        billingBackendMissing: 'A faturação online ainda não está ligada; os pedidos diretos de planos continuam disponíveis.',
         previewTitle: 'Pré-visualização do projeto'
     }
 };
@@ -303,11 +308,14 @@ function formatMoney(amount, currency = 'EUR') {
     return new Intl.NumberFormat(locale, { style: 'currency', currency: String(currency).toUpperCase() }).format(numeric);
 }
 
-function timestampMillis(value) {
-    if (!value) return 0;
-    if (value.seconds) return value.seconds * 1000;
-    const millis = new Date(value).getTime();
-    return Number.isFinite(millis) ? millis : 0;
+/**
+ * The platform service stores a meeting's start as `startAt`. Reading only
+ * `startsAt` here is what left the next-meeting card permanently empty: every
+ * meeting resolved to 0 and was filtered out as already finished. Accept both
+ * names, the way the CRM's own normalizeMeeting already does.
+ */
+function meetingStartMillis(meeting) {
+    return timestampMillis(meeting?.startAt ?? meeting?.startsAt);
 }
 
 function authMessage(text, kind = 'error') {
@@ -342,30 +350,6 @@ function planLabel(planType) {
     }[planType] || t.noPlan;
 }
 
-function derivedSubscriptionStatus(subscription) {
-    if (!subscription) return null;
-    const stored = subscription.status || 'active';
-    if (['suspended', 'canceled', 'cancelled'].includes(stored)) return stored;
-    const renewal = timestampMillis(subscription.nextBillingDate);
-    const renewalGrace = renewal ? renewal + GRACE_PERIOD_DAYS * 86_400_000 : 0;
-    const paymentGrace = timestampMillis(subscription.gracePeriodEnd)
-        || (renewal ? renewal + GRACE_PERIOD_DAYS * 86_400_000 : 0);
-    if (stored === 'pending_payment') {
-        if (!paymentGrace || Date.now() > paymentGrace) return 'suspended';
-        return stored;
-    }
-    if (stored === 'active') {
-        // Legacy paid Stripe records predate accessGranted. New records always
-        // carry it, so an explicit false still blocks incomplete subscriptions.
-        if (subscription.source === 'stripe'
-            && Object.hasOwn(subscription, 'accessGranted')
-            && subscription.accessGranted !== true) return 'pending_payment';
-        if (renewalGrace && Date.now() > renewalGrace) return 'suspended';
-        if (renewal && Date.now() > renewal) return 'pending_payment';
-    }
-    return stored;
-}
-
 function setCurrentDrafts(snapshot) {
     currentDrafts = snapshot.docs
         .map(item => ({ ...item.data(), _documentId: item.id }))
@@ -383,29 +367,14 @@ function setOnboardingSubmissions(snapshot) {
         .map(item => ({ ...item.data(), _documentId: item.id }))
         .filter(item => item.userId === currentUser?.uid)
         .sort(compareOnboardingSubmissions);
-    completedOnboardingProjectIds = new Set(currentOnboardingSubmissions
-        .map(item => item.projectId)
-        .filter(projectId => projectId != null)
-        .map(String));
+    // Las entregas sin `projectId` cuentan para el proyecto heredado, así que
+    // la canonicalización la hace el módulo compartido y no se pierde ninguna.
+    completedOnboardingProjectIds = completedProjectIds(currentOnboardingSubmissions);
     onboardingHistoryError = false;
 }
 
 function normalizeProjects(userData) {
-    if (Array.isArray(userData?.projects) && userData.projects.length) {
-        return userData.projects.filter(project => project && typeof project === 'object');
-    }
-    if (userData?.projectUrl || userData?.projectStage || userData?.onboardingCompleted) {
-        return [{
-            id: 'legacy',
-            name: userData.company || userData.name || t.project,
-            projectUrl: userData.projectUrl || null,
-            projectStage: userData.projectStage || 'first_contact',
-            reports: Array.isArray(userData.reports) ? userData.reports : [],
-            onboardingCompleted: Boolean(userData.onboardingCompleted),
-            lastUpdated: userData.lastUpdated || null
-        }];
-    }
-    return [];
+    return normalizeProjectList(userData, t.project);
 }
 
 function onboardingState(userData, draft) {
@@ -414,13 +383,11 @@ function onboardingState(userData, draft) {
         ? projects.every(project => projectOnboardingCompleted(project, userData))
         : Boolean(userData?.onboardingCompleted);
     if (complete) return { key: 'completed', progress: 100, label: t.completed };
-    const draftProjectId = draft?.projectId == null ? null : String(draft.projectId);
-    const accountLevelDraftCanOpen = !draftProjectId
-        && (projects.length === 0 || projects.some(project =>
-            ['legacy', 'project-1'].includes(project.id)
-            && !projectOnboardingCompleted(project, userData)));
-    const draftMatchesIncompleteProject = accountLevelDraftCanOpen || projects.some(project =>
-        draftProjectId && String(project.id) === draftProjectId && !projectOnboardingCompleted(project, userData));
+    // Un borrador sin `projectId` es de cuenta: abre el proyecto heredado, o la
+    // cuenta entera si todavía no hay ninguno.
+    const draftMatchesIncompleteProject = (isLegacyProjectId(draft?.projectId) && projects.length === 0)
+        || projects.some(project => projectIdsMatch(draft?.projectId, project.id)
+            && !projectOnboardingCompleted(project, userData));
     if (draft && draftMatchesIncompleteProject) {
         const current = Math.max(1, Number(draft.currentModule) || 1);
         const total = Math.max(current, Number(draft.totalModules) || current);
@@ -431,28 +398,15 @@ function onboardingState(userData, draft) {
 
 function latestActionableDraft(userData) {
     const projects = normalizeProjects(userData);
-    return currentDrafts.find(draft => {
-        const draftProjectId = draft.projectId == null ? null : String(draft.projectId);
-        if (!draftProjectId) {
-            return projects.length === 0
-                || projects.some(project =>
-                    ['legacy', 'project-1'].includes(project.id)
-                    && !projectOnboardingCompleted(project, userData));
-        }
-        return projects.some(project =>
-            String(project.id) === draftProjectId && !projectOnboardingCompleted(project, userData));
-    }) || null;
+    return currentDrafts.find(draft =>
+        (isLegacyProjectId(draft.projectId) && projects.length === 0)
+        || projects.some(project => projectIdsMatch(draft.projectId, project.id)
+            && !projectOnboardingCompleted(project, userData))) || null;
 }
 
+/** El predicado compartido, con el conjunto de entregas de este cliente. */
 function projectOnboardingCompleted(project, userData = currentUserData) {
-    const projectId = project?.id == null ? null : String(project.id);
-    if (projectId && completedOnboardingProjectIds.has(projectId)) return true;
-    if (project?.onboardingCompleted === true) return true;
-    if (!Object.hasOwn(project || {}, 'onboardingCompleted')) {
-        const lastProjectId = userData?.lastOnboardingProjectId == null ? null : String(userData.lastOnboardingProjectId);
-        return Boolean(userData?.onboardingCompleted) && (!lastProjectId || lastProjectId === projectId);
-    }
-    return false;
+    return isProjectOnboardingCompleted(project, userData, completedOnboardingProjectIds);
 }
 
 function projectStage(project) {
@@ -656,7 +610,6 @@ function bindPortalEvents() {
             selectedBillingCycle = actionElement.dataset.cycle === 'annual' ? 'annual' : 'monthly';
             renderSubscriptionSection();
         }
-        if (action === 'manage-billing') await openBillingPortal(actionElement);
         if (action === 'load-billing' || action === 'retry-billing') await loadBillingHistory(true);
         if (action === 'reload') window.location.reload();
         if (action === 'send-password-email') await requestSignedInPasswordEmail(actionElement);
@@ -792,7 +745,6 @@ function watchMember(memberRef, userId) {
                 watchMeetings(userId);
             }
         }
-        watchCheckoutReturn();
     }, error => logger.warn('[portal] member listener', error));
 }
 
@@ -852,11 +804,11 @@ function upcomingMeetings() {
     return currentMeetings
         .filter(meeting => {
             if (meeting.status === 'cancelled' || meeting.cancelledAt) return false;
-            const start = timestampMillis(meeting.startsAt);
+            const start = meetingStartMillis(meeting);
             const duration = Number(meeting.durationMinutes) || 60;
             return start && start + duration * 60_000 > now;
         })
-        .sort((a, b) => timestampMillis(a.startsAt) - timestampMillis(b.startsAt));
+        .sort((a, b) => meetingStartMillis(a) - meetingStartMillis(b));
 }
 
 function renderLoadingState() {
@@ -922,16 +874,14 @@ function renderOverviewSection() {
     if (!section || !currentUserData) return;
     const projects = normalizeProjects(currentUserData);
     const sub = currentUserData.subscription;
-    const status = derivedSubscriptionStatus(sub);
+    const status = subscriptionStatus(sub);
     const actionableDraft = latestActionableDraft(currentUserData);
     const onboarding = onboardingState(currentUserData, actionableDraft);
     const firstProject = projects[0];
-    const draftProjectId = actionableDraft?.projectId == null ? null : String(actionableDraft.projectId);
-    const draftProject = draftProjectId
-        ? projects.find(project => String(project.id) === draftProjectId && !projectOnboardingCompleted(project, currentUserData))
-        : actionableDraft ? projects.find(project =>
-            ['legacy', 'project-1'].includes(project.id)
-            && !projectOnboardingCompleted(project, currentUserData)) : null;
+    const draftProject = actionableDraft
+        ? projects.find(project => projectIdsMatch(actionableDraft.projectId, project.id)
+            && !projectOnboardingCompleted(project, currentUserData))
+        : null;
     const onboardingProject = draftProject || projects.find(project => !projectOnboardingCompleted(project, currentUserData)) || firstProject;
     const name = currentUserData.name || currentUser?.displayName || '';
     const nextBilling = sub?.nextBillingDate ? formatDate(sub.nextBillingDate) : t.noRenewal;
@@ -939,7 +889,6 @@ function renderOverviewSection() {
     section.innerHTML = `
         ${sectionHeader('overview', `${t.greeting}${name ? `, ${name.split(' ')[0]}` : ''}.`, t.overviewLead, `<a class="btn" href="mailto:info@elysiumdr.eu">${escapeHTML(t.support)}</a>`)}
         ${status && status !== 'active' ? `<div class="portal-alert warning" role="alert">${escapeHTML(t.subscriptionAttention)} ${escapeHTML(t[status] || status)}</div>` : ''}
-        ${!billingApiConfigured() ? `<div class="portal-alert notice">${escapeHTML(t.billingBackendMissing)}</div>` : ''}
         <div class="portal-kpi-grid">
             ${kpi(t.currentPlan, sub?.planType ? planLabel(sub.planType) : t.noPlan, status ? `<span class="status-chip ${escapeHTML(status)}">${escapeHTML(t[status] || status)}</span>` : '', true)}
             ${kpi(t.projectsCount, String(projects.length), projects.length ? projectStage(firstProject).label : t.noProjects)}
@@ -956,7 +905,7 @@ function renderOverviewSection() {
             <article class="portal-card">
                 <div class="portal-card-heading"><div><span>${escapeHTML(t.subscription)}</span><h2>${escapeHTML(sub?.planType ? planLabel(sub.planType) : t.noPlan)}</h2></div></div>
                 <p>${escapeHTML(t.subscriptionLead)}</p>
-                <button type="button" class="btn btn-primary" data-target="subscription">${escapeHTML(sub ? t.managePlan : t.selectPlan)}</button>
+                <button type="button" class="btn btn-primary" data-target="subscription">${escapeHTML(sub ? t.viewPlans : t.selectPlan)}</button>
             </article>
         </div>
     `;
@@ -971,7 +920,7 @@ function meetingCard() {
     const when = new Intl.DateTimeFormat(locale, {
         timeZone: zone, weekday: 'long', day: 'numeric', month: 'long',
         hour: '2-digit', minute: '2-digit', timeZoneName: 'short'
-    }).format(new Date(timestampMillis(next.startsAt)));
+    }).format(new Date(meetingStartMillis(next)));
     const link = safeHttpUrl(next.meetingUrl);
     return `<article class="portal-card meeting-next-card">
         <div><span class="status-chip active">${escapeHTML(t.nextMeeting)}</span>
@@ -1028,11 +977,8 @@ function projectCard(project, index) {
     const stage = projectStage(project);
     const url = safeHttpUrl(project.projectUrl);
     const onboarding = projectOnboardingCompleted(project, currentUserData);
-    const projects = normalizeProjects(currentUserData);
-    const hasMatchingDraft = !onboarding && currentDrafts.some(draft =>
-        draft.projectId == null
-            ? ['legacy', 'project-1'].includes(project.id)
-            : String(draft.projectId) === String(project.id));
+    const hasMatchingDraft = !onboarding
+        && currentDrafts.some(draft => projectIdsMatch(draft.projectId, project.id));
     const onboardingStateKey = onboarding ? 'completed' : hasMatchingDraft ? 'in-progress' : 'not-started';
     return `<article class="project-card">
         <div class="project-preview">
@@ -1047,13 +993,8 @@ function projectCard(project, index) {
 
 /** Newest delivery of a project, or of the account when it has no project id. */
 function latestSubmissionForProject(projectId) {
-    const target = projectId == null || String(projectId) === 'legacy' ? null : String(projectId);
-    const matching = currentOnboardingSubmissions.filter(submission => {
-        const submissionProjectId = submission.projectId == null ? null : String(submission.projectId);
-        if (submissionProjectId === target) return true;
-        // Account-level deliveries predate project ids
-        return submissionProjectId === null && ['legacy', 'project-1'].includes(String(projectId));
-    });
+    const matching = currentOnboardingSubmissions
+        .filter(submission => submissionMatchesProject(submission, projectId));
     // currentOnboardingSubmissions is already sorted newest first
     return matching[0] || null;
 }
@@ -1234,10 +1175,10 @@ function renderSubscriptionSection() {
     const section = document.getElementById('portal-subscription');
     if (!section || !currentUserData) return;
     const sub = currentUserData.subscription;
-    const status = derivedSubscriptionStatus(sub);
+    const status = subscriptionStatus(sub);
     const plans = Object.keys(PLANS).filter(key => !PLANS[key].retired);
     section.innerHTML = `
-        ${sectionHeader('subscription', t.subscriptionTitle, t.subscriptionLead, sub?.stripeCustomerId ? `<button type="button" class="btn btn-primary" data-action="manage-billing">${escapeHTML(t.managePlan)}</button>` : '')}
+        ${sectionHeader('subscription', t.subscriptionTitle, t.subscriptionLead)}
         ${sub ? `<article class="portal-card current-subscription"><div><span>${escapeHTML(t.currentPlan)}</span><h2>${escapeHTML(planLabel(sub.planType))}</h2><span class="status-chip ${escapeHTML(status)}">${escapeHTML(t[status] || status)}</span></div><dl><div><dt>${escapeHTML(t.nextRenewal)}</dt><dd>${escapeHTML(sub.nextBillingDate ? formatDate(sub.nextBillingDate) : t.noRenewal)}</dd></div><div><dt>${escapeHTML(t.license)}</dt><dd>${escapeHTML(sub.licenseCode || '—')}</dd></div></dl></article>` : ''}
         <div class="billing-cycle-toggle" role="group" aria-label="${escapeHTML(t.subscription)}"><button type="button" data-action="billing-cycle" data-cycle="monthly" aria-pressed="${selectedBillingCycle === 'monthly'}" class="${selectedBillingCycle === 'monthly' ? 'active' : ''}">${escapeHTML(t.monthly)}</button><button type="button" data-action="billing-cycle" data-cycle="annual" aria-pressed="${selectedBillingCycle === 'annual'}" class="${selectedBillingCycle === 'annual' ? 'active' : ''}">${escapeHTML(t.annual)} <small>${escapeHTML(t.twoMonthsIncluded)}</small></button></div>
         <div class="plan-grid">${plans.map(planCard).join('')}</div>
@@ -1246,7 +1187,7 @@ function renderSubscriptionSection() {
 
 function planCard(planType) {
     const plan = PLANS[planType];
-    const currentStatus = derivedSubscriptionStatus(currentUserData.subscription);
+    const currentStatus = subscriptionStatus(currentUserData.subscription);
     const current = currentUserData.subscription?.planType === planType
         && ['active', 'pending_payment'].includes(currentStatus);
     const cycle = planType === 'hosting' ? 'annual' : selectedBillingCycle;
@@ -1264,7 +1205,7 @@ function renderBillingSection() {
     else if (billingHistory.error) content = `<div class="portal-empty error"><p>${escapeHTML(t.paymentUnavailable)}</p><button type="button" class="btn btn-primary" data-action="retry-billing">${escapeHTML(t.retry)}</button></div>`;
     else if (!billingHistory.length) content = emptyState(t.noPayments);
     else content = billingTable(billingHistory);
-    section.innerHTML = `${sectionHeader('billing', t.billingTitle, t.billingLead, currentUserData?.subscription?.stripeCustomerId ? `<button type="button" class="btn btn-primary" data-action="manage-billing">${escapeHTML(t.managePlan)}</button>` : '')}<article class="portal-card">${content}</article>`;
+    section.innerHTML = `${sectionHeader('billing', t.billingTitle, t.billingLead)}<article class="portal-card">${content}</article>`;
 }
 
 function billingTable(payments) {
@@ -1372,106 +1313,20 @@ async function saveProfile(event) {
     }
 }
 
-function platformApiOrigin() {
-    return String(window.ELYSIUM_API_URL || window.ELYSIUM_BILLING_API_URL || '').trim().replace(/\/$/, '');
-}
-
-function billingApiOrigin() {
-    return platformApiOrigin();
-}
-
-function billingApiConfigured() {
-    return Boolean(billingApiOrigin())
-        || window.ELYSIUM_API_SAME_ORIGIN === true
-        || window.ELYSIUM_BILLING_SAME_ORIGIN === true;
-}
-
-function billingApiUrl(path) {
-    return `${billingApiOrigin()}${path}`;
-}
-
-async function billingRequest(path, body = {}) {
-    if (!billingApiConfigured() || !currentUser) throw new Error(t.checkoutUnavailable);
-    const requestUser = currentUser;
-    const controller = new AbortController();
-    const timer = window.setTimeout(() => controller.abort(), BILLING_REQUEST_TIMEOUT_MS);
-    try {
-        const token = await requestUser.getIdToken();
-        const response = await fetch(billingApiUrl(path), {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            signal: controller.signal
-        });
-        const payload = await response.json().catch(() => ({}));
-        if (currentUser?.uid !== requestUser.uid) throw new Error(t.authLoadError);
-        if (!response.ok) {
-            const error = new Error(payload.error || t.checkoutUnavailable);
-            error.code = payload.code || String(response.status);
-            throw error;
-        }
-        return payload;
-    } finally {
-        window.clearTimeout(timer);
-    }
-}
-
-async function openBillingPortal(button) {
-    if (!billingApiConfigured()) {
-        window.location.href = safeMailto(`${t.managePlan} — ${currentUserData?.company || currentUser?.email || ''}`);
-        return;
-    }
-    const original = button.textContent;
-    button.disabled = true;
-    button.textContent = t.checkoutLoading;
-    try {
-        const payload = await billingRequest('/api/billing/create-portal-session', { returnPath: window.location.pathname });
-        if (!safeHttpUrl(payload.url)) throw new Error(t.checkoutUnavailable);
-        window.location.assign(payload.url);
-    } catch (error) {
-        portalAlert(error.message || t.checkoutUnavailable, 'error');
-        button.disabled = false;
-        button.textContent = original;
-    }
-}
-
+/**
+ * Los planes se contratan hablando con el equipo: la suscripción y su licencia
+ * las asigna el administrador desde el CRM. No hay cobro con tarjeta en el
+ * portal, así que el diálogo solo abre la petición por correo.
+ */
 function showPlanDialog(planType) {
     const plan = PLANS[planType];
     if (!plan || plan.retired) return;
     lastFocusedElement = document.activeElement;
-    const existingSubscription = currentUserData?.subscription && !['canceled', 'cancelled'].includes(derivedSubscriptionStatus(currentUserData.subscription));
-    const onlineAction = billingApiConfigured() && currentUser?.emailVerified && !existingSubscription
-        ? `<button type="button" class="btn btn-primary" id="confirm-checkout">${escapeHTML(t.checkoutPay)}</button>`
-        : existingSubscription && currentUserData.subscription?.stripeCustomerId
-            ? `<button type="button" class="btn btn-primary" data-action="manage-billing">${escapeHTML(t.managePlan)}</button>`
-            : '';
     openModal(`
         <span class="portal-eyebrow">${escapeHTML(plan.code)}</span><h2 id="portal-dialog-title">${escapeHTML(t.planDialogTitle)}</h2><h3>${escapeHTML(planLabel(planType))}</h3>
-        <p>${escapeHTML(billingApiConfigured() ? t.checkoutBody : t.checkoutUnavailable)}</p>
-        <div class="portal-actions vertical">${onlineAction}<a class="btn ${onlineAction ? '' : 'btn-primary'}" href="${safeMailto(`${t.planDialogTitle}: ${planLabel(planType)}`)}">${escapeHTML(t.contactUs)}</a><button type="button" class="btn" data-action="close-modal">${escapeHTML(t.close)}</button></div>
-        <p id="checkout-dialog-status" class="portal-dialog-status" role="alert" aria-live="assertive"></p>
+        <p>${escapeHTML(t.planRequestBody)}</p>
+        <div class="portal-actions vertical"><a class="btn btn-primary" href="${safeMailto(`${t.planDialogTitle}: ${planLabel(planType)}`)}">${escapeHTML(t.contactUs)}</a><button type="button" class="btn" data-action="close-modal">${escapeHTML(t.close)}</button></div>
     `);
-    document.getElementById('confirm-checkout')?.addEventListener('click', event => startCheckout(planType, planType === 'hosting' ? 'annual' : selectedBillingCycle, event.currentTarget));
-}
-
-async function startCheckout(planType, billingCycle, button) {
-    const status = document.getElementById('checkout-dialog-status');
-    const original = button.textContent;
-    button.disabled = true;
-    button.textContent = t.checkoutLoading;
-    if (status) status.textContent = '';
-    try {
-        const payload = await billingRequest('/api/billing/create-checkout-session', { planType, billingCycle, returnPath: window.location.pathname });
-        const checkoutUrl = safeHttpUrl(payload.url);
-        if (!checkoutUrl) throw new Error(t.checkoutUnavailable);
-        window.location.assign(checkoutUrl.href);
-    } catch (error) {
-        if (error.code === 'subscription_exists') {
-            if (status) status.textContent = t.managePlan;
-        } else if (status) status.textContent = error.message || t.checkoutUnavailable;
-        button.disabled = false;
-        button.textContent = original;
-    }
 }
 
 function openProjectPreview(index) {
@@ -1829,18 +1684,6 @@ function handlePendingSubscriptionIntent() {
     if (PLANS[plan] && !PLANS[plan].retired) showPlanDialog(plan);
 }
 
-function watchCheckoutReturn() {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('checkout') !== 'success') return;
-    const status = derivedSubscriptionStatus(currentUserData?.subscription);
-    if (status === 'active' && currentUserData?.subscription?.licenseCode) {
-        portalAlert(lang === 'es' ? 'Suscripción activada correctamente.' : lang === 'pt' ? 'Subscrição ativada com sucesso.' : 'Subscription activated successfully.', 'success');
-        params.delete('checkout');
-        params.delete('session_id');
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-}
-
 const localPreviewState = ['localhost', '127.0.0.1'].includes(window.location.hostname)
     ? new URLSearchParams(window.location.search).get('portalPreview')
     : null;
@@ -1867,9 +1710,9 @@ if (localPreviewState) {
         onboardingCompleted: localPreviewState === 'completed',
         subscription: localPreviewState === 'empty' ? null : {
             planType: 'preferential', billingCycle: 'monthly', status: previewStatus,
-            source: 'stripe', accessGranted: !['suspended', 'canceled'].includes(previewStatus),
+            source: 'manual', accessGranted: !['suspended', 'canceled'].includes(previewStatus),
             licenseCode: 'ELY-EC02-M3N1-DEMO2026', startDate: new Date('2026-06-01'),
-            nextBillingDate: new Date('2026-09-01'), stripeCustomerId: 'preview'
+            nextBillingDate: new Date('2026-09-01')
         },
         projects: localPreviewState === 'empty' ? [] : [{
             id: 'preview-project', name: 'Atelier Norte Digital', projectStage: 'development',
@@ -1885,7 +1728,9 @@ if (localPreviewState) {
         _documentId: 'preview-meeting',
         userId: currentUser.uid,
         title: 'Revisión de arquitectura',
-        startsAt: new Date(Date.now() + 36 * 3_600_000).toISOString(),
+        // `startAt` is the field name the platform service writes, so the
+        // fixture exercises the real document shape.
+        startAt: new Date(Date.now() + 36 * 3_600_000).toISOString(),
         durationMinutes: 60,
         clientTimeZone: 'America/Costa_Rica',
         meetingUrl: 'https://meet.google.com/example-preview',
@@ -1927,7 +1772,7 @@ if (localPreviewState) {
     completedOnboardingProjectIds = new Set(['preview-project']);
     billingHistory = currentUserData.subscription ? [{
         paymentDate: new Date('2026-08-01'), amount: 99, currency: 'EUR', planType: 'preferential',
-        source: 'stripe', invoiceUrl: `${window.location.origin}/privacy.html`
+        source: 'manual', invoiceUrl: `${window.location.origin}/privacy.html`
     }] : [];
     enterDashboard();
     renderDashboard();
@@ -1946,7 +1791,12 @@ if (localPreviewState) {
             leaveDashboard();
             return;
         }
-        if (user.email?.toLowerCase() === SUPER_ADMIN_EMAIL && sessionStorage.getItem('dev_mode') !== 'true') {
+        // Mismo criterio que el CRM: el custom claim `admin`, con el correo
+        // histórico aceptado mientras dura la migración. Ver `firestore.rules`.
+        const claims = await user.getIdTokenResult().then(result => result?.claims).catch(() => null);
+        const isAdmin = claims?.admin === true
+            || String(user.email || '').toLowerCase() === SUPER_ADMIN_EMAIL;
+        if (isAdmin && sessionStorage.getItem('dev_mode') !== 'true') {
             window.location.assign('/admin');
             return;
         }
