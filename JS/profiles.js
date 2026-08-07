@@ -101,6 +101,7 @@ const COPY = {
         passwordEmailSent: 'Password-change email requested. Check your inbox and spam folder.',
         authLoadError: 'We could not load your account. Check your connection and try again.', accountDisabled: 'This account has been deactivated. Contact support to restore access.',
         loadingAccount: 'Loading your account…', secureSender: 'Security messages are sent through Elysium’s verified email infrastructure.',
+        secureSenderElysium: 'The sender is info@elysiumdr.eu. If nothing arrives, the account may be registered under a different address.',
         secureSenderFirebase: 'The sender is noreply@elysiumdr-eu.firebaseapp.com. If nothing arrives, the account may be registered under a different address.',
         resetSending: 'Sending…',
         resetNotice: 'If an account exists for {email}, a recovery link is on its way. It may take a few minutes. Check spam too.',
@@ -156,6 +157,7 @@ const COPY = {
         passwordEmailSent: 'Correo para cambiar la contraseña solicitado. Revisa la bandeja de entrada y spam.',
         authLoadError: 'No pudimos cargar tu cuenta. Revisa la conexión e inténtalo de nuevo.', accountDisabled: 'Esta cuenta está desactivada. Contacta con soporte para recuperar el acceso.',
         loadingAccount: 'Cargando tu cuenta…', secureSender: 'Los correos de seguridad se envían mediante la infraestructura verificada de Elysium.',
+        secureSenderElysium: 'El remitente es info@elysiumdr.eu. Si no llega nada, puede que la cuenta esté registrada con otra dirección.',
         secureSenderFirebase: 'El remitente es noreply@elysiumdr-eu.firebaseapp.com. Si no llega nada, puede que la cuenta esté registrada con otra dirección.',
         resetSending: 'Enviando…',
         resetNotice: 'Si existe una cuenta para {email}, el enlace de recuperación va en camino. Puede tardar unos minutos. Revisa también spam.',
@@ -211,6 +213,7 @@ const COPY = {
         passwordEmailSent: 'Email para alterar a palavra-passe solicitado. Verifique a caixa de entrada e o spam.',
         authLoadError: 'Não foi possível carregar a sua conta. Verifique a ligação e tente novamente.', accountDisabled: 'Esta conta está desativada. Contacte o suporte para recuperar o acesso.',
         loadingAccount: 'A carregar a sua conta…', secureSender: 'Os emails de segurança são enviados pela infraestrutura verificada da Elysium.',
+        secureSenderElysium: 'O remetente é info@elysiumdr.eu. Se não chegar nada, a conta pode estar registada com outro endereço.',
         secureSenderFirebase: 'O remetente é noreply@elysiumdr-eu.firebaseapp.com. Se não chegar nada, a conta pode estar registada com outro endereço.',
         resetSending: 'A enviar…',
         resetNotice: 'Se existir uma conta para {email}, o link de recuperação está a caminho. Pode demorar alguns minutos. Verifique também o spam.',
@@ -1441,18 +1444,59 @@ async function sendFirebaseResetEmail(email) {
     }
 }
 
-// Firebase Auth is the only sender. There used to be a call to a branded
-// /api/auth/password-reset endpoint first, but that API is not deployed: it only
-// added a failed round-trip before the real send — and, when the 404 did not
-// arrive in the exact expected shape, it reported success without sending
-// anything. One path, no detours.
+/* ── Quién manda el correo de recuperación ───────────────────────────────────
+   Primero el backend: /api/auth/password-reset genera el enlace con el Admin
+   SDK y lo envía por SMTP desde info@elysiumdr.eu, el mismo buzón que ya manda
+   los correos de la agenda. Firebase queda de reserva.
+
+   El orden importa porque Firebase envía desde
+   noreply@elysiumdr-eu.firebaseapp.com, una dirección que no alinea con el
+   dominio: los proveedores la descartan en silencio y el remitente no se entera
+   de nada. El correo salía, pero no llegaba.
+
+   Este endpoint ya existió aquí y se retiró porque entonces no estaba
+   desplegado; peor aún, una respuesta inesperada se tomaba por éxito y no se
+   enviaba nada. Por eso ahora solo cuenta como enviado un 202 con `ok: true`
+   literal: cualquier otra cosa —otro estado, un cuerpo raro, un fallo de red o
+   un timeout— cae a Firebase, que al menos lo intenta.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const RESET_API_TIMEOUT_MS = 15000;
+
+function platformApiOrigin() {
+    return String(window.ELYSIUM_API_URL || '').trim().replace(/\/$/, '');
+}
+
+/** Devuelve true solo si el backend confirma el envío. Nunca lanza. */
+async function sendBrandedResetEmail(email) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), RESET_API_TIMEOUT_MS);
+    try {
+        const response = await fetch(`${platformApiOrigin()}/api/auth/password-reset`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, locale: lang }),
+            signal: controller.signal
+        });
+        if (response.status !== 202) return false;
+        const payload = await response.json().catch(() => null);
+        return payload?.ok === true;
+    } catch (error) {
+        logger.warn(`[password-reset] branded sender unavailable: ${error?.name || error}`);
+        return false;
+    } finally {
+        window.clearTimeout(timer);
+    }
+}
+
 async function sendResetEmail(email) {
+    if (await sendBrandedResetEmail(email)) return { sender: 'elysium' };
     await sendFirebaseResetEmail(email);
     return { sender: 'firebase' };
 }
 
-function resetSenderCopy() {
-    return t.secureSenderFirebase;
+function resetSenderCopy(sender) {
+    return sender === 'elysium' ? t.secureSenderElysium : t.secureSenderFirebase;
 }
 
 function resetErrorMessage(error) {
@@ -1544,8 +1588,8 @@ DOM.resetForm?.addEventListener('submit', async event => {
     clearAuthMessage();
     auth.languageCode = lang;
     try {
-        await sendResetEmail(email);
-        authMessage(`${t.resetNotice.replace('{email}', email)} ${resetSenderCopy()}`, 'notice');
+        const { sender } = await sendResetEmail(email);
+        authMessage(`${t.resetNotice.replace('{email}', email)} ${resetSenderCopy(sender)}`, 'notice');
         form.reset();
         playSound('success');
     } catch (error) {
@@ -1553,7 +1597,7 @@ DOM.resetForm?.addEventListener('submit', async event => {
         // A missing account is never revealed: Firebase's enumeration
         // protection makes that indistinguishable from a successful send.
         if (error?.code === 'auth/user-not-found') {
-            authMessage(`${t.resetNotice.replace('{email}', email)} ${resetSenderCopy()}`, 'notice');
+            authMessage(`${t.resetNotice.replace('{email}', email)} ${resetSenderCopy('firebase')}`, 'notice');
             form.reset();
         } else {
             authMessage(resetErrorMessage(error), 'error');
