@@ -594,7 +594,7 @@ function adminNotificationEmail() {
     || null;
 }
 
-function meetingResendPayload(meeting, kind = 'confirmation', audience = 'client') {
+function meetingEmailPayload(meeting, kind = 'confirmation', audience = 'client') {
   const email = audience === 'admin'
     ? buildMeetingAdminEmail(meeting, kind)
     : buildMeetingEmail(meeting, kind);
@@ -606,41 +606,105 @@ function meetingResendPayload(meeting, kind = 'confirmation', audience = 'client
     text: email.text,
     attachments: [{
       filename: kind === 'cancellation' ? 'elysium-meeting-cancelled.ics' : 'elysium-meeting.ics',
-      content: Buffer.from(buildMeetingIcs(meeting, kind), 'utf8').toString('base64')
+      content: Buffer.from(buildMeetingIcs(meeting, kind), 'utf8').toString('base64'),
+      // El METHOD del .ics decide si el cliente de correo ofrece «añadir al
+      // calendario» o «quitar»; sin él, muchos lo tratan como fichero suelto.
+      contentType: `text/calendar; charset=utf-8; method=${kind === 'cancellation' ? 'CANCEL' : 'REQUEST'}`
     }]
   };
 }
 
-async function sendResendEmail(payload, idempotencyKey, fetchImpl = globalThis.fetch) {
-  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
-  if (!apiKey || !payload.from) {
+/* ── Envío por SMTP ──────────────────────────────────────────────────────────
+   El correo sale del buzón de la empresa en IONOS, no de un proveedor externo,
+   así que el cliente recibe el mensaje desde la misma dirección a la que puede
+   responder y que ya conoce.
+
+   Lo que SMTP no tiene es la clave de idempotencia que sí ofrecía la API
+   anterior. La protección real está antes, en `claimMeetingNotification`: una
+   transacción con reserva temporal impide que dos intentos simultáneos manden
+   el mismo correo. Aquí se refuerza con un Message-ID determinista, derivado de
+   esa misma clave, para que un reenvío llegue con la identidad del original y
+   los servidores que deduplican por Message-ID puedan descartarlo.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+let smtpTransport = null;
+
+function smtpConfig() {
+  const host = String(process.env.SMTP_HOST || '').trim();
+  const user = String(process.env.SMTP_USER || '').trim();
+  const pass = String(process.env.SMTP_PASSWORD || '');
+  const port = Number(process.env.SMTP_PORT || 587);
+  return { host, user, pass, port };
+}
+
+function emailTransport() {
+  if (smtpTransport) return smtpTransport;
+  const { host, user, pass, port } = smtpConfig();
+  if (!host || !user || !pass) return null;
+  const nodemailer = require('nodemailer');
+  smtpTransport = nodemailer.createTransport({
+    host,
+    port,
+    // 465 abre TLS desde el principio; 587 empieza en claro y sube con STARTTLS.
+    secure: port === 465,
+    requireTLS: port !== 465,
+    auth: { user, pass },
+    pool: true,
+    maxConnections: 2,
+    connectionTimeout: 15_000,
+    greetingTimeout: 15_000,
+    socketTimeout: 30_000
+  });
+  return smtpTransport;
+}
+
+/** Dominio para el Message-ID; el del remitente, no el del servidor. */
+function messageIdDomain() {
+  const from = String(process.env.MEETING_FROM_EMAIL || process.env.SMTP_USER || '');
+  return (extractEmailAddress(from) || 'elysiumdr.eu').split('@').pop();
+}
+
+async function sendEmail(payload, idempotencyKey, transportImpl = null) {
+  const transport = transportImpl || emailTransport();
+  if (!transport || !payload.from || !payload.to?.[0]) {
     const error = new Error('Email delivery is not configured.');
     error.code = 'email_not_configured';
     throw error;
   }
-  if (typeof fetchImpl !== 'function') throw new Error('fetch is unavailable.');
-  const result = await fetchImpl('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'Idempotency-Key': idempotencyKey
-    },
-    body: JSON.stringify(payload)
-  });
-  if (!result.ok) {
-    const error = new Error(`Email provider rejected the request (${result.status}).`);
-    error.code = 'email_delivery_failed';
-    error.status = result.status;
-    throw error;
+  try {
+    const info = await transport.sendMail({
+      from: payload.from,
+      to: payload.to,
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+      messageId: `<${idempotencyKey}@${messageIdDomain()}>`,
+      attachments: (payload.attachments || []).map(attachment => ({
+        filename: attachment.filename,
+        content: attachment.content,
+        encoding: 'base64',
+        contentType: attachment.contentType
+      }))
+    });
+    if (!info?.messageId) {
+      const error = new Error('SMTP accepted the message without an identifier.');
+      error.code = 'email_delivery_failed';
+      throw error;
+    }
+    // Un destinatario rechazado con el resto aceptados no es un envío correcto.
+    if (Array.isArray(info.rejected) && info.rejected.length) {
+      const error = new Error(`SMTP rejected ${info.rejected.join(', ')}.`);
+      error.code = 'email_delivery_failed';
+      throw error;
+    }
+    return { id: info.messageId };
+  } catch (error) {
+    if (error.code === 'email_delivery_failed' || error.code === 'email_not_configured') throw error;
+    const wrapped = new Error(`SMTP delivery failed: ${error.message}`);
+    wrapped.code = 'email_delivery_failed';
+    wrapped.smtpCode = error.responseCode || error.code || null;
+    throw wrapped;
   }
-  const data = await result.json();
-  if (!data?.id) {
-    const error = new Error('Email provider returned no delivery ID.');
-    error.code = 'email_delivery_failed';
-    throw error;
-  }
-  return data;
 }
 
 function meetingNotificationPath(kind) {
@@ -711,9 +775,9 @@ async function finishMeetingNotification(meetingId, kind, attemptId, patch) {
  * porque el proveedor de correo esté caído. Y reintentar es seguro, porque el
  * claim y la Idempotency-Key impiden el envío doble.
  */
-async function dispatchMeetingEmail(meetingId, kind, fetchImpl = globalThis.fetch) {
+async function dispatchMeetingEmail(meetingId, kind, transportImpl = null) {
   try {
-    const result = await deliverMeetingNotification(meetingId, kind, fetchImpl);
+    const result = await deliverMeetingNotification(meetingId, kind, transportImpl);
     return result.kind;
   } catch (error) {
     console.error(
@@ -724,7 +788,7 @@ async function dispatchMeetingEmail(meetingId, kind, fetchImpl = globalThis.fetc
   }
 }
 
-async function deliverMeetingNotification(meetingId, kind, fetchImpl = globalThis.fetch) {
+async function deliverMeetingNotification(meetingId, kind, transportImpl = null) {
   const claim = await claimMeetingNotification(meetingId, kind);
   if (claim.kind !== 'claimed') return claim;
 
@@ -746,14 +810,14 @@ async function deliverMeetingNotification(meetingId, kind, fetchImpl = globalThi
     const meeting = { id: meetingId, ...latestMeeting };
     const adminEmail = adminNotificationEmail();
     const [providerResult, adminResult] = await Promise.all([
-      sendResendEmail(meetingResendPayload(meeting, kind, 'client'), claim.idempotencyKey, fetchImpl),
+      sendEmail(meetingEmailPayload(meeting, kind, 'client'), claim.idempotencyKey, transportImpl),
       adminEmail
-        ? sendResendEmail(meetingResendPayload(meeting, kind, 'admin'), `${claim.idempotencyKey}-admin`, fetchImpl)
+        ? sendEmail(meetingEmailPayload(meeting, kind, 'admin'), `${claim.idempotencyKey}-admin`, transportImpl)
         : Promise.resolve(null)
     ]);
     await finishMeetingNotification(meetingId, kind, claim.attemptId, {
       status: 'sent',
-      provider: 'resend',
+      provider: 'smtp',
       providerMessageId: providerResult.id,
       adminMessageId: adminResult?.id || null,
       sentAt: FieldValue.serverTimestamp(),
@@ -823,8 +887,9 @@ function passwordResetEmail(email, resetLink, locale = 'en') {
 }
 
 function passwordResetEmailConfigured() {
+  const { host, user, pass } = smtpConfig();
   return Boolean(
-    String(process.env.RESEND_API_KEY || '').trim()
+    host && user && pass
     && String(process.env.PASSWORD_RESET_FROM_EMAIL || process.env.MEETING_FROM_EMAIL || '').trim()
   );
 }
@@ -876,7 +941,7 @@ app.post('/api/auth/password-reset', async (request, response) => {
           handleCodeInApp: false
         });
         const deliveryKey = `elysium-password-reset-${crypto.createHash('sha256').update(resetLink).digest('hex')}`;
-        await sendResendEmail(passwordResetEmail(email, resetLink, locale), deliveryKey);
+        await sendEmail(passwordResetEmail(email, resetLink, locale), deliveryKey);
       }
     } catch (error) {
       // The response is deliberately identical for missing accounts, disabled
@@ -1153,8 +1218,9 @@ module.exports = {
   buildMeetingAdminEmail,
   adminNotificationEmail,
   buildMeetingIcs,
-  meetingResendPayload,
-  sendResendEmail,
+  meetingEmailPayload,
+  sendEmail,
+  smtpConfig,
   serializeMeeting,
   passwordResetRateLimited,
   passwordResetEmail,

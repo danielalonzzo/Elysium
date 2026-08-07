@@ -3,9 +3,9 @@
 Servicio de confianza de Elysium. Hace dos cosas que un navegador no puede hacer
 por sí solo:
 
-1. **Agenda de reuniones.** Crea y cancela reuniones, y envía por Resend la
-   confirmación al cliente, la copia al administrador y la invitación de
-   calendario (`.ics`).
+1. **Agenda de reuniones.** Crea y cancela reuniones, y envía por SMTP desde el
+   buzón de la empresa la confirmación al cliente, el aviso al administrador y la
+   invitación de calendario (`.ics`).
 2. **Recuperación de contraseña.** Genera el enlace con el Admin SDK de Firebase
    y lo envía con la marca de Elysium, con respuestas neutras y limitación de
    intentos para no revelar si una cuenta existe.
@@ -36,16 +36,17 @@ Ver `.env.example`. Las que no tienen valor por defecto sensato:
 
 | Variable | Para qué |
 |---|---|
-| `RESEND_API_KEY` | Envío de correo. Sin ella, crear una reunión responde `emailStatus: 'not_configured'` y el CRM lo dice en pantalla. |
-| `MEETING_FROM_EMAIL` | Remitente de los correos de reunión. El dominio debe estar verificado en Resend. |
-| `PASSWORD_RESET_FROM_EMAIL` | Remitente del correo de contraseña. Si falta, usa el anterior. |
+| `SMTP_HOST` / `SMTP_PORT` | Servidor de IONOS. 465 abre TLS directo, 587 sube con STARTTLS. |
+| `SMTP_USER` / `SMTP_PASSWORD` | Buzón de la empresa. La contraseña va en Secret Manager, nunca como variable en claro. |
+| `MEETING_FROM_EMAIL` | Remitente. Debe ser el buzón autenticado o un alias suyo: IONOS rechaza enviar como una dirección ajena. |
+| `PASSWORD_RESET_FROM_EMAIL` | Remitente del correo de contraseña. Si falta, usa el anterior. Mismo límite de propiedad. |
 | `ADMIN_NOTIFICATION_EMAIL` | Dónde llega tu copia de cada reunión. Si falta, la primera de `ADMIN_EMAILS`. |
 | `PUBLIC_BASE_URL` | Origen que se escribe dentro de los enlaces de los correos. |
 
 `ADMIN_EMAILS` y `ALLOWED_ORIGINS` tienen valores por defecto en el código.
 
-En producción las variables están en texto plano en Cloud Run. Lo correcto es
-moverlas a Secret Manager con `--set-secrets`, sin tocar código.
+`SMTP_PASSWORD` es la contraseña de un buzón real: va en Secret Manager, no como
+variable en claro. Las demás pueden quedarse como variables normales.
 
 ## Quién es administrador
 
@@ -61,14 +62,21 @@ Siempre exige `email_verified`.
 
 ## Correo de reuniones
 
-`POST /api/meetings` crea la reunión y llama a `dispatchMeetingEmail()`, que
-reserva el envío con un *lease*, manda cliente y administrador bajo la misma
-clave de idempotencia y marca el resultado en `notifications.confirmation`. La
-respuesta lleva `emailStatus` real (`sent`, `failed`, `not_configured`…), no un
-`pending` fijo.
+El correo sale por SMTP desde el buzón de la empresa en IONOS. Nada de
+proveedores externos: el cliente recibe el mensaje desde la misma dirección a la
+que puede responder.
 
-Un fallo de correo nunca convierte en error una reunión ya guardada, y reintentar
-es seguro: el claim y la `Idempotency-Key` impiden el envío doble.
+`POST /api/meetings` crea la reunión y llama a `dispatchMeetingEmail()`, que
+reserva el envío con un *lease*, manda al cliente y al administrador dos correos
+distintos —no una copia oculta, porque el texto del interno es otro— y marca el
+resultado en `notifications.confirmation`. La respuesta lleva `emailStatus` real
+(`sent`, `failed`, `not_configured`…), no un `pending` fijo.
+
+Un fallo de correo nunca convierte en error una reunión ya guardada. Contra el
+envío doble hay dos capas: la reserva transaccional del *claim*, que impide que
+dos intentos simultáneos manden lo mismo, y un `Message-ID` determinista
+derivado de esa clave, para que un reenvío llegue con la identidad del original
+en vez de como mensaje nuevo.
 
 `POST /api/meetings/:id/cancel` hace lo mismo con la cancelación.
 

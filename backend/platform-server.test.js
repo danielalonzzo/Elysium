@@ -1,9 +1,11 @@
 'use strict';
 
 process.env.GCLOUD_PROJECT ||= 'elysium-unit-tests';
+process.env.SMTP_HOST ||= 'smtp.example.invalid';
+process.env.SMTP_USER ||= 'info@elysiumdr.eu';
+process.env.SMTP_PASSWORD ||= 'unit-tests';
 process.env.MEETING_FROM_EMAIL ||= 'Elysium <meetings@elysiumdr.eu>';
 process.env.PASSWORD_RESET_FROM_EMAIL ||= 'Elysium Security <security@elysiumdr.eu>';
-process.env.RESEND_API_KEY ||= 're_test_elysium_unit_tests';
 process.env.PUBLIC_BASE_URL ||= 'https://elysiumdr.eu';
 
 const test = require('node:test');
@@ -21,9 +23,9 @@ const {
   meetingRequestFingerprint,
   buildMeetingEmail,
   buildMeetingIcs,
-  meetingResendPayload,
+  meetingEmailPayload,
   adminNotificationEmail,
-  sendResendEmail,
+  sendEmail,
   serializeMeeting,
   passwordResetRateLimited,
   passwordResetEmail,
@@ -132,28 +134,58 @@ test('builds localized, escaped multizone meeting email and calendar invite', ()
     /URL:https:\/\/meet\.example\.com\/room\\,a\\;b/
   );
 
-  const payload = meetingResendPayload(meeting);
+  const payload = meetingEmailPayload(meeting);
   assert.deepEqual(payload.to, ['ana@example.com']);
   assert.match(Buffer.from(payload.attachments[0].content, 'base64').toString('utf8'), /BEGIN:VCALENDAR/);
 });
 
-test('sends Resend payload with provider idempotency and no live request', async () => {
+test('envía por SMTP con Message-ID determinista y sin conexión real', async () => {
   let captured = null;
-  const fetchMock = async (url, options) => {
-    captured = { url, options };
-    return { ok: true, status: 200, json: async () => ({ id: 'email_123' }) };
-  };
-  const result = await sendResendEmail(meetingResendPayload(emailMeeting()), 'meeting-key-123', fetchMock);
-  assert.equal(result.id, 'email_123');
-  assert.equal(captured.url, 'https://api.resend.com/emails');
-  assert.equal(captured.options.headers['Idempotency-Key'], 'meeting-key-123');
-  assert.equal(captured.options.headers.Authorization, 'Bearer re_test_elysium_unit_tests');
+  const transport = { sendMail: async message => { captured = message; return { messageId: message.messageId, rejected: [] }; } };
+
+  const meeting = emailMeeting();
+  const result = await sendEmail(meetingEmailPayload(meeting), 'meeting-key-123', transport);
+
+  assert.equal(result.id, '<meeting-key-123@elysiumdr.eu>');
+  // El Message-ID sale de la clave de reserva, así que un reenvío del mismo
+  // aviso llega con la identidad del original en lugar de como mensaje nuevo.
+  assert.equal(captured.messageId, '<meeting-key-123@elysiumdr.eu>');
+  assert.equal(captured.to[0], meeting.clientEmail);
+  assert.match(captured.attachments[0].contentType, /method=REQUEST/);
+  assert.equal(captured.attachments[0].encoding, 'base64');
+});
+
+test('una cancelación adjunta el calendario con METHOD CANCEL', () => {
+  const payload = meetingEmailPayload(emailMeeting(), 'cancellation');
+  assert.match(payload.attachments[0].contentType, /method=CANCEL/);
+  assert.equal(payload.attachments[0].filename, 'elysium-meeting-cancelled.ics');
+});
+
+test('sin buzón configurado no se intenta enviar', async () => {
+  const saved = process.env.SMTP_HOST;
+  delete process.env.SMTP_HOST;
+  try {
+    await assert.rejects(
+      () => sendEmail(meetingEmailPayload(emailMeeting()), 'k', null),
+      error => error.code === 'email_not_configured'
+    );
+  } finally {
+    process.env.SMTP_HOST = saved;
+  }
+});
+
+test('un destinatario rechazado por SMTP no cuenta como enviado', async () => {
+  const transport = { sendMail: async () => ({ messageId: '<x@y>', rejected: ['cliente@example.com'] }) };
+  await assert.rejects(
+    () => sendEmail(meetingEmailPayload(emailMeeting()), 'k', transport),
+    error => error.code === 'email_delivery_failed'
+  );
 });
 
 test('addresses the administrator separately from the client', () => {
   const meeting = emailMeeting();
-  const client = meetingResendPayload(meeting, 'confirmation', 'client');
-  const admin = meetingResendPayload(meeting, 'confirmation', 'admin');
+  const client = meetingEmailPayload(meeting, 'confirmation', 'client');
+  const admin = meetingEmailPayload(meeting, 'confirmation', 'admin');
 
   // Two different messages, two different recipients: the client is never
   // handed the administrator's address and vice versa.
@@ -174,7 +206,7 @@ test('addresses the administrator separately from the client', () => {
   assert.equal(admin.attachments[0].filename, 'elysium-meeting.ics');
 
   // A cancellation swaps the wording and drops the join button.
-  const cancelled = meetingResendPayload(meeting, 'cancellation', 'admin');
+  const cancelled = meetingEmailPayload(meeting, 'cancellation', 'admin');
   assert.match(cancelled.html, /Reuni\u00f3n retirada de la agenda/);
   assert.ok(!cancelled.html.includes(meeting.meetingUrl));
 });
@@ -196,16 +228,20 @@ test('password-reset helpers remain neutral, localized and rate limited', () => 
   assert.equal(passwordResetContinueUrl('es'), 'https://elysiumdr.eu/es/profiles?passwordReset=complete');
   assert.equal(passwordResetContinueUrl('en'), 'https://elysiumdr.eu/profiles?passwordReset=complete');
   assert.equal(passwordResetEmailConfigured(), true);
-  const savedApiKey = process.env.RESEND_API_KEY;
+  // Sin buzón SMTP no hay envío posible, aunque el remitente esté puesto.
+  const savedHost = process.env.SMTP_HOST;
+  delete process.env.SMTP_HOST;
+  assert.equal(passwordResetEmailConfigured(), false);
+  process.env.SMTP_HOST = savedHost;
+  // Y sin remitente tampoco, aunque el buzón esté configurado.
   const savedResetFrom = process.env.PASSWORD_RESET_FROM_EMAIL;
   const savedMeetingFrom = process.env.MEETING_FROM_EMAIL;
-  delete process.env.RESEND_API_KEY;
   delete process.env.PASSWORD_RESET_FROM_EMAIL;
   delete process.env.MEETING_FROM_EMAIL;
   assert.equal(passwordResetEmailConfigured(), false);
-  process.env.RESEND_API_KEY = savedApiKey;
   process.env.PASSWORD_RESET_FROM_EMAIL = savedResetFrom;
   process.env.MEETING_FROM_EMAIL = savedMeetingFrom;
+  assert.equal(passwordResetEmailConfigured(), true);
   const reset = passwordResetEmail('user@example.com', 'https://example.com/reset?oobCode=a&lang=es', 'es');
   assert.match(reset.subject, /Restablece/);
   assert.match(reset.html, /oobCode=a&amp;lang=es/);
