@@ -1216,14 +1216,14 @@ function escapeHtml(value) {
 function emailTheme(content, preheader = '') {
   return `<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;background:#06162d;color:#eaf3ff;font-family:Arial,Helvetica,sans-serif">
+<body style="margin:0;background:#030a16;color:#eaf3ff;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(preheader)}</div>
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#06162d;padding:32px 12px">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030a16;padding:40px 12px">
     <tr><td align="center">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px">
-        <tr><td style="padding:0 8px 22px;color:#fff;font-size:21px;font-weight:700;letter-spacing:.08em"><span style="color:#28a8ff">λ</span> ELYSIUM</td></tr>
-        <tr><td style="background:#0d2e55;border:1px solid #23598a;border-radius:18px;padding:34px">${content}</td></tr>
-        <tr><td style="padding:20px 8px;color:#839bb7;font-size:12px;line-height:1.6;text-align:center">Elysium Digital Experiences · elysiumdr.eu</td></tr>
+        <tr><td style="padding:0 8px 32px;color:#fff;font-size:24px;font-weight:800;letter-spacing:.05em"><span style="color:#28a8ff">λ</span> ELYSIUM</td></tr>
+        <tr><td style="background:#07152b;border:1px solid #142e4d;border-radius:24px;padding:48px 40px;box-shadow:0 12px 40px rgba(0,0,0,0.4)">${content}</td></tr>
+        <tr><td style="padding:32px 8px;color:#6482a3;font-size:13px;line-height:1.6;text-align:center">Elysium Digital Experiences<br>elysiumdr.eu</td></tr>
       </table>
     </td></tr>
   </table>
@@ -1276,18 +1276,18 @@ function buildMeetingEmail(meeting, kind = 'confirmation') {
   const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
   const notes = meeting.cancellationReason || meeting.notes || '';
   const button = cancelled ? '' : `
-    <p style="margin:28px 0 4px"><a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:#fff;color:#071a33;text-decoration:none;font-weight:700;padding:14px 24px;border-radius:999px">${escapeHtml(copy.join)}</a></p>`;
+    <p style="margin:32px 0 4px"><a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.3)">${escapeHtml(copy.join)}</a></p>`;
   const content = `
-    <p style="margin:0 0 8px;color:#7fc9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">${escapeHtml(heading)}</p>
-    <h1 style="margin:0 0 18px;color:#fff;font-size:27px;line-height:1.25">${escapeHtml(meeting.title)}</h1>
-    <p style="margin:0 0 24px;color:#c8d8e9;font-size:16px;line-height:1.6">${escapeHtml(copy.hello)} ${escapeHtml(meeting.clientName || '')}, ${escapeHtml(intro)}</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#092441;border-radius:12px;padding:6px 18px;color:#eaf3ff">
-      <tr><td style="padding:13px 0;color:#8fabca;font-size:13px">${escapeHtml(copy.yourTime)}</td><td style="padding:13px 0;text-align:right;font-weight:700">${escapeHtml(clientDate)}<br><span style="color:#8fabca;font-size:12px">${escapeHtml(meeting.clientTimeZone)}</span></td></tr>
-      <tr><td style="padding:13px 0;border-top:1px solid #1c466e;color:#8fabca;font-size:13px">${escapeHtml(copy.adminTime)}</td><td style="padding:13px 0;border-top:1px solid #1c466e;text-align:right">${escapeHtml(adminDate)}<br><span style="color:#8fabca;font-size:12px">${escapeHtml(meeting.adminTimeZone)}</span></td></tr>
-      <tr><td style="padding:13px 0;border-top:1px solid #1c466e;color:#8fabca;font-size:13px">${escapeHtml(copy.duration)}</td><td style="padding:13px 0;border-top:1px solid #1c466e;text-align:right">${Number(meeting.durationMinutes)} ${escapeHtml(copy.minutes)}</td></tr>
-      <tr><td style="padding:13px 0;border-top:1px solid #1c466e;color:#8fabca;font-size:13px">${escapeHtml(copy.region)}</td><td style="padding:13px 0;border-top:1px solid #1c466e;text-align:right">${escapeHtml(meeting.clientRegion || meeting.clientTimeZone)}</td></tr>
+    <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(heading)}</p>
+    <h1 style="margin:0 0 20px;color:#fff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(meeting.title)}</h1>
+    <p style="margin:0 0 32px;color:#a3c2e0;font-size:16px;line-height:1.6">${escapeHtml(copy.hello)} ${escapeHtml(meeting.clientName || '')}, ${escapeHtml(intro)}</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030a16;border:1px solid #142a4a;border-radius:16px;padding:8px 24px;color:#eaf3ff">
+      <tr><td style="padding:16px 0;color:#6482a3;font-size:14px">${escapeHtml(copy.yourTime)}</td><td style="padding:16px 0;text-align:right;font-weight:600;font-size:15px">${escapeHtml(clientDate)}<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.clientTimeZone)}</span></td></tr>
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(copy.adminTime)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${escapeHtml(adminDate)}<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.adminTimeZone)}</span></td></tr>
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(copy.duration)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${Number(meeting.durationMinutes)} ${escapeHtml(copy.minutes)}</td></tr>
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(copy.region)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${escapeHtml(meeting.clientRegion || meeting.clientTimeZone)}</td></tr>
     </table>
-    ${notes ? `<p style="margin:22px 0 0;color:#a9bed3;font-size:14px;line-height:1.55"><strong style="color:#eaf3ff">${escapeHtml(copy.notes)}:</strong> ${escapeHtml(notes)}</p>` : ''}
+    ${notes ? `<div style="margin:28px 0 0;background:#0a1930;border-left:4px solid #28a8ff;padding:16px 20px;border-radius:0 12px 12px 0"><p style="margin:0;color:#a3c2e0;font-size:15px;line-height:1.6"><strong style="color:#fff;display:block;margin-bottom:4px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
     ${button}`;
   const subjectLabel = cancelled ? copy.subjectCancelled : copy.subjectConfirmed;
   const text = [
@@ -1384,24 +1384,26 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
   const notes = meeting.cancellationReason || meeting.notes || '';
   const crmUrl = `${publicBaseUrl()}/admin?client=${encodeURIComponent(meeting.userId || '')}`;
   const row = (label, value, extra = '') => `
-      <tr><td style="padding:13px 0;border-top:1px solid #1c466e;color:#8fabca;font-size:13px">${escapeHtml(label)}</td><td style="padding:13px 0;border-top:1px solid #1c466e;text-align:right">${escapeHtml(value)}${extra}</td></tr>`;
+      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(label)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${escapeHtml(value)}${extra}</td></tr>`;
+  const buttonGroup = `
+    <p style="margin:32px 0 4px">
+      ${cancelled ? '' : `<a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.3)">${escapeHtml(copy.join)}</a>&nbsp;&nbsp;&nbsp;`}
+      <a href="${escapeHtml(crmUrl)}" style="display:inline-block;border:1px solid #28a8ff;color:#28a8ff;text-decoration:none;font-weight:600;padding:15px 27px;border-radius:999px;font-size:15px;letter-spacing:0.02em">${escapeHtml(copy.adminOpenCrm)}</a>
+    </p>`;
   const content = `
-    <p style="margin:0 0 8px;color:#7fc9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">${escapeHtml(heading)}</p>
-    <h1 style="margin:0 0 18px;color:#fff;font-size:27px;line-height:1.25">${escapeHtml(meeting.title)}</h1>
-    <p style="margin:0 0 24px;color:#c8d8e9;font-size:16px;line-height:1.6">${escapeHtml(intro)}</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#092441;border-radius:12px;padding:6px 18px;color:#eaf3ff">
-      <tr><td style="padding:13px 0;color:#8fabca;font-size:13px">${escapeHtml(copy.adminClient)}</td><td style="padding:13px 0;text-align:right;font-weight:700">${escapeHtml(meeting.clientName || '—')}</td></tr>
+    <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(heading)}</p>
+    <h1 style="margin:0 0 20px;color:#fff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(meeting.title)}</h1>
+    <p style="margin:0 0 32px;color:#a3c2e0;font-size:16px;line-height:1.6">${escapeHtml(intro)}</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030a16;border:1px solid #142a4a;border-radius:16px;padding:8px 24px;color:#eaf3ff">
+      <tr><td style="padding:16px 0;color:#6482a3;font-size:14px">${escapeHtml(copy.adminClient)}</td><td style="padding:16px 0;text-align:right;font-weight:600;font-size:15px">${escapeHtml(meeting.clientName || '—')}</td></tr>
       ${row(copy.adminEmail, meeting.clientEmail || '—')}
-      ${row(copy.adminTime, adminDate, `<br><span style="color:#8fabca;font-size:12px">${escapeHtml(meeting.adminTimeZone)}</span>`)}
-      ${row(copy.yourTime, clientDate, `<br><span style="color:#8fabca;font-size:12px">${escapeHtml(meeting.clientTimeZone)}</span>`)}
+      ${row(copy.adminTime, adminDate, `<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.adminTimeZone)}</span>`)}
+      ${row(copy.yourTime, clientDate, `<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.clientTimeZone)}</span>`)}
       ${row(copy.duration, `${Number(meeting.durationMinutes)} ${copy.minutes}`)}
       ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone || '—')}
     </table>
-    ${notes ? `<p style="margin:22px 0 0;color:#a9bed3;font-size:14px;line-height:1.55"><strong style="color:#eaf3ff">${escapeHtml(copy.notes)}:</strong> ${escapeHtml(notes)}</p>` : ''}
-    <p style="margin:28px 0 4px">
-      ${cancelled ? '' : `<a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:#fff;color:#071a33;text-decoration:none;font-weight:700;padding:14px 24px;border-radius:999px">${escapeHtml(copy.join)}</a>&nbsp;`}
-      <a href="${escapeHtml(crmUrl)}" style="display:inline-block;border:1px solid #23598a;color:#cfe6ff;text-decoration:none;font-weight:700;padding:13px 23px;border-radius:999px">${escapeHtml(copy.adminOpenCrm)}</a>
-    </p>`;
+    ${notes ? `<div style="margin:28px 0 0;background:#0a1930;border-left:4px solid #28a8ff;padding:16px 20px;border-radius:0 12px 12px 0"><p style="margin:0;color:#a3c2e0;font-size:15px;line-height:1.6"><strong style="color:#fff;display:block;margin-bottom:4px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
+    ${buttonGroup}`;
   const subjectLabel = cancelled ? copy.adminSubjectCancelled : copy.adminSubjectConfirmed;
   const who = meeting.clientName || meeting.clientEmail || '';
   const text = [
@@ -1616,11 +1618,11 @@ function passwordResetEmail(email, resetLink, locale = 'en') {
     pt: { subject: 'Repor a palavra-passe da Elysium', heading: 'Repor a palavra-passe', intro: 'Recebemos um pedido para repor a sua palavra-passe da Elysium.', button: 'Escolher uma nova palavra-passe', expiry: 'Para sua segurança, utilize esta ligação apenas uma vez. Se não fez o pedido, pode ignorar este email.' }
   }[language];
   const content = `
-    <p style="margin:0 0 8px;color:#7fc9ff;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Elysium Security</p>
-    <h1 style="margin:0 0 18px;color:#fff;font-size:27px">${escapeHtml(copy.heading)}</h1>
-    <p style="margin:0 0 24px;color:#c8d8e9;font-size:16px;line-height:1.6">${escapeHtml(copy.intro)}</p>
-    <p style="margin:0 0 24px"><a href="${escapeHtml(resetLink)}" style="display:inline-block;background:#fff;color:#071a33;text-decoration:none;font-weight:700;padding:14px 24px;border-radius:999px">${escapeHtml(copy.button)}</a></p>
-    <p style="margin:0;color:#8fa8c2;font-size:13px;line-height:1.6">${escapeHtml(copy.expiry)}</p>`;
+    <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">Elysium Security</p>
+    <h1 style="margin:0 0 20px;color:#fff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(copy.heading)}</h1>
+    <p style="margin:0 0 32px;color:#a3c2e0;font-size:16px;line-height:1.6">${escapeHtml(copy.intro)}</p>
+    <p style="margin:0 0 32px"><a href="${escapeHtml(resetLink)}" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.3)">${escapeHtml(copy.button)}</a></p>
+    <p style="margin:0;color:#6482a3;font-size:13px;line-height:1.6">${escapeHtml(copy.expiry)}</p>`;
   return {
     from: process.env.PASSWORD_RESET_FROM_EMAIL || process.env.MEETING_FROM_EMAIL || '',
     to: [email],
