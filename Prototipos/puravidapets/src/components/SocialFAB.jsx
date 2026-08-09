@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, MessageCircle, Mail, Sun, Moon } from 'lucide-react';
+import { Plus, X, MessageCircle, Mail, Sun, Moon, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const InstagramIcon = ({ size = 24 }) => (
@@ -13,6 +13,20 @@ const InstagramIcon = ({ size = 24 }) => (
 export default function SocialFAB() {
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [isEnglish, setIsEnglish] = useState(false);
+
+  useEffect(() => {
+    setIsEnglish(document.cookie.includes('googtrans=/es/en'));
+  }, []);
+
+  const toggleLanguage = () => {
+    const nextEn = !isEnglish;
+    setIsEnglish(nextEn);
+    const domain = window.location.hostname;
+    document.cookie = `googtrans=/es/${nextEn ? 'en' : 'es'}; path=/; domain=${domain}`;
+    document.cookie = `googtrans=/es/${nextEn ? 'en' : 'es'}; path=/;`;
+    window.location.reload();
+  };
 
   // Initialize theme from localStorage, default to light
   useEffect(() => {
@@ -67,7 +81,7 @@ export default function SocialFAB() {
     {
       name: 'Email',
       icon: <Mail size={20} className="text-white" />,
-      href: 'mailto:info@puravidapets.cr',
+      href: 'mailto:asesores@puravidapets.cr',
       color: 'bg-[var(--color-brand-orange)]',
     },
   ];
@@ -90,7 +104,7 @@ export default function SocialFAB() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.8, y: 15 }}
                   transition={{ delay: idx * 0.05, type: 'spring', stiffness: 300, damping: 20 }}
-                  className={`w-12 h-12 rounded-full ${link.color} flex items-center justify-center border-4 border-[var(--color-brand-dark)] shadow-[4px_4px_0px_0px_rgba(45,45,45,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,248,240,0.15)] hover:-translate-y-1 active:translate-y-0 transition-transform`}
+                  className={`w-12 h-12 rounded-full ${link.color} flex items-center justify-center border-4 border-[var(--color-brand-dark)] shadow-[4px_4px_0px_0px_rgba(76,29,3,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,248,240,0.15)] hover:-translate-y-1 active:translate-y-0 transition-transform`}
                   title={link.name}
                 >
                   {link.icon}
@@ -106,18 +120,26 @@ export default function SocialFAB() {
               className="flex items-center gap-3 pr-14 absolute bottom-0 right-0 h-12"
             >
               <button
+                onClick={toggleLanguage}
+                className="w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all shadow-[4px_4px_0px_0px_rgba(76,29,3,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,248,240,0.15)] hover:-translate-y-1 active:translate-y-0 focus:outline-none bg-[#FFF8F0] text-[var(--color-brand-dark)] border-[var(--color-brand-dark)] dark:bg-[var(--color-brand-dark)] dark:text-[#FFF8F0] dark:border-[#FFF8F0] font-display text-sm"
+                title={isEnglish ? "Ver en Español" : "View in English"}
+              >
+                {isEnglish ? "EN" : "ES"}
+              </button>
+
+              <button
                 onClick={toggleTheme}
-                className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all shadow-[4px_4px_0px_0px_rgba(45,45,45,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,248,240,0.15)] hover:-translate-y-1 active:translate-y-0 focus:outline-none ${
+                className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-all shadow-[4px_4px_0px_0px_rgba(76,29,3,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,248,240,0.15)] hover:-translate-y-1 active:translate-y-0 focus:outline-none ${
                   isDark 
-                    ? 'bg-[#2D2D2D] text-amber-400 border-[#FFF8F0]' 
-                    : 'bg-[#FFF8F0] text-[#2D2D2D] border-[#2D2D2D]'
+                    ? 'bg-[var(--color-brand-dark)] text-amber-400 border-[#FFF8F0]' 
+                    : 'bg-[#FFF8F0] text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]'
                 }`}
                 title={isDark ? "Modo Claro" : "Modo Oscuro"}
               >
                 {isDark ? (
                   <Sun size={20} className="text-amber-400" />
                 ) : (
-                  <Moon size={20} className="text-[#2D2D2D]" fill="#2D2D2D" />
+                  <Moon size={20} className="text-[var(--color-brand-dark)]" fill="var(--color-brand-dark)" />
                 )}
               </button>
             </motion.div>
@@ -128,7 +150,7 @@ export default function SocialFAB() {
       {/* Main Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 rounded-full bg-[var(--color-brand-orange)] text-white border-4 border-[var(--color-brand-dark)] flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(45,45,45,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,248,240,0.15)] transition-transform hover:-translate-y-1 active:translate-y-0 focus:outline-none relative z-10"
+        className="w-14 h-14 rounded-full bg-[var(--color-brand-orange)] text-white border-4 border-[var(--color-brand-dark)] flex items-center justify-center shadow-[6px_6px_0px_0px_rgba(76,29,3,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,248,240,0.15)] transition-transform hover:-translate-y-1 active:translate-y-0 focus:outline-none relative z-10"
         aria-label="Abrir redes y tema"
       >
         <motion.div

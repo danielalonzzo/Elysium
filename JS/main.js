@@ -500,6 +500,11 @@ document.addEventListener('DOMContentLoaded', () => {
             progress = Math.min(100, Math.max(0, progress * 1.1));
             
             const itemRects = Array.from(timelineItems, item => item.getBoundingClientRect());
+            // El margen inferior es el hueco natural entre tarjetas: de ahí sale el
+            // recorrido del que disponemos para apagar la que se queda atrás.
+            const stepGap = timelineItems.length
+                ? parseFloat(getComputedStyle(timelineItems[0]).marginBottom) || 0
+                : 0;
             timelineProgress.style.transform = `scaleY(${progress / 100})`;
 
             // Iluminar puntos de la línea de tiempo y apagar tarjetas anteriores
@@ -511,20 +516,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.classList.remove('is-visible');
                 }
                 
-                // Desenfocar y apagar progresivamente la tarjeta si está siendo cubierta
+                // Apagar la tarjeta antes de que la siguiente la alcance: si las dos se
+                // leen a la vez el solapamiento parece un fallo de renderizado.
                 if (index < timelineItems.length - 1) {
                     const nextRect = itemRects[index + 1];
                     const distance = nextRect.top - itemRect.top;
-                    const maxDistance = window.innerHeight * 0.4; // Inicia el efecto en este rango
+                    // A esta distancia las tarjetas ya se tocan: el fundido tiene que
+                    // haber terminado antes, no empezar aquí.
+                    const overlapAt = itemRect.height + 16;
+                    const fadeStart = overlapAt + stepGap * 0.85;
                     const content = item.querySelector('.timeline-content');
-                    
+
                     if (content) {
-                        if (distance <= maxDistance && itemRect.top <= window.innerHeight * 0.5) {
-                            const progress = 1 - (Math.max(0, distance) / maxDistance); // 0 a 1
-                            
-                            content.style.opacity = 1 - (progress * 0.85);
-                            content.style.transform = `scale(${1 - (progress * 0.05)})`;
-                            content.style.pointerEvents = progress > 0.5 ? 'none' : 'auto';
+                        if (fadeStart > overlapAt && distance <= fadeStart && itemRect.top <= window.innerHeight * 0.6) {
+                            const t = Math.min(1, Math.max(0, (fadeStart - distance) / (fadeStart - overlapAt)));
+                            const fade = t * t * (3 - 2 * t); // suaviza la entrada y la salida
+
+                            content.style.opacity = `${1 - fade}`;
+                            content.style.transform = `scale(${1 - (fade * 0.05)})`;
+                            content.style.pointerEvents = fade > 0.3 ? 'none' : 'auto';
                             content.style.transition = 'none'; // Instanteo para sincronizar con scroll
                         } else {
                             content.style.opacity = '';

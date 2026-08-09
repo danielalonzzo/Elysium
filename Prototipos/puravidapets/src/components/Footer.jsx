@@ -12,7 +12,7 @@ const InstagramIcon = ({ size = 24 }) => (
 
 export default function Footer({ onOpenModal }) {
   return (
-    <footer className="bg-[#2D2D2D] text-white pt-16 pb-8 border-t-4 border-[#FF8A18] mt-20">
+    <footer id="contacto" className="bg-[var(--color-brand-dark)] text-white pt-16 pb-8 border-t-4 border-[var(--color-brand-orange)] mt-20">
       <div className="container mx-auto px-6 max-w-6xl">
         
         {/* Main Footer Content */}
@@ -29,7 +29,10 @@ export default function Footer({ onOpenModal }) {
               </span>
             </Link>
             <address className="not-italic text-gray-400 space-y-1 text-sm">
-              <p className="text-white font-bold mb-2 text-base">Heredia, Costa Rica</p>
+              <p className="text-white font-bold mb-2 text-base flex items-center gap-2">
+                Heredia, Costa Rica
+                <img src="./costa-rica.png" alt="Costa Rica" className="w-5 h-auto object-contain" />
+              </p>
               <p>Expertos en felicidad canina.</p>
               <p>Aventuras únicas que se adaptan</p>
               <p>a la vida de tu mascota.</p>
@@ -37,7 +40,7 @@ export default function Footer({ onOpenModal }) {
           </div>
 
           {/* Company Links */}
-          <div className="lg:pl-8">
+          <div className="hidden md:block lg:pl-8">
             <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-6">Empresa</h4>
             <ul className="space-y-4 text-sm font-medium text-gray-300">
               <li><Link to="/" className="hover:text-[var(--color-brand-orange)] transition-colors">Inicio</Link></li>
@@ -72,8 +75,8 @@ export default function Footer({ onOpenModal }) {
                 </a>
               </li>
               <li>
-                <a href="mailto:info@puravidapets.cr" className="flex items-center gap-3 hover:text-[var(--color-brand-orange)] transition-colors">
-                  <Mail size={18} /> info@puravidapets.cr
+                <a href="mailto:asesores@puravidapets.cr" className="flex items-center gap-3 hover:text-[var(--color-brand-orange)] transition-colors">
+                  <Mail size={18} /> asesores@puravidapets.cr
                 </a>
               </li>
             </ul>
@@ -82,22 +85,22 @@ export default function Footer({ onOpenModal }) {
         </div>
 
         {/* Divider */}
-        <div className="h-px w-full bg-gray-800 mb-8"></div>
+        <div className="h-px w-full bg-[#D66215]/30 mb-8"></div>
 
         {/* Footer Bottom */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-gray-500">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-[#D66215]">
           <div className="flex items-center gap-4">
             {/* Version Tag -> Triggers Modal via prop */}
             <button 
               onClick={onOpenModal}
-              className="border border-gray-700 bg-[#2A2A2A] hover:bg-[#333333] text-gray-400 hover:text-[var(--color-brand-orange)] hover:border-[var(--color-brand-orange)] px-3 py-1.5 rounded-full transition-all font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-brand-orange)] focus:ring-offset-[var(--color-brand-dark)] text-[10px] uppercase tracking-wider flex items-center gap-2"
+              className="group border border-[#D66215] bg-transparent hover:bg-[#D66215] text-[#D66215] hover:text-white px-3 py-1.5 rounded-full transition-all font-mono focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D66215] focus:ring-offset-[var(--color-brand-dark)] text-[10px] uppercase tracking-wider flex items-center gap-2"
               aria-label="Ver información del sistema"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-500 hover:bg-[var(--color-brand-orange)] transition-colors"></span>
-              v1.0.0 beta
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D66215] group-hover:bg-white transition-colors"></span>
+              V1.5.6
             </button>
             <p className="hidden md:block">
-              Desarrollado por <a href="https://elysiumdr.eu" target="_blank" rel="noopener noreferrer" className="hover:text-[var(--color-brand-orange)] transition-colors underline decoration-dotted underline-offset-4 font-bold">Elysium λ Development & Research</a>.
+              Desarrollado por <a href="https://elysiumdr.eu" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline decoration-dotted underline-offset-4 font-bold">Elysium λ Development & Research</a>.
             </p>
           </div>
           

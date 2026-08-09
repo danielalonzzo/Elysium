@@ -1,16 +1,37 @@
-# React + Vite
+# Pura Vida Pets
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Aplicación React/Vite con Firebase Authentication, Cloud Firestore y Cloud Functions. La UI consume datos exclusivamente mediante `src/utils/dataService.js`; las operaciones sensibles no escriben directamente desde el navegador.
 
-Currently, two official plugins are available:
+## Secciones funcionales
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `/#/`: paquetes y formulario de precalificación por buyer persona.
+- `/#/contact`: precalificación antes del handoff a WhatsApp.
+- `/#/portal`: billetera, bitácora, citas, galería y solicitud de suscripción del cliente.
+- `/#/admin`: CRM en tiempo real para administradores y editores.
+- `/#/walker`: agenda aislada del paseador y acceso sanitario temporal por asignación.
 
-## React Compiler
+## Desarrollo local
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Copiar `.env.example` a `.env` y completar la configuración web de Firebase/Google Maps.
+2. Instalar dependencias con `npm install`.
+3. Ejecutar `npm run dev`.
 
-## Expanding the Oxlint configuration
+Comprobaciones disponibles:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```sh
+npm test
+npm run lint
+npm run build
+```
+
+## Firebase
+
+- Esquema/adaptador: `src/utils/dataService.js`
+- Reglas: `firestore.rules`
+- Índices: `firestore.indexes.json`
+- Lógica privilegiada: `functions/index.js`
+- Configuración local: `firebase.json`
+
+Antes de usar un entorno real hay que instalar las dependencias de `functions/`, configurar `ERP_WEBHOOK_SECRET`, provisionar usuarios/roles con custom claims y desplegar manualmente Rules, índices y Functions. El despliegue no forma parte de `npm run build`.
+
+La especificación completa está en `docs/pura-vida-pets-backend-architecture.md`.

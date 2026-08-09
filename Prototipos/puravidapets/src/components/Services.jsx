@@ -6,7 +6,8 @@ export default function Services() {
     {
       title: "Paseos Individuales",
       icon: <Clock size={40} className="text-[var(--color-brand-orange)]" />,
-      desc: "Servicio estructurado para cobrarse por hora. Perfecto para paseos espontáneos o como adiciones extra a tus paquetes mensuales."
+      desc: "Servicio estructurado para cobrarse por hora. Perfecto para paseos espontáneos o como adiciones extra a tus paquetes mensuales.",
+      features: ["Para 1 a 4 mascotas", "Fotos y comunicación diaria"]
     },
     {
       title: "Cuido a Domicilio u Hospedaje",
@@ -17,7 +18,7 @@ export default function Services() {
   ];
 
   return (
-    <section id="servicios" className="py-24 bg-white relative">
+    <section id="servicios" className="py-24 bg-[#FFF8F0] dark:bg-[#1A1918] relative">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-[var(--color-brand-dark)] mb-4">Nuestros Servicios Adicionales</h2>
@@ -32,7 +33,7 @@ export default function Services() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.2 }}
-              className="bg-[var(--color-brand-beige)] border-4 border-[var(--color-brand-dark)] rounded-3xl p-8 hover:-translate-y-2 transition-transform shadow-[8px_8px_0px_0px_rgba(45,45,45,1)]"
+              className="bg-white border-4 border-[var(--color-brand-dark)] rounded-3xl p-8 hover:-translate-y-2 transition-transform shadow-[8px_8px_0px_0px_rgba(76,29,3,1)]"
             >
               <div className="bg-white w-20 h-20 rounded-full flex items-center justify-center border-4 border-[var(--color-brand-dark)] mb-6 shadow-sm">
                 {srv.icon}

@@ -95,6 +95,9 @@
 /JS/home.v2026073002.min.js
   Cache-Control: public, max-age=31536000, immutable
 
+/JS/home.v20260809.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
 # Authentication and portal assets change together. Keep their cache policy
 # explicit so a member never receives a new dashboard shell with stale logic.
 /JS/profiles.js

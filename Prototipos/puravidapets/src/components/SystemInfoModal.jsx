@@ -63,7 +63,7 @@ export default function SystemInfoModal({ isOpen, onClose }) {
                   <div className="flex justify-between items-center p-4 border-b border-gray-50">
                     <span className="text-gray-600 font-medium">Versión actual</span>
                     <div className="flex items-center gap-3">
-                      <span className="text-[var(--color-brand-orange)] font-bold bg-orange-50 border border-orange-200 px-3 py-1 rounded-full text-xs uppercase tracking-widest flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[var(--color-brand-orange)] animate-pulse"></span>v1.0.0 beta</span>
+                      <span className="text-[var(--color-brand-orange)] font-bold bg-orange-50 border border-orange-200 px-3 py-1 rounded-full text-xs uppercase tracking-widest flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[var(--color-brand-orange)] animate-pulse"></span>V2.0.0 BETA</span>
                       <button 
                         onClick={handleUpdate}
                         disabled={isUpdating}

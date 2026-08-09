@@ -32,6 +32,7 @@ export default function LaManada() {
   const lastTime     = useRef(0);
   const hasMoved     = useRef(false);
   const rafId        = useRef(null);
+  const pendingClickDog = useRef(null);
 
   const n      = images.length || 1;
   const theta  = 360 / n;                                           // ángulo por tarjeta
@@ -45,19 +46,19 @@ export default function LaManada() {
     el.style.transform  = `rotate3d(0, 1, 0, ${deg}deg)`;
   };
 
-  // ─── Inercia (centrifugado) ───────────────────────────────────────────────
-  const startInertia = () => {
+  // ─── Animación Continua (Autoplay + Inercia) ─────────────────────────────
+  const startAnimation = () => {
     cancelAnimationFrame(rafId.current);
-    const FRICTION = 0.94; // cuánto se frena por frame (0.94 = suave, 0.90 = rápido)
+    const FRICTION = 0.94; // 0.94 = suave
+    const AUTO_SPEED = -0.15; // Velocidad constante de giro automático
 
     const tick = () => {
-      if (Math.abs(velocity.current) < 0.05) {
-        velocity.current = 0;
-        return;
+      if (!isDragging.current) {
+        // Transición suave de la velocidad de arrastre a la velocidad automática
+        velocity.current = (velocity.current - AUTO_SPEED) * FRICTION + AUTO_SPEED;
+        rotation.current += velocity.current;
+        applyRotation(rotation.current, false);
       }
-      velocity.current *= FRICTION;
-      rotation.current += velocity.current;
-      applyRotation(rotation.current, false);
       rafId.current = requestAnimationFrame(tick);
     };
     rafId.current = requestAnimationFrame(tick);
@@ -65,7 +66,6 @@ export default function LaManada() {
 
   // ─── Pointer events ───────────────────────────────────────────────────────
   const onPointerDown = (e) => {
-    cancelAnimationFrame(rafId.current);
     isDragging.current = true;
     hasMoved.current   = false;
     velocity.current   = 0;
@@ -91,19 +91,30 @@ export default function LaManada() {
     applyRotation(rotation.current, false);
   };
 
-  const onPointerUp = () => {
+  const onPointerUp = (e) => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    startInertia();
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+    
+    // Si no hubo arrastre, se considera un clic en la tarjeta
+    if (!hasMoved.current && pendingClickDog.current) {
+      setSelectedDog(pendingClickDog.current);
+    }
+    pendingClickDog.current = null;
   };
 
-  // Limpieza del RAF al desmontar
-  useEffect(() => () => cancelAnimationFrame(rafId.current), []);
+  // Efecto inicial para arrancar la animación y limpieza al desmontar
+  useEffect(() => {
+    startAnimation();
+    return () => cancelAnimationFrame(rafId.current);
+  }, []);
 
   return (
     <section
       id="manada"
-      className="py-20 bg-[#FFF8F0] dark:bg-[#1A1918] relative"
+      className="py-20 bg-white dark:bg-[var(--color-brand-dark)] relative"
       style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
     >
       {/* Cabecera sobria estilo referencia */}
@@ -113,11 +124,11 @@ export default function LaManada() {
           href="https://www.instagram.com/puravidapets.cr/" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-[#FF8A18] text-white border border-[#FF8A18]/20 text-xs font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full shadow-sm mb-4 transition-all duration-300 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] hover:text-white hover:border-transparent active:scale-95 cursor-pointer"
+          className="inline-flex items-center gap-2 bg-[var(--color-brand-orange)] text-white border border-[var(--color-brand-orange)]/20 text-xs font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full shadow-sm mb-4 transition-all duration-300 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] hover:text-white hover:border-transparent active:scale-95 cursor-pointer"
         >
           🐾 La Manada
         </a>
-        <p className="text-sm text-[#2D2D2D]/50 dark:text-gray-500 font-medium">
+        <p className="text-sm text-[var(--color-brand-dark)]/50 dark:text-gray-500 font-medium">
           Arrastra para girar &middot; Haz clic para ver
         </p>
       </div>
@@ -171,7 +182,9 @@ export default function LaManada() {
                   WebkitBackfaceVisibility: 'hidden',
                   cursor:              'pointer',
                 }}
-                onClick={() => { if (!hasMoved.current) setSelectedDog(img); }}
+                onPointerDown={() => {
+                  pendingClickDog.current = img;
+                }}
               >
                 <img
                   src={img.src}
@@ -208,7 +221,7 @@ export default function LaManada() {
       </div>
 
       {/* Pie */}
-      <p className="text-center mt-6 text-xs text-[#2D2D2D]/35 dark:text-gray-600 font-medium tracking-wide">
+      <p className="text-center mt-6 text-xs text-[var(--color-brand-dark)]/35 dark:text-gray-600 font-medium tracking-wide">
         🐾 {TOTAL_MEMBERS} miembros de la manada
       </p>
 
@@ -229,7 +242,7 @@ export default function LaManada() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.88, y: 24 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-              className="relative bg-white dark:bg-[#2D2D2D] rounded-[1.75rem] overflow-hidden max-w-xs w-full shadow-2xl"
+              className="relative bg-white dark:bg-[var(--color-brand-dark)] rounded-[1.75rem] overflow-hidden max-w-xs w-full shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
               <div className="relative">
@@ -249,7 +262,7 @@ export default function LaManada() {
                 </button>
               </div>
               <div className="px-5 py-4 text-center">
-                <h3 className="text-2xl font-extrabold text-[#2D2D2D] dark:text-[#F5F0E8] mb-1.5">
+                <h3 className="text-2xl font-extrabold text-[var(--color-brand-dark)] dark:text-[#F5F0E8] mb-1.5">
                   {selectedDog.name}
                 </h3>
                 <span className="inline-block bg-[var(--color-brand-orange)]/10 text-[var(--color-brand-orange)] text-xs font-bold px-3 py-1 rounded-full tracking-wide uppercase">

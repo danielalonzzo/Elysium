@@ -7,7 +7,20 @@ import SocialFAB from './components/SocialFAB'
 import Preloader from './components/Preloader'
 import Home from './pages/Home'
 import ClientDashboard from './pages/ClientDashboard'
-
+import AdminDashboard from './pages/AdminDashboard'
+import AboutUs from './pages/AboutUs'
+import Blog from './pages/Blog'
+import Testimonials from './pages/Testimonials'
+import FAQ from './pages/FAQ'
+import Legal from './pages/Legal'
+import Ecommerce from './pages/Ecommerce'
+import Login from './pages/Auth/Login'
+import Register from './pages/Auth/Register'
+import Onboarding from './pages/Auth/Onboarding'
+import ForgotPassword from './pages/Auth/ForgotPassword'
+import WalkerDashboard from './pages/WalkerDashboard'
+import AssessorDashboard from './pages/AssessorDashboard'
+import Prospects from './pages/Prospects'
 function App() {
   const [isSystemInfoOpen, setIsSystemInfoOpen] = useState(false);
 
@@ -24,7 +37,23 @@ function App() {
       <main className="flex-grow pt-28">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/legal" element={<Legal />} />
+          <Route path="/shop" element={<Ecommerce />} />
+          
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          
           <Route path="/portal" element={<ClientDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/walker" element={<WalkerDashboard />} />
+          <Route path="/assessor" element={<AssessorDashboard />} />
+          <Route path="/prospects" element={<Prospects />} />
         </Routes>
       </main>
 

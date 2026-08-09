@@ -163,7 +163,7 @@ export default function Preloader() {
               fontFamily: "'Fredoka', sans-serif",
               fontSize: '2rem',
               fontWeight: 700,
-              color: '#2D2D2D',
+              color: 'var(--color-brand-dark)',
               lineHeight: 1.1,
             }}
           >

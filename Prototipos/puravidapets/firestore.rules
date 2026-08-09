@@ -1,0 +1,128 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function roleIs(role) {
+      return signedIn() && request.auth.token.role == role;
+    }
+
+    function isAdmin() {
+      return roleIs('admin');
+    }
+
+    function isEditor() {
+      return roleIs('editor');
+    }
+
+    function isCrmStaff() {
+      return isAdmin() || isEditor();
+    }
+
+    function owns(resourceData) {
+      return signedIn() && resourceData.clientId == request.auth.uid;
+    }
+
+    function walkerOwns(resourceData) {
+      return roleIs('walker') && resourceData.walkerId == request.auth.uid;
+    }
+
+    function walkerHasPetAccess(petId) {
+      let access = get(/databases/$(database)/documents/walkerPetAccess/$(request.auth.uid + '_' + petId));
+      return roleIs('walker')
+        && access.data.walkerId == request.auth.uid
+        && access.data.petId == petId
+        && access.data.activeFrom <= request.time
+        && access.data.activeUntil >= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if signedIn() && (request.auth.uid == userId || isCrmStaff());
+      allow list: if isCrmStaff();
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['displayName', 'phone', 'locale', 'notifications', 'updatedAt']);
+      allow create, delete: if false;
+    }
+
+    match /clients/{clientId} {
+      allow read: if signedIn() && (request.auth.uid == clientId || isCrmStaff());
+      allow write: if isCrmStaff();
+    }
+
+    match /pets/{petId} {
+      allow get: if isCrmStaff()
+        || (signedIn() && resource.data.ownerId == request.auth.uid)
+        || walkerHasPetAccess(petId);
+      allow list: if isCrmStaff()
+        || (signedIn() && resource.data.ownerId == request.auth.uid);
+      allow write: if isCrmStaff();
+    }
+
+    match /walkers/{walkerId} {
+      allow get: if isCrmStaff() || (roleIs('walker') && request.auth.uid == walkerId);
+      allow list: if isCrmStaff();
+      allow write: if isAdmin();
+    }
+
+    match /publicWalkerProfiles/{walkerId} {
+      allow read: if signedIn();
+      allow write: if isCrmStaff();
+    }
+
+    match /walkerPetAccess/{accessId} {
+      allow get: if isCrmStaff() || (roleIs('walker') && resource.data.walkerId == request.auth.uid);
+      allow list: if isCrmStaff();
+      allow write: if isCrmStaff();
+    }
+
+    match /subscriptions/{clientId} {
+      allow get: if signedIn() && (request.auth.uid == clientId || isCrmStaff());
+      allow list: if isCrmStaff();
+      allow write: if false;
+    }
+
+    match /subscriptionRequests/{requestId} {
+      allow read: if isCrmStaff() || (signedIn() && resource.data.clientId == request.auth.uid);
+      allow write: if false;
+    }
+
+    match /appointments/{appointmentId} {
+      allow get: if isCrmStaff() || owns(resource.data) || walkerOwns(resource.data);
+      allow list: if isCrmStaff() || owns(resource.data) || walkerOwns(resource.data);
+      allow write: if false;
+    }
+
+    match /walkLogs/{logId} {
+      allow get, list: if isCrmStaff() || owns(resource.data) || walkerOwns(resource.data);
+      allow write: if false;
+    }
+
+    match /walletTransactions/{transactionId} {
+      allow get, list: if isCrmStaff() || owns(resource.data);
+      allow write: if false;
+    }
+
+    match /leads/{leadId} {
+      allow read: if isCrmStaff();
+      allow write: if false;
+    }
+
+    match /system/{documentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /webhookReceipts/{receiptId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

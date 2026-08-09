@@ -248,31 +248,61 @@
 
                     <!-- LEFT: Fixed feature names column -->
                     <div class="matrix-labels-col" id="matrixLabels">
-                        <!-- Header cell -->
                         <div class="matrix-label-cell matrix-label-header">Características</div>
-                        <!-- Body cells -->
                         <div class="matrix-label-cell">Dominio, correo y alojamiento</div>
                         <div class="matrix-label-cell">Desarrollo de la web</div>
+                        <div class="matrix-label-cell">Cumplimiento RGPD y avisos legales</div>
+                        <div class="matrix-label-cell">Estructura multi-idioma</div>
+                        <div class="matrix-label-cell">Modo claro y oscuro inteligente</div>
+                        <div class="matrix-label-cell">Conversión de divisas en tiempo real</div>
+                        <div class="matrix-label-cell">Web instalable como aplicación</div>
                         <div class="matrix-label-cell">Agenda pública con recordatorios automáticos</div>
                         <div class="matrix-label-cell">Ficha de cliente</div>
-                        <div class="matrix-label-cell">Cumplimiento RGPD y avisos legales</div>
                         <div class="matrix-label-cell">Área privada del cliente con acceso e historial</div>
                         <div class="matrix-label-cell">CRM del administrador</div>
                         <div class="matrix-label-cell">Cobro online y bonos de sesiones</div>
                         <div class="matrix-label-cell">Informes de ocupación y ausencias</div>
+                        <div class="matrix-label-cell matrix-see-more-cell" style="padding-top:1rem; padding-bottom:1rem; border-bottom: none;">
+                            <button class="btn btn-outline tech-toggle-btn" onclick="toggleTechMatrix()" style="font-size: 0.8rem; padding: 0.5rem 1rem;">Ver especificaciones técnicas</button>
+                        </div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Pantalla de carga</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Menú adaptable</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Revelación al desplazar</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Desplazamiento anclado</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Sistema de información</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Ajustes del sistema</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Actualización del sistema</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Núcleo de seguridad</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Gestión de cookies</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Botón flotante</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Sello Elysium</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Efectos de temporada</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">URLs limpias</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Núcleo de descubrimiento</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">SEO</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Cursor personalizado</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Sonido del sistema</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Tema dinámico</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Selector de tema</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Multi-idioma</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Multi-divisa</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Instalador de App Web</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">CRM personalizado</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Reserva inteligente</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Ficha de cliente</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Pagos en línea</div>
+                        <div class="matrix-label-cell tech-feature" style="display:none; font-size: 0.85rem; color: var(--color-text-secondary);">Informes de ocupación</div>
                     </div>
 
                     <!-- RIGHT: Horizontally scrollable plans -->
                     <div class="matrix-plans-scroll" id="matrixScroll">
                         <div class="matrix-plans-inner">
-
-                            <!-- Plan: Hosting -->
                             <div class="matrix-plan-col">
                                 <div class="matrix-plan-header">
                                     <h4 class="matrix-plan-title">Alojamiento</h4>
-                                    <p class="matrix-price"><span class="dynamic-price" data-base-price="99">99 €</span> <span class="matrix-price-period">/ anuales</span></p>
+                                    <p class="matrix-price"><span class="dynamic-price" data-base-price="99">99 €</span> <span class="matrix-price-period">/ año</span></p>
                                     <div class="matrix-plan-optional" style="font-size: 0.7rem; margin-bottom: 0.5rem; opacity: 0; pointer-events:none;">—</div>
-                                    <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=domain_hosting" class="btn">Suscribirse</a></div>
+                                    <div class="matrix-btn-wrapper"><a href="profiles?subscribe=domain_hosting" class="btn">Suscribirse</a></div>
                                 </div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
@@ -283,54 +313,144 @@
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell matrix-see-more-cell" style="padding-top:1rem; padding-bottom:1rem; border-bottom: none;"></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
                             </div>
-
-                            <!-- Plan: Básico -->
                             <div class="matrix-plan-col">
                                 <div class="matrix-plan-header">
                                     <h4 class="matrix-plan-title">Presencia</h4>
                                     <p class="matrix-price"><span class="dynamic-price" data-base-price="70">70 €</span> <span class="matrix-price-period">/ mes</span></p>
                                     <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="700">700 €</span> <span class="matrix-price-period">/ año</span></div>
-                                    <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=basic_maintenance" class="btn">Suscribirse</a></div>
+                                    <div class="matrix-btn-wrapper"><a href="profiles?subscribe=basic_maintenance" class="btn">Suscribirse</a></div>
                                 </div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell matrix-see-more-cell" style="padding-top:1rem; padding-bottom:1rem; border-bottom: none;"></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
                             </div>
-
-                            <!-- Plan: Preferencial -->
                             <div class="matrix-plan-col">
                                 <div class="matrix-plan-header">
-                                    <h4 class="matrix-plan-title">Sistema</h4>
+                                    <h4 class="matrix-plan-title">Infraestructura</h4>
                                     <p class="matrix-price"><span class="dynamic-price" data-base-price="99">99 €</span> <span class="matrix-price-period">/ mes</span></p>
                                     <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="990">990 €</span> <span class="matrix-price-period">/ año</span></div>
-                                    <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=preferential_maintenance" class="btn">Suscribirse</a></div>
+                                    <div class="matrix-btn-wrapper"><a href="profiles?subscribe=preferential_maintenance" class="btn">Suscribirse</a></div>
                                 </div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
-                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-dash">—</span></div>
+                                <div class="matrix-plan-cell matrix-see-more-cell" style="padding-top:1rem; padding-bottom:1rem; border-bottom: none;"></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-dash" style="font-size: 0.9rem; opacity:0.3;">—</span></div>
                             </div>
-
-                            <!-- Plan: Avanzado (Popular) -->
                             <div class="matrix-plan-col matrix-plan-col-popular">
                                 <div class="matrix-plan-header">
                                     <div class="matrix-popular-badge">Más Popular</div>
-                                    <h4 class="matrix-plan-title">Operación</h4>
+                                    <h4 class="matrix-plan-title">Ecosistema</h4>
                                     <p class="matrix-price"><span class="dynamic-price" data-base-price="120">120 €</span> <span class="matrix-price-period">/ mes</span></p>
                                     <div class="matrix-plan-optional" style="font-size: 0.7rem; color: var(--color-text-secondary); margin-bottom: 0.5rem; opacity: 0.45; white-space: nowrap;">Opcional: <span class="dynamic-price" data-base-price="1200">1200 €</span> <span class="matrix-price-period">/ año</span></div>
-                                    <div class="matrix-btn-wrapper"><a href="../profiles?subscribe=advanced_maintenance" class="btn btn-primary" style="background: rgba(41,151,255,0.25); border-color:var(--color-accent); color:#fff !important; font-weight:600;">Suscribirse</a></div>
+                                    <div class="matrix-btn-wrapper"><a href="profiles?subscribe=advanced_maintenance" class="btn btn-primary" style="background: rgba(41,151,255,0.25); border-color:var(--color-accent); color:#fff !important; font-weight:600;">Suscribirse</a></div>
                                 </div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
@@ -341,8 +461,39 @@
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
                                 <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
+                                <div class="matrix-plan-cell"><span class="matrix-check">✓</span></div>
+                                <div class="matrix-plan-cell matrix-see-more-cell" style="padding-top:1rem; padding-bottom:1rem; border-bottom: none;"></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
+                                <div class="matrix-plan-cell tech-feature" style="display:none;"><span class="matrix-check" style="font-size: 0.9rem;">✓</span></div>
                             </div>
-
 
                         </div>
                     </div>
@@ -354,21 +505,21 @@
                     function syncMatrixHeights() {
                         const labelsCol = document.getElementById('matrixLabels');
                         if (!labelsCol) return;
-                        
+
                         // ONLY select body cells, exclude the header
                         const labelCells = labelsCol.querySelectorAll('.matrix-label-cell:not(.matrix-label-header)');
                         const planCols = document.querySelectorAll('.matrix-plan-col');
-                        
+
                         // Reset heights to auto to measure natural size
                         labelCells.forEach(cell => cell.style.height = 'auto');
                         planCols.forEach(col => {
                             col.querySelectorAll('.matrix-plan-cell').forEach(cell => cell.style.height = 'auto');
                         });
-                        
+
                         // Calculate and apply max height for each row
                         labelCells.forEach((labelCell, index) => {
                             let maxHeight = labelCell.offsetHeight;
-                            
+
                             planCols.forEach(col => {
                                 const planCells = col.querySelectorAll('.matrix-plan-cell');
                                 if (planCells[index]) {
@@ -376,7 +527,7 @@
                                     if (cellHeight > maxHeight) maxHeight = cellHeight;
                                 }
                             });
-                            
+
                             // Apply maxHeight
                             labelCell.style.height = maxHeight + 'px';
                             planCols.forEach(col => {
@@ -387,17 +538,18 @@
                             });
                         });
                     }
-                    
+
+                    // The tech-spec toggle needs to re-run this after showing/hiding rows
+                    window.syncMatrixHeights = syncMatrixHeights;
+
                     syncMatrixHeights();
                     window.addEventListener('resize', syncMatrixHeights);
+                    window.addEventListener('load', syncMatrixHeights);
                     // Slight delay to ensure fonts/content loaded
                     setTimeout(syncMatrixHeights, 100);
 
-                    // Flash effect when 'Popular' plan snaps into view on mobile
-                    
                     // Swipe Hint Bounce Animation
                     const matrixGrid = document.querySelector('.matrix-plans-scroll');
-                    
                     if (matrixGrid) {
                         let gridVisible = false;
                         const gridObserver = new IntersectionObserver((entries) => {
@@ -412,7 +564,7 @@
                                                 void col.offsetWidth;
                                                 col.style.animation = 'swipeHintChild 0.8s ease-in-out';
                                             });
-                                        }, 300); // Trigger slightly faster
+                                        }, 300);
                                     }
                                 } else if (!entry.isIntersecting || entry.intersectionRatio < 0.2) {
                                     gridVisible = false;
@@ -422,6 +574,7 @@
                         gridObserver.observe(matrixGrid);
                     }
 
+                    // Flash effect when 'Popular' plan snaps into view on mobile
                     const popularCol = document.querySelector('.matrix-plan-col-popular');
                     if (popularCol && window.innerWidth <= 950) {
                         let hasFlashed = false;
@@ -455,7 +608,6 @@
                 </div>
             </div>
 
-            
             <!-- Payment/Service Logos Carousel -->
             <div class="logos logos-grayscale" style="margin: 4rem 0 2rem 0;">
                 <div class="logos-slide">
@@ -483,53 +635,50 @@
                 <div class="section-header animate-on-scroll">
                     <h2 style="text-align: center;">Transparencia y Licenciamiento</h2>
                 </div>
-                
-                <div>
-                    <div class="card-grid">
-                        <div class="card animate-on-scroll">
-                            <div class="card-number">01</div>
-                            <div class="card-glow"></div>
-                            <div class="card-summary" style="height: 100%;">
-                                <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Cero Costo de Desarrollo</p>
-                                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">Elysium asume el 100% de la ingeniería inicial. Su suscripción garantiza que su sistema evolucione sin volverse obsoleto.</p>
-                            </div>
+
+                <div class="card-grid">
+                    <div class="card animate-on-scroll">
+                        <div class="card-number">01</div>
+                        <div class="card-glow"></div>
+                        <div class="card-summary" style="height: 100%;">
+                            <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Cero Costo de Desarrollo</p>
+                            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">Elysium asume el 100% de la ingeniería inicial. Su suscripción garantiza que su sistema evolucione sin volverse obsoleto.</p>
                         </div>
-                        
-                        <div class="card animate-on-scroll delay-1">
-                            <div class="card-number">02</div>
-                            <div class="card-glow"></div>
-                            <div class="card-summary" style="height: 100%;">
-                                <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Propiedad del Código (IP)</p>
-                                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">El código fuente es propiedad intelectual de Elysium λ. El cliente adquiere una licencia de uso completo vinculada a su suscripción activa.</p>
-                            </div>
+                    </div>
+
+                    <div class="card animate-on-scroll delay-1">
+                        <div class="card-number">02</div>
+                        <div class="card-glow"></div>
+                        <div class="card-summary" style="height: 100%;">
+                            <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Propiedad del Código (IP)</p>
+                            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">El código fuente es propiedad intelectual de Elysium λ. El cliente adquiere una licencia de uso completo vinculada a su suscripción activa.</p>
                         </div>
-                        
-                        <div class="card animate-on-scroll delay-2">
-                            <div class="card-number">03</div>
-                            <div class="card-glow"></div>
-                            <div class="card-summary" style="height: 100%;">
-                                <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Ciclo de Vida</p>
-                                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">Si la suscripción se interrumpe, el sistema y su soporte quedan suspendidos automáticamente para proteger la infraestructura.</p>
-                            </div>
+                    </div>
+
+                    <div class="card animate-on-scroll delay-2">
+                        <div class="card-number">03</div>
+                        <div class="card-glow"></div>
+                        <div class="card-summary" style="height: 100%;">
+                            <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Ciclo de Vida</p>
+                            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">Si la suscripción se interrumpe, el sistema y su soporte quedan suspendidos automáticamente para proteger la infraestructura.</p>
                         </div>
-                        
-                        <div class="card animate-on-scroll delay-3">
-                            <div class="card-number">04</div>
-                            <div class="card-glow"></div>
-                            <div class="card-summary" style="height: 100%;">
-                                <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Valorización y Traspaso</p>
-                                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">Ofrecemos auditorías para la compra del código si su modelo lo exige. Tras la compra, se requiere mantener el soporte base (Hosting).</p>
-                            </div>
+                    </div>
+
+                    <div class="card animate-on-scroll delay-3">
+                        <div class="card-number">04</div>
+                        <div class="card-glow"></div>
+                        <div class="card-summary" style="height: 100%;">
+                            <p style="font-weight: 600; color: var(--color-platinum); font-size: 1.1rem; margin: 0 0 1rem 0;">Valorización y Traspaso</p>
+                            <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6;">Ofrecemos auditorías para la compra del código si su modelo lo exige. Tras la compra, se requiere mantener el soporte base (Hosting).</p>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </section>
 
-
-
+    <!-- Footer -->
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -549,7 +698,7 @@
                             </div>
                         </div>
                     </div>
-                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, Unión Europea</p>
+                    <p style="font-size: 0.9rem;">Elysium λ Development &amp; Research<br>Portugal, Unión Europea</p>
                     <p class="footer-service-note">También en Hispanoamérica.</p>
                 </div>
                 <div class="footer-col">
@@ -578,17 +727,32 @@
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom"><span>&copy; 2026 Elysium λ Development & Research. Todos los derechos
+            <div class="footer-bottom"><span>&copy; 2026 Elysium λ Development &amp; Research. Todos los derechos
                     reservados.</span>
                 <span class="brand-symbol footer-lambda">λ</span>
             </div>
         </div>
     </footer>
-    <script src="../JS/main.js"></script>
-    <script src="../JS/elysium-mouse.js"></script>
-    <script src="../JS/elysium-audio.js"></script>
-    <script src="../JS/version-modal.js"></script>
-    <script src="../JS/service-modal.js"></script>
+
+    <script>
+    (function() {
+        var techVisible = false;
+        window.toggleTechMatrix = function() {
+            techVisible = !techVisible;
+            var features = document.querySelectorAll('.tech-feature');
+            features.forEach(function(el) {
+                el.style.display = techVisible ? 'flex' : 'none';
+            });
+            var btns = document.querySelectorAll('.tech-toggle-btn');
+            btns.forEach(function(btn) {
+                btn.textContent = techVisible ? 'Ocultar especificaciones técnicas' : 'Ver especificaciones técnicas';
+            });
+            // Las filas se midieron ocultas: hay que realinear los dos paneles
+            if (window.syncMatrixHeights) window.syncMatrixHeights();
+        };
+    })();
+    </script>
+    <script src="../JS/home.v20260809.min.js"></script>
 </body>
 
 </html>
