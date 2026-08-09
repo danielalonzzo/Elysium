@@ -47,7 +47,7 @@ export default function Navbar() {
       <nav className="container mx-auto px-4 py-4 flex justify-between items-center relative">
         <Link to="/" className="flex items-center gap-3 relative z-50">
           <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[var(--color-brand-orange)] bg-[#FFF8F0]">
-            <img src="/logo.jpg" alt="Pura Vida Pets Logo" className="w-full h-full object-cover" />
+            <img src="./logo.jpg" alt="Pura Vida Pets Logo" className="w-full h-full object-cover" />
           </div>
           <span className="text-2xl font-bold text-[var(--color-brand-dark)] dark:text-white font-[var(--font-display)] tracking-wide">
             Pura Vida Pets

@@ -39,7 +39,7 @@ export default function Hero() {
           >
             <div className="absolute inset-0 bg-[var(--color-brand-orange)] opacity-20 rounded-[40%_60%_70%_30%/40%_50%_60%_50%] animate-[morph_8s_ease-in-out_infinite] scale-110 z-0 cursor-crosshair blob-bg"></div>
             <div className="relative z-10 w-72 h-72 md:w-96 md:h-96 bg-[var(--color-brand-dark)] rounded-full flex items-center justify-center border-8 border-white dark:border-[#1A1918] shadow-2xl overflow-hidden cursor-pointer">
-              <img alt="Corgi feliz" className="w-full h-full object-cover opacity-90" src="/logo.jpg" />
+              <img alt="Corgi feliz" className="w-full h-full object-cover opacity-90" src="./logo.jpg" />
             </div>
             
             <motion.div 
