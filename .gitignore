@@ -9,6 +9,7 @@ node_modules/
 *.py
 /tmp/
 .claude/
+.firebase/
 
 # Prototipos/ vive dentro del repositorio, así que su material de trabajo entra
 # también por aquí. Lo que sigue es lo que no debe pesar en el historial.

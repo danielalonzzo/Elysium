@@ -13,6 +13,8 @@
     "cleanUrls": true,
     "ignore": [
       "firebase.json",
+      ".git/**",
+      ".firebase/**",
       "**/.*",
       "**/node_modules/**",
       "**/*.nosync/**",
