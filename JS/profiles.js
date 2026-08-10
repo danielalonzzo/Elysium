@@ -51,7 +51,13 @@ const PLANS = {
 const PERIOD_CODES = { monthly: 'M3N1', annual: 'ANL1' };
 
 const pathParts = window.location.pathname.split('/').filter(Boolean);
-let currentLang = localStorage.getItem('elysium_lang') || 'en';
+const supportedLanguages = new Set(['en', 'es', 'pt']);
+const requestedLanguage = new URLSearchParams(window.location.search).get('lang');
+const pathLanguage = supportedLanguages.has(pathParts[0]) ? pathParts[0] : null;
+const storedLanguage = localStorage.getItem('elysium_lang');
+let currentLang = supportedLanguages.has(requestedLanguage)
+    ? requestedLanguage
+    : pathLanguage || (supportedLanguages.has(storedLanguage) ? storedLanguage : 'en');
 let locale = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' }[currentLang];
 const localizedPath = path => path;
 

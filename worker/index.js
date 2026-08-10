@@ -19,10 +19,44 @@
  */
 
 const API_PREFIX = '/api/';
+const LEGACY_PROFILE_LANGUAGES = new Map([
+    ['/es/profiles', 'es'],
+    ['/es/profiles/', 'es'],
+    ['/es/profiles.html', 'es'],
+    ['/pt/profiles', 'pt'],
+    ['/pt/profiles/', 'pt'],
+    ['/pt/profiles.html', 'pt']
+]);
+const LEGACY_ADMIN_LANGUAGES = new Map([
+    ['/es/admin', 'es'],
+    ['/es/admin/', 'es'],
+    ['/es/admin.html', 'es'],
+    ['/pt/admin', 'pt'],
+    ['/pt/admin/', 'pt'],
+    ['/pt/admin.html', 'pt']
+]);
 
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
+
+        const legacyProfileLanguage = LEGACY_PROFILE_LANGUAGES.get(url.pathname);
+        if (legacyProfileLanguage) {
+            const target = new URL('/profiles', url);
+            target.protocol = 'https:';
+            target.search = url.search;
+            target.searchParams.set('lang', legacyProfileLanguage);
+            return Response.redirect(target, 308);
+        }
+
+        const legacyAdminLanguage = LEGACY_ADMIN_LANGUAGES.get(url.pathname);
+        if (legacyAdminLanguage) {
+            const target = new URL('/admin', url);
+            target.protocol = 'https:';
+            target.search = url.search;
+            target.searchParams.set('lang', legacyAdminLanguage);
+            return Response.redirect(target, 308);
+        }
 
         if (!url.pathname.startsWith(API_PREFIX)) {
             return env.ASSETS.fetch(request);

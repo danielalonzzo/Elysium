@@ -39,6 +39,26 @@
     ],
     "redirects": [
       {
+        "source": "/es/profiles",
+        "destination": "/profiles?lang=es",
+        "type": 301
+      },
+      {
+        "source": "/pt/profiles",
+        "destination": "/profiles?lang=pt",
+        "type": 301
+      },
+      {
+        "source": "/es/admin",
+        "destination": "/admin?lang=es",
+        "type": 301
+      },
+      {
+        "source": "/pt/admin",
+        "destination": "/admin?lang=pt",
+        "type": 301
+      },
+      {
         "source": "/regalarte",
         "destination": "https://regalarte.danielalonzzo.workers.dev",
         "type": 301

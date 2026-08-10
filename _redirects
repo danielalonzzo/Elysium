@@ -3,6 +3,17 @@
 /regalarte      https://regalarte.danielalonzzo.workers.dev/   301
 /regalarte/*    https://regalarte.danielalonzzo.workers.dev/   301
 
+# El portal se unificó en una sola página con traducciones dinámicas. Mantener
+# estas URLs evita pantallas vacías desde marcadores y enlaces antiguos.
+/es/profiles       /profiles?lang=es   308
+/es/profiles.html  /profiles?lang=es   308
+/pt/profiles       /profiles?lang=pt   308
+/pt/profiles.html  /profiles?lang=pt   308
+/es/admin          /admin?lang=es      308
+/es/admin.html     /admin?lang=es      308
+/pt/admin          /admin?lang=pt      308
+/pt/admin.html     /admin?lang=pt      308
+
 # VALTRIX Engineering — el sitio pasó de tres servicios sobre bodega a dos
 # servicios especializados (control metrológico y tableros operativos), y las
 # páginas se renombraron para que la URL diga de qué trata cada una. Las rutas

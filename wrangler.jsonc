@@ -2,13 +2,17 @@
   "name": "elysium",
   "compatibility_date": "2026-02-18",
   "main": "worker/index.js",
+  "vars": {
+    "ELYSIUM_API_ORIGIN": "https://elysium-billing-2w6h4dekoa-ew.a.run.app"
+  },
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
     // Todo lo demás lo siguen sirviendo los assets tal cual, con su
-    // html_handling por defecto (auto-trailing-slash). Solo /api/* pasa
-    // primero por el Worker, que lo reenvía a elysium-billing.
-    "run_worker_first": ["/api/*"]
+    // html_handling por defecto (auto-trailing-slash). /api/* pasa primero por
+    // el Worker, igual que las antiguas rutas localizadas del portal, que se
+    // redirigen a la única página actual conservando el idioma.
+    "run_worker_first": ["/api/*", "/es/profiles*", "/pt/profiles*", "/es/admin*", "/pt/admin*"]
   },
   "observability": { "enabled": true }
 }

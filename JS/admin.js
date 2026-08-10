@@ -1325,7 +1325,15 @@ const AGENDA_COPY = {
     }
 };
 
-let currentLang = localStorage.getItem('elysium_lang') || 'en';
+const supportedAdminLanguages = new Set(['en', 'es', 'pt']);
+const requestedAdminLanguage = new URLSearchParams(window.location.search).get('lang');
+const adminPathLanguage = window.location.pathname.split('/').filter(Boolean)[0];
+const storedAdminLanguage = localStorage.getItem('elysium_lang');
+let currentLang = supportedAdminLanguages.has(requestedAdminLanguage)
+    ? requestedAdminLanguage
+    : supportedAdminLanguages.has(adminPathLanguage)
+        ? adminPathLanguage
+        : supportedAdminLanguages.has(storedAdminLanguage) ? storedAdminLanguage : 'en';
 
 function agendaCopy() {
     return AGENDA_COPY[currentLang] || AGENDA_COPY.en;
