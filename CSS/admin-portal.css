@@ -2147,3 +2147,315 @@
         transition: none;
     }
 }
+
+/* ─── MAIL ──────────────────────────────────────────────────────────────────
+   Sección de correo del CRM. Hereda los tokens de `CSS/base.css` y la caja de
+   `.agenda-panel`; lo de aquí es sólo lo que la agenda no tenía. */
+
+.customer-portal.is-admin .mail-layout {
+    display: grid;
+    grid-template-columns: minmax(24rem, 1.35fr) minmax(18rem, 0.65fr);
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.customer-portal.is-admin .mail-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.25rem;
+}
+
+.customer-portal.is-admin .mail-hint {
+    margin: 0.35rem 0 0;
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.7rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .mail-hint.is-warning {
+    color: var(--portal-warning, #f4c95d);
+}
+
+.customer-portal.is-admin .mail-field-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+}
+
+.customer-portal.is-admin .mail-field-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.customer-portal.is-admin .mail-ghost-btn,
+.customer-portal.is-admin .mail-file-btn {
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.55rem;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: border-color var(--transition-medium), color var(--transition-medium);
+}
+
+.customer-portal.is-admin .mail-ghost-btn:hover,
+.customer-portal.is-admin .mail-file-btn:hover {
+    border-color: var(--portal-info, #2997ff);
+    color: var(--color-text-primary, #e1e1e5);
+}
+
+/* El cuerpo es HTML a mano: monoespaciada, y sin corrección automática que
+   destroce las etiquetas al escribirlas. */
+.customer-portal.is-admin .mail-body {
+    min-height: 16rem;
+    font-family: 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    resize: vertical;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+}
+
+.customer-portal.is-admin .mail-attachment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.customer-portal.is-admin .mail-attachment-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.6rem;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.72rem;
+}
+
+.customer-portal.is-admin .mail-attachment-list li.is-oversize {
+    border-color: rgba(255, 118, 118, 0.5);
+    color: var(--portal-danger, #ff7676);
+}
+
+.customer-portal.is-admin .mail-attachment-size {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── Biblioteca de plantillas ── */
+
+.customer-portal.is-admin .mail-template-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.customer-portal.is-admin .mail-template-card {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    text-align: left;
+}
+
+.customer-portal.is-admin .mail-template-open {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-template-name {
+    display: block;
+    overflow: hidden;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.8rem;
+    font-weight: 620;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-template-meta {
+    display: block;
+    margin-top: 0.15rem;
+    overflow: hidden;
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.68rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-template-delete {
+    flex: none;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid transparent;
+    border-radius: 0.45rem;
+    background: none;
+    color: var(--color-text-muted, #6b7280);
+    font: inherit;
+    font-size: 0.68rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-template-delete:hover {
+    border-color: rgba(255, 118, 118, 0.5);
+    color: var(--portal-danger, #ff7676);
+}
+
+.customer-portal.is-admin .mail-template-empty {
+    padding: 1rem 0;
+    color: var(--color-text-muted, #6b7280);
+    font-size: 0.74rem;
+    text-align: center;
+}
+
+/* ── Vista previa ── */
+
+.customer-portal.is-admin .mail-preview-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    padding: clamp(1rem, 4vw, 3rem);
+    background: rgba(2, 4, 16, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    place-items: center;
+}
+
+.customer-portal.is-admin .mail-preview-backdrop[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-preview-dialog {
+    display: flex;
+    width: min(46rem, 100%);
+    max-height: 100%;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--portal-border);
+    border-radius: clamp(1rem, 2vw, var(--radius-md, 24px));
+    background: var(--portal-surface-solid, #081327);
+    box-shadow: var(--portal-shadow-soft);
+}
+
+.customer-portal.is-admin .mail-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--portal-border);
+}
+
+.customer-portal.is-admin .mail-preview-head h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 640;
+}
+
+/* Fondo claro: el correo se maqueta para clientes de correo, no para el
+   portal oscuro, y en oscuro no se vería lo que va a recibir el cliente. */
+.customer-portal.is-admin .mail-preview-frame {
+    width: 100%;
+    height: min(70vh, 40rem);
+    border: 0;
+    background: #f4f7fb;
+}
+
+@media (max-width: 1080px) {
+    .customer-portal.is-admin .mail-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Premium Mail Uploader Styles */
+.customer-portal.is-admin .mail-upload-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.customer-portal.is-admin .mail-upload-zone:hover,
+.customer-portal.is-admin .mail-upload-zone.dragover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.customer-portal.is-admin .mail-upload-icon-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.customer-portal.is-admin .mail-upload-zone:hover .mail-upload-icon-wrapper {
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.customer-portal.is-admin .mail-upload-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--color-text-primary, #ffffff);
+}
+
+.customer-portal.is-admin .mail-upload-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--color-text-primary, #ffffff);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.01em;
+}
+
+.customer-portal.is-admin .mail-upload-desc {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.customer-portal.is-admin .mail-file-preview {
+    margin-top: 1.5rem;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #c7d2fe;
+}

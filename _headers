@@ -50,12 +50,6 @@
 /profiles.html
   Cache-Control: no-cache, max-age=0, must-revalidate
 
-/es/profiles*
-  Cache-Control: no-cache, max-age=0, must-revalidate
-
-/pt/profiles*
-  Cache-Control: no-cache, max-age=0, must-revalidate
-
 /onboarding*
   Cache-Control: no-cache, max-age=0, must-revalidate
 

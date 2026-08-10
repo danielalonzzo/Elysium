@@ -109,26 +109,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }, revealOptions);
 
     // 5. Contact Form Submission
+    //
+    // No hay backend todavía (queda para la fase 2 con Firebase). Hasta entonces
+    // el formulario redacta la solicitud y la abre en el cliente de correo del
+    // visitante: el envío lo confirma él. Antes se simulaba con un alert() de
+    // éxito y el lead se perdía en silencio, que es peor que no tener formulario.
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
+        const DESTINATARIO = 'valeria.vargas@valtrix.cr';
+
         contactForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            // Simulación de envío exitoso
+
+            const val = (id) => {
+                const field = document.getElementById(id);
+                return field ? field.value.trim() : '';
+            };
+
+            const empresa = val('company');
+            const asunto = 'Solicitud de diagnóstico — ' + (empresa || 'VALTRIX');
+
+            const cuerpo = [
+                'Solicitud de diagnóstico sin costo',
+                '',
+                'Nombre:      ' + val('name'),
+                'Empresa:     ' + empresa,
+                'Cargo:       ' + val('role'),
+                'Correo:      ' + val('email'),
+                'Teléfono:    ' + val('phone'),
+                'Ubicación:   ' + val('location'),
+                'Sector:      ' + val('sector'),
+                'Interés:     ' + val('interest'),
+                '',
+                '¿Qué lo trae hoy?',
+                val('trigger'),
+                '',
+                '—',
+                'Enviado desde valtrix.cr'
+            ].join('\n');
+
+            const enlace = 'mailto:' + DESTINATARIO +
+                '?subject=' + encodeURIComponent(asunto) +
+                '&body=' + encodeURIComponent(cuerpo);
+
             const submitBtn = contactForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            
+            const originalHTML = submitBtn.innerHTML;
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Enviando...';
-            
+            submitBtn.textContent = 'Abriendo su correo…';
+
+            window.location.href = enlace;
+
             setTimeout(() => {
-                alert('¡Gracias! Su solicitud de diagnóstico ha sido enviada con éxito. Valeria Vargas se pondrá en contacto con usted a la brevedad posible.');
-                contactForm.reset();
                 submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }, 1500);
+                submitBtn.innerHTML = originalHTML;
+            }, 2500);
         });
     }
+
+    // 5b. Acordeón de preguntas frecuentes
+    document.querySelectorAll('.faq-question').forEach((question) => {
+        question.addEventListener('click', () => {
+            const item = question.closest('.faq-item');
+            const answer = item.querySelector('.faq-answer');
+            const isOpen = item.classList.toggle('is-open');
+
+            // max-height se calcula al vuelo para que la transición anime
+            answer.style.maxHeight = isOpen ? answer.scrollHeight + 'px' : null;
+        });
+    });
 
     // 6. FAB & Theme Toggle Logic
     const fabMain = document.getElementById('fab-main');

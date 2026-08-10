@@ -192,6 +192,15 @@ service cloud.firestore {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
+    // ── Mail templates ───────────────────────────────────────────────────────
+    // Plantillas de la sección Mail del CRM. Sólo el administrador, y en los dos
+    // sentidos: el HTML que se guarda aquí se envía después firmado como la
+    // empresa, así que dejar leer o escribir a un cliente sería regalarle la
+    // maqueta de los correos de Elysium y un sitio donde alterarla.
+    match /mail_templates/{templateId} {
+      allow read, write: if isSuperAdmin();
+    }
+
     // ── Activities (append-only audit log) ────────────────────────────────────
     // Immutable ledger of CRM events. No update/delete for anyone — including
     // admin — so history stays trustworthy. Cleanup only via Firebase console.

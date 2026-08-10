@@ -1,5 +1,6 @@
-import { auth, db, storage } from './firebase-config.js';
+import { auth, db, storage, functions } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 import { 
     collection,
     getDocs,
@@ -65,11 +66,14 @@ async function isAdminUser(user) {
 }
 
 const SUBSCRIPTION_PLANS = {
-    hosting:      { code: 'H0ST', label: 'Domain & Hosting' },
-    basic:        { code: 'EC01', label: 'Presence' },
-    preferential: { code: 'EC02', label: 'System' },
-    advanced:     { code: 'EC03', label: 'Operations' },
-    crm:          { code: 'CRMP', label: 'Custom Core CRM' }
+    hosting:                  { code: 'H0ST', label: 'Hosting' },
+    domain_hosting:           { code: 'H0ST', label: 'Hosting' },
+    basic:                    { code: 'EC01', label: 'Presence' },
+    basic_maintenance:        { code: 'EC01', label: 'Presence' },
+    preferential:             { code: 'EC02', label: 'Infrastructure' },
+    preferential_maintenance: { code: 'EC02', label: 'Infrastructure' },
+    advanced:                 { code: 'EC03', label: 'Ecosystem' },
+    advanced_maintenance:     { code: 'EC03', label: 'Ecosystem' }
 };
 
 /**
@@ -398,7 +402,7 @@ function renderPaymentHistory(payments, t) {
     return payments.map(payment => {
         const symbol = CURRENCY_SYMBOLS[payment.currency] || '€';
         const invoiceUrl = safeUrl(payment.invoiceUrl);
-        const heading = payment.title || payment.planLabel || payment.planType || '—';
+        const heading = payment.title || SUBSCRIPTION_PLANS[payment.planType]?.label || payment.planLabel || payment.planType || '—';
         const paidOn = formatAdminDate(payment.paymentDate) || '—';
         return `
             <div class="payment-row">
@@ -414,6 +418,9 @@ function renderPaymentHistory(payments, t) {
                     ${invoiceUrl ? `<a href="${esc(invoiceUrl)}" target="_blank" rel="noopener" class="report-btn" title="${esc(t.view_invoice)}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     </a>` : ''}
+                    <button type="button" class="report-btn btn-delete btn-delete-payment" data-id="${esc(payment.id)}" title="Delete Payment">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
                 </div>
             </div>`;
     }).join('');
@@ -708,6 +715,50 @@ const translations = {
         stage_dev: "Development",
         stage_delivery: "Delivery & Publication",
         stage_maint: "Maintenance",
+        nav_mail: "Mail",
+        mail: {
+            title: "Mail",
+            desc: "Compose and send email from the Elysium mailboxes.",
+            composeEyebrow: "New message", composeTitle: "Compose",
+            labelFrom: "From", labelReply: "Reply-To (optional)", labelTo: "To",
+            labelSubject: "Subject", labelBody: "HTML body", labelAttachments: "Attachments",
+            toHint: "Separate several recipients with commas. The list suggests clients on file.",
+            bodyHint: "The plain-text part is generated from this HTML automatically.",
+            attachmentsHint: "Up to 10 files, 8 MB each and 12 MB in total.",
+            importText: "Import .html", previewText: "Preview", sendText: "Send",
+            templatesEyebrow: "Library", templatesTitle: "Templates", saveTemplate: "Save current",
+            templatesHint: "Saving keeps the subject and the HTML body. Selecting one loads it into the form.",
+            templatesEmpty: "No templates saved yet.",
+            templatesError: "The templates could not be loaded.",
+            untitled: "Untitled", deleteTemplate: "Delete template",
+            templateNamePrompt: "Name for this template:",
+            templateNeedsBody: "Write the HTML body before saving a template.",
+            templateNeedsName: "The template needs a name.",
+            templateSaved: name => `Template "${name}" saved.`,
+            templateLoaded: name => `Template "${name}" loaded.`,
+            templateSaveError: "The template could not be saved.",
+            templateDeleteConfirm: name => `Delete the template "${name}"?`,
+            templateDeleted: "Template deleted.",
+            templateDeleteError: "The template could not be deleted.",
+            senderRequired: "Choose a sender.",
+            senderNotReady: "no credentials",
+            senderMissingCredentials: (list, suffix) =>
+                `${list} cannot send yet: set SMTP_USER_${suffix} and SMTP_PASSWORD_${suffix} on the service.`,
+            recipientRequired: "Enter at least one recipient.",
+            subjectRequired: "A subject is required.",
+            bodyRequired: "The message body is empty.",
+            previewNeedsBody: "There is nothing to preview yet.",
+            imported: name => `Loaded ${name}.`,
+            importError: "That file could not be read.",
+            tooManyFiles: max => `Up to ${max} attachments per message.`,
+            fileTooLarge: max => `Each attachment must stay under ${max}.`,
+            totalTooLarge: max => `The attachments add up to more than ${max}.`,
+            confirmSend: (from, to) => `Send this message as ${from} to ${to}?`,
+            sending: "Sending…",
+            sent: to => `Sent to ${to}.`,
+            sendError: "The message could not be sent.",
+            serviceDown: "The Elysium platform service is not reachable, so no mail can be sent."
+        },
         nav_contacts: "Inquiries",
         contacts_title: "Inquiries",
         contacts_desc: "Review contact form submissions.",
@@ -898,6 +949,50 @@ const translations = {
         stage_dev: "Desarrollo",
         stage_delivery: "Entrega y publicación",
         stage_maint: "Mantenimiento",
+        nav_mail: "Correo",
+        mail: {
+            title: "Correo",
+            desc: "Redacta y envía correo desde los buzones de Elysium.",
+            composeEyebrow: "Mensaje nuevo", composeTitle: "Redactar",
+            labelFrom: "De", labelReply: "Responder a (opcional)", labelTo: "Para",
+            labelSubject: "Asunto", labelBody: "Cuerpo HTML", labelAttachments: "Adjuntos",
+            toHint: "Separa varios destinatarios con comas. La lista sugiere los clientes registrados.",
+            bodyHint: "La parte de texto plano se genera sola a partir de este HTML.",
+            attachmentsHint: "Hasta 10 archivos, 8 MB cada uno y 12 MB en total.",
+            importText: "Importar .html", previewText: "Vista previa", sendText: "Enviar",
+            templatesEyebrow: "Biblioteca", templatesTitle: "Plantillas", saveTemplate: "Guardar actual",
+            templatesHint: "Al guardar se conservan el asunto y el cuerpo HTML. Al elegir una, se cargan en el formulario.",
+            templatesEmpty: "Todavía no hay plantillas guardadas.",
+            templatesError: "No se pudieron cargar las plantillas.",
+            untitled: "Sin título", deleteTemplate: "Eliminar plantilla",
+            templateNamePrompt: "Nombre de esta plantilla:",
+            templateNeedsBody: "Escribe el cuerpo HTML antes de guardar una plantilla.",
+            templateNeedsName: "La plantilla necesita un nombre.",
+            templateSaved: name => `Plantilla «${name}» guardada.`,
+            templateLoaded: name => `Plantilla «${name}» cargada.`,
+            templateSaveError: "No se pudo guardar la plantilla.",
+            templateDeleteConfirm: name => `¿Eliminar la plantilla «${name}»?`,
+            templateDeleted: "Plantilla eliminada.",
+            templateDeleteError: "No se pudo eliminar la plantilla.",
+            senderRequired: "Elige un remitente.",
+            senderNotReady: "sin credenciales",
+            senderMissingCredentials: (list, suffix) =>
+                `${list} todavía no puede enviar: configura SMTP_USER_${suffix} y SMTP_PASSWORD_${suffix} en el servicio.`,
+            recipientRequired: "Indica al menos un destinatario.",
+            subjectRequired: "Hace falta un asunto.",
+            bodyRequired: "El cuerpo del mensaje está vacío.",
+            previewNeedsBody: "Todavía no hay nada que previsualizar.",
+            imported: name => `Se cargó ${name}.`,
+            importError: "No se pudo leer ese archivo.",
+            tooManyFiles: max => `Como máximo ${max} adjuntos por mensaje.`,
+            fileTooLarge: max => `Cada adjunto debe quedar por debajo de ${max}.`,
+            totalTooLarge: max => `Los adjuntos suman más de ${max}.`,
+            confirmSend: (from, to) => `¿Enviar este mensaje como ${from} a ${to}?`,
+            sending: "Enviando…",
+            sent: to => `Enviado a ${to}.`,
+            sendError: "No se pudo enviar el mensaje.",
+            serviceDown: "El servicio de plataforma de Elysium no responde, así que no puede salir ningún correo."
+        },
         nav_contacts: "Consultas",
         contacts_title: "Consultas",
         contacts_desc: "Revisa los formularios de contacto recibidos.",
@@ -1087,6 +1182,50 @@ const translations = {
         stage_dev: "Desenvolvimento",
         stage_delivery: "Entrega e publicação",
         stage_maint: "Manutenção",
+        nav_mail: "Correio",
+        mail: {
+            title: "Correio",
+            desc: "Redija e envie correio a partir das caixas da Elysium.",
+            composeEyebrow: "Nova mensagem", composeTitle: "Redigir",
+            labelFrom: "De", labelReply: "Responder a (opcional)", labelTo: "Para",
+            labelSubject: "Assunto", labelBody: "Corpo HTML", labelAttachments: "Anexos",
+            toHint: "Separe vários destinatários com vírgulas. A lista sugere os clientes registados.",
+            bodyHint: "A parte de texto simples é gerada automaticamente a partir deste HTML.",
+            attachmentsHint: "Até 10 ficheiros, 8 MB cada e 12 MB no total.",
+            importText: "Importar .html", previewText: "Pré-visualizar", sendText: "Enviar",
+            templatesEyebrow: "Biblioteca", templatesTitle: "Modelos", saveTemplate: "Guardar atual",
+            templatesHint: "Ao guardar mantêm-se o assunto e o corpo HTML. Ao escolher um, são carregados no formulário.",
+            templatesEmpty: "Ainda não há modelos guardados.",
+            templatesError: "Não foi possível carregar os modelos.",
+            untitled: "Sem título", deleteTemplate: "Eliminar modelo",
+            templateNamePrompt: "Nome deste modelo:",
+            templateNeedsBody: "Escreva o corpo HTML antes de guardar um modelo.",
+            templateNeedsName: "O modelo precisa de um nome.",
+            templateSaved: name => `Modelo «${name}» guardado.`,
+            templateLoaded: name => `Modelo «${name}» carregado.`,
+            templateSaveError: "Não foi possível guardar o modelo.",
+            templateDeleteConfirm: name => `Eliminar o modelo «${name}»?`,
+            templateDeleted: "Modelo eliminado.",
+            templateDeleteError: "Não foi possível eliminar o modelo.",
+            senderRequired: "Escolha um remetente.",
+            senderNotReady: "sem credenciais",
+            senderMissingCredentials: (list, suffix) =>
+                `${list} ainda não pode enviar: configure SMTP_USER_${suffix} e SMTP_PASSWORD_${suffix} no serviço.`,
+            recipientRequired: "Indique pelo menos um destinatário.",
+            subjectRequired: "É necessário um assunto.",
+            bodyRequired: "O corpo da mensagem está vazio.",
+            previewNeedsBody: "Ainda não há nada para pré-visualizar.",
+            imported: name => `Carregou-se ${name}.`,
+            importError: "Não foi possível ler esse ficheiro.",
+            tooManyFiles: max => `No máximo ${max} anexos por mensagem.`,
+            fileTooLarge: max => `Cada anexo deve ficar abaixo de ${max}.`,
+            totalTooLarge: max => `Os anexos somam mais de ${max}.`,
+            confirmSend: (from, to) => `Enviar esta mensagem como ${from} para ${to}?`,
+            sending: "A enviar…",
+            sent: to => `Enviado para ${to}.`,
+            sendError: "Não foi possível enviar a mensagem.",
+            serviceDown: "O serviço de plataforma da Elysium não responde, por isso não pode sair correio."
+        },
         nav_contacts: "Consultas",
         contacts_title: "Consultas",
         contacts_desc: "Reveja as submissões de formulários de contacto.",
@@ -1870,6 +2009,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (activeSection === 'pipeline') loadPipeline();
             else if (activeSection === 'contacts') loadContacts();
             else if (activeSection === 'agenda') renderAgendaMeetings();
+            else if (activeSection === 'mail') loadMailSection();
         });
     });
 
@@ -1937,6 +2077,7 @@ function navigateTo(target, { push = true } = {}) {
     if (target === 'pipeline') loadPipeline();
     if (target === 'licenses') loadLicenses();
     if (target === 'contacts') loadContacts();
+    if (target === 'mail') loadMailSection();
     if (target === 'agenda') loadAgenda();
     else _agendaLoadVersion++;
 }
@@ -1965,6 +2106,39 @@ function applyTranslations() {
     if (navLicenses) navLicenses.textContent = t.nav_licenses;
     const navContacts = document.querySelector('[data-target="contacts"] .portal-nav-text');
     if (navContacts) navContacts.textContent = t.nav_contacts || "Inquiries";
+    const navMail = document.querySelector('[data-target="mail"] .portal-nav-text');
+    if (navMail) navMail.textContent = t.nav_mail || "Mail";
+
+    // Sección de correo: los textos estáticos van por id, uno a uno, porque la
+    // sección no se vuelve a pintar entera al cambiar de idioma.
+    const mailCopy = t.mail || translations.en.mail;
+    const mailLabels = {
+        'mail-title': mailCopy.title,
+        'mail-desc': mailCopy.desc,
+        'mail-compose-eyebrow': mailCopy.composeEyebrow,
+        'mail-compose-title': mailCopy.composeTitle,
+        'mail-label-from': mailCopy.labelFrom,
+        'mail-label-reply': mailCopy.labelReply,
+        'mail-label-to': mailCopy.labelTo,
+        'mail-label-subject': mailCopy.labelSubject,
+        'mail-label-body': mailCopy.labelBody,
+        'mail-label-attachments': mailCopy.labelAttachments,
+        'mail-to-hint': mailCopy.toHint,
+        'mail-body-hint': mailCopy.bodyHint,
+        'mail-attachments-hint': mailCopy.attachmentsHint,
+        'mail-import-text': mailCopy.importText,
+        'mail-preview-btn': mailCopy.previewText,
+        'mail-preview-title': mailCopy.previewText,
+        'mail-send-btn': mailCopy.sendText,
+        'mail-templates-eyebrow': mailCopy.templatesEyebrow,
+        'mail-templates-title': mailCopy.templatesTitle,
+        'mail-templates-hint': mailCopy.templatesHint,
+        'mail-template-save': mailCopy.saveTemplate
+    };
+    for (const [id, value] of Object.entries(mailLabels)) {
+        const element = document.getElementById(id);
+        if (element && value) element.textContent = value;
+    }
 
     // Logout button has SVG + span — only update the span
     const logoutSpan = document.querySelector('#logoutBtn span');
@@ -2053,6 +2227,7 @@ async function initDashboard() {
     if (savedTab === 'licenses')  loadLicenses();
     if (savedTab === 'contacts')  loadContacts();
     if (savedTab === 'agenda')    loadAgenda();
+    if (savedTab === 'mail')      loadMailSection();
 
     // Deep link used when returning from a guided onboarding session
     const requestedClient = new URLSearchParams(window.location.search).get('client');
@@ -2905,7 +3080,7 @@ async function loadLicenses() {
             tr.innerHTML = `
                 <td data-label="${esc(t.table_code)}" class="license-code-cell">${esc(data.licenseCode)}</td>
                 <td data-label="${esc(t.table_client)}"><strong>${esc(data.userName)}</strong><small>${esc(data.userEmail)}</small></td>
-                <td data-label="${esc(t.table_plan)}"><strong>${esc(data.planLabel || data.planType || '—')}</strong><small>${esc(cycle)}</small></td>
+                <td data-label="${esc(t.table_plan)}"><strong>${esc(SUBSCRIPTION_PLANS[data.planType]?.label || data.planLabel || data.planType || '—')}</strong><small>${esc(cycle)}</small></td>
                 <td data-label="${esc(t.table_origin)}"><span class="license-source ${sourceClass}">${esc(source)}</span></td>
                 <td data-label="${esc(t.table_status)}"><span class="portal-status status-${esc(status)}">${esc(displayStatus)}</span></td>
                 <td data-label="${esc(t.table_renewal)}">${esc(renewal)}</td>
@@ -3508,7 +3683,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     // al cambiar de proyecto (los pagos son de la cuenta, los documentos del
     // proyecto abierto) y contaba dos veces si el traslado al libro fallaba a
     // medias. Los comprobantes sin trasladar se avisan aparte, no se suman.
-    const revenueLabel = formatRevenue(revenueByCurrency(allPayments), curSym);
+    const revenueLabel = formatRevenue(revenueByCurrency(allPayments), curSym, member.preferredCurrency);
 
     const kpiIcon = paths => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${paths}</svg>`;
 
@@ -3550,6 +3725,10 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 </div>
             </div>
             <div class="admin-profile-actions">
+                <button type="button" id="btn-edit-profile" class="portal-button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    ${esc(t.edit_profile || 'Edit Profile')}
+                </button>
                 <button type="button" id="btn-download-pdf" class="portal-button">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     ${esc(t.download_pdf)}
@@ -3572,7 +3751,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <div class="portal-kpi-head">
                     <div class="portal-kpi-icon">${kpiIcon('<rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line>')}</div>
                 </div>
-                <div class="portal-kpi-value is-text">${esc(subscription?.planLabel || subscription?.planType || '—')}</div>
+                <div class="portal-kpi-value is-text">${esc(SUBSCRIPTION_PLANS[subscription?.planType]?.label || subscription?.planLabel || subscription?.planType || '—')}</div>
                 <div class="portal-kpi-label">${esc(t.kpi_plan)}</div>
             </div>
             <div class="portal-kpi-card">
@@ -3717,7 +3896,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <div id="pipeline-save-msg" style="display:none; color:#00c875; font-size:0.85rem; margin-top:0.5rem;">${t.saved}</div>
             </div>
 
-            <!-- Client Revenue Chart -->
+
+            <!-- Global Revenue Chart -->
             <div class="client-revenue-container">
                 <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Income Overview</label>
                 <div style="height: 200px; width: 100%; position: relative;">
@@ -3805,7 +3985,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Plan</div>
-                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);">${esc(sub.planLabel || sub.planType)}</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);">${esc(SUBSCRIPTION_PLANS[sub.planType]?.label || sub.planLabel || sub.planType)}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
                             <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Status</div>
@@ -3864,11 +4044,10 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     <div>
                         <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Plan</label>
                         <select id="sub-plan-select" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
-                            <option value="hosting"      ${member.subscription?.planType === 'hosting'      ? 'selected' : ''}>Domain & Hosting (€99/yr)</option>
-                            <option value="basic"        ${member.subscription?.planType === 'basic'        ? 'selected' : ''}>Presence (€70/mo)</option>
-                            <option value="preferential" ${member.subscription?.planType === 'preferential' ? 'selected' : ''}>System (€99/mo)</option>
-                            <option value="advanced"     ${member.subscription?.planType === 'advanced'     ? 'selected' : ''}>Operations (€120/mo)</option>
-                            <option value="crm"          ${member.subscription?.planType === 'crm'          ? 'selected' : ''}>Custom Core CRM (€50/mo) — legacy, no longer sold</option>
+                            <option value="hosting"      ${member.subscription?.planType === 'hosting'      ? 'selected' : ''}>Hosting</option>
+                            <option value="basic"        ${member.subscription?.planType === 'basic'        ? 'selected' : ''}>Presence</option>
+                            <option value="preferential" ${member.subscription?.planType === 'preferential' ? 'selected' : ''}>Infrastructure</option>
+                            <option value="advanced"     ${member.subscription?.planType === 'advanced'     ? 'selected' : ''}>Ecosystem</option>
                         </select>
                     </div>
                     <div>
@@ -3899,15 +4078,25 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                         <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Amount Paid</label>
                         <div style="display:flex;gap:0.25rem;">
                             <input type="number" id="sub-amount" class="form-control" placeholder="70" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
-                            <select id="sub-currency" style="width:60px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);padding:0.65rem 0.25rem;border-radius:var(--radius-sm);color:var(--color-text-primary);font-size:0.85rem;">
-                                <option value="EUR">€</option><option value="USD">$</option><option value="CRC">₡</option>
+                            <select id="sub-currency" style="width:60px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);padding:0.65rem 0.25rem;border-radius:var(--radius-sm);color:var(--color-text-primary);font-size:0.85rem;" ${member.preferredCurrency ? 'disabled' : ''}>
+                                ${member.preferredCurrency ? `
+                                    <option value="${member.preferredCurrency}" selected>${CURRENCY_SYMBOLS[member.preferredCurrency] || member.preferredCurrency}</option>
+                                ` : `
+                                    <option value="EUR" selected>€</option>
+                                    <option value="USD">$</option>
+                                    <option value="CRC">₡</option>
+                                `}
                             </select>
                         </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Payment Title</label>
+                        <input type="text" id="sub-title" class="form-control" placeholder="e.g. September Hosting" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                     </div>
                 </div>
                 <div id="sub-license-preview" style="margin:-0.25rem 0 1rem;font:600 0.78rem/1.4 monospace;color:var(--color-accent);"></div>
                 <div style="margin-bottom:1rem;">
-                    <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Invoice PDF (optional)</label>
+                    <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Invoice PDF (Required)</label>
                     ${fileDropzone('sub-invoice-file', 'sub-invoice-label', t.choose_file)}
                     ${uploadProgress('sub-invoice')}
                 </div>
@@ -3977,9 +4166,9 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     <div style="display:flex; gap:0.25rem;">
                         <input type="number" id="report-amount-input" placeholder="${t.amount_placeholder}" style="flex:1;">
                         <select id="report-currency-input" style="width: 60px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 0.65rem 0.25rem; border-radius: var(--radius-sm); color: var(--color-text-primary); font-size: 0.85rem;">
-                            <option value="EUR" ${(!fin.currency || fin.currency === 'EUR') ? 'selected' : ''}>€</option>
-                            <option value="USD" ${fin.currency === 'USD' ? 'selected' : ''}>$</option>
-                            <option value="CRC" ${fin.currency === 'CRC' ? 'selected' : ''}>₡</option>
+                            <option value="EUR" ${(!(fin.currency || member.preferredCurrency) || (fin.currency || member.preferredCurrency) === 'EUR') ? 'selected' : ''}>€</option>
+                            <option value="USD" ${(fin.currency || member.preferredCurrency) === 'USD' ? 'selected' : ''}>$</option>
+                            <option value="CRC" ${(fin.currency || member.preferredCurrency) === 'CRC' ? 'selected' : ''}>₡</option>
                         </select>
                     </div>
                 </div>
@@ -4804,11 +4993,13 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             const startDate  = document.getElementById('sub-start-date').value;
             const amount     = parseFloat(document.getElementById('sub-amount').value) || 0;
             const currency   = document.getElementById('sub-currency').value;
+            const title      = document.getElementById('sub-title')?.value.trim();
             const invoiceInp = document.getElementById('sub-invoice-file');
             const invoiceFile = invoiceInp?.files[0] || null;
             const msgEl      = document.getElementById('sub-assign-msg');
 
             if (!startDate) return alert('Please set a payment date.');
+            if (!invoiceFile) return alert('Please upload the Invoice PDF.');
             if (!Number.isInteger(contractLength) || contractLength < 1 || contractLength > 9) {
                 return alert('Contract length must be between 1 and 9.');
             }
@@ -4920,6 +5111,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                             userEmail: member.email || null,
                             planType,
                             planLabel: SUBSCRIPTION_PLANS[planType].label,
+                            title: title || SUBSCRIPTION_PLANS[planType].label,
                             billingCycle: cycle,
                             contractUnit,
                             contractLength,
@@ -5039,6 +5231,25 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     }
 
     // Delete Report listeners
+    document.querySelectorAll('.btn-delete-payment').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            if (!confirm('Are you sure you want to delete this payment record?')) return;
+            const paymentId = btn.dataset.id;
+            try {
+                await deleteDoc(doc(db, 'subscription_payments', paymentId));
+                const idx = allPayments.findIndex(p => p.id === paymentId);
+                if (idx !== -1) allPayments.splice(idx, 1);
+                
+                if (detailRenderVersion === _detailRenderVersion) {
+                    renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
+                }
+            } catch (err) {
+                alert('Error deleting payment: ' + err.message);
+            }
+        });
+    });
+
+    // Delete Report listeners
     document.querySelectorAll('.btn-delete-report').forEach(btn => {
         btn.addEventListener('click', async () => {
             if (!confirm('Are you sure you want to remove this report?')) return;
@@ -5136,6 +5347,117 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     // La gráfica de ingresos es del panel Resumen y no tiene nada que ver con
     // el botón de notas, dentro de cuyo bloque estaba metida.
     setTimeout(() => renderClientRevenueChart(allPayments), 50);
+
+    // Edit Profile
+    const editBtn = document.getElementById('btn-edit-profile');
+    if (editBtn) {
+        editBtn.addEventListener('click', () => {
+            const modalHtml = `
+                <dialog id="edit-client-modal" class="premium-service-modal" style="max-width: 500px; padding: 0;">
+                    <div class="premium-modal-content">
+                        <button type="button" class="premium-modal-close" id="close-edit-modal">&times;</button>
+                        <h2 style="margin-bottom: 1.5rem; color: var(--color-text-primary); font-family: var(--font-heading);">Edit Client Info</h2>
+                        <form id="edit-client-form" style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Name</label>
+                                <input type="text" id="edit-client-name" value="${esc(member.name || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;" required>
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Company</label>
+                                <input type="text" id="edit-client-company" value="${esc(member.company || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Email</label>
+                                <input type="email" id="edit-client-email" value="${esc(member.email || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Country</label>
+                                <input type="text" id="edit-client-country" value="${esc(member.country || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Phone</label>
+                                <input type="text" id="edit-client-phone" value="${esc(member.phone || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                            </div>
+                            <div>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Preferred Currency</label>
+                                <select id="edit-client-currency" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
+                                    <option value="" ${!member.preferredCurrency ? 'selected' : ''}>None (Auto)</option>
+                                    <option value="EUR" ${member.preferredCurrency === 'EUR' ? 'selected' : ''}>EUR (€)</option>
+                                    <option value="USD" ${member.preferredCurrency === 'USD' ? 'selected' : ''}>USD ($)</option>
+                                    <option value="CRC" ${member.preferredCurrency === 'CRC' ? 'selected' : ''}>CRC (₡)</option>
+                                </select>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <button type="submit" class="btn btn-primary" style="width: 100%;" id="save-edit-btn">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            const dialog = document.getElementById('edit-client-modal');
+            const closeBtn = document.getElementById('close-edit-modal');
+            const form = document.getElementById('edit-client-form');
+            const saveBtn = document.getElementById('save-edit-btn');
+            
+            dialog.showModal();
+            
+            const closeModal = () => {
+                dialog.classList.add('closing');
+                setTimeout(() => dialog.remove(), 400);
+            };
+            
+            closeBtn.addEventListener('click', closeModal);
+            dialog.addEventListener('click', (e) => {
+                if (e.target === dialog) closeModal();
+            });
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'Saving...';
+                
+                const updates = {
+                    name: document.getElementById('edit-client-name').value.trim(),
+                    company: document.getElementById('edit-client-company').value.trim(),
+                    email: document.getElementById('edit-client-email').value.trim(),
+                    country: document.getElementById('edit-client-country').value.trim(),
+                    phone: document.getElementById('edit-client-phone').value.trim(),
+                    preferredCurrency: document.getElementById('edit-client-currency').value
+                };
+                
+                try {
+                    await updateDoc(doc(db, 'members', userId), updates);
+                    Object.assign(member, updates);
+                    
+                    const idx = _allClients.findIndex(c => c.id === userId);
+                    if (idx !== -1) Object.assign(_allClients[idx], updates);
+                    
+                    if (detailRenderVersion === _detailRenderVersion) {
+                        renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
+                    }
+                    
+                    const term = document.getElementById('crm-search')?.value.trim().toLowerCase() || '';
+                    const tCurrent = translations[currentLang];
+                    const filtered = term
+                        ? _allClients.filter(c =>
+                            (c.name || '').toLowerCase().includes(term) ||
+                            (c.company || '').toLowerCase().includes(term) ||
+                            (c.email   || '').toLowerCase().includes(term)
+                        )
+                        : _allClients;
+                    renderClientGrid(filtered, tCurrent);
+                    
+                    closeModal();
+                } catch (error) {
+                    logger.error('Edit client:', error);
+                    alert('Error updating client: ' + error.message);
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = 'Save Changes';
+                }
+            });
+        });
+    }
 
     // Suspend / Reactivate Toggle
     const suspendBtn = document.getElementById('btn-suspend-toggle');
@@ -5306,12 +5628,12 @@ async function renderGlobalRevenueChart() {
     const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     const monthlyData = {}; // { 'YYYY-MM': { EUR: 0, USD: 0, CRC: 0 } }
 
-    // Pre-fill last 6 months so chart always has context even if empty
+    // Pre-fill last 12 months so chart always has context even if empty
     const since = new Date();
-    since.setMonth(since.getMonth() - 5);
+    since.setMonth(since.getMonth() - 11);
     since.setDate(1);
     since.setHours(0, 0, 0, 0);
-    for (let i = 5; i >= 0; i--) {
+    for (let i = 11; i >= 0; i--) {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
         monthlyData[monthKey(d)] = { EUR: 0, USD: 0, CRC: 0 };
@@ -5329,7 +5651,8 @@ async function renderGlobalRevenueChart() {
             if (!Number.isFinite(amount)) return;
             const millis = adminTimestampMillis(payment.paymentDate);
             if (!millis) return;
-            const bucket = monthlyData[monthKey(new Date(millis))];
+            const monthStr = monthKey(new Date(millis));
+            const bucket = monthlyData[monthStr];
             const currency = payment.currency || 'EUR';
             if (bucket && bucket[currency] !== undefined) bucket[currency] += amount;
         });
@@ -5338,9 +5661,10 @@ async function renderGlobalRevenueChart() {
     }
 
     const labels = Object.keys(monthlyData).sort();
+    // Convert to EUR for visual proportionality on a single Y-axis
     const dataEUR = labels.map(l => monthlyData[l].EUR);
-    const dataUSD = labels.map(l => monthlyData[l].USD);
-    const dataCRC = labels.map(l => monthlyData[l].CRC);
+    const dataUSD = labels.map(l => monthlyData[l].USD * 0.91);
+    const dataCRC = labels.map(l => monthlyData[l].CRC * 0.0018);
 
     if (globalRevenueChartInstance) {
         globalRevenueChartInstance.destroy();
@@ -5389,11 +5713,32 @@ async function renderGlobalRevenueChart() {
             maintainAspectRatio: false,
             plugins: {
                 legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } },
-                tooltip: { mode: 'index', intersect: false }
+                tooltip: { 
+                    mode: 'index', 
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            const curLabel = context.dataset.label;
+                            const currency = curLabel.split(' ')[0]; // 'EUR', 'USD', 'CRC'
+                            const originalValue = monthlyData[context.label][currency];
+                            return `${curLabel}: ${originalValue.toLocaleString()}`;
+                        }
+                    }
+                }
             },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true }
+                x: { 
+                    grid: { display: false },
+                    stacked: true 
+                },
+                y: { 
+                    type: 'linear', 
+                    display: true, 
+                    position: 'left',
+                    beginAtZero: true,
+                    stacked: true,
+                    title: { display: true, text: 'Total Revenue (EUR Eq.)', color: 'rgba(255, 255, 255, 0.5)' }
+                }
             }
         }
     });
@@ -5534,4 +5879,418 @@ async function loadContacts() {
         logger.error("Error loading contacts:", e);
         contactsList.innerHTML = '<tr><td colspan="6" class="license-empty">Error loading inquiries.</td></tr>';
     }
+}
+
+/* ─── MAIL ────────────────────────────────────────────────────────────────────
+   Redacción de correo desde el CRM.
+
+   El envío va contra `POST /api/mail/send` del servicio de plataforma, el mismo
+   que agenda las reuniones y el mismo que posee el buzón de IONOS del que salen
+   `info@` y `daniel.morales@`. No pasa por Cloud Functions: la función que había
+   enviaba por Resend, que no está configurado, y no comprobaba que quien la
+   llamaba fuese administrador.
+
+   Los límites de tamaño se repiten aquí y en el servidor a propósito. Los de
+   aquí son cortesía —avisan antes de subir doce megas—; los que mandan son los
+   del servidor, porque este código vive en el navegador del administrador y
+   cualquiera puede saltárselo.
+   ───────────────────────────────────────────────────────────────────────────*/
+
+const MAIL_MAX_ATTACHMENTS = 10;
+const MAIL_MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+const MAIL_MAX_TOTAL_ATTACHMENT_BYTES = 12 * 1024 * 1024;
+
+let _mailSenders = [];
+let _mailTemplates = [];
+let _mailInitialized = false;
+
+function mailText() {
+    const t = translations[currentLang] || translations.en;
+    return t.mail || translations.en.mail;
+}
+
+function formatBytes(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} kB`;
+    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function setMailMessage(message, kind = '') {
+    const element = document.getElementById('mail-form-message');
+    if (!element) return;
+    element.textContent = message || '';
+    element.className = `meeting-form-message${kind ? ` ${kind}` : ''}`;
+}
+
+/** Lee un archivo y devuelve su contenido en base64, sin el prefijo `data:`. */
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+        reader.onerror = () => reject(reader.error || new Error('read_failed'));
+        reader.readAsDataURL(file);
+    });
+}
+
+/* ── Remitentes ── */
+
+async function loadMailSenders() {
+    const select = document.getElementById('mail-sender');
+    const hint = document.getElementById('mail-sender-hint');
+    if (!select) return;
+    const c = mailText();
+
+    try {
+        const result = await platformRequest('/api/mail/senders', { method: 'GET' });
+        _mailSenders = Array.isArray(result.senders) ? result.senders : [];
+    } catch (error) {
+        logger.warn('Could not load the sender list:', error);
+        _mailSenders = [];
+        select.innerHTML = '';
+        if (hint) {
+            hint.textContent = error.code === 'api_not_configured' || error.code === 'api_timeout'
+                ? c.serviceDown
+                : (error.message || c.serviceDown);
+            hint.classList.add('is-warning');
+        }
+        return;
+    }
+
+    const previous = select.value;
+    select.innerHTML = _mailSenders.map(sender => {
+        const label = `${sender.name} <${sender.address}>`;
+        // Un remitente sin credenciales propias no puede enviar: se muestra
+        // deshabilitado en vez de dejar que IONOS rechace el mensaje después.
+        return `<option value="${esc(sender.address)}"${sender.ready ? '' : ' disabled'}>`
+            + `${esc(label)}${sender.ready ? '' : ` — ${esc(c.senderNotReady)}`}</option>`;
+    }).join('');
+
+    const firstReady = _mailSenders.find(sender => sender.ready);
+    select.value = _mailSenders.some(s => s.address === previous && s.ready)
+        ? previous
+        : (firstReady?.address || '');
+
+    if (hint) {
+        const blocked = _mailSenders.filter(sender => !sender.ready);
+        hint.classList.toggle('is-warning', blocked.length > 0);
+        hint.textContent = blocked.length
+            ? c.senderMissingCredentials(blocked.map(s => s.address).join(', '), blocked[0].envSuffix)
+            : '';
+    }
+}
+
+/* ── Destinatarios sugeridos ── */
+
+/**
+ * Rellena el datalist con los correos de los clientes que ya tiene el CRM.
+ * Los carga si hace falta: se puede entrar a Correo sin haber pasado por
+ * Clientes ni por Agenda, y entonces la caché está vacía.
+ */
+async function fillMailRecipientOptions() {
+    const list = document.getElementById('mail-client-emails');
+    if (!list) return;
+    try {
+        await ensureAgendaClients(_agendaLoadVersion);
+    } catch (error) {
+        logger.warn('Could not load clients for the recipient suggestions:', error);
+    }
+    const seen = new Set();
+    const options = [];
+    for (const client of (_allClients || [])) {
+        const email = String(client.email || '').trim();
+        if (!email || seen.has(email.toLowerCase())) continue;
+        seen.add(email.toLowerCase());
+        const label = client.company || client.name || '';
+        options.push(`<option value="${esc(email)}"${label ? ` label="${esc(label)}"` : ''}></option>`);
+    }
+    list.innerHTML = options.join('');
+}
+
+/* ── Adjuntos ── */
+
+function renderMailAttachments() {
+    const input = document.getElementById('mail-attachments');
+    const list = document.getElementById('mail-attachment-list');
+    if (!input || !list) return;
+    const c = mailText();
+
+    const files = Array.from(input.files || []);
+    if (!files.length) {
+        list.innerHTML = '';
+        return;
+    }
+
+    const total = files.reduce((sum, file) => sum + file.size, 0);
+    list.innerHTML = files.map(file => {
+        const oversize = file.size > MAIL_MAX_ATTACHMENT_BYTES;
+        return `<li${oversize ? ' class="is-oversize"' : ''}>`
+            + `<span>${esc(file.name)}</span>`
+            + `<span class="mail-attachment-size">${esc(formatBytes(file.size))}</span></li>`;
+    }).join('');
+
+    const problems = [];
+    if (files.length > MAIL_MAX_ATTACHMENTS) problems.push(c.tooManyFiles(MAIL_MAX_ATTACHMENTS));
+    if (files.some(file => file.size > MAIL_MAX_ATTACHMENT_BYTES)) {
+        problems.push(c.fileTooLarge(formatBytes(MAIL_MAX_ATTACHMENT_BYTES)));
+    }
+    if (total > MAIL_MAX_TOTAL_ATTACHMENT_BYTES) {
+        problems.push(c.totalTooLarge(formatBytes(MAIL_MAX_TOTAL_ATTACHMENT_BYTES)));
+    }
+    setMailMessage(problems.join(' ') || `${files.length} · ${formatBytes(total)}`,
+        problems.length ? 'is-error' : '');
+}
+
+/* ── Biblioteca de plantillas ── */
+
+async function loadMailTemplates() {
+    const container = document.getElementById('mail-template-list');
+    if (!container) return;
+    const c = mailText();
+    try {
+        const snapshot = await getDocs(query(collection(db, 'mail_templates'), orderBy('name')));
+        _mailTemplates = snapshot.docs.map(entry => ({ id: entry.id, ...entry.data() }));
+    } catch (error) {
+        logger.error('Could not load mail templates:', error);
+        container.innerHTML = `<p class="mail-template-empty">${esc(c.templatesError)}</p>`;
+        return;
+    }
+    renderMailTemplates();
+}
+
+function renderMailTemplates() {
+    const container = document.getElementById('mail-template-list');
+    if (!container) return;
+    const c = mailText();
+
+    if (!_mailTemplates.length) {
+        container.innerHTML = `<p class="mail-template-empty">${esc(c.templatesEmpty)}</p>`;
+        return;
+    }
+    container.innerHTML = _mailTemplates.map(template => `
+        <div class="mail-template-card">
+            <button type="button" class="mail-template-open" data-template-id="${esc(template.id)}">
+                <span class="mail-template-name">${esc(template.name || c.untitled)}</span>
+                <span class="mail-template-meta">${esc(template.subject || '—')}</span>
+            </button>
+            <button type="button" class="mail-template-delete" data-template-delete="${esc(template.id)}"
+                    aria-label="${esc(c.deleteTemplate)}">✕</button>
+        </div>
+    `).join('');
+}
+
+function applyMailTemplate(templateId) {
+    const template = _mailTemplates.find(entry => entry.id === templateId);
+    if (!template) return;
+    const subject = document.getElementById('mail-subject');
+    const body = document.getElementById('mail-body');
+    if (subject) subject.value = template.subject || '';
+    if (body) body.value = template.html || '';
+    setMailMessage(mailText().templateLoaded(template.name || ''), 'is-success');
+}
+
+async function saveMailTemplate() {
+    const c = mailText();
+    const subject = document.getElementById('mail-subject')?.value.trim() || '';
+    const html = document.getElementById('mail-body')?.value.trim() || '';
+    if (!html) {
+        setMailMessage(c.templateNeedsBody, 'is-error');
+        return;
+    }
+    const name = window.prompt(c.templateNamePrompt, subject || '');
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed) {
+        setMailMessage(c.templateNeedsName, 'is-error');
+        return;
+    }
+    try {
+        // Un mismo nombre actualiza la plantilla en vez de duplicarla.
+        const existing = _mailTemplates.find(
+            entry => String(entry.name || '').toLowerCase() === trimmed.toLowerCase());
+        const payload = {
+            name: trimmed,
+            subject,
+            html,
+            updatedAt: serverTimestamp(),
+            updatedBy: auth.currentUser?.email || null
+        };
+        if (existing) {
+            await updateDoc(doc(db, 'mail_templates', existing.id), payload);
+        } else {
+            await addDoc(collection(db, 'mail_templates'), { ...payload, createdAt: serverTimestamp() });
+        }
+        await loadMailTemplates();
+        setMailMessage(c.templateSaved(trimmed), 'is-success');
+    } catch (error) {
+        logger.error('Could not save the template:', error);
+        setMailMessage(error.message || c.templateSaveError, 'is-error');
+    }
+}
+
+async function deleteMailTemplate(templateId) {
+    const c = mailText();
+    const template = _mailTemplates.find(entry => entry.id === templateId);
+    if (!template || !window.confirm(c.templateDeleteConfirm(template.name || ''))) return;
+    try {
+        await deleteDoc(doc(db, 'mail_templates', templateId));
+        await loadMailTemplates();
+        setMailMessage(c.templateDeleted, 'is-success');
+    } catch (error) {
+        logger.error('Could not delete the template:', error);
+        setMailMessage(error.message || c.templateDeleteError, 'is-error');
+    }
+}
+
+/* ── Vista previa ── */
+
+function openMailPreview() {
+    const backdrop = document.getElementById('mail-preview-backdrop');
+    const frame = document.getElementById('mail-preview-frame');
+    const html = document.getElementById('mail-body')?.value || '';
+    if (!backdrop || !frame) return;
+    if (!html.trim()) {
+        setMailMessage(mailText().previewNeedsBody, 'is-error');
+        return;
+    }
+    // `srcdoc` con el iframe en sandbox sin `allow-scripts`: se ve la maqueta,
+    // no se ejecuta nada de lo que traiga la plantilla.
+    frame.srcdoc = html;
+    backdrop.hidden = false;
+    document.getElementById('mail-preview-close')?.focus();
+}
+
+function closeMailPreview() {
+    const backdrop = document.getElementById('mail-preview-backdrop');
+    const frame = document.getElementById('mail-preview-frame');
+    if (backdrop) backdrop.hidden = true;
+    if (frame) frame.srcdoc = '';
+}
+
+/* ── Envío ── */
+
+async function submitMailForm(event) {
+    event.preventDefault();
+    const c = mailText();
+    const button = document.getElementById('mail-send-btn');
+
+    const from = document.getElementById('mail-sender')?.value || '';
+    const recipients = (document.getElementById('mail-recipient')?.value || '')
+        .split(/[,;]/).map(entry => entry.trim()).filter(Boolean);
+    const subject = document.getElementById('mail-subject')?.value.trim() || '';
+    const fileInput = document.getElementById('mail-template');
+    const file = fileInput?.files?.[0];
+
+    if (!from) return setMailMessage(c.senderRequired, 'is-error');
+    if (!recipients.length) return setMailMessage(c.recipientRequired, 'is-error');
+    if (!subject) return setMailMessage(c.subjectRequired, 'is-error');
+    if (!file) return setMailMessage("Please upload an HTML template file.", 'is-error');
+
+    // Enviar como la empresa no se deshace: se confirma el destinatario real.
+    if (!window.confirm(c.confirmSend(from, recipients.join(', ')))) return;
+
+    if (button) button.disabled = true;
+    setMailMessage(c.sending);
+
+    try {
+        const html = await file.text();
+
+        const result = await platformRequest('/api/mail/send', {
+            body: { from, to: recipients, subject, html }
+        });
+
+        // El asunto se conserva. Se limpian destinatario y archivo.
+        const recipientInput = document.getElementById('mail-recipient');
+        if (recipientInput) recipientInput.value = '';
+        if (fileInput) fileInput.value = '';
+        
+        const previewContainer = document.getElementById('mail-live-preview-container');
+        const uploadZone = document.getElementById('mail-upload-zone');
+        const previewFrame = document.getElementById('mail-live-preview-frame');
+        
+        if (previewContainer) previewContainer.hidden = true;
+        if (previewFrame) previewFrame.srcdoc = '';
+        if (uploadZone) uploadZone.hidden = false;
+
+        setMailMessage(c.sent(recipients.join(', ')), 'is-success');
+    } catch (error) {
+        logger.error('Could not send the message:', error);
+        setMailMessage(
+            error.code === 'api_not_configured' || error.code === 'api_timeout'
+                ? c.serviceDown
+                : (error.message || c.sendError),
+            'is-error');
+    } finally {
+        if (button) button.disabled = false;
+    }
+}
+
+/** Se llama una sola vez, desde `initDashboard`, ya con el usuario validado. */
+function initMailSection() {
+    if (_mailInitialized) return;
+    const form = document.getElementById('mail-compose-form');
+    if (!form) return;
+    _mailInitialized = true;
+
+    form.addEventListener('submit', submitMailForm);
+
+    // Manejar la zona de drag & drop y selección de archivo
+    const fileInput = document.getElementById('mail-template');
+    const uploadZone = document.getElementById('mail-upload-zone');
+    const previewContainer = document.getElementById('mail-live-preview-container');
+    const previewFrame = document.getElementById('mail-live-preview-frame');
+    const fileName = document.getElementById('mail-file-name');
+    const removeBtn = document.getElementById('mail-remove-template-btn');
+
+    const handleFile = async (file) => {
+        if (!file) return;
+        try {
+            if (fileName) fileName.textContent = file.name;
+            const html = await file.text();
+            
+            if (previewFrame) previewFrame.srcdoc = html;
+            if (previewContainer) previewContainer.hidden = false;
+            if (uploadZone) uploadZone.hidden = true;
+        } catch (err) {
+            console.error("Error reading file", err);
+        }
+    };
+
+    if (fileInput && uploadZone) {
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files?.[0]));
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            if (e.dataTransfer.files?.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            if (fileInput) fileInput.value = '';
+            if (previewFrame) previewFrame.srcdoc = '';
+            if (previewContainer) previewContainer.hidden = true;
+            if (uploadZone) uploadZone.hidden = false;
+        });
+    }
+}
+
+/** Datos que dependen de la red; se recargan cada vez que se abre la sección. */
+function loadMailSection() {
+    initMailSection();
+    fillMailRecipientOptions();  // asíncrona: rellena el datalist cuando pueda
+    loadMailSenders();
+    loadMailTemplates();
 }

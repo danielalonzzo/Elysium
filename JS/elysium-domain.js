@@ -173,7 +173,13 @@ export function revenueByCurrency(payments) {
 
 export const CURRENCY_SYMBOLS = { EUR: '€', USD: '$', CRC: '₡' };
 
-export function formatRevenue(totals, emptySymbol = '€') {
+export function formatRevenue(totals, emptySymbol = '€', preferredCurrency = null) {
+    if (preferredCurrency) {
+        const value = (totals || {})[preferredCurrency] || 0;
+        return `${CURRENCY_SYMBOLS[preferredCurrency] || preferredCurrency}${value.toLocaleString(undefined, {
+            minimumFractionDigits: 0, maximumFractionDigits: 2
+        })}`;
+    }
     const entries = Object.entries(totals || {});
     if (!entries.length) return `${emptySymbol}0`;
     return entries

@@ -78,7 +78,15 @@ function timestampMillis(value) {
 }
 
 app.use(express.urlencoded({ extended: false }));
-app.use(express.json({ limit: '64kb' }));
+
+/* 64 kB es de sobra para todo lo que recibe este servicio menos una cosa: el
+   correo que se redacta en el CRM, que lleva adjuntos en base64. Ese camino se
+   salta el analizador general y usa el suyo, con un límite mucho mayor; si se
+   subiera el global, cualquier ruta aceptaría cuerpos de megabytes. */
+const compactJsonBody = express.json({ limit: '64kb' });
+app.use((request, response, next) => (
+  request.path === '/api/mail/send' ? next() : compactJsonBody(request, response, next)
+));
 
 async function requireFirebaseUser(request, response, next) {
   try {
@@ -785,6 +793,7 @@ async function sendEmail(payload, idempotencyKey, transportImpl = null) {
       subject: payload.subject,
       html: payload.html,
       text: payload.text,
+      replyTo: payload.replyTo,
       messageId: `<${idempotencyKey}@${messageIdDomain()}>`,
       attachments: (payload.attachments || []).map(attachment => ({
         filename: attachment.filename,
@@ -1292,6 +1301,287 @@ app.post('/api/meetings/:meetingId/cancel', requireFirebaseUser, requireFirebase
   }
 });
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Correo redactado desde el CRM
+
+   La regla que gobierna todo este bloque: **el remitente lo decide el
+   servidor**. El navegador manda una dirección, pero sólo sirve para elegir de
+   una lista cerrada que vive aquí. Si se aceptara el `from` tal cual, cualquiera
+   con una sesión iniciada podría enviar correo firmado como Elysium.
+
+   IONOS sólo deja enviar como el buzón autenticado o un alias suyo, así que
+   cada remitente puede traer sus propias credenciales SMTP. Cuando no las trae
+   y no es el buzón por defecto, la petición se rechaza con un mensaje que dice
+   qué variable falta: es preferible a enviar en silencio desde otra dirección.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+const MAIL_MAX_ATTACHMENTS = 10;
+const MAIL_MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
+const MAIL_MAX_TOTAL_ATTACHMENT_BYTES = 12 * 1024 * 1024;
+const MAIL_MAX_HTML_BYTES = 1024 * 1024;
+
+/** `daniel.morales@elysiumdr.eu` → `DANIEL_MORALES`, el sufijo de sus variables. */
+function senderEnvSuffix(address) {
+  return String(address || '').split('@')[0].toUpperCase().replace(/[^A-Z0-9]+/g, '_');
+}
+
+/**
+ * Los remitentes que el CRM puede usar. `CRM_MAIL_SENDERS` acepta la forma
+ * `Nombre <correo>` separada por comas; si no está definida, se usa el buzón de
+ * `MEETING_FROM_EMAIL`, que es el que ya envía la agenda.
+ */
+function mailSenders() {
+  const configured = String(process.env.CRM_MAIL_SENDERS || process.env.MEETING_FROM_EMAIL || '')
+    .split(',')
+    .map(entry => entry.trim())
+    .filter(Boolean);
+
+  const defaultUser = String(process.env.SMTP_USER || '').trim().toLowerCase();
+  const seen = new Set();
+  const senders = [];
+
+  for (const entry of configured) {
+    const address = normalizedEmail(extractEmailAddress(entry));
+    if (!address || seen.has(address)) continue;
+    seen.add(address);
+
+    const nameMatch = entry.match(/^\s*"?([^"<]+?)"?\s*</);
+    const suffix = senderEnvSuffix(address);
+    const ownUser = String(process.env[`SMTP_USER_${suffix}`] || '').trim();
+    const ownPass = String(process.env[`SMTP_PASSWORD_${suffix}`] || '');
+    const isDefaultMailbox = address === defaultUser;
+
+    senders.push({
+      address,
+      name: (nameMatch?.[1] || '').trim() || 'Elysium',
+      // Credenciales propias, o las del buzón por defecto cuando es él mismo.
+      auth: ownUser && ownPass
+        ? { user: ownUser, pass: ownPass }
+        : (isDefaultMailbox ? null : undefined),
+      ready: Boolean(ownUser && ownPass) || isDefaultMailbox,
+      envSuffix: suffix
+    });
+  }
+  return senders;
+}
+
+function findMailSender(address) {
+  const wanted = normalizedEmail(address);
+  return wanted ? mailSenders().find(sender => sender.address === wanted) || null : null;
+}
+
+/**
+ * Transporte para un remitente concreto. `auth === null` significa «el buzón por
+ * defecto», que ya tiene su transporte compartido con pool; el resto abre el
+ * suyo y se cachea por usuario para no reconectar en cada envío.
+ */
+const senderTransports = new Map();
+function transportForSender(sender) {
+  if (!sender?.auth) return emailTransport();
+  const cached = senderTransports.get(sender.auth.user);
+  if (cached) return cached;
+
+  const { host, port } = smtpConfig();
+  if (!host) return null;
+  const nodemailer = require('nodemailer');
+  const transport = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    requireTLS: port !== 465,
+    auth: { user: sender.auth.user, pass: sender.auth.pass },
+    pool: true,
+    maxConnections: 2,
+    connectionTimeout: 15_000,
+    greetingTimeout: 15_000,
+    socketTimeout: 30_000
+  });
+  senderTransports.set(sender.auth.user, transport);
+  return transport;
+}
+
+/** Versión de texto plano a partir del HTML, para la parte `text/plain`. */
+function htmlToPlainText(html) {
+  return String(html || '')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<\/(p|div|tr|h[1-6]|li)>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/&middot;/gi, '·')
+    .replace(/&lambda;/gi, 'λ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/** Quita rutas y caracteres de control del nombre que llega del navegador. */
+function safeAttachmentName(value, index) {
+  const base = String(value || '')
+    .split(/[\\/]/).pop()
+    // Se retiran los caracteres de control y los que rompen un nombre de
+    // archivo o una cabecera MIME.
+    .replace(/[\x00-\x1f<>:"|?*]/g, '')
+    .trim()
+    .slice(0, 120);
+  return base || `adjunto-${index + 1}`;
+}
+
+class MailValidationError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.name = 'MailValidationError';
+    this.code = code;
+  }
+}
+
+function validateMailAttachments(rawAttachments) {
+  if (rawAttachments == null) return [];
+  if (!Array.isArray(rawAttachments)) {
+    throw new MailValidationError('Attachments must be a list.', 'attachments_invalid');
+  }
+  if (rawAttachments.length > MAIL_MAX_ATTACHMENTS) {
+    throw new MailValidationError(
+      `Up to ${MAIL_MAX_ATTACHMENTS} attachments per message.`, 'attachments_too_many');
+  }
+
+  let total = 0;
+  return rawAttachments.map((attachment, index) => {
+    const content = String(attachment?.content || '');
+    if (!content) {
+      throw new MailValidationError('An attachment arrived empty.', 'attachment_empty');
+    }
+    // base64 crece un tercio sobre el original: se mide el tamaño real.
+    const bytes = Math.floor(content.replace(/=+$/, '').length * 3 / 4);
+    if (bytes > MAIL_MAX_ATTACHMENT_BYTES) {
+      throw new MailValidationError(
+        `"${safeAttachmentName(attachment?.filename, index)}" exceeds the ${
+          Math.round(MAIL_MAX_ATTACHMENT_BYTES / 1024 / 1024)} MB limit per file.`,
+        'attachment_too_large');
+    }
+    total += bytes;
+    if (total > MAIL_MAX_TOTAL_ATTACHMENT_BYTES) {
+      throw new MailValidationError(
+        `The attachments add up to more than ${
+          Math.round(MAIL_MAX_TOTAL_ATTACHMENT_BYTES / 1024 / 1024)} MB.`,
+        'attachments_too_large');
+    }
+    return {
+      filename: safeAttachmentName(attachment?.filename, index),
+      content,
+      contentType: String(attachment?.contentType || 'application/octet-stream').slice(0, 120)
+    };
+  });
+}
+
+app.get('/api/mail/senders', requireFirebaseUser, requireFirebaseAdmin, (_request, response) => {
+  response.json({
+    senders: mailSenders().map(({ address, name, ready, envSuffix }) => ({
+      address, name, ready, envSuffix
+    }))
+  });
+});
+
+app.post(
+  '/api/mail/send',
+  express.json({ limit: '20mb' }),
+  requireFirebaseUser,
+  requireFirebaseAdmin,
+  async (request, response) => {
+    try {
+      const body = request.body || {};
+
+      const sender = findMailSender(body.from);
+      if (!sender) {
+        return response.status(400).json({
+          error: 'That sender is not on the allowlist.', code: 'sender_not_allowed'
+        });
+      }
+      if (!sender.ready) {
+        return response.status(503).json({
+          error: `No SMTP credentials for ${sender.address}. Set SMTP_USER_${
+            sender.envSuffix} and SMTP_PASSWORD_${sender.envSuffix} on the service.`,
+          code: 'sender_not_configured'
+        });
+      }
+
+      const recipients = (Array.isArray(body.to) ? body.to : [body.to])
+        .map(normalizedEmail)
+        .filter(Boolean);
+      if (!recipients.length) {
+        return response.status(400).json({ error: 'A valid recipient is required.', code: 'to_invalid' });
+      }
+      if (recipients.length > 20) {
+        return response.status(400).json({ error: 'Up to 20 recipients per message.', code: 'to_too_many' });
+      }
+
+      const subject = String(body.subject || '').trim().slice(0, 250);
+      if (!subject) {
+        return response.status(400).json({ error: 'A subject is required.', code: 'subject_missing' });
+      }
+
+      const html = String(body.html || '');
+      if (!html.trim()) {
+        return response.status(400).json({ error: 'The message body is empty.', code: 'html_missing' });
+      }
+      if (Buffer.byteLength(html, 'utf8') > MAIL_MAX_HTML_BYTES) {
+        return response.status(400).json({ error: 'The HTML body is too large.', code: 'html_too_large' });
+      }
+
+      const attachments = validateMailAttachments(body.attachments);
+      const replyTo = normalizedEmail(body.replyTo);
+      const idempotencyKey =
+        `elysium-crm-mail-${Date.now()}-${require('crypto').randomUUID()}`;
+
+      const sent = await sendEmail({
+        from: `${sender.name} <${sender.address}>`,
+        to: recipients,
+        subject,
+        html,
+        text: String(body.text || '').trim() || htmlToPlainText(html),
+        replyTo: replyTo || undefined,
+        attachments
+      }, idempotencyKey, transportForSender(sender));
+
+      // Rastro de auditoría: quién envió, desde qué dirección y a quién. Este
+      // extremo puede firmar correo como la empresa; sin registro no habría
+      // forma de reconstruir un envío indebido.
+      console.log('[crm-mail] sent', JSON.stringify({
+        actor: request.firebaseUser.email,
+        from: sender.address,
+        to: recipients,
+        subject,
+        attachments: attachments.length,
+        messageId: sent.id
+      }));
+
+      return response.status(200).json({ ok: true, messageId: sent.id, recipients });
+    } catch (error) {
+      if (error instanceof MailValidationError) {
+        return response.status(400).json({ error: error.message, code: error.code });
+      }
+      if (error?.code === 'email_not_configured') {
+        return response.status(503).json({
+          error: 'Email delivery is not configured on the service.', code: 'email_not_configured'
+        });
+      }
+      console.error('[crm-mail] send failed:', error);
+      // El texto del servidor SMTP dice cosas accionables ("relay denied",
+      // "authentication failed"): se pasa tal cual al administrador.
+      return response.status(502).json({
+        error: error?.response || error?.message || 'The mail server rejected the message.',
+        code: 'mail_send_failed'
+      });
+    }
+  }
+);
+
 app.get(['/health', '/api/health', '/api/billing/health'], (_request, response) => {
   response.json({ ok: true, service: 'elysium-platform-api' });
 });
@@ -1334,5 +1624,11 @@ module.exports = {
   passwordResetRateLimited,
   passwordResetEmail,
   passwordResetEmailConfigured,
-  passwordResetContinueUrl
+  passwordResetContinueUrl,
+  MailValidationError,
+  mailSenders,
+  findMailSender,
+  validateMailAttachments,
+  safeAttachmentName,
+  htmlToPlainText
 };

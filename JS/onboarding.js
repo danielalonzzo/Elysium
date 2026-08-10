@@ -44,13 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const allSteps = Array.from(document.querySelectorAll('.form-step'));
 
-    const VALID_TIERS = ['hosting', 'basic', 'preferential', 'advanced', 'crm'];
+    const VALID_TIERS = ['hosting', 'basic', 'preferential', 'advanced'];
     const PLAN_LABELS = {
-        hosting: 'Domain & Hosting',
+        hosting: 'Hosting',
         basic: 'Presence',
-        preferential: 'System',
-        advanced: 'Operations',
-        crm: 'Custom Core CRM'
+        preferential: 'Infrastructure',
+        advanced: 'Ecosystem'
     };
 
     // Checkbox groups collected as arrays on submit

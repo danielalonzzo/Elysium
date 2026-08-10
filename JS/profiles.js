@@ -46,15 +46,14 @@ const PLANS = {
     hosting:      { code: 'H0ST', price: { monthly: null, annual: 99 },    tier: 1 },
     basic:        { code: 'EC01', price: { monthly: 70,   annual: 700 },   tier: 2 },
     preferential: { code: 'EC02', price: { monthly: 99,   annual: 990 },   tier: 3 },
-    advanced:     { code: 'EC03', price: { monthly: 120,  annual: 1200 },  tier: 4 },
-    crm:          { code: 'CRMP', price: { monthly: 50,   annual: 500 },   tier: 4, retired: true }
+    advanced:     { code: 'EC03', price: { monthly: 120,  annual: 1200 },  tier: 3 }
 };
 const PERIOD_CODES = { monthly: 'M3N1', annual: 'ANL1' };
 
 const pathParts = window.location.pathname.split('/').filter(Boolean);
-const lang = pathParts.includes('es') ? 'es' : pathParts.includes('pt') ? 'pt' : 'en';
-const locale = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' }[lang];
-const localizedPath = path => `${lang === 'en' ? '' : `/${lang}`}/${path}`;
+let currentLang = localStorage.getItem('elysium_lang') || 'en';
+let locale = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' }[currentLang];
+const localizedPath = path => path;
 
 const COPY = {
     en: {
@@ -82,8 +81,8 @@ const COPY = {
         download: 'Open document', amount: 'Amount', date: 'Date',
         subscriptionTitle: 'Plans and subscription', subscriptionLead: 'See your current service and compare the available options.',
         monthly: 'Monthly', annual: 'Annual', twoMonthsIncluded: '2 months included', selectPlan: 'Choose plan', currentPlanButton: 'Current plan',
-        contactPlan: 'Request this plan', planHosting: 'Domain & Hosting', planBasic: 'Presence',
-        planPreferential: 'System', planAdvanced: 'Operations', perMonth: '/ month', perYear: '/ year', mostPopular: 'Most popular',
+        contactPlan: 'Request this plan', planHosting: 'Hosting', planBasic: 'Presence',
+        planPreferential: 'Infrastructure', planAdvanced: 'Ecosystem', perMonth: '/ month', perYear: '/ year', mostPopular: 'Most popular',
         hostingFeatures: ['Domain management and identity', 'High-availability hosting', 'Infrastructure updates'],
         basicFeatures: ['Website, domain, email and hosting', 'Online booking and client records', 'One hour of changes per month'],
         preferentialFeatures: ['Everything in Presence', 'Multiple languages and adaptive interface', 'Advanced integrations and automation'],
@@ -111,7 +110,16 @@ const COPY = {
         passwordMismatch: 'The passwords do not match.', emailInUse: 'That email is already registered. Sign in or recover your password.',
         registrationFailed: 'The account could not be created. Try again.', projectRequestFailed: 'The request could not be sent. Try again.',
         projectRequestSent: 'Your request was sent. We will contact you shortly.', subscriptionAttention: 'Your subscription needs attention.',
-        previewTitle: 'Project preview'
+        previewTitle: 'Project preview',
+        navServices: 'Services', navPortfolio: 'Portfolio', navResearch: 'Research', navAbout: 'About', navAccount: 'Account', navContact: 'Contact',
+        heroTitle: 'Partner Portal', heroSubtitle: 'Exclusive access for Elysium partners',
+        loginTitle: 'Login', loginSubtitle: 'Enter your credentials to access', emailAddress: 'Email Address', passwordField: 'Password',
+        forgotPassword: 'Forgot password?', signInBtn: 'Sign In', noAccount: 'Don\'t have an account?', createOne: 'Create one',
+        resetTitle: 'Reset Password', resetSubtitle: 'Enter your email to receive a reset link', sendReset: 'Send Reset Link',
+        rememberedPassword: 'Remembered your password?', signInText: 'Sign in',
+        joinTitle: 'Join Elysium', joinSubtitle: 'Create your partner account — free to start',
+        fullNameField: 'Full Name *', companyNameField: 'Company Name', optionalText: '(optional)', repeatPassword: 'Repeat Password *', createAccount: 'Create Account',
+        lookingToStart: 'Looking to start a new project?', requestQuote: 'Request a quote'
     },
     es: {
         portal: 'Portal de clientes', dashboard: 'Panel', overview: 'Resumen', projects: 'Proyectos', documents: 'Documentos',
@@ -138,8 +146,8 @@ const COPY = {
         download: 'Abrir documento', amount: 'Importe', date: 'Fecha',
         subscriptionTitle: 'Planes y suscripción', subscriptionLead: 'Consulta tu servicio actual y compara las opciones disponibles.',
         monthly: 'Mensual', annual: 'Anual', twoMonthsIncluded: '2 meses incluidos', selectPlan: 'Elegir plan', currentPlanButton: 'Plan actual',
-        contactPlan: 'Solicitar este plan', planHosting: 'Dominio y Hosting', planBasic: 'Presencia',
-        planPreferential: 'Sistema', planAdvanced: 'Operación', perMonth: '/ mes', perYear: '/ año', mostPopular: 'Más popular',
+        contactPlan: 'Solicitar este plan', planHosting: 'Alojamiento', planBasic: 'Presencia',
+        planPreferential: 'Infraestructura', planAdvanced: 'Ecosistema', perMonth: '/ mes', perYear: '/ año', mostPopular: 'Más popular',
         hostingFeatures: ['Gestión de dominio e identidad', 'Hosting de alta disponibilidad', 'Actualizaciones de infraestructura'],
         basicFeatures: ['Web, dominio, correo y hosting', 'Reservas online y registro de clientes', 'Una hora de cambios al mes'],
         preferentialFeatures: ['Todo lo incluido en Presencia', 'Varios idiomas e interfaz adaptable', 'Integraciones y automatización avanzada'],
@@ -167,7 +175,16 @@ const COPY = {
         passwordMismatch: 'Las contraseñas no coinciden.', emailInUse: 'Ese correo ya está registrado. Inicia sesión o recupera la contraseña.',
         registrationFailed: 'No se pudo crear la cuenta. Inténtalo de nuevo.', projectRequestFailed: 'No se pudo enviar la solicitud. Inténtalo de nuevo.',
         projectRequestSent: 'Tu solicitud fue enviada. Te contactaremos pronto.', subscriptionAttention: 'Tu suscripción requiere atención.',
-        previewTitle: 'Vista previa del proyecto'
+        previewTitle: 'Vista previa del proyecto',
+        navServices: 'Servicios', navPortfolio: 'Portafolio', navResearch: 'Investigación', navAbout: 'Nosotros', navAccount: 'Cuenta', navContact: 'Contacto',
+        heroTitle: 'Portal de Clientes', heroSubtitle: 'Acceso exclusivo para clientes de Elysium',
+        loginTitle: 'Iniciar sesión', loginSubtitle: 'Introduce tus credenciales para acceder', emailAddress: 'Correo electrónico', passwordField: 'Contraseña',
+        forgotPassword: '¿Olvidaste tu contraseña?', signInBtn: 'Entrar', noAccount: '¿No tienes cuenta?', createOne: 'Crear una',
+        resetTitle: 'Restablecer contraseña', resetSubtitle: 'Introduce tu correo para recibir un enlace', sendReset: 'Enviar enlace',
+        rememberedPassword: '¿Recordaste tu contraseña?', signInText: 'Inicia sesión',
+        joinTitle: 'Únete a Elysium', joinSubtitle: 'Crea tu cuenta de cliente — empezar es gratis',
+        fullNameField: 'Nombre completo *', companyNameField: 'Empresa', optionalText: '(opcional)', repeatPassword: 'Repetir contraseña *', createAccount: 'Crear cuenta',
+        lookingToStart: '¿Buscas iniciar un proyecto nuevo?', requestQuote: 'Solicitar cotización'
     },
     pt: {
         portal: 'Portal de clientes', dashboard: 'Painel', overview: 'Resumo', projects: 'Projetos', documents: 'Documentos',
@@ -194,8 +211,8 @@ const COPY = {
         download: 'Abrir documento', amount: 'Montante', date: 'Data',
         subscriptionTitle: 'Planos e subscrição', subscriptionLead: 'Consulte o seu serviço atual e compare as opções disponíveis.',
         monthly: 'Mensal', annual: 'Anual', twoMonthsIncluded: '2 meses incluídos', selectPlan: 'Escolher plano', currentPlanButton: 'Plano atual',
-        contactPlan: 'Pedir este plano', planHosting: 'Domínio e Alojamento', planBasic: 'Presença',
-        planPreferential: 'Sistema', planAdvanced: 'Operação', perMonth: '/ mês', perYear: '/ ano', mostPopular: 'Mais popular',
+        contactPlan: 'Pedir este plano', planHosting: 'Alojamento', planBasic: 'Presença',
+        planPreferential: 'Infraestrutura', planAdvanced: 'Ecossistema', perMonth: '/ mês', perYear: '/ ano', mostPopular: 'Mais popular',
         hostingFeatures: ['Gestão de domínio e identidade', 'Alojamento de alta disponibilidade', 'Atualizações de infraestrutura'],
         basicFeatures: ['Site, domínio, email e alojamento', 'Marcações online e registo de clientes', 'Uma hora de alterações por mês'],
         preferentialFeatures: ['Tudo o que está incluído em Presença', 'Vários idiomas e interface adaptável', 'Integrações e automatização avançada'],
@@ -223,10 +240,57 @@ const COPY = {
         passwordMismatch: 'As palavras-passe não coincidem.', emailInUse: 'Esse email já está registado. Inicie sessão ou recupere a palavra-passe.',
         registrationFailed: 'Não foi possível criar a conta. Tente novamente.', projectRequestFailed: 'Não foi possível enviar o pedido. Tente novamente.',
         projectRequestSent: 'O seu pedido foi enviado. Entraremos em contacto em breve.', subscriptionAttention: 'A sua subscrição requer atenção.',
-        previewTitle: 'Pré-visualização do projeto'
+        previewTitle: 'Pré-visualização do projeto',
+        navServices: 'Serviços', navPortfolio: 'Portefólio', navResearch: 'Investigação', navAbout: 'Sobre', navAccount: 'Conta', navContact: 'Contacto',
+        heroTitle: 'Portal de Clientes', heroSubtitle: 'Acesso exclusivo para clientes da Elysium',
+        loginTitle: 'Iniciar sessão', loginSubtitle: 'Introduza as suas credenciais para aceder', emailAddress: 'Endereço de email', passwordField: 'Palavra-passe',
+        forgotPassword: 'Esqueceu-se da palavra-passe?', signInBtn: 'Entrar', noAccount: 'Não tem conta?', createOne: 'Criar uma',
+        resetTitle: 'Repor palavra-passe', resetSubtitle: 'Introduza o seu email para receber um link', sendReset: 'Enviar link',
+        rememberedPassword: 'Lembrou-se da palavra-passe?', signInText: 'Iniciar sessão',
+        joinTitle: 'Junte-se à Elysium', joinSubtitle: 'Crie a sua conta de cliente — começar é grátis',
+        fullNameField: 'Nome completo *', companyNameField: 'Empresa', optionalText: '(opcional)', repeatPassword: 'Repetir palavra-passe *', createAccount: 'Criar conta',
+        lookingToStart: 'Procura iniciar um novo projeto?', requestQuote: 'Pedir um orçamento'
     }
 };
-const t = COPY[lang];
+let t = COPY[currentLang];
+
+window.changeLanguage = function(newLang) {
+    currentLang = newLang;
+    localStorage.setItem('elysium_lang', newLang);
+    locale = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' }[currentLang];
+    t = COPY[currentLang];
+    document.documentElement.lang = currentLang;
+
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) {
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = t[key];
+            else el.textContent = t[key];
+        }
+    });
+    
+    document.querySelectorAll('.lang-select').forEach(btn => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.lang === currentLang));
+    });
+
+    if (currentUserData) {
+        if (activePortalSection === 'overview' || activePortalSection === 'profile') setIdentity();
+        else if (activePortalSection === 'projects') loadProjects();
+        else if (activePortalSection === 'documents') loadDocuments();
+        else if (activePortalSection === 'subscription') loadSubscription();
+        else if (activePortalSection === 'billing') loadBilling();
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.lang-select').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            changeLanguage(e.currentTarget.dataset.lang);
+        });
+    });
+    if(currentLang !== 'en') changeLanguage(currentLang);
+});
 
 const DOM = {
     loginView: document.getElementById('login-view'),
@@ -348,8 +412,7 @@ function planLabel(planType) {
         hosting: t.planHosting,
         basic: t.planBasic,
         preferential: t.planPreferential,
-        advanced: t.planAdvanced,
-        crm: lang === 'en' ? 'Custom Core CRM' : lang === 'es' ? 'CRM personalizado' : 'CRM personalizado'
+        advanced: t.planAdvanced
     }[planType] || t.noPlan;
 }
 
@@ -469,6 +532,11 @@ function ensureDashboardShell() {
                 ${navButton('profile', icon('user'), t.profile)}
             </nav>
             <div class="portal-sidebar-footer">
+                <div class="admin-lang-switch">
+                    <button type="button" class="lang-select" data-lang="en" aria-label="English" aria-pressed="${currentLang === 'en' ? 'true' : 'false'}">EN</button>
+                    <button type="button" class="lang-select" data-lang="es" aria-label="Español" aria-pressed="${currentLang === 'es' ? 'true' : 'false'}">ES</button>
+                    <button type="button" class="lang-select" data-lang="pt" aria-label="Português" aria-pressed="${currentLang === 'pt' ? 'true' : 'false'}">PT</button>
+                </div>
                 <a class="portal-support-link" href="mailto:info@elysiumdr.eu" aria-label="${escapeHTML(t.support)}" title="${escapeHTML(t.support)}">${icon('message')}<span>${escapeHTML(t.support)}</span></a>
                 <button type="button" class="sidebar-logout-btn" data-action="logout" aria-label="${escapeHTML(t.signOut)}" title="${escapeHTML(t.signOut)}">${icon('logout')}<span>${escapeHTML(t.signOut)}</span></button>
             </div>
@@ -594,6 +662,12 @@ function bindPortalEvents() {
     if (!DOM.profileSection || DOM.profileSection.dataset.eventsBound === 'true') return;
     DOM.profileSection.dataset.eventsBound = 'true';
     DOM.profileSection.addEventListener('click', async event => {
+        const langButton = event.target.closest('.lang-select');
+        if (langButton) {
+            event.preventDefault();
+            changeLanguage(langButton.dataset.lang);
+            return;
+        }
         const targetButton = event.target.closest('[data-target]');
         if (targetButton) return activateSection(targetButton.dataset.target);
         const actionElement = event.target.closest('[data-action]');
@@ -1253,7 +1327,7 @@ function renderProfileSection() {
                 ${profileField('profile-email', t.email, currentUser.email || currentUserData.email || '', 'email', 'email', false, true, 254)}
                 ${profileField('profile-phone', t.phone, currentUserData.phone || '', 'tel', 'tel', false, false, 40)}
                 ${profileField('profile-billing-email', t.billingEmail, currentUserData.billingEmail || '', 'email', 'email', false, false, 254)}
-                <label class="portal-field" for="profile-language"><span>${escapeHTML(t.language)}</span><select id="profile-language" name="preferredLanguage"><option value="en" ${currentUserData.preferredLanguage === 'en' ? 'selected' : ''}>English</option><option value="es" ${currentUserData.preferredLanguage === 'es' || !currentUserData.preferredLanguage && lang === 'es' ? 'selected' : ''}>Español</option><option value="pt" ${currentUserData.preferredLanguage === 'pt' || !currentUserData.preferredLanguage && lang === 'pt' ? 'selected' : ''}>Português</option></select></label>
+                <label class="portal-field" for="profile-language"><span>${escapeHTML(t.language)}</span><select id="profile-language" name="preferredLanguage"><option value="en" ${currentUserData.preferredLanguage === 'en' ? 'selected' : ''}>English</option><option value="es" ${currentUserData.preferredLanguage === 'es' || !currentUserData.preferredLanguage && currentLang === 'es' ? 'selected' : ''}>Español</option><option value="pt" ${currentUserData.preferredLanguage === 'pt' || !currentUserData.preferredLanguage && currentLang === 'pt' ? 'selected' : ''}>Português</option></select></label>
             </div><div class="portal-actions"><button type="submit" class="btn btn-primary">${escapeHTML(t.saveChanges)}</button><span id="profile-save-status" role="status" aria-live="polite"></span></div></form></article>
             <article class="portal-card security-card"><span>${icon('lock')}</span><h2>${escapeHTML(t.security)}</h2><p><span class="status-chip ${currentUser.emailVerified ? 'completed' : 'warning'}">${escapeHTML(currentUser.emailVerified ? t.emailVerified : t.emailNotVerified)}</span></p><div class="portal-actions">${currentUser.emailVerified ? '' : `<button type="button" class="btn" data-action="verify-email">${escapeHTML(t.verifyEmail)}</button>`}<button type="button" class="btn btn-primary" data-action="send-password-email">${escapeHTML(t.changePassword)}</button></div><small>${escapeHTML(t.secureSender)}</small></article>
         </div>`;
@@ -1275,7 +1349,7 @@ async function saveProfile(event) {
     const company = form.querySelector('#profile-company')?.value.trim() || '';
     const phone = form.querySelector('#profile-phone')?.value.trim() || '';
     const billingEmail = form.querySelector('#profile-billing-email')?.value.trim().toLowerCase() || '';
-    const preferredLanguage = form.querySelector('#profile-language')?.value || lang;
+    const preferredLanguage = form.querySelector('#profile-language')?.value || currentLang;
     if (!form.reportValidity()) return;
     if (!name) {
         if (status) status.textContent = t.requiredName;
@@ -1302,9 +1376,8 @@ async function saveProfile(event) {
         if (status) status.textContent = t.profileSaved;
         playSound('success');
         setIdentity();
-        if (preferredLanguage !== lang) {
-            const destination = { en: '/profiles', es: '/es/profiles', pt: '/pt/profiles' }[preferredLanguage];
-            window.setTimeout(() => window.location.assign(`${destination}?section=profile`), 350);
+        if (preferredLanguage !== currentLang) {
+            changeLanguage(preferredLanguage);
         }
     } catch (error) {
         logger.error('[portal] profile update', error);
@@ -1378,7 +1451,7 @@ async function requestSignedInPasswordEmail(button) {
     if (!currentUser?.email) return;
     button.disabled = true;
     try {
-        auth.languageCode = lang;
+        auth.languageCode = currentLang;
         await sendResetEmail(currentUser.email);
         portalAlert(`${t.passwordEmailSent} ${resetSenderCopy()}`, 'success');
         playSound('success');
@@ -1394,7 +1467,7 @@ async function requestVerificationEmail(button) {
     if (!currentUser) return;
     button.disabled = true;
     try {
-        auth.languageCode = lang;
+        auth.languageCode = currentLang;
         await sendVerification(currentUser);
         portalAlert(t.verificationSent, 'success');
         playSound('success');
@@ -1432,10 +1505,10 @@ async function sendVerification(user) {
     }
 }
 
-const RESET_CONTINUE_PATH = { en: '/profiles', es: '/es/profiles', pt: '/pt/profiles' };
+const RESET_CONTINUE_PATH = { en: '/profiles', es: '/profiles', pt: '/profiles' };
 async function sendFirebaseResetEmail(email) {
     try {
-        await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}${RESET_CONTINUE_PATH[lang]}`, handleCodeInApp: false });
+        await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}${RESET_CONTINUE_PATH[currentLang]}`, handleCodeInApp: false });
     } catch (error) {
         const fallbackCodes = ['auth/unauthorized-continue-uri', 'auth/invalid-continue-uri', 'auth/missing-continue-uri'];
         if (!fallbackCodes.includes(error?.code)) throw error;
@@ -1475,7 +1548,7 @@ async function sendBrandedResetEmail(email) {
         const response = await fetch(`${platformApiOrigin()}/api/auth/password-reset`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, locale: lang }),
+            body: JSON.stringify({ email, locale: currentLang }),
             signal: controller.signal
         });
         if (response.status !== 202) return false;
@@ -1564,7 +1637,7 @@ DOM.loginForm?.addEventListener('submit', async event => {
     const password = document.getElementById('login-password')?.value || '';
     button.disabled = true;
     try {
-        auth.languageCode = lang;
+        auth.languageCode = currentLang;
         await signInWithEmailAndPassword(auth, email, password);
         form.reset();
         playSound('success');
@@ -1586,7 +1659,7 @@ DOM.resetForm?.addEventListener('submit', async event => {
     button.disabled = true;
     button.textContent = t.resetSending;
     clearAuthMessage();
-    auth.languageCode = lang;
+    auth.languageCode = currentLang;
     try {
         const { sender } = await sendResetEmail(email);
         authMessage(`${t.resetNotice.replace('{email}', email)} ${resetSenderCopy(sender)}`, 'notice');
@@ -1628,7 +1701,7 @@ DOM.signupForm?.addEventListener('submit', async event => {
     clearAuthMessage();
     let createdUser = null;
     try {
-        auth.languageCode = lang;
+        auth.languageCode = currentLang;
         const credential = await createUserWithEmailAndPassword(auth, email, password);
         createdUser = credential.user;
         try {
@@ -1750,7 +1823,7 @@ if (localPreviewState) {
         email: currentUser.email,
         phone: '+351 900 000 000',
         billingEmail: 'billing@example.com',
-        preferredLanguage: lang,
+        preferredLanguage: currentLang,
         onboardingCompleted: localPreviewState === 'completed',
         subscription: localPreviewState === 'empty' ? null : {
             planType: 'preferential', billingCycle: 'monthly', status: previewStatus,

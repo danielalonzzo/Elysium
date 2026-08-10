@@ -2,3 +2,16 @@
 # elysiumdr.eu/regalarte redirige (301) al despliegue de la app.
 /regalarte      https://regalarte.danielalonzzo.workers.dev/   301
 /regalarte/*    https://regalarte.danielalonzzo.workers.dev/   301
+
+# VALTRIX Engineering — el sitio pasó de tres servicios sobre bodega a dos
+# servicios especializados (control metrológico y tableros operativos), y las
+# páginas se renombraron para que la URL diga de qué trata cada una. Las rutas
+# viejas se mantienen vivas porque están enlazadas desde correos y propuestas
+# ya enviadas al cliente.
+#
+# Nota sobre el espacio del nombre de la carpeta: la URL pública lo lleva
+# codificado como %20, y así hay que escribirlo aquí.
+/VALTRIX%20Engineering/servicios    /VALTRIX%20Engineering/control-metrologico   301
+/VALTRIX%20Engineering/soluciones   /VALTRIX%20Engineering/tableros-de-control    301
+/VALTRIX%20Engineering/paquetes     /VALTRIX%20Engineering/precios                301
+/VALTRIX%20Engineering/nosotros     /VALTRIX%20Engineering/metodologia            301

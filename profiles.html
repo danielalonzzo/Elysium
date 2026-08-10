@@ -241,20 +241,20 @@
         <div class="container">
             <a href="./" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
             <div class="nav-links">
-                <a href="services" class="nav-link">Services</a>
-                <a href="portfolio" class="nav-link">Portfolio</a>
-                <a href="research" class="nav-link">Research</a>
-                <a href="about" class="nav-link">About</a>
-                <a href="profiles" class="nav-link active">Account</a>
-                <a href="contact" class="btn btn-primary">Contact</a>
+                <a href="services" class="nav-link" data-i18n="navServices">Services</a>
+                <a href="portfolio" class="nav-link" data-i18n="navPortfolio">Portfolio</a>
+                <a href="research" class="nav-link" data-i18n="navResearch">Research</a>
+                <a href="about" class="nav-link" data-i18n="navAbout">About</a>
+                <a href="profiles" class="nav-link active" data-i18n="navAccount">Account</a>
+                <a href="contact" class="btn btn-primary" data-i18n="navContact">Contact</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
                         aria-label="Select language"><span class="lang-current-label">EN</span> <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
-                        <a href="profiles" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="es/profiles" role="menuitem">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="pt/profiles" role="menuitem">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="#" class="lang-select" data-lang="en" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="#" class="lang-select" data-lang="es" role="menuitem">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="#" class="lang-select" data-lang="pt" role="menuitem">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                     </div>
                 </div>
             </div>
@@ -265,8 +265,8 @@
     <header class="page-header">
         <div class="parallax-lambda">λ</div>
         <div class="container animate-on-scroll">
-            <h1>Partner Portal</h1>
-            <p class="hero-subtitle">Exclusive access for Elysium partners</p>
+            <h1 data-i18n="heroTitle">Partner Portal</h1>
+            <p class="hero-subtitle" data-i18n="heroSubtitle">Exclusive access for Elysium partners</p>
         </div>
     </header>
 
@@ -281,74 +281,71 @@
                     <!-- Login Form -->
                     <div id="login-view">
                         <div class="auth-header">
-                            <h2>Login</h2>
-                            <p>Enter your credentials to access</p>
+                            <h2 data-i18n="loginTitle">Login</h2>
+                            <p data-i18n="loginSubtitle">Enter your credentials to access</p>
                         </div>
                         <form id="login-form">
                             <div class="form-group">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" id="login-email" class="form-control" required placeholder="name@company.com">
+                                <label class="form-label" data-i18n="emailAddress">Email Address</label>
+                                <input type="email" id="login-email" class="form-control" required placeholder="name@company.com" data-i18n="emailAddress">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Password</label>
-                                <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                                <label class="form-label" data-i18n="passwordField">Password</label>
+                                <input type="password" id="login-password" class="form-control" required placeholder="••••••••" data-i18n="passwordField">
                             </div>
-                            <div style="text-align: right; margin-top: -0.5rem;">
-                                <a href="#" id="show-reset-password" style="font-size: 0.85rem; color: var(--accent-blue); text-decoration: none;">Forgot password?</a>
-                            </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="signInBtn">Sign In</button>
                         </form>
                         <div class="auth-toggle">
-                            Don't have an account? <a href="#" id="show-signup">Create one</a>
+                            <span data-i18n="noAccount">Don't have an account?</span> <a href="#" id="show-signup" data-i18n="createOne">Create one</a>
                         </div>
                     </div>
 
                     <!-- Reset Password Form -->
                     <div id="reset-password-view" class="hidden">
                         <div class="auth-header">
-                            <h2>Reset Password</h2>
-                            <p>Enter your email to receive a reset link</p>
+                            <h2 data-i18n="resetTitle">Reset Password</h2>
+                            <p data-i18n="resetSubtitle">Enter your email to receive a reset link</p>
                         </div>
                         <form id="reset-password-form">
                             <div class="form-group">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" id="reset-email" class="form-control" required placeholder="name@company.com">
+                                <label class="form-label" data-i18n="emailAddress">Email Address</label>
+                                <input type="email" id="reset-email" class="form-control" required placeholder="name@company.com" data-i18n="emailAddress">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Send Reset Link</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="sendReset">Send Reset Link</button>
                         </form>
                         <div class="auth-toggle">
-                            Remembered your password? <a href="#" id="back-to-login">Sign in</a>
+                            <span data-i18n="rememberedPassword">Remembered your password?</span> <a href="#" id="back-to-login" data-i18n="signInText">Sign in</a>
                         </div>
                     </div>
 
                     <!-- Signup Form -->
                     <div id="signup-view" class="hidden">
                         <div class="auth-header">
-                            <h2>Join Elysium</h2>
-                            <p>Create your partner account — free to start</p>
+                            <h2 data-i18n="joinTitle">Join Elysium</h2>
+                            <p data-i18n="joinSubtitle">Create your partner account — free to start</p>
                         </div>
                         <form id="signup-form">
                             <div class="form-group">
-                                <label class="form-label">Full Name *</label>
+                                <label class="form-label" data-i18n="fullNameField">Full Name *</label>
                                 <input type="text" id="signup-name" class="form-control" required placeholder="John Doe">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Company Name <span style="font-size:0.78rem;color:var(--color-text-secondary);">(optional)</span></label>
+                                <label class="form-label"><span data-i18n="companyNameField">Company Name</span> <span style="font-size:0.78rem;color:var(--color-text-secondary);" data-i18n="optionalText">(optional)</span></label>
                                 <input type="text" id="signup-company" class="form-control" placeholder="Acme Corp">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Email Address *</label>
-                                <input type="email" id="signup-email" class="form-control" required placeholder="name@company.com">
+                                <label class="form-label" data-i18n="emailAddress">Email Address *</label>
+                                <input type="email" id="signup-email" class="form-control" required placeholder="name@company.com" data-i18n="emailAddress">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Password *</label>
-                                <input type="password" id="signup-password" class="form-control" required placeholder="Min. 8 characters">
+                                <label class="form-label" data-i18n="passwordField">Password *</label>
+                                <input type="password" id="signup-password" class="form-control" required placeholder="Min. 8 characters" data-i18n="passwordField">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Repeat Password *</label>
-                                <input type="password" id="signup-password-repeat" class="form-control" required placeholder="Min. 8 characters">
+                                <label class="form-label" data-i18n="repeatPassword">Repeat Password *</label>
+                                <input type="password" id="signup-password-repeat" class="form-control" required placeholder="Min. 8 characters" data-i18n="repeatPassword">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="createAccount">Create Account</button>
                         </form>
                         <div class="auth-toggle">
                             Already have an account? <a href="#" id="show-login">Sign in</a>
@@ -595,7 +592,7 @@
                             <!-- Plan 1 -->
                             <div class="sub-card">
                                 <div>
-                                    <h4 class="sub-title">Domain & Hosting</h4>
+                                    <h4 class="sub-title">Hosting</h4>
                                     <p class="sub-subtitle">The Operational Core.</p>
                                     <p class="sub-price">€99 <span class="sub-period">/ year</span></p>
                                     <ul class="sub-features">
@@ -628,7 +625,7 @@
                             <div class="sub-card featured-sub">
                                 <div class="featured-badge">Most Popular</div>
                                 <div>
-                                    <h4 class="sub-title">System</h4>
+                                    <h4 class="sub-title">Infrastructure</h4>
                                     <p class="sub-subtitle">Where your client history lives.</p>
                                     <p class="sub-price">€99 <span class="sub-period">/ month</span></p>
                                     <ul class="sub-features">
@@ -645,11 +642,11 @@
                             <!-- Plan 4 -->
                             <div class="sub-card">
                                 <div>
-                                    <h4 class="sub-title">Operations</h4>
+                                    <h4 class="sub-title">Ecosystem</h4>
                                     <p class="sub-subtitle">Where the money moves.</p>
                                     <p class="sub-price">€120 <span class="sub-period">/ month</span></p>
                                     <ul class="sub-features">
-                                        <li>Everything in System</li>
+                                        <li>Everything in Infrastructure</li>
                                         <li>Online payments and session packs</li>
                                         <li>Occupancy and no-show reporting</li>
                                         <li>Custom-built scalable software</li>
@@ -787,7 +784,7 @@
     <script src="JS/elysium-mouse.js"></script>
     <script src="JS/elysium-audio.js"></script>
     <script src="JS/version-modal.js"></script>
-    <script type="module" src="JS/profiles.js?v=2026080701"></script>
+    <script type="module" src="JS/profiles.js?v=2026081001"></script>
     
 </body>
 

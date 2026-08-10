@@ -437,3 +437,24 @@ exports.onMeetingWritten = functions
       return null; // Return null to prevent infinite retries if not configured
     }
   });
+
+// ─── CORREO DEL CRM ────────────────────────────────────────────────────────
+//
+// Aquí vivía `sendCustomEmail`, una función invocable que aceptaba `from`, `to`,
+// `subject`, `html` y adjuntos y los enviaba por Resend. Se ha retirado por dos
+// motivos, y ninguno se arregla ajustándola:
+//
+//  1. **No comprobaba que quien llamaba fuese administrador.** Su propio
+//     comentario lo decía: «let's allow any authenticated user for now». Como
+//     el portal de cliente permite registrarse, cualquier cliente con sesión
+//     podía enviar correo con `from: info@elysiumdr.eu` y adjuntos arbitrarios
+//     a cualquier dirección. Era un relé abierto para suplantar a la empresa.
+//  2. **Enviaba por Resend**, que no está configurado en este repositorio:
+//     `RESEND_API_KEY` no aparece en ningún `.env.example` ni en el despliegue.
+//     El correo que sale de verdad es el de `backend/platform-server.js`, por
+//     SMTP contra el buzón de IONOS, que es además quien posee las direcciones
+//     `info@` y `daniel.morales@`.
+//
+// El CRM redacta ahora contra `POST /api/mail/send` de ese servicio: exige el
+// claim de administrador, elige el remitente de una lista cerrada del servidor
+// y limita tamaño y número de adjuntos.

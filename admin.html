@@ -112,6 +112,14 @@
                 <span class="portal-nav-badge" id="sidebar-agenda-count">0</span>
             </button>
 
+            <button type="button" class="portal-nav-item" data-target="mail" id="nav-mail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+                <span class="portal-nav-text">Mail</span>
+            </button>
+
             <button type="button" class="portal-nav-item" data-target="licenses" id="nav-licenses">
                 <!-- Licenses icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -188,13 +196,12 @@
             <!-- Global Revenue Chart -->
             <div class="portal-card overview-panel" style="margin-bottom: 2rem;">
                 <div class="overview-panel-header">
-                    <h3 class="overview-panel-title">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
-                            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                            <polyline points="17 6 23 6 23 12"></polyline>
-                        </svg>
-                        Global Revenue (Last 6 Months)
-                    </h3>
+                    <div>
+                        <h4 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                            <i data-lucide="trending-up" style="width: 1rem; height: 1rem; color: var(--color-accent-primary);"></i>
+                        Global Revenue (Last 12 Months)
+                        </h4>
+                    </div>
                 </div>
                 <div style="height: 300px; width: 100%;">
                     <canvas id="globalRevenueChart"></canvas>
@@ -411,6 +418,78 @@
             </div>
         </section>
 
+        <!-- ─── MAIL ─── -->
+        <section id="mail" class="portal-section">
+            <div class="portal-header">
+                <div>
+                    <h1 id="mail-title">Mail</h1>
+                    <p class="color-text-secondary" id="mail-desc">Compose and dispatch premium HTML campaigns.</p>
+                </div>
+            </div>
+
+            <div class="mail-premium-layout">
+                <article class="agenda-panel mail-compose-panel" style="max-width: 800px; margin: 0 auto; width: 100%;">
+                    
+                    <form id="mail-compose-form" class="mail-premium-form" novalidate>
+                        
+                        <!-- Premium file upload zone -->
+                        <div class="mail-upload-zone" id="mail-upload-zone" onclick="document.getElementById('mail-template').click()">
+                            <input id="mail-template" name="template" type="file" accept=".html,.htm,text/html" required hidden>
+                            <div class="mail-upload-content">
+                                <div class="mail-upload-icon-wrapper">
+                                    <svg class="mail-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                    </svg>
+                                </div>
+                                <h3 class="mail-upload-title">Upload HTML Template</h3>
+                                <p class="mail-upload-desc">Drag and drop your ready-to-send HTML file here, or <span class="mail-upload-browse" style="color: #6366f1; cursor: pointer;">browse files</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Live HTML Preview -->
+                        <div id="mail-live-preview-container" hidden style="margin-top: 1.5rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.2);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <span style="font-weight: 500; font-size: 0.85rem; color: #a0a5b5; letter-spacing: 0.05em; text-transform: uppercase;">Template Preview</span>
+                                    <span class="mail-file-name" id="mail-file-name" style="font-size: 0.85rem; color: #fff; background: rgba(255,255,255,0.1); padding: 0.15rem 0.5rem; border-radius: 4px;"></span>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" id="mail-remove-template-btn" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">Change File</button>
+                            </div>
+                            <iframe id="mail-live-preview-frame" style="width: 100%; height: 500px; border: 0; background: #fff;" sandbox="allow-same-origin"></iframe>
+                        </div>
+
+                        <div class="meeting-form-grid mail-premium-fields" style="margin-top: 2rem;">
+                            <label class="meeting-field">
+                                <span id="mail-label-from">Sender Address</span>
+                                <select id="mail-sender" name="sender" required>
+                                    <option value="info@elysiumdr.eu">info@elysiumdr.eu</option>
+                                    <option value="daniel.morales@elysiumdr.eu">daniel.morales@elysiumdr.eu</option>
+                                </select>
+                            </label>
+
+                            <label class="meeting-field">
+                                <span id="mail-label-to">Recipient Email</span>
+                                <input id="mail-recipient" name="recipient" type="email" required autocomplete="off" placeholder="client@example.com">
+                            </label>
+
+                            <label class="meeting-field meeting-field-wide">
+                                <span id="mail-label-subject">Subject Line</span>
+                                <input id="mail-subject" name="subject" type="text" maxlength="250" autocomplete="off" required placeholder="Enter a subject for this campaign">
+                            </label>
+                        </div>
+
+                        <div class="meeting-form-footer" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <p id="mail-form-message" class="meeting-form-message" aria-live="polite" style="margin:0;"></p>
+                            <button id="mail-send-btn" class="btn btn-primary mail-btn-dispatch" type="submit" style="display: flex; gap: 0.5rem; align-items: center; padding: 0.75rem 1.5rem; font-weight: 500;">
+                                <span>Dispatch Campaign</span>
+                                <svg class="mail-btn-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                            </button>
+                        </div>
+                    </form>
+                </article>
+            </div>
+        </section>
+
         <section id="licenses" class="portal-section">
             <div class="portal-header">
                 <div>
@@ -617,7 +696,7 @@
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="JS/admin.js?v=2026080606"></script>
+    <script type="module" src="JS/admin.js?v=2026081016"></script>
     <script src="JS/version-modal.js"></script>
 </body>
 </html>

@@ -28,6 +28,12 @@ const {
   sendEmail,
   serializeMeeting,
   passwordResetRateLimited,
+  MailValidationError,
+  mailSenders,
+  findMailSender,
+  validateMailAttachments,
+  safeAttachmentName,
+  htmlToPlainText,
   passwordResetEmail,
   passwordResetEmailConfigured,
   passwordResetContinueUrl
@@ -252,4 +258,76 @@ test('password-reset helpers remain neutral, localized and rate limited', () => 
   assert.equal(passwordResetRateLimited('email:key', 2, 1_001, attempts), false);
   assert.equal(passwordResetRateLimited('email:key', 2, 1_002, attempts), true);
   assert.equal(passwordResetRateLimited('email:key', 2, 1_000 + 60 * 60 * 1000, attempts), false);
+});
+
+/* ── Correo del CRM ───────────────────────────────────────────────────────── */
+
+test('the CRM sender list is closed and comes from the server', () => {
+  const saved = process.env.CRM_MAIL_SENDERS;
+  process.env.CRM_MAIL_SENDERS =
+    'Elysium <info@elysiumdr.eu>, Daniel Morales <daniel.morales@elysiumdr.eu>';
+
+  const senders = mailSenders();
+  assert.equal(senders.length, 2);
+  assert.equal(senders[0].address, 'info@elysiumdr.eu');
+  assert.equal(senders[0].name, 'Elysium');
+  assert.equal(senders[1].name, 'Daniel Morales');
+  assert.equal(senders[1].envSuffix, 'DANIEL_MORALES');
+
+  // El buzón autenticado puede enviar; el otro no, mientras no traiga sus
+  // propias credenciales. Es lo que impide que IONOS rechace el envío después
+  // de que el administrador haya redactado el mensaje.
+  assert.equal(senders[0].ready, true);
+  assert.equal(senders[1].ready, false);
+
+  process.env.SMTP_USER_DANIEL_MORALES = 'daniel.morales@elysiumdr.eu';
+  process.env.SMTP_PASSWORD_DANIEL_MORALES = 'unit-tests';
+  assert.equal(mailSenders()[1].ready, true);
+  delete process.env.SMTP_USER_DANIEL_MORALES;
+  delete process.env.SMTP_PASSWORD_DANIEL_MORALES;
+
+  // Una dirección que no esté en la lista no se resuelve: no hay forma de que
+  // el navegador imponga un remitente.
+  assert.equal(findMailSender('info@elysiumdr.eu').address, 'info@elysiumdr.eu');
+  assert.equal(findMailSender('INFO@elysiumdr.eu').address, 'info@elysiumdr.eu');
+  assert.equal(findMailSender('cualquiera@gmail.com'), null);
+  assert.equal(findMailSender(''), null);
+
+  process.env.CRM_MAIL_SENDERS = saved;
+});
+
+test('attachments are capped and their names sanitised', () => {
+  assert.deepEqual(validateMailAttachments(null), []);
+
+  const small = Buffer.from('hola').toString('base64');
+  const ok = validateMailAttachments([{ filename: 'a/../b factura 2026.pdf', content: small }]);
+  assert.equal(ok[0].filename, 'b factura 2026.pdf');
+  assert.equal(ok[0].contentType, 'application/octet-stream');
+
+  assert.throws(() => validateMailAttachments('nope'), MailValidationError);
+  assert.throws(() => validateMailAttachments([{ filename: 'x', content: '' }]), MailValidationError);
+  assert.throws(
+    () => validateMailAttachments(Array.from({ length: 11 }, () => ({ filename: 'x', content: small }))),
+    MailValidationError);
+
+  // 9 MB reales pasan del tope por archivo (8 MB).
+  const tooBig = { filename: 'big.zip', content: 'A'.repeat(Math.ceil(9 * 1024 * 1024 * 4 / 3)) };
+  assert.throws(() => validateMailAttachments([tooBig]), MailValidationError);
+
+  // Dos de 7 MB caben por separado pero superan el total (12 MB).
+  const sevenMb = () => ({ filename: 'f.pdf', content: 'A'.repeat(Math.ceil(7 * 1024 * 1024 * 4 / 3)) });
+  assert.throws(() => validateMailAttachments([sevenMb(), sevenMb()]), MailValidationError);
+
+  // Los dígitos sobreviven al saneado; los caracteres de control, no.
+  assert.equal(safeAttachmentName('informe-2026.pdf', 0), 'informe-2026.pdf');
+  assert.equal(safeAttachmentName('mal\u0000nombre<>.txt', 0), 'malnombre.txt');
+  assert.equal(safeAttachmentName('', 3), 'adjunto-4');
+});
+
+test('the plain-text part is derived from the HTML body', () => {
+  const text = htmlToPlainText('<h1>Hola</h1><p>Una <strong>prueba</strong>&nbsp;con &lambda; y &amp;.</p><br>Fin');
+  assert.match(text, /Hola/);
+  assert.match(text, /Una prueba con λ y &\./);
+  assert.doesNotMatch(text, /</);
+  assert.equal(htmlToPlainText('<style>p{color:red}</style><script>x()</script><p>Sólo esto</p>').trim(), 'Sólo esto');
 });
