@@ -2148,314 +2148,490 @@
     }
 }
 
-/* ─── MAIL ──────────────────────────────────────────────────────────────────
-   Sección de correo del CRM. Hereda los tokens de `CSS/base.css` y la caja de
-   `.agenda-panel`; lo de aquí es sólo lo que la agenda no tenía. */
-
-.customer-portal.is-admin .mail-layout {
+/* ─── Mail workspace v2 ───
+   Composer and preview use the same soft panels, spacing and controls as the
+   agenda. */
+.customer-portal.is-admin .mail-workspace {
     display: grid;
-    grid-template-columns: minmax(24rem, 1.35fr) minmax(18rem, 0.65fr);
+    grid-template-columns: minmax(30rem, 1.05fr) minmax(24rem, 0.95fr);
     gap: 1.25rem;
     align-items: start;
 }
 
-.customer-portal.is-admin .mail-form {
+.customer-portal.is-admin .mail-compose-panel,
+.customer-portal.is-admin .mail-preview-panel {
+    min-width: 0;
+}
+
+.customer-portal.is-admin .mail-panel-heading {
+    margin-bottom: 1.25rem;
+}
+
+.customer-portal.is-admin .mail-secure-chip,
+.customer-portal.is-admin .mail-preview-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    padding: 0.38rem 0.66rem;
+    border: 1px solid rgba(72, 180, 255, 0.2);
+    border-radius: 999px;
+    background: rgba(41, 151, 255, 0.07);
+    color: #9fcff5;
+    font-size: 0.66rem;
+    font-weight: 680;
+    letter-spacing: 0.025em;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-secure-chip > span:first-child {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: var(--portal-success, #40d896);
+    box-shadow: 0 0 0 0.2rem rgba(64, 216, 150, 0.1);
+}
+
+.customer-portal.is-admin .mail-preview-badge {
+    border-color: var(--portal-border);
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-muted, #76849a);
+}
+
+.customer-portal.is-admin .mail-preview-badge.is-ready {
+    border-color: rgba(64, 216, 150, 0.24);
+    background: rgba(64, 216, 150, 0.08);
+    color: #91e4bd;
+}
+
+.customer-portal.is-admin .mail-compose-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-top: 1.25rem;
+    gap: 1.25rem;
+}
+
+.customer-portal.is-admin .mail-fields-grid {
+    margin: 0;
 }
 
 .customer-portal.is-admin .mail-hint {
-    margin: 0.35rem 0 0;
-    color: var(--color-text-muted, #6b7280);
-    font-size: 0.7rem;
-    line-height: 1.5;
+    display: block;
+    margin-top: 0.36rem;
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.68rem;
+    font-weight: 450;
+    line-height: 1.45;
 }
 
 .customer-portal.is-admin .mail-hint.is-warning {
     color: var(--portal-warning, #f4c95d);
 }
 
-.customer-portal.is-admin .mail-field-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.customer-portal.is-admin .mail-asset-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.75rem;
-    margin-bottom: 0.4rem;
 }
 
-.customer-portal.is-admin .mail-field-actions {
+.customer-portal.is-admin .mail-asset-card {
+    position: relative;
     display: flex;
-    gap: 0.4rem;
+    min-height: 9.2rem;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 1rem;
+    background:
+        radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.08), transparent 42%),
+        rgba(255, 255, 255, 0.024);
+    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
-.customer-portal.is-admin .mail-ghost-btn,
-.customer-portal.is-admin .mail-file-btn {
-    padding: 0.35rem 0.65rem;
-    border: 1px solid var(--portal-border);
-    border-radius: 0.55rem;
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--color-text-secondary, #a0a5b5);
+.customer-portal.is-admin .mail-asset-card.is-dragover {
+    border-color: rgba(41, 151, 255, 0.52);
+    background: rgba(41, 151, 255, 0.08);
+    transform: translateY(-1px);
+}
+
+.customer-portal.is-admin .mail-asset-copy {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .mail-asset-copy strong {
+    display: block;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.79rem;
+    font-weight: 690;
+}
+
+.customer-portal.is-admin .mail-asset-copy p {
+    margin: 0.24rem 0 0;
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.68rem;
+    line-height: 1.48;
+}
+
+.customer-portal.is-admin .mail-asset-icon {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(41, 151, 255, 0.18);
+    border-radius: 0.76rem;
+    background: rgba(41, 151, 255, 0.075);
+    color: #78c5ff;
+}
+
+.customer-portal.is-admin .mail-asset-icon svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.customer-portal.is-admin .mail-asset-action {
+    padding: 0.48rem 0.72rem;
+    border: 1px solid rgba(116, 174, 222, 0.24);
+    border-radius: 0.68rem;
+    background: rgba(255, 255, 255, 0.04);
+    color: #c9d9e8;
     font: inherit;
     font-size: 0.7rem;
-    line-height: 1.4;
+    font-weight: 650;
     cursor: pointer;
-    transition: border-color var(--transition-medium), color var(--transition-medium);
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
 }
 
-.customer-portal.is-admin .mail-ghost-btn:hover,
-.customer-portal.is-admin .mail-file-btn:hover {
-    border-color: var(--portal-info, #2997ff);
-    color: var(--color-text-primary, #e1e1e5);
+.customer-portal.is-admin .mail-asset-action:hover,
+.customer-portal.is-admin .mail-asset-action:focus-visible {
+    border-color: rgba(41, 151, 255, 0.5);
+    background: rgba(41, 151, 255, 0.08);
+    color: #ffffff;
+    outline: none;
 }
 
-/* El cuerpo es HTML a mano: monoespaciada, y sin corrección automática que
-   destroce las etiquetas al escribirlas. */
-.customer-portal.is-admin .mail-body {
-    min-height: 16rem;
-    font-family: 'SFMono-Regular', Menlo, Consolas, 'Courier New', monospace;
-    font-size: 0.78rem;
-    line-height: 1.6;
-    resize: vertical;
-    white-space: pre;
-    overflow-wrap: normal;
-    overflow-x: auto;
+.customer-portal.is-admin .mail-selected-file {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.62rem;
+    border: 1px solid rgba(64, 216, 150, 0.2);
+    border-radius: 0.72rem;
+    background: rgba(64, 216, 150, 0.065);
+}
+
+.customer-portal.is-admin .mail-selected-file[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-selected-file-name {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    color: #bcebd5;
+    font-size: 0.68rem;
+    font-weight: 610;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-selected-file button,
+.customer-portal.is-admin .mail-attachment-remove {
+    display: grid;
+    width: 1.45rem;
+    height: 1.45rem;
+    flex: 0 0 auto;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-selected-file button:hover,
+.customer-portal.is-admin .mail-attachment-remove:hover {
+    background: rgba(255, 118, 118, 0.12);
+    color: var(--portal-danger, #ff7676);
 }
 
 .customer-portal.is-admin .mail-attachment-list {
     display: flex;
+    width: 100%;
     flex-direction: column;
-    gap: 0.35rem;
-    margin: 0.6rem 0 0;
+    gap: 0.38rem;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
 
+.customer-portal.is-admin .mail-attachment-list:empty {
+    display: none;
+}
+
 .customer-portal.is-admin .mail-attachment-list li {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.45rem 0.6rem;
+    gap: 0.48rem;
+    padding: 0.44rem 0.5rem 0.44rem 0.62rem;
     border: 1px solid var(--portal-border);
-    border-radius: 0.6rem;
-    background: rgba(255, 255, 255, 0.02);
+    border-radius: 0.68rem;
+    background: rgba(0, 0, 0, 0.12);
     color: var(--color-text-secondary, #a0a5b5);
-    font-size: 0.72rem;
+    font-size: 0.66rem;
+}
+
+.customer-portal.is-admin .mail-attachment-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .customer-portal.is-admin .mail-attachment-list li.is-oversize {
-    border-color: rgba(255, 118, 118, 0.5);
+    border-color: rgba(255, 118, 118, 0.48);
     color: var(--portal-danger, #ff7676);
 }
 
 .customer-portal.is-admin .mail-attachment-size {
-    flex: none;
+    color: var(--color-text-muted, #76849a);
     font-variant-numeric: tabular-nums;
 }
 
-/* ── Biblioteca de plantillas ── */
-
-.customer-portal.is-admin .mail-template-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 1rem;
+.customer-portal.is-admin .mail-compose-footer {
+    min-height: 3.25rem;
+    margin-top: 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--portal-border);
 }
 
-.customer-portal.is-admin .mail-template-card {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.6rem;
-    padding: 0.65rem 0.75rem;
+.customer-portal.is-admin .mail-compose-footer .meeting-form-message {
+    margin: 0;
+}
+
+.customer-portal.is-admin .mail-send-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+}
+
+.customer-portal.is-admin .mail-send-button svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.customer-portal.is-admin .mail-preview-panel {
+    position: sticky;
+    top: 1.25rem;
+}
+
+.customer-portal.is-admin .mail-preview-stage {
+    position: relative;
+    min-height: clamp(30rem, 64vh, 43rem);
+    overflow: hidden;
     border: 1px solid var(--portal-border);
-    border-radius: 0.75rem;
-    background: rgba(255, 255, 255, 0.02);
-    text-align: left;
+    border-radius: 1rem;
+    background: #f4f5f7;
+    box-shadow: inset 0 0 0 0.4rem rgba(255, 255, 255, 0.24);
 }
 
-.customer-portal.is-admin .mail-template-open {
-    flex: 1 1 auto;
-    min-width: 0;
-    padding: 0;
-    border: 0;
-    background: none;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-}
-
-.customer-portal.is-admin .mail-template-name {
-    display: block;
-    overflow: hidden;
-    color: var(--color-text-primary, #e1e1e5);
-    font-size: 0.8rem;
-    font-weight: 620;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.customer-portal.is-admin .mail-template-meta {
-    display: block;
-    margin-top: 0.15rem;
-    overflow: hidden;
-    color: var(--color-text-muted, #6b7280);
-    font-size: 0.68rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.customer-portal.is-admin .mail-template-delete {
-    flex: none;
-    padding: 0.2rem 0.45rem;
-    border: 1px solid transparent;
-    border-radius: 0.45rem;
-    background: none;
-    color: var(--color-text-muted, #6b7280);
-    font: inherit;
-    font-size: 0.68rem;
-    cursor: pointer;
-}
-
-.customer-portal.is-admin .mail-template-delete:hover {
-    border-color: rgba(255, 118, 118, 0.5);
-    color: var(--portal-danger, #ff7676);
-}
-
-.customer-portal.is-admin .mail-template-empty {
-    padding: 1rem 0;
-    color: var(--color-text-muted, #6b7280);
-    font-size: 0.74rem;
+.customer-portal.is-admin .mail-preview-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    padding: 2rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #667085;
     text-align: center;
 }
 
-/* ── Vista previa ── */
-
-.customer-portal.is-admin .mail-preview-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
+.customer-portal.is-admin .mail-preview-empty > span {
     display: grid;
-    padding: clamp(1rem, 4vw, 3rem);
-    background: rgba(2, 4, 16, 0.72);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    width: 3.8rem;
+    height: 3.8rem;
+    margin-bottom: 1rem;
     place-items: center;
+    border: 1px solid #dbe6ef;
+    border-radius: 1.3rem;
+    background: #ffffff;
+    color: #2997ff;
+    font-family: Georgia, serif;
+    font-size: 1.8rem;
+    box-shadow: 0 0.8rem 2.2rem rgba(20, 69, 111, 0.08);
 }
 
-.customer-portal.is-admin .mail-preview-backdrop[hidden] {
+.customer-portal.is-admin .mail-preview-empty strong {
+    color: #263648;
+    font-size: 0.9rem;
+}
+
+.customer-portal.is-admin .mail-preview-empty p {
+    max-width: 18rem;
+    margin: 0.42rem 0 0;
+    font-size: 0.74rem;
+    line-height: 1.55;
+}
+
+.customer-portal.is-admin .mail-preview-stage iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #f7f4ee;
+}
+
+.customer-portal.is-admin .mail-preview-stage iframe[hidden] {
     display: none;
 }
 
-.customer-portal.is-admin .mail-preview-dialog {
-    display: flex;
-    width: min(46rem, 100%);
-    max-height: 100%;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid var(--portal-border);
-    border-radius: clamp(1rem, 2vw, var(--radius-md, 24px));
-    background: var(--portal-surface-solid, #081327);
-    box-shadow: var(--portal-shadow-soft);
+.customer-portal.is-admin .mail-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    padding: 1rem;
+    place-items: center;
+    background: rgba(1, 7, 18, 0.76);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.customer-portal.is-admin .mail-preview-head {
+.customer-portal.is-admin .mail-confirm-backdrop[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-confirm-dialog {
+    width: min(31rem, 100%);
+    padding: clamp(1.25rem, 4vw, 2rem);
+    border: 1px solid rgba(123, 179, 224, 0.2);
+    border-radius: 1.5rem;
+    background:
+        radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.13), transparent 42%),
+        #081427;
+    box-shadow: 0 1.75rem 5rem rgba(0, 0, 0, 0.42);
+}
+
+.customer-portal.is-admin .mail-confirm-mark {
+    display: grid;
+    width: 2.8rem;
+    height: 2.8rem;
+    margin-bottom: 1.25rem;
+    place-items: center;
+    border: 1px solid rgba(41, 151, 255, 0.26);
+    border-radius: 0.95rem;
+    background: rgba(41, 151, 255, 0.1);
+    color: #76c7ff;
+}
+
+.customer-portal.is-admin .mail-confirm-mark svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.customer-portal.is-admin .mail-confirm-dialog h2 {
+    margin: 0.45rem 0 0.42rem;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 1.28rem;
+}
+
+.customer-portal.is-admin .mail-confirm-dialog > p {
+    margin: 0;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.76rem;
+    line-height: 1.55;
+}
+
+.customer-portal.is-admin .mail-confirm-summary {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.9rem 1.1rem;
+    flex-direction: column;
+    margin: 1.35rem 0;
+    border: 1px solid var(--portal-border);
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.customer-portal.is-admin .mail-confirm-summary > div {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.72rem 0.85rem;
     border-bottom: 1px solid var(--portal-border);
 }
 
-.customer-portal.is-admin .mail-preview-head h3 {
+.customer-portal.is-admin .mail-confirm-summary > div:last-child {
+    border-bottom: 0;
+}
+
+.customer-portal.is-admin .mail-confirm-summary dt,
+.customer-portal.is-admin .mail-confirm-summary dd {
     margin: 0;
-    font-size: 0.9rem;
-    font-weight: 640;
+    font-size: 0.7rem;
+    line-height: 1.45;
 }
 
-/* Fondo claro: el correo se maqueta para clientes de correo, no para el
-   portal oscuro, y en oscuro no se vería lo que va a recibir el cliente. */
-.customer-portal.is-admin .mail-preview-frame {
-    width: 100%;
-    height: min(70vh, 40rem);
-    border: 0;
-    background: #f4f7fb;
+.customer-portal.is-admin .mail-confirm-summary dt {
+    color: var(--color-text-muted, #76849a);
 }
 
-@media (max-width: 1080px) {
-    .customer-portal.is-admin .mail-layout {
+.customer-portal.is-admin .mail-confirm-summary dd {
+    overflow-wrap: anywhere;
+    color: #dce8f2;
+    font-weight: 610;
+}
+
+.customer-portal.is-admin .mail-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+}
+
+@media (max-width: 1180px) {
+    .customer-portal.is-admin .mail-workspace {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .customer-portal.is-admin .mail-preview-panel {
+        position: static;
+    }
+
+    .customer-portal.is-admin .mail-preview-stage {
+        min-height: 38rem;
     }
 }
 
-/* Premium Mail Uploader Styles */
-.customer-portal.is-admin .mail-upload-zone {
-    border: 2px dashed rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.02);
-    padding: 3rem 2rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
+@media (max-width: 720px) {
+    .customer-portal.is-admin .mail-asset-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 
-.customer-portal.is-admin .mail-upload-zone:hover,
-.customer-portal.is-admin .mail-upload-zone.dragover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.04);
-}
+    .customer-portal.is-admin .mail-panel-heading {
+        align-items: flex-start;
+    }
 
-.customer-portal.is-admin .mail-upload-icon-wrapper {
-    background: rgba(255, 255, 255, 0.05);
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-    transition: transform 0.3s ease;
-}
+    .customer-portal.is-admin .mail-preview-stage {
+        min-height: 30rem;
+    }
 
-.customer-portal.is-admin .mail-upload-zone:hover .mail-upload-icon-wrapper {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.08);
-}
+    .customer-portal.is-admin .mail-confirm-summary > div {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.2rem;
+    }
 
-.customer-portal.is-admin .mail-upload-icon {
-    width: 32px;
-    height: 32px;
-    color: var(--color-text-primary, #ffffff);
-}
+    .customer-portal.is-admin .mail-confirm-actions {
+        flex-direction: column-reverse;
+    }
 
-.customer-portal.is-admin .mail-upload-title {
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: var(--color-text-primary, #ffffff);
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.01em;
-}
-
-.customer-portal.is-admin .mail-upload-desc {
-    color: var(--color-text-secondary, #a0a5b5);
-    font-size: 0.95rem;
-    margin: 0;
-}
-
-.customer-portal.is-admin .mail-file-preview {
-    margin-top: 1.5rem;
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    padding: 0.75rem 1.25rem;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: #c7d2fe;
+    .customer-portal.is-admin .mail-confirm-actions .btn {
+        width: 100%;
+    }
 }

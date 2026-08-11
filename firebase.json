@@ -1,7 +1,4 @@
 {
-  "functions": {
-    "source": "functions"
-  },
   "firestore": {
     "rules": "firestore.rules"
   },
@@ -19,7 +16,7 @@
       "**/node_modules/**",
       "**/*.nosync/**",
       "backend/**",
-      "functions/**",
+      "**/pvp-credenciales/**",
       "worker/**",
       "_fuentes/**",
       "Prototipos/**",

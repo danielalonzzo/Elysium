@@ -45,6 +45,77 @@
             text-align: center;
             margin-bottom: 2rem;
         }
+
+        .auth-language {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            padding-bottom: 1.1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .auth-language > span {
+            color: var(--color-text-secondary);
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .auth-language-options {
+            display: inline-flex;
+            padding: 0.22rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.025);
+        }
+
+        .auth-language-options button {
+            min-width: 2.55rem;
+            padding: 0.42rem 0.68rem;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: var(--color-text-secondary);
+            font: inherit;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .auth-language-options button[aria-pressed="true"] {
+            background: rgba(41, 151, 255, 0.18);
+            color: #9fd7ff;
+            box-shadow: inset 0 0 0 1px rgba(41, 151, 255, 0.28);
+        }
+
+        .auth-form-meta {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -0.35rem;
+        }
+
+        .auth-form-meta a {
+            color: var(--color-accent);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .auth-form-meta a:hover,
+        .auth-form-meta a:focus-visible {
+            text-decoration: underline;
+        }
+
+        .auth-honeypot {
+            position: absolute !important;
+            left: -10000px !important;
+            width: 1px !important;
+            height: 1px !important;
+            overflow: hidden !important;
+        }
         
         .auth-header h2 {
             font-size: 2rem;
@@ -81,103 +152,6 @@
             text-decoration: underline;
         }
 
-        /* ── Subscription plan grid ── */
-        .subscription-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 1.25rem;
-            width: 100%;
-        }
-        .sub-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-md, 12px);
-            padding: 1.75rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            gap: 1.25rem;
-            transition: border-color 0.2s, transform 0.2s;
-            position: relative;
-        }
-        .sub-card:hover {
-            border-color: var(--color-accent);
-            transform: translateY(-2px);
-        }
-        .sub-card.featured-sub {
-            border-color: var(--color-accent);
-            background: rgba(41, 151, 255, 0.06);
-        }
-        .featured-badge {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--color-accent);
-            color: #fff;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding: 3px 14px;
-            border-radius: 50px;
-            white-space: nowrap;
-        }
-        .sub-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--color-platinum);
-            margin-bottom: 0.4rem;
-        }
-        .sub-price {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--color-accent);
-            margin: 0.5rem 0;
-        }
-        .sub-period {
-            font-size: 0.85rem;
-            font-weight: 400;
-            color: var(--color-text-secondary);
-        }
-        .sub-features {
-            list-style: none;
-            padding: 0;
-            margin: 0.75rem 0 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .sub-features li {
-            font-size: 0.82rem;
-            color: var(--color-text-secondary);
-            padding-left: 1.25rem;
-            position: relative;
-        }
-        .sub-features li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #00c875;
-            font-weight: 700;
-        }
-        .sub-btn { width: 100%; justify-content: center; font-size: 0.85rem; }
-
-        /* ── Billing toggle ── */
-        .billing-toggle-btn { transition: background 0.2s, color 0.2s; }
-
-        /* ── Pending payment banner ── */
-        #pending-payment-banner {
-            animation: fadeInDown 0.4s ease;
-        }
-        @keyframes fadeInDown {
-            from { opacity:0; transform:translateY(-10px); }
-            to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity:0; } to { opacity:1; }
-        }
-        
         .hidden {
             display: none;
         }
@@ -203,17 +177,6 @@
             line-height: 1.5;
         }
         
-        .profile-view {
-            text-align: center;
-        }
-        
-        .profile-card {
-            background: var(--glass-bg);
-            padding: 3rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--glass-border);
-        }
-
         .welcome-lambda {
             font-size: 4rem;
             color: var(--color-accent);
@@ -239,17 +202,17 @@
 
     <nav class="navbar">
         <div class="container">
-            <a href="./" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
+            <a href="./" class="nav-brand" data-localized-route=""><span class="brand-symbol">λ</span> ELYSIUM</a>
             <div class="nav-links">
-                <a href="services" class="nav-link" data-i18n="navServices">Services</a>
-                <a href="portfolio" class="nav-link" data-i18n="navPortfolio">Portfolio</a>
-                <a href="research" class="nav-link" data-i18n="navResearch">Research</a>
-                <a href="about" class="nav-link" data-i18n="navAbout">About</a>
-                <a href="profiles" class="nav-link active" data-i18n="navAccount">Account</a>
-                <a href="contact" class="btn btn-primary" data-i18n="navContact">Contact</a>
+                <a href="services" class="nav-link" data-localized-route="services" data-i18n="navServices">Services</a>
+                <a href="portfolio" class="nav-link" data-localized-route="portfolio" data-i18n="navPortfolio">Portfolio</a>
+                <a href="research" class="nav-link" data-localized-route="research" data-i18n="navResearch">Research</a>
+                <a href="about" class="nav-link" data-localized-route="about" data-i18n="navAbout">About</a>
+                <a href="profiles" class="nav-link active" data-localized-profile data-i18n="navAccount">Account</a>
+                <a href="contact" class="btn btn-primary" data-localized-route="contact" data-i18n="navContact">Contact</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Select language"><span class="lang-current-label">EN</span> <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                        aria-label="Select language" data-i18n-aria="authLanguage"><span class="lang-current-label">EN</span> <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
                         <a href="#" class="lang-select" data-lang="en" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
@@ -277,6 +240,14 @@
             <div id="auth-section">
                 <div class="auth-container animate-on-scroll">
                     <div id="error-message" class="hidden"></div>
+                    <div class="auth-language" aria-label="Interface language" data-i18n-aria="authLanguage">
+                        <span data-i18n="authLanguage">Interface language</span>
+                        <div class="auth-language-options">
+                            <button type="button" class="lang-select" data-lang="en" aria-label="English" aria-pressed="true">EN</button>
+                            <button type="button" class="lang-select" data-lang="es" aria-label="Español" aria-pressed="false">ES</button>
+                            <button type="button" class="lang-select" data-lang="pt" aria-label="Português" aria-pressed="false">PT</button>
+                        </div>
+                    </div>
                     
                     <!-- Login Form -->
                     <div id="login-view">
@@ -287,12 +258,13 @@
                         <form id="login-form">
                             <div class="form-group">
                                 <label class="form-label" data-i18n="emailAddress">Email Address</label>
-                                <input type="email" id="login-email" class="form-control" required placeholder="name@company.com" data-i18n="emailAddress">
+                                <input type="email" id="login-email" class="form-control" required placeholder="name@company.com" data-i18n-placeholder="emailPlaceholder">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" data-i18n="passwordField">Password</label>
-                                <input type="password" id="login-password" class="form-control" required placeholder="••••••••" data-i18n="passwordField">
+                                <input type="password" id="login-password" class="form-control" required placeholder="••••••••" data-i18n-placeholder="passwordPlaceholder">
                             </div>
+                            <div class="auth-form-meta"><a href="#" id="show-reset-password" data-i18n="forgotPassword">Forgot password?</a></div>
                             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="signInBtn">Sign In</button>
                         </form>
                         <div class="auth-toggle">
@@ -309,7 +281,7 @@
                         <form id="reset-password-form">
                             <div class="form-group">
                                 <label class="form-label" data-i18n="emailAddress">Email Address</label>
-                                <input type="email" id="reset-email" class="form-control" required placeholder="name@company.com" data-i18n="emailAddress">
+                                <input type="email" id="reset-email" class="form-control" required placeholder="name@company.com" data-i18n-placeholder="emailPlaceholder">
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="sendReset">Send Reset Link</button>
                         </form>
@@ -327,71 +299,74 @@
                         <form id="signup-form">
                             <div class="form-group">
                                 <label class="form-label" data-i18n="fullNameField">Full Name *</label>
-                                <input type="text" id="signup-name" class="form-control" required placeholder="John Doe">
+                                <input type="text" id="signup-name" class="form-control" required placeholder="John Doe" data-i18n-placeholder="namePlaceholder">
                             </div>
                             <div class="form-group">
                                 <label class="form-label"><span data-i18n="companyNameField">Company Name</span> <span style="font-size:0.78rem;color:var(--color-text-secondary);" data-i18n="optionalText">(optional)</span></label>
-                                <input type="text" id="signup-company" class="form-control" placeholder="Acme Corp">
+                                <input type="text" id="signup-company" class="form-control" placeholder="Acme Corp" data-i18n-placeholder="companyPlaceholder">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" data-i18n="emailAddress">Email Address *</label>
-                                <input type="email" id="signup-email" class="form-control" required placeholder="name@company.com" data-i18n="emailAddress">
+                                <label class="form-label" data-i18n="emailRequiredField">Email Address *</label>
+                                <input type="email" id="signup-email" class="form-control" required placeholder="name@company.com" data-i18n-placeholder="emailPlaceholder">
                             </div>
                             <div class="form-group">
-                                <label class="form-label" data-i18n="passwordField">Password *</label>
-                                <input type="password" id="signup-password" class="form-control" required placeholder="Min. 8 characters" data-i18n="passwordField">
+                                <label class="form-label" data-i18n="passwordRequiredField">Password *</label>
+                                <input type="password" id="signup-password" class="form-control" required placeholder="Min. 8 characters" data-i18n-placeholder="newPasswordPlaceholder">
                             </div>
                             <div class="form-group">
                                 <label class="form-label" data-i18n="repeatPassword">Repeat Password *</label>
-                                <input type="password" id="signup-password-repeat" class="form-control" required placeholder="Min. 8 characters" data-i18n="repeatPassword">
+                                <input type="password" id="signup-password-repeat" class="form-control" required placeholder="Min. 8 characters" data-i18n-placeholder="newPasswordPlaceholder">
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="createAccount">Create Account</button>
                         </form>
                         <div class="auth-toggle">
-                            Already have an account? <a href="#" id="show-login">Sign in</a>
+                            <span data-i18n="alreadyHaveAccount">Already have an account?</span> <a href="#" id="show-login" data-i18n="signInText">Sign in</a>
                             <br><br>
-                            <a href="#" id="show-prospect-from-signup" class="prospect-link">Start a Project Inquiry</a>
+                            <a href="#" id="show-prospect-from-signup" class="prospect-link" data-i18n="startProjectInquiry">Start a Project Inquiry</a>
                         </div>
                     </div>
 
                     <!-- Prospect Form -->
                     <div id="prospect-view" class="hidden">
                         <div class="auth-header">
-                            <h2>Start a Project</h2>
-                            <p>Register as a prospect to begin your journey</p>
+                            <h2 data-i18n="startProjectTitle">Start a Project</h2>
+                            <p data-i18n="startProjectSubtitle">Tell us what you would like to create</p>
                         </div>
                         <form id="prospect-form">
-                            <div class="form-group">
-                                <label class="form-label">Full Name *</label>
-                                <input type="text" id="prospect-name" class="form-control" required placeholder="John Doe">
+                            <div class="auth-honeypot" aria-hidden="true">
+                                <label for="prospect-website">Website</label>
+                                <input type="text" id="prospect-website" name="website" tabindex="-1" autocomplete="off">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Company Name *</label>
-                                <input type="text" id="prospect-company" class="form-control" required placeholder="Acme Corp">
+                                <label class="form-label" data-i18n="fullNameField">Full Name *</label>
+                                <input type="text" id="prospect-name" class="form-control" required placeholder="John Doe" data-i18n-placeholder="namePlaceholder">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Email Address *</label>
-                                <input type="email" id="prospect-email" class="form-control" required placeholder="Personal Email">
+                                <label class="form-label" data-i18n="companyRequiredField">Company Name *</label>
+                                <input type="text" id="prospect-company" class="form-control" required placeholder="Acme Corp" data-i18n-placeholder="companyPlaceholder">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Brief Project Description</label>
-                                <textarea id="prospect-description" class="form-control" rows="3" placeholder="What do you want to build?"></textarea>
+                                <label class="form-label" data-i18n="emailRequiredField">Email Address *</label>
+                                <input type="email" id="prospect-email" class="form-control" required placeholder="Personal email" data-i18n-placeholder="personalEmailPlaceholder">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" data-i18n="projectDescriptionField">Brief Project Description</label>
+                                <textarea id="prospect-description" class="form-control" rows="3" placeholder="What do you want to build?" data-i18n-placeholder="projectDescriptionPlaceholder"></textarea>
                             </div>
                             <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
                                 <input type="checkbox" id="prospect-is-client" style="width: auto;">
-                                <label for="prospect-is-client" class="form-label" style="margin-bottom: 0;">Are you already a client?</label>
+                                <label for="prospect-is-client" class="form-label" style="margin-bottom: 0;" data-i18n="alreadyClient">Are you already a client?</label>
                             </div>
                             <div class="form-group hidden" id="prospect-license-group">
-                                <label class="form-label">Elysium λ License Number *</label>
+                                <label class="form-label" data-i18n="licenseNumberField">Elysium λ License Number *</label>
                                 <input type="text" id="prospect-license" class="form-control" placeholder="ELY-XXXX-XXXX-XXXX">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Send Project Request</button>
-                            <p id="prospect-success-msg" style="margin-top: 1rem; color: #00c875; display: none; text-align: center;">Your request has been sent! We will contact you soon.</p>
+                            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" data-i18n="sendProjectRequest">Send Project Request</button>
                         </form>
                         <div class="auth-toggle">
-                            Already have an account? <a href="#" id="show-login-from-prospect">Sign in</a>
+                            <span data-i18n="alreadyHaveAccount">Already have an account?</span> <a href="#" id="show-login-from-prospect" data-i18n="signInText">Sign in</a>
                             <br><br>
-                            Have a license? <a href="#" id="show-signup-from-prospect">Register as Client</a>
+                            <span data-i18n="haveLicense">Have a licence?</span> <a href="#" id="show-signup-from-prospect" data-i18n="registerAsClient">Register as a client</a>
                         </div>
                     </div>
                 </div>
@@ -399,383 +374,56 @@
         </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════
-         CLIENT DASHBOARD (SPA LAYOUT)
-    ═══════════════════════════════════════════════════════ -->
-    <div id="profile-section" class="hidden admin-wrapper" style="min-height: 100vh; width: 100vw; background: var(--color-bg); position: fixed; top: 0; left: 0; z-index: 9999;">
-        
-        <!-- SIDEBAR -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-admin-header">
-                <div class="sidebar-admin-avatar" style="background: rgba(41, 151, 255, 0.1); color: var(--color-accent);">C</div>
-                <div class="sidebar-admin-info">
-                    <div class="sidebar-admin-name" id="sidebar-welcome-name">Partner</div>
-                    <div class="sidebar-admin-role" id="sidebar-partner-company">Company Name</div>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <div class="sidebar-nav-group-label">Dashboard</div>
-
-                <div class="nav-item active" data-target="resumen" id="nav-resumen">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-                        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-                    </svg>
-                    <span>Resumen</span>
-                </div>
-
-                <!-- Tier 3+ only -->
-                <div class="nav-item" data-target="proyectos" id="nav-proyectos" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-                    </svg>
-                    <span>Proyectos</span>
-                </div>
-
-                <!-- Tier 3+ only -->
-                <div class="nav-item" data-target="documentos" id="nav-documentos" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span>Documentos</span>
-                </div>
-
-                <!-- Tier 4 only -->
-                <div class="nav-item" data-target="mensajes" id="nav-mensajes" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                    <span>Mensajes</span>
-                </div>
-
-                <!-- Tier 2+ only -->
-                <div class="nav-item" data-target="suscripciones" id="nav-suscripciones" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
-                    </svg>
-                    <span>Suscripción</span>
-                </div>
-
-                <!-- Always visible when subscription active -->
-                <div class="nav-item" data-target="facturacion" id="nav-facturacion" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                        <line x1="1" y1="10" x2="23" y2="10"></line>
-                    </svg>
-                    <span>Facturación</span>
-                </div>
-
-                <div class="nav-item" data-target="perfil" id="nav-perfil">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    <span>Perfil</span>
-                </div>
-            </nav>
-
-            <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto;">
-                <button id="logoutBtn" class="sidebar-logout-btn" style="justify-content: flex-start; padding: 0.75rem 1rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    <span>Sign Out</span>
-                </button>
-            </div>
-        </aside>
-
-        <!-- MAIN CONTENT -->
-        <main class="admin-main" style="height: 100vh; overflow-y: auto;">
-            
-            <!-- RESUMEN SECTION -->
-            <section id="resumen" class="admin-section active">
-                <div class="dashboard-header">
-                    <div>
-                        <h1 id="overview-title">Resumen</h1>
-                        <p class="color-text-secondary">Overview of your active projects and subscription.</p>
-                    </div>
-                </div>
-
-                <div class="profile-full-width">
-                    <!-- Active Projects -->
-                    <div class="overview-panel">
-                        <div class="overview-panel-header">
-                            <h3 class="overview-panel-title">Active Projects</h3>
-                        </div>
-                        <div id="client-projects-list" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                            <!-- JS injects projects here -->
-                            <p style="color: var(--color-text-secondary);">No active projects currently.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Quick Subscription Status -->
-                    <div class="overview-panel">
-                        <div class="overview-panel-header">
-                            <h3 class="overview-panel-title">Subscription Status</h3>
-                        </div>
-                        <div id="quick-sub-status">
-                            <p style="color: var(--color-text-secondary);">Loading status...</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PROYECTOS SECTION (Tier 3+) -->
-            <section id="proyectos" class="admin-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div>
-                        <h2>Proyectos</h2>
-                        <p class="color-text-secondary">Your active projects and deliverables.</p>
-                    </div>
-                </div>
-                <div class="profile-full-width">
-                    <div class="overview-panel">
-                        <div id="proyectos-list">
-                            <p style="color:var(--color-text-secondary);">No active projects currently.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- DOCUMENTOS SECTION (Tier 3+) -->
-            <section id="documentos" class="admin-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div>
-                        <h2>Documentos</h2>
-                        <p class="color-text-secondary">Shared files, reports, and project documents.</p>
-                    </div>
-                </div>
-                <div class="profile-full-width">
-                    <div class="overview-panel">
-                        <div id="documentos-list">
-                            <p style="color:var(--color-text-secondary);">No documents shared yet.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- MENSAJES SECTION (Tier 4) -->
-            <section id="mensajes" class="admin-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div>
-                        <h2>Mensajes</h2>
-                        <p class="color-text-secondary">Direct communication with your Elysium team.</p>
-                    </div>
-                </div>
-                <div class="profile-full-width">
-                    <div class="overview-panel">
-                        <p style="color:var(--color-text-secondary);">Messaging module coming soon.</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SUSCRIPCIONES SECTION -->
-            <section id="suscripciones" class="admin-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div>
-                        <h2>Suscripciones</h2>
-                        <p class="color-text-secondary">Manage and upgrade your Elysium services.</p>
-                    </div>
-                </div>
-
-                <div class="profile-full-width">
-                    <div class="overview-panel">
-                        <div class="overview-panel-header">
-                            <h3 class="overview-panel-title">Available Plans</h3>
-                        </div>
-                        
-                        <div class="subscription-grid">
-                            
-                            <!-- Plan 1 -->
-                            <div class="sub-card">
-                                <div>
-                                    <h4 class="sub-title">Hosting</h4>
-                                    <p class="sub-subtitle">The Operational Core.</p>
-                                    <p class="sub-price">€99 <span class="sub-period">/ year</span></p>
-                                    <ul class="sub-features">
-                                        <li>Domain management & identity</li>
-                                        <li>High-availability web hosting</li>
-                                        <li>Base infrastructure updates</li>
-                                    </ul>
-                                </div>
-                                <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="hosting">Subscribe</button>
-                            </div>
-
-                            <!-- Plan 2 -->
-                            <div class="sub-card">
-                                <div>
-                                    <h4 class="sub-title">Presence</h4>
-                                    <p class="sub-subtitle">Your storefront and your calendar.</p>
-                                    <p class="sub-price">€70 <span class="sub-period">/ month</span></p>
-                                    <ul class="sub-features">
-                                        <li>Website, domain, email and hosting</li>
-                                        <li>Online booking with automatic reminders</li>
-                                        <li>Client records</li>
-                                        <li>GDPR compliance kept current</li>
-                                        <li>One hour of changes per month</li>
-                                    </ul>
-                                </div>
-                                <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="basic">Subscribe</button>
-                            </div>
-
-                            <!-- Plan 3 -->
-                            <div class="sub-card featured-sub">
-                                <div class="featured-badge">Most Popular</div>
-                                <div>
-                                    <h4 class="sub-title">Infrastructure</h4>
-                                    <p class="sub-subtitle">Where your client history lives.</p>
-                                    <p class="sub-price">€99 <span class="sub-period">/ month</span></p>
-                                    <ul class="sub-features">
-                                        <li>Everything in Presence</li>
-                                        <li>Private client area with login and history</li>
-                                        <li>Administrator CRM</li>
-                                        <li>Availability and cancellation management</li>
-                                        <li>Up to 3 professionals · two hours of changes</li>
-                                    </ul>
-                                </div>
-                                <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="preferential">Subscribe</button>
-                            </div>
-
-                            <!-- Plan 4 -->
-                            <div class="sub-card">
-                                <div>
-                                    <h4 class="sub-title">Ecosystem</h4>
-                                    <p class="sub-subtitle">Where the money moves.</p>
-                                    <p class="sub-price">€120 <span class="sub-period">/ month</span></p>
-                                    <ul class="sub-features">
-                                        <li>Everything in Infrastructure</li>
-                                        <li>Online payments and session packs</li>
-                                        <li>Occupancy and no-show reporting</li>
-                                        <li>Custom-built scalable software</li>
-                                        <li>Unlimited professionals · four hours of changes</li>
-                                    </ul>
-                                </div>
-                                <button type="button" class="btn btn-primary sub-btn plan-select-btn" data-plan="advanced">Subscribe</button>
-                            </div>
-
-                            <!-- Plan 5 -->
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- FACTURACIÓN SECTION (billing history) -->
-            <section id="facturacion" class="admin-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div>
-                        <h2>Facturación</h2>
-                        <p class="color-text-secondary">Your payment history and invoices.</p>
-                    </div>
-                </div>
-                <div class="profile-full-width">
-                    <div class="overview-panel">
-                        <div id="facturacion-payments-list">
-                            <div class="premium-loader"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- PERFIL SECTION -->
-            <section id="perfil" class="admin-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div>
-                        <h2>Perfil</h2>
-                        <p class="color-text-secondary">View and manage your personal and corporate details.</p>
-                    </div>
-                </div>
-
-                <div class="profile-full-width">
-                    <div class="overview-panel">
-                        <div class="overview-panel-header">
-                            <h3 class="overview-panel-title">Información de la Cuenta</h3>
-                        </div>
-                        
-                        <div class="profile-details-grid">
-                            
-                            <div class="profile-avatar-container">
-                                <div class="profile-avatar-large">C</div>
-                                <div>
-                                    <h2 id="profile-name-large">Client Name</h2>
-                                    <p class="color-text-secondary">Elysium Partner</p>
-                                </div>
-                            </div>
-                            
-                            <div class="profile-info-fields">
-                                <div class="info-field">
-                                    <label>Full Name</label>
-                                    <div class="info-value" id="profile-name">-</div>
-                                </div>
-                                <div class="info-field">
-                                    <label>Email Address</label>
-                                    <div class="info-value" id="profile-email">-</div>
-                                </div>
-                                <div class="info-field">
-                                    <label>Company</label>
-                                    <div class="info-value" id="profile-company">-</div>
-                                </div>
-                                <div class="info-field">
-                                    <label>License Code</label>
-                                    <div class="info-value license-badge" id="profile-license">-</div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
+    <!-- The authenticated portal shell is generated by profiles.js. Keeping a
+         second hard-coded dashboard here previously left hundreds of lines of
+         unreachable, untranslated markup in the login page. -->
+    <div id="profile-section" class="hidden customer-portal"></div>
     <footer>
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-col">
                     <div class="footer-brand-wrapper">
-                        <a href="./" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
+                        <a href="./" class="nav-brand" data-localized-route=""><span class="brand-symbol">λ</span> ELYSIUM</a>
                         <div class="lang-switcher-dropdown footer-lang-switcher">
                             <button type="button" class="lang-switcher-trigger" aria-expanded="false"
-                                aria-haspopup="true" aria-label="Select language"><span
+                                aria-haspopup="true" aria-label="Select language" data-i18n-aria="authLanguage"><span
                                     class="lang-current-label">EN</span> <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
                                     aria-hidden="true">▼</span></button>
                             <div class="lang-switcher-menu" role="menu">
-                                <a href="./" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="es/" role="menuitem">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="pt/" role="menuitem">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="#" class="lang-select" data-lang="en" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="#" class="lang-select" data-lang="es" role="menuitem">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="#" class="lang-select" data-lang="pt" role="menuitem">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                             </div>
                         </div>
                     </div>
-                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, European Union</p>
+                    <p style="font-size: 0.9rem;">Elysium λ Development &amp; Research<br><span data-i18n="footerLocation">Portugal, European Union</span></p>
                 </div>
                 <div class="footer-col">
-                    <h4>Company</h4>
+                    <h4 data-i18n="footerCompany">Company</h4>
                     <ul class="footer-links">
-                        <li><a href="about">About</a></li>
-                        <li><a href="services">Services</a></li>
-                        <li><a href="portfolio">Portfolio</a></li>
-                        <li><a href="research">Research</a></li>
-                        <li><a href="contact">Contact</a></li>
+                        <li><a href="about" data-localized-route="about" data-i18n="navAbout">About</a></li>
+                        <li><a href="services" data-localized-route="services" data-i18n="navServices">Services</a></li>
+                        <li><a href="portfolio" data-localized-route="portfolio" data-i18n="navPortfolio">Portfolio</a></li>
+                        <li><a href="research" data-localized-route="research" data-i18n="navResearch">Research</a></li>
+                        <li><a href="contact" data-localized-route="contact" data-i18n="navContact">Contact</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Legal</h4>
+                    <h4 data-i18n="footerLegal">Legal</h4>
                     <ul class="footer-links">
-                        <li><a href="privacy">Privacy Policy</a></li>
-                        <li><a href="terms">Terms of Service</a></li>
+                        <li><a href="privacy" data-localized-route="privacy" data-i18n="privacyPolicy">Privacy Policy</a></li>
+                        <li><a href="terms" data-localized-route="terms" data-i18n="termsOfService">Terms of Service</a></li>
                     </ul>
                 </div>
                 <div class="footer-col">
-                    <h4>Connect</h4>
+                    <h4 data-i18n="footerConnect">Connect</h4>
                     <ul class="footer-links">
                         <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <span>&copy; 2026 Elysium λ Development & Research. All rights reserved.</span>
+                <span data-i18n="copyright">© 2026 Elysium λ Development &amp; Research. All rights reserved.</span>
             </div>
         </div>
     </footer>

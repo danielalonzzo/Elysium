@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
-import { getFunctions } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 
 // Tu configuración de Firebase
 const firebaseConfig = {
@@ -19,7 +18,6 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
-export const functions = getFunctions(app);
 
 // Analytics is deliberately optional. Authentication and the client portal
 // must continue to work when a privacy extension blocks Google Analytics.

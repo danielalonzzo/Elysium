@@ -8,9 +8,9 @@
  * URLs públicas no pasa por aquí.
  *
  * `/api/*` se reenvía a `elysium-billing` (el servicio de `backend/`), que es
- * quien agenda reuniones, envía la confirmación al cliente, la copia al
- * administrador y la invitación de calendario. Mantenerlo bajo el mismo origen
- * evita CORS y evita tener que abrir otro host en la CSP.
+ * quien agenda reuniones, entrega el correo del CRM, genera recuperaciones de
+ * contraseña y recibe las consultas públicas con límites de abuso. Mantenerlo
+ * bajo el mismo origen evita CORS y evita tener que abrir otro host en la CSP.
  *
  * Configuración: la variable `ELYSIUM_API_ORIGIN` apunta al servicio
  * desplegado (por ejemplo `https://elysium-billing-xxxx.europe-west1.run.app`).

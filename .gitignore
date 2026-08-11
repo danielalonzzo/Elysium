@@ -11,6 +11,10 @@ node_modules/
 .claude/
 .firebase/
 
+# Entregas confidenciales preparadas para clientes. Permanecen en el equipo del
+# administrador, pero nunca entran en Git ni en una publicación web.
+**/pvp-credenciales/
+
 # Prototipos/ vive dentro del repositorio, así que su material de trabajo entra
 # también por aquí. Lo que sigue es lo que no debe pesar en el historial.
 

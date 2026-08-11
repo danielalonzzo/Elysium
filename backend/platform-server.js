@@ -3,11 +3,14 @@
 /**
  * Elysium platform service.
  *
- * Agenda de reuniones (creación, cancelación y los correos que las acompañan) y
- * recuperación de contraseña. Las suscripciones y licencias las asigna el
- * administrador desde el CRM y viven en Firestore; aquí no se cobra nada.
+ * Agenda de reuniones, correo profesional del CRM, recuperación de contraseña
+ * y recepción protegida de consultas de proyecto. Las suscripciones y licencias
+ * las asigna el administrador desde el CRM y viven en Firestore; aquí no se
+ * cobra nada.
  */
 const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
 const express = require('express');
 const { applicationDefault, getApps, initializeApp } = require('firebase-admin/app');
 const { FieldValue, Timestamp, getFirestore } = require('firebase-admin/firestore');
@@ -30,6 +33,9 @@ const MAX_MEETING_RANGE_DAYS = 370;
 const PASSWORD_RESET_WINDOW_MS = 60 * 60 * 1000;
 const PASSWORD_RESET_EMAIL_LIMIT = 5;
 const PASSWORD_RESET_IP_LIMIT = 20;
+const PROSPECT_WINDOW_MS = 60 * 60 * 1000;
+const PROSPECT_EMAIL_LIMIT = 3;
+const PROSPECT_IP_LIMIT = 12;
 const SUPER_ADMIN_EMAILS = new Set(
   String(process.env.ADMIN_EMAILS || 'danielalonzzo@icloud.com')
     .split(',')
@@ -37,6 +43,7 @@ const SUPER_ADMIN_EMAILS = new Set(
     .filter(Boolean)
 );
 const passwordResetAttempts = new Map();
+const prospectAttempts = new Map();
 
 /** The site's public origin, used in links that travel inside emails. */
 function publicBaseUrl() {
@@ -386,52 +393,56 @@ function escapeHtml(value) {
 
 function emailTheme(content, preheader = '') {
   return `<!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
   <style>
-    @media (prefers-color-scheme: dark) {
-      .bg-body { background: #030a16 !important; }
-      .bg-card { background: #07152b !important; border: 1px solid #142e4d !important; box-shadow: 0 12px 40px rgba(0,0,0,0.4) !important; }
-      .text-main { color: #ffffff !important; }
-      .text-muted { color: #a3c2e0 !important; }
-      .text-light { color: #6482a3 !important; }
-      .border-top { border-top: 1px solid #142a4a !important; }
-      .notes-box { background: #0a1930 !important; }
-      .brand-logo { color: #ffffff !important; }
-    }
+    :root { color-scheme: light only; supported-color-schemes: light; }
+    body, table, td { color-scheme: light only !important; }
     @media (max-width: 600px) {
-      .container { padding: 20px 8px !important; }
-      .card { padding: 32px 24px !important; border-radius: 20px !important; }
+      .container { padding: 18px 8px !important; }
+      .card { padding: 32px 22px !important; }
       .title { font-size: 24px !important; margin-bottom: 16px !important; }
       .stack-mobile { display: block !important; width: 100% !important; text-align: left !important; }
       .stack-mobile td { display: block !important; text-align: left !important; padding: 4px 0 !important; border: none !important; }
-      .stack-mobile td:first-child { padding-top: 16px !important; color: #6482a3 !important; font-size: 13px !important; }
+      .stack-mobile td:first-child { padding-top: 16px !important; color: #60748a !important; font-size: 13px !important; }
       .stack-mobile td:last-child { padding-bottom: 16px !important; font-size: 16px !important; }
-      .border-top-mobile { border-top: 1px solid #e3eaf3 !important; }
-      @media (prefers-color-scheme: dark) {
-        .border-top-mobile { border-top: 1px solid #142a4a !important; }
-      }
+      .border-top-mobile { border-top: 1px solid #e7edf2 !important; }
       .btn { display: block !important; width: 100% !important; box-sizing: border-box !important; text-align: center !important; margin-bottom: 12px !important; }
       .btn-group { margin-top: 24px !important; }
       .hide-mobile { display: none !important; }
     }
   </style>
 </head>
-<body class="bg-body" style="margin:0;background:#f4f7fb;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased">
+<body class="bg-body" bgcolor="#f6f4ef" style="margin:0;background:#f6f4ef;color:#18334b;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0">${escapeHtml(preheader)}</div>
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="bg-body container" style="background:#f4f7fb;padding:40px 12px">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" bgcolor="#f6f4ef" class="bg-body container" style="width:100%;background:#f6f4ef;padding:42px 12px">
     <tr><td align="center">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px">
-        <tr><td class="brand-logo" style="padding:0 8px 32px;color:#0f172a;font-size:24px;font-weight:800;letter-spacing:.05em"><span style="color:#28a8ff">λ</span> ELYSIUM</td></tr>
-        <tr><td class="bg-card card" style="background:#ffffff;border:1px solid #e3eaf3;border-radius:24px;padding:48px 40px;box-shadow:0 12px 40px rgba(0,0,0,0.04)">${content}</td></tr>
-        <tr><td class="text-light" style="padding:32px 8px;color:#64748b;font-size:13px;line-height:1.6;text-align:center">Elysium Digital Experiences<br>elysiumdr.eu</td></tr>
+        <tr><td class="brand-logo" style="padding:0 10px 26px;color:#173e62;font-size:22px;font-weight:700;letter-spacing:.08em"><span style="color:#2997ff">λ</span>&nbsp; ELYSIUM</td></tr>
+        <tr><td class="bg-card card" bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e4e9ed;border-radius:30px;padding:48px 42px;box-shadow:0 18px 55px rgba(28,64,92,0.08)">${content}</td></tr>
+        <tr><td align="center" style="padding:28px 8px 0">
+          <img src="cid:elysium-email-seal" width="78" height="78" alt="Elysium seal" style="display:block;width:78px;height:78px;margin:0 auto 12px;border:0">
+          <p class="text-light" style="margin:0;color:#687c8d;font-size:12px;line-height:1.65;text-align:center">Elysium λ Development &amp; Research<br><a href="https://elysiumdr.eu" style="color:#47708f;text-decoration:none">elysiumdr.eu</a></p>
+        </td></tr>
       </table>
     </td></tr>
   </table>
 </body>
 </html>`;
+}
+
+/** Adds the official seal to an uploaded CRM template without a signature. */
+function withElysiumSeal(html) {
+  const source = String(html || '');
+  if (!source.trim() || source.includes('cid:elysium-email-seal')) return source;
+  const footer = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-top:28px"><tr><td align="center" style="padding:24px 12px 8px"><img src="cid:elysium-email-seal" width="78" height="78" alt="Sello Elysium" style="display:block;width:78px;height:78px;margin:0 auto 10px;border:0"><p style="margin:0;color:#687c8d;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">Elysium λ Development &amp; Research</p></td></tr></table>`;
+  return /<\/body\s*>/i.test(source)
+    ? source.replace(/<\/body\s*>/i, `${footer}</body>`)
+    : `${source}${footer}`;
 }
 
 const MEETING_COPY = {
@@ -501,7 +512,7 @@ function buildMeetingEmail(meeting, kind = 'confirmation') {
       ${row(copy.duration, `${Number(meeting.durationMinutes)} ${escapeHtml(copy.minutes)}`, '', 2)}
       ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone, '', 3)}
     </table>
-    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#f8fafc;border-left:4px solid #28a8ff;padding:16px 20px;border-radius:0 12px 12px 0"><p class="text-muted" style="margin:0;color:#475569;font-size:15px;line-height:1.6"><strong class="text-main" style="color:#0f172a;display:block;margin-bottom:4px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
+    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;border:1px solid #d6ebf7;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
     ${button}`;
 
   const subjectLabel = cancelled ? copy.subjectCancelled : copy.subjectConfirmed;
@@ -623,65 +634,9 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
       ${row(copy.duration, `${Number(meeting.durationMinutes)} ${escapeHtml(copy.minutes)}`, '', 4)}
       ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone || '—', '', 5)}
     </table>
-    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#f8fafc;border-left:4px solid #28a8ff;padding:16px 20px;border-radius:0 12px 12px 0"><p class="text-muted" style="margin:0;color:#475569;font-size:15px;line-height:1.6"><strong class="text-main" style="color:#0f172a;display:block;margin-bottom:4px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
+    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;border:1px solid #d6ebf7;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
     ${buttonGroup}`;
 
-  const subjectLabel = cancelled ? copy.adminSubjectCancelled : copy.adminSubjectConfirmed;
-  const who = meeting.clientName || meeting.clientEmail || '';
-  const text = [
-    `${heading}: ${meeting.title}`,
-    `${copy.adminClient}: ${who}`,
-    `${copy.adminEmail}: ${meeting.clientEmail || '—'}`,
-    `${copy.adminTime}: ${adminDate} (${meeting.adminTimeZone})`,
-    `${copy.yourTime}: ${clientDate} (${meeting.clientTimeZone})`,
-    `${copy.duration}: ${meeting.durationMinutes} ${copy.minutes}`,
-    !cancelled ? `${copy.join}: ${meeting.meetingUrl}` : '',
-    notes ? `${copy.notes}: ${notes}` : '',
-    `${copy.adminOpenCrm}: ${crmUrl}`
-  ].filter(Boolean).join('\n');
-  return {
-    subject: `${subjectLabel} · ${who} · ${meeting.title}`.trim(),
-    html: emailTheme(content, `${subjectLabel}: ${meeting.title}`),
-    text
-  };
-}
-
-/**
- * The administrator's own copy. Same theme, different job: it confirms the
- * client has already been told, and carries the details the CRM needs at a
- * glance — who, which address, and a link straight to their profile.
- */
-function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
-  const locale = normalizedLocale(meeting.locale);
-  const copy = MEETING_COPY[locale];
-  const cancelled = kind === 'cancellation';
-  const heading = cancelled ? copy.adminHeadingCancelled : copy.adminHeading;
-  const intro = cancelled ? copy.adminIntroCancelled : copy.adminIntro;
-  const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
-  const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
-  const notes = meeting.cancellationReason || meeting.notes || '';
-  const crmUrl = `${publicBaseUrl()}/admin?client=${encodeURIComponent(meeting.userId || '')}`;
-  const row = (label, value, extra = '') => `
-      <tr><td style="padding:16px 0;border-top:1px solid #142a4a;color:#6482a3;font-size:14px">${escapeHtml(label)}</td><td style="padding:16px 0;border-top:1px solid #142a4a;text-align:right;font-size:15px">${escapeHtml(value)}${extra}</td></tr>`;
-  const buttonGroup = `
-    <p style="margin:32px 0 4px">
-      ${cancelled ? '' : `<a href="${escapeHtml(meeting.meetingUrl)}" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.3)">${escapeHtml(copy.join)}</a>&nbsp;&nbsp;&nbsp;`}
-      <a href="${escapeHtml(crmUrl)}" style="display:inline-block;border:1px solid #28a8ff;color:#28a8ff;text-decoration:none;font-weight:600;padding:15px 27px;border-radius:999px;font-size:15px;letter-spacing:0.02em">${escapeHtml(copy.adminOpenCrm)}</a>
-    </p>`;
-  const content = `
-    <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(heading)}</p>
-    <h1 style="margin:0 0 20px;color:#fff;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(meeting.title)}</h1>
-    <p style="margin:0 0 32px;color:#a3c2e0;font-size:16px;line-height:1.6">${escapeHtml(intro)}</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#030a16;border:1px solid #142a4a;border-radius:16px;padding:8px 24px;color:#eaf3ff">
-      <tr><td style="padding:16px 0;color:#6482a3;font-size:14px">${escapeHtml(copy.adminClient)}</td><td style="padding:16px 0;text-align:right;font-weight:600;font-size:15px">${escapeHtml(meeting.clientName || '—')}</td></tr>
-      ${row(copy.adminEmail, meeting.clientEmail || '—')}
-      ${row(copy.adminTime, adminDate, `<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.adminTimeZone)}</span>`)}
-      ${row(copy.yourTime, clientDate, `<br><span style="color:#6482a3;font-size:13px;font-weight:400">${escapeHtml(meeting.clientTimeZone)}</span>`)}
-      ${row(copy.duration, `${Number(meeting.durationMinutes)} ${copy.minutes}`)}
-      ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone || '—')}
-    </table>
-    ${notes ? `<div style="margin:28px 0 0;background:#0a1930;border-left:4px solid #28a8ff;padding:16px 20px;border-radius:0 12px 12px 0"><p style="margin:0;color:#a3c2e0;font-size:15px;line-height:1.6"><strong style="color:#fff;display:block;margin-bottom:4px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
-    ${buttonGroup}`;
   const subjectLabel = cancelled ? copy.adminSubjectCancelled : copy.adminSubjectConfirmed;
   const who = meeting.clientName || meeting.clientEmail || '';
   const text = [
@@ -779,6 +734,22 @@ function messageIdDomain() {
   return (extractEmailAddress(from) || 'elysiumdr.eu').split('@').pop();
 }
 
+let emailSealBase64 = null;
+function elysiumSealAttachment() {
+  if (emailSealBase64 == null) {
+    emailSealBase64 = fs.readFileSync(
+      path.join(__dirname, 'assets', 'elysium-email-seal.png')
+    ).toString('base64');
+  }
+  return {
+    filename: 'elysium-email-seal.png',
+    content: emailSealBase64,
+    contentType: 'image/png',
+    cid: 'elysium-email-seal',
+    contentDisposition: 'inline'
+  };
+}
+
 async function sendEmail(payload, idempotencyKey, transportImpl = null) {
   const transport = transportImpl || emailTransport();
   if (!transport || !payload.from || !payload.to?.[0]) {
@@ -787,6 +758,11 @@ async function sendEmail(payload, idempotencyKey, transportImpl = null) {
     throw error;
   }
   try {
+    const attachments = [...(payload.attachments || [])];
+    if (String(payload.html || '').includes('cid:elysium-email-seal')
+      && !attachments.some(attachment => attachment.cid === 'elysium-email-seal')) {
+      attachments.push(elysiumSealAttachment());
+    }
     const info = await transport.sendMail({
       from: payload.from,
       to: payload.to,
@@ -795,11 +771,13 @@ async function sendEmail(payload, idempotencyKey, transportImpl = null) {
       text: payload.text,
       replyTo: payload.replyTo,
       messageId: `<${idempotencyKey}@${messageIdDomain()}>`,
-      attachments: (payload.attachments || []).map(attachment => ({
+      attachments: attachments.map(attachment => ({
         filename: attachment.filename,
         content: attachment.content,
         encoding: 'base64',
-        contentType: attachment.contentType
+        contentType: attachment.contentType,
+        cid: attachment.cid,
+        contentDisposition: attachment.contentDisposition
       }))
     });
     if (!info?.messageId) {
@@ -1075,6 +1053,96 @@ app.post('/api/auth/password-reset', async (request, response) => {
   return response.status(202).json(genericResponse);
 });
 
+class ProspectValidationError extends Error {
+  constructor(message, field) {
+    super(message);
+    this.name = 'ProspectValidationError';
+    this.field = field;
+  }
+}
+
+function normalizeProspectInput(body = {}) {
+  const name = String(body.name || '').trim();
+  const company = String(body.company || '').trim();
+  const email = normalizedEmail(body.email);
+  const projectDescription = String(body.projectDescription || '').trim();
+  const isExistingClient = body.isExistingClient === true;
+  const licenseCode = String(body.licenseCode || '').trim().toUpperCase();
+  const safeText = (value, maximum, required = false) => (
+    (!required || value.length > 0) && value.length <= maximum && !/[<>]/.test(value)
+  );
+  if (!safeText(name, 120, true)) throw new ProspectValidationError('Enter a valid name.', 'name');
+  if (!safeText(company, 120, true)) throw new ProspectValidationError('Enter a valid company.', 'company');
+  if (!email) throw new ProspectValidationError('Enter a valid email address.', 'email');
+  if (!safeText(projectDescription, 2000)) {
+    throw new ProspectValidationError('The project description is invalid.', 'projectDescription');
+  }
+  if (isExistingClient && !/^ELY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4,20}$/.test(licenseCode)) {
+    throw new ProspectValidationError('Enter a valid Elysium licence.', 'licenseCode');
+  }
+  return {
+    name,
+    company,
+    email,
+    projectDescription,
+    isExistingClient,
+    licenseCode: isExistingClient ? licenseCode : null
+  };
+}
+
+function prospectRateLimited(key, limit, nowMillis = Date.now(), attempts = prospectAttempts) {
+  const current = attempts.get(key);
+  if (!current || current.resetAt <= nowMillis) {
+    attempts.set(key, { count: 1, resetAt: nowMillis + PROSPECT_WINDOW_MS });
+    return false;
+  }
+  current.count += 1;
+  return current.count > limit;
+}
+
+function cleanupProspectAttempts(nowMillis = Date.now()) {
+  if (prospectAttempts.size < 1000) return;
+  for (const [key, value] of prospectAttempts) {
+    if (value.resetAt <= nowMillis) prospectAttempts.delete(key);
+  }
+}
+
+app.post('/api/prospects', async (request, response) => {
+  response.set('Cache-Control', 'no-store');
+  const origin = String(request.get('origin') || '').replace(/\/$/, '');
+  if (origin && !allowedOrigins.has(origin)) {
+    return response.status(403).json({ error: 'Origin not allowed.', code: 'origin_not_allowed' });
+  }
+  // Invisible field: ordinary users never fill it. Returning the same success
+  // shape prevents simple form bots from learning how to bypass the trap.
+  if (String(request.body?.website || '').trim()) {
+    return response.status(202).json({ ok: true });
+  }
+  try {
+    const prospect = normalizeProspectInput(request.body);
+    const nowMillis = Date.now();
+    cleanupProspectAttempts(nowMillis);
+    const remoteAddress = request.ip || 'unknown';
+    const limited = prospectRateLimited(resetAttemptKey('prospect-ip', remoteAddress), PROSPECT_IP_LIMIT, nowMillis)
+      || prospectRateLimited(resetAttemptKey('prospect-email', prospect.email), PROSPECT_EMAIL_LIMIT, nowMillis);
+    if (limited) {
+      return response.status(429).json({ error: 'Too many requests. Try again later.', code: 'prospect_rate_limited' });
+    }
+    await db.collection('prospects').add({
+      ...prospect,
+      createdAt: FieldValue.serverTimestamp(),
+      status: 'pending'
+    });
+    return response.status(201).json({ ok: true });
+  } catch (error) {
+    if (error instanceof ProspectValidationError) {
+      return response.status(400).json({ error: error.message, code: 'prospect_invalid', field: error.field });
+    }
+    console.error('[prospect] create failed:', error?.code || error?.message || 'unknown_error');
+    return response.status(503).json({ error: 'The request could not be saved.', code: 'prospect_unavailable' });
+  }
+});
+
 app.get('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (request, response) => {
   try {
     const now = Date.now();
@@ -1336,7 +1404,8 @@ function mailSenders() {
     .map(entry => entry.trim())
     .filter(Boolean);
 
-  const defaultUser = String(process.env.SMTP_USER || '').trim().toLowerCase();
+  const defaultSmtp = smtpConfig();
+  const defaultUser = defaultSmtp.user.toLowerCase();
   const seen = new Set();
   const senders = [];
 
@@ -1350,15 +1419,19 @@ function mailSenders() {
     const ownUser = String(process.env[`SMTP_USER_${suffix}`] || '').trim();
     const ownPass = String(process.env[`SMTP_PASSWORD_${suffix}`] || '');
     const isDefaultMailbox = address === defaultUser;
+    const ownMailboxReady = Boolean(defaultSmtp.host && ownUser && ownPass);
+    const defaultMailboxReady = Boolean(
+      defaultSmtp.host && defaultSmtp.user && defaultSmtp.pass && isDefaultMailbox
+    );
 
     senders.push({
       address,
       name: (nameMatch?.[1] || '').trim() || 'Elysium',
       // Credenciales propias, o las del buzón por defecto cuando es él mismo.
-      auth: ownUser && ownPass
+      auth: ownMailboxReady
         ? { user: ownUser, pass: ownPass }
         : (isDefaultMailbox ? null : undefined),
-      ready: Boolean(ownUser && ownPass) || isDefaultMailbox,
+      ready: ownMailboxReady || defaultMailboxReady,
       envSuffix: suffix
     });
   }
@@ -1434,10 +1507,11 @@ function safeAttachmentName(value, index) {
 }
 
 class MailValidationError extends Error {
-  constructor(message, code) {
+  constructor(message, code, status = 400) {
     super(message);
     this.name = 'MailValidationError';
     this.code = code;
+    this.status = status;
   }
 }
 
@@ -1453,12 +1527,19 @@ function validateMailAttachments(rawAttachments) {
 
   let total = 0;
   return rawAttachments.map((attachment, index) => {
-    const content = String(attachment?.content || '');
-    if (!content) {
+    const content = String(attachment?.content || '').trim();
+    const paddingIndex = content.indexOf('=');
+    const padding = paddingIndex === -1 ? '' : content.slice(paddingIndex);
+    if (!content || content.startsWith('data:') || content.length % 4 !== 0
+      || /[^A-Za-z0-9+/=]/.test(content)
+      || paddingIndex !== -1 && !/^={1,2}$/.test(padding)) {
+      throw new MailValidationError('An attachment has invalid base64 content.', 'attachment_invalid');
+    }
+    const buffer = Buffer.from(content, 'base64');
+    if (!buffer.length || buffer.toString('base64') !== content) {
       throw new MailValidationError('An attachment arrived empty.', 'attachment_empty');
     }
-    // base64 crece un tercio sobre el original: se mide el tamaño real.
-    const bytes = Math.floor(content.replace(/=+$/, '').length * 3 / 4);
+    const bytes = buffer.length;
     if (bytes > MAIL_MAX_ATTACHMENT_BYTES) {
       throw new MailValidationError(
         `"${safeAttachmentName(attachment?.filename, index)}" exceeds the ${
@@ -1472,12 +1553,189 @@ function validateMailAttachments(rawAttachments) {
           Math.round(MAIL_MAX_TOTAL_ATTACHMENT_BYTES / 1024 / 1024)} MB.`,
         'attachments_too_large');
     }
+    const requestedType = String(attachment?.contentType || 'application/octet-stream').trim();
+    if (!/^[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+$/i.test(requestedType)) {
+      throw new MailValidationError('An attachment has an invalid content type.', 'attachment_type_invalid');
+    }
     return {
       filename: safeAttachmentName(attachment?.filename, index),
       content,
-      contentType: String(attachment?.contentType || 'application/octet-stream').slice(0, 120)
+      contentType: requestedType.slice(0, 120),
+      bytes,
+      sha256: crypto.createHash('sha256').update(buffer).digest('hex')
     };
   });
+}
+
+const CRM_MAIL_DELIVERY_LEASE_MS = 2 * 60 * 1000;
+
+function crmMailIdempotencyKey(request) {
+  const value = String(request.get('idempotency-key') || '').trim();
+  if (!/^[A-Za-z0-9][A-Za-z0-9._:-]{15,199}$/.test(value)) {
+    throw new MailValidationError(
+      'A valid Idempotency-Key header is required.', 'idempotency_key_invalid');
+  }
+  return value;
+}
+
+function crmMailFingerprint({ actorUid, from, recipients, replyTo, subject, html, attachments }) {
+  return crypto.createHash('sha256').update(JSON.stringify({
+    actorUid,
+    from,
+    recipients,
+    replyTo: replyTo || null,
+    subject,
+    htmlSha256: crypto.createHash('sha256').update(html).digest('hex'),
+    attachments: attachments.map(item => ({
+      filename: item.filename,
+      contentType: item.contentType,
+      bytes: item.bytes,
+      sha256: item.sha256
+    }))
+  })).digest('hex');
+}
+
+function crmMailDeliveryRef(actorUid, idempotencyKey) {
+  const documentId = crypto.createHash('sha256')
+    .update(`${actorUid}:${idempotencyKey}`)
+    .digest('hex');
+  return db.collection('crm_mail_deliveries').doc(documentId);
+}
+
+async function claimCrmMailDelivery({ actorUid, actorEmail, idempotencyKey, fingerprint, from, recipients }) {
+  const reference = crmMailDeliveryRef(actorUid, idempotencyKey);
+  const nowMillis = Date.now();
+  return db.runTransaction(async transaction => {
+    const snapshot = await transaction.get(reference);
+    const current = snapshot.exists ? snapshot.data() : {};
+    if (current.fingerprint && current.fingerprint !== fingerprint) {
+      throw new MailValidationError(
+        'That Idempotency-Key was already used for a different message.',
+        'idempotency_conflict', 409);
+    }
+    if (current.status === 'sent') {
+      return { kind: 'replay', reference, delivery: current };
+    }
+    if (current.status === 'sending' && timestampMillis(current.leaseUntil) > nowMillis) {
+      throw new MailValidationError(
+        'This message is already being delivered. Wait a moment before checking again.',
+        'mail_in_progress', 409);
+    }
+    const deliveries = Array.isArray(current.deliveries) ? current.deliveries : [];
+    const attemptId = crypto.randomUUID();
+    const claim = {
+      fingerprint,
+      idempotencyKey,
+      actorUid,
+      actorEmail,
+      from,
+      recipients,
+      status: 'sending',
+      attemptId,
+      deliveries,
+      adminReceiptStatus: current.adminReceiptStatus || 'pending',
+      attemptCount: Number(current.attemptCount || 0) + 1,
+      leaseUntil: Timestamp.fromMillis(nowMillis + CRM_MAIL_DELIVERY_LEASE_MS),
+      updatedAt: FieldValue.serverTimestamp(),
+      createdAt: current.createdAt || FieldValue.serverTimestamp()
+    };
+    transaction.set(reference, claim, { merge: true });
+    return { kind: 'claimed', reference, delivery: { ...current, ...claim } };
+  });
+}
+
+function crmMailClaimLost() {
+  return new MailValidationError(
+    'This delivery was resumed by another request. Check its status before retrying.',
+    'idempotency_lease_lost',
+    409
+  );
+}
+
+async function updateCrmMailClaim(claim, changes, { renewLease = true } = {}) {
+  if (claim?.kind !== 'claimed' || !claim.reference || !claim.delivery?.attemptId) {
+    throw crmMailClaimLost();
+  }
+  return db.runTransaction(async transaction => {
+    const snapshot = await transaction.get(claim.reference);
+    const current = snapshot.exists ? snapshot.data() : {};
+    if (current.status !== 'sending'
+      || current.fingerprint !== claim.delivery.fingerprint
+      || current.attemptId !== claim.delivery.attemptId) {
+      throw crmMailClaimLost();
+    }
+    const patch = {
+      ...changes,
+      updatedAt: FieldValue.serverTimestamp()
+    };
+    if (renewLease) {
+      patch.leaseUntil = Timestamp.fromMillis(Date.now() + CRM_MAIL_DELIVERY_LEASE_MS);
+    }
+    transaction.set(claim.reference, patch, { merge: true });
+    return { ...current, ...patch };
+  });
+}
+
+const CRM_RECEIPT_COPY = {
+  en: {
+    eyebrow: 'CRM DELIVERY RECEIPT', title: 'Email sent successfully', intro: 'The recipient server accepted this message.',
+    actor: 'Sent by', from: 'From', to: 'To', subject: 'Subject', date: 'Accepted at', files: 'Attachments',
+    copy: 'Plain-text copy of the sent message', none: 'No attachments', htmlAttachment: 'The original HTML is attached as a safe text file.',
+    subjectPrefix: 'Delivery confirmation'
+  },
+  es: {
+    eyebrow: 'CONFIRMACIÓN DEL CRM', title: 'Correo enviado correctamente', intro: 'El servidor del destinatario aceptó este mensaje.',
+    actor: 'Enviado por', from: 'De', to: 'Para', subject: 'Asunto', date: 'Aceptado el', files: 'Adjuntos',
+    copy: 'Copia en texto del correo enviado', none: 'Sin adjuntos', htmlAttachment: 'El HTML original va adjunto como archivo de texto seguro.',
+    subjectPrefix: 'Confirmación de envío'
+  },
+  pt: {
+    eyebrow: 'CONFIRMAÇÃO DO CRM', title: 'Email enviado com sucesso', intro: 'O servidor do destinatário aceitou esta mensagem.',
+    actor: 'Enviado por', from: 'De', to: 'Para', subject: 'Assunto', date: 'Aceite em', files: 'Anexos',
+    copy: 'Cópia em texto do email enviado', none: 'Sem anexos', htmlAttachment: 'O HTML original segue anexo como ficheiro de texto seguro.',
+    subjectPrefix: 'Confirmação de envio'
+  }
+};
+
+function crmMailReceiptPayload({ sender, actorEmail, recipients, subject, html, text, attachments, sentAt, locale }) {
+  const copy = CRM_RECEIPT_COPY[normalizedLocale(locale)] || CRM_RECEIPT_COPY.es;
+  const attachmentSummary = attachments.length
+    ? attachments.map(item => `${escapeHtml(item.filename)} · ${escapeHtml(item.contentType)} · ${item.bytes} B`).join('<br>')
+    : escapeHtml(copy.none);
+  const row = (label, value) => `<tr><td style="padding:10px 0;color:#6b7e8e;font-size:13px;vertical-align:top">${escapeHtml(label)}</td><td style="padding:10px 0;color:#18334b;font-size:13px;font-weight:600;text-align:right;vertical-align:top">${value}</td></tr>`;
+  const safeText = String(text || '').slice(0, 100_000);
+  const content = `
+    <p style="margin:0 0 10px;color:#2997ff;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase">${escapeHtml(copy.eyebrow)}</p>
+    <h1 class="title text-main" style="margin:0 0 12px;color:#173e62;font-size:28px;line-height:1.22">${escapeHtml(copy.title)}</h1>
+    <p class="text-muted" style="margin:0 0 28px;color:#526b7d;font-size:15px;line-height:1.65">${escapeHtml(copy.intro)}</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse">
+      ${row(copy.actor, escapeHtml(actorEmail || '—'))}
+      ${row(copy.from, escapeHtml(sender.address))}
+      ${row(copy.to, escapeHtml(recipients.join(', ')))}
+      ${row(copy.subject, escapeHtml(subject))}
+      ${row(copy.date, escapeHtml(sentAt.toISOString()))}
+      ${row(copy.files, attachmentSummary)}
+    </table>
+    <div style="margin-top:26px;padding:20px;border-radius:18px;background:#f4f8fb">
+      <strong style="display:block;margin-bottom:10px;color:#173e62;font-size:13px">${escapeHtml(copy.copy)}</strong>
+      <pre style="margin:0;color:#526b7d;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word">${escapeHtml(safeText)}</pre>
+    </div>
+    <p style="margin:16px 0 0;color:#748797;font-size:11px;line-height:1.5">${escapeHtml(copy.htmlAttachment)}</p>`;
+  return {
+    from: `${sender.name} <${sender.address}>`,
+    to: [adminNotificationEmail()],
+    subject: `${copy.subjectPrefix} · ${subject}`.slice(0, 250),
+    html: emailTheme(content, `${copy.subjectPrefix}: ${subject}`),
+    text: [copy.title, `${copy.actor}: ${actorEmail || '—'}`, `${copy.from}: ${sender.address}`,
+      `${copy.to}: ${recipients.join(', ')}`, `${copy.subject}: ${subject}`, `${copy.date}: ${sentAt.toISOString()}`,
+      `${copy.files}: ${attachments.length ? attachments.map(item => item.filename).join(', ') : copy.none}`,
+      '', copy.copy, safeText].join('\n'),
+    attachments: [{
+      filename: 'mensaje-enviado.html.txt',
+      content: Buffer.from(html, 'utf8').toString('base64'),
+      contentType: 'text/plain'
+    }]
+  };
 }
 
 app.get('/api/mail/senders', requireFirebaseUser, requireFirebaseAdmin, (_request, response) => {
@@ -1490,10 +1748,11 @@ app.get('/api/mail/senders', requireFirebaseUser, requireFirebaseAdmin, (_reques
 
 app.post(
   '/api/mail/send',
-  express.json({ limit: '20mb' }),
   requireFirebaseUser,
   requireFirebaseAdmin,
+  express.json({ limit: '20mb' }),
   async (request, response) => {
+    let deliveryClaim = null;
     try {
       const body = request.body || {};
 
@@ -1511,12 +1770,12 @@ app.post(
         });
       }
 
-      const recipients = (Array.isArray(body.to) ? body.to : [body.to])
-        .map(normalizedEmail)
-        .filter(Boolean);
-      if (!recipients.length) {
+      const rawRecipients = Array.isArray(body.to) ? body.to : [body.to];
+      const normalizedRecipients = rawRecipients.map(normalizedEmail);
+      if (!rawRecipients.length || normalizedRecipients.some(address => !address)) {
         return response.status(400).json({ error: 'A valid recipient is required.', code: 'to_invalid' });
       }
+      const recipients = [...new Set(normalizedRecipients)];
       if (recipients.length > 20) {
         return response.status(400).json({ error: 'Up to 20 recipients per message.', code: 'to_too_many' });
       }
@@ -1535,19 +1794,111 @@ app.post(
       }
 
       const attachments = validateMailAttachments(body.attachments);
-      const replyTo = normalizedEmail(body.replyTo);
-      const idempotencyKey =
-        `elysium-crm-mail-${Date.now()}-${require('crypto').randomUUID()}`;
-
-      const sent = await sendEmail({
-        from: `${sender.name} <${sender.address}>`,
-        to: recipients,
+      const replyTo = body.replyTo ? normalizedEmail(body.replyTo) : null;
+      if (body.replyTo && !replyTo) {
+        return response.status(400).json({ error: 'Reply-To is invalid.', code: 'reply_to_invalid' });
+      }
+      const text = String(body.text || '').trim() || htmlToPlainText(html);
+      const sealedHtml = withElysiumSeal(html);
+      const idempotencyKey = crmMailIdempotencyKey(request);
+      const fingerprint = crmMailFingerprint({
+        actorUid: request.firebaseUser.uid,
+        from: sender.address,
+        recipients,
+        replyTo,
         subject,
         html,
-        text: String(body.text || '').trim() || htmlToPlainText(html),
-        replyTo: replyTo || undefined,
         attachments
-      }, idempotencyKey, transportForSender(sender));
+      });
+      const claim = await claimCrmMailDelivery({
+        actorUid: request.firebaseUser.uid,
+        actorEmail: request.firebaseUser.email,
+        idempotencyKey,
+        fingerprint,
+        from: sender.address,
+        recipients
+      });
+      deliveryClaim = claim;
+      if (claim.kind === 'replay') {
+        const previous = Array.isArray(claim.delivery.deliveries) ? claim.delivery.deliveries : [];
+        return response.status(200).json({
+          ok: true,
+          idempotent: true,
+          messageId: previous[0]?.messageId || null,
+          messageIds: previous.map(item => item.messageId),
+          recipients: previous.map(item => item.recipient),
+          adminReceiptStatus: claim.delivery.adminReceiptStatus || 'unknown'
+        });
+      }
+
+      const transport = transportForSender(sender);
+      const previousDeliveries = Array.isArray(claim.delivery.deliveries) ? claim.delivery.deliveries : [];
+      const deliveredByRecipient = new Map(previousDeliveries.map(item => [item.recipient, item]));
+      for (const [index, recipient] of recipients.entries()) {
+        if (deliveredByRecipient.has(recipient)) continue;
+        // The lease is renewed before every external SMTP call. A batch may
+        // contain 20 recipients, so a single fixed lease would expire while a
+        // valid request was still working and allow a concurrent retry to send
+        // the same message again.
+        await updateCrmMailClaim(claim, {});
+        const sent = await sendEmail({
+          from: `${sender.name} <${sender.address}>`,
+          to: [recipient],
+          subject,
+          html: sealedHtml,
+          text,
+          replyTo: replyTo || undefined,
+          attachments
+        }, `${idempotencyKey}-recipient-${index + 1}`, transport);
+        const delivery = { recipient, messageId: sent.id };
+        deliveredByRecipient.set(recipient, delivery);
+        await updateCrmMailClaim(claim, {
+          deliveries: FieldValue.arrayUnion(delivery)
+        });
+      }
+
+      const deliveries = recipients.map(recipient => deliveredByRecipient.get(recipient)).filter(Boolean);
+      const sentAt = new Date();
+      let adminReceiptStatus = claim.delivery.adminReceiptStatus === 'sent' ? 'sent' : 'not_configured';
+      let adminReceiptMessageId = claim.delivery.adminReceiptMessageId || null;
+      if (adminNotificationEmail() && adminReceiptStatus !== 'sent') {
+        try {
+          await updateCrmMailClaim(claim, {});
+          const receipt = await sendEmail(crmMailReceiptPayload({
+            sender,
+            actorEmail: request.firebaseUser.email,
+            recipients,
+            subject,
+            html,
+            text,
+            attachments,
+            sentAt,
+            locale: body.locale
+          }), `${idempotencyKey}-admin-receipt`, transport);
+          adminReceiptStatus = 'sent';
+          adminReceiptMessageId = receipt.id;
+          await updateCrmMailClaim(claim, { adminReceiptStatus, adminReceiptMessageId });
+        } catch (receiptError) {
+          adminReceiptStatus = 'failed';
+          await updateCrmMailClaim(claim, {
+            adminReceiptStatus,
+            adminReceiptMessageId: null
+          }).catch(auditError => {
+            console.error('[crm-mail] could not persist receipt failure:', auditError?.message || auditError);
+          });
+          console.error('[crm-mail] admin receipt failed:', receiptError?.code || receiptError?.message || 'unknown_error');
+        }
+      }
+
+      await updateCrmMailClaim(claim, {
+        status: 'sent',
+        deliveries,
+        adminReceiptStatus,
+        adminReceiptMessageId,
+        sentAt: FieldValue.serverTimestamp(),
+        leaseUntil: null,
+        attemptId: null
+      }, { renewLease: false });
 
       // Rastro de auditoría: quién envió, desde qué dirección y a quién. Este
       // extremo puede firmar correo como la empresa; sin registro no habría
@@ -1558,13 +1909,32 @@ app.post(
         to: recipients,
         subject,
         attachments: attachments.length,
-        messageId: sent.id
+        messageIds: deliveries.map(item => item.messageId),
+        adminReceiptStatus
       }));
 
-      return response.status(200).json({ ok: true, messageId: sent.id, recipients });
+      return response.status(200).json({
+        ok: true,
+        idempotent: false,
+        messageId: deliveries[0]?.messageId || null,
+        messageIds: deliveries.map(item => item.messageId),
+        recipients,
+        adminReceiptStatus
+      });
     } catch (error) {
+      if (deliveryClaim?.kind === 'claimed') {
+        await updateCrmMailClaim(deliveryClaim, {
+          status: 'failed',
+          leaseUntil: null,
+          attemptId: null,
+          lastError: error?.code || 'mail_send_failed',
+          failedAt: FieldValue.serverTimestamp()
+        }, { renewLease: false }).catch(auditError => {
+          console.error('[crm-mail] could not persist failure:', auditError?.message || auditError);
+        });
+      }
       if (error instanceof MailValidationError) {
-        return response.status(400).json({ error: error.message, code: error.code });
+        return response.status(error.status || 400).json({ error: error.message, code: error.code });
       }
       if (error?.code === 'email_not_configured') {
         return response.status(503).json({
@@ -1615,6 +1985,9 @@ module.exports = {
   escapeHtml,
   buildMeetingEmail,
   buildMeetingAdminEmail,
+  emailTheme,
+  withElysiumSeal,
+  elysiumSealAttachment,
   adminNotificationEmail,
   buildMeetingIcs,
   meetingEmailPayload,
@@ -1625,10 +1998,16 @@ module.exports = {
   passwordResetEmail,
   passwordResetEmailConfigured,
   passwordResetContinueUrl,
+  ProspectValidationError,
+  normalizeProspectInput,
+  prospectRateLimited,
   MailValidationError,
   mailSenders,
   findMailSender,
   validateMailAttachments,
   safeAttachmentName,
-  htmlToPlainText
+  htmlToPlainText,
+  crmMailIdempotencyKey,
+  crmMailFingerprint,
+  crmMailReceiptPayload
 };

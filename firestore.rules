@@ -128,19 +128,8 @@ service cloud.firestore {
     // ── Prospects ────────────────────────────────────────────────────────────
     match /prospects/{prospectId} {
       allow read, write: if isSuperAdmin();
-      allow create: if request.resource.data.keys().hasOnly([
-          'name', 'company', 'email', 'projectDescription',
-          'isExistingClient', 'licenseCode', 'createdAt', 'status'
-        ])
-        && isSafeShortText(request.resource.data.name, 120)
-        && isSafeShortText(request.resource.data.company, 120)
-        && request.resource.data.email is string
-        && request.resource.data.email.size() <= 254
-        && isOptionalText(request.resource.data.projectDescription, 2000)
-        && request.resource.data.isExistingClient is bool
-        && isOptionalText(request.resource.data.licenseCode, 40)
-        && request.resource.data.status == 'pending'
-        && request.resource.data.createdAt == request.time;
+      // Public submissions pass through the rate-limited platform endpoint;
+      // browsers never write this collection directly.
     }
 
     // ── Contacts ─────────────────────────────────────────────────────────────
@@ -190,15 +179,6 @@ service cloud.firestore {
     match /meetings/{meetingId} {
       allow read, write: if isSuperAdmin();
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-
-    // ── Mail templates ───────────────────────────────────────────────────────
-    // Plantillas de la sección Mail del CRM. Sólo el administrador, y en los dos
-    // sentidos: el HTML que se guarda aquí se envía después firmado como la
-    // empresa, así que dejar leer o escribir a un cliente sería regalarle la
-    // maqueta de los correos de Elysium y un sitio donde alterarla.
-    match /mail_templates/{templateId} {
-      allow read, write: if isSuperAdmin();
     }
 
     // ── Activities (append-only audit log) ────────────────────────────────────

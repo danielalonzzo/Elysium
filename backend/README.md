@@ -1,6 +1,6 @@
 # elysium-platform
 
-Servicio de confianza de Elysium. Hace dos cosas que un navegador no puede hacer
+Servicio de confianza de Elysium. Hace cuatro cosas que un navegador no puede hacer
 por sí solo:
 
 1. **Agenda de reuniones.** Crea y cancela reuniones, y envía por SMTP desde el
@@ -9,6 +9,12 @@ por sí solo:
 2. **Recuperación de contraseña.** Genera el enlace con el Admin SDK de Firebase
    y lo envía con la marca de Elysium, con respuestas neutras y limitación de
    intentos para no revelar si una cuenta existe.
+3. **Correo profesional del CRM.** Permite elegir únicamente buzones SMTP
+   configurados, enviar adjuntos, deduplicar reintentos y mandar al administrador
+   un recibo separado de cada correo aceptado.
+4. **Consultas de proyecto.** Valida y limita el formulario público antes de
+   escribirlo con el Admin SDK; el navegador no tiene escritura directa sobre
+   `prospects`.
 
 Aquí **no se cobra**. Las suscripciones y sus licencias las asigna el
 administrador desde el CRM y viven en Firestore (`members.subscription`,
@@ -38,9 +44,11 @@ Ver `.env.example`. Las que no tienen valor por defecto sensato:
 |---|---|
 | `SMTP_HOST` / `SMTP_PORT` | Servidor de IONOS. 465 abre TLS directo, 587 sube con STARTTLS. |
 | `SMTP_USER` / `SMTP_PASSWORD` | Buzón de la empresa. La contraseña va en Secret Manager, nunca como variable en claro. |
+| `SMTP_USER_<SUFIJO>` / `SMTP_PASSWORD_<SUFIJO>` | Credenciales de cada buzón adicional del CRM; por ejemplo, el sufijo de `daniel.morales@…` es `DANIEL_MORALES`. |
 | `MEETING_FROM_EMAIL` | Remitente. Debe ser el buzón autenticado o un alias suyo: IONOS rechaza enviar como una dirección ajena. |
 | `PASSWORD_RESET_FROM_EMAIL` | Remitente del correo de contraseña. Si falta, usa el anterior. Mismo límite de propiedad. |
-| `ADMIN_NOTIFICATION_EMAIL` | Dónde llega tu copia de cada reunión. Si falta, la primera de `ADMIN_EMAILS`. |
+| `CRM_MAIL_SENDERS` | Lista cerrada `Nombre <correo>` de remitentes visibles en el compositor. |
+| `ADMIN_NOTIFICATION_EMAIL` | Dónde llega la copia de cada reunión y el recibo de cada correo del CRM. Si falta, la primera de `ADMIN_EMAILS`. |
 | `PUBLIC_BASE_URL` | Origen que se escribe dentro de los enlaces de los correos. |
 
 `ADMIN_EMAILS` y `ALLOWED_ORIGINS` tienen valores por defecto en el código.

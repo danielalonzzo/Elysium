@@ -1,6 +1,5 @@
-import { auth, db, storage, functions } from './firebase-config.js';
+import { auth, db, storage } from './firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
 import { 
     collection,
     getDocs,
@@ -13,7 +12,6 @@ import {
     limit,
     updateDoc,
     deleteDoc,
-    setDoc,
     addDoc,
     serverTimestamp,
     writeBatch,
@@ -119,8 +117,11 @@ let _profileReturnTab = 'clients'; // section to go back to when the profile clo
 let _profileTab = 'summary';       // active tab inside the client profile
 
 const PORTUGAL_TIME_ZONE = 'Europe/Lisbon';
-const ADMIN_AGENDA_PREVIEW = ['localhost', '127.0.0.1'].includes(location.hostname)
-    && new URLSearchParams(location.search).get('adminPreview') === 'agenda';
+const ADMIN_PREVIEW = ['localhost', '127.0.0.1'].includes(location.hostname)
+    ? new URLSearchParams(location.search).get('adminPreview')
+    : null;
+const ADMIN_AGENDA_PREVIEW = ADMIN_PREVIEW === 'agenda';
+const ADMIN_MAIL_PREVIEW = ADMIN_PREVIEW === 'mail';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 /**
@@ -488,7 +489,7 @@ function platformApiConfigured() {
  * service's own error code so the caller can tell "not deployed" apart from
  * "the data was rejected".
  */
-async function platformRequest(path, { method = 'POST', body = null, headers = {} } = {}) {
+async function platformRequest(path, { method = 'POST', body = null, headers = {}, timeoutMs = ADMIN_API_TIMEOUT_MS } = {}) {
     if (!platformApiConfigured()) {
         const error = new Error('The platform service is not configured.');
         error.code = 'api_not_configured';
@@ -501,7 +502,7 @@ async function platformRequest(path, { method = 'POST', body = null, headers = {
         throw error;
     }
     const controller = new AbortController();
-    const timer = window.setTimeout(() => controller.abort(), ADMIN_API_TIMEOUT_MS);
+    const timer = window.setTimeout(() => controller.abort(), timeoutMs);
     try {
         const token = await user.getIdToken();
         const response = await fetch(`${platformApiOrigin()}${path}`, {
@@ -721,41 +722,42 @@ const translations = {
             desc: "Compose and send email from the Elysium mailboxes.",
             composeEyebrow: "New message", composeTitle: "Compose",
             labelFrom: "From", labelReply: "Reply-To (optional)", labelTo: "To",
-            labelSubject: "Subject", labelBody: "HTML body", labelAttachments: "Attachments",
+            labelSubject: "Subject", labelBody: "HTML template", labelAttachments: "Attachments",
             toHint: "Separate several recipients with commas. The list suggests clients on file.",
-            bodyHint: "The plain-text part is generated from this HTML automatically.",
+            bodyHint: "Upload the finished email; its preview appears beside the form.",
             attachmentsHint: "Up to 10 files, 8 MB each and 12 MB in total.",
-            importText: "Import .html", previewText: "Preview", sendText: "Send",
-            templatesEyebrow: "Library", templatesTitle: "Templates", saveTemplate: "Save current",
-            templatesHint: "Saving keeps the subject and the HTML body. Selecting one loads it into the form.",
-            templatesEmpty: "No templates saved yet.",
-            templatesError: "The templates could not be loaded.",
-            untitled: "Untitled", deleteTemplate: "Delete template",
-            templateNamePrompt: "Name for this template:",
-            templateNeedsBody: "Write the HTML body before saving a template.",
-            templateNeedsName: "The template needs a name.",
-            templateSaved: name => `Template "${name}" saved.`,
-            templateLoaded: name => `Template "${name}" loaded.`,
-            templateSaveError: "The template could not be saved.",
-            templateDeleteConfirm: name => `Delete the template "${name}"?`,
-            templateDeleted: "Template deleted.",
-            templateDeleteError: "The template could not be deleted.",
+            importText: "Choose .html", addFiles: "Add files", sendText: "Send",
+            loadingSenders: "Loading mailboxes…", subjectPlaceholder: "A clear subject for this message",
+            removeTemplate: "Remove HTML template", previewFrameTitle: "Email preview",
+            secureLabel: "Secure SMTP", previewEyebrow: "Recipient view", previewTitle: "Email preview",
+            noTemplate: "No template", readyTemplate: "Ready",
+            previewEmptyTitle: "Your message will appear here",
+            previewEmptyCopy: "Choose an HTML template to inspect it before sending.",
+            confirmEyebrow: "Final check", confirmTitle: "Send this email?",
+            confirmCopy: "Review the real delivery details before continuing.",
+            confirmCancel: "Cancel", confirmAction: "Send email",
+            confirmFrom: "From", confirmTo: "To", confirmSubject: "Subject", confirmFiles: "Attachments",
+            attachmentsCount: count => count === 1 ? "1 file" : `${count} files`,
             senderRequired: "Choose a sender.",
             senderNotReady: "no credentials",
             senderMissingCredentials: (list, suffix) =>
                 `${list} cannot send yet: set SMTP_USER_${suffix} and SMTP_PASSWORD_${suffix} on the service.`,
             recipientRequired: "Enter at least one recipient.",
+            recipientInvalid: "Every recipient must be a valid email address.",
+            recipientLimit: "A message can have at most 20 recipients.",
+            replyInvalid: "Reply-To must be a valid email address.",
             subjectRequired: "A subject is required.",
-            bodyRequired: "The message body is empty.",
-            previewNeedsBody: "There is nothing to preview yet.",
-            imported: name => `Loaded ${name}.`,
+            templateRequired: "Choose an HTML template.",
+            htmlTooLarge: max => `The HTML template must stay under ${max}.`,
+            imported: name => `${name} is ready.`,
             importError: "That file could not be read.",
+            emptyFile: name => `${name} is empty.`,
             tooManyFiles: max => `Up to ${max} attachments per message.`,
             fileTooLarge: max => `Each attachment must stay under ${max}.`,
             totalTooLarge: max => `The attachments add up to more than ${max}.`,
-            confirmSend: (from, to) => `Send this message as ${from} to ${to}?`,
             sending: "Sending…",
             sent: to => `Sent to ${to}.`,
+            sentReceiptWarning: to => `Sent to ${to}. The administrator receipt could not be delivered.`,
             sendError: "The message could not be sent.",
             serviceDown: "The Elysium platform service is not reachable, so no mail can be sent."
         },
@@ -955,41 +957,42 @@ const translations = {
             desc: "Redacta y envía correo desde los buzones de Elysium.",
             composeEyebrow: "Mensaje nuevo", composeTitle: "Redactar",
             labelFrom: "De", labelReply: "Responder a (opcional)", labelTo: "Para",
-            labelSubject: "Asunto", labelBody: "Cuerpo HTML", labelAttachments: "Adjuntos",
+            labelSubject: "Asunto", labelBody: "Plantilla HTML", labelAttachments: "Adjuntos",
             toHint: "Separa varios destinatarios con comas. La lista sugiere los clientes registrados.",
-            bodyHint: "La parte de texto plano se genera sola a partir de este HTML.",
+            bodyHint: "Sube el correo terminado; la vista previa aparece junto al formulario.",
             attachmentsHint: "Hasta 10 archivos, 8 MB cada uno y 12 MB en total.",
-            importText: "Importar .html", previewText: "Vista previa", sendText: "Enviar",
-            templatesEyebrow: "Biblioteca", templatesTitle: "Plantillas", saveTemplate: "Guardar actual",
-            templatesHint: "Al guardar se conservan el asunto y el cuerpo HTML. Al elegir una, se cargan en el formulario.",
-            templatesEmpty: "Todavía no hay plantillas guardadas.",
-            templatesError: "No se pudieron cargar las plantillas.",
-            untitled: "Sin título", deleteTemplate: "Eliminar plantilla",
-            templateNamePrompt: "Nombre de esta plantilla:",
-            templateNeedsBody: "Escribe el cuerpo HTML antes de guardar una plantilla.",
-            templateNeedsName: "La plantilla necesita un nombre.",
-            templateSaved: name => `Plantilla «${name}» guardada.`,
-            templateLoaded: name => `Plantilla «${name}» cargada.`,
-            templateSaveError: "No se pudo guardar la plantilla.",
-            templateDeleteConfirm: name => `¿Eliminar la plantilla «${name}»?`,
-            templateDeleted: "Plantilla eliminada.",
-            templateDeleteError: "No se pudo eliminar la plantilla.",
+            importText: "Elegir .html", addFiles: "Añadir archivos", sendText: "Enviar",
+            loadingSenders: "Cargando buzones…", subjectPlaceholder: "Un asunto claro para este mensaje",
+            removeTemplate: "Quitar plantilla HTML", previewFrameTitle: "Vista previa del correo",
+            secureLabel: "SMTP seguro", previewEyebrow: "Vista del destinatario", previewTitle: "Vista previa del correo",
+            noTemplate: "Sin plantilla", readyTemplate: "Lista",
+            previewEmptyTitle: "Tu mensaje aparecerá aquí",
+            previewEmptyCopy: "Elige una plantilla HTML para revisarla antes de enviarla.",
+            confirmEyebrow: "Revisión final", confirmTitle: "¿Enviar este correo?",
+            confirmCopy: "Comprueba los datos reales de entrega antes de continuar.",
+            confirmCancel: "Cancelar", confirmAction: "Enviar correo",
+            confirmFrom: "De", confirmTo: "Para", confirmSubject: "Asunto", confirmFiles: "Adjuntos",
+            attachmentsCount: count => count === 1 ? "1 archivo" : `${count} archivos`,
             senderRequired: "Elige un remitente.",
             senderNotReady: "sin credenciales",
             senderMissingCredentials: (list, suffix) =>
                 `${list} todavía no puede enviar: configura SMTP_USER_${suffix} y SMTP_PASSWORD_${suffix} en el servicio.`,
             recipientRequired: "Indica al menos un destinatario.",
+            recipientInvalid: "Todos los destinatarios deben ser correos válidos.",
+            recipientLimit: "Un mensaje puede tener como máximo 20 destinatarios.",
+            replyInvalid: "El correo de respuesta no es válido.",
             subjectRequired: "Hace falta un asunto.",
-            bodyRequired: "El cuerpo del mensaje está vacío.",
-            previewNeedsBody: "Todavía no hay nada que previsualizar.",
-            imported: name => `Se cargó ${name}.`,
+            templateRequired: "Elige una plantilla HTML.",
+            htmlTooLarge: max => `La plantilla HTML debe pesar menos de ${max}.`,
+            imported: name => `${name} está lista.`,
             importError: "No se pudo leer ese archivo.",
+            emptyFile: name => `${name} está vacío.`,
             tooManyFiles: max => `Como máximo ${max} adjuntos por mensaje.`,
             fileTooLarge: max => `Cada adjunto debe quedar por debajo de ${max}.`,
             totalTooLarge: max => `Los adjuntos suman más de ${max}.`,
-            confirmSend: (from, to) => `¿Enviar este mensaje como ${from} a ${to}?`,
             sending: "Enviando…",
             sent: to => `Enviado a ${to}.`,
+            sentReceiptWarning: to => `Enviado a ${to}. No se pudo entregar la confirmación al administrador.`,
             sendError: "No se pudo enviar el mensaje.",
             serviceDown: "El servicio de plataforma de Elysium no responde, así que no puede salir ningún correo."
         },
@@ -1188,41 +1191,42 @@ const translations = {
             desc: "Redija e envie correio a partir das caixas da Elysium.",
             composeEyebrow: "Nova mensagem", composeTitle: "Redigir",
             labelFrom: "De", labelReply: "Responder a (opcional)", labelTo: "Para",
-            labelSubject: "Assunto", labelBody: "Corpo HTML", labelAttachments: "Anexos",
+            labelSubject: "Assunto", labelBody: "Modelo HTML", labelAttachments: "Anexos",
             toHint: "Separe vários destinatários com vírgulas. A lista sugere os clientes registados.",
-            bodyHint: "A parte de texto simples é gerada automaticamente a partir deste HTML.",
+            bodyHint: "Carregue o email terminado; a pré-visualização aparece junto ao formulário.",
             attachmentsHint: "Até 10 ficheiros, 8 MB cada e 12 MB no total.",
-            importText: "Importar .html", previewText: "Pré-visualizar", sendText: "Enviar",
-            templatesEyebrow: "Biblioteca", templatesTitle: "Modelos", saveTemplate: "Guardar atual",
-            templatesHint: "Ao guardar mantêm-se o assunto e o corpo HTML. Ao escolher um, são carregados no formulário.",
-            templatesEmpty: "Ainda não há modelos guardados.",
-            templatesError: "Não foi possível carregar os modelos.",
-            untitled: "Sem título", deleteTemplate: "Eliminar modelo",
-            templateNamePrompt: "Nome deste modelo:",
-            templateNeedsBody: "Escreva o corpo HTML antes de guardar um modelo.",
-            templateNeedsName: "O modelo precisa de um nome.",
-            templateSaved: name => `Modelo «${name}» guardado.`,
-            templateLoaded: name => `Modelo «${name}» carregado.`,
-            templateSaveError: "Não foi possível guardar o modelo.",
-            templateDeleteConfirm: name => `Eliminar o modelo «${name}»?`,
-            templateDeleted: "Modelo eliminado.",
-            templateDeleteError: "Não foi possível eliminar o modelo.",
+            importText: "Escolher .html", addFiles: "Adicionar ficheiros", sendText: "Enviar",
+            loadingSenders: "A carregar caixas…", subjectPlaceholder: "Um assunto claro para esta mensagem",
+            removeTemplate: "Remover modelo HTML", previewFrameTitle: "Pré-visualização do email",
+            secureLabel: "SMTP seguro", previewEyebrow: "Vista do destinatário", previewTitle: "Pré-visualização do email",
+            noTemplate: "Sem modelo", readyTemplate: "Pronto",
+            previewEmptyTitle: "A sua mensagem aparecerá aqui",
+            previewEmptyCopy: "Escolha um modelo HTML para o rever antes de enviar.",
+            confirmEyebrow: "Revisão final", confirmTitle: "Enviar este email?",
+            confirmCopy: "Confirme os dados reais de entrega antes de continuar.",
+            confirmCancel: "Cancelar", confirmAction: "Enviar email",
+            confirmFrom: "De", confirmTo: "Para", confirmSubject: "Assunto", confirmFiles: "Anexos",
+            attachmentsCount: count => count === 1 ? "1 ficheiro" : `${count} ficheiros`,
             senderRequired: "Escolha um remetente.",
             senderNotReady: "sem credenciais",
             senderMissingCredentials: (list, suffix) =>
                 `${list} ainda não pode enviar: configure SMTP_USER_${suffix} e SMTP_PASSWORD_${suffix} no serviço.`,
             recipientRequired: "Indique pelo menos um destinatário.",
+            recipientInvalid: "Todos os destinatários devem ser emails válidos.",
+            recipientLimit: "Uma mensagem pode ter no máximo 20 destinatários.",
+            replyInvalid: "O email de resposta não é válido.",
             subjectRequired: "É necessário um assunto.",
-            bodyRequired: "O corpo da mensagem está vazio.",
-            previewNeedsBody: "Ainda não há nada para pré-visualizar.",
-            imported: name => `Carregou-se ${name}.`,
+            templateRequired: "Escolha um modelo HTML.",
+            htmlTooLarge: max => `O modelo HTML deve ter menos de ${max}.`,
+            imported: name => `${name} está pronto.`,
             importError: "Não foi possível ler esse ficheiro.",
+            emptyFile: name => `${name} está vazio.`,
             tooManyFiles: max => `No máximo ${max} anexos por mensagem.`,
             fileTooLarge: max => `Cada anexo deve ficar abaixo de ${max}.`,
             totalTooLarge: max => `Os anexos somam mais de ${max}.`,
-            confirmSend: (from, to) => `Enviar esta mensagem como ${from} para ${to}?`,
             sending: "A enviar…",
             sent: to => `Enviado para ${to}.`,
+            sentReceiptWarning: to => `Enviado para ${to}. Não foi possível entregar a confirmação ao administrador.`,
             sendError: "Não foi possível enviar a mensagem.",
             serviceDown: "O serviço de plataforma da Elysium não responde, por isso não pode sair correio."
         },
@@ -1251,11 +1255,11 @@ const AGENDA_COPY = {
         create: 'Create meeting', creating: 'Creating…', refresh: 'Refresh', upcoming: 'Upcoming', past: 'Past', cancelled: 'Cancelled', all: 'All',
         loadError: 'Meetings could not be loaded.', empty: 'No meetings in this view.',
         invalidZone: 'Enter valid IANA time zones.', invalidLink: 'The meeting link must use HTTPS.', invalidDate: 'Choose a valid future date and time.',
-        required: 'Complete every required field.', createdOk: 'Meeting saved. Send the client the invitation or the email.',
+        required: 'Complete every required field.', createdOk: 'Meeting saved.',
         createFailed: 'The meeting could not be saved.', cancelFailed: 'The meeting could not be cancelled.',
         apiMissing: 'The Elysium platform service is not reachable, so no confirmation email can be sent. Deploy elysium-billing at /api and try again.',
         apiTimeout: 'The platform service did not answer. The meeting may not have been saved — reload the agenda before trying again.',
-        emailMissing: 'Email delivery is not configured on the service (RESEND_API_KEY and MEETING_FROM_EMAIL).',
+        emailMissing: 'SMTP email delivery is not configured on the service (SMTP_HOST, SMTP_USER, SMTP_PASSWORD and MEETING_FROM_EMAIL).',
         emailNotSent: 'The confirmation email could not be sent — tell the client yourself.',
         clientNoEmail: 'This client has no email address on file, so nothing can be sent to them.',
         duplicate: 'A different meeting was already booked with this identifier. Change the time or the duration.',
@@ -1278,11 +1282,11 @@ const AGENDA_COPY = {
         create: 'Crear reunión', creating: 'Creando…', refresh: 'Actualizar', upcoming: 'Próximas', past: 'Pasadas', cancelled: 'Canceladas', all: 'Todas',
         loadError: 'No se pudieron cargar las reuniones.', empty: 'No hay reuniones en esta vista.',
         invalidZone: 'Introduce zonas horarias IANA válidas.', invalidLink: 'El enlace de la reunión debe usar HTTPS.', invalidDate: 'Elige una fecha y hora futuras válidas.',
-        required: 'Completa todos los campos obligatorios.', createdOk: 'Reunión guardada. Envía al cliente la invitación o el correo.',
+        required: 'Completa todos los campos obligatorios.', createdOk: 'Reunión guardada.',
         createFailed: 'No se pudo guardar la reunión.', cancelFailed: 'No se pudo cancelar la reunión.',
         apiMissing: 'No se alcanza el servicio de Elysium, así que no puede salir el correo de confirmación. Despliega elysium-billing en /api y vuelve a intentarlo.',
         apiTimeout: 'El servicio no ha respondido. Puede que la reunión no se haya guardado — recarga la agenda antes de repetir.',
-        emailMissing: 'El envío de correo no está configurado en el servicio (RESEND_API_KEY y MEETING_FROM_EMAIL).',
+        emailMissing: 'El envío SMTP no está configurado en el servicio (SMTP_HOST, SMTP_USER, SMTP_PASSWORD y MEETING_FROM_EMAIL).',
         emailNotSent: 'No se pudo enviar el correo de confirmación — avisa tú al cliente.',
         clientNoEmail: 'Este cliente no tiene correo registrado, así que no se le puede enviar nada.',
         duplicate: 'Ya había otra reunión con este identificador. Cambia la hora o la duración.',
@@ -1305,11 +1309,11 @@ const AGENDA_COPY = {
         create: 'Criar reunião', creating: 'A criar…', refresh: 'Atualizar', upcoming: 'Próximas', past: 'Passadas', cancelled: 'Canceladas', all: 'Todas',
         loadError: 'Não foi possível carregar as reuniões.', empty: 'Não existem reuniões nesta vista.',
         invalidZone: 'Introduza fusos horários IANA válidos.', invalidLink: 'O link da reunião deve usar HTTPS.', invalidDate: 'Escolha uma data e hora futuras válidas.',
-        required: 'Preencha todos os campos obrigatórios.', createdOk: 'Reunião guardada. Envie ao cliente o convite ou o email.',
+        required: 'Preencha todos os campos obrigatórios.', createdOk: 'Reunião guardada.',
         createFailed: 'Não foi possível guardar a reunião.', cancelFailed: 'Não foi possível cancelar a reunião.',
         apiMissing: 'O serviço da Elysium não está acessível, por isso não pode sair o email de confirmação. Publique elysium-billing em /api e tente de novo.',
         apiTimeout: 'O serviço não respondeu. A reunião pode não ter ficado guardada — recarregue a agenda antes de repetir.',
-        emailMissing: 'O envio de email não está configurado no serviço (RESEND_API_KEY e MEETING_FROM_EMAIL).',
+        emailMissing: 'O envio SMTP não está configurado no serviço (SMTP_HOST, SMTP_USER, SMTP_PASSWORD e MEETING_FROM_EMAIL).',
         emailNotSent: 'Não foi possível enviar o email de confirmação — avise o cliente você mesmo.',
         clientNoEmail: 'Este cliente não tem email registado, por isso não lhe pode ser enviado nada.',
         duplicate: 'Já existia outra reunião com este identificador. Altere a hora ou a duração.',
@@ -1976,7 +1980,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initDashboard();
     };
 
-    if (ADMIN_AGENDA_PREVIEW) {
+    if (ADMIN_PREVIEW) {
         launchDashboard(true);
     } else {
         // Auth Guard
@@ -2135,18 +2139,40 @@ function applyTranslations() {
         'mail-body-hint': mailCopy.bodyHint,
         'mail-attachments-hint': mailCopy.attachmentsHint,
         'mail-import-text': mailCopy.importText,
-        'mail-preview-btn': mailCopy.previewText,
-        'mail-preview-title': mailCopy.previewText,
-        'mail-send-btn': mailCopy.sendText,
-        'mail-templates-eyebrow': mailCopy.templatesEyebrow,
-        'mail-templates-title': mailCopy.templatesTitle,
-        'mail-templates-hint': mailCopy.templatesHint,
-        'mail-template-save': mailCopy.saveTemplate
+        'mail-attachment-action': mailCopy.addFiles,
+        'mail-send-text': mailCopy.sendText,
+        'mail-secure-label': mailCopy.secureLabel,
+        'mail-preview-eyebrow': mailCopy.previewEyebrow,
+        'mail-preview-title': mailCopy.previewTitle,
+        'mail-preview-empty-title': mailCopy.previewEmptyTitle,
+        'mail-preview-empty-copy': mailCopy.previewEmptyCopy,
+        'mail-confirm-eyebrow': mailCopy.confirmEyebrow,
+        'mail-confirm-title': mailCopy.confirmTitle,
+        'mail-confirm-copy': mailCopy.confirmCopy,
+        'mail-confirm-from-label': mailCopy.confirmFrom,
+        'mail-confirm-to-label': mailCopy.confirmTo,
+        'mail-confirm-subject-label': mailCopy.confirmSubject,
+        'mail-confirm-files-label': mailCopy.confirmFiles,
+        'mail-confirm-cancel': mailCopy.confirmCancel,
+        'mail-confirm-send': mailCopy.confirmAction
     };
     for (const [id, value] of Object.entries(mailLabels)) {
         const element = document.getElementById(id);
         if (element && value) element.textContent = value;
     }
+    const mailSubject = document.getElementById('mail-subject');
+    if (mailSubject) mailSubject.placeholder = mailCopy.subjectPlaceholder;
+    const removeTemplate = document.getElementById('mail-remove-template-btn');
+    if (removeTemplate) removeTemplate.setAttribute('aria-label', mailCopy.removeTemplate);
+    const previewFrame = document.getElementById('mail-live-preview-frame');
+    if (previewFrame) previewFrame.title = mailCopy.previewFrameTitle;
+    const senderSelect = document.getElementById('mail-sender');
+    if (senderSelect?.options.length === 1 && !senderSelect.value) {
+        senderSelect.options[0].textContent = mailCopy.loadingSenders;
+    }
+    const previewBadge = document.getElementById('mail-preview-badge');
+    if (previewBadge) previewBadge.textContent = _mailTemplateHtml ? mailCopy.readyTemplate : mailCopy.noTemplate;
+    if (_mailInitialized) renderMailAttachments();
 
     // Logout button has SVG + span — only update the span
     const logoutSpan = document.querySelector('#logoutBtn span');
@@ -2204,7 +2230,7 @@ function applyTranslations() {
 }
 
 async function initDashboard() {
-    const requestedTab = ADMIN_AGENDA_PREVIEW ? 'agenda' : (localStorage.getItem('elysium_admin_tab') || 'overview');
+    const requestedTab = ADMIN_PREVIEW || localStorage.getItem('elysium_admin_tab') || 'overview';
     const savedTab = document.getElementById(requestedTab) ? requestedTab : 'overview';
 
     // Set dashboard date
@@ -5907,10 +5933,17 @@ async function loadContacts() {
 const MAIL_MAX_ATTACHMENTS = 10;
 const MAIL_MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
 const MAIL_MAX_TOTAL_ATTACHMENT_BYTES = 12 * 1024 * 1024;
+const MAIL_MAX_HTML_BYTES = 1024 * 1024;
+const MAIL_MAX_RECIPIENTS = 20;
 
 let _mailSenders = [];
-let _mailTemplates = [];
 let _mailInitialized = false;
+let _mailTemplateFile = null;
+let _mailTemplateHtml = '';
+let _mailAttachments = [];
+let _mailConfirmResolve = null;
+let _mailPendingKey = '';
+let _mailPendingFingerprint = '';
 
 function mailText() {
     const t = translations[currentLang] || translations.en;
@@ -5949,8 +5982,15 @@ async function loadMailSenders() {
     const c = mailText();
 
     try {
-        const result = await platformRequest('/api/mail/senders', { method: 'GET' });
-        _mailSenders = Array.isArray(result.senders) ? result.senders : [];
+        if (ADMIN_MAIL_PREVIEW) {
+            _mailSenders = [
+                { name: 'Elysium', address: 'info@elysiumdr.eu', ready: true, envSuffix: 'INFO' },
+                { name: 'Daniel Morales', address: 'daniel.morales@elysiumdr.eu', ready: true, envSuffix: 'DANIEL_MORALES' }
+            ];
+        } else {
+            const result = await platformRequest('/api/mail/senders', { method: 'GET' });
+            _mailSenders = Array.isArray(result.senders) ? result.senders : [];
+        }
     } catch (error) {
         logger.warn('Could not load the sender list:', error);
         _mailSenders = [];
@@ -5997,6 +6037,10 @@ async function loadMailSenders() {
 async function fillMailRecipientOptions() {
     const list = document.getElementById('mail-client-emails');
     if (!list) return;
+    if (ADMIN_MAIL_PREVIEW) {
+        list.innerHTML = '<option value="client@example.com" label="Atelier Norte"></option>';
+        return;
+    }
     try {
         await ensureAgendaClients(_agendaLoadVersion);
     } catch (error) {
@@ -6017,161 +6061,182 @@ async function fillMailRecipientOptions() {
 /* ── Adjuntos ── */
 
 function renderMailAttachments() {
-    const input = document.getElementById('mail-attachments');
     const list = document.getElementById('mail-attachment-list');
-    if (!input || !list) return;
+    if (!list) return [];
     const c = mailText();
 
-    const files = Array.from(input.files || []);
-    if (!files.length) {
-        list.innerHTML = '';
-        return;
-    }
-
-    const total = files.reduce((sum, file) => sum + file.size, 0);
-    list.innerHTML = files.map(file => {
+    const total = _mailAttachments.reduce((sum, file) => sum + file.size, 0);
+    list.innerHTML = _mailAttachments.map((file, index) => {
         const oversize = file.size > MAIL_MAX_ATTACHMENT_BYTES;
         return `<li${oversize ? ' class="is-oversize"' : ''}>`
-            + `<span>${esc(file.name)}</span>`
-            + `<span class="mail-attachment-size">${esc(formatBytes(file.size))}</span></li>`;
+            + `<span class="mail-attachment-name" title="${esc(file.name)}">${esc(file.name)}</span>`
+            + `<span class="mail-attachment-size">${esc(formatBytes(file.size))}</span>`
+            + `<button class="mail-attachment-remove" type="button" data-mail-attachment-remove="${index}"`
+            + ` aria-label="${esc(`${c.confirmCancel}: ${file.name}`)}">×</button></li>`;
     }).join('');
 
     const problems = [];
-    if (files.length > MAIL_MAX_ATTACHMENTS) problems.push(c.tooManyFiles(MAIL_MAX_ATTACHMENTS));
-    if (files.some(file => file.size > MAIL_MAX_ATTACHMENT_BYTES)) {
+    if (_mailAttachments.length > MAIL_MAX_ATTACHMENTS) problems.push(c.tooManyFiles(MAIL_MAX_ATTACHMENTS));
+    if (_mailAttachments.some(file => file.size === 0)) {
+        const empty = _mailAttachments.find(file => file.size === 0);
+        problems.push(c.emptyFile(empty?.name || 'File'));
+    }
+    if (_mailAttachments.some(file => file.size > MAIL_MAX_ATTACHMENT_BYTES)) {
         problems.push(c.fileTooLarge(formatBytes(MAIL_MAX_ATTACHMENT_BYTES)));
     }
     if (total > MAIL_MAX_TOTAL_ATTACHMENT_BYTES) {
         problems.push(c.totalTooLarge(formatBytes(MAIL_MAX_TOTAL_ATTACHMENT_BYTES)));
     }
-    setMailMessage(problems.join(' ') || `${files.length} · ${formatBytes(total)}`,
-        problems.length ? 'is-error' : '');
+    return problems;
 }
 
-/* ── Biblioteca de plantillas ── */
+function validMailAddress(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+}
 
-async function loadMailTemplates() {
-    const container = document.getElementById('mail-template-list');
-    if (!container) return;
+function resetMailIdempotency() {
+    _mailPendingKey = '';
+    _mailPendingFingerprint = '';
+}
+
+function mailDraftFingerprint({ from, recipients, replyTo, subject }) {
+    return JSON.stringify({
+        from,
+        recipients,
+        replyTo,
+        subject,
+        html: [_mailTemplateFile?.name, _mailTemplateFile?.size, _mailTemplateFile?.lastModified],
+        attachments: _mailAttachments.map(file => [file.name, file.size, file.lastModified])
+    });
+}
+
+function mailPreviewHtml(html) {
+    const sealUrl = `${window.location.origin}/Images/elysium-email-seal.svg`;
+    let preview = String(html || '').replaceAll('cid:elysium-email-seal', sealUrl);
+    if (preview.includes(sealUrl)) return preview;
+    const seal = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-top:28px"><tr><td align="center" style="padding:24px 12px 8px"><img src="${sealUrl}" width="78" height="78" alt="Sello Elysium" style="display:block;width:78px;height:78px;margin:0 auto 10px;border:0"><p style="margin:0;color:#687c8d;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">Elysium λ Development &amp; Research</p></td></tr></table>`;
+    return /<\/body\s*>/i.test(preview)
+        ? preview.replace(/<\/body\s*>/i, `${seal}</body>`)
+        : `${preview}${seal}`;
+}
+
+async function setMailTemplate(file) {
     const c = mailText();
-    try {
-        const snapshot = await getDocs(query(collection(db, 'mail_templates'), orderBy('name')));
-        _mailTemplates = snapshot.docs.map(entry => ({ id: entry.id, ...entry.data() }));
-    } catch (error) {
-        logger.error('Could not load mail templates:', error);
-        container.innerHTML = `<p class="mail-template-empty">${esc(c.templatesError)}</p>`;
+    if (!file) return;
+    if (file.size <= 0) {
+        setMailMessage(c.emptyFile(file.name || 'HTML'), 'is-error');
         return;
     }
-    renderMailTemplates();
-}
-
-function renderMailTemplates() {
-    const container = document.getElementById('mail-template-list');
-    if (!container) return;
-    const c = mailText();
-
-    if (!_mailTemplates.length) {
-        container.innerHTML = `<p class="mail-template-empty">${esc(c.templatesEmpty)}</p>`;
+    if (file.size > MAIL_MAX_HTML_BYTES) {
+        setMailMessage(c.htmlTooLarge(formatBytes(MAIL_MAX_HTML_BYTES)), 'is-error');
         return;
     }
-    container.innerHTML = _mailTemplates.map(template => `
-        <div class="mail-template-card">
-            <button type="button" class="mail-template-open" data-template-id="${esc(template.id)}">
-                <span class="mail-template-name">${esc(template.name || c.untitled)}</span>
-                <span class="mail-template-meta">${esc(template.subject || '—')}</span>
-            </button>
-            <button type="button" class="mail-template-delete" data-template-delete="${esc(template.id)}"
-                    aria-label="${esc(c.deleteTemplate)}">✕</button>
-        </div>
-    `).join('');
-}
-
-function applyMailTemplate(templateId) {
-    const template = _mailTemplates.find(entry => entry.id === templateId);
-    if (!template) return;
-    const subject = document.getElementById('mail-subject');
-    const body = document.getElementById('mail-body');
-    if (subject) subject.value = template.subject || '';
-    if (body) body.value = template.html || '';
-    setMailMessage(mailText().templateLoaded(template.name || ''), 'is-success');
-}
-
-async function saveMailTemplate() {
-    const c = mailText();
-    const subject = document.getElementById('mail-subject')?.value.trim() || '';
-    const html = document.getElementById('mail-body')?.value.trim() || '';
-    if (!html) {
-        setMailMessage(c.templateNeedsBody, 'is-error');
-        return;
-    }
-    const name = window.prompt(c.templateNamePrompt, subject || '');
-    if (name === null) return;
-    const trimmed = name.trim();
-    if (!trimmed) {
-        setMailMessage(c.templateNeedsName, 'is-error');
+    if (!/\.html?$/i.test(file.name) && file.type !== 'text/html') {
+        setMailMessage(c.importError, 'is-error');
         return;
     }
     try {
-        // Un mismo nombre actualiza la plantilla en vez de duplicarla.
-        const existing = _mailTemplates.find(
-            entry => String(entry.name || '').toLowerCase() === trimmed.toLowerCase());
-        const payload = {
-            name: trimmed,
-            subject,
-            html,
-            updatedAt: serverTimestamp(),
-            updatedBy: auth.currentUser?.email || null
-        };
-        if (existing) {
-            await updateDoc(doc(db, 'mail_templates', existing.id), payload);
-        } else {
-            await addDoc(collection(db, 'mail_templates'), { ...payload, createdAt: serverTimestamp() });
+        const html = await file.text();
+        if (!html.trim()) {
+            setMailMessage(c.emptyFile(file.name), 'is-error');
+            return;
         }
-        await loadMailTemplates();
-        setMailMessage(c.templateSaved(trimmed), 'is-success');
+        _mailTemplateFile = file;
+        _mailTemplateHtml = html;
+        resetMailIdempotency();
+
+        const summary = document.getElementById('mail-template-summary');
+        const fileName = document.getElementById('mail-file-name');
+        const frame = document.getElementById('mail-live-preview-frame');
+        const empty = document.getElementById('mail-preview-empty');
+        const badge = document.getElementById('mail-preview-badge');
+        if (fileName) fileName.textContent = file.name;
+        if (summary) summary.hidden = false;
+        if (frame) {
+            frame.srcdoc = mailPreviewHtml(html);
+            frame.hidden = false;
+        }
+        if (empty) empty.hidden = true;
+        if (badge) {
+            badge.textContent = c.readyTemplate;
+            badge.classList.add('is-ready');
+        }
+        setMailMessage(c.imported(file.name), 'is-success');
     } catch (error) {
-        logger.error('Could not save the template:', error);
-        setMailMessage(error.message || c.templateSaveError, 'is-error');
+        logger.warn('Could not read the HTML template:', error);
+        setMailMessage(c.importError, 'is-error');
     }
 }
 
-async function deleteMailTemplate(templateId) {
+function clearMailTemplate() {
+    _mailTemplateFile = null;
+    _mailTemplateHtml = '';
+    resetMailIdempotency();
+    const input = document.getElementById('mail-template');
+    const summary = document.getElementById('mail-template-summary');
+    const frame = document.getElementById('mail-live-preview-frame');
+    const empty = document.getElementById('mail-preview-empty');
+    const badge = document.getElementById('mail-preview-badge');
+    if (input) input.value = '';
+    if (summary) summary.hidden = true;
+    if (frame) {
+        frame.srcdoc = '';
+        frame.hidden = true;
+    }
+    if (empty) empty.hidden = false;
+    if (badge) {
+        badge.textContent = mailText().noTemplate;
+        badge.classList.remove('is-ready');
+    }
+}
+
+function addMailAttachments(files) {
+    const incoming = Array.from(files || []);
+    if (!incoming.length) return;
+    const known = new Set(_mailAttachments.map(file => `${file.name}:${file.size}:${file.lastModified}`));
+    for (const file of incoming) {
+        const key = `${file.name}:${file.size}:${file.lastModified}`;
+        if (!known.has(key)) {
+            known.add(key);
+            _mailAttachments.push(file);
+        }
+    }
+    resetMailIdempotency();
+    const problems = renderMailAttachments();
+    const total = _mailAttachments.reduce((sum, file) => sum + file.size, 0);
+    setMailMessage(
+        problems.join(' ') || `${mailText().attachmentsCount(_mailAttachments.length)} · ${formatBytes(total)}`,
+        problems.length ? 'is-error' : ''
+    );
+}
+
+function parseMailRecipients(rawValue) {
     const c = mailText();
-    const template = _mailTemplates.find(entry => entry.id === templateId);
-    if (!template || !window.confirm(c.templateDeleteConfirm(template.name || ''))) return;
-    try {
-        await deleteDoc(doc(db, 'mail_templates', templateId));
-        await loadMailTemplates();
-        setMailMessage(c.templateDeleted, 'is-success');
-    } catch (error) {
-        logger.error('Could not delete the template:', error);
-        setMailMessage(error.message || c.templateDeleteError, 'is-error');
-    }
+    const raw = String(rawValue || '').split(/[,;\n]/).map(value => value.trim()).filter(Boolean);
+    if (!raw.length) return { error: c.recipientRequired, recipients: [] };
+    if (raw.length > MAIL_MAX_RECIPIENTS) return { error: c.recipientLimit, recipients: [] };
+    if (raw.some(value => !validMailAddress(value))) return { error: c.recipientInvalid, recipients: [] };
+    return { recipients: [...new Set(raw.map(value => value.toLowerCase()))], error: '' };
 }
 
-/* ── Vista previa ── */
-
-function openMailPreview() {
-    const backdrop = document.getElementById('mail-preview-backdrop');
-    const frame = document.getElementById('mail-preview-frame');
-    const html = document.getElementById('mail-body')?.value || '';
-    if (!backdrop || !frame) return;
-    if (!html.trim()) {
-        setMailMessage(mailText().previewNeedsBody, 'is-error');
-        return;
-    }
-    // `srcdoc` con el iframe en sandbox sin `allow-scripts`: se ve la maqueta,
-    // no se ejecuta nada de lo que traiga la plantilla.
-    frame.srcdoc = html;
-    backdrop.hidden = false;
-    document.getElementById('mail-preview-close')?.focus();
-}
-
-function closeMailPreview() {
-    const backdrop = document.getElementById('mail-preview-backdrop');
-    const frame = document.getElementById('mail-preview-frame');
+function closeMailConfirmation(confirmed) {
+    const backdrop = document.getElementById('mail-confirm-backdrop');
     if (backdrop) backdrop.hidden = true;
-    if (frame) frame.srcdoc = '';
+    const resolve = _mailConfirmResolve;
+    _mailConfirmResolve = null;
+    resolve?.(Boolean(confirmed));
+}
+
+function confirmMailDelivery({ from, recipients, subject }) {
+    const backdrop = document.getElementById('mail-confirm-backdrop');
+    if (!backdrop) return Promise.resolve(false);
+    document.getElementById('mail-confirm-from').textContent = from;
+    document.getElementById('mail-confirm-to').textContent = recipients.join(', ');
+    document.getElementById('mail-confirm-subject').textContent = subject;
+    document.getElementById('mail-confirm-files').textContent = mailText().attachmentsCount(_mailAttachments.length);
+    backdrop.hidden = false;
+    document.getElementById('mail-confirm-cancel')?.focus();
+    return new Promise(resolve => { _mailConfirmResolve = resolve; });
 }
 
 /* ── Envío ── */
@@ -6180,46 +6245,79 @@ async function submitMailForm(event) {
     event.preventDefault();
     const c = mailText();
     const button = document.getElementById('mail-send-btn');
+    if (ADMIN_MAIL_PREVIEW) {
+        setMailMessage(c.previewOnly || 'Local preview: delivery is disabled.', 'is-warning');
+        return;
+    }
 
     const from = document.getElementById('mail-sender')?.value || '';
-    const recipients = (document.getElementById('mail-recipient')?.value || '')
-        .split(/[,;]/).map(entry => entry.trim()).filter(Boolean);
+    const { recipients, error: recipientError } = parseMailRecipients(
+        document.getElementById('mail-recipient')?.value || '');
+    const replyTo = document.getElementById('mail-reply-to')?.value.trim() || '';
     const subject = document.getElementById('mail-subject')?.value.trim() || '';
-    const fileInput = document.getElementById('mail-template');
-    const file = fileInput?.files?.[0];
 
     if (!from) return setMailMessage(c.senderRequired, 'is-error');
-    if (!recipients.length) return setMailMessage(c.recipientRequired, 'is-error');
+    if (recipientError) return setMailMessage(recipientError, 'is-error');
+    if (replyTo && !validMailAddress(replyTo)) return setMailMessage(c.replyInvalid, 'is-error');
     if (!subject) return setMailMessage(c.subjectRequired, 'is-error');
-    if (!file) return setMailMessage("Please upload an HTML template file.", 'is-error');
+    if (!_mailTemplateFile || !_mailTemplateHtml.trim()) return setMailMessage(c.templateRequired, 'is-error');
+    if (new Blob([_mailTemplateHtml]).size > MAIL_MAX_HTML_BYTES) {
+        return setMailMessage(c.htmlTooLarge(formatBytes(MAIL_MAX_HTML_BYTES)), 'is-error');
+    }
+    const attachmentProblems = renderMailAttachments();
+    if (attachmentProblems.length) return setMailMessage(attachmentProblems.join(' '), 'is-error');
 
-    // Enviar como la empresa no se deshace: se confirma el destinatario real.
-    if (!window.confirm(c.confirmSend(from, recipients.join(', ')))) return;
+    // Enviar como la empresa no se deshace: se confirma en un diálogo propio
+    // del CRM, con el destinatario real, el asunto y el número de adjuntos.
+    if (!await confirmMailDelivery({ from, recipients, subject })) return;
 
     if (button) button.disabled = true;
     setMailMessage(c.sending);
 
     try {
-        const html = await file.text();
+        const attachments = await Promise.all(_mailAttachments.map(async file => ({
+            filename: file.name,
+            contentType: file.type || 'application/octet-stream',
+            content: await fileToBase64(file)
+        })));
+        const fingerprint = mailDraftFingerprint({ from, recipients, replyTo, subject });
+        if (!_mailPendingKey || _mailPendingFingerprint !== fingerprint) {
+            _mailPendingKey = `elysium-crm-${crypto.randomUUID()}`;
+            _mailPendingFingerprint = fingerprint;
+        }
 
         const result = await platformRequest('/api/mail/send', {
-            body: { from, to: recipients, subject, html }
+            headers: { 'Idempotency-Key': _mailPendingKey },
+            timeoutMs: 60000,
+            body: {
+                from,
+                to: recipients,
+                subject,
+                html: _mailTemplateHtml,
+                locale: currentLang,
+                replyTo: replyTo || undefined,
+                attachments
+            }
         });
 
-        // El asunto se conserva. Se limpian destinatario y archivo.
+        // El asunto y el remitente se conservan para el siguiente correo; lo
+        // que pudiera causar un reenvío accidental sí se limpia.
         const recipientInput = document.getElementById('mail-recipient');
         if (recipientInput) recipientInput.value = '';
-        if (fileInput) fileInput.value = '';
-        
-        const previewContainer = document.getElementById('mail-live-preview-container');
-        const uploadZone = document.getElementById('mail-upload-zone');
-        const previewFrame = document.getElementById('mail-live-preview-frame');
-        
-        if (previewContainer) previewContainer.hidden = true;
-        if (previewFrame) previewFrame.srcdoc = '';
-        if (uploadZone) uploadZone.hidden = false;
+        const replyInput = document.getElementById('mail-reply-to');
+        if (replyInput) replyInput.value = '';
+        _mailAttachments = [];
+        renderMailAttachments();
+        clearMailTemplate();
+        resetMailIdempotency();
 
-        setMailMessage(c.sent(recipients.join(', ')), 'is-success');
+        const delivered = Array.isArray(result.recipients) && result.recipients.length
+            ? result.recipients.join(', ')
+            : recipients.join(', ');
+        setMailMessage(
+            result.adminReceiptStatus === 'failed' ? c.sentReceiptWarning(delivered) : c.sent(delivered),
+            result.adminReceiptStatus === 'failed' ? 'is-warning' : 'is-success'
+        );
     } catch (error) {
         logger.error('Could not send the message:', error);
         setMailMessage(
@@ -6241,64 +6339,83 @@ function initMailSection() {
 
     form.addEventListener('submit', submitMailForm);
 
-    // Manejar la zona de drag & drop y selección de archivo
-    const fileInput = document.getElementById('mail-template');
-    const uploadZone = document.getElementById('mail-upload-zone');
-    const previewContainer = document.getElementById('mail-live-preview-container');
-    const previewFrame = document.getElementById('mail-live-preview-frame');
-    const fileName = document.getElementById('mail-file-name');
-    const removeBtn = document.getElementById('mail-remove-template-btn');
+    const templateInput = document.getElementById('mail-template');
+    const templateTrigger = document.getElementById('mail-template-trigger');
+    const templateCard = templateTrigger?.closest('.mail-asset-card');
+    templateTrigger?.addEventListener('click', () => templateInput?.click());
+    templateInput?.addEventListener('change', event => setMailTemplate(event.target.files?.[0]));
+    document.getElementById('mail-remove-template-btn')?.addEventListener('click', clearMailTemplate);
 
-    const handleFile = async (file) => {
-        if (!file) return;
-        try {
-            if (fileName) fileName.textContent = file.name;
-            const html = await file.text();
-            
-            if (previewFrame) previewFrame.srcdoc = html;
-            if (previewContainer) previewContainer.hidden = false;
-            if (uploadZone) uploadZone.hidden = true;
-        } catch (err) {
-            console.error("Error reading file", err);
-        }
+    const attachmentInput = document.getElementById('mail-attachments');
+    const attachmentTrigger = document.getElementById('mail-attachment-trigger');
+    const attachmentZone = document.getElementById('mail-attachment-zone');
+    attachmentTrigger?.addEventListener('click', () => attachmentInput?.click());
+    attachmentInput?.addEventListener('change', event => {
+        addMailAttachments(event.target.files);
+        event.target.value = '';
+    });
+    document.getElementById('mail-attachment-list')?.addEventListener('click', event => {
+        const remove = event.target.closest('[data-mail-attachment-remove]');
+        if (!remove) return;
+        _mailAttachments.splice(Number(remove.dataset.mailAttachmentRemove), 1);
+        resetMailIdempotency();
+        renderMailAttachments();
+        if (!_mailAttachments.length) setMailMessage('');
+    });
+
+    const wireDropZone = (zone, onFiles) => {
+        if (!zone) return;
+        zone.addEventListener('dragover', event => {
+            event.preventDefault();
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+            zone.classList.add('is-dragover');
+        });
+        zone.addEventListener('dragleave', () => zone.classList.remove('is-dragover'));
+        zone.addEventListener('drop', event => {
+            event.preventDefault();
+            zone.classList.remove('is-dragover');
+            onFiles(event.dataTransfer?.files || []);
+        });
     };
+    wireDropZone(templateCard, files => setMailTemplate(Array.from(files)[0]));
+    wireDropZone(attachmentZone, addMailAttachments);
 
-    if (fileInput && uploadZone) {
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files?.[0]));
-
-        uploadZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadZone.classList.add('dragover');
-        });
-
-        uploadZone.addEventListener('dragleave', () => {
-            uploadZone.classList.remove('dragover');
-        });
-
-        uploadZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            if (e.dataTransfer.files?.length) {
-                fileInput.files = e.dataTransfer.files;
-                handleFile(e.dataTransfer.files[0]);
-            }
-        });
-    }
-
-    if (removeBtn) {
-        removeBtn.addEventListener('click', () => {
-            if (fileInput) fileInput.value = '';
-            if (previewFrame) previewFrame.srcdoc = '';
-            if (previewContainer) previewContainer.hidden = true;
-            if (uploadZone) uploadZone.hidden = false;
-        });
-    }
+    document.getElementById('mail-confirm-cancel')?.addEventListener('click', () => closeMailConfirmation(false));
+    document.getElementById('mail-confirm-send')?.addEventListener('click', () => closeMailConfirmation(true));
+    document.getElementById('mail-confirm-backdrop')?.addEventListener('click', event => {
+        if (event.target === event.currentTarget) closeMailConfirmation(false);
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !document.getElementById('mail-confirm-backdrop')?.hidden) {
+            closeMailConfirmation(false);
+        }
+    });
+    form.addEventListener('input', resetMailIdempotency);
 }
 
 /** Datos que dependen de la red; se recargan cada vez que se abre la sección. */
-function loadMailSection() {
+async function loadMailSection() {
     initMailSection();
     fillMailRecipientOptions();  // asíncrona: rellena el datalist cuando pueda
     loadMailSenders();
-    loadMailTemplates();
+    if (ADMIN_MAIL_PREVIEW && !_mailTemplateHtml) {
+        const recipient = document.getElementById('mail-recipient');
+        const subject = document.getElementById('mail-subject');
+        const sendButton = document.getElementById('mail-send-btn');
+        if (recipient) recipient.value = 'client@example.com';
+        if (subject) subject.value = 'A considered update from Elysium';
+        if (sendButton) {
+            sendButton.disabled = true;
+            sendButton.title = 'Local visual preview — sending disabled';
+        }
+        try {
+            const response = await fetch('/scripts/fixtures/elysium-email-preview.html');
+            if (!response.ok) throw new Error(`preview_template_${response.status}`);
+            const html = await response.text();
+            await setMailTemplate(new File([html], 'elysium-email-preview.html', { type: 'text/html' }));
+            setMailMessage('Local visual preview — sending is disabled.', 'is-warning');
+        } catch (error) {
+            logger.warn('Could not load the local mail preview fixture:', error);
+        }
+    }
 }

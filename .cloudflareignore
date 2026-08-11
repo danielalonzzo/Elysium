@@ -8,9 +8,7 @@ firebase-debug.log
 .firebase/
 .wrangler/
 backend/
-# `functions/` son las Cloud Functions (el correo de las reuniones). Código de
-# servidor, no assets del sitio.
-functions/
+**/pvp-credenciales/**
 # Secretos: esta lista no tenía ninguna regla `.env`, a diferencia de
 # `.assetsignore`. Los `.env.example` no llevan valores y pueden publicarse,
 # pero tampoco son parte del sitio, así que se excluyen igual.

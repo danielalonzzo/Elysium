@@ -22,6 +22,9 @@ const {
   meetingIdForRequest,
   meetingRequestFingerprint,
   buildMeetingEmail,
+  emailTheme,
+  withElysiumSeal,
+  elysiumSealAttachment,
   buildMeetingIcs,
   meetingEmailPayload,
   adminNotificationEmail,
@@ -34,9 +37,15 @@ const {
   validateMailAttachments,
   safeAttachmentName,
   htmlToPlainText,
+  crmMailIdempotencyKey,
+  crmMailFingerprint,
+  crmMailReceiptPayload,
   passwordResetEmail,
   passwordResetEmailConfigured,
-  passwordResetContinueUrl
+  passwordResetContinueUrl,
+  ProspectValidationError,
+  normalizeProspectInput,
+  prospectRateLimited
 } = require('./platform-server');
 
 test('recognizes only verified configured or claim-backed administrators', () => {
@@ -260,10 +269,44 @@ test('password-reset helpers remain neutral, localized and rate limited', () => 
   assert.equal(passwordResetRateLimited('email:key', 2, 1_000 + 60 * 60 * 1000, attempts), false);
 });
 
+test('public project enquiries are normalized and rate limited before Firestore', () => {
+  assert.deepEqual(normalizeProspectInput({
+    name: ' Ana Silva ',
+    company: ' Atelier Norte ',
+    email: 'ANA@EXAMPLE.COM',
+    projectDescription: 'A multilingual portal.',
+    isExistingClient: false,
+    licenseCode: 'ignored'
+  }), {
+    name: 'Ana Silva',
+    company: 'Atelier Norte',
+    email: 'ana@example.com',
+    projectDescription: 'A multilingual portal.',
+    isExistingClient: false,
+    licenseCode: null
+  });
+  assert.throws(() => normalizeProspectInput({ name: '<b>Ana</b>', company: 'A', email: 'a@example.com' }), ProspectValidationError);
+  assert.throws(() => normalizeProspectInput({ name: 'Ana', company: 'A', email: 'invalid' }), ProspectValidationError);
+  assert.throws(() => normalizeProspectInput({
+    name: 'Ana', company: 'A', email: 'a@example.com', isExistingClient: true, licenseCode: 'wrong'
+  }), ProspectValidationError);
+
+  const attempts = new Map();
+  assert.equal(prospectRateLimited('ip:key', 2, 1_000, attempts), false);
+  assert.equal(prospectRateLimited('ip:key', 2, 1_001, attempts), false);
+  assert.equal(prospectRateLimited('ip:key', 2, 1_002, attempts), true);
+  assert.equal(prospectRateLimited('ip:key', 2, 1_000 + 60 * 60 * 1000, attempts), false);
+});
+
 /* ── Correo del CRM ───────────────────────────────────────────────────────── */
 
 test('the CRM sender list is closed and comes from the server', () => {
-  const saved = process.env.CRM_MAIL_SENDERS;
+  const saved = {
+    senders: process.env.CRM_MAIL_SENDERS,
+    host: process.env.SMTP_HOST,
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD
+  };
   process.env.CRM_MAIL_SENDERS =
     'Elysium <info@elysiumdr.eu>, Daniel Morales <daniel.morales@elysiumdr.eu>';
 
@@ -280,6 +323,15 @@ test('the CRM sender list is closed and comes from the server', () => {
   assert.equal(senders[0].ready, true);
   assert.equal(senders[1].ready, false);
 
+  // A matching SMTP_USER is not enough. The UI must not offer a sender that
+  // cannot actually connect because the shared host or password is missing.
+  delete process.env.SMTP_HOST;
+  assert.equal(mailSenders()[0].ready, false);
+  process.env.SMTP_HOST = saved.host;
+  delete process.env.SMTP_PASSWORD;
+  assert.equal(mailSenders()[0].ready, false);
+  process.env.SMTP_PASSWORD = saved.pass;
+
   process.env.SMTP_USER_DANIEL_MORALES = 'daniel.morales@elysiumdr.eu';
   process.env.SMTP_PASSWORD_DANIEL_MORALES = 'unit-tests';
   assert.equal(mailSenders()[1].ready, true);
@@ -293,7 +345,11 @@ test('the CRM sender list is closed and comes from the server', () => {
   assert.equal(findMailSender('cualquiera@gmail.com'), null);
   assert.equal(findMailSender(''), null);
 
-  process.env.CRM_MAIL_SENDERS = saved;
+  if (saved.senders == null) delete process.env.CRM_MAIL_SENDERS;
+  else process.env.CRM_MAIL_SENDERS = saved.senders;
+  process.env.SMTP_HOST = saved.host;
+  process.env.SMTP_USER = saved.user;
+  process.env.SMTP_PASSWORD = saved.pass;
 });
 
 test('attachments are capped and their names sanitised', () => {
@@ -306,6 +362,9 @@ test('attachments are capped and their names sanitised', () => {
 
   assert.throws(() => validateMailAttachments('nope'), MailValidationError);
   assert.throws(() => validateMailAttachments([{ filename: 'x', content: '' }]), MailValidationError);
+  assert.throws(() => validateMailAttachments([{ filename: 'x', content: '!!!!' }]), MailValidationError);
+  assert.throws(() => validateMailAttachments([{ filename: 'x', content: 'data:text/plain;base64,aG9sYQ==' }]), MailValidationError);
+  assert.throws(() => validateMailAttachments([{ filename: 'x', content: 'aG9sYQ==', contentType: 'text/plain\r\nBcc: victim@example.com' }]), MailValidationError);
   assert.throws(
     () => validateMailAttachments(Array.from({ length: 11 }, () => ({ filename: 'x', content: small }))),
     MailValidationError);
@@ -330,4 +389,61 @@ test('the plain-text part is derived from the HTML body', () => {
   assert.match(text, /Una prueba con λ y &\./);
   assert.doesNotMatch(text, /</);
   assert.equal(htmlToPlainText('<style>p{color:red}</style><script>x()</script><p>Sólo esto</p>').trim(), 'Sólo esto');
+});
+
+test('CRM email theming stays light and embeds the official seal once', () => {
+  const themed = emailTheme('<p>Contenido</p>', 'Vista previa');
+  assert.match(themed, /color-scheme" content="light only"/);
+  assert.doesNotMatch(themed, /prefers-color-scheme:\s*dark/);
+  assert.match(themed, /cid:elysium-email-seal/);
+
+  const uploaded = '<!doctype html><html><body><p>Hola</p></body></html>';
+  const sealed = withElysiumSeal(uploaded);
+  assert.equal((sealed.match(/cid:elysium-email-seal/g) || []).length, 1);
+  assert.equal(withElysiumSeal(sealed), sealed);
+
+  const seal = elysiumSealAttachment();
+  assert.equal(seal.contentType, 'image/png');
+  assert.equal(seal.cid, 'elysium-email-seal');
+  assert.deepEqual(Buffer.from(seal.content, 'base64').subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+});
+
+test('CRM idempotency keys and fingerprints are stable and content-bound', () => {
+  const request = { get: name => name === 'idempotency-key' ? 'crm-mail:1234567890abcdef' : '' };
+  assert.equal(crmMailIdempotencyKey(request), 'crm-mail:1234567890abcdef');
+  assert.throws(() => crmMailIdempotencyKey({ get: () => 'short' }), MailValidationError);
+
+  const message = {
+    actorUid: 'admin-1',
+    from: 'info@elysiumdr.eu',
+    recipients: ['one@example.com'],
+    replyTo: null,
+    subject: 'Proposal',
+    html: '<p>Hello</p>',
+    attachments: [{ filename: 'brief.pdf', contentType: 'application/pdf', bytes: 4, sha256: 'abc' }]
+  };
+  assert.equal(crmMailFingerprint(message), crmMailFingerprint({ ...message }));
+  assert.notEqual(crmMailFingerprint(message), crmMailFingerprint({ ...message, subject: 'Different' }));
+  assert.notEqual(crmMailFingerprint(message), crmMailFingerprint({ ...message, html: '<p>Changed</p>' }));
+});
+
+test('the separate administrator receipt escapes content and preserves a safe copy', () => {
+  const payload = crmMailReceiptPayload({
+    sender: { name: 'Elysium', address: 'info@elysiumdr.eu' },
+    actorEmail: 'admin@example.com',
+    recipients: ['client@example.com'],
+    subject: '<script>alert(1)</script>',
+    html: '<h1>Hello</h1><script>unsafe()</script>',
+    text: 'Hello <client>',
+    attachments: [{ filename: '<invoice>.pdf', contentType: 'application/pdf', bytes: 42 }],
+    sentAt: new Date('2026-08-11T12:00:00.000Z'),
+    locale: 'es'
+  });
+  assert.deepEqual(payload.to, [adminNotificationEmail()]);
+  assert.match(payload.subject, /^Confirmación de envío/);
+  assert.doesNotMatch(payload.html, /<script>alert\(1\)<\/script>/);
+  assert.match(payload.html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+  assert.match(payload.html, /&lt;invoice&gt;\.pdf/);
+  assert.equal(payload.attachments[0].contentType, 'text/plain');
+  assert.equal(Buffer.from(payload.attachments[0].content, 'base64').toString('utf8'), '<h1>Hello</h1><script>unsafe()</script>');
 });

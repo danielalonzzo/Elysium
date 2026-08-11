@@ -48,18 +48,36 @@ const PLANS = {
     preferential: { code: 'EC02', price: { monthly: 99,   annual: 990 },   tier: 3 },
     advanced:     { code: 'EC03', price: { monthly: 120,  annual: 1200 },  tier: 3 }
 };
-const PERIOD_CODES = { monthly: 'M3N1', annual: 'ANL1' };
 
 const pathParts = window.location.pathname.split('/').filter(Boolean);
 const supportedLanguages = new Set(['en', 'es', 'pt']);
+const LANGUAGE_LOCALES = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' };
 const requestedLanguage = new URLSearchParams(window.location.search).get('lang');
 const pathLanguage = supportedLanguages.has(pathParts[0]) ? pathParts[0] : null;
 const storedLanguage = localStorage.getItem('elysium_lang');
 let currentLang = supportedLanguages.has(requestedLanguage)
     ? requestedLanguage
     : pathLanguage || (supportedLanguages.has(storedLanguage) ? storedLanguage : 'en');
-let locale = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' }[currentLang];
-const localizedPath = path => path;
+let locale = LANGUAGE_LOCALES[currentLang];
+
+function localizedPath(path = '', language = currentLang) {
+    const clean = String(path || '').replace(/^\/+|\/+$/g, '');
+    const base = clean ? `/${clean}` : '/';
+    return language === 'en' ? base : `/${language}${base}`;
+}
+
+function localizedProfilePath(language = currentLang) {
+    return language === 'en' ? '/profiles' : `/profiles?lang=${language}`;
+}
+
+function updateLocalizedLinks() {
+    document.querySelectorAll('[data-localized-route]').forEach(link => {
+        link.href = localizedPath(link.dataset.localizedRoute || '');
+    });
+    document.querySelectorAll('[data-localized-profile]').forEach(link => {
+        link.href = localizedProfilePath();
+    });
+}
 
 const COPY = {
     en: {
@@ -125,7 +143,15 @@ const COPY = {
         rememberedPassword: 'Remembered your password?', signInText: 'Sign in',
         joinTitle: 'Join Elysium', joinSubtitle: 'Create your partner account — free to start',
         fullNameField: 'Full Name *', companyNameField: 'Company Name', optionalText: '(optional)', repeatPassword: 'Repeat Password *', createAccount: 'Create Account',
-        lookingToStart: 'Looking to start a new project?', requestQuote: 'Request a quote'
+        accountTitle: 'Account — Elysium λ', authLanguage: 'Interface language', emailPlaceholder: 'name@company.com', passwordPlaceholder: 'Your password',
+        newPasswordPlaceholder: 'At least 8 characters', namePlaceholder: 'Full name', companyPlaceholder: 'Company name', alreadyHaveAccount: 'Already have an account?',
+        startProjectInquiry: 'Start a project inquiry', startProjectTitle: 'Start a Project', startProjectSubtitle: 'Tell us what you would like to create',
+        companyRequiredField: 'Company Name *', emailRequiredField: 'Email Address *', passwordRequiredField: 'Password *', personalEmailPlaceholder: 'Personal email',
+        projectDescriptionField: 'Brief Project Description', projectDescriptionPlaceholder: 'What would you like to build?', alreadyClient: 'Are you already a client?',
+        licenseNumberField: 'Elysium λ Licence Number *', sendProjectRequest: 'Send Project Request', haveLicense: 'Have a licence?', registerAsClient: 'Register as a client',
+        passwordResetComplete: 'Your password has been changed. You can now sign in with the new password.',
+        footerLocation: 'Portugal, European Union', footerCompany: 'Company', footerLegal: 'Legal', footerConnect: 'Connect', privacyPolicy: 'Privacy Policy',
+        termsOfService: 'Terms of Service', copyright: '© 2026 Elysium λ Development & Research. All rights reserved.'
     },
     es: {
         portal: 'Portal de clientes', dashboard: 'Panel', overview: 'Resumen', projects: 'Proyectos', documents: 'Documentos',
@@ -190,7 +216,15 @@ const COPY = {
         rememberedPassword: '¿Recordaste tu contraseña?', signInText: 'Inicia sesión',
         joinTitle: 'Únete a Elysium', joinSubtitle: 'Crea tu cuenta de cliente — empezar es gratis',
         fullNameField: 'Nombre completo *', companyNameField: 'Empresa', optionalText: '(opcional)', repeatPassword: 'Repetir contraseña *', createAccount: 'Crear cuenta',
-        lookingToStart: '¿Buscas iniciar un proyecto nuevo?', requestQuote: 'Solicitar cotización'
+        accountTitle: 'Cuenta — Elysium λ', authLanguage: 'Idioma de la interfaz', emailPlaceholder: 'nombre@empresa.com', passwordPlaceholder: 'Tu contraseña',
+        newPasswordPlaceholder: 'Mínimo 8 caracteres', namePlaceholder: 'Nombre completo', companyPlaceholder: 'Nombre de la empresa', alreadyHaveAccount: '¿Ya tienes una cuenta?',
+        startProjectInquiry: 'Iniciar una consulta de proyecto', startProjectTitle: 'Iniciar un proyecto', startProjectSubtitle: 'Cuéntanos qué te gustaría crear',
+        companyRequiredField: 'Empresa *', emailRequiredField: 'Correo electrónico *', passwordRequiredField: 'Contraseña *', personalEmailPlaceholder: 'Correo personal',
+        projectDescriptionField: 'Descripción breve del proyecto', projectDescriptionPlaceholder: '¿Qué te gustaría construir?', alreadyClient: '¿Ya eres cliente?',
+        licenseNumberField: 'Número de licencia Elysium λ *', sendProjectRequest: 'Enviar solicitud', haveLicense: '¿Tienes una licencia?', registerAsClient: 'Registrarte como cliente',
+        passwordResetComplete: 'Tu contraseña se cambió correctamente. Ya puedes iniciar sesión con la nueva contraseña.',
+        footerLocation: 'Portugal, Unión Europea', footerCompany: 'Empresa', footerLegal: 'Legal', footerConnect: 'Contacto', privacyPolicy: 'Política de privacidad',
+        termsOfService: 'Términos del servicio', copyright: '© 2026 Elysium λ Development & Research. Todos los derechos reservados.'
     },
     pt: {
         portal: 'Portal de clientes', dashboard: 'Painel', overview: 'Resumo', projects: 'Projetos', documents: 'Documentos',
@@ -255,17 +289,27 @@ const COPY = {
         rememberedPassword: 'Lembrou-se da palavra-passe?', signInText: 'Iniciar sessão',
         joinTitle: 'Junte-se à Elysium', joinSubtitle: 'Crie a sua conta de cliente — começar é grátis',
         fullNameField: 'Nome completo *', companyNameField: 'Empresa', optionalText: '(opcional)', repeatPassword: 'Repetir palavra-passe *', createAccount: 'Criar conta',
-        lookingToStart: 'Procura iniciar um novo projeto?', requestQuote: 'Pedir um orçamento'
+        accountTitle: 'Conta — Elysium λ', authLanguage: 'Idioma da interface', emailPlaceholder: 'nome@empresa.com', passwordPlaceholder: 'A sua palavra-passe',
+        newPasswordPlaceholder: 'Mínimo de 8 caracteres', namePlaceholder: 'Nome completo', companyPlaceholder: 'Nome da empresa', alreadyHaveAccount: 'Já tem uma conta?',
+        startProjectInquiry: 'Iniciar um pedido de projeto', startProjectTitle: 'Iniciar um projeto', startProjectSubtitle: 'Conte-nos o que gostaria de criar',
+        companyRequiredField: 'Empresa *', emailRequiredField: 'Endereço de email *', passwordRequiredField: 'Palavra-passe *', personalEmailPlaceholder: 'Email pessoal',
+        projectDescriptionField: 'Descrição breve do projeto', projectDescriptionPlaceholder: 'O que gostaria de criar?', alreadyClient: 'Já é cliente?',
+        licenseNumberField: 'Número de licença Elysium λ *', sendProjectRequest: 'Enviar pedido', haveLicense: 'Tem uma licença?', registerAsClient: 'Registar-se como cliente',
+        passwordResetComplete: 'A sua palavra-passe foi alterada. Já pode iniciar sessão com a nova palavra-passe.',
+        footerLocation: 'Portugal, União Europeia', footerCompany: 'Empresa', footerLegal: 'Legal', footerConnect: 'Contacto', privacyPolicy: 'Política de privacidade',
+        termsOfService: 'Termos do serviço', copyright: '© 2026 Elysium λ Development & Research. Todos os direitos reservados.'
     }
 };
 let t = COPY[currentLang];
 
-window.changeLanguage = function(newLang) {
+window.changeLanguage = function(newLang, { updateUrl = true } = {}) {
+    if (!supportedLanguages.has(newLang)) return;
     currentLang = newLang;
     localStorage.setItem('elysium_lang', newLang);
-    locale = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' }[currentLang];
+    locale = LANGUAGE_LOCALES[currentLang];
     t = COPY[currentLang];
     document.documentElement.lang = currentLang;
+    document.title = t.accountTitle;
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -274,28 +318,50 @@ window.changeLanguage = function(newLang) {
             else el.textContent = t[key];
         }
     });
-    
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+        const value = t[element.dataset.i18nPlaceholder];
+        if (value) element.placeholder = value;
+    });
+
+    document.querySelectorAll('[data-i18n-aria]').forEach(element => {
+        const value = t[element.dataset.i18nAria];
+        if (value) element.setAttribute('aria-label', value);
+    });
+
     document.querySelectorAll('.lang-select').forEach(btn => {
         btn.setAttribute('aria-pressed', String(btn.dataset.lang === currentLang));
     });
 
+    document.querySelectorAll('.lang-current-label').forEach(label => {
+        label.textContent = currentLang.toUpperCase();
+    });
+    updateLocalizedLinks();
+
+    if (updateUrl && /(?:^|\/)profiles\/?$/.test(window.location.pathname)) {
+        const url = new URL(window.location.href);
+        url.pathname = '/profiles';
+        if (currentLang === 'en') url.searchParams.delete('lang');
+        else url.searchParams.set('lang', currentLang);
+        window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+    }
+
     if (currentUserData) {
-        if (activePortalSection === 'overview' || activePortalSection === 'profile') setIdentity();
-        else if (activePortalSection === 'projects') loadProjects();
-        else if (activePortalSection === 'documents') loadDocuments();
-        else if (activePortalSection === 'subscription') loadSubscription();
-        else if (activePortalSection === 'billing') loadBilling();
+        updateDashboardChrome();
+        if (currentUserData.isDeactivated === true) renderDisabledAccount();
+        else renderDashboard();
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.lang-select').forEach(btn => {
+        if (btn.closest('#profile-section')) return;
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             changeLanguage(e.currentTarget.dataset.lang);
         });
     });
-    if(currentLang !== 'en') changeLanguage(currentLang);
+    changeLanguage(currentLang, { updateUrl: false });
 });
 
 const DOM = {
@@ -334,6 +400,7 @@ let dashboardLoadVersion = 0;
 let billingLoadVersion = 0;
 let accountDisabled = false;
 let profileFormDirty = false;
+let pendingPasswordResetNotice = new URLSearchParams(window.location.search).get('passwordReset') === 'complete';
 
 function playSound(type) {
     window.ElysiumAudio?.play(type === 'error' ? 'error' : 'success');
@@ -502,14 +569,6 @@ function canEmbedProject(url) {
     return allowedHosts.has(url.hostname);
 }
 
-function generateLicenseCode(planType, billingCycle) {
-    const plan = PLANS[planType];
-    if (!plan) throw new Error('Unknown plan.');
-    const date = new Date();
-    const period = PERIOD_CODES[billingCycle] || PERIOD_CODES.monthly;
-    return `ELY-${plan.code}-${period}-${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getFullYear()).slice(-2)}`;
-}
-
 function ensureDashboardShell() {
     if (!DOM.profileSection) return;
     if (DOM.profileSection.parentElement !== document.body) document.body.appendChild(DOM.profileSection);
@@ -560,6 +619,47 @@ function ensureDashboardShell() {
         <div id="portal-modal-root"></div>
     `;
     bindPortalEvents();
+}
+
+function updateDashboardChrome() {
+    const navLabels = {
+        overview: t.overview,
+        projects: t.projects,
+        onboardings: t.onboardings,
+        documents: t.documents,
+        subscription: t.subscription,
+        billing: t.billing,
+        profile: t.profile
+    };
+    document.querySelectorAll('.portal-nav-item[data-target]').forEach(button => {
+        const label = navLabels[button.dataset.target];
+        if (!label) return;
+        const text = button.querySelector('span');
+        if (text) text.textContent = label;
+        button.setAttribute('aria-label', label);
+        button.title = label;
+    });
+    const portalNav = document.querySelector('.portal-nav');
+    if (portalNav) portalNav.setAttribute('aria-label', t.portal);
+    document.querySelectorAll('.portal-brand').forEach(link => {
+        link.href = localizedPath('');
+    });
+    const mobileMenuLabel = document.querySelector('.portal-mobile-menu .sr-only');
+    if (mobileMenuLabel) mobileMenuLabel.textContent = t.dashboard;
+    const support = document.querySelector('.portal-support-link');
+    if (support) {
+        support.setAttribute('aria-label', t.support);
+        support.title = t.support;
+        const label = support.querySelector('span');
+        if (label) label.textContent = t.support;
+    }
+    const logout = document.querySelector('.sidebar-logout-btn');
+    if (logout) {
+        logout.setAttribute('aria-label', t.signOut);
+        logout.title = t.signOut;
+        const label = logout.querySelector('span');
+        if (label) label.textContent = t.signOut;
+    }
 }
 
 function navButton(target, svg, label, active = false) {
@@ -625,7 +725,6 @@ function leaveDashboard() {
     document.querySelector('.navbar')?.classList.remove('hidden');
     document.querySelector('footer')?.classList.remove('hidden');
     document.body.classList.remove('portal-open');
-    document.getElementById('onboarding-float-btn')?.remove();
     closeModal();
     [DOM.loginForm, DOM.signupForm, DOM.resetForm].forEach(form => {
         form?.reset();
@@ -633,6 +732,13 @@ function leaveDashboard() {
         if (submit) submit.disabled = false;
     });
     showAuthView('login');
+    if (pendingPasswordResetNotice) {
+        pendingPasswordResetNotice = false;
+        authMessage(t.passwordResetComplete, 'notice');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('passwordReset');
+        window.history.replaceState({}, document.title, `${url.pathname}${url.search}${url.hash}`);
+    }
 }
 
 function portalAlert(message, kind = 'notice') {
@@ -1458,8 +1564,8 @@ async function requestSignedInPasswordEmail(button) {
     button.disabled = true;
     try {
         auth.languageCode = currentLang;
-        await sendResetEmail(currentUser.email);
-        portalAlert(`${t.passwordEmailSent} ${resetSenderCopy()}`, 'success');
+        const { sender } = await sendResetEmail(currentUser.email);
+        portalAlert(`${t.passwordEmailSent} ${resetSenderCopy(sender)}`, 'success');
         playSound('success');
     } catch (error) {
         logger.error('[portal] password email', error);
@@ -1502,7 +1608,7 @@ async function refreshVerificationState() {
 
 async function sendVerification(user) {
     try {
-        await sendEmailVerification(user, { url: `${window.location.origin}${localizedPath('profiles')}` });
+        await sendEmailVerification(user, { url: `${window.location.origin}${localizedProfilePath()}` });
     } catch (error) {
         const fallbackCodes = ['auth/unauthorized-continue-uri', 'auth/invalid-continue-uri', 'auth/missing-continue-uri'];
         if (!fallbackCodes.includes(error?.code)) throw error;
@@ -1511,10 +1617,9 @@ async function sendVerification(user) {
     }
 }
 
-const RESET_CONTINUE_PATH = { en: '/profiles', es: '/profiles', pt: '/profiles' };
 async function sendFirebaseResetEmail(email) {
     try {
-        await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}${RESET_CONTINUE_PATH[currentLang]}`, handleCodeInApp: false });
+        await sendPasswordResetEmail(auth, email, { url: `${window.location.origin}${localizedProfilePath()}`, handleCodeInApp: false });
     } catch (error) {
         const fallbackCodes = ['auth/unauthorized-continue-uri', 'auth/invalid-continue-uri', 'auth/missing-continue-uri'];
         if (!fallbackCodes.includes(error?.code)) throw error;
@@ -1589,7 +1694,7 @@ function resetErrorMessage(error) {
 function setupAuthNavigation() {
     const handlers = {
         'show-signup': 'signup', 'show-login': 'login', 'show-reset-password': 'reset', 'back-to-login': 'login',
-        'show-prospect': 'prospect', 'show-prospect-from-signup': 'prospect', 'show-login-from-prospect': 'login', 'show-signup-from-prospect': 'signup'
+        'show-prospect-from-signup': 'prospect', 'show-login-from-prospect': 'login', 'show-signup-from-prospect': 'signup'
     };
     Object.entries(handlers).forEach(([id, view]) => document.getElementById(id)?.addEventListener('click', event => { event.preventDefault(); showAuthView(view); }));
     document.getElementById('show-reset-password')?.addEventListener('click', () => {
@@ -1597,13 +1702,15 @@ function setupAuthNavigation() {
         if (loginEmail) document.getElementById('reset-email').value = loginEmail;
     });
     const clientToggle = document.getElementById('prospect-is-client');
-    clientToggle?.addEventListener('change', event => {
-        const group = document.getElementById('prospect-license-group');
-        const input = document.getElementById('prospect-license');
-        group?.classList.toggle('hidden', !event.target.checked);
-        input?.toggleAttribute('required', event.target.checked);
-        if (!event.target.checked && input) input.value = '';
-    });
+    clientToggle?.addEventListener('change', event => syncProspectClientFields(event.target.checked));
+}
+
+function syncProspectClientFields(isClient) {
+    const group = document.getElementById('prospect-license-group');
+    const input = document.getElementById('prospect-license');
+    group?.classList.toggle('hidden', !isClient);
+    input?.toggleAttribute('required', Boolean(isClient));
+    if (!isClient && input) input.value = '';
 }
 
 function enhanceAuthForms() {
@@ -1757,17 +1864,28 @@ DOM.prospectForm?.addEventListener('submit', async event => {
     const description = document.getElementById('prospect-description')?.value.trim() || '';
     const isClient = Boolean(document.getElementById('prospect-is-client')?.checked);
     const licenseCode = document.getElementById('prospect-license')?.value.trim().toUpperCase() || '';
+    const website = document.getElementById('prospect-website')?.value || '';
     if (!name || !company || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return authMessage(t.projectRequestFailed);
     if ([name, company, description].some(value => /[<>]/.test(value))) return authMessage(t.projectRequestFailed);
     if (isClient && !/^ELY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4,20}$/.test(licenseCode)) return authMessage(t.projectRequestFailed);
     button.disabled = true;
     try {
-        await addDoc(collection(db, 'prospects'), {
-            name: name.slice(0, 120), company: company.slice(0, 120), email: email.slice(0, 254),
-            projectDescription: description.slice(0, 2000), isExistingClient: isClient,
-            licenseCode: isClient ? licenseCode : null, createdAt: serverTimestamp(), status: 'pending'
+        const response = await fetch(`${platformApiOrigin()}/api/prospects`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: name.slice(0, 120),
+                company: company.slice(0, 120),
+                email: email.slice(0, 254),
+                projectDescription: description.slice(0, 2000),
+                isExistingClient: isClient,
+                licenseCode: isClient ? licenseCode : null,
+                website
+            })
         });
+        if (!response.ok) throw new Error(`prospect_${response.status}`);
         form.reset();
+        syncProspectClientFields(false);
         authMessage(t.projectRequestSent, 'notice');
         playSound('success');
     } catch (error) {
@@ -1936,5 +2054,3 @@ document.addEventListener('visibilitychange', () => {
 
 const initialParams = new URLSearchParams(window.location.search);
 if (initialParams.has('subscribe')) sessionStorage.setItem('pending_subscribe', initialParams.get('subscribe'));
-
-export { generateLicenseCode, PLANS, PERIOD_CODES };

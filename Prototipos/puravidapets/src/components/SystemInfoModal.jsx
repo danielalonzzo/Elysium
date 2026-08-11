@@ -80,7 +80,7 @@ export default function SystemInfoModal({ isOpen, onClose }) {
                   </div>
                   <div className="flex justify-between items-center p-4">
                     <span className="text-gray-600 font-medium">Licencia</span>
-                    <span className="text-gray-400 font-mono text-xs">PVP-2026-CR</span>
+                    <span className="text-gray-400 font-mono text-xs">ELY-EC03-M3N1-119020648</span>
                   </div>
                 </div>
               </section>
