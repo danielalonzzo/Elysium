@@ -87,7 +87,7 @@ const COPY = {
         currentPlan: 'Current plan', noPlan: 'No plan yet', status: 'Status', active: 'Active', pending_payment: 'Payment pending',
         suspended: 'Suspended', canceled: 'Cancelled', cancelled: 'Cancelled', projectsCount: 'Projects', nextRenewal: 'Next renewal',
         noRenewal: 'Not scheduled', onboardingStatus: 'Onboarding', notStarted: 'Not started', inProgress: 'In progress', completed: 'Completed',
-        onboardingTitle: 'Set your project up for success', onboardingBody: 'Your Elysium team fills the onboarding with you in a guided session. Once it is published, you will find it here.',
+        onboardingTitle: 'Onboarding', onboardingBody: 'The Elysium team fills the onboarding in with you in a joint session. Once published, you will have it here.',
         onboardingGuided: 'Completed with your team in a guided session', onboardingInSession: 'Session in progress with your team',
         viewOnboarding: 'View onboarding', module: 'Module', of: 'of',
         onboardingHistoryTitle: 'Onboarding history', onboardingHistoryLead: 'Every delivery your team has published, by project.',
@@ -160,7 +160,7 @@ const COPY = {
         currentPlan: 'Plan actual', noPlan: 'Sin plan todavía', status: 'Estado', active: 'Activa', pending_payment: 'Pago pendiente',
         suspended: 'Suspendida', canceled: 'Cancelada', cancelled: 'Cancelada', projectsCount: 'Proyectos', nextRenewal: 'Próxima renovación',
         noRenewal: 'Sin programar', onboardingStatus: 'Onboarding', notStarted: 'Sin iniciar', inProgress: 'En progreso', completed: 'Completado',
-        onboardingTitle: 'Prepara tu proyecto para avanzar con claridad', onboardingBody: 'Tu equipo de Elysium rellena el onboarding contigo en una sesión conjunta. Cuando lo publique, lo tendrás aquí.',
+        onboardingTitle: 'Onboarding', onboardingBody: 'El equipo de Elysium rellena el onboarding con usted en una sesión conjunta. Cuando lo publique, lo tendrá aquí.',
         onboardingGuided: 'Se completa contigo en una sesión con tu equipo', onboardingInSession: 'Sesión en curso con tu equipo',
         viewOnboarding: 'Ver onboarding', module: 'Módulo', of: 'de',
         onboardingHistoryTitle: 'Historial de onboardings', onboardingHistoryLead: 'Todas las entregas publicadas por tu equipo, por proyecto.',
@@ -233,7 +233,7 @@ const COPY = {
         currentPlan: 'Plano atual', noPlan: 'Ainda sem plano', status: 'Estado', active: 'Ativa', pending_payment: 'Pagamento pendente',
         suspended: 'Suspensa', canceled: 'Cancelada', cancelled: 'Cancelada', projectsCount: 'Projetos', nextRenewal: 'Próxima renovação',
         noRenewal: 'Não agendada', onboardingStatus: 'Onboarding', notStarted: 'Não iniciado', inProgress: 'Em curso', completed: 'Concluído',
-        onboardingTitle: 'Prepare o seu projeto para avançar com clareza', onboardingBody: 'A sua equipa Elysium preenche o onboarding consigo numa sessão conjunta. Assim que for publicado, encontra-o aqui.',
+        onboardingTitle: 'Onboarding', onboardingBody: 'A equipa da Elysium preenche o onboarding consigo numa sessão conjunta. Assim que for publicado, encontra-o aqui.',
         onboardingGuided: 'É preenchido consigo numa sessão com a sua equipa', onboardingInSession: 'Sessão em curso com a sua equipa',
         viewOnboarding: 'Ver onboarding', module: 'Módulo', of: 'de',
         onboardingHistoryTitle: 'Histórico de onboardings', onboardingHistoryLead: 'Todas as entregas publicadas pela sua equipa, por projeto.',
@@ -1136,9 +1136,12 @@ function kpi(label, value, detail = '', trustedDetailHTML = false) {
 
 function onboardingCard(state, projectId) {
     const action = onboardingAction(state.key, projectId, 'btn btn-primary');
+    // Una vez publicado no hay nada que explicar ni ninguna barra que avanzar:
+    // la tarjeta se queda en el título y el estado.
+    const completed = state.key === 'completed';
     return `<article class="portal-card onboarding-card">
-        <div class="onboarding-card-copy"><span class="status-chip ${state.key}">${escapeHTML(state.label)}</span><h2>${escapeHTML(t.onboardingTitle)}</h2><p>${escapeHTML(t.onboardingBody)}</p>
-            <div class="onboarding-progress" role="progressbar" aria-label="${escapeHTML(t.onboardingStatus)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${state.progress}"><span style="width:${state.progress}%"></span></div>
+        <div class="onboarding-card-copy"><span class="status-chip ${state.key}">${escapeHTML(state.label)}</span><h2>${escapeHTML(t.onboardingTitle)}</h2>${completed ? '' : `<p>${escapeHTML(t.onboardingBody)}</p>
+            <div class="onboarding-progress" role="progressbar" aria-label="${escapeHTML(t.onboardingStatus)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${state.progress}"><span style="width:${state.progress}%"></span></div>`}
             ${state.key === 'in-progress' ? `<small>${escapeHTML(`${t.module} ${state.current} ${t.of} ${state.total}`)}</small>` : ''}
         </div>
         ${action}
@@ -1171,7 +1174,7 @@ function projectCard(project, index) {
     const onboardingStateKey = onboarding ? 'completed' : hasMatchingDraft ? 'in-progress' : 'not-started';
     return `<article class="project-card">
         <div class="project-preview">
-            ${url && canEmbedProject(url) ? `<iframe class="project-preview-frame" src="${escapeHTML(url.href)}" title="${escapeHTML(`${t.previewTitle}: ${project.name || t.project}`)}" loading="lazy" sandbox="allow-scripts allow-forms allow-popups" referrerpolicy="no-referrer" tabindex="-1"></iframe>` : `<div class="project-preview-fallback"><span>λ</span><strong>${escapeHTML(url?.hostname || t.project)}</strong></div>`}
+            ${url && canEmbedProject(url) ? `<iframe class="project-preview-frame" src="${escapeHTML(url.href)}" title="${escapeHTML(`${t.previewTitle}: ${project.name || t.project}`)}" loading="lazy" sandbox="allow-scripts allow-forms allow-popups allow-same-origin" referrerpolicy="no-referrer" tabindex="-1"></iframe>` : `<div class="project-preview-fallback"><span>λ</span><strong>${escapeHTML(url?.hostname || t.project)}</strong></div>`}
         </div>
         <div class="project-card-body"><div class="project-card-title"><div><span class="status-chip active">${escapeHTML(stage.label)}</span><h2>${escapeHTML(project.name || `${t.project} ${index + 1}`)}</h2></div><strong>${stage.progress}%</strong></div>
         <div class="onboarding-progress"><span style="width:${stage.progress}%"></span></div>
@@ -1522,8 +1525,13 @@ function openProjectPreview(index) {
     const url = safeHttpUrl(project?.projectUrl);
     if (!project || !url) return;
     lastFocusedElement = document.activeElement;
+    /* `allow-same-origin` es imprescindible: sin él el marco recibe un origen
+       opaco y `localStorage` lanza SecurityError. Las aplicaciones que servimos
+       lo tocan al arrancar, así que React no llegaba a montar y la vista previa
+       salía en blanco —solo el color de fondo del proyecto—. Concederlo aquí es
+       seguro porque `canEmbedProject` limita el marco a sitios propios. */
     const preview = canEmbedProject(url)
-        ? `<div class="portal-modal-preview"><iframe src="${escapeHTML(url.href)}" title="${escapeHTML(`${t.previewTitle}: ${project.name || t.project}`)}" sandbox="allow-scripts allow-forms allow-popups" referrerpolicy="no-referrer"></iframe></div>`
+        ? `<div class="portal-modal-preview"><iframe src="${escapeHTML(url.href)}" title="${escapeHTML(`${t.previewTitle}: ${project.name || t.project}`)}" sandbox="allow-scripts allow-forms allow-popups allow-same-origin" referrerpolicy="no-referrer"></iframe></div>`
         : `<div class="portal-empty"><p>${escapeHTML(t.previewUnavailable)}</p></div>`;
     openModal(`<h2 id="portal-dialog-title">${escapeHTML(project.name || t.previewTitle)}</h2>${preview}<div class="portal-actions"><a class="btn btn-primary" href="${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">${escapeHTML(t.openProject)}</a><button type="button" class="btn" data-action="close-modal">${escapeHTML(t.close)}</button></div>`);
 }

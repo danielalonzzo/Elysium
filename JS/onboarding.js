@@ -467,6 +467,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
+    /* Compara el contenido real de dos entregas. `uploaded_files` arrastra
+       banderas de interfaz —`readOnly` se añade al reabrir una sesión ya
+       publicada— que no son un cambio del cliente: sin descartarlas, dos
+       entregas con los mismos archivos parecían distintas. */
+    function onboardingContentKey(formData) {
+        const relevant = { ...(formData || {}) };
+        relevant.uploaded_files = (Array.isArray(relevant.uploaded_files) ? relevant.uploaded_files : [])
+            .map(file => ({ path: file?.path ?? null, name: file?.name ?? null, size: file?.size ?? null }))
+            .sort((a, b) => String(a.path).localeCompare(String(b.path)));
+        return JSON.stringify(Object.fromEntries(
+            Object.keys(relevant).sort().map(key => [key, relevant[key]])
+        ));
+    }
+
+    /** La entrega ya publicada cuyo contenido coincide, si la hay. */
+    async function findUnchangedSubmission(userId, projectId, formData) {
+        try {
+            const key = onboardingContentKey(formData);
+            const snapshot = await getDocs(query(
+                collection(db, 'onboarding_submissions'), where('userId', '==', userId)
+            ));
+            return snapshot.docs.find(document => {
+                const existing = document.data();
+                return projectIdsMatch(existing.projectId, projectId)
+                    && onboardingContentKey(existing.formData) === key;
+            }) || null;
+        } catch (error) {
+            // Ante la duda se publica: perder una entrega es peor que duplicarla.
+            console.warn('[onboarding] no se pudo comparar con entregas previas:', error);
+            return null;
+        }
+    }
+
     function collectData() {
         const data = {};
         form.querySelectorAll('input, select, textarea').forEach(el => {
@@ -1054,6 +1087,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (existing.userId !== targetUserId || existing.projectId !== projectId) {
                     throw new Error('Submission identifier conflict.');
                 }
+                if (activeDraftExists) {
+                    const cleanupBatch = writeBatch(db);
+                    cleanupBatch.delete(draftRef);
+                    await cleanupBatch.commit();
+                    activeDraftExists = false;
+                }
+            } else if (await findUnchangedSubmission(targetUserId, projectId, data)) {
+                /* Republicar sin tocar nada creaba una entrega nueva idéntica a
+                   la anterior: mismas 63 respuestas y los mismos archivos, con
+                   la única diferencia de banderas internas. El cliente y el CRM
+                   acababan con dos entregas indistinguibles. Si no hay cambios,
+                   la sesión se cierra contra la entrega que ya existe. */
                 if (activeDraftExists) {
                     const cleanupBatch = writeBatch(db);
                     cleanupBatch.delete(draftRef);

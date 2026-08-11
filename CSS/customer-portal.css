@@ -603,7 +603,14 @@
 }
 
 .customer-portal .portal-view,
+/* Las tarjetas del resumen quedaban pegadas: solo la rejilla de KPIs traía
+   `margin-bottom`, y el resto —onboarding, próxima reunión, las dos de abajo—
+   se apilaban sin separación. La sección reparte ahora el espacio en columna,
+   así que cualquier bloque que se añada hereda la misma separación. */
 .customer-portal .portal-section {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(1.1rem, 2.5vw, 1.75rem);
     min-width: 0;
     padding: 0;
     animation: portal-view-enter 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -957,7 +964,8 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: clamp(0.75rem, 1.6vw, 1.15rem);
-    margin-bottom: clamp(1.1rem, 2.5vw, 1.75rem);
+    /* La separación la pone ahora `.portal-section`; el margen propio la
+       duplicaba solo debajo de esta rejilla. */
 }
 
 .customer-portal .portal-kpi-card,
