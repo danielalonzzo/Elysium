@@ -5,10 +5,10 @@
     <path id="seal-top-arc" d="M 20,70 A 52,52 0 0 1 124,70"/>
     <path id="seal-bottom-arc" d="M 18,87 A 56,56 0 0 0 126,87"/>
   </defs>
-  <circle cx="72" cy="72" r="65" fill="#ffffff" stroke="#14456f" stroke-width="2"/>
+  <circle cx="72" cy="72" r="65" fill="none" stroke="#14456f" stroke-width="2"/>
   <circle cx="72" cy="72" r="61" fill="none" stroke="#14456f" stroke-width="0.75" opacity="0.78"/>
   <circle cx="72" cy="72" r="52" fill="none" stroke="#14456f" stroke-width="0.65" stroke-dasharray="1.4 3.2" opacity="0.48"/>
-  <circle cx="72" cy="72" r="40" fill="#f4f9ff" stroke="#14456f" stroke-width="0.8" opacity="0.98"/>
+  <circle cx="72" cy="72" r="40" fill="none" stroke="#14456f" stroke-width="0.8" opacity="0.98"/>
   <text fill="#14456f" font-family="Arial, Helvetica, sans-serif" font-size="8.2" font-weight="700" letter-spacing="1.65">
     <textPath href="#seal-top-arc" startOffset="50%" text-anchor="middle">ELYSIUM λ</textPath>
   </text>

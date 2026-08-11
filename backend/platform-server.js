@@ -114,6 +114,23 @@ async function requireFirebaseUser(request, response, next) {
   }
 }
 
+/* Verifica la sesión si viene, pero no la exige. La usa el disparador de
+   recordatorios, al que llama Cloud Scheduler —que no puede iniciar sesión en
+   Firebase— y también el administrador desde el CRM. Quien decide si pasa es la
+   propia ruta, no este middleware. */
+async function optionalFirebaseUser(request, response, next) {
+  response.set('Cache-Control', 'no-store');
+  const match = (request.get('authorization') || '').match(/^Bearer\s+(.+)$/i);
+  if (match) {
+    try {
+      request.firebaseUser = await firebaseAuth.verifyIdToken(match[1], true);
+    } catch {
+      request.firebaseUser = null;
+    }
+  }
+  return next();
+}
+
 function isFirebaseAdmin(identity) {
   if (!identity || identity.email_verified !== true) return false;
   const role = String(identity.role || '').toLowerCase();
@@ -403,8 +420,12 @@ function emailTheme(content, preheader = '') {
     :root { color-scheme: light only; supported-color-schemes: light; }
     body, table, td { color-scheme: light only !important; }
     @media (max-width: 600px) {
-      .container { padding: 18px 8px !important; }
-      .card { padding: 32px 22px !important; }
+      /* En el móvil el correo se veía estrecho: el marco exterior se comía el
+         ancho y la tarjeta quedaba con mucho aire lateral. Se reduce el marco
+         al mínimo y la tarjeta pasa a ocupar casi toda la pantalla. */
+      .container { padding: 14px 6px !important; }
+      .card { padding: 30px 20px !important; border-radius: 22px !important; }
+      .brand-logo { padding: 0 6px 18px !important; font-size: 19px !important; }
       .title { font-size: 24px !important; margin-bottom: 16px !important; }
       .stack-mobile { display: block !important; width: 100% !important; text-align: left !important; }
       .stack-mobile td { display: block !important; text-align: left !important; padding: 4px 0 !important; border: none !important; }
@@ -423,7 +444,11 @@ function emailTheme(content, preheader = '') {
     <tr><td align="center">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px">
         <tr><td class="brand-logo" style="padding:0 10px 26px;color:#173e62;font-size:22px;font-weight:700;letter-spacing:.08em"><span style="color:#2997ff">λ</span>&nbsp; ELYSIUM</td></tr>
-        <tr><td class="bg-card card" bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e4e9ed;border-radius:30px;padding:48px 42px;box-shadow:0 18px 55px rgba(28,64,92,0.08)">${content}</td></tr>
+        <!-- Sin \`border\`: los clientes que no aplican \`border-radius\` a una
+             celda dibujaban un recuadro de esquinas rectas alrededor de la
+             tarjeta redondeada, y parecía un error de maquetación. Con solo
+             fondo y sombra, esos clientes muestran un bloque blanco limpio. -->
+        <tr><td class="bg-card card" bgcolor="#ffffff" style="background:#ffffff;border-radius:30px;padding:48px 42px;box-shadow:0 18px 55px rgba(28,64,92,0.08)">${content}</td></tr>
         <tr><td align="center" style="padding:28px 8px 0">
           <img src="cid:elysium-email-seal" width="78" height="78" alt="Elysium seal" style="display:block;width:78px;height:78px;margin:0 auto 12px;border:0">
           <p class="text-light" style="margin:0;color:#687c8d;font-size:12px;line-height:1.65;text-align:center">Elysium λ Development &amp; Research<br><a href="https://elysiumdr.eu" style="color:#47708f;text-decoration:none">elysiumdr.eu</a></p>
@@ -445,6 +470,12 @@ function withElysiumSeal(html) {
     : `${source}${footer}`;
 }
 
+/* Los tres avisos automáticos de la agenda. Todos salen del buzón de
+   MEETING_FROM_EMAIL —info@elysiumdr.eu— y comparten claim, idempotencia y
+   copia al administrador. El recordatorio no existía: la agenda solo avisaba
+   al confirmar y al cancelar. */
+const MEETING_NOTIFICATION_KINDS = ['confirmation', 'cancellation', 'reminder'];
+
 const MEETING_COPY = {
   en: {
     confirmed: 'Meeting confirmed', cancelled: 'Meeting cancelled', hello: 'Hello',
@@ -455,7 +486,10 @@ const MEETING_COPY = {
     adminIntro: 'The confirmation and the calendar invitation have already been sent to the client.',
     adminIntroCancelled: 'The client has been told the meeting will not take place.',
     adminClient: 'Client', adminEmail: 'Email', adminOpenCrm: 'Open in the CRM',
-    adminSubjectConfirmed: 'New meeting', adminSubjectCancelled: 'Meeting cancelled'
+    adminSubjectConfirmed: 'New meeting', adminSubjectCancelled: 'Meeting cancelled',
+    reminder: 'Your meeting is tomorrow', reminderIntro: 'A reminder of your upcoming meeting with Elysium.',
+    subjectReminder: 'Reminder: meeting tomorrow', adminHeadingReminder: 'Meeting reminder sent',
+    adminIntroReminder: 'The client has been reminded of this meeting.', adminSubjectReminder: 'Reminder sent'
   },
   es: {
     confirmed: 'Reunión confirmada', cancelled: 'Reunión cancelada', hello: 'Hola',
@@ -466,7 +500,10 @@ const MEETING_COPY = {
     adminIntro: 'La confirmación y la invitación de calendario ya han salido hacia el cliente.',
     adminIntroCancelled: 'Se ha avisado al cliente de que la reunión no se celebrará.',
     adminClient: 'Cliente', adminEmail: 'Correo', adminOpenCrm: 'Abrir en el CRM',
-    adminSubjectConfirmed: 'Nueva reunión', adminSubjectCancelled: 'Reunión cancelada'
+    adminSubjectConfirmed: 'Nueva reunión', adminSubjectCancelled: 'Reunión cancelada',
+    reminder: 'Tu reunión es mañana', reminderIntro: 'Te recordamos tu próxima reunión con Elysium.',
+    subjectReminder: 'Recordatorio: reunión mañana', adminHeadingReminder: 'Recordatorio enviado',
+    adminIntroReminder: 'Se ha recordado esta reunión al cliente.', adminSubjectReminder: 'Recordatorio enviado'
   },
   pt: {
     confirmed: 'Reunião confirmada', cancelled: 'Reunião cancelada', hello: 'Olá',
@@ -477,7 +514,10 @@ const MEETING_COPY = {
     adminIntro: 'A confirmação e o convite de calendário já seguiram para o cliente.',
     adminIntroCancelled: 'O cliente foi avisado de que a reunião não se vai realizar.',
     adminClient: 'Cliente', adminEmail: 'Email', adminOpenCrm: 'Abrir no CRM',
-    adminSubjectConfirmed: 'Nova reunião', adminSubjectCancelled: 'Reunião cancelada'
+    adminSubjectConfirmed: 'Nova reunião', adminSubjectCancelled: 'Reunião cancelada',
+    reminder: 'A sua reunião é amanhã', reminderIntro: 'Recordamos a sua próxima reunião com a Elysium.',
+    subjectReminder: 'Lembrete: reunião amanhã', adminHeadingReminder: 'Lembrete enviado',
+    adminIntroReminder: 'O cliente foi recordado desta reunião.', adminSubjectReminder: 'Lembrete enviado'
   }
 };
 
@@ -485,8 +525,9 @@ function buildMeetingEmail(meeting, kind = 'confirmation') {
   const locale = normalizedLocale(meeting.locale);
   const copy = MEETING_COPY[locale];
   const cancelled = kind === 'cancellation';
-  const heading = cancelled ? copy.cancelled : copy.confirmed;
-  const intro = cancelled ? copy.cancelledIntro : copy.intro;
+  const reminder = kind === 'reminder';
+  const heading = cancelled ? copy.cancelled : reminder ? copy.reminder : copy.confirmed;
+  const intro = cancelled ? copy.cancelledIntro : reminder ? copy.reminderIntro : copy.intro;
   const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
   const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
   const notes = meeting.cancellationReason || meeting.notes || '';
@@ -506,16 +547,17 @@ function buildMeetingEmail(meeting, kind = 'confirmation') {
     <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(heading)}</p>
     <h1 class="title text-main" style="margin:0 0 20px;color:#0f172a;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(meeting.title)}</h1>
     <p class="text-muted" style="margin:0 0 32px;color:#475569;font-size:16px;line-height:1.6">${escapeHtml(copy.hello)} ${escapeHtml(meeting.clientName || '')}, ${escapeHtml(intro)}</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="bg-body" style="background:#f8fafc;border:1px solid #e3eaf3;border-radius:16px;padding:8px 24px">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="bg-body" style="background:#f8fafc;border-radius:16px;padding:8px 24px">
       ${row(copy.yourTime, clientDate, `<br><span class="text-light" style="color:#64748b;font-size:13px;font-weight:400">${escapeHtml(meeting.clientTimeZone)}</span>`, 0)}
       ${row(copy.adminTime, adminDate, `<br><span class="text-light" style="color:#64748b;font-size:13px;font-weight:400">${escapeHtml(meeting.adminTimeZone)}</span>`, 1)}
       ${row(copy.duration, `${Number(meeting.durationMinutes)} ${escapeHtml(copy.minutes)}`, '', 2)}
       ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone, '', 3)}
     </table>
-    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;border:1px solid #d6ebf7;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
+    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
     ${button}`;
 
-  const subjectLabel = cancelled ? copy.subjectCancelled : copy.subjectConfirmed;
+  const subjectLabel = cancelled ? copy.subjectCancelled
+    : reminder ? copy.subjectReminder : copy.subjectConfirmed;
   const text = [
     `${heading}: ${meeting.title}`,
     `${copy.yourTime}: ${clientDate} (${meeting.clientTimeZone})`,
@@ -603,8 +645,11 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
   const locale = normalizedLocale(meeting.locale);
   const copy = MEETING_COPY[locale];
   const cancelled = kind === 'cancellation';
-  const heading = cancelled ? copy.adminHeadingCancelled : copy.adminHeading;
-  const intro = cancelled ? copy.adminIntroCancelled : copy.adminIntro;
+  const reminder = kind === 'reminder';
+  const heading = cancelled ? copy.adminHeadingCancelled
+    : reminder ? copy.adminHeadingReminder : copy.adminHeading;
+  const intro = cancelled ? copy.adminIntroCancelled
+    : reminder ? copy.adminIntroReminder : copy.adminIntro;
   const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
   const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
   const notes = meeting.cancellationReason || meeting.notes || '';
@@ -626,7 +671,7 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
     <p style="margin:0 0 12px;color:#28a8ff;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase">${escapeHtml(heading)}</p>
     <h1 class="title text-main" style="margin:0 0 20px;color:#0f172a;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:-0.02em">${escapeHtml(meeting.title)}</h1>
     <p class="text-muted" style="margin:0 0 32px;color:#475569;font-size:16px;line-height:1.6">${escapeHtml(intro)}</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="bg-body" style="background:#f8fafc;border:1px solid #e3eaf3;border-radius:16px;padding:8px 24px">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="bg-body" style="background:#f8fafc;border-radius:16px;padding:8px 24px">
       ${row(copy.adminClient, meeting.clientName || '—', '', 0)}
       ${row(copy.adminEmail, meeting.clientEmail || '—', '', 1)}
       ${row(copy.adminTime, adminDate, `<br><span class="text-light" style="color:#64748b;font-size:13px;font-weight:400">${escapeHtml(meeting.adminTimeZone)}</span>`, 2)}
@@ -634,10 +679,11 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
       ${row(copy.duration, `${Number(meeting.durationMinutes)} ${escapeHtml(copy.minutes)}`, '', 4)}
       ${row(copy.region, meeting.clientRegion || meeting.clientTimeZone || '—', '', 5)}
     </table>
-    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;border:1px solid #d6ebf7;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
+    ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
     ${buttonGroup}`;
 
-  const subjectLabel = cancelled ? copy.adminSubjectCancelled : copy.adminSubjectConfirmed;
+  const subjectLabel = cancelled ? copy.adminSubjectCancelled
+    : reminder ? copy.adminSubjectReminder : copy.adminSubjectConfirmed;
   const who = meeting.clientName || meeting.clientEmail || '';
   const text = [
     `${heading}: ${meeting.title}`,
@@ -802,7 +848,7 @@ async function sendEmail(payload, idempotencyKey, transportImpl = null) {
 }
 
 function meetingNotificationPath(kind) {
-  if (!['confirmation', 'cancellation'].includes(kind)) throw new Error('Invalid notification kind.');
+  if (!MEETING_NOTIFICATION_KINDS.includes(kind)) throw new Error('Invalid notification kind.');
   return `notifications.${kind}`;
 }
 
@@ -892,6 +938,7 @@ async function deliverMeetingNotification(meetingId, kind, transportImpl = null)
   const latestMeeting = latestSnapshot.data();
   if (!latestMeeting
     || kind === 'confirmation' && latestMeeting.status !== 'scheduled'
+    || kind === 'reminder' && latestMeeting.status !== 'scheduled'
     || kind === 'cancellation' && latestMeeting.status !== 'cancelled') {
     await finishMeetingNotification(meetingId, kind, claim.attemptId, { status: 'suppressed' });
     return { kind: 'suppressed' };
@@ -1028,26 +1075,40 @@ app.post('/api/auth/password-reset', async (request, response) => {
     || passwordResetRateLimited(resetAttemptKey('ip', remoteAddress), PASSWORD_RESET_IP_LIMIT, startedAt)
     || passwordResetRateLimited(resetAttemptKey('email', email), PASSWORD_RESET_EMAIL_LIMIT, startedAt);
 
+  /* El resultado se registra siempre. La respuesta es idéntica en todos los
+     casos —así debe ser, para no revelar qué cuentas existen—, pero antes
+     tampoco se escribía nada al enviar bien: un fallo y un envío correcto
+     dejaban exactamente la misma huella, y no había forma de saber si el
+     correo llegó a salir. Se registra el desenlace, nunca la dirección. */
+  let outcome = limited ? 'rate_limited' : 'unknown';
   if (!limited) {
     try {
       const account = await firebaseAuth.getUserByEmail(email);
-      if (!account.disabled) {
+      if (account.disabled) {
+        outcome = 'account_disabled';
+      } else {
         const resetLink = await firebaseAuth.generatePasswordResetLink(email, {
           url: passwordResetContinueUrl(locale),
           handleCodeInApp: false
         });
         const deliveryKey = `elysium-password-reset-${crypto.createHash('sha256').update(resetLink).digest('hex')}`;
-        await sendEmail(passwordResetEmail(email, resetLink, locale), deliveryKey);
+        const sent = await sendEmail(passwordResetEmail(email, resetLink, locale), deliveryKey);
+        outcome = 'sent';
+        console.log('[password-reset] sent', JSON.stringify({
+          from: extractEmailAddress(passwordResetEmail(email, '', locale).from),
+          messageId: sent.id,
+          locale
+        }));
       }
     } catch (error) {
-      // The response is deliberately identical for missing accounts, disabled
-      // accounts, provider failures and successful sends. Operational errors
-      // remain visible in server logs without printing the requested address.
-      if (error?.code !== 'auth/user-not-found') {
-        console.error('Password reset delivery failed:', error?.code || error?.message || 'unknown_error');
+      outcome = error?.code === 'auth/user-not-found' ? 'no_account' : 'failed';
+      if (outcome === 'failed') {
+        console.error('[password-reset] delivery failed:',
+          error?.code || error?.message || 'unknown_error');
       }
     }
   }
+  if (outcome !== 'sent') console.log(`[password-reset] outcome=${outcome}`);
 
   await minimumResponseDelay(startedAt);
   return response.status(202).json(genericResponse);
@@ -1369,6 +1430,64 @@ app.post('/api/meetings/:meetingId/cancel', requireFirebaseUser, requireFirebase
   }
 });
 
+/* ── Recordatorios de la agenda ──────────────────────────────────────────────
+   La agenda solo avisaba al confirmar y al cancelar: no existía ningún
+   recordatorio, ni el código para enviarlo ni nada que lo disparara. Este
+   endpoint recorre las reuniones que empiezan dentro de la ventana y manda el
+   aviso que falte, apoyándose en el mismo claim que ya impide el envío doble.
+
+   Lo llama Cloud Scheduler, que no puede iniciar sesión en Firebase. Se acepta
+   por eso una cabecera con un secreto compartido, además del administrador
+   autenticado, para poder dispararlo también a mano desde el CRM. */
+const REMINDER_DEFAULT_WINDOW_HOURS = 24;
+const REMINDER_MAX_BATCH = 50;
+
+function reminderCallerAuthorised(request) {
+  const configured = String(process.env.MEETING_REMINDER_TOKEN || '').trim();
+  const provided = String(request.get('x-elysium-reminder-token') || '').trim();
+  if (configured && provided && provided.length === configured.length
+    && crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(configured))) {
+    return true;
+  }
+  return isFirebaseAdmin(request.firebaseUser);
+}
+
+app.post('/api/meetings/reminders/run', optionalFirebaseUser, async (request, response) => {
+  response.set('Cache-Control', 'no-store');
+  if (!reminderCallerAuthorised(request)) {
+    return response.status(403).json({ error: 'Administrator access required.', code: 'admin_required' });
+  }
+  const hours = Number(request.body?.withinHours) > 0
+    ? Math.min(Number(request.body.withinHours), 168)
+    : REMINDER_DEFAULT_WINDOW_HOURS;
+  const now = new Date();
+  const until = new Date(now.getTime() + hours * 3600 * 1000);
+  try {
+    const snapshot = await db.collection('meetings')
+      .where('status', '==', 'scheduled')
+      .where('startAt', '>=', Timestamp.fromDate(now))
+      .where('startAt', '<=', Timestamp.fromDate(until))
+      .orderBy('startAt')
+      .limit(REMINDER_MAX_BATCH)
+      .get();
+
+    const results = { considered: snapshot.size, sent: 0, skipped: 0, failed: 0 };
+    for (const document of snapshot.docs) {
+      const already = document.data()?.notifications?.reminder?.status;
+      if (already === 'sent') { results.skipped += 1; continue; }
+      const outcome = await dispatchMeetingEmail(document.id, 'reminder');
+      if (outcome === 'sent') results.sent += 1;
+      else if (outcome === 'failed' || outcome === 'not_configured') results.failed += 1;
+      else results.skipped += 1;
+    }
+    console.log('[meeting-reminders]', JSON.stringify({ ...results, withinHours: hours }));
+    return response.status(200).json({ ok: true, withinHours: hours, ...results });
+  } catch (error) {
+    console.error('Meeting reminder run failed:', error?.code || error?.message || error);
+    return response.status(500).json({ error: 'Unable to run reminders.', code: 'reminder_run_failed' });
+  }
+});
+
 /* ─────────────────────────────────────────────────────────────────────────────
    Correo redactado desde el CRM
 
@@ -1474,24 +1593,75 @@ function transportForSender(sender) {
 }
 
 /** Versión de texto plano a partir del HTML, para la parte `text/plain`. */
+/* Entidades con nombre que aparecen de verdad en estos correos: acentos y
+   puntuación del español y el portugués, más los símbolos de la marca. Sin
+   esta tabla el acuse al administrador mostraba «Adri&aacute;n» en vez de
+   «Adrián», porque solo se traducían cinco entidades y las demás llegaban
+   crudas al texto plano. `&amp;` va la última: si se resolviera antes,
+   «&amp;aacute;» acabaría convertido en «á». */
+const HTML_ENTITIES = {
+  nbsp: ' ', lt: '<', gt: '>', quot: '"', apos: "'", middot: '·', lambda: 'λ',
+  mdash: '—', ndash: '–', hellip: '…', laquo: '«', raquo: '»', deg: '°',
+  aacute: 'á', eacute: 'é', iacute: 'í', oacute: 'ó', uacute: 'ú', ntilde: 'ñ',
+  Aacute: 'Á', Eacute: 'É', Iacute: 'Í', Oacute: 'Ó', Uacute: 'Ú', Ntilde: 'Ñ',
+  agrave: 'à', egrave: 'è', igrave: 'ì', ograve: 'ò', ugrave: 'ù',
+  Agrave: 'À', Egrave: 'È', Igrave: 'Ì', Ograve: 'Ò', Ugrave: 'Ù',
+  atilde: 'ã', otilde: 'õ', Atilde: 'Ã', Otilde: 'Õ', ccedil: 'ç', Ccedil: 'Ç',
+  acirc: 'â', ecirc: 'ê', icirc: 'î', ocirc: 'ô', ucirc: 'û',
+  Acirc: 'Â', Ecirc: 'Ê', Icirc: 'Î', Ocirc: 'Ô', Ucirc: 'Û',
+  uuml: 'ü', Uuml: 'Ü', iquest: '¿', iexcl: '¡', euro: '€', pound: '£',
+  copy: '©', reg: '®', trade: '™', bull: '•', rsquo: '’', lsquo: '‘',
+  ldquo: '“', rdquo: '”', amp: '&'
+};
+
+function decodeHtmlEntities(value) {
+  return String(value)
+    .replace(/&#x([0-9a-f]+);/gi, (_match, hex) => safeCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_match, decimal) => safeCodePoint(parseInt(decimal, 10)))
+    .replace(/&([a-z]+);/gi, (match, name) => (
+      Object.prototype.hasOwnProperty.call(HTML_ENTITIES, name) ? HTML_ENTITIES[name] : match
+    ));
+}
+
+function safeCodePoint(code) {
+  return Number.isInteger(code) && code > 0 && code <= 0x10ffff
+    ? String.fromCodePoint(code)
+    : '';
+}
+
 function htmlToPlainText(html) {
-  return String(html || '')
+  const stripped = String(html || '')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<\/(p|div|tr|h[1-6]|li)>/gi, '\n')
     .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'")
-    .replace(/&middot;/gi, '·')
-    .replace(/&lambda;/gi, 'λ')
+    .replace(/<[^>]+>/g, '');
+  return decodeHtmlEntities(stripped)
     .replace(/[ \t]+/g, ' ')
+    .replace(/[ \t]*\n[ \t]*/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+/** Tamaño legible: el acuse mostraba «881362 B» en vez de «861 KB». */
+function humanFileSize(bytes) {
+  const size = Number(bytes) || 0;
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+/** Fecha legible en el idioma del acuse, con la zona del administrador. */
+function readableTimestamp(date, locale = 'es') {
+  const language = { es: 'es-ES', pt: 'pt-PT', en: 'en-GB' }[normalizedLocale(locale)];
+  const zone = String(process.env.ADMIN_TIME_ZONE || 'Europe/Lisbon');
+  try {
+    return new Intl.DateTimeFormat(language, {
+      dateStyle: 'long', timeStyle: 'short', timeZone: zone
+    }).format(date);
+  } catch {
+    return date.toISOString();
+  }
 }
 
 /** Quita rutas y caracteres de control del nombre que llega del navegador. */
@@ -1676,6 +1846,11 @@ async function updateCrmMailClaim(claim, changes, { renewLease = true } = {}) {
   });
 }
 
+/* Cuánto del mensaje enviado se reproduce en el acuse. Es un extracto para
+   reconocer el envío de un vistazo, no el archivo: el mensaje íntegro viaja
+   adjunto en el mismo acuse. */
+const CRM_RECEIPT_EXCERPT_CHARS = 900;
+
 const CRM_RECEIPT_COPY = {
   en: {
     eyebrow: 'CRM DELIVERY RECEIPT', title: 'Email sent successfully', intro: 'The recipient server accepted this message.',
@@ -1700,10 +1875,16 @@ const CRM_RECEIPT_COPY = {
 function crmMailReceiptPayload({ sender, actorEmail, recipients, subject, html, text, attachments, sentAt, locale }) {
   const copy = CRM_RECEIPT_COPY[normalizedLocale(locale)] || CRM_RECEIPT_COPY.es;
   const attachmentSummary = attachments.length
-    ? attachments.map(item => `${escapeHtml(item.filename)} · ${escapeHtml(item.contentType)} · ${item.bytes} B`).join('<br>')
+    ? attachments.map(item => `${escapeHtml(item.filename)} · ${humanFileSize(item.bytes)}`).join('<br>')
     : escapeHtml(copy.none);
-  const row = (label, value) => `<tr><td style="padding:10px 0;color:#6b7e8e;font-size:13px;vertical-align:top">${escapeHtml(label)}</td><td style="padding:10px 0;color:#18334b;font-size:13px;font-weight:600;text-align:right;vertical-align:top">${value}</td></tr>`;
-  const safeText = String(text || '').slice(0, 100_000);
+  const row = (label, value) => `<tr class="stack-mobile"><td class="border-top-mobile" width="34%" style="width:34%;padding:12px 14px 12px 0;border-top:1px solid #eef2f5;color:#6b7e8e;font-size:13px;vertical-align:top">${escapeHtml(label)}</td><td style="padding:12px 0;border-top:1px solid #eef2f5;color:#18334b;font-size:13px;font-weight:600;text-align:right;vertical-align:top;word-break:break-word">${value}</td></tr>`;
+  /* La copia iba entera —hasta 100 000 caracteres— dentro de un <pre>, y un
+     correo con maquetación ocupaba varias páginas de bloque gris ilegible. Se
+     recorta a un extracto: el mensaje íntegro ya viaja como adjunto. */
+  const fullText = String(text || '');
+  const excerpt = fullText.length > CRM_RECEIPT_EXCERPT_CHARS
+    ? `${fullText.slice(0, CRM_RECEIPT_EXCERPT_CHARS).trimEnd()}…`
+    : fullText;
   const content = `
     <p style="margin:0 0 10px;color:#2997ff;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase">${escapeHtml(copy.eyebrow)}</p>
     <h1 class="title text-main" style="margin:0 0 12px;color:#173e62;font-size:28px;line-height:1.22">${escapeHtml(copy.title)}</h1>
@@ -1713,12 +1894,12 @@ function crmMailReceiptPayload({ sender, actorEmail, recipients, subject, html, 
       ${row(copy.from, escapeHtml(sender.address))}
       ${row(copy.to, escapeHtml(recipients.join(', ')))}
       ${row(copy.subject, escapeHtml(subject))}
-      ${row(copy.date, escapeHtml(sentAt.toISOString()))}
+      ${row(copy.date, escapeHtml(readableTimestamp(sentAt, locale)))}
       ${row(copy.files, attachmentSummary)}
     </table>
-    <div style="margin-top:26px;padding:20px;border-radius:18px;background:#f4f8fb">
+    <div style="margin-top:26px;padding:22px;border-radius:18px;background:#f4f8fb">
       <strong style="display:block;margin-bottom:10px;color:#173e62;font-size:13px">${escapeHtml(copy.copy)}</strong>
-      <pre style="margin:0;color:#526b7d;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word">${escapeHtml(safeText)}</pre>
+      <div style="margin:0;color:#526b7d;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word">${escapeHtml(excerpt)}</div>
     </div>
     <p style="margin:16px 0 0;color:#748797;font-size:11px;line-height:1.5">${escapeHtml(copy.htmlAttachment)}</p>`;
   return {
@@ -1727,9 +1908,10 @@ function crmMailReceiptPayload({ sender, actorEmail, recipients, subject, html, 
     subject: `${copy.subjectPrefix} · ${subject}`.slice(0, 250),
     html: emailTheme(content, `${copy.subjectPrefix}: ${subject}`),
     text: [copy.title, `${copy.actor}: ${actorEmail || '—'}`, `${copy.from}: ${sender.address}`,
-      `${copy.to}: ${recipients.join(', ')}`, `${copy.subject}: ${subject}`, `${copy.date}: ${sentAt.toISOString()}`,
-      `${copy.files}: ${attachments.length ? attachments.map(item => item.filename).join(', ') : copy.none}`,
-      '', copy.copy, safeText].join('\n'),
+      `${copy.to}: ${recipients.join(', ')}`, `${copy.subject}: ${subject}`,
+      `${copy.date}: ${readableTimestamp(sentAt, locale)}`,
+      `${copy.files}: ${attachments.length ? attachments.map(item => `${item.filename} (${humanFileSize(item.bytes)})`).join(', ') : copy.none}`,
+      '', copy.copy, excerpt].join('\n'),
     attachments: [{
       filename: 'mensaje-enviado.html.txt',
       content: Buffer.from(html, 'utf8').toString('base64'),
@@ -2007,6 +2189,9 @@ module.exports = {
   validateMailAttachments,
   safeAttachmentName,
   htmlToPlainText,
+  decodeHtmlEntities,
+  humanFileSize,
+  readableTimestamp,
   crmMailIdempotencyKey,
   crmMailFingerprint,
   crmMailReceiptPayload

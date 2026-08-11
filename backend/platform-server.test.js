@@ -22,6 +22,7 @@ const {
   meetingIdForRequest,
   meetingRequestFingerprint,
   buildMeetingEmail,
+  buildMeetingAdminEmail,
   emailTheme,
   withElysiumSeal,
   elysiumSealAttachment,
@@ -37,6 +38,8 @@ const {
   validateMailAttachments,
   safeAttachmentName,
   htmlToPlainText,
+  decodeHtmlEntities,
+  humanFileSize,
   crmMailIdempotencyKey,
   crmMailFingerprint,
   crmMailReceiptPayload,
@@ -446,4 +449,58 @@ test('the separate administrator receipt escapes content and preserves a safe co
   assert.match(payload.html, /&lt;invoice&gt;\.pdf/);
   assert.equal(payload.attachments[0].contentType, 'text/plain');
   assert.equal(Buffer.from(payload.attachments[0].content, 'base64').toString('utf8'), '<h1>Hello</h1><script>unsafe()</script>');
+});
+
+test('the receipt renders accents, readable sizes and a bounded excerpt', () => {
+  // El acuse mostraba «Adri&aacute;n» porque solo se traducían cinco entidades.
+  assert.equal(decodeHtmlEntities('Adri&aacute;n &mdash; Clasificaci&oacute;n'), 'Adrián — Clasificación');
+  assert.equal(decodeHtmlEntities('contrase&ntilde;a &uacute;nica'), 'contraseña única');
+  assert.equal(decodeHtmlEntities('&#233;&#x41;'), 'éA');
+  // `&amp;` se resuelve la última: si no, «&amp;aacute;» acabaría en «á».
+  assert.equal(decodeHtmlEntities('&amp;aacute;'), '&aacute;');
+  assert.equal(decodeHtmlEntities('&noexiste;'), '&noexiste;');
+  assert.equal(htmlToPlainText('<p>Adri&aacute;n</p><p>Pochet</p>'), 'Adrián\nPochet');
+
+  assert.equal(humanFileSize(42), '42 B');
+  assert.equal(humanFileSize(881362), '861 KB');
+  assert.equal(humanFileSize(5 * 1024 * 1024), '5.0 MB');
+
+  const long = 'x'.repeat(4000);
+  const payload = crmMailReceiptPayload({
+    sender: { name: 'Elysium', address: 'info@elysiumdr.eu' },
+    actorEmail: 'admin@example.com',
+    recipients: ['client@example.com'],
+    subject: 'Asunto',
+    html: `<p>${long}</p>`,
+    text: long,
+    attachments: [{ filename: 'a.pdf', contentType: 'application/pdf', bytes: 881362 }],
+    sentAt: new Date('2026-08-11T12:53:58.682Z'),
+    locale: 'es'
+  });
+  // La copia va acotada: el mensaje entero ya viaja como adjunto.
+  assert.ok(payload.html.includes('…'));
+  assert.ok(!payload.html.includes(long));
+  assert.match(payload.html, /861 KB/);
+  // La fecha ya no sale en ISO crudo.
+  assert.doesNotMatch(payload.html, /2026-08-11T12:53:58\.682Z/);
+  assert.match(payload.html, /2026/);
+});
+
+test('the agenda has three automatic notices, all from the configured mailbox', () => {
+  const meeting = emailMeeting({ locale: 'es' });
+  // El recordatorio no existía: la agenda solo avisaba al confirmar y cancelar.
+  const reminder = buildMeetingEmail(meeting, 'reminder');
+  assert.match(reminder.subject, /Recordatorio/);
+  assert.match(reminder.html, /Tu reuni\u00f3n es ma\u00f1ana/);
+  // Sigue llevando el enlace: un recordatorio sin acceso no sirve de nada.
+  assert.match(reminder.html, /meet\.example\.com/);
+
+  const adminReminder = buildMeetingAdminEmail(meeting, 'reminder');
+  assert.match(adminReminder.subject, /Recordatorio enviado/);
+
+  // Los tres avisos salen del mismo buzon, el de MEETING_FROM_EMAIL.
+  const senders = new Set(['confirmation', 'cancellation', 'reminder']
+    .map(kind => meetingEmailPayload(meeting, kind, 'client').from));
+  assert.equal(senders.size, 1);
+  assert.equal([...senders][0], process.env.MEETING_FROM_EMAIL);
 });

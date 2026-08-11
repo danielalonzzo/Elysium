@@ -748,6 +748,8 @@ const translations = {
             replyInvalid: "Reply-To must be a valid email address.",
             subjectRequired: "A subject is required.",
             templateRequired: "Choose an HTML template.",
+            editText: "Edit text", editDone: "Done editing",
+            editHint: "Click any text in the preview to correct it. The changes go out with the message.",
             htmlTooLarge: max => `The HTML template must stay under ${max}.`,
             imported: name => `${name} is ready.`,
             importError: "That file could not be read.",
@@ -983,6 +985,8 @@ const translations = {
             replyInvalid: "El correo de respuesta no es válido.",
             subjectRequired: "Hace falta un asunto.",
             templateRequired: "Elige una plantilla HTML.",
+            editText: "Editar texto", editDone: "Terminar edición",
+            editHint: "Pulsa sobre cualquier texto de la vista previa para corregirlo. Los cambios salen con el correo.",
             htmlTooLarge: max => `La plantilla HTML debe pesar menos de ${max}.`,
             imported: name => `${name} está lista.`,
             importError: "No se pudo leer ese archivo.",
@@ -1217,6 +1221,8 @@ const translations = {
             replyInvalid: "O email de resposta não é válido.",
             subjectRequired: "É necessário um assunto.",
             templateRequired: "Escolha um modelo HTML.",
+            editText: "Editar texto", editDone: "Terminar edição",
+            editHint: "Toque em qualquer texto da pré-visualização para o corrigir. As alterações seguem com o email.",
             htmlTooLarge: max => `O modelo HTML deve ter menos de ${max}.`,
             imported: name => `${name} está pronto.`,
             importError: "Não foi possível ler esse ficheiro.",
@@ -2172,6 +2178,9 @@ function applyTranslations() {
     }
     const previewBadge = document.getElementById('mail-preview-badge');
     if (previewBadge) previewBadge.textContent = _mailTemplateHtml ? mailCopy.readyTemplate : mailCopy.noTemplate;
+    const editHint = document.getElementById('mail-edit-hint');
+    if (editHint) editHint.textContent = mailCopy.editHint;
+    syncMailEditAvailability();
     if (_mailInitialized) renderMailAttachments();
 
     // Logout button has SVG + span — only update the span
@@ -3088,10 +3097,10 @@ async function loadLicenses() {
             summary.innerHTML = [
                 [counts.total, copy.total, 'license-metric-blue'],
                 [counts.active, copy.active, 'license-metric-green'],
-                [counts.attention, copy.attention, 'license-metric-gold'],
+                [counts.attention, copy.attention, `license-metric-gold${counts.attention ? '' : ' is-clear'}`],
             ].map(([value, label, cls]) => `
                 <div class="license-metric ${cls}">
-                    <strong>${value}</strong><span>${label}</span>
+                    <strong>${value}</strong><span>${esc(label)}</span>
                 </div>`).join('');
         }
 
@@ -3105,7 +3114,6 @@ async function loadLicenses() {
             const status = data.status || 'active';
             const displayStatus = copy[status] || (status === 'active' ? copy.active : status.replaceAll('_', ' '));
             const source = data.source === 'legacy' ? copy.legacy : copy.manual;
-            const sourceClass = 'license-source-manual';
             const cycle = data.contractPeriodCode || copy[data.billingCycle] || data.billingCycle || '—';
             const renewal = formatAdminDate(data.nextBillingDate);
             const tr = document.createElement('tr');
@@ -3115,7 +3123,7 @@ async function loadLicenses() {
                 <td data-label="${esc(t.table_code)}" class="license-code-cell">${esc(data.licenseCode)}</td>
                 <td data-label="${esc(t.table_client)}"><strong>${esc(data.userName)}</strong><small>${esc(data.userEmail)}</small></td>
                 <td data-label="${esc(t.table_plan)}"><strong>${esc(SUBSCRIPTION_PLANS[data.planType]?.label || data.planLabel || data.planType || '—')}</strong><small>${esc(cycle)}</small></td>
-                <td data-label="${esc(t.table_origin)}"><span class="license-source ${sourceClass}">${esc(source)}</span></td>
+                <td data-label="${esc(t.table_origin)}"><span class="license-source license-source-manual">${esc(source)}</span></td>
                 <td data-label="${esc(t.table_status)}"><span class="portal-status status-${esc(status)}">${esc(displayStatus)}</span></td>
                 <td data-label="${esc(t.table_renewal)}">${esc(renewal)}</td>
             `;
@@ -6110,8 +6118,84 @@ function mailDraftFingerprint({ from, recipients, replyTo, subject }) {
     });
 }
 
+function mailSealPreviewUrl() {
+    return `${window.location.origin}/Images/elysium-email-seal.svg`;
+}
+
+/* ── Edición en la previsualización ──────────────────────────────────────────
+   El compositor solo aceptaba la plantilla tal y como venía del archivo, así
+   que una errata obligaba a corregir el HTML fuera y volver a importarlo. El
+   marco se vuelve editable a demanda y lo que se envía se lee de vuelta de él.
+
+   La sustitución del sello va en los dos sentidos: en pantalla `cid:` no se
+   puede resolver y se cambia por la URL del sitio, y al recuperar el HTML hay
+   que devolverlo a `cid:` para que el backend lo incruste como adjunto en vez
+   de dejar una imagen remota que los clientes bloquean. */
+let _mailEditing = false;
+
+function mailPreviewDocument() {
+    const frame = document.getElementById('mail-live-preview-frame');
+    try {
+        return frame?.contentDocument || null;
+    } catch {
+        return null;
+    }
+}
+
+/** El HTML que se va a enviar: el editado si se tocó, si no el importado. */
+function currentMailHtml() {
+    const doc = mailPreviewDocument();
+    if (!_mailEditing || !doc?.documentElement) return _mailTemplateHtml;
+    const edited = doc.documentElement.outerHTML;
+    return edited.replaceAll(mailSealPreviewUrl(), 'cid:elysium-email-seal');
+}
+
+/** Vuelca lo editado a `_mailTemplateHtml` para no perderlo al alternar. */
+function commitMailEdits() {
+    if (!_mailEditing) return;
+    const html = currentMailHtml();
+    if (html && html !== _mailTemplateHtml) {
+        _mailTemplateHtml = html;
+        resetMailIdempotency();
+    }
+}
+
+function setMailEditing(enabled) {
+    const doc = mailPreviewDocument();
+    const toggle = document.getElementById('mail-edit-toggle');
+    const hint = document.getElementById('mail-edit-hint');
+    const c = mailText();
+    if (!doc?.body) return;
+    if (!enabled) commitMailEdits();
+    _mailEditing = enabled;
+    doc.body.contentEditable = enabled ? 'true' : 'false';
+    doc.body.style.outline = enabled ? '2px dashed rgba(41,151,255,.45)' : '';
+    doc.body.style.outlineOffset = enabled ? '-2px' : '';
+    if (toggle) {
+        toggle.setAttribute('aria-pressed', String(enabled));
+        toggle.classList.toggle('is-active', enabled);
+        toggle.textContent = enabled ? c.editDone : c.editText;
+    }
+    if (hint) hint.hidden = !enabled;
+    if (enabled) doc.body.focus?.();
+}
+
+function syncMailEditAvailability() {
+    const toggle = document.getElementById('mail-edit-toggle');
+    const hint = document.getElementById('mail-edit-hint');
+    const available = Boolean(_mailTemplateHtml);
+    if (toggle) {
+        toggle.hidden = !available;
+        toggle.textContent = _mailEditing ? mailText().editDone : mailText().editText;
+    }
+    if (!available) {
+        _mailEditing = false;
+        if (hint) hint.hidden = true;
+    }
+}
+
 function mailPreviewHtml(html) {
-    const sealUrl = `${window.location.origin}/Images/elysium-email-seal.svg`;
+    const sealUrl = mailSealPreviewUrl();
     let preview = String(html || '').replaceAll('cid:elysium-email-seal', sealUrl);
     if (preview.includes(sealUrl)) return preview;
     const seal = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-top:28px"><tr><td align="center" style="padding:24px 12px 8px"><img src="${sealUrl}" width="78" height="78" alt="Sello Elysium" style="display:block;width:78px;height:78px;margin:0 auto 10px;border:0"><p style="margin:0;color:#687c8d;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">Elysium λ Development &amp; Research</p></td></tr></table>`;
@@ -6152,15 +6236,19 @@ async function setMailTemplate(file) {
         const badge = document.getElementById('mail-preview-badge');
         if (fileName) fileName.textContent = file.name;
         if (summary) summary.hidden = false;
+        _mailEditing = false;
         if (frame) {
             frame.srcdoc = mailPreviewHtml(html);
             frame.hidden = false;
+            // El documento del marco no existe hasta que termina de cargar.
+            frame.addEventListener('load', syncMailEditAvailability, { once: true });
         }
         if (empty) empty.hidden = true;
         if (badge) {
             badge.textContent = c.readyTemplate;
             badge.classList.add('is-ready');
         }
+        syncMailEditAvailability();
         setMailMessage(c.imported(file.name), 'is-success');
     } catch (error) {
         logger.warn('Could not read the HTML template:', error);
@@ -6177,6 +6265,7 @@ function clearMailTemplate() {
     const frame = document.getElementById('mail-live-preview-frame');
     const empty = document.getElementById('mail-preview-empty');
     const badge = document.getElementById('mail-preview-badge');
+    _mailEditing = false;
     if (input) input.value = '';
     if (summary) summary.hidden = true;
     if (frame) {
@@ -6188,6 +6277,7 @@ function clearMailTemplate() {
         badge.textContent = mailText().noTemplate;
         badge.classList.remove('is-ready');
     }
+    syncMailEditAvailability();
 }
 
 function addMailAttachments(files) {
@@ -6261,7 +6351,12 @@ async function submitMailForm(event) {
     if (replyTo && !validMailAddress(replyTo)) return setMailMessage(c.replyInvalid, 'is-error');
     if (!subject) return setMailMessage(c.subjectRequired, 'is-error');
     if (!_mailTemplateFile || !_mailTemplateHtml.trim()) return setMailMessage(c.templateRequired, 'is-error');
-    if (new Blob([_mailTemplateHtml]).size > MAIL_MAX_HTML_BYTES) {
+    // Se recogen las correcciones hechas sobre la previsualización antes de
+    // validar el tamaño: lo que se valida tiene que ser lo que se envía.
+    commitMailEdits();
+    const messageHtml = currentMailHtml();
+    if (!messageHtml.trim()) return setMailMessage(c.templateRequired, 'is-error');
+    if (new Blob([messageHtml]).size > MAIL_MAX_HTML_BYTES) {
         return setMailMessage(c.htmlTooLarge(formatBytes(MAIL_MAX_HTML_BYTES)), 'is-error');
     }
     const attachmentProblems = renderMailAttachments();
@@ -6293,7 +6388,7 @@ async function submitMailForm(event) {
                 from,
                 to: recipients,
                 subject,
-                html: _mailTemplateHtml,
+                html: messageHtml,
                 locale: currentLang,
                 replyTo: replyTo || undefined,
                 attachments
@@ -6345,6 +6440,7 @@ function initMailSection() {
     templateTrigger?.addEventListener('click', () => templateInput?.click());
     templateInput?.addEventListener('change', event => setMailTemplate(event.target.files?.[0]));
     document.getElementById('mail-remove-template-btn')?.addEventListener('click', clearMailTemplate);
+    document.getElementById('mail-edit-toggle')?.addEventListener('click', () => setMailEditing(!_mailEditing));
 
     const attachmentInput = document.getElementById('mail-attachments');
     const attachmentTrigger = document.getElementById('mail-attachment-trigger');

@@ -520,7 +520,13 @@
                             <span class="agenda-eyebrow" id="mail-preview-eyebrow">Recipient view</span>
                             <h2 id="mail-preview-title">Email preview</h2>
                         </div>
-                        <span id="mail-preview-badge" class="mail-preview-badge">No template</span>
+                        <div class="mail-preview-tools">
+                            <!-- `allow-same-origin` sin `allow-scripts`: hace falta
+                                 para poder editar el documento desde aquí, y sin
+                                 scripts ninguna plantilla importada se ejecuta. -->
+                            <button type="button" id="mail-edit-toggle" class="mail-edit-toggle" aria-pressed="false" hidden>Edit text</button>
+                            <span id="mail-preview-badge" class="mail-preview-badge">No template</span>
+                        </div>
                     </div>
                     <div class="mail-preview-stage" id="mail-live-preview-container">
                         <div class="mail-preview-empty" id="mail-preview-empty">
@@ -528,8 +534,9 @@
                             <strong id="mail-preview-empty-title">Your message will appear here</strong>
                             <p id="mail-preview-empty-copy">Choose an HTML template to inspect it before sending.</p>
                         </div>
-                        <iframe id="mail-live-preview-frame" title="Email preview" sandbox hidden></iframe>
+                        <iframe id="mail-live-preview-frame" title="Email preview" sandbox="allow-same-origin" hidden></iframe>
                     </div>
+                    <p class="mail-edit-hint" id="mail-edit-hint" hidden>Click any text in the preview to correct it. The changes go out with the message.</p>
                 </article>
             </div>
 

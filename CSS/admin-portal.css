@@ -620,27 +620,60 @@
 
 /* Licenses --------------------------------------------------------------- */
 
+/* Las tres cifras iban en píldoras redondas que no ordenaban su contenido: el
+   número y la etiqueta se apilaban dentro del óvalo y quedaban descentrados.
+   Ahora son tarjetas de igual altura, con una franja de color que identifica
+   cada estado y el número alineado sobre su etiqueta. */
 .customer-portal.is-admin .licenses-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.6rem;
-    margin-bottom: 1.25rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: 0.75rem;
+    max-width: 34rem;
+    margin-bottom: 1.5rem;
 }
 
 .customer-portal.is-admin .license-metric {
-    padding: 0.55rem 0.85rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.95rem 1.1rem 0.95rem 1.25rem;
+    overflow: hidden;
     border: 1px solid var(--portal-border);
-    border-radius: var(--radius-pill, 9999px);
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--color-text-secondary, #a0a5b5);
-    font-size: 0.73rem;
-    font-weight: 640;
+    border-radius: var(--radius-lg, 14px);
+    background: rgba(255, 255, 255, 0.028);
+}
+
+.customer-portal.is-admin .license-metric::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--license-metric-accent, #2997ff);
+    content: "";
 }
 
 .customer-portal.is-admin .license-metric strong {
     color: var(--color-text-primary, #e1e1e5);
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1.1;
     font-variant-numeric: tabular-nums;
 }
+
+.customer-portal.is-admin .license-metric span {
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .license-metric-blue { --license-metric-accent: #2997ff; }
+.customer-portal.is-admin .license-metric-green { --license-metric-accent: #34d399; }
+.customer-portal.is-admin .license-metric-gold { --license-metric-accent: #f5b544; }
+
+/* Sin nada que atender, el ámbar sugiere un aviso que no existe. */
+.customer-portal.is-admin .license-metric-gold.is-clear { --license-metric-accent: #46536b; }
 
 .customer-portal.is-admin .license-code-cell {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -659,7 +692,6 @@
     font-weight: 680;
 }
 
-.customer-portal.is-admin .license-source-auto   { color: #a78bfa; }
 .customer-portal.is-admin .license-source-manual { color: var(--portal-info); }
 
 .customer-portal.is-admin .portal-table td small {
@@ -2015,7 +2047,7 @@
     font-size: 0.8rem;
 }
 
-.customer-portal.is-admin :where(.suspended-badge, .suspended-title-tag) {
+.customer-portal.is-admin .suspended-badge {
     padding: 0.2rem 0.5rem;
     border: 1px solid rgba(255, 118, 118, 0.3);
     border-radius: var(--radius-pill, 9999px);
@@ -2168,6 +2200,46 @@
 }
 
 .customer-portal.is-admin .mail-secure-chip,
+/* Herramientas de la previsualización: el interruptor de edición junto a la
+   etiqueta de estado, en el encabezado del panel. */
+.customer-portal.is-admin .mail-preview-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .mail-edit-toggle {
+    padding: 0.38rem 0.75rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.66rem;
+    font-weight: 680;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+
+.customer-portal.is-admin .mail-edit-toggle:hover {
+    border-color: rgba(72, 180, 255, 0.34);
+    color: #cfe6fb;
+}
+
+.customer-portal.is-admin .mail-edit-toggle.is-active {
+    border-color: rgba(72, 180, 255, 0.45);
+    background: rgba(41, 151, 255, 0.16);
+    color: #9fd7ff;
+}
+
+.customer-portal.is-admin .mail-edit-hint {
+    margin: 0.7rem 0 0;
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
 .customer-portal.is-admin .mail-preview-badge {
     display: inline-flex;
     align-items: center;

@@ -46,51 +46,6 @@
             margin-bottom: 2rem;
         }
 
-        .auth-language {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1.75rem;
-            padding-bottom: 1.1rem;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .auth-language > span {
-            color: var(--color-text-secondary);
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .auth-language-options {
-            display: inline-flex;
-            padding: 0.22rem;
-            border: 1px solid var(--glass-border);
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.025);
-        }
-
-        .auth-language-options button {
-            min-width: 2.55rem;
-            padding: 0.42rem 0.68rem;
-            border: 0;
-            border-radius: 999px;
-            background: transparent;
-            color: var(--color-text-secondary);
-            font: inherit;
-            font-size: 0.72rem;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .auth-language-options button[aria-pressed="true"] {
-            background: rgba(41, 151, 255, 0.18);
-            color: #9fd7ff;
-            box-shadow: inset 0 0 0 1px rgba(41, 151, 255, 0.28);
-        }
-
         .auth-form-meta {
             display: flex;
             justify-content: flex-end;
@@ -240,15 +195,10 @@
             <div id="auth-section">
                 <div class="auth-container animate-on-scroll">
                     <div id="error-message" class="hidden"></div>
-                    <div class="auth-language" aria-label="Interface language" data-i18n-aria="authLanguage">
-                        <span data-i18n="authLanguage">Interface language</span>
-                        <div class="auth-language-options">
-                            <button type="button" class="lang-select" data-lang="en" aria-label="English" aria-pressed="true">EN</button>
-                            <button type="button" class="lang-select" data-lang="es" aria-label="Español" aria-pressed="false">ES</button>
-                            <button type="button" class="lang-select" data-lang="pt" aria-label="Português" aria-pressed="false">PT</button>
-                        </div>
-                    </div>
-                    
+                    <!-- El idioma se cambia desde el selector de la cabecera, que
+                         está en todas las páginas. Repetirlo dentro de la tarjeta
+                         duplicaba el control y restaba sitio al formulario. -->
+
                     <!-- Login Form -->
                     <div id="login-view">
                         <div class="auth-header">
