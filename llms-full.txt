@@ -274,81 +274,78 @@ Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Goo
 --- DANIEL MORALES PAGE ---
 URL: https://elysiumdr.eu/daniel-morales
 
-Title: Daniel Morales — Elysium λ Development & Research
+Title: Daniel Morales — Full-Stack & Cloud Developer | Elysium λ
 Full name: Daniel Alonso Morales Ávila
-Role: Founder & Computer Science Engineer
-Nationality: Costa Rican | Residence: Bragança, Portugal, European Union
+Role: Freelance Full-Stack & Cloud Developer
+Residence and Work Permit: Portugal | Nationality: Costa Rican | Fiscal Address: Bragança, Portugal
 Email: daniel.morales@elysiumdr.eu
 Phone: +351 934086075
 LinkedIn: https://www.linkedin.com/in/danielalonzzo/
 GitHub: https://github.com/danielalonzzo
 
 ABOUT:
-With a solid understanding of both technology and human-centred design, Daniel
-focuses on transforming complex challenges into structured, scalable solutions.
-As Founder of Elysium λ Development & Research, he leads initiatives in web
-development, technical consultancy, and applied research, delivering solutions
-that integrate engineering rigour with measurable real-world impact.
-
-He is a web development professional with hands-on experience in HTML, CSS,
-JavaScript, and Python. He develops functional web applications and data-driven
-solutions with a strong emphasis on code quality, efficiency, and user-oriented
-design.
+Full-Stack & Cloud Developer with a BSc in Computer Science Engineering.
+Experienced in building end-to-end web ecosystems, combining reactive interfaces
+with serverless microservices (Firebase, Cloudflare Workers), Python automation,
+and Artificial Intelligence tool integration. Multilingual professional focused on
+delivering efficient, structured, and high-value technical solutions for the end-user.
 
 WORK EXPERIENCE:
 
-1. Founder — Elysium λ Development & Research
-   January 2026 – Present | Bragança, Portugal
-   - End-to-end design, development, and implementation of web solutions.
-   - Full-stack web application development using advanced IDEs and ML tools.
-   - WCAG 2.1 accessibility and Core Web Vitals performance optimisation.
-   - Technical SEO and semantic structure implementation.
-   Technologies: HTML, CSS, JavaScript, Full-Stack, Web Architecture, Responsive
-   Web Design, WCAG, Machine Learning-Assisted Tools (Antigravity), SEO.
+1. Freelance Full-Stack Web Developer — Elysium λ Development & Research
+   08/09/2025 – Present | Portugal
+   - Full-Stack Architecture & Development: Autonomous design and implementation
+     of web applications using React, Next.js 16, Vite, and JavaScript (ES6+),
+     connecting reactive interfaces to edge-serverless infrastructures (Cloudflare Workers)
+     and Firebase.
+   - Serverless Backend & Automation: Engineering backend services and APIs utilising
+     Firebase Cloud Functions (Node.js) and Cloud Firestore.
+   - Web Security & Infrastructure: Network- and data-level security policies (CSP,
+     HSTS, Firestore & Storage granular access control rules).
+   - Performance, SEO & Accessibility: Core Web Vitals optimisation, technical SEO,
+     and WCAG 2.1 AAA accessibility compliance.
+   - AI-Assisted Engineering: Integration of AI agents and LLM models (Antigravity SDK,
+     Claude, Codex) into the software lifecycle.
+   Technologies: HTML5, CSS3, JavaScript (ES6+), React, Next.js 16, Vite, Cloudflare
+   Workers, Firebase (Cloud Functions, Firestore, Auth, Storage), Node.js, Python,
+   CSP, HSTS, Core Web Vitals, WCAG 2.1 AAA, Technical SEO, Antigravity SDK, Claude, Codex.
 
-2. Junior Web Developer — Consciênciavaliativa Unipessoal Lda.
-   September 2025 – December 2026 | Lisbon, Portugal
-   - End-to-end design and development of fully responsive website.
-   - Redesign and modernisation of digital ecosystem.
-   - UX diagnostics, WCAG 2.1 accessibility audits, SEO analysis.
-   - Performance and usability improvements.
+2. Professional Internship — SMF360 Ingenio Futuro
+   09/09/2024 – 21/02/2025 | Miami, United States
+   - CRM Systems: Integration and customisation of CRM platforms to optimise workflows.
+   - Web Development: Redesign and optimisation of corporate websites in WordPress and
+     Elementor Pro focused on UI/UX.
+   - Leadership & Mentorship: Supervision, onboarding, and technical guidance of interns.
 
-3. Professional Internship — SMF360 Ingenio Futuro
-   July–October 2024 | Miami, United States
-   - CRM system integration and customisation.
-   - Redesign of multiple web pages using modern frontend architectures.
-   - Collaboration in supervision and management of interns.
-
-4. University Community Outreach — SIFÄIS
-   December 2022 – July 2023 | Heredia, Costa Rica
-   - Led digital literacy programme for youth from the Guararí community.
-   - Trained over 50 young participants in the use of technological tools.
-   - Facilitated access to digital information and resources.
+3. University Community Outreach (Digital Literacy) — Fundación SIFAIS
+   06/02/2023 – 28/07/2023 | Heredia, Costa Rica
+   - Led digital literacy and inclusion programme in Guararí.
+   - Trained +50 youth in digital productivity tools (Microsoft 365, Canva) and AI intro.
+   - Promoted equitable access to technology and information.
 
 EDUCATION:
 
 1. Bachelor's Degree in Computer Science Engineering
    ULACIT — Universidad Latinoamericana de la Ciencia y la Tecnología
-   January 2020 – November 2025 | San José, Costa Rica | EQF Level 6
+   20/01/2020 – 15/12/2026 | San José, Costa Rica | EQF Level 6
 
-2. Erasmus+ Exchange Programme — Web App Development & Portuguese Culture
-   Instituto Politécnico de Bragança
-   September 2023 – May 2024 | Bragança, Portugal | EQF Level 6
+2. Bachelor's Degree in Applied Languages for European Studies & Geopolitics
+   Universidade Aberta de Portugal
+   14/09/2026 – 31/08/2029 | Distance Learning, Portugal | EQF Level 6
 
-3. Bachelor's Degree in Administration
-   Universidad Nacional de Costa Rica
-   January 2019 – November 2021 | Heredia, Costa Rica | EQF Level 6
+3. Bachelor's Degree in Business Administration
+   Universidad Nacional de Costa Rica (UNA)
+   2019 – 2021 | Heredia, Costa Rica | EQF Level 6
 
 LANGUAGE SKILLS:
-- Spanish: Native
-- English: C1 (Advanced)
-- Portuguese: B2 (Upper Intermediate)
+- Spanish: Native (C2+)
+- English: B2 (Independent Professional / TOEIC Certified)
+- Portuguese: C1/B2 (Advanced / Fluent)
 
-TECHNICAL SKILLS:
-HTML, CSS, JavaScript, Python, React, Firebase, Cloudflare, Full-Stack
-Development, Web Architecture, Responsive Web Design, WCAG 2.1 Accessibility,
-Machine Learning-Assisted Development (Antigravity / Google Gemini),
-Performance Optimisation, SEO, Software Engineering, UX/UI Design.
+CERTIFICATIONS & MOBILITY:
+- Google Data Analytics Professional Certificate (Google / Coursera, 26/10/2025)
+- TOEIC® Listening and Reading Certification (ETS Global, 23/08/2025)
+- Driving Licence: Category B (Available for Remote, Hybrid, On-site, and Relocation)
 
 --- CONTACT PAGE ---
 URL: https://elysiumdr.eu/contact
@@ -593,7 +590,7 @@ URL: Footer Modal (version-modal.js)
 
 SYSTEM INFORMATION:
 Software Specifications:
-- Interface Version: V1.4.0
+- Interface Version: V1.6.5
 - Product Licence: ELY-EC03-ANL9-321979257
 
 Security & Compliance:

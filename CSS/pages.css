@@ -582,578 +582,1313 @@ textarea.form-control {
     }
 }
 
-/* Profile CV Page Specifics */
-.profile-hero {
+/* ==========================================================================
+   DANIEL MORALES — PERFIL EJECUTIVO / CV (arquitectura tipo LinkedIn)
+
+   Dos trampas que explican por qué la página se veía rota y hay que respetar:
+
+   1. Las tarjetas son <section>, y `section { padding: var(--space-xl) 0 }` de
+      components.css les metía 128 px muertos arriba y abajo A CADA UNA. Se veía
+      como si el contenido «flotara» en tarjetas vacías y la página medía casi
+      6000 px. El reset de `.profile-card` de abajo es obligatorio: si se quita,
+      vuelve el hueco.
+   2. La portada NO usa imagen de fondo. La versión anterior pedía
+      `Images/bento-bg.jpg`, que no existe en el repositorio, así que el 404 se
+      veía como una banda negra. El degradado es puro CSS a propósito.
+
+   El desplegable es <details>/<summary> nativo: no necesita JS (la CSP permite
+   inline, pero un perfil que solo se abre con JS es un perfil que no se puede
+   imprimir ni indexar bien).
+   ========================================================================== */
+
+.profile-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 1128px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+@media (min-width: 992px) {
+    .profile-layout-grid {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        align-items: start;
+        gap: 1.75rem;
+    }
+}
+
+.profile-main,
+.profile-sidebar {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 2rem;
+    gap: 1.5rem;
+    min-width: 0;
 }
 
-@media (min-width: 768px) {
-    .profile-hero {
-        flex-direction: row;
-        align-items: flex-start;
-        gap: 3rem;
+@media (min-width: 992px) {
+    .profile-sidebar {
+        position: sticky;
+        top: 96px;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        overscroll-behavior: contain;
     }
 }
 
-/* Glow-only Premium Profile */
-.profile-hero-img-wrapper {
-    position: relative;
+/* --------------------------------------------------------------------------
+   Sistema de tarjetas
+   -------------------------------------------------------------------------- */
+
+.profile-card {
+    /* Ver nota 1 de la cabecera: neutraliza `section { padding: 8rem 0 }`. */
     padding: 0;
-    /* Remove border space */
-    border-radius: 50%;
-    background: transparent;
-    /* Remove colored border */
-
-    /* Bloom effect around the photo */
-    box-shadow:
-        0 0 30px rgba(40, 151, 255, 0.4),
-        0 0 60px rgba(40, 151, 255, 0.2);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-}
-
-.profile-hero-img-wrapper::before {
-    content: '';
-    display: inline-block;
-    inset: -30px;
-    /* Wider glow area */
-    background: radial-gradient(circle, rgba(40, 151, 255, 0.5) 0%, transparent 75%);
-    border-radius: 50%;
-    z-index: -1;
-    filter: blur(30px);
-    opacity: 0.8;
-    animation: glowPulse 3s ease-in-out infinite alternate;
-}
-
-@keyframes glowPulse {
-    from {
-        transform: scale(0.95);
-        opacity: 0.5;
-    }
-
-    to {
-        transform: scale(1.15);
-        opacity: 0.9;
-    }
-}
-
-.profile-hero-img-wrapper:hover::before {
-    opacity: 1;
-    inset: -45px;
-    background: radial-gradient(circle, rgba(40, 151, 255, 0.7) 0%, transparent 80%);
-}
-
-.profile-hero-img-wrapper:hover {
-    transform: scale(1.08);
-    box-shadow:
-        0 0 30px rgba(40, 151, 255, 0.8),
-        0 0 60px rgba(40, 151, 255, 0.6),
-        0 0 100px rgba(40, 151, 255, 0.4);
-}
-
-.profile-hero-img {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    /* Inner rim highlight */
-}
-
-.profile-hero-img-wrapper:hover .profile-hero-img {
-    transform: scale(1.02);
-}
-
-@keyframes premiumBorderMove {
-    0% {
-        background-position: 0% 0%;
-    }
-
-    50% {
-        background-position: 100% 100%;
-    }
-
-    100% {
-        background-position: 0% 0%;
-    }
-}
-
-@media (min-width: 768px) {
-    .profile-hero-img {
-        width: 240px;
-        height: 240px;
-    }
-}
-
-.profile-hero-text {
-    flex: 1;
-}
-
-.profile-contact-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.95rem;
-    color: var(--color-text-secondary);
-}
-
-@media (min-width: 768px) {
-    .profile-contact-links {
-        justify-content: flex-start;
-    }
-    .profile-hero-text {
-        text-align: left;
-    }
-}
-
-.profile-link {
-    color: var(--color-accent);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-}
-
-.profile-link:hover {
-    color: #fff;
-}
-
-.profile-separator {
-    opacity: 0.3;
-}
-
-
-
-
-/* Text is a window into the animated page background */
-.cv-brand-text {
-    background: linear-gradient(300deg,
-            #020410,
-            #0a1a3f,
-            #1c4e8c,
-            #051025,
-            #020410);
-    background-size: 300% 300%;
-    background-attachment: fixed;
-    animation:
-        liquidAlloy 12s ease-in-out 1,
-        liquidAlloy 24s ease-in-out infinite 12s;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-    text-shadow:
-        0 0 0.4px rgba(255, 255, 255, 0.5),
-        0 0 1px rgba(255, 255, 255, 0.15);
-}
-
-.cv-section {
-    margin-bottom: 2.5rem;
-    padding: 0 !important;
-    /* Overriding the 8rem base section padding */
-}
-
-.cv-section-title {
-    position: sticky;
-    top: 90px;
-    z-index: 100;
-
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    margin-top: 0;
-    padding-top: 1.5rem;
-    padding-bottom: 0.5rem;
-
-    background: rgba(2, 4, 16, 0.95);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-
-    border-bottom: 1px solid var(--glass-border);
-    color: var(--color-text-primary);
-}
-
-
-
-.cv-card {
-    background: var(--glass-bg);
+    background: rgba(9, 16, 30, 0.72);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    padding: 2rem;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
-    position: relative;
-    /* Base for glow pseudo-elements */
-    z-index: 1;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 28px rgba(0, 5, 20, 0.35);
 }
 
-@media (max-width: 768px) {
-    .cv-card {
-        padding: 1.5rem;
+.profile-card-padding {
+    padding: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .profile-card-padding {
+        padding: 1.75rem 2rem;
     }
 }
 
-/* Discrete Glow for the About Card */
-.cv-about-card {
-    overflow: visible;
-    /* Allow glow to bleed out */
+.profile-card-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
 }
 
-.cv-about-card::before {
-    content: '';
-    display: inline-block;
-    inset: -20px;
-    background: radial-gradient(circle at 20% 30%, rgba(40, 151, 255, 0.08) 0%, transparent 60%);
-    border-radius: inherit;
-    z-index: -1;
-    filter: blur(20px);
+.profile-card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--color-platinum);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.profile-card-note {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Portada: cabecera del Europass
+   -------------------------------------------------------------------------- */
+
+/* La portada es la imagen de marca (1640×624). Se sirve en WebP —13 KB frente
+   a los 321 KB del PNG— y va como fondo, no como <img>: es decoración, no
+   contenido, y así el recorte lo hace `cover` sin deformarla.
+
+   `aspect-ratio` con `max-height` mantiene la proporción del arte hasta el
+   tope: a lo ancho de la columna principal recorta ~13 % arriba y abajo, y el
+   arte vive en el centro (la λ empieza al 24 % y el texto acaba al 77 %), así
+   que nunca se corta nada. */
+/* Portada: la imagen de marca de «Estandares/PORTADAS», encuadrada en la λ.
+   Se sirve en WebP —5,6 KB frente a los 321 KB del PNG— y va de fondo, no como
+   <img>: es decoración, no contenido.
+
+   El encuadre no es un capricho. Todas las portadas del manual llevan la marca
+   centrada con «ELYSIUM λ DEVELOPMENT & RESEARCH» debajo, y en esta plantilla
+   el avatar se apoya abajo a la izquierda: con cualquiera de ellas completa,
+   la cara tapa el arranque del texto y se lee «…YSIUM λ DEVELOPMENT». Cortando
+   por encima del texto (filas 99–445 del original de 1640×624) la λ queda
+   centrada, el avatar se apoya sobre fondo limpio y no se parte nada. El
+   nombre de la marca no se pierde: está en la barra de navegación y en la
+   insignia que va junto al nombre.
+
+   `aspect-ratio` es la del recorte, así que la λ sale igual a cualquier ancho. */
+.profile-intro-cover {
+    aspect-ratio: 1640 / 346;
+    position: relative;
+    border-bottom: 1px solid var(--glass-border);
+    background:
+        url('../Images/Optimized/elysium-cover-1640.webp') center / cover no-repeat,
+        linear-gradient(135deg, #071633 0%, #0a1e44 45%, #05101f 100%);
+    overflow: hidden;
+}
+
+/* Velo hacia la esquina del avatar, para que se apoye sobre fondo sólido. */
+.profile-intro-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, rgba(2, 6, 16, 0.8) 0%, rgba(2, 6, 16, 0.3) 24%, transparent 44%);
     pointer-events: none;
 }
 
-.cv-about-card:hover {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(40, 151, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.25);
+.profile-intro-body {
+    padding: 0 1.25rem 1.5rem;
 }
 
-/* Timeline */
-.cv-timeline {
-    position: relative;
-    padding-left: 1.5rem;
-}
-
-.cv-timeline::before {
-    content: '';
-    display: inline-block;
-    top: 5px;
-    bottom: 5px;
-    left: 4px;
-    width: 2px;
-    background: var(--glass-border);
-}
-
-.cv-timeline-item {
-    position: relative;
-    /* Default for mobile: no stacking */
-    margin-bottom: 0.75rem;
-}
-
-.cv-timeline-item {
-    position: sticky;
-    top: 100px;
-    /* Reduced from 160px for mobile/global better fit */
-}
-
-/* Stacking top offsets for sticky timeline (up to 8 items) */
-.cv-timeline-item:nth-child(1) {
-    top: 100px;
-    z-index: 10;
-}
-
-.cv-timeline-item:nth-child(2) {
-    top: 120px;
-    z-index: 20;
-}
-
-.cv-timeline-item:nth-child(3) {
-    top: 140px;
-    z-index: 30;
-}
-
-.cv-timeline-item:nth-child(4) {
-    top: 160px;
-    z-index: 40;
-}
-
-.cv-timeline-item:nth-child(5) {
-    top: 180px;
-    z-index: 50;
-}
-
-.cv-timeline-item:nth-child(6) {
-    top: 200px;
-    z-index: 60;
-}
-
-.cv-timeline-item:nth-child(7) {
-    top: 220px;
-    z-index: 70;
-}
-
-.cv-timeline-item:nth-child(8) {
-    top: 240px;
-    z-index: 80;
-}
-
-.cv-timeline-item .cv-card {
-    /* Much more opaque glass to hide stacked text underneath */
-    background: rgba(5, 10, 25, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
-}
-
-.cv-timeline-item:last-child {
-    margin-bottom: 0;
-}
-
-.cv-timeline-dot {
-    display: inline-block;
-    left: -1.45rem;
-    top: 1.25rem;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--color-accent);
-    box-shadow: 0 0 10px rgba(41, 151, 255, 0.5);
-    z-index: 1;
-}
-
-.cv-timeline-content {
-    position: relative;
-}
-
-.cv-timeline-header h3 {
-    font-size: 1.25rem;
-    margin-bottom: 0.25rem;
-    color: var(--color-text-primary);
-}
-
-.cv-date {
-    display: inline-block;
-    font-size: 0.8rem;
-    color: var(--color-accent);
-    letter-spacing: 0.05em;
-    margin-bottom: 0.75rem;
-    text-transform: uppercase;
-}
-
-.cv-company {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.cv-list {
-    list-style-type: none;
-    padding-left: 0;
-    margin-bottom: 1rem;
-    color: var(--color-text-secondary);
-}
-
-.cv-list li {
-    margin-bottom: 0.5rem;
-    line-height: 1.6;
-    position: relative;
-    padding-left: 1.25rem;
-}
-
-.cv-list li::before {
-    content: '→';
-    display: inline-block;
-    left: 0;
-    color: var(--color-accent);
-    opacity: 0.7;
-}
-
-.cv-ext-link {
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap; /* allow arrow to wrap if necessary */
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: var(--color-accent);
-    text-decoration: none;
-    margin-top: 0.5rem;
-    transition: color 0.3s ease;
-    word-break: break-all;
-    overflow-wrap: break-word;
-    max-width: 100%;
-}
-
-.cv-ext-link::after {
-    content: '↗';
-    font-size: 0.8rem;
-    opacity: 0.7;
-    transition: transform 0.3s ease;
-}
-
-.cv-ext-link:hover {
-    color: #fff;
-}
-
-.cv-ext-link:hover::after {
-    transform: translate(2px, -2px);
-    opacity: 1;
-}
-
-.cv-badge {
-    display: inline-block;
-    background: rgba(41, 151, 255, 0.1);
-    color: var(--color-accent);
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-pill);
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-/* Bottom Grid (Languages + Skills/Certs) */
-.cv-bottom-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1.5rem;
-    align-items: start;
-}
-
-.cv-bottom-grid .cv-section {
-    margin-bottom: 0;
-}
-
-@media (min-width: 900px) {
-    .cv-bottom-grid {
-        grid-template-columns: 1.2fr 1fr;
-        gap: 1rem 2rem;
+@media (min-width: 768px) {
+    .profile-intro-body {
+        padding: 0 2rem 1.75rem;
     }
 }
 
-/* Table */
-.table-responsive {
-    overflow-x: auto;
-    width: 100%;
-    -webkit-overflow-scrolling: touch;
+.profile-intro-avatar-wrapper {
+    margin-top: -68px;
+    margin-bottom: 0.9rem;
+    position: relative;
+    display: inline-block;
+    line-height: 0;
 }
 
-.cv-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
+.profile-intro-avatar {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    border: 4px solid #0a1428;
+    background-color: #0a1428;
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.cv-table th,
-.cv-table td {
-    padding: 0.8rem 0.5rem;
-    text-align: center;
-    border-bottom: 1px solid var(--glass-border);
+@media (min-width: 768px) {
+    .profile-intro-avatar-wrapper {
+        margin-top: -80px;
+    }
+
+    .profile-intro-avatar {
+        width: 152px;
+        height: 152px;
+    }
 }
 
-.cv-table th {
+.profile-intro-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+}
+
+.profile-intro-name {
+    font-size: 1.55rem;
     font-weight: 600;
-    color: var(--color-text-secondary);
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+    .profile-intro-name {
+        font-size: 1.85rem;
+    }
+}
+
+.profile-intro-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-pill);
+    background: rgba(41, 151, 255, 0.14);
+    border: 1px solid rgba(41, 151, 255, 0.35);
+    color: var(--color-accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
     white-space: nowrap;
 }
 
-.cv-table td:first-child {
-    text-align: left;
+a.profile-intro-badge:hover {
+    background: rgba(41, 151, 255, 0.24);
+    color: #fff;
+}
+
+.profile-intro-headline {
+    font-size: 1.02rem;
     color: var(--color-text-primary);
+    margin: 0 0 0.35rem 0;
+    font-weight: 400;
+    line-height: 1.45;
 }
 
-.cv-table tbody tr {
-    transition: background-color var(--transition-fast);
+.profile-intro-location {
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
 }
 
-.cv-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.03);
+.profile-intro-location a {
+    color: var(--color-accent);
+    text-decoration: none;
+    font-weight: 600;
 }
 
-/* Certifications */
-.cv-cert-card {
+.profile-intro-location a:hover {
+    text-decoration: underline;
+}
+
+.profile-intro-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.15rem;
+}
+
+.btn-profile-primary,
+.btn-profile-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1.15rem;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-profile-primary {
+    background: var(--color-accent);
+    color: #fff;
+    border: 1px solid var(--color-accent);
+}
+
+.btn-profile-primary:hover {
+    background: #1e7bce;
+    border-color: #1e7bce;
+    color: #fff;
+}
+
+.btn-profile-secondary {
+    background: transparent;
+    color: var(--color-accent);
+    border: 1px solid rgba(41, 151, 255, 0.5);
+}
+
+.btn-profile-secondary:hover {
+    background: rgba(41, 151, 255, 0.12);
+    border-color: var(--color-accent);
+    color: #fff;
+}
+
+/* Bloque de identidad: es literalmente la cabecera del Europass, y va abierto
+   siempre — no detrás de un clic. */
+.profile-identity {
+    margin-top: 1.5rem;
+    padding-top: 1.35rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.profile-identity-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0 0 1rem 0;
+}
+
+.profile-identity-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem 1.75rem;
+    margin: 0;
+}
+
+/* Dos columnas y no tres: a tres, «daniel.morales@elysiumdr.eu» y la URL de
+   LinkedIn no caben y se parten a mitad de palabra. */
+@media (min-width: 560px) {
+    .profile-identity-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* El icono es un ::before para que <dl> solo contenga <div>, <dt> y <dd>:
+   un <span> ahí dentro es HTML inválido. */
+.profile-identity-item {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    column-gap: 0.7rem;
+    align-items: start;
+    min-width: 0;
+}
+
+.profile-identity-item::before {
+    content: attr(data-icon);
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: rgba(41, 151, 255, 0.1);
+    border: 1px solid rgba(41, 151, 255, 0.22);
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+.profile-identity-label {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin-bottom: 0.12rem;
+}
+
+.profile-identity-value {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+    line-height: 1.35;
+    overflow-wrap: break-word;
+}
+
+.profile-identity-value a {
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(41, 151, 255, 0.4);
+}
+
+.profile-identity-value a:hover {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Texto corrido
+   -------------------------------------------------------------------------- */
+
+.profile-text-body {
+    font-size: 0.94rem;
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+}
+
+.profile-text-body p {
+    margin: 0 0 0.9rem 0;
+}
+
+.profile-text-body p:last-child {
+    margin-bottom: 0;
+}
+
+.profile-text-body strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   Entradas desplegables (experiencia, formación, certificaciones)
+   -------------------------------------------------------------------------- */
+
+.profile-feed-list {
     display: flex;
     flex-direction: column;
 }
 
-.cv-cert-item {
-    position: relative;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.profile-entry {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.cv-cert-item:last-child {
-    padding-bottom: 0;
+.profile-entry:last-child {
     border-bottom: none;
 }
 
-.cv-cert-item h4 {
-    font-size: 1.1rem;
-    margin-bottom: 0.35rem;
-    color: var(--color-platinum);
-    line-height: 1.4;
-}
-
-.cv-cert-item .cv-date {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--color-text-secondary);
-}
-
-/* Skills */
-.cv-skills-grid {
+.profile-entry-head {
     display: flex;
-    flex-wrap: wrap;
+    gap: 0.9rem;
+    align-items: flex-start;
+    padding: 1.15rem 0;
+    cursor: pointer;
+    list-style: none;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+}
+
+.profile-entry:first-child > .profile-entry-head {
+    padding-top: 0;
+}
+
+.profile-entry:last-child:not([open]) > .profile-entry-head {
+    padding-bottom: 0;
+}
+
+.profile-entry-head::-webkit-details-marker {
+    display: none;
+}
+
+.profile-entry-head:hover .profile-entry-title,
+.profile-entry-head:focus-visible .profile-entry-title {
+    color: var(--color-accent);
+}
+
+.profile-entry-head:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+}
+
+.profile-entry-logo {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    color: var(--color-accent);
+    font-size: 1.15rem;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.profile-entry-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.profile-entry-heading {
+    flex: 1;
+    min-width: 0;
+    display: block;
+}
+
+.profile-entry-title {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.35;
+    transition: color var(--transition-fast);
+}
+
+.profile-entry-subtitle {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+    line-height: 1.4;
+    margin-top: 0.1rem;
+}
+
+.profile-entry-meta {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+    margin-top: 0.12rem;
+}
+
+.profile-entry-teaser {
+    display: block;
+    font-size: 0.86rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+    margin-top: 0.5rem;
+}
+
+.profile-entry[open] .profile-entry-teaser {
+    display: none;
+}
+
+.profile-entry-chevron {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--color-text-muted);
+    border: 1px solid transparent;
+    transition: transform var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.profile-entry-chevron::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+}
+
+.profile-entry-head:hover .profile-entry-chevron {
+    color: var(--color-accent);
+    border-color: rgba(41, 151, 255, 0.35);
+}
+
+.profile-entry[open] > .profile-entry-head .profile-entry-chevron {
+    transform: rotate(180deg);
+    color: var(--color-accent);
+}
+
+.profile-entry-body {
+    padding: 0 0 1.25rem 0;
+}
+
+@media (min-width: 560px) {
+    .profile-entry-body {
+        padding-left: calc(46px + 0.9rem);
+    }
+}
+
+.profile-entry-points {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
     gap: 0.6rem;
 }
 
-.cv-skill-tag {
-    background: rgba(41, 151, 255, 0.08);
-    /* slightly stronger blue base */
-    border: 1px solid rgba(41, 151, 255, 0.25);
-    padding: 0.5rem 1.2rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
+.profile-entry-points li {
+    position: relative;
+    padding-left: 1.1rem;
+    font-size: 0.89rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+}
+
+.profile-entry-points li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent);
+}
+
+.profile-entry-points strong {
     color: var(--color-text-primary);
-    transition: all 0.3s ease;
-    cursor: default;
-    user-select: none;
+    font-weight: 600;
 }
 
-.cv-skill-tag:hover {
-    background: rgba(41, 151, 255, 0.15);
+.profile-entry-note {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin: 0.9rem 0 0 0;
+}
+
+.profile-entry-note strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.profile-entry-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+.profile-entry-link:hover {
+    text-decoration: underline;
+}
+
+.profile-entry-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 0.9rem;
+}
+
+/* Animación de apertura donde el navegador la soporta; donde no, abre y cierra
+   de golpe, que es el comportamiento nativo correcto. */
+@supports selector(::details-content) {
+    /* Sin `interpolate-size` no se puede animar hacia `auto` y la apertura da un
+       salto seco. Va acotado a la entrada, no en :root: es heredable y afectaría
+       a las transiciones de todo el sitio. */
+    .profile-entry {
+        interpolate-size: allow-keywords;
+    }
+
+    .profile-entry::details-content {
+        block-size: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: block-size var(--transition-medium), opacity var(--transition-fast), content-visibility var(--transition-medium) allow-discrete;
+        content-visibility: hidden;
+    }
+
+    .profile-entry[open]::details-content {
+        block-size: auto;
+        opacity: 1;
+        content-visibility: visible;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-entry::details-content,
+    .profile-entry-chevron {
+        transition: none;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Proyectos — espejo de portfolio.html (ver JS/profile-projects.js)
+
+   Filas, no rejilla de tarjetas. Toda la página es una columna de filas
+   «miniatura a la izquierda, contenido a la derecha» —experiencia, formación,
+   certificaciones—, y una parrilla de capturas grandes rompía ese ritmo: las
+   capturas son fotos de webs ajenas, con sus colores saturados, y a ese tamaño
+   pesaban más que el contenido del perfil. Aquí van contenidas: miniatura
+   pequeña, ligeramente apagada en reposo y a todo color al pasar por encima.
+   -------------------------------------------------------------------------- */
+
+.profile-projects-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.profile-project {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.025);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+@media (min-width: 620px) {
+    .profile-project {
+        grid-template-columns: 148px minmax(0, 1fr);
+        gap: 1.15rem;
+        padding: 0.9rem;
+    }
+}
+
+.profile-project:hover {
     border-color: rgba(41, 151, 255, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(41, 151, 255, 0.1);
+    background: rgba(41, 151, 255, 0.05);
 }
 
-@media (max-width: 768px) {
-    .cv-about-card::before {
-        inset: 0; /* No bleed on small mobile */
-        opacity: 0.5;
-    }
-    
-    .cv-timeline {
-        padding-left: 1.5rem; /* Back to original but keeping control */
-    }
-    
-    .cv-timeline-dot {
-        left: -1.4rem; /* Inside the 1.5rem padding */
+/* Sin fondo ni `border` propios: con `overflow: hidden` y esquina redondeada,
+   el borde se dibuja fuera del recorte y entre él y la imagen asomaba una
+   media luna del fondo oscuro del contenedor — las «esquinas negras». El
+   redondeo lo hereda el propio bitmap y el filo lo da una sombra interior,
+   que se pinta encima de la imagen y por tanto no deja costura. */
+.profile-project-thumb {
+    display: block;
+    aspect-ratio: 16 / 10;
+    border-radius: 10px;
+    overflow: hidden;
+    background: transparent;
+}
+
+.profile-project-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top left;
+    display: block;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    /* Las capturas vienen con los colores de cada marca; apagarlas un punto
+       las integra en el azul de la página sin desvirtuarlas. */
+    filter: saturate(0.8) brightness(0.85);
+    transition: filter var(--transition-medium), transform var(--transition-medium);
+}
+
+.profile-project:hover .profile-project-thumb img {
+    filter: none;
+    transform: scale(1.03);
+}
+
+/* Solo el hueco sin captura necesita fondo propio. */
+.profile-project-thumb.is-blank {
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #071633, #05101f);
+    box-shadow: inset 0 0 0 1px var(--glass-border);
+    color: rgba(41, 151, 255, 0.5);
+    font-size: 1.6rem;
+}
+
+.profile-project-body {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.profile-project-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.profile-project-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.profile-project-title a:hover {
+    color: var(--color-accent);
+}
+
+.profile-project-place {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(41, 151, 255, 0.1);
+    border: 1px solid rgba(41, 151, 255, 0.25);
+    white-space: nowrap;
+}
+
+.profile-project-desc {
+    font-size: 0.84rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.profile-project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.15rem;
+}
+
+.profile-project-tags a {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.18rem 0.55rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.profile-project-tags a:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+/* Esqueleto mientras llega portfolio.html: misma altura que una fila real,
+   para que la tarjeta no dé un salto al rellenarse. */
+.profile-project-skeleton {
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    height: 112px;
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0.02) 30%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0.02) 70%);
+    background-size: 250% 100%;
+    animation: profileSkeleton 1.4s ease-in-out infinite;
+}
+
+@keyframes profileSkeleton {
+    from { background-position: 150% 0; }
+    to   { background-position: -50% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-project-skeleton {
+        animation: none;
     }
 
-    .cv-table th, .cv-table td {
-        padding: 0.6rem 0.3rem;
-        font-size: 0.8rem;
+    .profile-project:hover .profile-project-thumb img {
+        transform: none;
+    }
+}
+
+.profile-projects-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1.15rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--color-accent);
+    text-decoration: none;
+}
+
+.profile-projects-cta:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 619px) {
+    .profile-project-title {
+        font-size: 0.9rem;
     }
 
-    .cv-card {
-        overflow-x: hidden; /* Prevent internal wide elements like tables from pushing the card width */
+    .profile-project-desc {
+        font-size: 0.79rem;
     }
 
-    .cv-section-title {
-        font-size: 1.3rem;
+    .profile-project-skeleton {
+        height: 96px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Credenciales: títulos, diplomas y certificados
+   -------------------------------------------------------------------------- */
+
+.profile-credentials {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 1rem;
+}
+
+.profile-credential {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.profile-credential-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 40px;
+    border-radius: 4px;
+    display: grid;
+    place-items: center;
+    background: rgba(41, 151, 255, 0.1);
+    border: 1px solid rgba(41, 151, 255, 0.25);
+    color: var(--color-accent);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.profile-credential-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-credential-name {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    line-height: 1.35;
+}
+
+.profile-credential-note {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    line-height: 1.4;
+    margin-top: 0.1rem;
+}
+
+.profile-credential-action {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid rgba(41, 151, 255, 0.5);
+    color: var(--color-accent);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.profile-credential-action:hover {
+    background: rgba(41, 151, 255, 0.14);
+    color: #fff;
+}
+
+/* Hueco reservado: la entrada existe, el documento todavía no. */
+.profile-credential.is-pending {
+    border-style: dashed;
+    border-color: rgba(225, 225, 229, 0.18);
+    background: transparent;
+}
+
+.profile-credential.is-pending .profile-credential-icon {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(225, 225, 229, 0.18);
+    border-style: dashed;
+    color: var(--color-text-muted);
+}
+
+.profile-credential.is-pending .profile-credential-name {
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+
+.profile-credential-status {
+    flex-shrink: 0;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: rgba(212, 175, 55, 0.12);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: var(--color-gold);
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* En móvil el botón no cabe al lado del texto: en flex solo lo encogía hasta
+   dejar el nombre del título en cuatro líneas. Baja a su propia fila. */
+@media (max-width: 559px) {
+    .profile-credential {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr);
+        column-gap: 0.75rem;
+        row-gap: 0.7rem;
+        align-items: start;
+    }
+
+    .profile-credential-icon {
+        grid-area: 1 / 1;
+    }
+
+    .profile-credential-text {
+        grid-area: 1 / 2;
+    }
+
+    .profile-credential-action,
+    .profile-credential-status {
+        grid-area: 2 / 2;
+        justify-self: start;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Competencias
+   -------------------------------------------------------------------------- */
+
+.profile-skill-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.75rem;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--color-text-primary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.profile-skill-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+}
+
+.profile-skill-group-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0 0 0.7rem 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.profile-skill-group-years {
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-accent);
+}
+
+.profile-skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Idiomas: rejilla MCER
+   -------------------------------------------------------------------------- */
+
+.profile-cefr-wrapper {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    margin: 0 -0.25rem;
+    padding: 0 0.25rem;
+}
+
+/* `table-layout: fixed` reparte las cinco destrezas en columnas iguales; en
+   automático cada una toma el ancho de su encabezado y los niveles quedan
+   desalineados entre sí. */
+.profile-cefr {
+    width: 100%;
+    min-width: 480px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.83rem;
+}
+
+.profile-cefr th:first-child,
+.profile-cefr td:first-child {
+    width: 24%;
+}
+
+.profile-cefr caption {
+    caption-side: top;
+    text-align: left;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    padding-bottom: 0.85rem;
+}
+
+.profile-cefr caption strong {
+    color: var(--color-text-primary);
+    font-weight: 600;
+}
+
+.profile-cefr th,
+.profile-cefr td {
+    padding: 0.6rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.profile-cefr thead th {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1.35;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    vertical-align: bottom;
+}
+
+.profile-cefr tbody th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+}
+
+.profile-cefr tbody tr:last-child th,
+.profile-cefr tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.profile-cefr-level {
+    display: inline-block;
+    min-width: 2.2rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    background: rgba(41, 151, 255, 0.12);
+    border: 1px solid rgba(41, 151, 255, 0.28);
+    color: var(--color-accent);
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+.profile-cefr-legend {
+    font-size: 0.76rem;
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0.9rem 0 0 0;
+}
+
+/* --------------------------------------------------------------------------
+   Barra lateral
+   -------------------------------------------------------------------------- */
+
+.profile-widget {
+    background: rgba(9, 16, 30, 0.72);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.profile-widget-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0 0 1rem 0;
+}
+
+.profile-lang-switcher {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-lang-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    transition: color var(--transition-fast);
+}
+
+.profile-lang-option:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.profile-lang-option:hover {
+    color: var(--color-accent);
+}
+
+.profile-lang-option.active {
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
+.profile-lang-option .flag-icon {
+    width: 1.1em;
+    height: auto;
+    vertical-align: middle;
+}
+
+.profile-quick-facts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.profile-fact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.profile-fact-item a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(41, 151, 255, 0.35);
+}
+
+.profile-fact-item a:hover {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+}
+
+.profile-fact-icon {
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+    color: var(--color-accent);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.profile-widget-cta {
+    display: block;
+    margin-top: 1rem;
+    padding: 0.6rem 1rem;
+    border-radius: var(--radius-pill);
+    background: rgba(41, 151, 255, 0.12);
+    border: 1px solid rgba(41, 151, 255, 0.4);
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.profile-widget-cta:hover {
+    background: rgba(41, 151, 255, 0.22);
+    color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   Impresión: el perfil es un CV, así que tiene que salir entero en papel.
+   -------------------------------------------------------------------------- */
+
+@media print {
+    .navbar,
+    footer,
+    #elysium-preloader,
+    .profile-sidebar,
+    .profile-intro-actions,
+    .profile-entry-chevron {
+        display: none !important;
+    }
+
+    .profile-entry-body,
+    .profile-entry::details-content {
+        display: block !important;
+        block-size: auto !important;
+        opacity: 1 !important;
+        content-visibility: visible !important;
+    }
+
+    .profile-entry-teaser {
+        display: none !important;
+    }
+
+    .profile-card {
+        background: none;
+        border-color: #ccc;
+        box-shadow: none;
+        break-inside: avoid;
     }
 }
 

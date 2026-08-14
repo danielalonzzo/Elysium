@@ -152,3 +152,16 @@
   ! Content-Security-Policy
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';
   X-Robots-Tag: noindex, nofollow
+
+# «Titulos/» son los diplomas que enlaza /daniel-morales. Se publican a
+# propósito —el perfil no vale de nada sin poder abrirlos— pero llevan el
+# número de cédula, así que no deben aparecer sueltos en Google: quien los ve
+# es quien llega desde el perfil.
+#
+# Va aquí y NO como `Disallow` en robots.txt: un Disallow impide rastrear el
+# PDF, y sin rastrearlo el buscador nunca llega a leer este `noindex`, con lo
+# que la URL puede acabar indexada igual. Bloquear e indicar noindex a la vez
+# se anulan entre sí.
+/Titulos/*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: public, max-age=3600
