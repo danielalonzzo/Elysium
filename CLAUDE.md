@@ -47,14 +47,15 @@ los scripts de usar y tirar, no para las herramientas del repositorio.
 Todo vive dentro de este repositorio, con un único git. Un proyecto solo sale de
 aquí cuando hay contrato y pasa a ser un negocio real: entonces se lleva su
 propio repositorio y su propio dominio (así salió `Moyra/`, que hoy está en
-`λ/Moyra/`).
+`λ/Moyra/`, y así salió Pura Vida Pets, que hoy está en
+`λ/Pura Vida Pets/puravidapetscr/` y se publica en `puravidapetscr.com`).
 
 Dentro, el reparto lo decide una sola pregunta: **¿esto es una página?**
 
 ```
 Elysium/
 ├── ONCORE/          ← sitios: la carpeta ES la URL, se sirven tal cual
-├── puravidapets/
+├── Demo-arbol/
 ├── …
 └── Prototipos/      ← lo que NO es una página: fuentes sin compilar,
                        documentos, grabaciones. Excluido del despliegue.
@@ -81,20 +82,19 @@ su nombre, y `portfolio.html` los enlaza:
 | `VALTRIX Engineering/` | `/VALTRIX Engineering/` | la propia carpeta |
 | `proyecto/` | `/proyecto/` | la propia carpeta |
 | `Demo-arbol/` | `/Demo-arbol/` | `Prototipos/Demo-arbol/` |
-| `puravidapets/` | `/puravidapets/` | `Prototipos/puravidapets/` |
 
 Las cuatro primeras son HTML plano: la carpeta es a la vez el proyecto y el
 sitio, y se trabaja directamente ahí.
 
-Las dos últimas son **producto compilado**. Editarlas a mano no sirve de nada, se
-pierde en la siguiente publicación:
+La última es **producto compilado**. Editarla a mano no sirve de nada, se pierde
+en la siguiente publicación: `Demo-arbol/` la genera entera
+`scripts/publish-demo-arbol.sh` desde `Prototipos/Demo-arbol/` (Next 16).
 
-- `Demo-arbol/` la genera entera `scripts/publish-demo-arbol.sh` desde
-  `Prototipos/Demo-arbol/` (Next 16).
-- `puravidapets/` es el `vite build` de `Prototipos/puravidapets/`. El
-  `index.html` de la fuente es el punto de entrada de Vite y apunta a
-  `/src/main.jsx`: en producción no funciona, por eso lo que se publica es la
-  compilación.
+**Pura Vida Pets ya no vive aquí.** Se firmó contrato y salió del repositorio: su
+código está en `λ/Pura Vida Pets/puravidapetscr/`, con git propio
+(`github.com/danielalonzzo/puravidapets`) y dominio propio. En Elysium ya no
+queda ni `puravidapets/` ni `Prototipos/puravidapets/`; `portfolio.html` solo
+enlaza a `https://puravidapetscr.com`, igual que hace con Moyra.
 
 **Lo propio de Elysium, que no son páginas:**
 
@@ -120,8 +120,6 @@ despliegue**, porque si no se serviría en `elysiumdr.eu/Prototipos/`:
   portafolio y **está vacía de contenido a propósito**: se enseña para mostrar
   la arquitectura, no un proyecto. Tiene su propio `CLAUDE.md`; léelo antes de
   tocarla. Se publica con el script, en la raíz.
-- `puravidapets/` — aplicación Vite/React. Se publica con `vite build`, en la
-  raíz.
 - `Regalarte/` — aplicación Next que se despliega como **Worker propio** en
   `regalarte.danielalonzzo.workers.dev`. Elysium solo guarda una redirección
   (`/regalarte` → el Worker, en `firebase.json`), así que no tiene carpeta

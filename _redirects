@@ -3,6 +3,13 @@
 /regalarte      https://regalarte.danielalonzzo.workers.dev/   301
 /regalarte/*    https://regalarte.danielalonzzo.workers.dev/   301
 
+# Pura Vida Pets salió de Elysium al firmarse el contrato: repositorio y dominio
+# propios. La carpeta `puravidapets/` ya no existe aquí, así que sin esto la URL
+# vieja daría 404 — y está enlazada desde el portafolio e indexada. El fragmento
+# de HashRouter (`/puravidapets/#/portal`) lo conserva el navegador solo.
+/puravidapets      https://puravidapetscr.com/   301
+/puravidapets/*    https://puravidapetscr.com/   301
+
 # El portal se unificó en una sola página con traducciones dinámicas. Mantener
 # estas URLs evita pantallas vacías desde marcadores y enlaces antiguos.
 /es/profiles       /profiles?lang=es   308

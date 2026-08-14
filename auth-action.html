@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication — Elysium λ</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/pages.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    
+    <style>
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-md);
+            position: relative;
+            z-index: 10;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 3.5rem 3rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--glass-shadow);
+            animation: fadeIn 0.8s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Top accent border */
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-accent), transparent);
+            opacity: 0.5;
+        }
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .auth-brand-logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            font-size: 2.2rem;
+            color: var(--color-accent);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px rgba(41, 151, 255, 0.4);
+            border: 1px solid rgba(41, 151, 255, 0.32);
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(41, 151, 255, 0.18), rgba(41, 151, 255, 0.035));
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 24px rgba(41, 151, 255, 0.1);
+            font-weight: 300;
+        }
+        .auth-title {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 1.6rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        .auth-message {
+            text-align: center;
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .auth-btn {
+            width: 100%;
+            padding: 1.1rem;
+            border-radius: var(--radius-pill);
+            background: linear-gradient(135deg, #fff, var(--color-platinum));
+            color: #051025;
+            border: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 10px 26px rgba(41, 151, 255, 0.16);
+            margin-top: 0.5rem;
+        }
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            background: #fff;
+            box-shadow: 0 12px 34px rgba(41, 151, 255, 0.28);
+        }
+        .auth-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .auth-btn-outline {
+            background: transparent;
+            color: var(--color-text-primary);
+            border: 1px solid var(--glass-border);
+            box-shadow: none;
+        }
+        .auth-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+        .error-message {
+            color: #ff7676;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+            padding: 0.75rem;
+            background: rgba(255, 118, 118, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 118, 118, 0.2);
+        }
+        .success-message {
+            color: #40d896;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+            padding: 0.75rem;
+            background: rgba(64, 216, 150, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(64, 216, 150, 0.2);
+        }
+        /* Mode panels */
+        .auth-panel {
+            display: none;
+        }
+        .auth-panel.active {
+            display: block;
+            animation: fadeIn 0.4s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="ambient-motion">
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-brand">
+                <div class="auth-brand-logo">λ</div>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loading-panel" class="auth-panel active">
+                <div class="auth-title">Authenticating...</div>
+                <div class="auth-message">Please wait while we verify your request.</div>
+                <div style="display:flex; justify-content:center; margin-top:2rem;">
+                    <div class="premium-loader" style="width:30px; height:30px;"></div>
+                </div>
+            </div>
+
+            <!-- Reset Password Form -->
+            <div id="reset-password-panel" class="auth-panel">
+                <div class="auth-title">Reset Password</div>
+                <div class="auth-message">Please enter a new password for your account.</div>
+                
+                <form id="reset-form" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label" for="new-password">New Password</label>
+                        <input type="password" id="new-password" class="form-control" required placeholder="••••••••" minlength="8">
+                    </div>
+                    <button type="submit" class="auth-btn" id="reset-btn">Update Password</button>
+                    <div id="reset-error" class="error-message"></div>
+                    <div id="reset-success" class="success-message"></div>
+                </form>
+            </div>
+            
+            <!-- Email Verified Panel -->
+            <div id="verify-email-panel" class="auth-panel">
+                <div class="auth-title">Email Verified</div>
+                <div class="auth-message">Your email address has been successfully verified.</div>
+                <a href="./admin.html" class="auth-btn" style="text-align:center; display:block; text-decoration:none; box-sizing:border-box;">Go to Dashboard</a>
+            </div>
+
+            <!-- Invalid Code Panel -->
+            <div id="invalid-panel" class="auth-panel">
+                <div class="auth-title">Link Expired</div>
+                <div class="auth-message">This request is invalid or has expired. Please initiate the process again from the portal.</div>
+                <a href="./admin.html" class="auth-btn auth-btn-outline" style="text-align:center; display:block; text-decoration:none; box-sizing:border-box;">Return to Portal</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script type="module" src="JS/auth-action.js"></script>
+    <script>
+        // Preloader Logic
+        window.addEventListener('load', () => {
+            const preloader = document.getElementById('elysium-preloader');
+            if (preloader) {
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

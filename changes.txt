@@ -232,3 +232,11 @@
 - replace_file_content -> style.css: Increase scale to 1.5 to be safe
 
 === CHAT ID: 205391ee-934a-46bf-aaa7-00c2d479141c - Explicación Animación Logo ===
+
+=== CHAT ID: f8e517f1-9e74-4d55-92a0-b9173f45091f - Actualización a V1.6.0: Nuevo Enfoque de Audiencia (Micro y Pequeñas Empresas, Emprendedores y Startups) y Salida de Pura Vida Pets ===
+- Actualización de versión del sistema a V1.6.0 en version-modal.js y metadatos globales.
+- Reenfoque estratégico integral: Sustitución de pequeñas y medianas empresas / pymes por micro y pequeñas empresas, emprendedores y startups en todos los idiomas (ES, EN, PT).
+- Actualización de opciones de tamaño de organización en el formulario de onboarding (Solo Founder / Emprendedor (1), Micro (2-9), Pequeña (10-49), Otro) en ES, EN, PT.
+- Adaptación de la misión y visión corporativa en about.html para destacar la democratización tecnológica e infraestructura escalable para startups y microempresas.
+- Actualización de páginas de investigación (Research) para reflejar inteligencia de datos orientada a startups y microempresas.
+- Sincronización del portafolio: Pura Vida Pets pasa a ser proyecto independiente con dominio propio (puravidapetscr.com), actualizando enlaces, iframe y previsualizaciones en portfolio.html (ES, EN, PT).
