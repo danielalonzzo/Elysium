@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="Peluches">
+  <defs>
+    <linearGradient id="bg-1p5e46" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6e6d2"/>
+      <stop offset="1" stop-color="#e2c39c"/>
+    </linearGradient>
+    <radialGradient id="glow-1p5e46" cx="0.5" cy="0.2948677126131952" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-1p5e46" x1="0" y1="0" x2="0.48" y2="1">
+      <stop offset="0" stop-color="#c96f3f"/>
+      <stop offset="1" stop-color="#3b2a1c"/>
+    </linearGradient>
+    <filter id="soft-1p5e46" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" fill="url(#bg-1p5e46)"/>
+  <rect width="900" height="900" fill="url(#glow-1p5e46)"/>
+  <circle cx="620" cy="270" r="126" fill="#c96f3f" opacity="0.85"/>
+  <path d="M-90 774 L144 473 L522 774 Z" fill="#3b2a1c" opacity="0.22"/>
+  <path d="M378 774 L558 527 L1008 774 Z" fill="#3b2a1c" opacity="0.18"/>
+  <rect x="0" y="672" width="900" height="32" fill="#f6e6d2" opacity="0.22"/>
+  <path d="M-90 774 L324 380 L702 774 Z" fill="#3b2a1c" opacity="0.44"/>
+  <path d="M378 774 L630 451 L1008 774 Z" fill="#3b2a1c" opacity="0.38"/>
+  <rect x="0" y="640" width="900" height="32" fill="#f6e6d2" opacity="0.17"/>
+  <path d="M-90 774 L504 230 L882 774 Z" fill="#3b2a1c" opacity="0.66"/>
+  <path d="M378 774 L702 328 L1008 774 Z" fill="#3b2a1c" opacity="0.58"/>
+  <rect x="0" y="589" width="900" height="32" fill="#f6e6d2" opacity="0.12"/>
+  <rect x="0" y="774" width="900" height="126" fill="#3b2a1c" opacity="0.7"/>
+  <path d="M22 700 L53 792 L-9 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M22 721 L41 765 L2 765 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M79 694 L113 792 L45 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M79 716 L100 764 L58 764 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M172 614 L239 792 L105 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M172 659 L214 755 L131 755 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M287 620 L351 792 L222 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M287 663 L327 756 L247 756 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M356 701 L387 792 L325 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M356 721 L375 765 L337 765 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M460 643 L516 792 L405 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M460 679 L495 758 L426 758 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M562 674 L604 792 L520 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M562 702 L588 762 L536 762 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M609 703 L639 792 L580 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M609 723 L628 766 L591 766 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M702 634 L760 792 L643 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M702 673 L738 757 L665 757 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M813 710 L839 792 L786 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M813 728 L829 766 L796 766 Z" fill="#e2c39c" opacity="0.5"/>
+  <path d="M884 614 L952 792 L817 792 Z" fill="#3b2a1c" opacity="0.75"/>
+  <path d="M884 659 L926 755 L843 755 Z" fill="#e2c39c" opacity="0.5"/>
+</svg>

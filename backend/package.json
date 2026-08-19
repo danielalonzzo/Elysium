@@ -6,14 +6,17 @@
   "main": "platform-server.js",
   "scripts": {
     "start": "node platform-server.js",
-    "check": "node --check platform-server.js && node --check platform-server.test.js",
-    "test": "node --test platform-server.test.js"
+    "check": "node --check platform-server.js && node --check platform-server.test.js && node --check r2-file-routes.js && node --check r2-file-routes.test.js",
+    "test": "node --test platform-server.test.js r2-file-routes.test.js"
   },
   "engines": {
     "node": ">=22"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1101.0",
+    "@aws-sdk/s3-request-presigner": "3.1101.0",
     "express": "^5.2.1",
+    "file-type": "22.0.1",
     "firebase-admin": "^14.1.0",
     "nodemailer": "^9.0.5"
   }

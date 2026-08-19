@@ -19,7 +19,7 @@
   --text-dim: #b6ada0;
   --line: rgba(245, 245, 245, 0.12);
 
-  /* Variables for Tienda Regalarte (Inherited from Elysium Theme) */
+  /* Variables de la tienda (heredadas del tema Elysium) */
   --rg-ink: var(--text);
   --rg-ink-soft: var(--text-dim);
   --rg-ink-hover: var(--text);
@@ -105,7 +105,7 @@
   --scene-desc: var(--text-dim);
   --drop-shadow-img: rgba(0, 0, 0, 0.18);
 
-  /* Variables for Tienda Regalarte (Light Mode) */
+  /* Variables de la tienda (modo claro) */
   --rg-ink: var(--text);
   --rg-ink-soft: var(--text-dim);
   --rg-ink-hover: var(--text);

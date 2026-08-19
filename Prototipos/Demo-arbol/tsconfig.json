@@ -32,7 +32,6 @@
   ],
   "exclude": [
     "node_modules",
-    "Regalarte",
     "_comercial",
     ".next",
     "dist",

@@ -15,13 +15,28 @@ const express = require('express');
 const { applicationDefault, getApps, initializeApp } = require('firebase-admin/app');
 const { FieldValue, Timestamp, getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
+const { createR2FileRouter, r2Configuration } = require('./r2-file-routes');
 
-if (getApps().length === 0) {
-  initializeApp({ credential: applicationDefault() });
-}
+const defaultFirebaseApp = getApps().find(candidate => candidate.name === '[DEFAULT]')
+  || initializeApp({ credential: applicationDefault() });
 
-const db = getFirestore();
-const firebaseAuth = getAuth();
+const db = getFirestore(defaultFirebaseApp);
+const firebaseAuth = getAuth(defaultFirebaseApp);
+// En producción el CRM comparte `elysiumdr-eu` con el portal para reutilizar
+// Auth. La opción sigue siendo explícita para que los ID tokens y Firestore no
+// puedan apuntar por error a proyectos distintos durante un despliegue.
+const crmFirebaseProjectId = String(process.env.CRM_FIREBASE_PROJECT_ID || '').trim();
+const crmFirebaseApp = crmFirebaseProjectId
+  ? (
+      getApps().find(candidate => candidate.name === 'elysium-crm')
+      || initializeApp(
+        { credential: applicationDefault(), projectId: crmFirebaseProjectId },
+        'elysium-crm'
+      )
+    )
+  : defaultFirebaseApp;
+const crmDb = getFirestore(crmFirebaseApp);
+const crmFirebaseAuth = getAuth(crmFirebaseApp);
 const app = express();
 const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '1', 10);
 // Production runs behind one trusted ingress hop (Cloud Run/Cloudflare proxy),
@@ -29,7 +44,11 @@ const trustProxyHops = Number.parseInt(process.env.TRUST_PROXY_HOPS || '1', 10);
 app.set('trust proxy', Number.isInteger(trustProxyHops) && trustProxyHops >= 0 ? trustProxyHops : 1);
 const PORT = Number(process.env.PORT || 4242);
 const MEETING_EMAIL_LEASE_MS = 2 * 60 * 1000;
-const MAX_MEETING_RANGE_DAYS = 370;
+// Dos años. El tope anterior (370) no dejaba pedir pasado y futuro a la vez, y
+// la pestaña «Past» de la agenda se quedaba con los últimos siete días — que es
+// lo que devolvía el rango por defecto.
+const MAX_MEETING_RANGE_DAYS = 760;
+const MEETING_PAGE_SIZE = 250;
 const PASSWORD_RESET_WINDOW_MS = 60 * 60 * 1000;
 const PASSWORD_RESET_EMAIL_LIMIT = 5;
 const PASSWORD_RESET_IP_LIMIT = 20;
@@ -37,7 +56,7 @@ const PROSPECT_WINDOW_MS = 60 * 60 * 1000;
 const PROSPECT_EMAIL_LIMIT = 3;
 const PROSPECT_IP_LIMIT = 12;
 const SUPER_ADMIN_EMAILS = new Set(
-  String(process.env.ADMIN_EMAILS || 'danielalonzzo@icloud.com')
+  String(process.env.ADMIN_EMAILS || 'daniel.morales@elysiumdr.eu')
     .split(',')
     .map(value => value.trim().toLowerCase())
     .filter(Boolean)
@@ -53,6 +72,9 @@ function publicBaseUrl() {
 const configuredOrigins = (process.env.ALLOWED_ORIGINS || [
   'https://elysiumdr.eu',
   'https://www.elysiumdr.eu',
+  'https://crm.elysiumdr.eu',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
   'http://localhost:8787',
   'http://localhost:4242',
   'http://localhost:8123',
@@ -70,7 +92,7 @@ app.use((request, response, next) => {
     response.set('Access-Control-Allow-Origin', origin);
     response.set('Vary', 'Origin');
     response.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, Idempotency-Key');
-    response.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    response.set('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   }
   if (request.method === 'OPTIONS') return response.sendStatus(204);
   return next();
@@ -133,7 +155,7 @@ async function optionalFirebaseUser(request, response, next) {
 
 function isFirebaseAdmin(identity) {
   if (!identity || identity.email_verified !== true) return false;
-  const role = String(identity.role || '').toLowerCase();
+  const role = String(identity.crmRole || identity.role || '').toLowerCase();
   return identity.admin === true
     || ['admin', 'root', 'super_admin'].includes(role)
     || SUPER_ADMIN_EMAILS.has(String(identity.email || '').toLowerCase());
@@ -145,6 +167,38 @@ function requireFirebaseAdmin(request, response, next) {
   }
   return next();
 }
+
+/**
+ * Contrato de capacidades consumido por el mismo /admin que ya usa Elysium.
+ * Evita que la interfaz anuncie una acción que la revisión desplegada todavía
+ * no soporta o que depende de secretos operativos ausentes.
+ */
+function platformCapabilities(environment = process.env) {
+  const filesReady = r2Configuration(environment).ready;
+  return {
+    version: '2026-08-18',
+    meetings: {
+      create: true,
+      update: true,
+      cancel: true,
+      notifications: true
+    },
+    files: {
+      provider: 'cloudflare-r2',
+      upload: filesReady,
+      download: filesReady
+    }
+  };
+}
+
+app.get('/api/capabilities', requireFirebaseUser, requireFirebaseAdmin, (_request, response) => {
+  response.json(platformCapabilities());
+});
+
+// El router mantiene las credenciales R2 y las firmas fuera del navegador. Se
+// monta tras el parser JSON compacto: sus endpoints sólo intercambian metadata,
+// mientras el binario viaja directamente entre el navegador y R2.
+app.use('/api/files', createR2FileRouter({ db: crmDb, firebaseAuth: crmFirebaseAuth, isFirebaseAdmin }));
 
 class MeetingValidationError extends Error {
   constructor(message, code, field = null) {
@@ -176,8 +230,9 @@ function safePlainText(value, field, maxLength, { required = false } = {}) {
   return text;
 }
 
-function normalizedHttpsUrl(value) {
+function normalizedHttpsUrl(value, { required = true } = {}) {
   const raw = String(value || '').trim();
+  if (!raw && !required) return '';
   if (!raw || raw.length > 2048) {
     throw new MeetingValidationError('A meeting link is required.', 'invalid_meeting_url', 'meetingUrl');
   }
@@ -304,14 +359,23 @@ function normalizeMeetingInput(body, nowMillis = Date.now()) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     throw new MeetingValidationError('Invalid request body.', 'invalid_body');
   }
-  const userId = safePlainText(body.userId, 'userId', 128, { required: true });
-  if (!/^[A-Za-z0-9:_-]+$/.test(userId)) {
-    throw new MeetingValidationError('userId is invalid.', 'invalid_user_id', 'userId');
+  const contactId = safePlainText(body.contactId || body.userId, 'contactId', 128, { required: true });
+  if (!/^[A-Za-z0-9:_-]+$/.test(contactId)) {
+    throw new MeetingValidationError('contactId is invalid.', 'invalid_contact_id', 'contactId');
+  }
+  const contactCollection = safePlainText(body.contactCollection || 'members', 'contactCollection', 20, { required: true });
+  if (!['members', 'prospects', 'contacts'].includes(contactCollection)) {
+    throw new MeetingValidationError('contactCollection is invalid.', 'invalid_contact_collection', 'contactCollection');
+  }
+  const type = body.type === 'call' ? 'call' : 'meeting';
+  const assigneeId = safePlainText(body.assigneeId, 'assigneeId', 128);
+  if (assigneeId && !/^[A-Za-z0-9:_-]+$/.test(assigneeId)) {
+    throw new MeetingValidationError('assigneeId is invalid.', 'invalid_assignee_id', 'assigneeId');
   }
   const title = safePlainText(body.title, 'title', 160, { required: true });
   const notes = safePlainText(body.notes, 'notes', 2000);
   const clientRegion = safePlainText(body.clientRegion, 'clientRegion', 100);
-  const meetingUrl = normalizedHttpsUrl(body.meetingUrl);
+  const meetingUrl = normalizedHttpsUrl(body.meetingUrl, { required: type === 'meeting' });
   const adminTimeZone = validateIanaTimeZone(body.adminTimeZone, 'adminTimeZone');
   const clientTimeZone = validateIanaTimeZone(body.clientTimeZone, 'clientTimeZone');
   const date = String(body.date || '');
@@ -329,7 +393,11 @@ function normalizeMeetingInput(body, nowMillis = Date.now()) {
     throw new MeetingValidationError('Meeting time is in the past.', 'meeting_in_past', 'date');
   }
   return {
-    userId,
+    userId: contactId,
+    contactId,
+    contactCollection,
+    type,
+    assigneeId: assigneeId || null,
     title,
     notes,
     clientRegion: clientRegion || clientTimeZone,
@@ -363,7 +431,10 @@ function meetingIdForRequest(adminUid, idempotencyKey) {
 
 function meetingRequestFingerprint(meeting) {
   const canonical = {
-    userId: meeting.userId,
+    contactId: meeting.contactId || meeting.userId,
+    contactCollection: meeting.contactCollection || 'members',
+    type: meeting.type || 'meeting',
+    assigneeId: meeting.assigneeId,
     title: meeting.title,
     notes: meeting.notes,
     clientRegion: meeting.clientRegion,
@@ -489,7 +560,14 @@ const MEETING_COPY = {
     adminSubjectConfirmed: 'New meeting', adminSubjectCancelled: 'Meeting cancelled',
     reminder: 'Your meeting is tomorrow', reminderIntro: 'A reminder of your upcoming meeting with Elysium.',
     subjectReminder: 'Reminder: meeting tomorrow', adminHeadingReminder: 'Meeting reminder sent',
-    adminIntroReminder: 'The client has been reminded of this meeting.', adminSubjectReminder: 'Reminder sent'
+    adminIntroReminder: 'The client has been reminded of this meeting.', adminSubjectReminder: 'Reminder sent',
+    callConfirmed: 'Call scheduled', callCancelled: 'Call cancelled', callReminder: 'Your call is tomorrow',
+    callIntro: 'Your call with Elysium has been scheduled.', callCancelledIntro: 'This call with Elysium has been cancelled.',
+    callReminderIntro: 'A reminder of your upcoming call with Elysium.',
+    callSubjectConfirmed: 'Call scheduled', callSubjectCancelled: 'Call cancelled', callSubjectReminder: 'Reminder: call tomorrow',
+    adminCallHeading: 'New call in the agenda', adminCallHeadingCancelled: 'Call removed from the agenda', adminCallHeadingReminder: 'Call reminder sent',
+    adminCallIntro: 'The confirmation and calendar invitation have already been sent to the client.',
+    adminCallIntroCancelled: 'The client has been told the call will not take place.', adminCallIntroReminder: 'The client has been reminded of this call.'
   },
   es: {
     confirmed: 'Reunión confirmada', cancelled: 'Reunión cancelada', hello: 'Hola',
@@ -503,7 +581,14 @@ const MEETING_COPY = {
     adminSubjectConfirmed: 'Nueva reunión', adminSubjectCancelled: 'Reunión cancelada',
     reminder: 'Tu reunión es mañana', reminderIntro: 'Te recordamos tu próxima reunión con Elysium.',
     subjectReminder: 'Recordatorio: reunión mañana', adminHeadingReminder: 'Recordatorio enviado',
-    adminIntroReminder: 'Se ha recordado esta reunión al cliente.', adminSubjectReminder: 'Recordatorio enviado'
+    adminIntroReminder: 'Se ha recordado esta reunión al cliente.', adminSubjectReminder: 'Recordatorio enviado',
+    callConfirmed: 'Llamada agendada', callCancelled: 'Llamada cancelada', callReminder: 'Tu llamada es mañana',
+    callIntro: 'Tu llamada con Elysium ha sido agendada.', callCancelledIntro: 'Esta llamada con Elysium ha sido cancelada.',
+    callReminderIntro: 'Te recordamos tu próxima llamada con Elysium.',
+    callSubjectConfirmed: 'Llamada agendada', callSubjectCancelled: 'Llamada cancelada', callSubjectReminder: 'Recordatorio: llamada mañana',
+    adminCallHeading: 'Nueva llamada en la agenda', adminCallHeadingCancelled: 'Llamada retirada de la agenda', adminCallHeadingReminder: 'Recordatorio de llamada enviado',
+    adminCallIntro: 'La confirmación y la invitación de calendario ya han salido hacia el cliente.',
+    adminCallIntroCancelled: 'Se ha avisado al cliente de que la llamada no se realizará.', adminCallIntroReminder: 'Se ha recordado esta llamada al cliente.'
   },
   pt: {
     confirmed: 'Reunião confirmada', cancelled: 'Reunião cancelada', hello: 'Olá',
@@ -517,7 +602,14 @@ const MEETING_COPY = {
     adminSubjectConfirmed: 'Nova reunião', adminSubjectCancelled: 'Reunião cancelada',
     reminder: 'A sua reunião é amanhã', reminderIntro: 'Recordamos a sua próxima reunião com a Elysium.',
     subjectReminder: 'Lembrete: reunião amanhã', adminHeadingReminder: 'Lembrete enviado',
-    adminIntroReminder: 'O cliente foi recordado desta reunião.', adminSubjectReminder: 'Lembrete enviado'
+    adminIntroReminder: 'O cliente foi recordado desta reunião.', adminSubjectReminder: 'Lembrete enviado',
+    callConfirmed: 'Chamada agendada', callCancelled: 'Chamada cancelada', callReminder: 'A sua chamada é amanhã',
+    callIntro: 'A sua chamada com a Elysium foi agendada.', callCancelledIntro: 'Esta chamada com a Elysium foi cancelada.',
+    callReminderIntro: 'Recordamos a sua próxima chamada com a Elysium.',
+    callSubjectConfirmed: 'Chamada agendada', callSubjectCancelled: 'Chamada cancelada', callSubjectReminder: 'Lembrete: chamada amanhã',
+    adminCallHeading: 'Nova chamada na agenda', adminCallHeadingCancelled: 'Chamada retirada da agenda', adminCallHeadingReminder: 'Lembrete de chamada enviado',
+    adminCallIntro: 'A confirmação e o convite de calendário já seguiram para o cliente.',
+    adminCallIntroCancelled: 'O cliente foi avisado de que a chamada não se vai realizar.', adminCallIntroReminder: 'O cliente foi recordado desta chamada.'
   }
 };
 
@@ -526,13 +618,18 @@ function buildMeetingEmail(meeting, kind = 'confirmation') {
   const copy = MEETING_COPY[locale];
   const cancelled = kind === 'cancellation';
   const reminder = kind === 'reminder';
-  const heading = cancelled ? copy.cancelled : reminder ? copy.reminder : copy.confirmed;
-  const intro = cancelled ? copy.cancelledIntro : reminder ? copy.reminderIntro : copy.intro;
+  const isCall = meeting.type === 'call';
+  const heading = isCall
+    ? (cancelled ? copy.callCancelled : reminder ? copy.callReminder : copy.callConfirmed)
+    : (cancelled ? copy.cancelled : reminder ? copy.reminder : copy.confirmed);
+  const intro = isCall
+    ? (cancelled ? copy.callCancelledIntro : reminder ? copy.callReminderIntro : copy.callIntro)
+    : (cancelled ? copy.cancelledIntro : reminder ? copy.reminderIntro : copy.intro);
   const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
   const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
   const notes = meeting.cancellationReason || meeting.notes || '';
   
-  const button = cancelled ? '' : `
+  const button = cancelled || !meeting.meetingUrl ? '' : `
     <div class="btn-group" style="margin-top:32px">
       <a href="${escapeHtml(meeting.meetingUrl)}" class="btn" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.25)">${escapeHtml(copy.join)}</a>
     </div>`;
@@ -556,14 +653,15 @@ function buildMeetingEmail(meeting, kind = 'confirmation') {
     ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
     ${button}`;
 
-  const subjectLabel = cancelled ? copy.subjectCancelled
-    : reminder ? copy.subjectReminder : copy.subjectConfirmed;
+  const subjectLabel = isCall
+    ? (cancelled ? copy.callSubjectCancelled : reminder ? copy.callSubjectReminder : copy.callSubjectConfirmed)
+    : (cancelled ? copy.subjectCancelled : reminder ? copy.subjectReminder : copy.subjectConfirmed);
   const text = [
     `${heading}: ${meeting.title}`,
     `${copy.yourTime}: ${clientDate} (${meeting.clientTimeZone})`,
     `${copy.adminTime}: ${adminDate} (${meeting.adminTimeZone})`,
     `${copy.duration}: ${meeting.durationMinutes} ${copy.minutes}`,
-    !cancelled ? `${copy.join}: ${meeting.meetingUrl}` : '',
+    !cancelled && meeting.meetingUrl ? `${copy.join}: ${meeting.meetingUrl}` : '',
     notes ? `${copy.notes}: ${notes}` : ''
   ].filter(Boolean).join('\n');
   return {
@@ -611,7 +709,7 @@ function buildMeetingIcs(meeting, kind = 'confirmation', now = new Date()) {
   const organizerEmail = extractEmailAddress(process.env.MEETING_FROM_EMAIL || 'hello@elysiumdr.eu');
   const description = cancelled
     ? `Cancelled: ${meeting.title}`
-    : `${meeting.notes || ''}${meeting.notes ? '\n\n' : ''}${meeting.meetingUrl}`;
+    : `${meeting.notes || ''}${meeting.notes && meeting.meetingUrl ? '\n\n' : ''}${meeting.meetingUrl || ''}`;
   const lines = [
     'BEGIN:VCALENDAR',
     'PRODID:-//Elysium Digital Experiences//Meetings//EN',
@@ -627,13 +725,13 @@ function buildMeetingIcs(meeting, kind = 'confirmation', now = new Date()) {
     `STATUS:${cancelled ? 'CANCELLED' : 'CONFIRMED'}`,
     `SUMMARY:${icsEscape(meeting.title)}`,
     `DESCRIPTION:${icsEscape(description)}`,
-    `URL:${icsEscape(meeting.meetingUrl)}`,
+    meeting.meetingUrl ? `URL:${icsEscape(meeting.meetingUrl)}` : '',
     `ORGANIZER;CN=Elysium:mailto:${organizerEmail}`,
     `ATTENDEE;CN=${icsEscape(meeting.clientName || meeting.clientEmail)};RSVP=TRUE:mailto:${meeting.clientEmail}`,
     'END:VEVENT',
     'END:VCALENDAR'
   ];
-  return `${lines.map(foldIcsLine).join('\r\n')}\r\n`;
+  return `${lines.filter(Boolean).map(foldIcsLine).join('\r\n')}\r\n`;
 }
 
 /**
@@ -646,18 +744,21 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
   const copy = MEETING_COPY[locale];
   const cancelled = kind === 'cancellation';
   const reminder = kind === 'reminder';
-  const heading = cancelled ? copy.adminHeadingCancelled
-    : reminder ? copy.adminHeadingReminder : copy.adminHeading;
-  const intro = cancelled ? copy.adminIntroCancelled
-    : reminder ? copy.adminIntroReminder : copy.adminIntro;
+  const isCall = meeting.type === 'call';
+  const heading = isCall
+    ? (cancelled ? copy.adminCallHeadingCancelled : reminder ? copy.adminCallHeadingReminder : copy.adminCallHeading)
+    : (cancelled ? copy.adminHeadingCancelled : reminder ? copy.adminHeadingReminder : copy.adminHeading);
+  const intro = isCall
+    ? (cancelled ? copy.adminCallIntroCancelled : reminder ? copy.adminCallIntroReminder : copy.adminCallIntro)
+    : (cancelled ? copy.adminIntroCancelled : reminder ? copy.adminIntroReminder : copy.adminIntro);
   const clientDate = formattedZonedDate(meeting.startAt, meeting.clientTimeZone, locale);
   const adminDate = formattedZonedDate(meeting.startAt, meeting.adminTimeZone, locale);
   const notes = meeting.cancellationReason || meeting.notes || '';
-  const crmUrl = `${publicBaseUrl()}/admin?client=${encodeURIComponent(meeting.userId || '')}`;
+  const crmUrl = `${publicBaseUrl()}/admin?client=${encodeURIComponent(meeting.contactId || meeting.userId || '')}`;
   
   const buttonGroup = `
     <div class="btn-group" style="margin-top:32px">
-      ${cancelled ? '' : `<a href="${escapeHtml(meeting.meetingUrl)}" class="btn" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.25)">${escapeHtml(copy.join)}</a><span class="hide-mobile">&nbsp;&nbsp;&nbsp;</span>`}
+      ${cancelled || !meeting.meetingUrl ? '' : `<a href="${escapeHtml(meeting.meetingUrl)}" class="btn" style="display:inline-block;background:linear-gradient(135deg, #28a8ff, #0077ff);color:#fff;text-decoration:none;font-weight:600;padding:16px 28px;border-radius:999px;font-size:15px;letter-spacing:0.02em;box-shadow:0 4px 12px rgba(40,168,255,0.25)">${escapeHtml(copy.join)}</a><span class="hide-mobile">&nbsp;&nbsp;&nbsp;</span>`}
       <a href="${escapeHtml(crmUrl)}" class="btn" style="display:inline-block;border:1px solid #28a8ff;color:#28a8ff;text-decoration:none;font-weight:600;padding:15px 27px;border-radius:999px;font-size:15px;letter-spacing:0.02em">${escapeHtml(copy.adminOpenCrm)}</a>
     </div>`;
 
@@ -682,8 +783,9 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
     ${notes ? `<div class="notes-box" style="margin:28px 0 0;background:#edf7fd;padding:19px 21px;border-radius:18px"><p class="text-muted" style="margin:0;color:#526b7d;font-size:15px;line-height:1.65"><strong class="text-main" style="color:#173e62;display:block;margin-bottom:5px">${escapeHtml(copy.notes)}</strong> ${escapeHtml(notes)}</p></div>` : ''}
     ${buttonGroup}`;
 
-  const subjectLabel = cancelled ? copy.adminSubjectCancelled
-    : reminder ? copy.adminSubjectReminder : copy.adminSubjectConfirmed;
+  const subjectLabel = isCall
+    ? (cancelled ? copy.callSubjectCancelled : reminder ? copy.callSubjectReminder : copy.callSubjectConfirmed)
+    : (cancelled ? copy.adminSubjectCancelled : reminder ? copy.adminSubjectReminder : copy.adminSubjectConfirmed);
   const who = meeting.clientName || meeting.clientEmail || '';
   const text = [
     `${heading}: ${meeting.title}`,
@@ -692,7 +794,7 @@ function buildMeetingAdminEmail(meeting, kind = 'confirmation') {
     `${copy.adminTime}: ${adminDate} (${meeting.adminTimeZone})`,
     `${copy.yourTime}: ${clientDate} (${meeting.clientTimeZone})`,
     `${copy.duration}: ${meeting.durationMinutes} ${copy.minutes}`,
-    !cancelled ? `${copy.join}: ${meeting.meetingUrl}` : '',
+    !cancelled && meeting.meetingUrl ? `${copy.join}: ${meeting.meetingUrl}` : '',
     notes ? `${copy.notes}: ${notes}` : '',
     `${copy.adminOpenCrm}: ${crmUrl}`
   ].filter(Boolean).join('\n');
@@ -721,7 +823,9 @@ function meetingEmailPayload(meeting, kind = 'confirmation', audience = 'client'
     html: email.html,
     text: email.text,
     attachments: [{
-      filename: kind === 'cancellation' ? 'elysium-meeting-cancelled.ics' : 'elysium-meeting.ics',
+      filename: meeting.type === 'call'
+        ? (kind === 'cancellation' ? 'elysium-call-cancelled.ics' : 'elysium-call.ics')
+        : (kind === 'cancellation' ? 'elysium-meeting-cancelled.ics' : 'elysium-meeting.ics'),
       content: Buffer.from(buildMeetingIcs(meeting, kind), 'utf8').toString('base64'),
       // El METHOD del .ics decide si el cliente de correo ofrece «añadir al
       // calendario» o «quitar»; sin él, muchos lo tratan como fichero suelto.
@@ -1204,34 +1308,76 @@ app.post('/api/prospects', async (request, response) => {
   }
 });
 
+class MeetingRangeError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.name = 'MeetingRangeError';
+    this.code = code;
+  }
+}
+
+/**
+ * Resuelve la ventana temporal de `GET /api/meetings`.
+ *
+ * El defecto es simétrico —un año atrás y otro adelante— porque la agenda tiene
+ * una pestaña de histórico. Un defecto que sólo miraba hacia delante la dejaba
+ * con los últimos siete días y parecía que se habían perdido las citas.
+ */
+function meetingListRange(query = {}, now = Date.now()) {
+  const from = query.from ? new Date(String(query.from)) : new Date(now - 365 * 86400_000);
+  const to = query.to ? new Date(String(query.to)) : new Date(now + 365 * 86400_000);
+  if (!Number.isFinite(from.getTime())
+    || !Number.isFinite(to.getTime())
+    || to <= from
+    || to.getTime() - from.getTime() > MAX_MEETING_RANGE_DAYS * 86400_000) {
+    throw new MeetingRangeError(
+      `Meeting range must be valid and no longer than ${MAX_MEETING_RANGE_DAYS} days.`,
+      'invalid_meeting_range'
+    );
+  }
+  const userId = query.userId ? String(query.userId) : null;
+  if (userId && !/^[A-Za-z0-9:_-]{1,128}$/.test(userId)) {
+    throw new MeetingRangeError('Invalid userId.', 'invalid_user_id');
+  }
+  return { from, to, userId };
+}
+
 app.get('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (request, response) => {
   try {
-    const now = Date.now();
-    const from = request.query.from ? new Date(String(request.query.from)) : new Date(now - 7 * 86400_000);
-    const to = request.query.to ? new Date(String(request.query.to)) : new Date(now + 360 * 86400_000);
-    if (!Number.isFinite(from.getTime())
-      || !Number.isFinite(to.getTime())
-      || to <= from
-      || to.getTime() - from.getTime() > MAX_MEETING_RANGE_DAYS * 86400_000) {
-      return response.status(400).json({
-        error: `Meeting range must be valid and no longer than ${MAX_MEETING_RANGE_DAYS} days.`,
-        code: 'invalid_meeting_range'
-      });
+    let range;
+    try {
+      range = meetingListRange(request.query);
+    } catch (error) {
+      if (error instanceof MeetingRangeError) {
+        return response.status(400).json({ error: error.message, code: error.code });
+      }
+      throw error;
     }
-    const requestedUserId = request.query.userId ? String(request.query.userId) : null;
-    if (requestedUserId && !/^[A-Za-z0-9:_-]{1,128}$/.test(requestedUserId)) {
-      return response.status(400).json({ error: 'Invalid userId.', code: 'invalid_user_id' });
-    }
-    const snapshot = await db.collection('meetings')
+    const { from, to, userId: requestedUserId } = range;
+    // El filtro por contacto va DENTRO de la consulta. Aplicado después del
+    // `limit`, pedir la agenda de un cliente podía devolver cero citas aunque
+    // existieran: las 250 primeras del rango eran de otros contactos.
+    let meetingQuery = db.collection('meetings');
+    if (requestedUserId) meetingQuery = meetingQuery.where('userId', '==', requestedUserId);
+    const snapshot = await meetingQuery
       .where('startAt', '>=', Timestamp.fromDate(from))
       .where('startAt', '<=', Timestamp.fromDate(to))
       .orderBy('startAt', 'asc')
-      .limit(250)
+      .limit(MEETING_PAGE_SIZE + 1)
       .get();
+    // Se pide uno de más para saber si el rango quedó cortado y poder decirlo
+    // en la interfaz, en vez de mostrar una agenda incompleta en silencio.
+    const hasMore = snapshot.docs.length > MEETING_PAGE_SIZE;
     const meetings = snapshot.docs
-      .filter(document => !requestedUserId || document.data().userId === requestedUserId)
+      .slice(0, MEETING_PAGE_SIZE)
       .map(document => serializeMeeting(document.id, document.data()));
-    return response.json({ meetings });
+    return response.json({
+      meetings,
+      hasMore,
+      limit: MEETING_PAGE_SIZE,
+      from: from.toISOString(),
+      to: to.toISOString()
+    });
   } catch (error) {
     console.error('Meeting list failed:', error);
     return response.status(500).json({ error: 'Unable to load meetings.', code: 'meeting_list_failed' });
@@ -1247,21 +1393,24 @@ app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (requ
     const meetingId = meetingIdForRequest(request.firebaseUser.uid, idempotencyKey);
     const fingerprint = meetingRequestFingerprint(normalized);
     const meetingRef = db.collection('meetings').doc(meetingId);
-    const memberRef = db.collection('members').doc(normalized.userId);
+    const contactRef = db.collection(normalized.contactCollection).doc(normalized.contactId);
     const result = await db.runTransaction(async transaction => {
-      const [memberSnapshot, meetingSnapshot] = await Promise.all([
-        transaction.get(memberRef),
+      const [contactSnapshot, meetingSnapshot] = await Promise.all([
+        transaction.get(contactRef),
         transaction.get(meetingRef)
       ]);
-      if (!memberSnapshot.exists) return { kind: 'missing_member' };
-      const member = memberSnapshot.data();
-      if (member.isDeactivated === true) return { kind: 'deactivated_member' };
-      if (['admin', 'root'].includes(String(member.role || '').toLowerCase())
-        || SUPER_ADMIN_EMAILS.has(String(member.email || '').toLowerCase())) {
-        return { kind: 'invalid_member' };
+      if (!contactSnapshot.exists) return { kind: 'missing_contact' };
+      const contact = contactSnapshot.data();
+      if (normalized.contactCollection === 'members' && contact.isDeactivated === true) {
+        return { kind: 'deactivated_contact' };
       }
-      const clientEmail = normalizedEmail(member.email);
-      if (!clientEmail) return { kind: 'invalid_member_email' };
+      if (normalized.contactCollection === 'members'
+        && (['admin', 'root'].includes(String(contact.role || '').toLowerCase())
+          || SUPER_ADMIN_EMAILS.has(String(contact.email || '').toLowerCase()))) {
+        return { kind: 'invalid_contact' };
+      }
+      const clientEmail = normalizedEmail(contact.email);
+      if (!clientEmail) return { kind: 'invalid_contact_email' };
 
       if (meetingSnapshot.exists) {
         const existing = meetingSnapshot.data();
@@ -1271,8 +1420,14 @@ app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (requ
 
       const now = FieldValue.serverTimestamp();
       const meeting = {
-        userId: normalized.userId,
-        clientName: safePlainText(member.name || member.company || 'Elysium client', 'clientName', 160, { required: true }),
+        userId: normalized.contactId,
+        contactId: normalized.contactId,
+        contactCollection: normalized.contactCollection,
+        clientName: safePlainText(
+          contact.displayName || contact.name || [contact.firstName, contact.lastName].filter(Boolean).join(' ')
+            || contact.companyName || contact.company || 'Elysium contact',
+          'clientName', 160, { required: true }
+        ),
         clientEmail,
         clientRegion: normalized.clientRegion,
         clientTimeZone: normalized.clientTimeZone,
@@ -1280,12 +1435,14 @@ app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (requ
         title: normalized.title,
         notes: normalized.notes,
         meetingUrl: normalized.meetingUrl,
+        type: normalized.type,
+        assigneeId: normalized.assigneeId || request.firebaseUser.uid,
         localDate: normalized.date,
         localTime: normalized.time,
         durationMinutes: normalized.durationMinutes,
         startAt: Timestamp.fromDate(normalized.startAt),
         endAt: Timestamp.fromDate(normalized.endAt),
-        locale: normalized.locale || normalizedLocale(member.preferredLanguage),
+        locale: normalized.locale || normalizedLocale(contact.preferredLanguage || contact.locale),
         status: 'scheduled',
         requestFingerprint: fingerprint,
         notifications: {
@@ -1309,7 +1466,7 @@ app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (requ
       };
       transaction.create(meetingRef, meeting);
       transaction.set(db.collection('activities').doc(`meeting_created_${meetingId}`), {
-        memberId: normalized.userId,
+        memberId: normalized.contactId,
         memberName: meeting.clientName,
         type: 'meeting_created',
         payload: {
@@ -1317,7 +1474,10 @@ app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (requ
           title: normalized.title,
           startAt: meeting.startAt,
           adminTimeZone: normalized.adminTimeZone,
-          clientTimeZone: normalized.clientTimeZone
+          clientTimeZone: normalized.clientTimeZone,
+          type: normalized.type,
+          assigneeId: meeting.assigneeId,
+          contactCollection: normalized.contactCollection
         },
         actorUid: request.firebaseUser.uid,
         actorEmail: String(request.firebaseUser.email || '').toLowerCase(),
@@ -1327,13 +1487,13 @@ app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (requ
       return { kind: 'created', meeting };
     });
 
-    if (result.kind === 'missing_member') {
-      return response.status(404).json({ error: 'Client profile not found.', code: 'member_not_found' });
+    if (result.kind === 'missing_contact') {
+      return response.status(404).json({ error: 'Contact profile not found.', code: 'contact_not_found' });
     }
-    if (result.kind === 'deactivated_member') {
-      return response.status(409).json({ error: 'This client account is deactivated.', code: 'member_deactivated' });
+    if (result.kind === 'deactivated_contact') {
+      return response.status(409).json({ error: 'This client account is deactivated.', code: 'contact_deactivated' });
     }
-    if (result.kind === 'invalid_member' || result.kind === 'invalid_member_email') {
+    if (result.kind === 'invalid_contact' || result.kind === 'invalid_contact_email') {
       return response.status(400).json({ error: 'The selected record is not an eligible client.', code: result.kind });
     }
     if (result.kind === 'idempotency_conflict') {
@@ -1359,6 +1519,127 @@ app.post('/api/meetings', requireFirebaseUser, requireFirebaseAdmin, async (requ
     }
     console.error('Meeting creation failed:', error);
     return response.status(500).json({ error: 'Unable to schedule meeting.', code: 'meeting_create_failed' });
+  }
+});
+
+app.patch('/api/meetings/:meetingId', requireFirebaseUser, requireFirebaseAdmin, async (request, response) => {
+  try {
+    const meetingId = String(request.params.meetingId || '');
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(meetingId)) {
+      return response.status(400).json({ error: 'Invalid meeting ID.', code: 'invalid_meeting_id' });
+    }
+    const normalized = normalizeMeetingInput(request.body);
+    const fingerprint = meetingRequestFingerprint(normalized);
+    const meetingRef = db.collection('meetings').doc(meetingId);
+    const contactRef = db.collection(normalized.contactCollection).doc(normalized.contactId);
+    const notificationKey = `elysium-meeting-update-${meetingId}-${fingerprint.slice(0, 16)}`;
+
+    const result = await db.runTransaction(async transaction => {
+      const [meetingSnapshot, contactSnapshot] = await Promise.all([
+        transaction.get(meetingRef),
+        transaction.get(contactRef)
+      ]);
+      if (!meetingSnapshot.exists) return { kind: 'missing_meeting' };
+      const existing = meetingSnapshot.data();
+      if (existing.status !== 'scheduled') return { kind: 'invalid_status' };
+      if (!contactSnapshot.exists) return { kind: 'missing_contact' };
+      const contact = contactSnapshot.data();
+      if (normalized.contactCollection === 'members' && contact.isDeactivated === true) {
+        return { kind: 'deactivated_contact' };
+      }
+      if (normalized.contactCollection === 'members'
+        && (['admin', 'root'].includes(String(contact.role || '').toLowerCase())
+          || SUPER_ADMIN_EMAILS.has(String(contact.email || '').toLowerCase()))) {
+        return { kind: 'invalid_contact' };
+      }
+      const clientEmail = normalizedEmail(contact.email);
+      if (!clientEmail) return { kind: 'invalid_contact_email' };
+      const clientName = safePlainText(
+        contact.displayName || contact.name || [contact.firstName, contact.lastName].filter(Boolean).join(' ')
+          || contact.companyName || contact.company || 'Elysium contact',
+        'clientName', 160, { required: true }
+      );
+      const now = FieldValue.serverTimestamp();
+      transaction.update(meetingRef, {
+        userId: normalized.contactId,
+        contactId: normalized.contactId,
+        contactCollection: normalized.contactCollection,
+        clientName,
+        clientEmail,
+        clientRegion: normalized.clientRegion,
+        clientTimeZone: normalized.clientTimeZone,
+        adminTimeZone: normalized.adminTimeZone,
+        title: normalized.title,
+        notes: normalized.notes,
+        meetingUrl: normalized.meetingUrl,
+        type: normalized.type,
+        assigneeId: normalized.assigneeId || request.firebaseUser.uid,
+        localDate: normalized.date,
+        localTime: normalized.time,
+        durationMinutes: normalized.durationMinutes,
+        startAt: Timestamp.fromDate(normalized.startAt),
+        endAt: Timestamp.fromDate(normalized.endAt),
+        locale: normalized.locale || normalizedLocale(contact.preferredLanguage || contact.locale),
+        requestFingerprint: fingerprint,
+        'notifications.confirmation': {
+          status: 'pending',
+          attemptCount: 0,
+          idempotencyKey: notificationKey,
+          requestedAt: now
+        },
+        'audit.updatedByUid': request.firebaseUser.uid,
+        'audit.updatedByEmail': String(request.firebaseUser.email || '').toLowerCase(),
+        'audit.updatedAt': now,
+        updatedAt: now
+      });
+      transaction.set(db.collection('activities').doc(`meeting_updated_${meetingId}_${fingerprint.slice(0, 16)}`), {
+        memberId: normalized.contactId,
+        memberName: clientName,
+        type: 'meeting_updated',
+        payload: {
+          meetingId,
+          title: normalized.title,
+          startAt: Timestamp.fromDate(normalized.startAt),
+          type: normalized.type,
+          assigneeId: normalized.assigneeId || request.firebaseUser.uid,
+          contactCollection: normalized.contactCollection
+        },
+        actorUid: request.firebaseUser.uid,
+        actorEmail: String(request.firebaseUser.email || '').toLowerCase(),
+        actorRole: 'admin',
+        createdAt: now
+      }, { merge: true });
+      return { kind: 'updated' };
+    });
+
+    if (result.kind === 'missing_meeting') {
+      return response.status(404).json({ error: 'Meeting not found.', code: 'meeting_not_found' });
+    }
+    if (result.kind === 'invalid_status') {
+      return response.status(409).json({ error: 'Only scheduled meetings can be edited.', code: 'invalid_meeting_status' });
+    }
+    if (result.kind === 'missing_contact') {
+      return response.status(404).json({ error: 'Contact profile not found.', code: 'contact_not_found' });
+    }
+    if (result.kind === 'deactivated_contact') {
+      return response.status(409).json({ error: 'This client account is deactivated.', code: 'contact_deactivated' });
+    }
+    if (result.kind === 'invalid_contact' || result.kind === 'invalid_contact_email') {
+      return response.status(400).json({ error: 'The selected record is not an eligible client.', code: result.kind });
+    }
+
+    const emailStatus = await dispatchMeetingEmail(meetingId, 'confirmation');
+    const persisted = await meetingRef.get();
+    return response.status(200).json({
+      meeting: serializeMeeting(meetingId, persisted.data()),
+      emailStatus
+    });
+  } catch (error) {
+    if (error instanceof MeetingValidationError) {
+      return response.status(400).json({ error: error.message, code: error.code, field: error.field });
+    }
+    console.error('Meeting update failed:', error);
+    return response.status(500).json({ error: 'Unable to update meeting.', code: 'meeting_update_failed' });
   }
 });
 
@@ -2150,11 +2431,16 @@ if (require.main === module) {
 }
 
 module.exports = {
+  MeetingRangeError,
+  meetingListRange,
+  MAX_MEETING_RANGE_DAYS,
+  MEETING_PAGE_SIZE,
   app,
   MeetingValidationError,
   deliverMeetingNotification,
   dispatchMeetingEmail,
   isFirebaseAdmin,
+  platformCapabilities,
   normalizedEmail,
   normalizedLocale,
   validateIanaTimeZone,

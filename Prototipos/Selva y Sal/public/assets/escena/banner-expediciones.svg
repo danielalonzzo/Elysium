@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 420" width="1600" height="420" role="img" aria-label="Expediciones guiadas">
+  <defs>
+    <linearGradient id="bg-16m7fo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d3b34"/>
+      <stop offset="1" stop-color="#06231f"/>
+    </linearGradient>
+    <radialGradient id="glow-16m7fo" cx="0.5" cy="0.3529620588757098" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-16m7fo" x1="0" y1="0" x2="0.33" y2="1">
+      <stop offset="0" stop-color="#f4c94f"/>
+      <stop offset="1" stop-color="#f4f1e6"/>
+    </linearGradient>
+    <filter id="soft-16m7fo" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="420" fill="url(#bg-16m7fo)"/>
+  <rect width="1600" height="420" fill="url(#glow-16m7fo)"/>
+  <circle cx="1200" cy="126" r="59" fill="#f4c94f" opacity="0.85"/>
+  <path d="M-160 286 L256 147 L928 286 Z" fill="#f4f1e6" opacity="0.22"/>
+  <path d="M672 286 L992 172 L1792 286 Z" fill="#f4f1e6" opacity="0.18"/>
+  <rect x="0" y="239" width="1600" height="15" fill="#0d3b34" opacity="0.22"/>
+  <path d="M-160 286 L576 99 L1248 286 Z" fill="#f4f1e6" opacity="0.44"/>
+  <path d="M672 286 L1120 132 L1792 286 Z" fill="#f4f1e6" opacity="0.38"/>
+  <rect x="0" y="222" width="1600" height="15" fill="#0d3b34" opacity="0.17"/>
+  <path d="M-160 286 L896 37 L1568 286 Z" fill="#f4f1e6" opacity="0.66"/>
+  <path d="M672 286 L1248 82 L1792 286 Z" fill="#f4f1e6" opacity="0.58"/>
+  <rect x="0" y="201" width="1600" height="15" fill="#0d3b34" opacity="0.12"/>
+  <rect x="0" y="286" width="1600" height="134" fill="#f4f1e6" opacity="0.55"/>
+  <path d="M0 286 h1600 v134 H0 Z" fill="url(#glow-16m7fo)" opacity="0.5"/>
+  <path d="M0 302 q192 -14 400 0 t400 0 t400 0 t400 0" fill="none" stroke="#0d3b34" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 319 q192 -14 400 0 t400 0 t400 0 t400 0" fill="none" stroke="#0d3b34" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 337 q192 -14 400 0 t400 0 t400 0 t400 0" fill="none" stroke="#0d3b34" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 354 q192 -14 400 0 t400 0 t400 0 t400 0" fill="none" stroke="#0d3b34" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 372 q192 -14 400 0 t400 0 t400 0 t400 0" fill="none" stroke="#0d3b34" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 389 q192 -14 400 0 t400 0 t400 0 t400 0" fill="none" stroke="#0d3b34" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 407 q192 -14 400 0 t400 0 t400 0 t400 0" fill="none" stroke="#0d3b34" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-label="El equipo de Selva y Sal">
+  <defs>
+    <linearGradient id="bg-1at3sf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e3ebdf"/>
+      <stop offset="1" stop-color="#b6ccb2"/>
+    </linearGradient>
+    <radialGradient id="glow-1at3sf" cx="0.5" cy="0.3669596068374813" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-1at3sf" x1="0" y1="0" x2="0.62" y2="1">
+      <stop offset="0" stop-color="#3f7a4c"/>
+      <stop offset="1" stop-color="#1f3325"/>
+    </linearGradient>
+    <filter id="soft-1at3sf" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="1200" fill="url(#bg-1at3sf)"/>
+  <rect width="1200" height="1200" fill="url(#glow-1at3sf)"/>
+  <circle cx="981" cy="360" r="168" fill="#3f7a4c" opacity="0.85"/>
+  <path d="M-120 1032 L192 668 L696 1032 Z" fill="#1f3325" opacity="0.22"/>
+  <path d="M504 1032 L744 734 L1344 1032 Z" fill="#1f3325" opacity="0.18"/>
+  <rect x="0" y="908" width="1200" height="42" fill="#e3ebdf" opacity="0.22"/>
+  <path d="M-120 1032 L432 474 L936 1032 Z" fill="#1f3325" opacity="0.44"/>
+  <path d="M504 1032 L840 575 L1344 1032 Z" fill="#1f3325" opacity="0.38"/>
+  <rect x="0" y="842" width="1200" height="42" fill="#e3ebdf" opacity="0.17"/>
+  <path d="M-120 1032 L672 301 L1176 1032 Z" fill="#1f3325" opacity="0.66"/>
+  <path d="M504 1032 L936 433 L1344 1032 Z" fill="#1f3325" opacity="0.58"/>
+  <rect x="0" y="784" width="1200" height="42" fill="#e3ebdf" opacity="0.12"/>
+  <rect x="0" y="1032" width="1200" height="168" fill="#1f3325" opacity="0.7"/>
+  <path d="M-3 813 L89 1056 L-95 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M-3 874 L54 1006 L-60 1006 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M78 856 L151 1056 L4 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M78 906 L123 1011 L32 1011 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M195 895 L252 1056 L137 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M195 934 L230 1016 L159 1016 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M279 846 L357 1056 L200 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M279 898 L327 1010 L230 1010 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M363 942 L401 1056 L325 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M363 967 L386 1021 L339 1021 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M469 837 L551 1056 L387 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M469 892 L520 1009 L418 1009 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M562 945 L598 1056 L525 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M562 969 L585 1022 L539 1022 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M656 908 L708 1056 L604 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M656 943 L688 1017 L624 1017 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M746 886 L808 1056 L685 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M746 927 L784 1014 L708 1014 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M846 859 L919 1056 L773 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M846 908 L891 1011 L801 1011 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M929 882 L992 1056 L866 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M929 924 L968 1014 L890 1014 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M1001 917 L1049 1056 L953 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M1001 949 L1031 1018 L971 1018 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M1126 863 L1197 1056 L1055 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M1126 910 L1170 1012 L1082 1012 Z" fill="#b6ccb2" opacity="0.5"/>
+  <path d="M1182 938 L1221 1056 L1143 1056 Z" fill="#1f3325" opacity="0.75"/>
+  <path d="M1182 965 L1206 1021 L1158 1021 Z" fill="#b6ccb2" opacity="0.5"/>
+</svg>

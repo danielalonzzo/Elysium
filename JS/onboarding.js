@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // from the CRM: /onboarding?client=<uid>&projectId=<id>. Every document is
     // written on the client's behalf (userId = client) while currentUser stays
     // the administrator, so the audit trail records who typed it.
-    const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+    const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
     const requestedClientId = (() => {
         const value = new URLSearchParams(window.location.search).get('client');
         return value && value.length <= 128 ? value : null;

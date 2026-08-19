@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="Gorras">
+  <defs>
+    <linearGradient id="bg-iy7e9" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e7ecd9"/>
+      <stop offset="1" stop-color="#c2cfa6"/>
+    </linearGradient>
+    <radialGradient id="glow-iy7e9" cx="0.5" cy="0.3559934823960066" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-iy7e9" x1="0" y1="0" x2="0.22" y2="1">
+      <stop offset="0" stop-color="#6d8a3a"/>
+      <stop offset="1" stop-color="#2c3a1c"/>
+    </linearGradient>
+    <filter id="soft-iy7e9" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" fill="url(#bg-iy7e9)"/>
+  <rect width="900" height="900" fill="url(#glow-iy7e9)"/>
+  <circle cx="616" cy="270" r="126" fill="#6d8a3a" opacity="0.85"/>
+  <path d="M-90 774 L144 482 L522 774 Z" fill="#2c3a1c" opacity="0.22"/>
+  <path d="M378 774 L558 534 L1008 774 Z" fill="#2c3a1c" opacity="0.18"/>
+  <rect x="0" y="675" width="900" height="32" fill="#e7ecd9" opacity="0.22"/>
+  <path d="M-90 774 L324 360 L702 774 Z" fill="#2c3a1c" opacity="0.44"/>
+  <path d="M378 774 L630 435 L1008 774 Z" fill="#2c3a1c" opacity="0.38"/>
+  <rect x="0" y="633" width="900" height="32" fill="#e7ecd9" opacity="0.17"/>
+  <path d="M-90 774 L504 229 L882 774 Z" fill="#2c3a1c" opacity="0.66"/>
+  <path d="M378 774 L702 327 L1008 774 Z" fill="#2c3a1c" opacity="0.58"/>
+  <rect x="0" y="589" width="900" height="32" fill="#e7ecd9" opacity="0.12"/>
+  <rect x="0" y="774" width="900" height="126" fill="#2c3a1c" opacity="0.7"/>
+  <path d="M17 625 L80 792 L-46 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M17 666 L56 756 L-22 756 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M67 648 L119 792 L14 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M67 684 L99 759 L34 759 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M192 654 L243 792 L142 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M192 688 L223 760 L161 760 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M251 635 L309 792 L192 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M251 674 L287 757 L214 757 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M382 694 L416 792 L348 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M382 716 L403 764 L361 764 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M443 649 L495 792 L390 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M443 684 L475 759 L410 759 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M539 647 L593 792 L486 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M539 682 L572 759 L506 759 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M611 637 L668 792 L553 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M611 675 L646 758 L575 758 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M734 648 L787 792 L681 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M734 683 L767 759 L701 759 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M803 706 L832 792 L775 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M803 725 L821 766 L786 766 Z" fill="#c2cfa6" opacity="0.5"/>
+  <path d="M916 650 L968 792 L864 792 Z" fill="#2c3a1c" opacity="0.75"/>
+  <path d="M916 685 L948 759 L884 759 Z" fill="#c2cfa6" opacity="0.5"/>
+</svg>

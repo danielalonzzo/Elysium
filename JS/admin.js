@@ -3,7 +3,6 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { 
     collection,
     getDocs,
-    getCountFromServer,
     doc,
     getDoc,
     query,
@@ -39,18 +38,11 @@ import {
     CURRENCY_SYMBOLS
 } from './elysium-domain.js';
 
-const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
 
 /**
- * Quién es administrador. La respuesta la da el custom claim `admin`, que es lo
- * que ya comprueba el backend (`isFirebaseAdmin`) y lo que comprueban ahora las
- * reglas de Firestore y de Storage.
- *
- * Mientras dure la migración se acepta también el correo histórico. La
- * comparación va en minúsculas: la de antes era sensible a mayúsculas aquí y no
- * en `profiles.js`, así que las dos páginas podían discrepar sobre la misma
- * cuenta. Retira esta segunda mitad cuando el claim esté puesto — ver la nota
- * de `firestore.rules`.
+ * El panel operativo incluye finanzas, correo, onboarding y acciones de
+ * cuenta; conserva por ello el permiso histórico de superadministrador.
  */
 async function isAdminUser(user) {
     if (!user) return false;
@@ -106,7 +98,10 @@ const logger = {
 // Holds all loaded clients in memory so search/sort never re-hits Firestore.
 let _allClients   = [];
 let _sortAZ       = true;    // true = A→Z, false = newest first
-let _activeFilter = 'all';   // pipeline stage filter on clients tab
+let _activeFilter = 'all';   // lifecycle filter on the unified directory
+let _clientPage = 1;
+let _clientRenderCandidates = [];
+const CLIENT_PAGE_SIZE = 24;
 let _draftUnsub   = null;    // live listener for the guided onboarding session
 let _detailLoadVersion = 0;  // prevents a slow client request replacing a newer one
 let _detailRenderVersion = 0; // prevents stale async detail renderers writing into a newer view
@@ -115,28 +110,197 @@ let _agendaFilter = 'upcoming';
 let _agendaLoadVersion = 0;
 let _profileReturnTab = 'clients'; // section to go back to when the profile closes
 let _profileTab = 'summary';       // active tab inside the client profile
+let _opportunities = [];
+let _crmActivities = [];
+let _crmUsers = [];
+let _crmFiles = [];
+let _pipelineMode = 'commercial';
+let _reportDays = 30;
+let _reportRows = [];
+let _selectedContactId = null;
+let _editingMeetingId = null;
+let commercialPerformanceChartInstance = null;
+let _platformCapabilities = {
+    meetings: { create: true, update: false, cancel: true, notifications: true },
+    files: { provider: 'cloudflare-r2', upload: false, download: false }
+};
 
 const PORTUGAL_TIME_ZONE = 'Europe/Lisbon';
-const ADMIN_PREVIEW = ['localhost', '127.0.0.1'].includes(location.hostname)
-    ? new URLSearchParams(location.search).get('adminPreview')
-    : null;
-const ADMIN_AGENDA_PREVIEW = ADMIN_PREVIEW === 'agenda';
-const ADMIN_MAIL_PREVIEW = ADMIN_PREVIEW === 'mail';
+// Ventana de la agenda. La suma tiene que caber en MAX_MEETING_RANGE_DAYS del
+// servicio (760); con 365+365 queda margen y la pestaña «Past» tiene histórico.
+const AGENDA_HISTORY_DAYS = 365;
+const AGENDA_FUTURE_DAYS = 365;
+const CRM_TENANT_ID = 'elysiumdr-eu';
+const CONTACT_SOURCE_PRIORITY = { contacts: 1, prospects: 2, members: 3 };
+const OPPORTUNITY_STAGES = {
+    new:         { label: 'New',         cls: 'stage-new',         probability: 10 },
+    contacted:   { label: 'Contacted',   cls: 'stage-contacted',   probability: 30 },
+    negotiation: { label: 'Negotiation', cls: 'stage-negotiation', probability: 65 },
+    won:         { label: 'Won',         cls: 'stage-won',         probability: 100 },
+    lost:        { label: 'Lost',        cls: 'stage-lost',        probability: 0 }
+};
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+function crmDate(value) {
+    if (!value) return null;
+    if (typeof value.toDate === 'function') return value.toDate();
+    if (Number.isFinite(value.seconds)) return new Date(value.seconds * 1000);
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function contactLifecycle(contact) {
+    if (contact._sourceCollection === 'members') return contact.isDeactivated === true ? 'inactive' : 'client';
+    if (contact._sourceCollection === 'prospects') return 'prospect';
+    if (contact.archived === true || contact.status === 'inactive') return 'inactive';
+    if (contact.lifecycleStage === 'customer' || contact.status === 'customer') return 'client';
+    return 'lead';
+}
+
+function contactSourceLabel(contact) {
+    if (contact._sourceCollection === 'members') return 'Client portal';
+    if (contact._sourceCollection === 'prospects') return 'Project request';
+    if (contact.submittedAt || contact.recordType === 'inquiry') return 'Website inquiry';
+    return 'CRM';
+}
+
+function normalizeContactRecord(snapshot, sourceCollection) {
+    const data = snapshot.data();
+    const name = data.displayName || data.fullName || data.name
+        || [data.firstName, data.lastName].filter(Boolean).join(' ')
+        || data.email || 'Unnamed contact';
+    const company = data.companyName || data.company || '';
+    const createdAt = data.createdAt || data.submittedAt || data.lastUpdated || null;
+    const normalized = {
+        ...data,
+        id: snapshot.id,
+        name,
+        displayName: name,
+        company,
+        email: String(data.email || '').trim().toLowerCase(),
+        phone: data.phone || '',
+        tags: Array.isArray(data.tags) ? data.tags.filter(tag => typeof tag === 'string') : [],
+        createdAt,
+        updatedAt: data.updatedAt || data.lastUpdated || createdAt,
+        _sourceCollection: sourceCollection,
+        _linkedRecords: [{ id: snapshot.id, sourceCollection, data }]
+    };
+    if (sourceCollection === 'prospects') normalized.role = 'prospect';
+    if (sourceCollection === 'contacts' && !normalized.role) {
+        normalized.role = data.submittedAt || data.recordType === 'inquiry' ? 'inquiry' : 'contact';
+    }
+    normalized.lifecycle = contactLifecycle(normalized);
+    normalized.sourceLabel = contactSourceLabel(normalized);
+    return normalized;
+}
+
 /**
- * Classify a partner document into one of 4 pipeline stages.
- * Prospect   → registered, onboarding not complete
- * Onboarding → onboarding complete, no projectUrl
- * Active     → has projectUrl assigned
- * Delivered  → has deliveredAt field set
+ * Une la consulta web, el prospecto y la cuenta cliente por correo. El miembro
+ * registrado es el registro canónico porque contiene proyectos, facturación y
+ * onboarding; el resto conserva su ID en `_linkedRecords` para no perder nada.
  */
-function getPartnerStage(data) {
-    const projects = Array.isArray(data.projects) ? data.projects : [];
-    if (data.deliveredAt || projects.some(project => project?.deliveredAt)) return 'delivered';
-    if (data.projectUrl || projects.some(project => project?.projectUrl)) return 'active';
-    if (data.onboardingCompleted || projects.some(project => project?.onboardingCompleted)) return 'onboarding';
-    return 'prospect';
+function mergeUnifiedContacts(records) {
+    const groups = new Map();
+    records.forEach(record => {
+        const key = record.email ? `email:${record.email}` : `${record._sourceCollection}:${record.id}`;
+        const group = groups.get(key) || [];
+        group.push(record);
+        groups.set(key, group);
+    });
+
+    return [...groups.values()].map(group => {
+        const sorted = [...group].sort((a, b) => (
+            (CONTACT_SOURCE_PRIORITY[b._sourceCollection] || 0)
+            - (CONTACT_SOURCE_PRIORITY[a._sourceCollection] || 0)
+        ));
+        const canonical = { ...sorted[0] };
+        canonical._linkedRecords = sorted.flatMap(item => item._linkedRecords || []);
+        canonical.tags = [...new Set(sorted.flatMap(item => item.tags || []))];
+        for (const field of ['phone', 'company', 'jobTitle', 'service', 'message', 'lang', 'country', 'region']) {
+            if (!canonical[field]) canonical[field] = sorted.find(item => item[field])?.[field] || '';
+        }
+        canonical.lifecycle = contactLifecycle(canonical);
+        canonical.sourceLabel = sorted.map(contactSourceLabel).filter((value, index, all) => all.indexOf(value) === index).join(' · ');
+        return canonical;
+    }).sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' }));
+}
+
+function findUnifiedContactById(contactId) {
+    return _allClients.find(contact => contact.id === contactId
+        || contact._linkedRecords?.some(record => record.id === contactId)) || null;
+}
+
+async function loadUnifiedContactData() {
+    const [membersResult, prospectsResult, contactsResult] = await Promise.allSettled([
+        getDocs(query(collection(db, 'members'), limit(1000))),
+        getDocs(query(collection(db, 'prospects'), limit(1000))),
+        getDocs(query(collection(db, 'contacts'), limit(1000)))
+    ]);
+    const records = [];
+    if (membersResult.status === 'fulfilled') {
+        membersResult.value.docs.forEach(item => {
+            const data = item.data();
+            if (data.email === SUPER_ADMIN_EMAIL || ['admin', 'root'].includes(String(data.role || '').toLowerCase())) return;
+            records.push(normalizeContactRecord(item, 'members'));
+        });
+    } else logger.warn('Members could not be loaded.', membersResult.reason);
+    if (prospectsResult.status === 'fulfilled') {
+        prospectsResult.value.docs.forEach(item => records.push(normalizeContactRecord(item, 'prospects')));
+    } else logger.warn('Prospects could not be loaded.', prospectsResult.reason);
+    if (contactsResult.status === 'fulfilled') {
+        contactsResult.value.docs.forEach(item => records.push(normalizeContactRecord(item, 'contacts')));
+    } else logger.warn('Contacts could not be loaded.', contactsResult.reason);
+
+    _allClients = mergeUnifiedContacts(records);
+    return _allClients;
+}
+
+async function loadCrmUsers() {
+    const current = auth.currentUser;
+    const fallback = current ? {
+        id: current.uid,
+        displayName: current.displayName || current.email?.split('@')[0] || 'Elysium administrator',
+        email: current.email || '',
+        role: 'admin'
+    } : null;
+    try {
+        const snap = await getDocs(query(
+            collection(db, 'users'),
+            where('tenantId', '==', CRM_TENANT_ID),
+            where('status', '==', 'active'),
+            limit(100)
+        ));
+        const byId = new Map(snap.docs.map(item => [item.id, { id: item.id, ...item.data() }]));
+        if (fallback && !byId.has(fallback.id)) byId.set(fallback.id, fallback);
+        _crmUsers = [...byId.values()].sort((a, b) => String(a.displayName || a.email || '').localeCompare(String(b.displayName || b.email || '')));
+    } catch (error) {
+        logger.warn('CRM users could not be loaded; using the current administrator.', error);
+        _crmUsers = fallback ? [fallback] : [];
+    }
+    renderAssigneeOptions();
+    return _crmUsers;
+}
+
+function renderAssigneeOptions() {
+    const select = document.getElementById('meeting-assignee');
+    if (!select) return;
+    const selected = select.value || auth.currentUser?.uid || '';
+    select.innerHTML = _crmUsers.map(user => (
+        `<option value="${esc(user.id)}">${esc(user.displayName || user.email || 'Elysium team')}</option>`
+    )).join('');
+    if (_crmUsers.some(user => user.id === selected)) select.value = selected;
+    else if (auth.currentUser) select.value = auth.currentUser.uid;
+}
+
+function contactSelectionValue(contact) {
+    return `${contact._sourceCollection}:${contact.id}`;
+}
+
+function contactFromSelection(value) {
+    const [sourceCollection, ...idParts] = String(value || '').split(':');
+    const id = idParts.join(':');
+    return _allClients.find(contact => contact._sourceCollection === sourceCollection && contact.id === id)
+        || findUnifiedContactById(id);
 }
 
 /** Escape a string for safe interpolation into innerHTML */
@@ -178,43 +342,142 @@ function stripUndefined(value) {
     return clean;
 }
 
+/*  Todo lo que convierte una marca de tiempo pasa por `crmDate()`.
+    Habia siete sitios repitiendo `value.seconds ? new Date(value.seconds*1000)
+    : new Date(value)`, que ignora los Timestamp que solo exponen `toDate()` y
+    no protege contra fechas invalidas: la agenda mezcla Timestamp de Firestore
+    con cadenas ISO de la API, asi que el mismo dato se pintaba distinto segun
+    de donde viniera.                                                        */
+
 /** Firestore timestamp or date → the YYYY-MM-DD an <input type="date"> needs. */
 function adminDateInputValue(value) {
-    if (!value) return '';
-    const date = value.seconds ? new Date(value.seconds * 1000) : new Date(value);
-    if (Number.isNaN(date.getTime())) return '';
+    const date = crmDate(value);
+    if (!date) return '';
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 function formatAdminDate(value) {
-    if (!value) return '—';
-    const date = value.seconds ? new Date(value.seconds * 1000) : new Date(value);
-    if (Number.isNaN(date.getTime())) return '—';
+    const date = crmDate(value);
+    if (!date) return '—';
     const locale = currentLang === 'es' ? 'es-CR' : currentLang === 'pt' ? 'pt-PT' : 'en-GB';
     return date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function formatActivitySummary(type, payload = {}, memberName = '') {
+    const name = memberName || 'Contact';
+    switch (type) {
+        case 'payment_recorded':
+            return `Payment recorded for ${name}`;
+        case 'stage_changed':
+            return `Stage changed to ${payload.toStage || 'new stage'} for ${name}`;
+        case 'prospect_promoted':
+            return `Prospect promoted to partner: ${name}`;
+        case 'project_url_set':
+            return `Project URL assigned to ${name}`;
+        case 'financials_updated':
+            return `Financial agreement updated for ${name}`;
+        case 'subscription_updated':
+            return `Subscription status updated (${payload.status || 'active'}) for ${name}`;
+        case 'subscription_assigned':
+            return `License assigned to ${name}`;
+        case 'report_added':
+            return `Report "${payload.title || 'Document'}" published for ${name}`;
+        case 'report_removed':
+            return `Report "${payload.title || 'Document'}" removed from ${name}`;
+        case 'notes_updated':
+            return `Notes updated for ${name}`;
+        case 'account_suspended':
+            return `Account suspended for ${name}`;
+        case 'account_reactivated':
+            return `Account reactivated for ${name}`;
+        case 'note_added':
+            return `Internal note on ${name}`;
+        default:
+            return `${String(type || 'activity').replaceAll('_', ' ')}: ${name}`;
+    }
+}
+
 /**
- * Append an event to the immutable activity log (fire-and-forget).
- * Never blocks or fails the operation that triggered it.
+ * `crmIsShortText` en `firestore.rules` rechaza los controles ASCII salvo tab,
+ * LF y CR. Un valor copiado de un PDF o de Word los arrastra sin que se vean, y
+ * la escritura entera se deniega. Se limpian aquí, no en la regla: la regla es
+ * la última defensa, no el saneador.
+ */
+function crmText(value, maxLength) {
+    return String(value ?? '')
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+        .slice(0, maxLength);
+}
+
+/**
+ * Divisa de trabajo de un contacto.
+ *
+ * OJO: el campo NO se llama `currency`. Un contacto nunca ha tenido esa clave —
+ * la preferencia del cliente vive en `preferredCurrency` (la fija el admin en
+ * la ficha) y el acuerdo concreto en `financials.currency`. Leer `.currency`
+ * devuelve siempre `undefined` y deja todo en euros sin avisar.
+ *
+ * `firestore.rules` exige `^[A-Z]{3}$`, así que se valida antes de escribir:
+ * un valor sucio en el documento del cliente no debe tumbar la oportunidad.
+ */
+function contactCurrency(contact) {
+    const candidates = [
+        contact?.preferredCurrency,
+        contact?.financials?.currency,
+        contact?.subscription?.currency
+    ];
+    const match = candidates.find(value => /^[A-Z]{3}$/.test(String(value || '')));
+    return match || 'EUR';
+}
+
+/** Las reglas acotan `payload` a 30 claves; se recorta antes de escribir. */
+function crmPayload(payload) {
+    const clean = stripUndefined(payload || {});
+    const entries = Object.entries(clean).slice(0, 30);
+    return Object.fromEntries(entries);
+}
+
+/**
+ * Añade un evento al registro inmutable de auditoría (fire-and-forget).
+ * Nunca bloquea ni hace fallar la operación que lo dispara.
+ *
+ * La forma tiene que ser EXACTAMENTE la que admite `crmIsValidActivity` en
+ * `firestore.rules`: su `hasOnly` no incluye `memberId` ni `memberName`, así
+ * que basta con arrastrarlos para que la regla tenant-aware deniegue y la
+ * escritura dependa de `isSuperAdmin()`. El nombre del contacto no se pierde:
+ * `formatActivitySummary` ya lo incrusta en `summary`, y el histórico legacy
+ * se sigue leyendo por `memberId` en `loadContactDrawerData`.
  */
 function logActivity(memberId, memberName, type, payload = {}) {
+    const actorUid = auth.currentUser?.uid;
+    // La regla exige `actorUid == request.auth.uid`; sin sesión no hay evento
+    // que escribir y un `null` sería un rechazo garantizado.
+    if (!actorUid) return Promise.resolve();
+    const entityId = crmText(memberId || actorUid, 128);
+    const summary = crmText(formatActivitySummary(type, payload, memberName), 240)
+        || crmText(type, 240) || 'CRM activity';
     return addDoc(collection(db, 'activities'), {
-        memberId,
-        memberName: memberName || null,
-        type,
-        payload,
-        actorUid:   auth.currentUser?.uid   || null,
-        actorEmail: auth.currentUser?.email || null,
+        schemaVersion: 1,
+        tenantId: CRM_TENANT_ID,
+        entityType: 'contact',
+        entityId,
+        contactId: memberId ? crmText(memberId, 128) : null,
+        type: crmText(type, 64) || 'activity',
+        summary,
+        body: crmText(typeof payload?.notes === 'string' ? payload.notes : '', 5000),
+        payload: crmPayload(payload),
+        actorUid,
+        actorEmail: crmText(auth.currentUser?.email || '', 254),
         actorRole:  'admin',
+        occurredAt: serverTimestamp(),
         createdAt:  serverTimestamp()
-    }).catch(err => logger.warn('logActivity failed:', err));
+    }).catch(err => logger.error('logActivity failed:', err));
 }
 
 /** Human-readable relative time from Firestore timestamp */
 function timeAgo(ts) {
-    if (!ts) return '';
-    const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+    const d = crmDate(ts);
+    if (!d) return '';
     const diff = Date.now() - d.getTime();
     const mins  = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
@@ -530,6 +793,46 @@ async function platformRequest(path, { method = 'POST', body = null, headers = {
     }
 }
 
+function updatePlatformStatus(state, label) {
+    const status = document.getElementById('crm-platform-status');
+    if (!status) return;
+    status.classList.toggle('is-partial', state === 'partial');
+    status.classList.toggle('is-offline', state === 'offline');
+    const text = status.querySelector('span');
+    if (text) text.textContent = label;
+}
+
+/**
+ * La interfaz pregunta al backend qué acciones existen de verdad. El
+ * fallback describe la revisión actualmente publicada y evita controles que
+ * terminarían en un 404 mientras se despliega la siguiente revisión.
+ */
+async function loadPlatformCapabilities() {
+    try {
+        const capabilities = await platformRequest('/api/capabilities', { method: 'GET' });
+        _platformCapabilities = {
+            meetings: { ..._platformCapabilities.meetings, ...(capabilities.meetings || {}) },
+            files: { ..._platformCapabilities.files, ...(capabilities.files || {}) }
+        };
+        const fullyReady = _platformCapabilities.files.upload && _platformCapabilities.files.download;
+        updatePlatformStatus(fullyReady ? 'ready' : 'partial', fullyReady
+            ? 'All systems operational'
+            : 'Core connected · Cloudflare files pending');
+    } catch (error) {
+        if (error.code === '404') {
+            updatePlatformStatus('partial', 'Core connected · update pending');
+            return _platformCapabilities;
+        }
+        _platformCapabilities = {
+            meetings: { create: false, update: false, cancel: false, notifications: false },
+            files: { provider: 'cloudflare-r2', upload: false, download: false }
+        };
+        updatePlatformStatus('offline', 'Platform service unavailable');
+        logger.warn('Platform capabilities could not be loaded.', error);
+    }
+    return _platformCapabilities;
+}
+
 /** Shows or clears an inline `.portal-alert`, instead of an alert() dialog. */
 function setInlineAlert(elementId, message, kind = 'is-error') {
     const element = document.getElementById(elementId);
@@ -541,23 +844,14 @@ function setInlineAlert(elementId, message, kind = 'is-error') {
 
 const translations = {
     en: {
-        nav_overview: "Overview",
-        nav_clients: "Clients",
+        nav_overview: "Dashboard",
         nav_licenses: "Licenses",
         logout: "Logout",
         welcome: "Welcome back, Super Admin.",
-        total_clients: "Total Clients",
-        total_licenses: "Total Licenses",
-        available_licenses: "Available Licenses",
-        used_licenses: "Used Licenses",
-        clients_title: "Clients",
-        clients_desc: "Manage and view all registered partners.",
         licenses_title: "Licenses",
         licenses_desc: "Licenses assigned by active subscriptions, whether paid online or recorded manually.",
         table_code: "Code",
         table_status: "Status",
-        table_assigned: "Assigned To",
-        table_used: "Used At",
         table_client: "Client",
         table_plan: "Plan",
         table_origin: "Origin",
@@ -595,7 +889,6 @@ const translations = {
         choose_file: "Choose File...",
         upload_btn: "Upload",
         uploading: "Uploading...",
-        error_upload: "Error uploading report:",
         error_title_file: "Title and File are required.",
         onboarding_empty: "The user has not completed the onboarding for this project.",
         step1_title: "1. Primary Contact Info",
@@ -678,7 +971,6 @@ const translations = {
         pdf_briefing: "Partner Briefing",
         pdf_confidential: "Confidential",
         pdf_footer_text: "© 2024 Elysium λ Development — Confidential Internal Document",
-        project_link: "Project Link",
         save_link: "Save Link",
         download_pdf: "Download PDF",
         back_to_list: "Back",
@@ -763,37 +1055,16 @@ const translations = {
             sendError: "The message could not be sent.",
             serviceDown: "The Elysium platform service is not reachable, so no mail can be sent."
         },
-        nav_contacts: "Inquiries",
-        contacts_title: "Inquiries",
-        contacts_desc: "Review contact form submissions.",
-        table_date: "Date",
-        table_name: "Name",
-        table_email: "Email",
-        table_phone: "Phone",
-        table_service: "Interest",
-        table_message: "Message",
-        contacts_truncated: n => `Showing the ${n} most recent inquiries. Older ones remain in Firestore.`,
-        flagSrc: "Images/Banderas/union-europea.png",
-        flagAlt: "EU"
     },
     es: {
-        nav_overview: "Resumen",
-        nav_clients: "Clientes",
+        nav_overview: "Tablero",
         nav_licenses: "Licencias",
         logout: "Cerrar Sesión",
         welcome: "Bienvenido de nuevo, Súper Admin.",
-        total_clients: "Total de Clientes",
-        total_licenses: "Total de Licencias",
-        available_licenses: "Licencias Disponibles",
-        used_licenses: "Licencias Usadas",
-        clients_title: "Clientes",
-        clients_desc: "Administra y visualiza todos los socios registrados.",
         licenses_title: "Licencias",
         licenses_desc: "Licencias asignadas por suscripciones, tanto por pago web como por registro manual.",
         table_code: "Código",
         table_status: "Estado",
-        table_assigned: "Asignado a",
-        table_used: "Usado en",
         table_client: "Cliente",
         table_plan: "Plan",
         table_origin: "Origen",
@@ -832,7 +1103,6 @@ const translations = {
         choose_file: "Elegir Archivo...",
         upload_btn: "Subir",
         uploading: "Subiendo...",
-        error_upload: "Error al subir reporte:",
         error_title_file: "Título y Archivo son obligatorios.",
         onboarding_empty: "El usuario no ha completado el onboarding para este proyecto.",
         step1_title: "1. Información de Contacto Principal",
@@ -915,7 +1185,6 @@ const translations = {
         pdf_briefing: "Resumen del Socio",
         pdf_confidential: "Confidencial",
         pdf_footer_text: "© 2024 Elysium λ Development — Documento Interno Confidencial",
-        project_link: "Enlace del Proyecto",
         save_link: "Guardar Enlace",
         download_pdf: "Descargar PDF",
         back_to_list: "Volver",
@@ -1000,37 +1269,16 @@ const translations = {
             sendError: "No se pudo enviar el mensaje.",
             serviceDown: "El servicio de plataforma de Elysium no responde, así que no puede salir ningún correo."
         },
-        nav_contacts: "Consultas",
-        contacts_title: "Consultas",
-        contacts_desc: "Revisa los formularios de contacto recibidos.",
-        table_date: "Fecha",
-        table_name: "Nombre",
-        table_email: "Correo",
-        table_phone: "Teléfono",
-        table_service: "Interés",
-        table_message: "Mensaje",
-        contacts_truncated: n => `Se muestran las ${n} consultas más recientes. Las anteriores siguen en Firestore.`,
-        flagSrc: "Images/Banderas/costa-rica.png",
-        flagAlt: "CR"
     },
     pt: {
-        nav_overview: "Visão Geral",
-        nav_clients: "Clientes",
+        nav_overview: "Painel",
         nav_licenses: "Licenças",
         logout: "Sair",
         welcome: "Bem-vindo de volta, Super Admin.",
-        total_clients: "Total de Clientes",
-        total_licenses: "Total de Licenças",
-        available_licenses: "Licenças Disponíveis",
-        used_licenses: "Licenças Usadas",
-        clients_title: "Clientes",
-        clients_desc: "Gerencie e visualize todos os parceiros registrados.",
         licenses_title: "Licenças",
         licenses_desc: "Licenças atribuídas por subscrições, por pagamento online ou registo manual.",
         table_code: "Código",
         table_status: "Status",
-        table_assigned: "Atribuído a",
-        table_used: "Usado em",
         table_client: "Cliente",
         table_plan: "Plano",
         table_origin: "Origem",
@@ -1068,7 +1316,6 @@ const translations = {
         choose_file: "Escolher Arquivo...",
         upload_btn: "Enviar",
         uploading: "Enviando...",
-        error_upload: "Erro ao enviar relatório:",
         error_title_file: "Título e Arquivo são obrigatórios.",
         onboarding_empty: "O utilizador não concluiu o onboarding para este projeto.",
         step1_title: "1. Informação de Contacto Principal",
@@ -1151,7 +1398,6 @@ const translations = {
         pdf_briefing: "Resumo do Parceiro",
         pdf_confidential: "Confidencial",
         pdf_footer_text: "© 2024 Elysium λ Development — Documento Interno Confidencial",
-        project_link: "Link do Projecto",
         save_link: "Salvar Link",
         download_pdf: "Baixar PDF",
         back_to_list: "Voltar",
@@ -1236,37 +1482,24 @@ const translations = {
             sendError: "Não foi possível enviar a mensagem.",
             serviceDown: "O serviço de plataforma da Elysium não responde, por isso não pode sair correio."
         },
-        nav_contacts: "Consultas",
-        contacts_title: "Consultas",
-        contacts_desc: "Reveja as submissões de formulários de contacto.",
-        table_date: "Data",
-        table_name: "Nome",
-        table_email: "E-mail",
-        table_phone: "Telefone",
-        table_service: "Interesse",
-        table_message: "Mensagem",
-        contacts_truncated: n => `A mostrar as ${n} consultas mais recentes. As anteriores continuam no Firestore.`,
-        flagSrc: "Images/Banderas/portugal.png",
-        flagAlt: "PT"
     }
 };
 
 const AGENDA_COPY = {
     en: {
-        nav: 'Agenda', title: 'Agenda', description: 'Schedule and monitor client meetings across time zones.',
-        formEyebrow: 'New appointment', formTitle: 'Schedule a client meeting', listEyebrow: 'Client calendar', listTitle: 'Meetings',
+        nav: 'Agenda', title: 'Agenda', description: 'Schedule and monitor client meetings and calls across time zones.',
+        formEyebrow: 'New activity', formTitle: 'Schedule a meeting or call', listEyebrow: 'Client calendar', listTitle: 'Activities',
         client: 'Client', clientPlaceholder: 'Select a client…', meetingTitle: 'Meeting title', titlePlaceholder: 'Project review',
         date: 'Date', time: 'Time', duration: 'Duration', adminZone: 'Admin time zone (IANA)', clientZone: 'Client time zone (IANA)', clientRegion: 'Client region / country', regionPlaceholder: 'Costa Rica',
         link: 'HTTPS meeting link', notes: 'Notes for the client', notesPlaceholder: 'These notes are included in the confirmation email.',
-        create: 'Create meeting', creating: 'Creating…', refresh: 'Refresh', upcoming: 'Upcoming', past: 'Past', cancelled: 'Cancelled', all: 'All',
-        loadError: 'Meetings could not be loaded.', empty: 'No meetings in this view.',
+        create: 'Create activity', creating: 'Creating…', refresh: 'Refresh', upcoming: 'Upcoming', past: 'Past', cancelled: 'Cancelled', all: 'All',
+        loadError: 'Activities could not be loaded.', empty: 'No activities in this view.',
         invalidZone: 'Enter valid IANA time zones.', invalidLink: 'The meeting link must use HTTPS.', invalidDate: 'Choose a valid future date and time.',
-        required: 'Complete every required field.', createdOk: 'Meeting saved.',
-        createFailed: 'The meeting could not be saved.', cancelFailed: 'The meeting could not be cancelled.',
+        required: 'Complete every required field.', createdOk: 'Activity saved.',
+        createFailed: 'The activity could not be saved.', cancelFailed: 'The activity could not be cancelled.',
         apiMissing: 'The Elysium platform service is not reachable, so no confirmation email can be sent. Deploy elysium-billing at /api and try again.',
         apiTimeout: 'The platform service did not answer. The meeting may not have been saved — reload the agenda before trying again.',
         emailMissing: 'SMTP email delivery is not configured on the service (SMTP_HOST, SMTP_USER, SMTP_PASSWORD and MEETING_FROM_EMAIL).',
-        emailNotSent: 'The confirmation email could not be sent — tell the client yourself.',
         clientNoEmail: 'This client has no email address on file, so nothing can be sent to them.',
         duplicate: 'A different meeting was already booked with this identifier. Change the time or the duration.',
         cancel: 'Cancel', cancelling: 'Cancelling…', cancelConfirm: 'Cancel this meeting?',
@@ -1274,22 +1507,21 @@ const AGENDA_COPY = {
         join: 'Open meeting', portugalTime: 'Portugal time', clientTime: 'Client time', durationShort: 'min',
         downloadIcs: 'Calendar file', notifyClient: 'Email the client',
         mailSubject: 'Meeting', mailCancelledSubject: 'Cancelled meeting',
-        preview: 'Local QA fixture. No real meeting or email actions are performed.',
         submissionsTitle: 'Onboarding deliveries', submissionsHelp: 'Complete project history; select any delivery to inspect it.',
         submission: 'Delivery', submissionsCount: count => `${count} ${count === 1 ? 'delivery' : 'deliveries'}`, formVersion: 'Form v',
         accountOnboarding: 'Account onboarding', archivedProject: 'Archived project'
     },
     es: {
-        nav: 'Agenda', title: 'Agenda', description: 'Programa y supervisa reuniones con clientes entre zonas horarias.',
-        formEyebrow: 'Nueva cita', formTitle: 'Programar reunión con cliente', listEyebrow: 'Calendario de clientes', listTitle: 'Reuniones',
+        nav: 'Agenda', title: 'Agenda', description: 'Programa y supervisa reuniones y llamadas con clientes entre zonas horarias.',
+        formEyebrow: 'Nueva actividad', formTitle: 'Programar reunión o llamada', listEyebrow: 'Calendario de clientes', listTitle: 'Actividades',
         client: 'Cliente', clientPlaceholder: 'Selecciona un cliente…', meetingTitle: 'Título de la reunión', titlePlaceholder: 'Revisión del proyecto',
         date: 'Fecha', time: 'Hora', duration: 'Duración', adminZone: 'Zona del admin (IANA)', clientZone: 'Zona del cliente (IANA)', clientRegion: 'Región o país del cliente', regionPlaceholder: 'Costa Rica',
         link: 'Enlace HTTPS de la reunión', notes: 'Notas para el cliente', notesPlaceholder: 'Estas notas se incluirán en el correo de confirmación.',
-        create: 'Crear reunión', creating: 'Creando…', refresh: 'Actualizar', upcoming: 'Próximas', past: 'Pasadas', cancelled: 'Canceladas', all: 'Todas',
-        loadError: 'No se pudieron cargar las reuniones.', empty: 'No hay reuniones en esta vista.',
+        create: 'Crear actividad', creating: 'Creando…', refresh: 'Actualizar', upcoming: 'Próximas', past: 'Pasadas', cancelled: 'Canceladas', all: 'Todas',
+        loadError: 'No se pudieron cargar las actividades.', empty: 'No hay actividades en esta vista.',
         invalidZone: 'Introduce zonas horarias IANA válidas.', invalidLink: 'El enlace de la reunión debe usar HTTPS.', invalidDate: 'Elige una fecha y hora futuras válidas.',
-        required: 'Completa todos los campos obligatorios.', createdOk: 'Reunión guardada.',
-        createFailed: 'No se pudo guardar la reunión.', cancelFailed: 'No se pudo cancelar la reunión.',
+        required: 'Completa todos los campos obligatorios.', createdOk: 'Actividad guardada.',
+        createFailed: 'No se pudo guardar la actividad.', cancelFailed: 'No se pudo cancelar la actividad.',
         apiMissing: 'No se alcanza el servicio de Elysium, así que no puede salir el correo de confirmación. Despliega elysium-billing en /api y vuelve a intentarlo.',
         apiTimeout: 'El servicio no ha respondido. Puede que la reunión no se haya guardado — recarga la agenda antes de repetir.',
         emailMissing: 'El envío SMTP no está configurado en el servicio (SMTP_HOST, SMTP_USER, SMTP_PASSWORD y MEETING_FROM_EMAIL).',
@@ -1297,26 +1529,24 @@ const AGENDA_COPY = {
         clientNoEmail: 'Este cliente no tiene correo registrado, así que no se le puede enviar nada.',
         duplicate: 'Ya había otra reunión con este identificador. Cambia la hora o la duración.',
         cancel: 'Cancelar', cancelling: 'Cancelando…', cancelConfirm: '¿Cancelar esta reunión?',
-        cancelledOk: 'Reunión cancelada. Avisa al cliente.',
         join: 'Abrir reunión', portugalTime: 'Hora Portugal', clientTime: 'Hora cliente', durationShort: 'min',
         downloadIcs: 'Archivo de calendario', notifyClient: 'Escribir al cliente',
         mailSubject: 'Reunión', mailCancelledSubject: 'Reunión cancelada',
-        preview: 'Fixture local de QA. No se ejecutan reuniones ni correos reales.',
         submissionsTitle: 'Entregas de onboarding', submissionsHelp: 'Historial completo del proyecto; selecciona cualquier entrega para revisarla.',
         submission: 'Entrega', submissionsCount: count => `${count} ${count === 1 ? 'entrega' : 'entregas'}`, formVersion: 'Formulario v',
         accountOnboarding: 'Onboarding de cuenta', archivedProject: 'Proyecto archivado'
     },
     pt: {
-        nav: 'Agenda', title: 'Agenda', description: 'Agende e acompanhe reuniões com clientes entre fusos horários.',
-        formEyebrow: 'Nova marcação', formTitle: 'Agendar reunião com cliente', listEyebrow: 'Calendário de clientes', listTitle: 'Reuniões',
+        nav: 'Agenda', title: 'Agenda', description: 'Agende e acompanhe reuniões e chamadas com clientes entre fusos horários.',
+        formEyebrow: 'Nova atividade', formTitle: 'Agendar reunião ou chamada', listEyebrow: 'Calendário de clientes', listTitle: 'Atividades',
         client: 'Cliente', clientPlaceholder: 'Selecione um cliente…', meetingTitle: 'Título da reunião', titlePlaceholder: 'Revisão do projeto',
         date: 'Data', time: 'Hora', duration: 'Duração', adminZone: 'Fuso do admin (IANA)', clientZone: 'Fuso do cliente (IANA)', clientRegion: 'Região ou país do cliente', regionPlaceholder: 'Costa Rica',
         link: 'Link HTTPS da reunião', notes: 'Notas para o cliente', notesPlaceholder: 'Estas notas serão incluídas no email de confirmação.',
-        create: 'Criar reunião', creating: 'A criar…', refresh: 'Atualizar', upcoming: 'Próximas', past: 'Passadas', cancelled: 'Canceladas', all: 'Todas',
-        loadError: 'Não foi possível carregar as reuniões.', empty: 'Não existem reuniões nesta vista.',
+        create: 'Criar atividade', creating: 'A criar…', refresh: 'Atualizar', upcoming: 'Próximas', past: 'Passadas', cancelled: 'Canceladas', all: 'Todas',
+        loadError: 'Não foi possível carregar as atividades.', empty: 'Não existem atividades nesta vista.',
         invalidZone: 'Introduza fusos horários IANA válidos.', invalidLink: 'O link da reunião deve usar HTTPS.', invalidDate: 'Escolha uma data e hora futuras válidas.',
-        required: 'Preencha todos os campos obrigatórios.', createdOk: 'Reunião guardada.',
-        createFailed: 'Não foi possível guardar a reunião.', cancelFailed: 'Não foi possível cancelar a reunião.',
+        required: 'Preencha todos os campos obrigatórios.', createdOk: 'Atividade guardada.',
+        createFailed: 'Não foi possível guardar a atividade.', cancelFailed: 'Não foi possível cancelar a atividade.',
         apiMissing: 'O serviço da Elysium não está acessível, por isso não pode sair o email de confirmação. Publique elysium-billing em /api e tente de novo.',
         apiTimeout: 'O serviço não respondeu. A reunião pode não ter ficado guardada — recarregue a agenda antes de repetir.',
         emailMissing: 'O envio SMTP não está configurado no serviço (SMTP_HOST, SMTP_USER, SMTP_PASSWORD e MEETING_FROM_EMAIL).',
@@ -1328,7 +1558,6 @@ const AGENDA_COPY = {
         join: 'Abrir reunião', portugalTime: 'Hora de Portugal', clientTime: 'Hora do cliente', durationShort: 'min',
         downloadIcs: 'Ficheiro de calendário', notifyClient: 'Escrever ao cliente',
         mailSubject: 'Reunião', mailCancelledSubject: 'Reunião cancelada',
-        preview: 'Fixture local de QA. Não são executadas reuniões nem emails reais.',
         submissionsTitle: 'Entregas de onboarding', submissionsHelp: 'Histórico completo do projeto; selecione qualquer entrega para a consultar.',
         submission: 'Entrega', submissionsCount: count => `${count} ${count === 1 ? 'entrega' : 'entregas'}`, formVersion: 'Formulário v',
         accountOnboarding: 'Onboarding da conta', archivedProject: 'Projeto arquivado'
@@ -1428,12 +1657,14 @@ function normalizeMeeting(raw, fallbackId = '') {
     if (!meetingStartMillis({ startsAt }) && data.date && data.time && isIanaTimeZone(data.adminTimeZone || data.timeZone)) {
         startsAt = zonedLocalToDate(data.date, data.time, data.adminTimeZone || data.timeZone)?.toISOString() || null;
     }
-    const userId = String(data.userId || data.clientId || '');
-    const client = _allClients.find(item => String(item.id) === userId);
+    const userId = String(data.contactId || data.userId || data.clientId || '');
+    const client = findUnifiedContactById(userId);
     const status = String(data.status || '').toLowerCase();
     return {
         id: String(data.id || data.meetingId || fallbackId || ''),
         userId,
+        contactId: userId,
+        contactCollection: String(data.contactCollection || (data.userId ? 'members' : client?._sourceCollection) || 'members'),
         clientName: String(data.clientName || data.userName || client?.name || client?.company || ''),
         clientEmail: String(data.clientEmail || data.userEmail || client?.email || ''),
         clientRegion: String(data.clientRegion || client?.country || client?.region || ''),
@@ -1444,6 +1675,9 @@ function normalizeMeeting(raw, fallbackId = '') {
         clientTimeZone: isIanaTimeZone(data.clientTimeZone) ? data.clientTimeZone : (inferredClientTimeZone(client) || PORTUGAL_TIME_ZONE),
         meetingUrl: safeHttpsUrl(data.meetingUrl || data.url || data.link),
         notes: String(data.notes || ''),
+        type: ['meeting', 'call'].includes(data.type) ? data.type : 'meeting',
+        assigneeId: String(data.assigneeId || data.assignedTo || data.audit?.createdByUid || ''),
+        assigneeName: String(data.assigneeName || ''),
         status,
         cancelledAt: data.cancelledAt || data.canceledAt || null,
         createdAt: data.createdAt || null
@@ -1469,11 +1703,8 @@ function formatMeetingZoned(meeting, timeZone) {
 }
 
 // ── Meetings: written straight to Firestore ─────────────────────────────────
-// There used to be a trusted /api/meetings service here. It was never deployed,
-// so every creation failed with "the meeting backend is not configured". The
-// administrator already writes licenses and payments directly under the
-// isSuperAdmin() rule; meetings now work the same way. Instead of a server
-// sending mail, each meeting offers a calendar file and a prefilled email.
+// `meetings`, los avisos, el correo y los ICS forman un solo flujo. Las
+// mutaciones pasan por la API para conservar auditoría y notificación.
 
 function meetingIcsText(meeting) {
     const pad = value => String(value).padStart(2, '0');
@@ -1548,7 +1779,9 @@ function setAgendaMessage(message, type = '') {
 
 function registeredAgendaClients() {
     return _allClients
-        .filter(client => client && client.role !== 'prospect'
+        .filter(client => client
+            && client.email
+            && client.lifecycle !== 'inactive'
             && client.role !== 'admin' && client.role !== 'root'
             && client.email !== SUPER_ADMIN_EMAIL)
         .sort((a, b) => String(a.name || a.company || '').localeCompare(String(b.name || b.company || ''), undefined, { sensitivity: 'base' }));
@@ -1562,22 +1795,14 @@ function registeredAgendaClients() {
 function registeredClientMatchingEmail(email) {
     const normalized = String(email || '').trim().toLowerCase();
     if (!normalized) return null;
-    return registeredAgendaClients()
-        .find(client => String(client.email || '').trim().toLowerCase() === normalized) || null;
+    return _allClients.find(client => client._sourceCollection === 'members'
+        && String(client.email || '').trim().toLowerCase() === normalized) || null;
 }
 
 async function ensureAgendaClients(loadVersion) {
-    if (registeredAgendaClients().length || ADMIN_AGENDA_PREVIEW) return;
-    const snap = await getDocs(collection(db, 'members'));
+    if (registeredAgendaClients().length) return;
+    await loadUnifiedContactData();
     if (loadVersion !== _agendaLoadVersion) return;
-    snap.docs.forEach(item => {
-        const data = item.data();
-        if (data.role === 'admin' || data.role === 'root' || data.email === SUPER_ADMIN_EMAIL) return;
-        const existingIndex = _allClients.findIndex(client => client.id === item.id);
-        const record = { ...data, id: item.id };
-        if (existingIndex === -1) _allClients.push(record);
-        else _allClients[existingIndex] = { ..._allClients[existingIndex], ...record };
-    });
 }
 
 function renderAgendaClientOptions() {
@@ -1589,9 +1814,9 @@ function renderAgendaClientOptions() {
     select.innerHTML = `<option value="">${esc(c.clientPlaceholder)}</option>${clients.map(client => {
         const label = client.name || client.company || client.email || c.client;
         const detail = client.company && client.company !== label ? ` · ${client.company}` : '';
-        return `<option value="${esc(client.id)}">${esc(label + detail)}</option>`;
+        return `<option value="${esc(contactSelectionValue(client))}">${esc(label + detail)} · ${esc(contactSourceLabel(client))}</option>`;
     }).join('')}`;
-    if (clients.some(client => String(client.id) === selected)) select.value = selected;
+    if (clients.some(client => contactSelectionValue(client) === selected)) select.value = selected;
 }
 
 function updateAgendaCount() {
@@ -1620,7 +1845,8 @@ function renderAgendaMeetings() {
         const status = meetingDisplayStatus(meeting);
         const clientLabel = meeting.clientName || meeting.clientEmail || c.client;
         const link = safeHttpsUrl(meeting.meetingUrl);
-        const canCancel = status === 'upcoming' && meeting.id;
+        const canCancel = status === 'upcoming' && meeting.id && _platformCapabilities.meetings.cancel;
+        const canEdit = status === 'upcoming' && meeting.id && _platformCapabilities.meetings.update;
         return `
             <article class="meeting-card is-${status}">
                 <div class="meeting-card-accent" aria-hidden="true"></div>
@@ -1643,12 +1869,15 @@ function renderAgendaMeetings() {
                         </div>
                     </div>
                     <div class="meeting-card-meta">
+                        <span>${meeting.type === 'call' ? 'Call' : 'Meeting'}</span>
                         <span>${meeting.durationMinutes} ${esc(c.durationShort)}</span>
+                        ${meeting.assigneeName ? `<span>${esc(meeting.assigneeName)}</span>` : ''}
                         ${meeting.notes ? `<span>${esc(meeting.notes)}</span>` : ''}
                     </div>
                     <div class="meeting-card-footer">
                         ${link ? `<a class="meeting-join-link" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(c.join)}</a>` : '<span></span>'}
                         <div class="meeting-card-actions">
+                            ${canEdit ? `<button type="button" class="meeting-action-btn" data-meeting-edit="${esc(meeting.id)}">Edit</button>` : ''}
                             <button type="button" class="meeting-action-btn" data-meeting-ics="${esc(meeting.id)}">${esc(c.downloadIcs)}</button>
                             ${meeting.clientEmail ? `<a class="meeting-action-btn" href="${esc(meetingMailtoUrl(meeting, status === 'cancelled'))}">${esc(c.notifyClient)}</a>` : ''}
                             ${canCancel ? `<button type="button" class="meeting-cancel-btn" data-meeting-id="${esc(meeting.id)}">${esc(c.cancel)}</button>` : ''}
@@ -1661,6 +1890,9 @@ function renderAgendaMeetings() {
     container.querySelectorAll('.meeting-cancel-btn').forEach(button => {
         button.addEventListener('click', () => cancelAgendaMeeting(button.dataset.meetingId, button));
     });
+    container.querySelectorAll('[data-meeting-edit]').forEach(button => {
+        button.addEventListener('click', () => startEditingMeeting(button.dataset.meetingEdit));
+    });
     container.querySelectorAll('[data-meeting-ics]').forEach(button => {
         button.addEventListener('click', () => {
             const meeting = _agendaMeetings.find(item => item.id === button.dataset.meetingIcs);
@@ -1669,38 +1901,248 @@ function renderAgendaMeetings() {
     });
 }
 
-function agendaPreviewFixtures() {
-    if (!registeredAgendaClients().length) {
-        _allClients.push({
-            id: 'preview-client', name: 'Sofía Ramírez', company: 'Pura Vida Studio',
-            email: 'sofia@example.com', country: 'Costa Rica', clientTimeZone: 'America/Costa_Rica', role: 'client'
-        });
+/* ── Calendario maestro ──────────────────────────────────────────────────
+   Mes, semana y día sobre los mismos `_agendaMeetings` que alimenta la lista:
+   ninguna vista lee de nuevo. La hora se resuelve siempre en la zona del
+   administrador — pintar cada cita en la del cliente colocaría dos reuniones
+   simultáneas en casillas distintas.
+   ─────────────────────────────────────────────────────────────────────── */
+
+let _agendaView = 'list';
+let _agendaCursor = new Date();
+
+const CALENDAR_DAY_START_HOUR = 7;
+const CALENDAR_DAY_END_HOUR = 21;
+
+function startOfDay(date) {
+    const copy = new Date(date);
+    copy.setHours(0, 0, 0, 0);
+    return copy;
+}
+
+/** Semana ISO: empieza en lunes. */
+function startOfWeek(date) {
+    const copy = startOfDay(date);
+    const weekday = (copy.getDay() + 6) % 7;
+    copy.setDate(copy.getDate() - weekday);
+    return copy;
+}
+
+function addDays(date, count) {
+    const copy = new Date(date);
+    copy.setDate(copy.getDate() + count);
+    return copy;
+}
+
+function calendarLocale() {
+    return currentLang === 'es' ? 'es-ES' : currentLang === 'pt' ? 'pt-PT' : 'en-GB';
+}
+
+/** Citas visibles en el calendario, ya ordenadas y sin las canceladas. */
+function calendarMeetings() {
+    return _agendaMeetings
+        .filter(meeting => meeting.status !== 'cancelled' && meetingStartMillis(meeting))
+        .sort((a, b) => meetingStartMillis(a) - meetingStartMillis(b));
+}
+
+function meetingEndMillis(meeting) {
+    return meetingStartMillis(meeting) + (Number(meeting.durationMinutes) || 60) * 60000;
+}
+
+/**
+ * Marca las citas que se pisan entre sí. Es el dato que la agenda no daba y
+ * que provoca sobreasignación: dos reuniones a la misma hora se ven idénticas
+ * en una lista ordenada por fecha.
+ */
+function markOverlaps(meetings) {
+    const clashing = new Set();
+    for (let i = 0; i < meetings.length; i++) {
+        for (let j = i + 1; j < meetings.length; j++) {
+            if (meetingStartMillis(meetings[j]) >= meetingEndMillis(meetings[i])) break;
+            clashing.add(meetings[i].id);
+            clashing.add(meetings[j].id);
+        }
     }
-    const hour = 60 * 60000;
-    return [
-        normalizeMeeting({
-            id: 'preview-next', userId: 'preview-client', title: 'Revisión de arquitectura',
-            startsAt: new Date(Date.now() + 26 * hour).toISOString(), durationMinutes: 60,
-            clientTimeZone: 'America/Costa_Rica', meetingUrl: 'https://meet.google.com/example-preview',
-            notes: 'Validar alcance y próximos hitos.', status: 'scheduled'
-        }),
-        normalizeMeeting({
-            id: 'preview-queued', userId: 'preview-client', title: 'Seguimiento de onboarding',
-            startsAt: new Date(Date.now() + 74 * hour).toISOString(), durationMinutes: 45,
-            clientTimeZone: 'America/Costa_Rica', meetingUrl: 'https://meet.google.com/example-queued',
-            status: 'scheduled'
-        }),
-        normalizeMeeting({
-            id: 'preview-past', userId: 'preview-client', title: 'Descubrimiento inicial',
-            startsAt: new Date(Date.now() - 50 * hour).toISOString(), durationMinutes: 60,
-            clientTimeZone: 'America/Costa_Rica', status: 'scheduled'
-        }),
-        normalizeMeeting({
-            id: 'preview-cancelled', userId: 'preview-client', title: 'Demo de prototipo',
-            startsAt: new Date(Date.now() + 8 * hour).toISOString(), durationMinutes: 30,
-            clientTimeZone: 'America/Costa_Rica', status: 'cancelled', cancelledAt: new Date().toISOString()
-        })
-    ];
+    return clashing;
+}
+
+function calendarChip(meeting, clashing, { withTime = true } = {}) {
+    const start = new Date(meetingStartMillis(meeting));
+    const time = start.toLocaleTimeString(calendarLocale(), { hour: '2-digit', minute: '2-digit' });
+    const clash = clashing.has(meeting.id);
+    return `<button type="button" class="agenda-cal-chip is-${esc(meeting.type || 'meeting')}${clash ? ' is-clash' : ''}"
+        data-calendar-meeting="${esc(meeting.id)}"
+        title="${esc(`${time} · ${meeting.title || ''} · ${meeting.clientName || ''}${clash ? ' — overlaps another activity' : ''}`)}">
+        ${withTime ? `<span class="agenda-cal-chip-time">${esc(time)}</span>` : ''}
+        <span class="agenda-cal-chip-title">${esc(meeting.title || (meeting.type === 'call' ? 'Call' : 'Meeting'))}</span>
+    </button>`;
+}
+
+function renderMonthView(container, meetings, clashing) {
+    const cursor = _agendaCursor;
+    const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+    const gridStart = startOfWeek(monthStart);
+    const byDay = new Map();
+    meetings.forEach(meeting => {
+        const key = startOfDay(new Date(meetingStartMillis(meeting))).getTime();
+        if (!byDay.has(key)) byDay.set(key, []);
+        byDay.get(key).push(meeting);
+    });
+
+    const weekdayNames = Array.from({ length: 7 }, (_, index) => (
+        addDays(gridStart, index).toLocaleDateString(calendarLocale(), { weekday: 'short' })
+    ));
+    const today = startOfDay(new Date()).getTime();
+
+    // Seis semanas fijas: un mes que empieza en domingo y tiene 31 días las
+    // necesita, y una rejilla de altura variable hace saltar la página.
+    const cells = Array.from({ length: 42 }, (_, index) => {
+        const day = addDays(gridStart, index);
+        const key = startOfDay(day).getTime();
+        const items = byDay.get(key) || [];
+        const outside = day.getMonth() !== cursor.getMonth();
+        return `
+            <div class="agenda-cal-cell${outside ? ' is-outside' : ''}${key === today ? ' is-today' : ''}">
+                <span class="agenda-cal-daynum">${day.getDate()}</span>
+                ${items.slice(0, 3).map(meeting => calendarChip(meeting, clashing)).join('')}
+                ${items.length > 3 ? `<span class="agenda-cal-more">+${items.length - 3}</span>` : ''}
+            </div>`;
+    });
+
+    container.innerHTML = `
+        <div class="agenda-cal-month">
+            ${weekdayNames.map(name => `<div class="agenda-cal-weekday">${esc(name)}</div>`).join('')}
+            ${cells.join('')}
+        </div>`;
+}
+
+function renderWeekView(container, meetings, clashing) {
+    const weekStart = startOfWeek(_agendaCursor);
+    const today = startOfDay(new Date()).getTime();
+    const columns = Array.from({ length: 7 }, (_, index) => {
+        const day = addDays(weekStart, index);
+        const key = startOfDay(day).getTime();
+        const items = meetings.filter(meeting => (
+            startOfDay(new Date(meetingStartMillis(meeting))).getTime() === key
+        ));
+        return `
+            <div class="agenda-cal-daycol${key === today ? ' is-today' : ''}">
+                <div class="agenda-cal-daycol-head">
+                    <strong>${day.toLocaleDateString(calendarLocale(), { weekday: 'short' })}</strong>
+                    <span>${day.getDate()}</span>
+                </div>
+                <div class="agenda-cal-daycol-body">
+                    ${items.length
+                        ? items.map(meeting => calendarChip(meeting, clashing)).join('')
+                        : '<span class="agenda-cal-empty">—</span>'}
+                </div>
+            </div>`;
+    });
+    container.innerHTML = `<div class="agenda-cal-week">${columns.join('')}</div>`;
+}
+
+function renderDayView(container, meetings, clashing) {
+    const dayStart = startOfDay(_agendaCursor).getTime();
+    const items = meetings.filter(meeting => (
+        startOfDay(new Date(meetingStartMillis(meeting))).getTime() === dayStart
+    ));
+    const rows = [];
+    for (let hour = CALENDAR_DAY_START_HOUR; hour <= CALENDAR_DAY_END_HOUR; hour++) {
+        const slot = items.filter(meeting => new Date(meetingStartMillis(meeting)).getHours() === hour);
+        rows.push(`
+            <div class="agenda-cal-hour${slot.length ? ' has-items' : ''}">
+                <span class="agenda-cal-hour-label">${String(hour).padStart(2, '0')}:00</span>
+                <div class="agenda-cal-hour-body">
+                    ${slot.map(meeting => calendarChip(meeting, clashing)).join('')}
+                </div>
+            </div>`);
+    }
+    // Lo que cae fuera de la franja laboral no se pierde: se lista aparte en
+    // lugar de desaparecer de una vista que dice mostrar el día entero.
+    const outside = items.filter(meeting => {
+        const hour = new Date(meetingStartMillis(meeting)).getHours();
+        return hour < CALENDAR_DAY_START_HOUR || hour > CALENDAR_DAY_END_HOUR;
+    });
+    container.innerHTML = `
+        <div class="agenda-cal-day">${rows.join('')}</div>
+        ${outside.length ? `<div class="agenda-cal-outside">
+            <span>Outside ${CALENDAR_DAY_START_HOUR}:00–${CALENDAR_DAY_END_HOUR}:00</span>
+            ${outside.map(meeting => calendarChip(meeting, clashing)).join('')}
+        </div>` : ''}`;
+}
+
+function calendarPeriodLabel() {
+    const locale = calendarLocale();
+    if (_agendaView === 'month') {
+        return _agendaCursor.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+    }
+    if (_agendaView === 'week') {
+        const start = startOfWeek(_agendaCursor);
+        const end = addDays(start, 6);
+        const options = { day: 'numeric', month: 'short' };
+        return `${start.toLocaleDateString(locale, options)} – ${end.toLocaleDateString(locale, { ...options, year: 'numeric' })}`;
+    }
+    return _agendaCursor.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function renderAgendaCalendar() {
+    const container = document.getElementById('agenda-calendar');
+    const label = document.getElementById('agenda-cal-label');
+    if (!container) return;
+    if (label) label.textContent = calendarPeriodLabel();
+
+    const meetings = calendarMeetings();
+    const clashing = markOverlaps(meetings);
+    if (_agendaView === 'month') renderMonthView(container, meetings, clashing);
+    else if (_agendaView === 'week') renderWeekView(container, meetings, clashing);
+    else renderDayView(container, meetings, clashing);
+
+    container.querySelectorAll('[data-calendar-meeting]').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const meeting = _agendaMeetings.find(item => item.id === chip.dataset.calendarMeeting);
+            if (meeting?.contactId) openContactDrawer(meeting.contactId);
+        });
+    });
+}
+
+/** Alterna lista y calendario, y ajusta qué controles tienen sentido. */
+function setAgendaView(view) {
+    _agendaView = ['list', 'month', 'week', 'day'].includes(view) ? view : 'list';
+    document.querySelectorAll('[data-agenda-view]').forEach(button => {
+        button.classList.toggle('is-active', button.dataset.agendaView === _agendaView);
+    });
+    const isList = _agendaView === 'list';
+    const list = document.getElementById('agenda-meeting-list');
+    const calendar = document.getElementById('agenda-calendar');
+    const nav = document.getElementById('agenda-calendar-nav');
+    const statusFilters = document.getElementById('agenda-status-filters');
+    if (list) list.hidden = !isList;
+    if (calendar) calendar.hidden = isList;
+    if (nav) nav.hidden = isList;
+    // El filtro por estado gobierna la lista; el calendario se gobierna por
+    // periodo y siempre oculta las canceladas.
+    if (statusFilters) statusFilters.hidden = !isList;
+    if (isList) renderAgendaMeetings();
+    else renderAgendaCalendar();
+}
+
+function shiftAgendaCursor(direction) {
+    if (_agendaView === 'month') _agendaCursor = new Date(_agendaCursor.getFullYear(), _agendaCursor.getMonth() + direction, 1);
+    else if (_agendaView === 'week') _agendaCursor = addDays(_agendaCursor, 7 * direction);
+    else _agendaCursor = addDays(_agendaCursor, direction);
+    renderAgendaCalendar();
+}
+
+function initAgendaCalendarControls() {
+    document.querySelectorAll('[data-agenda-view]').forEach(button => {
+        button.addEventListener('click', () => setAgendaView(button.dataset.agendaView));
+    });
+    document.getElementById('agenda-cal-prev')?.addEventListener('click', () => shiftAgendaCursor(-1));
+    document.getElementById('agenda-cal-next')?.addEventListener('click', () => shiftAgendaCursor(1));
+    document.getElementById('agenda-cal-today')?.addEventListener('click', () => {
+        _agendaCursor = new Date();
+        renderAgendaCalendar();
+    });
 }
 
 async function loadAgenda() {
@@ -1708,23 +2150,46 @@ async function loadAgenda() {
     const container = document.getElementById('agenda-meeting-list');
     if (container) container.innerHTML = '<div class="premium-loader"></div>';
 
-    if (ADMIN_AGENDA_PREVIEW) {
-        _agendaMeetings = agendaPreviewFixtures();
-        renderAgendaClientOptions();
-        renderAgendaMeetings();
-        setAgendaMessage(agendaCopy().preview, 'warning');
-        return;
-    }
-
     try {
         await ensureAgendaClients(loadVersion);
         if (loadVersion !== _agendaLoadVersion) return;
         renderAgendaClientOptions();
 
-        const snap = await getDocs(collection(db, 'meetings'));
+        // El rango se pide explícito. El defecto del endpoint es simétrico,
+        // pero dejarlo implícito fue justo lo que vació la pestaña «Past»
+        // cuando la agenda pasó de leer Firestore a llamar a la API.
+        const now = Date.now();
+        const from = new Date(now - AGENDA_HISTORY_DAYS * 86400000).toISOString();
+        const to = new Date(now + AGENDA_FUTURE_DAYS * 86400000).toISOString();
+
+        let rawMeetings = [];
+        let notice = '';
+        try {
+            const apiRes = await platformRequest(
+                `/api/meetings?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+                { method: 'GET' }
+            );
+            rawMeetings = apiRes.meetings || [];
+            if (apiRes.hasMore) {
+                notice = `Showing the first ${apiRes.limit || rawMeetings.length} activities of this range. Narrow the period to see the rest.`;
+            }
+        } catch (apiError) {
+            // El fallback no es equivalente: no filtra por fecha ni la API lo
+            // ordena por él. Se ordena aquí y se dice en pantalla, porque
+            // `logger.warn` está silenciado en producción y el administrador
+            // estaría viendo otra agenda sin saberlo.
+            logger.error('Backend meetings API unavailable; falling back to direct query:', apiError);
+            const snap = await getDocs(query(collection(db, 'meetings'), orderBy('startAt', 'desc'), limit(250)));
+            rawMeetings = snap.docs.map(item => ({ id: item.id, ...item.data() }));
+            notice = 'Platform service unreachable — showing a direct read of the last 250 activities.';
+            updatePlatformStatus('partial', 'Agenda in fallback mode');
+        }
+
         if (loadVersion !== _agendaLoadVersion) return;
-        _agendaMeetings = snap.docs.map(item => normalizeMeeting(item.data(), item.id));
-        renderAgendaMeetings();
+        _agendaMeetings = rawMeetings.map(item => normalizeMeeting(item, item.id));
+        setAgendaMessage(notice, notice ? 'warning' : '');
+        if (_agendaView === 'list') renderAgendaMeetings();
+        else renderAgendaCalendar();
     } catch (error) {
         if (loadVersion !== _agendaLoadVersion) return;
         logger.error('Agenda load failed:', error);
@@ -1734,19 +2199,67 @@ async function loadAgenda() {
     }
 }
 
+function resetMeetingForm({ keepMessage = false } = {}) {
+    const form = document.getElementById('meeting-form');
+    if (!form) return;
+    const adminZone = document.getElementById('meeting-admin-zone')?.value || PORTUGAL_TIME_ZONE;
+    form.reset();
+    _editingMeetingId = null;
+    document.getElementById('meeting-admin-zone').value = adminZone;
+    document.getElementById('meeting-assignee').value = auth.currentUser?.uid || _crmUsers[0]?.id || '';
+    document.getElementById('meeting-type').value = 'meeting';
+    document.getElementById('meeting-link').required = true;
+    document.getElementById('meeting-edit-cancel').hidden = true;
+    document.getElementById('meeting-create-btn').textContent = agendaCopy().create;
+    const next = agendaDefaultWallClock();
+    document.getElementById('meeting-date').value = next.date;
+    document.getElementById('meeting-time').value = next.time;
+    if (!keepMessage) setAgendaMessage('');
+}
+
+function startEditingMeeting(meetingId) {
+    const meeting = _agendaMeetings.find(item => item.id === meetingId);
+    if (!meeting || meetingDisplayStatus(meeting) !== 'upcoming' || !_platformCapabilities.meetings.update) return;
+    _editingMeetingId = meeting.id;
+    const client = findUnifiedContactById(meeting.contactId || meeting.userId);
+    if (client) document.getElementById('meeting-client').value = contactSelectionValue(client);
+    document.getElementById('meeting-type').value = meeting.type || 'meeting';
+    document.getElementById('meeting-assignee').value = meeting.assigneeId || auth.currentUser?.uid || '';
+    document.getElementById('meeting-title').value = meeting.title || '';
+    document.getElementById('meeting-duration').value = String(meeting.durationMinutes || 60);
+    document.getElementById('meeting-admin-zone').value = meeting.adminTimeZone || PORTUGAL_TIME_ZONE;
+    document.getElementById('meeting-client-zone').value = meeting.clientTimeZone || PORTUGAL_TIME_ZONE;
+    document.getElementById('meeting-client-region').value = meeting.clientRegion || '';
+    document.getElementById('meeting-link').value = meeting.meetingUrl || '';
+    document.getElementById('meeting-link').required = meeting.type !== 'call';
+    document.getElementById('meeting-notes').value = meeting.notes || '';
+    const local = zonedParts(new Date(meetingStartMillis(meeting)), meeting.adminTimeZone || PORTUGAL_TIME_ZONE);
+    document.getElementById('meeting-date').value = `${local.year}-${String(local.month).padStart(2, '0')}-${String(local.day).padStart(2, '0')}`;
+    document.getElementById('meeting-time').value = `${String(local.hour).padStart(2, '0')}:${String(local.minute).padStart(2, '0')}`;
+    document.getElementById('meeting-edit-cancel').hidden = false;
+    document.getElementById('meeting-create-btn').textContent = 'Save changes';
+    setAgendaMessage('Editing this activity. Saving updates the invitation and notifies the contact.', 'warning');
+    document.querySelector('.agenda-create-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 async function createAgendaMeeting(event) {
     event.preventDefault();
     const form = event.currentTarget;
     const c = agendaCopy();
     setAgendaMessage('');
+    if ((_editingMeetingId && !_platformCapabilities.meetings.update)
+        || (!_editingMeetingId && !_platformCapabilities.meetings.create)) {
+        setAgendaMessage(c.apiMissing, 'error');
+        return;
+    }
     form.querySelectorAll('[aria-invalid="true"]').forEach(input => input.removeAttribute('aria-invalid'));
     if (!form.reportValidity()) {
         setAgendaMessage(c.required, 'error');
         return;
     }
 
-    const clientId = document.getElementById('meeting-client').value;
-    const client = registeredAgendaClients().find(item => String(item.id) === clientId);
+    const client = contactFromSelection(document.getElementById('meeting-client').value);
+    const activityType = document.getElementById('meeting-type').value === 'call' ? 'call' : 'meeting';
     const adminTimeZone = document.getElementById('meeting-admin-zone').value.trim();
     const clientTimeZone = document.getElementById('meeting-client-zone').value.trim();
     const clientRegion = document.getElementById('meeting-client-region').value.trim();
@@ -1763,7 +2276,7 @@ async function createAgendaMeeting(event) {
         setAgendaMessage(c.invalidZone, 'error');
         return;
     }
-    if (!meetingUrl) {
+    if (activityType === 'meeting' && !meetingUrl) {
         meetingUrlInput.setAttribute('aria-invalid', 'true');
         setAgendaMessage(c.invalidLink, 'error');
         return;
@@ -1780,12 +2293,11 @@ async function createAgendaMeeting(event) {
         return;
     }
 
-    // The service owns the write: it re-reads the member to stamp the real name
-    // and address, then sends the confirmation, the administrator's copy and
-    // the calendar invitation. Writing to Firestore from here would skip all of
-    // that, which is exactly why no email ever arrived.
+    // El servicio conserva en un único flujo la cita, los avisos, el ICS y la
+    // auditoría, tanto al crear como al editar.
     const payload = {
-        userId: client.id,
+        contactId: client.id,
+        contactCollection: client._sourceCollection,
         clientRegion,
         title: document.getElementById('meeting-title').value.trim().slice(0, 160),
         date: document.getElementById('meeting-date').value,
@@ -1793,7 +2305,9 @@ async function createAgendaMeeting(event) {
         durationMinutes: Number(document.getElementById('meeting-duration').value) || 60,
         adminTimeZone,
         clientTimeZone,
-        meetingUrl,
+        meetingUrl: meetingUrl || '',
+        type: activityType,
+        assigneeId: document.getElementById('meeting-assignee').value || auth.currentUser?.uid,
         notes: document.getElementById('meeting-notes').value.trim().slice(0, 2000),
         locale: ['en', 'es', 'pt'].includes(client.preferredLanguage)
             ? client.preferredLanguage
@@ -1802,47 +2316,38 @@ async function createAgendaMeeting(event) {
 
     const button = document.getElementById('meeting-create-btn');
     button.disabled = true;
-    button.textContent = c.creating;
+    button.textContent = _editingMeetingId ? 'Saving…' : c.creating;
 
     try {
-        // A retry after a dropped connection must not book the meeting twice.
-        const idempotencyKey = `crm-${client.id}-${startsAt.getTime()}-${payload.durationMinutes}`;
-        const result = await platformRequest('/api/meetings', {
-            body: payload,
-            headers: { 'Idempotency-Key': idempotencyKey }
-        });
+        const editingId = _editingMeetingId;
+        const result = editingId
+            ? await platformRequest(`/api/meetings/${encodeURIComponent(editingId)}`, {
+                method: 'PATCH', body: payload
+            })
+            : await platformRequest('/api/meetings', {
+                body: payload,
+                headers: { 'Idempotency-Key': `crm-${client.id}-${payload.type || 'meeting'}-${startsAt.getTime()}-${payload.durationMinutes}` }
+            });
         const created = normalizeMeeting(result.meeting || {}, result.meeting?.id || result.id);
         _agendaMeetings = [created, ..._agendaMeetings.filter(meeting => meeting.id !== created.id)];
         renderAgendaMeetings();
-        logActivity(client.id, client.name, 'meeting_scheduled', {
-            meetingId: created.id, title: created.title, startsAt: created.startsAt
-        });
-        // El servicio ya dice si el correo salió. Un fallo de envío no anula la
-        // reunión, pero tiene que verse: antes devolvía siempre «pending» y el
-        // administrador se quedaba creyendo que el cliente había sido avisado.
         setAgendaMessage(...(result.emailStatus === 'sent'
-            ? [c.createdOk, 'success']
-            : [`${c.createdOk} ${agendaEmailWarning(result.emailStatus, c)}`, 'warning']));
-
-        const keepAdminZone = adminTimeZone;
-        form.reset();
-        document.getElementById('meeting-admin-zone').value = keepAdminZone;
-        const next = agendaDefaultWallClock();
-        document.getElementById('meeting-date').value = next.date;
-        document.getElementById('meeting-time').value = next.time;
+            ? [editingId ? 'Activity updated and notification sent.' : c.createdOk, 'success']
+            : [`${editingId ? 'Activity updated.' : c.createdOk} ${agendaEmailWarning(result.emailStatus, c)}`, 'warning']));
+        resetMeetingForm({ keepMessage: true });
     } catch (error) {
         logger.error('Meeting creation failed:', error);
         setAgendaMessage(agendaApiErrorMessage(error, c.createFailed), 'error');
     } finally {
         button.disabled = false;
-        button.textContent = c.create;
+        button.textContent = _editingMeetingId ? 'Save changes' : c.create;
     }
 }
 
 async function cancelAgendaMeeting(meetingId, button) {
     const c = agendaCopy();
     const meeting = _agendaMeetings.find(item => item.id === meetingId);
-    if (!meeting || !confirm(c.cancelConfirm)) return;
+    if (!meeting || !_platformCapabilities.meetings.cancel || !confirm(c.cancelConfirm)) return;
     button.disabled = true;
     button.textContent = c.cancelling;
     setAgendaMessage('');
@@ -1853,9 +2358,6 @@ async function cancelAgendaMeeting(meetingId, button) {
         _agendaMeetings = _agendaMeetings.map(item => item.id === meetingId
             ? normalizeMeeting(result.meeting || { ...item, status: 'cancelled', cancelledAt: new Date().toISOString() }, meetingId)
             : item);
-        logActivity(meeting.userId, meeting.clientName, 'meeting_cancelled', {
-            meetingId, title: meeting.title
-        });
         setAgendaMessage(...(result.emailStatus === 'sent'
             ? [c.cancelledOk, 'success']
             : [`${c.cancelledOk} ${agendaEmailWarning(result.emailStatus, c)}`, 'warning']));
@@ -1905,13 +2407,19 @@ function applyAgendaTranslations() {
         'meeting-duration-label': c.duration, 'meeting-admin-zone-label': c.adminZone,
         'meeting-client-zone-label': c.clientZone, 'meeting-client-region-label': c.clientRegion,
         'meeting-link-label': c.link,
-        'meeting-notes-label': c.notes, 'meeting-create-btn': c.create,
+        'meeting-type-label': currentLang === 'es' ? 'Tipo de actividad' : currentLang === 'pt' ? 'Tipo de atividade' : 'Activity type',
+        'meeting-assignee-label': currentLang === 'es' ? 'Responsable' : currentLang === 'pt' ? 'Responsável' : 'Assigned to',
+        'meeting-notes-label': c.notes,
         'agenda-refresh': c.refresh
     };
     Object.entries(textById).forEach(([id, value]) => {
         const el = document.getElementById(id);
         if (el) el.textContent = value;
     });
+    const submitButton = document.getElementById('meeting-create-btn');
+    if (submitButton) submitButton.textContent = _editingMeetingId
+        ? (currentLang === 'es' ? 'Guardar cambios' : currentLang === 'pt' ? 'Guardar alterações' : 'Save changes')
+        : c.create;
     const nav = document.querySelector('[data-target="agenda"] .portal-nav-text');
     if (nav) nav.textContent = c.nav;
     const title = document.getElementById('meeting-title');
@@ -1951,12 +2459,19 @@ function initAgendaControls() {
     datalist.replaceChildren(fragment);
 
     document.getElementById('meeting-client').addEventListener('change', event => {
-        const client = registeredAgendaClients().find(item => String(item.id) === event.target.value);
+        const client = contactFromSelection(event.target.value);
         const zone = inferredClientTimeZone(client);
         if (zone) document.getElementById('meeting-client-zone').value = zone;
         document.getElementById('meeting-client-region').value = client?.country || client?.region || '';
         event.target.removeAttribute('aria-invalid');
     });
+    document.getElementById('meeting-type').addEventListener('change', event => {
+        const isCall = event.target.value === 'call';
+        const link = document.getElementById('meeting-link');
+        link.required = !isCall;
+        if (isCall) link.removeAttribute('aria-invalid');
+    });
+    document.getElementById('meeting-edit-cancel').addEventListener('click', () => resetMeetingForm());
     form.addEventListener('input', event => event.target.removeAttribute?.('aria-invalid'));
     form.addEventListener('submit', createAgendaMeeting);
     document.getElementById('agenda-refresh').addEventListener('click', loadAgenda);
@@ -1969,35 +2484,108 @@ function initAgendaControls() {
     });
 }
 
+function initUnifiedCrmControls() {
+    const openContactDialog = () => {
+        const form = document.getElementById('contact-form');
+        form?.reset();
+        const message = document.getElementById('contact-form-message');
+        if (message) message.textContent = '';
+        document.getElementById('contact-dialog')?.showModal();
+    };
+    const focusGlobalSearch = () => {
+        navigateTo('clients');
+        window.setTimeout(() => document.getElementById('crm-search')?.focus(), 80);
+    };
+    document.getElementById('create-contact-btn')?.addEventListener('click', openContactDialog);
+    document.getElementById('dashboard-new-contact')?.addEventListener('click', openContactDialog);
+    document.getElementById('dashboard-new-opportunity')?.addEventListener('click', () => {
+        openOpportunityDialog().catch(error => alert(error.message));
+    });
+    document.getElementById('crm-global-search')?.addEventListener('click', focusGlobalSearch);
+    document.getElementById('create-opportunity-btn')?.addEventListener('click', () => {
+        openOpportunityDialog().catch(error => alert(error.message));
+    });
+    document.getElementById('contact-form')?.addEventListener('submit', createContact);
+    document.getElementById('opportunity-form')?.addEventListener('submit', createOpportunity);
+    document.querySelectorAll('[data-close-dialog]').forEach(button => {
+        button.addEventListener('click', () => document.getElementById(button.dataset.closeDialog)?.close());
+    });
+    document.querySelectorAll('.crm-dialog').forEach(dialog => {
+        dialog.addEventListener('click', event => {
+            if (event.target === dialog) dialog.close();
+        });
+    });
+    document.querySelectorAll('[data-pipeline-mode]').forEach(button => {
+        button.addEventListener('click', () => {
+            _pipelineMode = button.dataset.pipelineMode === 'delivery' ? 'delivery' : 'commercial';
+            loadPipeline();
+        });
+    });
+    document.querySelectorAll('[data-report-days]').forEach(button => {
+        button.addEventListener('click', () => {
+            _reportDays = Number(button.dataset.reportDays) || 30;
+            loadReports();
+        });
+    });
+    document.getElementById('reports-export-btn')?.addEventListener('click', exportReportsCsv);
+    document.getElementById('crm-page-prev')?.addEventListener('click', () => {
+        if (_clientPage <= 1) return;
+        _clientPage -= 1;
+        renderClientGrid(_clientRenderCandidates, translations[currentLang]);
+        document.getElementById('clients')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('crm-page-next')?.addEventListener('click', () => {
+        _clientPage += 1;
+        renderClientGrid(_clientRenderCandidates, translations[currentLang]);
+        document.getElementById('clients')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('contact-drawer-backdrop')?.addEventListener('click', event => {
+        if (event.target === event.currentTarget) closeContactDrawer();
+    });
+    document.addEventListener('keydown', event => {
+        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+            event.preventDefault();
+            focusGlobalSearch();
+            return;
+        }
+        if (event.key === 'Escape' && !document.getElementById('contact-drawer-backdrop')?.hidden) closeContactDrawer();
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initAgendaControls();
+    initAgendaCalendarControls();
+    initPipelineFilters();
+    initUnifiedCrmControls();
 
-    const launchDashboard = (isPreview = false) => {
+    const launchDashboard = () => {
         // Remove preloader
         const preloader = document.getElementById('elysium-preloader');
         if (preloader) {
             setTimeout(() => {
                 preloader.classList.add('is-loaded');
                 setTimeout(() => preloader.remove(), 800);
-            }, isPreview ? 0 : 1000);
+            }, 1000);
         }
 
         applyTranslations();
         initDashboard();
     };
 
-    if (ADMIN_PREVIEW) {
-        launchDashboard(true);
-    } else {
-        // Auth Guard
-        onAuthStateChanged(auth, async (user) => {
-            if (!await isAdminUser(user)) {
-                window.location.href = 'profiles';
-                return;
-            }
-            launchDashboard(false);
-        });
-    }
+    // La misma sesión de Elysium protege el CRM. No existe un segundo login.
+    onAuthStateChanged(auth, async (user) => {
+        if (!await isAdminUser(user)) {
+            window.location.href = 'profiles';
+            return;
+        }
+        const displayName = user.displayName || user.email?.split('@')[0] || 'Elysium Team';
+        const sidebarName = document.getElementById('sidebar-admin-name');
+        const sidebarRole = document.getElementById('sidebar-admin-role');
+        if (sidebarName) sidebarName.textContent = displayName;
+        if (sidebarRole) sidebarRole.textContent = user.email || 'Administrator';
+        await Promise.all([loadCrmUsers(), loadPlatformCapabilities()]);
+        launchDashboard();
+    });
 
     // Mobile: the sidebar is a bottom tab bar and the hamburger expands it.
     const menuToggle = document.getElementById('admin-menu-toggle');
@@ -2025,7 +2613,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (activeSection === 'clients') loadClients();
             else if (activeSection === 'licenses') loadLicenses();
             else if (activeSection === 'pipeline') loadPipeline();
-            else if (activeSection === 'contacts') loadContacts();
+            else if (activeSection === 'reports') loadReports();
             else if (activeSection === 'agenda') renderAgendaMeetings();
             else if (activeSection === 'mail') loadMailSection();
         });
@@ -2038,11 +2626,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // "View all" links inside overview panels
     document.querySelectorAll('[data-target-nav]').forEach(link => {
         link.addEventListener('click', () => navigateTo(link.dataset.targetNav));
-    });
-
-    document.getElementById('devViewBtn')?.addEventListener('click', () => {
-        sessionStorage.setItem('dev_mode', 'true');
-        window.location.href = 'profiles';
     });
 
     // Logout
@@ -2082,6 +2665,10 @@ function navigateTo(target, { push = true } = {}) {
     document.getElementById('portal-main')?.scrollTo({ top: 0 });
 
     localStorage.setItem('elysium_admin_tab', target);
+    const sectionLabel = document.querySelector(`[data-target="${target}"] .portal-nav-text`)?.textContent
+        || (target === 'client-profile' ? 'Contact profile' : target);
+    const commandSection = document.getElementById('crm-command-section');
+    if (commandSection) commandSection.textContent = sectionLabel;
 
     // Drop the ?client= deep link once the profile is left behind.
     if (push && new URLSearchParams(window.location.search).has('client')) {
@@ -2094,7 +2681,7 @@ function navigateTo(target, { push = true } = {}) {
     if (target === 'clients') loadClients();
     if (target === 'pipeline') loadPipeline();
     if (target === 'licenses') loadLicenses();
-    if (target === 'contacts') loadContacts();
+    if (target === 'reports') loadReports();
     if (target === 'mail') loadMailSection();
     if (target === 'agenda') loadAgenda();
     else _agendaLoadVersion++;
@@ -2120,12 +2707,12 @@ function applyTranslations() {
     const navLicenses  = document.querySelector('[data-target="licenses"] .portal-nav-text');
     if (navOverview) navOverview.textContent = t.nav_overview;
     if (navPipeline) navPipeline.textContent = 'Pipeline';
-    if (navClients)  navClients.textContent  = t.nav_clients;
+    if (navClients)  navClients.textContent  = currentLang === 'es' ? 'Contactos' : currentLang === 'pt' ? 'Contactos' : 'Contacts';
     if (navLicenses) navLicenses.textContent = t.nav_licenses;
-    const navContacts = document.querySelector('[data-target="contacts"] .portal-nav-text');
-    if (navContacts) navContacts.textContent = t.nav_contacts || "Inquiries";
     const navMail = document.querySelector('[data-target="mail"] .portal-nav-text');
     if (navMail) navMail.textContent = t.nav_mail || "Mail";
+    const navReports = document.querySelector('[data-target="reports"] .portal-nav-text');
+    if (navReports) navReports.textContent = currentLang === 'es' ? 'Reportes' : currentLang === 'pt' ? 'Relatórios' : 'Reports';
 
     // Sección de correo: los textos estáticos van por id, uno a uno, porque la
     // sección no se vuelve a pintar entera al cambiar de idioma.
@@ -2195,18 +2782,16 @@ function applyTranslations() {
     
     const cliH1 = document.querySelector('#clients h1');
     const cliP  = document.querySelector('#clients p.color-text-secondary');
-    if (cliH1) cliH1.textContent = t.clients_title;
-    if (cliP)  cliP.textContent  = t.clients_desc;
+    if (cliH1) cliH1.textContent = currentLang === 'es' ? 'Contactos' : currentLang === 'pt' ? 'Contactos' : 'Contacts';
+    if (cliP)  cliP.textContent  = currentLang === 'es'
+        ? 'Leads, consultas, prospectos y clientes en un único directorio.'
+        : currentLang === 'pt' ? 'Leads, consultas, prospetos e clientes num único diretório.'
+            : 'Leads, inquiries, prospects and clients in one directory.';
     
     const licH1 = document.querySelector('#licenses h1');
     const licP  = document.querySelector('#licenses p.color-text-secondary');
     if (licH1) licH1.textContent = t.licenses_title;
     if (licP)  licP.textContent  = t.licenses_desc;
-
-    const conH1 = document.querySelector('#contacts-title');
-    const conP  = document.querySelector('#contacts-desc');
-    if (conH1) conH1.textContent = t.contacts_title || "Inquiries";
-    if (conP)  conP.textContent  = t.contacts_desc || "Review contact form submissions.";
 
     // Update the licenses table headers
     const licenseHeaders = {
@@ -2222,24 +2807,11 @@ function applyTranslations() {
         if (cell && label) cell.textContent = label;
     });
 
-    const thDate = document.getElementById('th-date');
-    const thName = document.getElementById('th-name');
-    const thEmail = document.getElementById('th-email');
-    const thPhone = document.getElementById('th-phone');
-    const thService = document.getElementById('th-service');
-    const thMessage = document.getElementById('th-message');
-    if (thDate) thDate.textContent = t.table_date || "Date";
-    if (thName) thName.textContent = t.table_name || "Name";
-    if (thEmail) thEmail.textContent = t.table_email || "Email";
-    if (thPhone) thPhone.textContent = t.table_phone || "Phone";
-    if (thService) thService.textContent = t.table_service || "Interest";
-    if (thMessage) thMessage.textContent = t.table_message || "Message";
-
     applyAgendaTranslations();
 }
 
 async function initDashboard() {
-    const requestedTab = ADMIN_PREVIEW || localStorage.getItem('elysium_admin_tab') || 'overview';
+    const requestedTab = localStorage.getItem('elysium_admin_tab') || 'overview';
     const savedTab = document.getElementById(requestedTab) ? requestedTab : 'overview';
 
     // Set dashboard date
@@ -2261,6 +2833,9 @@ async function initDashboard() {
     document.querySelectorAll('.portal-section').forEach(section => {
         section.classList.toggle('active', section.id === savedTab);
     });
+    const savedLabel = document.querySelector(`[data-target="${savedTab}"] .portal-nav-text`)?.textContent || 'Dashboard';
+    const commandSection = document.getElementById('crm-command-section');
+    if (commandSection) commandSection.textContent = savedLabel;
     _profileReturnTab = savedTab === 'client-profile' ? 'clients' : savedTab;
 
     // Load content for the active tab
@@ -2268,7 +2843,7 @@ async function initDashboard() {
     if (savedTab === 'clients')   loadClients();
     if (savedTab === 'pipeline')  loadPipeline();
     if (savedTab === 'licenses')  loadLicenses();
-    if (savedTab === 'contacts')  loadContacts();
+    if (savedTab === 'reports')   loadReports();
     if (savedTab === 'agenda')    loadAgenda();
     if (savedTab === 'mail')      loadMailSection();
 
@@ -2288,6 +2863,11 @@ async function openClientFromDeepLink(userId, options = {}) {
         const memberSnap = await getDoc(doc(db, 'members', userId));
         if (memberSnap.exists()) {
             showClientDetail(userId, { id: userId, ...memberSnap.data() }, null, null, options);
+            return;
+        }
+        const prospectSnap = await getDoc(doc(db, 'prospects', userId));
+        if (prospectSnap.exists()) {
+            showClientDetail(userId, { id: userId, ...prospectSnap.data(), role: 'prospect' }, null, null, options);
         }
     } catch (error) {
         logger.error('Could not open the requested client:', error);
@@ -2296,90 +2876,23 @@ async function openClientFromDeepLink(userId, options = {}) {
 
 async function loadStats() {
     const statsContainer = document.getElementById('stats-overview');
+    const operationsContainer = document.getElementById('stats-operations');
     statsContainer.innerHTML = '<div class="premium-loader"></div>';
+    if (operationsContainer) operationsContainer.innerHTML = '<div class="premium-loader"></div>';
     const t = translations[currentLang];
 
     try {
-        const membersSnap  = await getDocs(collection(db, 'members'));
-        
-        let prospectsSnap = null;
-        try {
-            prospectsSnap = await getDocs(collection(db, 'prospects'));
-        } catch (e) {
-            logger.warn('Could not load prospects (permission denied or missing collection).', e);
-        }
+        const [membersSnap] = await Promise.all([
+            getDocs(collection(db, 'members')),
+            loadUnifiedContactData(),
+            loadOpportunityData()
+        ]);
         
         // Filter real partners
         const partnerDocs = membersSnap.docs.filter(d => {
             const r = d.data().role;
             return r !== 'admin' && r !== 'root' && d.data().email !== SUPER_ADMIN_EMAIL;
         });
-
-        // Sync _allClients for pipeline/feed if not yet loaded
-        if (_allClients.length === 0) {
-            _allClients = partnerDocs.map(d => {
-                const data = d.data();
-                
-                // --- Legacy Migration for Projects ---
-                // If they don't have a projects array but have legacy data, create one project from the root fields.
-                // El identificador es LEGACY_PROJECT_ID en todas partes: esta
-                // pantalla usaba 'project-1' y el perfil 'legacy', así que cuál
-                // se acababa guardando dependía de por dónde hubieras entrado.
-                if (!data.projects) {
-                    data.projects = [];
-                    // Even if they don't have projectUrl, they might have a project in progress (onboarding)
-                    if (data.projectUrl || data.onboardingCompleted || data.financials || data.projectStage) {
-                        data.projects.push({
-                            id: LEGACY_PROJECT_ID,
-                            name: data.company || data.name || 'Proyecto 1',
-                            projectUrl: data.projectUrl || null,
-                            projectStage: data.projectStage || 'first_contact',
-                            financials: data.financials || null,
-                            reports: data.reports || [],
-                            timeline: data.timeline || [],
-                            projectDescription: data.projectDescription || ''
-                        });
-                    }
-                }
-                // One-time auto cleanup logic for duplicated or misnamed projects
-                if (data.projects) {
-                    let needsUpdate = false;
-                    let cleanedProjects = [];
-                    let seenIds = new Set();
-                    data.projects.forEach(p => {
-                        if (p.name === 'Main Project') {
-                            p.name = data.company || data.name || 'Proyecto 1';
-                            needsUpdate = true;
-                        }
-                        if (!seenIds.has(p.id)) {
-                            seenIds.add(p.id);
-                            cleanedProjects.push(p);
-                        } else {
-                            needsUpdate = true; // It's a duplicate
-                        }
-                    });
-                    
-                    if (needsUpdate) {
-                        data.projects = cleanedProjects;
-                        // Fire and forget update to clean the database
-                        updateDoc(doc(db, 'members', d.id), { projects: cleanedProjects }).catch(logger.error);
-                    }
-                }
-
-                return { ...data, id: d.id };
-            });
-            
-            // Add prospects to _allClients, giving them a role to identify them
-            if (prospectsSnap) {
-                prospectsSnap.forEach(d => {
-                    _allClients.push({
-                        ...d.data(),
-                        id: d.id,
-                        role: 'prospect' // trusted discriminator; Firestore data cannot override it
-                    });
-                });
-            }
-        }
 
         const totalPartners     = partnerDocs.length;
         const completedOB       = partnerDocs.filter(d => d.data().onboardingCompleted).length;
@@ -2400,42 +2913,95 @@ async function loadStats() {
         const totalLicenses      = subscribedPartners.length;
         const activeLicenses     = subscribedPartners.filter(d => subscriptionStatus(d.data().subscription) === 'active').length;
         const licenseHealth      = totalLicenses > 0 ? Math.round((activeLicenses / totalLicenses) * 100) : 0;
+        const totalContacts      = _allClients.length;
+        const openOpportunities  = _opportunities.filter(item => !['won', 'lost'].includes(item.stage));
+        const wonOpportunities   = _opportunities.filter(item => item.stage === 'won');
+        const lostOpportunities  = _opportunities.filter(item => item.stage === 'lost');
+        const closedTotal        = wonOpportunities.length + lostOpportunities.length;
+        const conversionRate     = closedTotal ? Math.round(wonOpportunities.length / closedTotal * 100) : 0;
+
+        // Las oportunidades pueden estar en EUR, USD o CRC. Sumarlas en un solo
+        // número y rotularlo «€» daba una cifra que no existe; se agregan por
+        // divisa con el mismo helper que usa la facturación del portal.
+        const pipelineTotals   = revenueByCurrency(openOpportunities);
+        const projectedTotals  = revenueByCurrency(openOpportunities.map(item => ({
+            currency: item.currency || 'EUR',
+            amount: (Number(item.amount) || 0) * (Number(item.probability) || 0) / 100
+        })));
+        // Sólo para las barras de progreso, que son un ratio adimensional y por
+        // tanto sí admiten un total mezclado.
+        const sumTotals        = totals => Object.values(totals).reduce((sum, value) => sum + value, 0);
+        const pipelineWeight   = sumTotals(pipelineTotals);
+        const projectedWeight  = sumTotals(projectedTotals);
+
+        // Leads nuevos del periodo: contactos entrados en la ventana activa del
+        // panel, que es la misma que gobierna el módulo de informes.
+        const periodStart      = Date.now() - _reportDays * 86400000;
+        const newLeads         = _allClients.filter(contact => {
+            const created = crmDate(contact.createdAt);
+            return created ? created.getTime() >= periodStart : false;
+        });
+        const newLeadsWon      = newLeads.filter(contact => contact.lifecycle === 'client').length;
 
         // Update sidebar counts
         const sidebarPartners  = document.getElementById('sidebar-clients-count');
         const sidebarPipeline  = document.getElementById('sidebar-pipeline-count');
-        if (sidebarPartners)  sidebarPartners.textContent  = totalPartners;
-        if (sidebarPipeline)  sidebarPipeline.textContent  = activeProjects;
-
-        try {
-            // Aggregation query: one billed read instead of downloading every
-            // inquiry just to print its count in a sidebar badge.
-            const contactsCount = await getCountFromServer(collection(db, 'contacts'));
-            const contactsBadge = document.getElementById('sidebar-contacts-count');
-            if (contactsBadge) contactsBadge.textContent = contactsCount.data().count;
-        } catch (e) {
-            logger.warn('Could not load contacts count.', e);
-        }
+        if (sidebarPartners)  sidebarPartners.textContent  = totalContacts;
+        if (sidebarPipeline)  sidebarPipeline.textContent  = openOpportunities.length;
 
         logger.log(`Stats — partners: ${totalPartners}, OB rate: ${onboardingRate}%, active: ${activeProjects}`);
 
         // ── KPI card builder ────────────────────────────────────────────
         const kpiCard = ({ id, value, label, sub, colorClass, iconSvg, progress, progressLabel, progressFillClass, trend, trendClass }) => `
-            <div class="kpi-card ${colorClass}">
+            <div class="kpi-card ${esc(colorClass)}">
                 <div class="kpi-card-top">
-                    <div class="kpi-icon icon-${colorClass.replace('kpi-', '')}">
+                    <div class="kpi-icon icon-${esc(String(colorClass || '').replace('kpi-', ''))}">
                         ${iconSvg}
                     </div>
-                    <span class="kpi-trend ${trendClass}">${trend}</span>
+                    <span class="kpi-trend ${esc(trendClass)}">${esc(trend)}</span>
                 </div>
-                <div class="kpi-value">${value}</div>
-                <div class="kpi-label">${label}</div>
-                <div class="kpi-progress-bar"><div class="kpi-progress-fill fill-${colorClass.replace('kpi-', '')}" id="kpi-fill-${id}" style="width:0"></div></div>
-                <div class="kpi-progress-label"><span>${sub}</span><span>${progressLabel}</span></div>
+                <div class="kpi-value">${esc(value)}</div>
+                <div class="kpi-label">${esc(label)}</div>
+                <div class="kpi-progress-bar"><div class="kpi-progress-fill fill-${esc(String(colorClass || '').replace('kpi-', ''))}" id="kpi-fill-${esc(id)}" style="width:0"></div></div>
+                <div class="kpi-progress-label"><span>${esc(sub)}</span><span>${esc(progressLabel)}</span></div>
             </div>`;
 
         statsContainer.className = 'kpi-grid';
         statsContainer.innerHTML =
+            kpiCard({
+                id: 'contacts', value: totalContacts, label: 'Total contacts',
+                sub: `${_allClients.filter(item => item.lifecycle === 'lead').length} leads`, progressLabel: `${_allClients.filter(item => item.lifecycle === 'client').length} clients`,
+                colorClass: 'kpi-blue', trendClass: 'trend-neutral', trend: 'Unified',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>`
+            }) +
+            kpiCard({
+                id: 'pipeline-value', value: formatRevenue(pipelineTotals), label: 'Commercial pipeline',
+                sub: `${openOpportunities.length} open`, progressLabel: `${wonOpportunities.length} won`,
+                colorClass: 'kpi-gold', trendClass: 'trend-neutral', trend: 'Opportunities',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg>`
+            }) +
+            kpiCard({
+                id: 'leads', value: newLeads.length, label: `New leads · ${_reportDays}d`,
+                sub: `${newLeadsWon} became clients`,
+                progressLabel: `${newLeads.length ? Math.round((newLeadsWon / newLeads.length) * 100) : 0}% converted`,
+                colorClass: 'kpi-blue', trendClass: newLeads.length ? 'trend-up' : 'trend-neutral',
+                trend: newLeads.length ? `+${newLeads.length}` : 'No new leads',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>`
+            }) +
+            kpiCard({
+                id: 'conversion', value: `${conversionRate}%`, label: 'Conversion rate',
+                sub: `${wonOpportunities.length} won`, progressLabel: `${closedTotal} closed`,
+                colorClass: 'kpi-green', trendClass: conversionRate >= 40 ? 'trend-up' : 'trend-neutral', trend: closedTotal ? 'Real data' : 'No closed deals',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>`
+            }) +
+            kpiCard({
+                id: 'projection', value: formatRevenue(projectedTotals), label: 'Projected revenue',
+                sub: 'Probability weighted', progressLabel: 'Current pipeline',
+                colorClass: 'kpi-green', trendClass: 'trend-neutral', trend: 'Forecast',
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8M12 6v12"/></svg>`
+            });
+
+        if (operationsContainer) operationsContainer.innerHTML =
             kpiCard({
                 id: 'partners', value: totalPartners, label: 'Total Partners',
                 sub: `${completedOB} onboarded`, progressLabel: `${onboardingRate}%`,
@@ -2463,19 +3029,40 @@ async function loadStats() {
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
             });
 
-        // Animate progress bars after render
+        // Animate progress bars after render. Cada barra mide una razón
+        // distinta: si dos tarjetas comparten la fórmula, una de las dos está
+        // rotulando algo que no muestra.
+        const clientContactsCount = _allClients.filter(item => item.lifecycle === 'client').length;
+        const wonWeight = sumTotals(revenueByCurrency(wonOpportunities));
+        animateProgress(document.getElementById('kpi-fill-contacts'), totalContacts ? Math.min(100, Math.round((clientContactsCount / totalContacts) * 100)) : 0);
+        // Cartera: cuánto del valor total generado ya está ganado.
+        animateProgress(document.getElementById('kpi-fill-pipeline-value'),
+            wonWeight + pipelineWeight ? Math.min(100, Math.round((wonWeight / (wonWeight + pipelineWeight)) * 100)) : 0);
+        animateProgress(document.getElementById('kpi-fill-leads'),
+            newLeads.length ? Math.min(100, Math.round((newLeadsWon / newLeads.length) * 100)) : 0);
+        animateProgress(document.getElementById('kpi-fill-conversion'), conversionRate);
+        // Previsión: probabilidad media ponderada de la cartera abierta.
+        animateProgress(document.getElementById('kpi-fill-projection'),
+            pipelineWeight ? Math.min(100, Math.round((projectedWeight / pipelineWeight) * 100)) : 0);
         animateProgress(document.getElementById('kpi-fill-partners'), onboardingRate);
         animateProgress(document.getElementById('kpi-fill-rate'),     onboardingRate);
         animateProgress(document.getElementById('kpi-fill-active'),   totalProjects > 0 ? (activeProjects / totalProjects) * 100 : 0);
         animateProgress(document.getElementById('kpi-fill-licenses'), licenseHealth);
 
+        // El resumen del día necesita la agenda. Si aún no se ha visitado la
+        // sección, se pide una ventana corta (hoy + 7 días) en vez del año
+        // entero que carga `loadAgenda()`.
+        ensureBriefingAgenda().then(renderDailyBriefing);
+
         // Load supplementary panels
         loadRecentActivity();
         loadPipelineSnapshot();
         renderGlobalRevenueChart().catch(error => logger.warn('Global revenue chart failed:', error));
+        renderCommercialPerformanceChart();
 
     } catch (error) {
         logger.error('Error loading stats:', error);
+        if (operationsContainer) operationsContainer.innerHTML = '';
         statsContainer.innerHTML = `
             <div class="portal-state portal-error" style="grid-column: 1 / -1;">
                 <div class="portal-state-title">${esc(t.error_stats)}</div>
@@ -2506,7 +3093,10 @@ const ACTIVITY_PRESENTATION = {
     report_added:          { dot: 'feed-dot-project', icon: 'file',    label: 'Report delivered',       sub: p => p.title ? `Report added · ${p.title}` : 'Report added' },
     report_removed:        { dot: 'feed-dot-suspend', icon: 'file',    label: 'Report removed',         sub: p => p.title ? `Report removed · ${p.title}` : 'Report removed' },
     meeting_scheduled:     { dot: 'feed-dot-project', icon: 'check',   label: 'Meeting scheduled',      sub: p => p.title ? `Meeting · ${p.title}` : 'Meeting scheduled' },
+    meeting_created:       { dot: 'feed-dot-project', icon: 'check',   label: 'Activity scheduled',     sub: p => p.title ? `${p.type === 'call' ? 'Call' : 'Meeting'} · ${p.title}` : 'Activity scheduled' },
+    meeting_updated:       { dot: 'feed-dot-project', icon: 'check',   label: 'Activity updated',       sub: p => p.title ? `${p.type === 'call' ? 'Call' : 'Meeting'} · ${p.title}` : 'Activity updated' },
     meeting_cancelled:     { dot: 'feed-dot-suspend', icon: 'slash',   label: 'Meeting cancelled',      sub: p => p.title ? `Cancelled · ${p.title}` : 'Meeting cancelled' },
+    note_added:            { dot: 'feed-dot-project', icon: 'file',    label: 'Internal note',          sub: p => p.note || 'Internal note added' },
     subscription_assigned: { dot: 'feed-dot-onboard', icon: 'file',    label: 'Subscription activated', sub: p => `Subscription assigned${p.planType ? ' · ' + p.planType : ''}` },
     subscription_updated:  { dot: 'feed-dot-project', icon: 'file',    label: 'Subscription updated',   sub: p => `Status: ${p.status || 'updated'}` },
     subscription_payment_received: { dot: 'feed-dot-onboard', icon: 'check', label: 'Subscription payment received', sub: p => `License renewed${p.planType ? ' · ' + p.planType : ''}` },
@@ -2533,14 +3123,19 @@ async function loadRecentActivity() {
         }
 
         const events = logged.map(a => {
-            const pres = ACTIVITY_PRESENTATION[a.type] || { dot: 'feed-dot-project', icon: 'file', sub: () => a.type };
+            const pres = ACTIVITY_PRESENTATION[a.type] || {
+                dot: 'feed-dot-project',
+                icon: 'file',
+                sub: () => a.summary || a.body || String(a.type || 'Activity').replaceAll('_', ' ')
+            };
+            const contactId = a.contactId || a.memberId || a.entityId || a.payload?.contactId || null;
             return {
-                ts: a.createdAt,
-                title: a.memberName || 'Unknown',
+                ts: a.occurredAt || a.createdAt,
+                title: a.contactName || a.memberName || a.summary || 'Elysium CRM',
                 sub: pres.sub(a.payload || {}),
                 dotClass: pres.dot,
                 icon: FEED_ICONS[pres.icon],
-                partnerId: a.memberId
+                contactId
             };
         });
 
@@ -2551,13 +3146,13 @@ async function loadRecentActivity() {
         const loggedUrl     = idsWith('project_url_set');
         const loggedSuspend = idsWith('account_suspended');
 
-        _allClients.forEach(c => {
+        _allClients.filter(c => c._sourceCollection === 'members').forEach(c => {
             if (c.createdAt && !loggedJoin.has(c.id)) {
                 events.push({
                     ts: c.createdAt,
                     title: c.name || 'Unknown',
                     sub: `Joined as partner${c.company ? ' · ' + c.company : ''}`,
-                    dotClass: 'feed-dot-join', icon: FEED_ICONS.user, partnerId: c.id
+                    dotClass: 'feed-dot-join', icon: FEED_ICONS.user, contactId: c.id
                 });
             }
             if (c.projectUrl && !loggedUrl.has(c.id)) {
@@ -2565,7 +3160,7 @@ async function loadRecentActivity() {
                     ts: c.createdAt, // proxy date — no real timestamp pre-ledger
                     title: c.name || 'Unknown',
                     sub: 'Project URL assigned',
-                    dotClass: 'feed-dot-project', icon: FEED_ICONS.monitor, partnerId: c.id
+                    dotClass: 'feed-dot-project', icon: FEED_ICONS.monitor, contactId: c.id
                 });
             }
             if (c.isDeactivated && !loggedSuspend.has(c.id)) {
@@ -2573,7 +3168,7 @@ async function loadRecentActivity() {
                     ts: c.createdAt, // proxy date — no real timestamp pre-ledger
                     title: c.name || 'Unknown',
                     sub: 'Account suspended',
-                    dotClass: 'feed-dot-suspend', icon: FEED_ICONS.slash, partnerId: c.id
+                    dotClass: 'feed-dot-suspend', icon: FEED_ICONS.slash, contactId: c.id
                 });
             }
         });
@@ -2588,7 +3183,7 @@ async function loadRecentActivity() {
         }
 
         container.innerHTML = `<div class="feed-list">${top.map(ev => `
-            <div class="feed-item" style="cursor:pointer;" data-partner-id="${esc(ev.partnerId)}">
+            <div class="feed-item" ${ev.contactId ? 'style="cursor:pointer;"' : ''} data-contact-id="${esc(ev.contactId || '')}">
                 <div class="feed-item-dot ${ev.dotClass}">${ev.icon}</div>
                 <div class="feed-item-body">
                     <div class="feed-item-title">${esc(ev.title)}</div>
@@ -2597,11 +3192,12 @@ async function loadRecentActivity() {
                 <div class="feed-item-time">${timeAgo(ev.ts)}</div>
             </div>`).join('')}</div>`;
 
-        // Click opens detail panel (only for members still loaded in memory)
+        // El feed comparte la misma ficha 360 que Contactos, independientemente
+        // de si el evento nació en members, prospects o contacts.
         container.querySelectorAll('.feed-item').forEach(item => {
             item.addEventListener('click', () => {
-                const partner = _allClients.find(c => c.id === item.dataset.partnerId);
-                if (partner) showClientDetail(partner.id, partner);
+                const contact = findUnifiedContactById(item.dataset.contactId);
+                if (contact) openContactDrawer(contact.id);
             });
         });
 
@@ -2619,12 +3215,24 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
 
     let acts = [];
     try {
-        // Equality-only query → automatic single-field index; sorted client-side
-        // so no composite-index deploy is required.
-        const snap = await getDocs(query(collection(db, 'activities'), where('memberId', '==', userId), limit(100)));
+        // El historial previo usa memberId y el CRM unificado usa contactId.
+        // Ambos se leen y deduplican para que la ficha operativa y la 360º
+        // compartan exactamente el mismo registro de actividad.
+        const results = await Promise.allSettled([
+            getDocs(query(collection(db, 'activities'), where('memberId', '==', userId), limit(100))),
+            getDocs(query(collection(db, 'activities'), where('contactId', '==', userId), limit(100)))
+        ]);
         if (!isCurrent()) return;
-        acts = snap.docs.map(d => d.data());
-        acts.sort((a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+        const byId = new Map();
+        results.forEach(result => {
+            if (result.status !== 'fulfilled') return;
+            result.value.docs.forEach(item => byId.set(item.id, { id: item.id, ...item.data() }));
+        });
+        acts = [...byId.values()];
+        acts.sort((a, b) => (
+            (crmDate(b.occurredAt || b.createdAt)?.getTime() || 0)
+            - (crmDate(a.occurredAt || a.createdAt)?.getTime() || 0)
+        ));
     } catch (err) {
         if (!isCurrent()) return;
         logger.warn('Client timeline unavailable:', err);
@@ -2632,15 +3240,19 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
         return;
     }
 
-    const fmtFull = ts => ts?.seconds
-        ? new Date(ts.seconds * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-        : '';
+    const fmtFull = ts => crmDate(ts)?.toLocaleDateString(undefined, {
+        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    }) || '';
 
     const arrowSvg = `<svg class="tl-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
 
     const items = acts.map(a => {
-        const pres = ACTIVITY_PRESENTATION[a.type] || { dot: 'feed-dot-project', icon: 'file', label: a.type, sub: () => '' };
+        const pres = ACTIVITY_PRESENTATION[a.type] || {
+            dot: 'feed-dot-project', icon: 'file', label: a.summary || a.type,
+            sub: () => a.body || String(a.type || 'Activity').replaceAll('_', ' ')
+        };
         const p = a.payload || {};
+        const occurredAt = a.occurredAt || a.createdAt;
         const detail = a.type === 'stage_changed'
             ? `<span class="tl-stage-flow">
                    <span class="tl-stage-pill">${esc(stageName(p.fromStage))}</span>${arrowSvg}
@@ -2654,12 +3266,12 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
                 <div class="tl-card">
                     <div class="tl-card-head">
                         <span class="tl-label">${esc(pres.label || a.type)}</span>
-                        <span class="tl-time">${timeAgo(a.createdAt)}</span>
+                        <span class="tl-time">${timeAgo(occurredAt)}</span>
                     </div>
                     ${detail}
                     <div class="tl-meta">
                         <span class="tl-actor ${a.actorRole === 'admin' ? 'tl-actor-admin' : 'tl-actor-member'}">${a.actorRole === 'admin' ? 'Admin' : 'Client'}</span>
-                        <span class="tl-date">${esc(fmtFull(a.createdAt))}</span>
+                        <span class="tl-date">${esc(fmtFull(occurredAt))}</span>
                     </div>
                 </div>
             </div>`;
@@ -2694,48 +3306,14 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
 function loadPipelineSnapshot() {
     const container = document.getElementById('pipeline-snapshot-container');
     if (!container) return;
-
-    const t = translations[currentLang];
-    const stages = { prospect: 0, first_contact: 0, prototyping: 0, development: 0, delivery: 0, maintenance: 0 };
-    let total = 0;
-    _allClients.forEach(c => {
-        // If it's a pure prospect (no account yet)
-        if (c.role === 'prospect') {
-            stages['prospect']++;
-            total++;
-            return;
-        }
-
-        if (c.projects && Array.isArray(c.projects)) {
-            c.projects.forEach(p => {
-                const stage = p.projectStage || 'first_contact';
-                if (stages[stage] !== undefined) {
-                    stages[stage]++;
-                } else {
-                    stages['first_contact']++;
-                }
-                total++;
-            });
-        } else {
-            const stage = c.projectStage || 'first_contact';
-            if (stages[stage] !== undefined) {
-                stages[stage]++;
-            } else {
-                stages['first_contact']++;
-            }
-            total++;
-        }
+    const stages = Object.fromEntries(Object.keys(OPPORTUNITY_STAGES).map(key => [key, 0]));
+    _opportunities.forEach(opportunity => {
+        if (stages[opportunity.stage] !== undefined) stages[opportunity.stage] += 1;
     });
-    if (total === 0) total = 1;
-
-    const rows = [
-        { key: 'prospect',      label: 'Prospect',                                 cls: 'snap-prospect' },
-        { key: 'first_contact', label: t.stage_contact || 'First Contact',         cls: 'snap-first_contact' },
-        { key: 'prototyping',   label: t.stage_proto || 'Prototyping',             cls: 'snap-prototyping'   },
-        { key: 'development',   label: t.stage_dev || 'Development',               cls: 'snap-development'   },
-        { key: 'delivery',      label: t.stage_delivery || 'Delivery & Pub',       cls: 'snap-delivery'      },
-        { key: 'maintenance',   label: t.stage_maint || 'Maintenance',             cls: 'snap-maintenance'   },
-    ];
+    const total = Math.max(1, _opportunities.length);
+    const rows = Object.entries(OPPORTUNITY_STAGES).map(([key, value]) => ({
+        key, label: value.label, cls: `stage-${key}`
+    }));
 
     container.innerHTML = `<div class="pipeline-snapshot">${rows.map((r, i) => `
         <div class="pipeline-snapshot-row ${r.cls}">
@@ -2751,33 +3329,409 @@ function loadPipelineSnapshot() {
 
 // ── FULL PIPELINE KANBAN ──────────────────────────────────────────────────────
 async function loadPipeline() {
+    document.querySelectorAll('[data-pipeline-mode]').forEach(button => {
+        button.classList.toggle('is-active', button.dataset.pipelineMode === _pipelineMode);
+    });
+    const createButton = document.getElementById('create-opportunity-btn');
+    if (createButton) createButton.hidden = _pipelineMode !== 'commercial';
+    if (_pipelineMode === 'delivery') return loadDeliveryPipeline();
+    return loadCommercialPipeline();
+}
+
+async function loadOpportunityData() {
+    const snap = await getDocs(query(
+        collection(db, 'opportunities'),
+        where('tenantId', '==', CRM_TENANT_ID),
+        limit(1000)
+    ));
+    _opportunities = snap.docs
+        .map(item => {
+            const data = item.data();
+            return {
+                id: item.id,
+                ...data,
+                amount: Number.isInteger(data.amountMinor) ? data.amountMinor / 100 : Number(data.amount) || 0,
+                company: data.companyName || data.company || '',
+                createdAt: data.createdAt,
+                updatedAt: data.updatedAt
+            };
+        })
+        .filter(item => item.archived !== true);
+    return _opportunities;
+}
+
+function formatOpportunityValue(opportunity) {
+    const currency = opportunity.currency || 'EUR';
+    try {
+        return new Intl.NumberFormat(currentLang === 'es' ? 'es-ES' : currentLang === 'pt' ? 'pt-PT' : 'en-GB', {
+            style: 'currency', currency, maximumFractionDigits: 0
+        }).format(opportunity.amount || 0);
+    } catch {
+        return `${opportunity.amount || 0} ${currency}`;
+    }
+}
+
+/**
+ * Segmentación del tablero. Vive en memoria porque `loadOpportunityData()` ya
+ * trae la cartera entera: filtrar en Firestore obligaría a un índice compuesto
+ * por cada combinación y a una lectura por cambio de filtro.
+ */
+const _pipelineFilters = { ownerId: '', createdDays: 0, urgency: '', search: '' };
+
+/* ── Resumen diario ──────────────────────────────────────────────────────
+   Lo accionable de hoy, separado de los KPI: un indicador describe el
+   trimestre, esto dice qué hay que atender antes de esta noche.
+   ─────────────────────────────────────────────────────────────────────── */
+
+const BRIEFING_STALE_DAYS = 14;
+
+/** Inicio y fin del día local del administrador, en milisegundos. */
+function todayBounds() {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+    return { start: start.getTime(), end: end.getTime() };
+}
+
+function briefingCard({ id, count, label, hint, tone, items, targetNav }) {
+    const list = items.length
+        ? `<ul class="crm-briefing-list">${items.map(item => (
+            `<li><strong>${esc(item.title)}</strong><span>${esc(item.meta)}</span></li>`
+        )).join('')}</ul>`
+        : `<p class="crm-briefing-empty">${esc(hint)}</p>`;
+    return `
+        <article class="crm-briefing-card is-${esc(tone)}" data-briefing="${esc(id)}">
+            <header>
+                <span class="crm-briefing-count">${count}</span>
+                <h3>${esc(label)}</h3>
+            </header>
+            ${list}
+            ${targetNav ? `<button type="button" class="crm-text-action" data-target-nav="${esc(targetNav)}">Open →</button>` : ''}
+        </article>`;
+}
+
+/**
+ * Garantiza que el resumen tenga citas que enseñar sin cargar la agenda
+ * completa. Si el administrador ya visitó la sección, `_agendaMeetings` está
+ * poblado y no se pide nada.
+ */
+async function ensureBriefingAgenda() {
+    if (_agendaMeetings.length) return _agendaMeetings;
+    const { start } = todayBounds();
+    try {
+        const from = new Date(start).toISOString();
+        const to = new Date(start + 8 * 86400000).toISOString();
+        const result = await platformRequest(
+            `/api/meetings?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
+            { method: 'GET' }
+        );
+        _agendaMeetings = (result.meetings || []).map(item => normalizeMeeting(item, item.id));
+    } catch (error) {
+        // El resumen es informativo: si la plataforma no responde se pintan las
+        // otras tres tarjetas en vez de dejar el panel entero en un error.
+        logger.warn('Daily briefing could not load the agenda.', error);
+    }
+    return _agendaMeetings;
+}
+
+/**
+ * Pinta el resumen del día. No dispara lecturas propias: reutiliza la cartera
+ * y el directorio que el panel ya tiene en memoria, y la agenda sólo si está
+ * cargada. Un panel de inicio que abre cuatro consultas más es un panel que
+ * tarda en aparecer.
+ */
+function renderDailyBriefing() {
+    const container = document.getElementById('crm-daily-briefing');
+    if (!container) return;
+    const { start, end } = todayBounds();
+    const weekEnd = start + 7 * 86400000;
+
+    const todayMeetings = _agendaMeetings
+        .filter(meeting => meeting.status !== 'cancelled')
+        .filter(meeting => {
+            const at = meetingStartMillis(meeting);
+            return at >= start && at < end;
+        })
+        .sort((a, b) => meetingStartMillis(a) - meetingStartMillis(b));
+
+    const upcomingWeek = _agendaMeetings
+        .filter(meeting => meeting.status !== 'cancelled')
+        .filter(meeting => {
+            const at = meetingStartMillis(meeting);
+            return at >= end && at < weekEnd;
+        })
+        .sort((a, b) => meetingStartMillis(a) - meetingStartMillis(b));
+
+    const overdue = _opportunities
+        .filter(item => !['won', 'lost'].includes(item.stage) && opportunityUrgency(item) === 'overdue')
+        .sort((a, b) => (crmDate(a.expectedCloseAt)?.getTime() || 0) - (crmDate(b.expectedCloseAt)?.getTime() || 0));
+
+    // Leads sin movimiento: el seguimiento que se está perdiendo ahora mismo.
+    const staleBefore = Date.now() - BRIEFING_STALE_DAYS * 86400000;
+    const stale = _allClients
+        .filter(contact => contact.lifecycle === 'lead')
+        .filter(contact => {
+            const touched = crmDate(contact.updatedAt || contact.createdAt);
+            return touched ? touched.getTime() < staleBefore : false;
+        })
+        .sort((a, b) => (crmDate(a.updatedAt)?.getTime() || 0) - (crmDate(b.updatedAt)?.getTime() || 0));
+
+    const timeOf = meeting => new Date(meetingStartMillis(meeting))
+        .toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
+    container.innerHTML = [
+        briefingCard({
+            id: 'today', count: todayMeetings.length, label: "Today's activities", tone: 'blue',
+            hint: 'Nothing scheduled for today.', targetNav: 'agenda',
+            items: todayMeetings.slice(0, 4).map(meeting => ({
+                title: meeting.title || (meeting.type === 'call' ? 'Call' : 'Meeting'),
+                meta: `${timeOf(meeting)} · ${meeting.clientName || meeting.clientEmail || 'Contact'}`
+            }))
+        }),
+        briefingCard({
+            id: 'week', count: upcomingWeek.length, label: 'Next 7 days', tone: 'neutral',
+            hint: 'No activities booked this week.', targetNav: 'agenda',
+            items: upcomingWeek.slice(0, 4).map(meeting => ({
+                title: meeting.title || (meeting.type === 'call' ? 'Call' : 'Meeting'),
+                meta: `${formatAdminDate(new Date(meetingStartMillis(meeting)))} · ${meeting.clientName || 'Contact'}`
+            }))
+        }),
+        briefingCard({
+            id: 'overdue', count: overdue.length, label: 'Overdue opportunities', tone: 'danger',
+            hint: 'No opportunity is past its close date.', targetNav: 'pipeline',
+            items: overdue.slice(0, 4).map(opportunity => ({
+                title: opportunity.title,
+                meta: `${formatOpportunityValue(opportunity)} · due ${formatAdminDate(opportunity.expectedCloseAt)}`
+            }))
+        }),
+        briefingCard({
+            id: 'stale', count: stale.length, label: `Leads idle ${BRIEFING_STALE_DAYS}+ days`, tone: 'warning',
+            hint: 'Every lead has been touched recently.', targetNav: 'clients',
+            items: stale.slice(0, 4).map(contact => ({
+                title: contact.name,
+                meta: `${contact.company || 'No company'} · ${timeAgo(contact.updatedAt || contact.createdAt) || 'never'}`
+            }))
+        })
+    ].join('');
+
+    // El enlazado global de `[data-target-nav]` corre una sola vez al arrancar;
+    // estas tarjetas se inyectan después, así que se enlazan aquí.
+    container.querySelectorAll('[data-target-nav]').forEach(button => {
+        button.addEventListener('click', () => navigateTo(button.dataset.targetNav));
+    });
+}
+
+/**
+ * Nombre visible del propietario de un registro. Vive en ámbito de módulo
+ * porque lo usan el directorio, el tablero y el filtro de agentes; como const
+ * local dentro del directorio, los otros dos daban ReferenceError.
+ */
+function ownerLabel(ownerId) {
+    const owner = _crmUsers.find(user => user.id === ownerId);
+    return owner?.displayName || owner?.email || (ownerId ? 'Elysium team' : 'Unassigned');
+}
+
+const PIPELINE_URGENCY_LABEL = {
+    overdue: 'Overdue',
+    week: 'This week',
+    month: 'This month',
+    later: 'Scheduled',
+    undated: 'No date'
+};
+
+/** Ventana de cierre de una oportunidad, derivada de `expectedCloseAt`. */
+function opportunityUrgency(opportunity) {
+    const close = crmDate(opportunity.expectedCloseAt);
+    if (!close) return 'undated';
+    const days = Math.floor((close.getTime() - Date.now()) / 86400000);
+    if (days < 0) return 'overdue';
+    if (days <= 7) return 'week';
+    if (days <= 31) return 'month';
+    return 'later';
+}
+
+function applyPipelineFilters(opportunities) {
+    const { ownerId, createdDays, urgency, search } = _pipelineFilters;
+    const since = createdDays ? Date.now() - createdDays * 86400000 : 0;
+    const needle = search.trim().toLowerCase();
+    return opportunities.filter(opportunity => {
+        if (ownerId && opportunity.ownerId !== ownerId) return false;
+        if (since) {
+            const created = crmDate(opportunity.createdAt);
+            if (!created || created.getTime() < since) return false;
+        }
+        if (urgency && opportunityUrgency(opportunity) !== urgency) return false;
+        if (needle) {
+            const haystack = [
+                opportunity.title, opportunity.contactName, opportunity.company,
+                ...(Array.isArray(opportunity.tags) ? opportunity.tags : [])
+            ].join(' ').toLowerCase();
+            if (!haystack.includes(needle)) return false;
+        }
+        return true;
+    });
+}
+
+function renderPipelineOwnerOptions() {
+    const select = document.getElementById('pipeline-filter-owner');
+    if (!select) return;
+    const previous = select.value;
+    // Se listan los propietarios que aparecen de verdad en la cartera, no la
+    // plantilla entera: un desplegable con agentes sin oportunidades sugiere
+    // filtros que siempre devuelven un tablero vacío.
+    const owners = [...new Set(_opportunities.map(item => item.ownerId).filter(Boolean))];
+    select.innerHTML = '<option value="">Everyone</option>'
+        + owners.map(id => `<option value="${esc(id)}">${esc(ownerLabel(id))}</option>`).join('');
+    select.value = owners.includes(previous) ? previous : '';
+}
+
+function initPipelineFilters() {
+    const bind = (id, handler) => {
+        const element = document.getElementById(id);
+        if (element) element.addEventListener(id === 'pipeline-filter-search' ? 'input' : 'change', handler);
+    };
+    bind('pipeline-filter-owner', event => { _pipelineFilters.ownerId = event.target.value; loadCommercialPipeline({ useCache: true }); });
+    bind('pipeline-filter-created', event => { _pipelineFilters.createdDays = Number(event.target.value) || 0; loadCommercialPipeline({ useCache: true }); });
+    bind('pipeline-filter-urgency', event => { _pipelineFilters.urgency = event.target.value; loadCommercialPipeline({ useCache: true }); });
+    bind('pipeline-filter-search', event => { _pipelineFilters.search = event.target.value; loadCommercialPipeline({ useCache: true }); });
+    document.getElementById('pipeline-filter-reset')?.addEventListener('click', () => {
+        Object.assign(_pipelineFilters, { ownerId: '', createdDays: 0, urgency: '', search: '' });
+        ['pipeline-filter-owner', 'pipeline-filter-created', 'pipeline-filter-urgency', 'pipeline-filter-search']
+            .forEach(id => { const element = document.getElementById(id); if (element) element.value = ''; });
+        loadCommercialPipeline({ useCache: true });
+    });
+}
+
+async function moveOpportunity(opportunityId, stageId) {
+    const stage = OPPORTUNITY_STAGES[stageId];
+    const opportunity = _opportunities.find(item => item.id === opportunityId);
+    if (!stage || !opportunity || opportunity.stage === stageId) return;
+    const previousStage = opportunity.stage;
+    opportunity.stage = stageId;
+    opportunity.probability = stage.probability;
+    loadCommercialPipeline({ useCache: true });
+    try {
+        await updateDoc(doc(db, 'opportunities', opportunityId), {
+            stage: stageId,
+            probability: stage.probability,
+            rank: String(Date.now()).padStart(16, '0'),
+            closedAt: ['won', 'lost'].includes(stageId) ? serverTimestamp() : null,
+            updatedAt: serverTimestamp(),
+            updatedBy: auth.currentUser.uid
+        });
+    } catch (error) {
+        opportunity.stage = previousStage;
+        loadCommercialPipeline({ useCache: true });
+        alert(`The opportunity could not be moved: ${error.message}`);
+    }
+}
+
+async function loadCommercialPipeline({ useCache = false } = {}) {
+    const board = document.getElementById('pipeline-board');
+    if (!board) return;
+    board.innerHTML = '<div class="premium-loader"></div>';
+    try {
+        if (!useCache) await Promise.all([
+            loadOpportunityData(),
+            _allClients.length ? Promise.resolve(_allClients) : loadUnifiedContactData()
+        ]);
+        renderPipelineOwnerOptions();
+        const visible = applyPipelineFilters(_opportunities);
+        const countLabel = document.getElementById('pipeline-filter-count');
+        if (countLabel) {
+            countLabel.textContent = visible.length === _opportunities.length
+                ? `${_opportunities.length} opportunities`
+                : `${visible.length} of ${_opportunities.length} opportunities`;
+        }
+
+        const grouped = Object.fromEntries(Object.keys(OPPORTUNITY_STAGES).map(stage => [stage, []]));
+        visible.forEach(opportunity => {
+            if (grouped[opportunity.stage]) grouped[opportunity.stage].push(opportunity);
+            else grouped.new.push(opportunity);
+        });
+        for (const list of Object.values(grouped)) {
+            list.sort((a, b) => String(a.rank || '').localeCompare(String(b.rank || '')));
+        }
+        board.innerHTML = Object.entries(OPPORTUNITY_STAGES).map(([stageId, stage]) => {
+            // Valoración acumulada de la etapa, por divisa. `formatRevenue`
+            // devuelve «€12.000 · ₡400.000» cuando la columna las mezcla.
+            const stageTotals = revenueByCurrency(grouped[stageId]);
+            const weighted = revenueByCurrency(grouped[stageId].map(item => ({
+                currency: item.currency || 'EUR',
+                amount: (Number(item.amount) || 0) * (Number(item.probability) || 0) / 100
+            })));
+            return `
+            <div class="pipeline-column ${stage.cls}" data-opportunity-stage="${stageId}">
+                <div class="pipeline-col-header">
+                    <div class="pipeline-col-title"><div class="pipeline-col-dot"></div><span>${esc(stage.label)}</span></div>
+                    <span class="pipeline-col-count">${grouped[stageId].length}</span>
+                </div>
+                <div class="pipeline-col-total">
+                    <strong>${esc(formatRevenue(stageTotals))}</strong>
+                    <span>${esc(formatRevenue(weighted))} weighted · ${stage.probability}%</span>
+                </div>
+                <div class="pipeline-col-cards" data-opportunity-drop="${stageId}">
+                    ${grouped[stageId].length ? grouped[stageId].map(opportunity => {
+                        const contact = findUnifiedContactById(opportunity.contactId);
+                        const name = opportunity.contactName || contact?.name || 'Unnamed contact';
+                        const tags = Array.isArray(opportunity.tags) ? opportunity.tags.slice(0, 2) : [];
+                        const urgency = opportunityUrgency(opportunity);
+                        const closeDate = crmDate(opportunity.expectedCloseAt);
+                        return `<article class="pipeline-card is-${urgency}" draggable="true" tabindex="0" data-opportunity-id="${esc(opportunity.id)}" data-contact-id="${esc(opportunity.contactId)}">
+                            <div class="pipeline-card-avatar">${esc(initials(name))}</div>
+                            <div class="pipeline-card-body"><div class="pipeline-card-name">${esc(opportunity.title)}</div><div class="pipeline-card-company">${esc(name)}${opportunity.company ? ` · ${esc(opportunity.company)}` : ''}</div></div>
+                            <div class="pipeline-card-meta"><span>${esc(ownerLabel(opportunity.ownerId))}</span><strong class="pipeline-card-value">${esc(formatOpportunityValue(opportunity))}</strong></div>
+                            ${closeDate ? `<div class="pipeline-card-due is-${urgency}">${esc(PIPELINE_URGENCY_LABEL[urgency] || '')} · ${esc(formatAdminDate(opportunity.expectedCloseAt))}</div>` : ''}
+                            ${tags.length ? `<div class="pipeline-card-tags">${tags.map(tag => `<span class="pipeline-tag">${esc(tag)}</span>`).join('')}</div>` : ''}
+                        </article>`;
+                    }).join('') : '<div class="pipeline-col-empty">No opportunities here</div>'}
+                </div>
+            </div>`;
+        }).join('');
+
+        board.querySelectorAll('[data-opportunity-id]').forEach(card => {
+            card.addEventListener('click', () => openContactDrawer(card.dataset.contactId));
+            card.addEventListener('keydown', event => {
+                if (event.key === 'Enter') openContactDrawer(card.dataset.contactId);
+            });
+            card.addEventListener('dragstart', event => {
+                card.classList.add('is-dragging');
+                event.dataTransfer.setData('text/plain', card.dataset.opportunityId);
+                event.dataTransfer.effectAllowed = 'move';
+            });
+            card.addEventListener('dragend', () => card.classList.remove('is-dragging'));
+        });
+        board.querySelectorAll('[data-opportunity-drop]').forEach(column => {
+            column.addEventListener('dragover', event => {
+                event.preventDefault();
+                column.classList.add('is-drop-target');
+            });
+            column.addEventListener('dragleave', () => column.classList.remove('is-drop-target'));
+            column.addEventListener('drop', event => {
+                event.preventDefault();
+                column.classList.remove('is-drop-target');
+                const opportunityId = event.dataTransfer.getData('text/plain');
+                moveOpportunity(opportunityId, column.dataset.opportunityDrop);
+            });
+        });
+        const badge = document.getElementById('sidebar-pipeline-count');
+        if (badge) badge.textContent = _opportunities.filter(item => !['won', 'lost'].includes(item.stage)).length;
+    } catch (error) {
+        logger.error('Commercial pipeline failed:', error);
+        board.innerHTML = `<div class="portal-state portal-error"><div class="portal-state-title">Pipeline unavailable</div><div class="portal-state-description">${esc(error.message)}</div></div>`;
+    }
+}
+
+async function loadDeliveryPipeline() {
     const board = document.getElementById('pipeline-board');
     if (!board) return;
 
-    // If clients not loaded yet, fetch them first
+    // El mismo directorio alimenta esta vista; aquí sólo entran perfiles que
+    // realmente poseen un proyecto operativo.
     if (_allClients.length === 0) {
         board.innerHTML = '<div class="premium-loader"></div>';
-        const q = query(collection(db, 'members'), orderBy('createdAt', 'desc'));
-        const snap = await getDocs(q);
-        _allClients = [];
-        snap.forEach(docSnap => {
-            const data = docSnap.data();
-            if (data.email === SUPER_ADMIN_EMAIL || data.role === 'admin' || data.role === 'root') return;
-            _allClients.push({ ...data, id: docSnap.id });
-        });
-        
-        try {
-            const prospectsSnap = await getDocs(collection(db, 'prospects'));
-            prospectsSnap.forEach(d => {
-                _allClients.push({
-                    ...d.data(),
-                    id: d.id,
-                    role: 'prospect'
-                });
-            });
-        } catch(e) {
-            logger.warn("Could not load prospects for pipeline: ", e);
-        }
+        await loadUnifiedContactData();
     }
 
     const t = translations[currentLang];
@@ -2790,7 +3744,7 @@ async function loadPipeline() {
         maintenance:   { label: t.stage_maint || 'Maintenance',             cls: 'stage-maintenance',   clients: [] },
     };
 
-    _allClients.forEach(c => {
+    _allClients.filter(contact => ['members', 'prospects'].includes(contact._sourceCollection)).forEach(c => {
         if (c.role === 'prospect') {
             stages['prospect'].clients.push({ client: c, project: null });
             return;
@@ -2857,6 +3811,24 @@ async function loadPipeline() {
     ));
 }
 
+function contactsMatchingSearch(term = '') {
+    const queryText = String(term).trim().toLowerCase();
+    if (!queryText) return _allClients;
+    return _allClients.filter(contact => [
+        contact.name,
+        contact.company,
+        contact.email,
+        contact.phone,
+        contact.service,
+        contact.message,
+        ...(contact.tags || [])
+    ].some(value => String(value || '').toLowerCase().includes(queryText)));
+}
+
+function currentContactSearchResults() {
+    return contactsMatchingSearch(document.getElementById('crm-search')?.value || '');
+}
+
 async function loadClients() {
     const clientsList = document.getElementById('clients-list');
     const toolbar     = document.getElementById('crm-toolbar');
@@ -2865,41 +3837,16 @@ async function loadClients() {
     const t = translations[currentLang];
 
     try {
-        const q = query(collection(db, 'members'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(q);
-
-        // Filter out admins and self, keep only real partners
-        _allClients = [];
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            if (
-                data.email === SUPER_ADMIN_EMAIL ||
-                data.role === 'admin' ||
-                data.role === 'root'
-            ) return;
-            _allClients.push({ ...data, id: docSnap.id });
-        });
-        
-        try {
-            const prospectsSnap = await getDocs(collection(db, 'prospects'));
-            prospectsSnap.forEach(d => {
-                _allClients.push({
-                    ...d.data(),
-                    id: d.id,
-                    role: 'prospect' // trusted discriminator; Firestore data cannot override it
-                });
-            });
-        } catch(e) {
-            logger.warn("Could not load prospects for grid: ", e);
-        }
-
-        logger.log(`Loaded ${_allClients.length} partners and prospects from Firestore.`);
+        await loadUnifiedContactData();
+        logger.log(`Loaded ${_allClients.length} unified contacts from Firestore.`);
+        const sidebarCount = document.getElementById('sidebar-clients-count');
+        if (sidebarCount) sidebarCount.textContent = _allClients.length;
 
         // Show toolbar once data is ready
         if (toolbar) toolbar.style.display = 'flex';
 
-        // Initial render
-        renderClientGrid(_allClients, t);
+        // Preserve the current search/filter when returning from a 360º profile.
+        renderClientGrid(currentContactSearchResults(), t);
 
         // ── Search handler ────────────────────────────────────────────────
         const searchInput = document.getElementById('crm-search');
@@ -2908,15 +3855,8 @@ async function loadClients() {
             const fresh = searchInput.cloneNode(true);
             searchInput.parentNode.replaceChild(fresh, searchInput);
             fresh.addEventListener('input', () => {
-                const term = fresh.value.trim().toLowerCase();
-                const filtered = term
-                    ? _allClients.filter(c =>
-                        (c.name    || '').toLowerCase().includes(term) ||
-                        (c.company || '').toLowerCase().includes(term) ||
-                        (c.email   || '').toLowerCase().includes(term)
-                    )
-                    : _allClients;
-                renderClientGrid(filtered, t);
+                _clientPage = 1;
+                renderClientGrid(contactsMatchingSearch(fresh.value), t);
             });
         }
 
@@ -2927,18 +3867,11 @@ async function loadClients() {
             sortBtn.parentNode.replaceChild(freshBtn, sortBtn);
             freshBtn.addEventListener('click', () => {
                 _sortAZ = !_sortAZ;
+                _clientPage = 1;
                 const label = document.getElementById('crm-sort-label');
                 if (label) label.textContent = _sortAZ ? 'A → Z' : 'Newest';
                 freshBtn.classList.toggle('is-active', !_sortAZ);
-                const term = document.getElementById('crm-search')?.value.trim().toLowerCase() || '';
-                const filtered = term
-                    ? _allClients.filter(c =>
-                        (c.name || '').toLowerCase().includes(term) ||
-                        (c.company || '').toLowerCase().includes(term) ||
-                        (c.email   || '').toLowerCase().includes(term)
-                    )
-                    : _allClients;
-                renderClientGrid(filtered, t);
+                renderClientGrid(currentContactSearchResults(), t);
             });
         }
         // ── Filter pills ──────────────────────────────────────────────────
@@ -2951,15 +3884,8 @@ async function loadClients() {
                     freshPills.querySelectorAll('.crm-pill').forEach(p => p.classList.remove('active'));
                     pill.classList.add('active');
                     _activeFilter = pill.dataset.filter || 'all';
-                    const term = document.getElementById('crm-search')?.value.trim().toLowerCase() || '';
-                    const base = term
-                        ? _allClients.filter(c =>
-                            (c.name    || '').toLowerCase().includes(term) ||
-                            (c.company || '').toLowerCase().includes(term) ||
-                            (c.email   || '').toLowerCase().includes(term)
-                        )
-                        : _allClients;
-                    renderClientGrid(base, t);
+                    _clientPage = 1;
+                    renderClientGrid(currentContactSearchResults(), t);
                 });
             });
         }
@@ -2974,67 +3900,489 @@ function renderClientGrid(clients, t) {
     const clientsList = document.getElementById('clients-list');
     const countEl     = document.getElementById('crm-results-count');
     if (!clientsList) return;
+    _clientRenderCandidates = clients;
 
     // Apply active pill filter
     let filtered = clients;
     if (_activeFilter !== 'all') {
-        filtered = clients.filter(c => getPartnerStage(c) === _activeFilter);
+        filtered = clients.filter(c => c.lifecycle === _activeFilter);
     }
 
     // Apply current sort
     const sorted = [...filtered].sort((a, b) => {
         if (_sortAZ) return (a.name || '').localeCompare(b.name || '');
-        const tsA = a.createdAt?.seconds ?? 0;
-        const tsB = b.createdAt?.seconds ?? 0;
-        return tsB - tsA;
+        return (crmDate(b.updatedAt || b.createdAt)?.getTime() || 0)
+            - (crmDate(a.updatedAt || a.createdAt)?.getTime() || 0);
     });
 
-    if (countEl) countEl.textContent = `${sorted.length} partner${sorted.length !== 1 ? 's' : ''}`;
+    if (countEl) countEl.textContent = `${sorted.length} contact${sorted.length !== 1 ? 's' : ''}`;
+
+    const totalPages = Math.max(1, Math.ceil(sorted.length / CLIENT_PAGE_SIZE));
+    _clientPage = Math.min(Math.max(1, _clientPage), totalPages);
+    const pageItems = sorted.slice((_clientPage - 1) * CLIENT_PAGE_SIZE, _clientPage * CLIENT_PAGE_SIZE);
+    const pagination = document.getElementById('crm-pagination');
+    const previous = document.getElementById('crm-page-prev');
+    const next = document.getElementById('crm-page-next');
+    const status = document.getElementById('crm-page-status');
+    if (pagination) pagination.hidden = sorted.length <= CLIENT_PAGE_SIZE;
+    if (previous) previous.disabled = _clientPage <= 1;
+    if (next) next.disabled = _clientPage >= totalPages;
+    if (status) status.textContent = `Page ${_clientPage} of ${totalPages}`;
 
     if (sorted.length === 0) {
+        if (pagination) pagination.hidden = true;
         clientsList.innerHTML = `<p style="grid-column:1/-1;text-align:center;opacity:0.4;padding:3rem 0;">
-            No partners found${_activeFilter !== 'all' ? ' in this stage' : ''}.
+            No contacts found${_activeFilter !== 'all' ? ' in this lifecycle' : ''}.
         </p>`;
         return;
     }
 
-    clientsList.innerHTML = '';
-    sorted.forEach(data => {
-        const isSuspended = data.isDeactivated === true;
-        const stage       = getPartnerStage(data);
-        const stageLabels = { prospect: 'Prospect', onboarding: 'Onboarding', active: 'Active', delivered: 'Delivered' };
-        // The portal's status chip carries the colour: prospect is neutral,
-        // onboarding is in progress, active and delivered are done.
-        const stageChip = { prospect: 'is-neutral', onboarding: 'is-warning', active: 'is-success', delivered: 'is-active' };
-        // Surfaced on the grid so a duplicate is obvious before opening the card
-        const duplicateOf = data.role === 'prospect' ? registeredClientMatchingEmail(data.email) : null;
-
-        const card = document.createElement('div');
-        card.className = `client-card${isSuspended ? ' is-suspended' : ''}`;
-        card.setAttribute('data-stage', stage);
-        card.innerHTML = `
-            <div class="client-card-header">
-                <div class="client-card-avatar">${esc(initials(data.name))}</div>
-                <div class="client-info">
-                    <div class="client-name">${esc(data.name || t.unnamed_client)}</div>
-                    <div class="client-company">${esc(data.company || t.no_company)}</div>
-                </div>
-                <span class="portal-status ${stageChip[stage] || 'is-neutral'}">${stageLabels[stage]}</span>
+    const stageLabels = { lead: 'Lead', prospect: 'Prospect', client: 'Client', inactive: 'Inactive' };
+    const stageChip = { lead: 'is-warning', prospect: 'is-neutral', client: 'is-success', inactive: 'is-neutral' };
+    clientsList.innerHTML = `
+        <div class="crm-directory-table" role="table" aria-label="Unified contacts">
+            <div class="crm-directory-row crm-directory-head" role="row">
+                <span role="columnheader">Relationship</span>
+                <span role="columnheader">Company & source</span>
+                <span role="columnheader">Lifecycle</span>
+                <span role="columnheader">Owner</span>
+                <span role="columnheader">Last activity</span>
+                <span aria-hidden="true"></span>
             </div>
-            ${data.projects && data.projects.length > 0 ? `
-                <div class="client-projects">
-                    ${data.projects.map(p => `<span>${esc(p.name || 'Unnamed Project')}</span>`).join('')}
-                </div>` : ''}
-            <div class="client-meta">
-                <span class="client-meta-email" title="${esc(data.email)}">${esc(data.email)}</span>
-                <span class="client-joined">${timeAgo(data.createdAt)}</span>
-            </div>
-            ${isSuspended ? '<div class="suspended-badge">Suspended</div>' : ''}
-            ${duplicateOf ? `<div class="client-duplicate-badge" title="${esc(duplicateOf.email)}">Already a client · merge</div>` : ''}
-        `;
-        card.addEventListener('click', () => showClientDetail(data.id, data));
-        clientsList.appendChild(card);
+            ${pageItems.map(data => {
+                const stage = data.lifecycle || 'lead';
+                const recent = data.updatedAt || data.createdAt;
+                return `
+                    <div class="crm-directory-row${stage === 'inactive' ? ' is-suspended' : ''}" role="row" tabindex="0" data-contact-row="${esc(data.id)}">
+                        <div class="crm-directory-person" role="cell">
+                            <div class="client-card-avatar">${esc(initials(data.name))}</div>
+                            <div><strong>${esc(data.name || t.unnamed_client)}</strong><span>${esc(data.email || data.phone || '—')}</span></div>
+                        </div>
+                        <div class="crm-directory-company" role="cell"><strong>${esc(data.company || t.no_company)}</strong><span>${esc(data.sourceLabel || contactSourceLabel(data))}</span></div>
+                        <div role="cell"><span class="portal-status ${stageChip[stage] || 'is-neutral'}">${stageLabels[stage] || stage}</span></div>
+                        <div class="crm-directory-owner" role="cell"><span class="crm-owner-dot"></span>${esc(ownerLabel(data.ownerId))}</div>
+                        <div class="crm-directory-activity" role="cell"><strong>${esc(timeAgo(recent) || 'No activity')}</strong>${(data.tags || []).length ? `<span>${data.tags.slice(0, 2).map(esc).join(' · ')}</span>` : '<span>No tags</span>'}</div>
+                        <div class="crm-directory-chevron" aria-hidden="true">›</div>
+                    </div>`;
+            }).join('')}
+        </div>`;
+    clientsList.querySelectorAll('[data-contact-row]').forEach(row => {
+        const open = () => openContactDrawer(row.dataset.contactRow);
+        row.addEventListener('click', open);
+        row.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                open();
+            }
+        });
     });
+}
+
+async function loadContactDrawerData(contact) {
+    const ids = [...new Set((contact._linkedRecords || [{ id: contact.id }]).map(record => record.id))];
+    const activityRequests = ids.flatMap(id => [
+        getDocs(query(collection(db, 'activities'), where('contactId', '==', id), limit(50))),
+        getDocs(query(collection(db, 'activities'), where('memberId', '==', id), limit(50)))
+    ]);
+    const fileRequests = ids.map(id => getDocs(query(
+        collection(db, 'files'),
+        where('tenantId', '==', CRM_TENANT_ID),
+        where('status', '==', 'ready'),
+        where('entityId', '==', id),
+        limit(100)
+    )));
+    const [activityResults, fileResults] = await Promise.all([
+        Promise.allSettled(activityRequests),
+        Promise.allSettled(fileRequests)
+    ]);
+    const activitiesById = new Map();
+    activityResults.forEach(result => {
+        if (result.status !== 'fulfilled') return;
+        result.value.docs.forEach(item => activitiesById.set(item.id, { id: item.id, ...item.data() }));
+    });
+    _crmActivities = [...activitiesById.values()].sort((a, b) => (
+        (crmDate(b.occurredAt || b.createdAt)?.getTime() || 0)
+        - (crmDate(a.occurredAt || a.createdAt)?.getTime() || 0)
+    ));
+    const filesById = new Map();
+    fileResults.forEach(result => {
+        if (result.status !== 'fulfilled') {
+            logger.warn('Contact files could not be loaded.', result.reason);
+            return;
+        }
+        result.value.docs.forEach(item => filesById.set(item.id, { id: item.id, ...item.data() }));
+    });
+    _crmFiles = [...filesById.values()].sort((a, b) => (
+        (crmDate(b.createdAt)?.getTime() || 0) - (crmDate(a.createdAt)?.getTime() || 0)
+    ));
+    return { activities: _crmActivities, files: _crmFiles };
+}
+
+function closeContactDrawer() {
+    const backdrop = document.getElementById('contact-drawer-backdrop');
+    if (!backdrop) return;
+    backdrop.hidden = true;
+    _selectedContactId = null;
+    document.body.style.overflow = '';
+}
+
+async function openContactDrawer(contactId) {
+    const contact = findUnifiedContactById(contactId);
+    const backdrop = document.getElementById('contact-drawer-backdrop');
+    const content = document.getElementById('contact-drawer-content');
+    if (!contact || !backdrop || !content) return;
+    _selectedContactId = contact.id;
+    backdrop.hidden = false;
+    document.body.style.overflow = 'hidden';
+    content.innerHTML = '<div class="loader-container"><div class="premium-loader"></div></div>';
+    try {
+        const resources = await loadContactDrawerData(contact);
+        if (_selectedContactId !== contact.id) return;
+        renderContactDrawer(contact, resources);
+    } catch (error) {
+        logger.error('Contact drawer failed:', error);
+        content.innerHTML = `<div class="crm-drawer-section"><button class="crm-drawer-close" type="button" data-close-contact>×</button><p class="color-text-error">${esc(error.message)}</p></div>`;
+        content.querySelector('[data-close-contact]')?.addEventListener('click', closeContactDrawer);
+    }
+}
+
+function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
+    const content = document.getElementById('contact-drawer-content');
+    if (!content) return;
+    const operational = ['members', 'prospects'].includes(contact._sourceCollection);
+    const sourceRecords = (contact._linkedRecords || []).map(record => contactSourceLabel({
+        ...record.data, _sourceCollection: record.sourceCollection
+    }));
+    const uniqueSources = sourceRecords.filter((source, index) => sourceRecords.indexOf(source) === index);
+    const canUploadFiles = _platformCapabilities.files.upload;
+    const canDownloadFiles = _platformCapabilities.files.download;
+    content.innerHTML = `
+        <section class="crm-drawer-section">
+            <div class="crm-drawer-header">
+                <span class="agenda-eyebrow">Contact 360º</span>
+                <button class="crm-drawer-close" type="button" data-close-contact aria-label="Close">×</button>
+            </div>
+            <div class="crm-drawer-identity">
+                <div class="crm-drawer-avatar">${esc(initials(contact.name))}</div>
+                <div><h2 id="contact-drawer-title">${esc(contact.name)}</h2><p class="crm-drawer-subtitle">${esc(contact.jobTitle || contact.company || contact.sourceLabel)}</p></div>
+            </div>
+            <div class="crm-drawer-actions" style="margin-top:1rem;justify-content:flex-start;">
+                ${contact.email ? `<a class="btn btn-secondary" href="mailto:${esc(contact.email)}">Email</a>` : ''}
+                ${contact.phone ? `<a class="btn btn-secondary" href="tel:${esc(contact.phone)}">Call</a>` : ''}
+                ${operational ? '<button type="button" class="btn btn-primary" data-open-operational>Open full profile</button>' : ''}
+            </div>
+        </section>
+        <section class="crm-drawer-section">
+            <div class="crm-detail-grid">
+                <div class="crm-detail-item"><span>Email</span><a href="mailto:${esc(contact.email)}">${esc(contact.email || '—')}</a></div>
+                <div class="crm-detail-item"><span>Phone</span><a href="tel:${esc(contact.phone)}">${esc(contact.phone || '—')}</a></div>
+                <div class="crm-detail-item"><span>Company</span><strong>${esc(contact.company || '—')}</strong></div>
+                <div class="crm-detail-item"><span>Lifecycle</span><strong>${esc(contact.lifecycle || 'lead')}</strong></div>
+                <div class="crm-detail-item"><span>Source</span><strong>${esc(uniqueSources.join(' · ') || contact.sourceLabel)}</strong></div>
+                <div class="crm-detail-item"><span>Created</span><strong>${esc(formatAdminDate(contact.createdAt))}</strong></div>
+            </div>
+            ${contact.service ? `<div style="margin-top:1rem"><span class="crm-drawer-label">Service of interest</span><strong>${esc(contact.service)}</strong></div>` : ''}
+            ${contact.message ? `<div style="margin-top:1rem"><span class="crm-drawer-label">Original inquiry</span><p class="crm-inquiry-message">${esc(contact.message)}</p></div>` : ''}
+        </section>
+        <section class="crm-drawer-section">
+            <span class="crm-drawer-label">Tags</span>
+            <div class="crm-tag-list">${(contact.tags || []).map(tag => `<span class="crm-tag">${esc(tag)}<button type="button" data-remove-contact-tag="${esc(tag)}" aria-label="Remove ${esc(tag)}">×</button></span>`).join('') || '<span class="crm-drawer-muted">No tags yet.</span>'}</div>
+            <form class="crm-inline-form" id="contact-tag-form"><input class="form-control" id="contact-tag-input" maxlength="40" placeholder="New tag"><button class="btn btn-secondary" type="submit">Add</button></form>
+        </section>
+        <section class="crm-drawer-section">
+            <span class="crm-drawer-label">Internal note</span>
+            <textarea class="crm-note-input" id="contact-note-input" maxlength="5000" placeholder="Visible only to the Elysium team"></textarea>
+            <div class="crm-drawer-actions" style="margin-top:.75rem"><span class="crm-drawer-muted" id="contact-note-message"></span><button class="btn btn-primary" type="button" id="contact-note-save">Save note</button></div>
+            <div class="crm-activity-list" style="margin-top:1rem">${activities.length ? activities.map(activity => `
+                <article class="crm-activity-item"><strong>${esc(activity.summary || activity.type || 'Activity')}</strong>${activity.body || activity.payload?.note ? `<p>${esc(activity.body || activity.payload?.note)}</p>` : ''}<p>${esc(activity.actorEmail || activity.memberName || 'Elysium team')} · ${esc(formatAdminDate(activity.occurredAt || activity.createdAt))}</p></article>
+            `).join('') : '<span class="crm-drawer-muted">No activity yet.</span>'}</div>
+        </section>
+        <section class="crm-drawer-section">
+            <div class="crm-drawer-actions"><span class="crm-drawer-label" style="margin:0">Cloudflare files</span>${canUploadFiles ? '<label class="btn btn-secondary" for="contact-file-input">Upload file</label>' : ''}</div>
+            ${canUploadFiles ? '<input id="contact-file-input" type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">' : '<div class="portal-alert is-warning crm-file-capability">Private file storage needs its Cloudflare R2 credentials before uploads can be enabled.</div>'}
+            <div id="contact-file-progress" class="crm-upload-progress" hidden><span style="width:0"></span></div>
+            <div class="crm-file-list" style="margin-top:1rem">${files.length ? files.map(file => `
+                <article class="crm-file-item"><div class="crm-drawer-actions"><div><strong>${esc(file.originalName || file.originalFilename || 'File')}</strong><p>${Math.max(1, Math.round((file.size || file.bytes || 0) / 1024))} KB · ${esc(formatAdminDate(file.createdAt))}</p></div>${canDownloadFiles ? `<button class="btn btn-secondary" type="button" data-download-file="${esc(file.id)}">Download</button>` : ''}</div></article>
+            `).join('') : '<span class="crm-drawer-muted">No files attached.</span>'}</div>
+        </section>`;
+
+    content.querySelector('[data-close-contact]')?.addEventListener('click', closeContactDrawer);
+    content.querySelector('[data-open-operational]')?.addEventListener('click', () => {
+        closeContactDrawer();
+        showClientDetail(contact.id, contact);
+    });
+    content.querySelector('#contact-tag-form')?.addEventListener('submit', async event => {
+        event.preventDefault();
+        const value = document.getElementById('contact-tag-input').value.trim();
+        if (!value || (contact.tags || []).includes(value)) return;
+        await updateUnifiedContactTags(contact, [...(contact.tags || []), value]).catch(error => alert(error.message));
+    });
+    content.querySelectorAll('[data-remove-contact-tag]').forEach(button => {
+        button.addEventListener('click', () => updateUnifiedContactTags(
+            contact,
+            (contact.tags || []).filter(tag => tag !== button.dataset.removeContactTag)
+        ).catch(error => alert(error.message)));
+    });
+    content.querySelector('#contact-note-save')?.addEventListener('click', () => addContactNote(contact));
+    content.querySelector('#contact-file-input')?.addEventListener('change', event => uploadContactFile(contact, event));
+    content.querySelectorAll('[data-download-file]').forEach(button => {
+        button.addEventListener('click', () => downloadCrmFile(button.dataset.downloadFile).catch(error => alert(error.message)));
+    });
+}
+
+async function updateUnifiedContactTags(contact, tags) {
+    const safeTags = [...new Set(tags.map(tag => String(tag).trim()).filter(Boolean))];
+    if (safeTags.length > 20 || safeTags.some(tag => tag.length > 40 || /[<>|\u0000-\u001f]/.test(tag))) {
+        throw new Error('Tags must be unique, contain 1–40 safe characters and never exceed 20 items.');
+    }
+    const records = contact._linkedRecords?.length
+        ? contact._linkedRecords
+        : [{ id: contact.id, sourceCollection: contact._sourceCollection, data: contact }];
+    const batch = writeBatch(db);
+    records.forEach(record => {
+        const audit = record.sourceCollection === 'contacts' && record.data?.tenantId
+            ? { updatedAt: serverTimestamp(), updatedBy: auth.currentUser.uid }
+            : {};
+        batch.update(doc(db, record.sourceCollection, record.id), { tags: safeTags, ...audit });
+    });
+    await batch.commit();
+    contact.tags = safeTags;
+    renderClientGrid(_allClients, translations[currentLang]);
+    openContactDrawer(contact.id);
+}
+
+async function addContactNote(contact) {
+    const input = document.getElementById('contact-note-input');
+    const button = document.getElementById('contact-note-save');
+    const message = document.getElementById('contact-note-message');
+    // Se sanea con el mismo criterio que `logActivity`: una nota pegada desde
+    // un PDF trae controles invisibles y `crmIsShortText` los rechaza entera.
+    const body = crmText(input?.value.trim() || '', 5000);
+    if (!body) return;
+    button.disabled = true;
+    if (message) message.textContent = 'Saving…';
+    try {
+        await addDoc(collection(db, 'activities'), {
+            schemaVersion: 1,
+            tenantId: CRM_TENANT_ID,
+            entityType: 'contact',
+            entityId: crmText(contact.id, 128),
+            contactId: crmText(contact.id, 128),
+            opportunityId: null,
+            meetingId: null,
+            type: 'note_added',
+            summary: 'Internal note',
+            body,
+            payload: {},
+            actorUid: auth.currentUser.uid,
+            actorEmail: crmText(auth.currentUser.email || '', 254),
+            actorRole: 'admin',
+            occurredAt: serverTimestamp(),
+            createdAt: serverTimestamp()
+        });
+        await openContactDrawer(contact.id);
+    } catch (error) {
+        if (message) message.textContent = error.message;
+        button.disabled = false;
+    }
+}
+
+const CRM_FILE_POLICIES = {
+    contact_image: { types: ['image/jpeg', 'image/png', 'image/webp'], maxBytes: 8 * 1024 * 1024 },
+    contact_attachment: { types: ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], maxBytes: 20 * 1024 * 1024 }
+};
+
+function uploadToR2Url({ uploadUrl, requiredHeaders, file, onProgress }) {
+    return new Promise((resolve, reject) => {
+        const request = new XMLHttpRequest();
+        request.open('PUT', uploadUrl);
+        Object.entries(requiredHeaders || {}).forEach(([key, value]) => request.setRequestHeader(key, value));
+        request.upload.addEventListener('progress', event => {
+            if (event.lengthComputable) onProgress?.(Math.round(event.loaded / event.total * 100));
+        });
+        request.addEventListener('load', () => request.status >= 200 && request.status < 300
+            ? resolve(true)
+            : reject(new Error('Cloudflare R2 rejected the upload.')));
+        request.addEventListener('error', () => reject(new Error('The upload was interrupted.')));
+        request.send(file);
+    });
+}
+
+async function uploadContactFile(contact, event) {
+    const [file] = event.target.files || [];
+    event.target.value = '';
+    if (!file) return;
+    const purpose = file.type.startsWith('image/') ? 'contact_image' : 'contact_attachment';
+    const policy = CRM_FILE_POLICIES[purpose];
+    if (!policy.types.includes(file.type) || file.size <= 0 || file.size > policy.maxBytes) {
+        alert('This file type or size is not allowed.');
+        return;
+    }
+    const progress = document.getElementById('contact-file-progress');
+    const fill = progress?.querySelector('span');
+    if (progress) progress.hidden = false;
+    try {
+        const intent = await platformRequest('/api/files/upload-intents', {
+            body: { purpose, entityId: contact.id, originalName: file.name, contentType: file.type, size: file.size }
+        });
+        await uploadToR2Url({
+            uploadUrl: intent.uploadUrl,
+            requiredHeaders: intent.requiredHeaders,
+            file,
+            onProgress: value => { if (fill) fill.style.width = `${Math.min(92, value)}%`; }
+        });
+        if (fill) fill.style.width = '96%';
+        await platformRequest(`/api/files/upload-intents/${intent.intentId}/complete`, { body: {} });
+        if (fill) fill.style.width = '100%';
+        await openContactDrawer(contact.id);
+    } catch (error) {
+        alert(error.message);
+        if (progress) progress.hidden = true;
+    }
+}
+
+async function downloadCrmFile(fileId) {
+    const result = await platformRequest(`/api/files/${encodeURIComponent(fileId)}/download-url`, { body: {} });
+    const url = safeHttpsUrl(result.url || result.downloadUrl);
+    if (!url) throw new Error('A secure download URL could not be created.');
+    window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+async function createContact(event) {
+    event.preventDefault();
+    const firstName = document.getElementById('contact-first-name').value.trim();
+    const lastName = document.getElementById('contact-last-name').value.trim();
+    const email = document.getElementById('contact-email').value.trim().toLowerCase();
+    const phone = document.getElementById('contact-phone').value.trim();
+    const message = document.getElementById('contact-form-message');
+    if (!firstName || (!email && !phone)) {
+        message.textContent = 'Enter a first name and at least an email or phone.';
+        message.className = 'meeting-form-message is-error';
+        return;
+    }
+    const button = document.getElementById('contact-save-btn');
+    button.disabled = true;
+    button.textContent = 'Saving…';
+    try {
+        const displayName = [firstName, lastName].filter(Boolean).join(' ');
+        const companyName = document.getElementById('contact-company').value.trim();
+        const reference = await addDoc(collection(db, 'contacts'), {
+            schemaVersion: 2,
+            tenantId: CRM_TENANT_ID,
+            recordType: 'contact',
+            firstName,
+            lastName,
+            displayName,
+            email,
+            phone,
+            companyName,
+            jobTitle: document.getElementById('contact-job-title').value.trim(),
+            website: '',
+            ownerId: auth.currentUser.uid,
+            status: 'active',
+            lifecycleStage: 'lead',
+            tags: [],
+            leadScore: 0,
+            source: 'manual',
+            locale: currentLang,
+            searchName: displayName.toLowerCase(),
+            searchEmail: email,
+            searchCompany: companyName.toLowerCase(),
+            avatarUrl: '',
+            archived: false,
+            createdAt: serverTimestamp(),
+            createdBy: auth.currentUser.uid,
+            updatedAt: serverTimestamp(),
+            updatedBy: auth.currentUser.uid
+        });
+        document.getElementById('contact-dialog').close();
+        event.currentTarget.reset();
+        await loadClients();
+        openContactDrawer(reference.id);
+    } catch (error) {
+        message.textContent = error.message;
+        message.className = 'meeting-form-message is-error';
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Save contact';
+    }
+}
+
+function renderOpportunityContactOptions() {
+    const select = document.getElementById('opportunity-contact');
+    if (!select) return;
+    select.innerHTML = '<option value="">Select a contact…</option>' + _allClients
+        .filter(contact => contact.lifecycle !== 'inactive')
+        .map(contact => `<option value="${esc(contactSelectionValue(contact))}">${esc(contact.name)}${contact.company ? ` · ${esc(contact.company)}` : ''}</option>`)
+        .join('');
+}
+
+async function openOpportunityDialog() {
+    if (!_allClients.length) await loadUnifiedContactData();
+    renderOpportunityContactOptions();
+    document.getElementById('opportunity-form-message').textContent = '';
+    document.getElementById('opportunity-dialog').showModal();
+}
+
+async function createOpportunity(event) {
+    event.preventDefault();
+    const contact = contactFromSelection(document.getElementById('opportunity-contact').value);
+    const title = document.getElementById('opportunity-title').value.trim();
+    const value = Number(document.getElementById('opportunity-value').value);
+    const stageId = document.getElementById('opportunity-stage').value;
+    const stage = OPPORTUNITY_STAGES[stageId];
+    const message = document.getElementById('opportunity-form-message');
+    if (!contact || !title || !Number.isFinite(value) || value < 0 || !stage) {
+        message.textContent = 'Review the contact, title, value and stage.';
+        message.className = 'meeting-form-message is-error';
+        return;
+    }
+    const tags = [...new Set(document.getElementById('opportunity-tags').value
+        .split(',').map(tag => tag.trim()).filter(Boolean))];
+    if (tags.length > 20 || tags.some(tag => tag.length > 40 || /[<>|\u0000-\u001f]/.test(tag))) {
+        message.textContent = 'Use at most 20 tags of 40 safe characters.';
+        message.className = 'meeting-form-message is-error';
+        return;
+    }
+    const button = document.getElementById('opportunity-save-btn');
+    button.disabled = true;
+    button.textContent = 'Creating…';
+    try {
+        const closeDate = document.getElementById('opportunity-close-date').value;
+        await addDoc(collection(db, 'opportunities'), {
+            schemaVersion: 1,
+            tenantId: CRM_TENANT_ID,
+            contactId: contact.id,
+            contactName: contact.name,
+            title,
+            companyName: contact.company || '',
+            ownerId: auth.currentUser.uid,
+            stage: stageId,
+            amountMinor: Math.round(value * 100),
+            currency: contactCurrency(contact),
+            probability: stage.probability,
+            rank: String(Date.now()).padStart(16, '0'),
+            tags,
+            expectedCloseAt: closeDate ? new Date(`${closeDate}T12:00:00`) : null,
+            closedAt: ['won', 'lost'].includes(stageId) ? serverTimestamp() : null,
+            lostReason: null,
+            archived: false,
+            createdAt: serverTimestamp(),
+            createdBy: auth.currentUser.uid,
+            updatedAt: serverTimestamp(),
+            updatedBy: auth.currentUser.uid
+        });
+        document.getElementById('opportunity-dialog').close();
+        event.currentTarget.reset();
+        _pipelineMode = 'commercial';
+        await loadPipeline();
+    } catch (error) {
+        message.textContent = error.message;
+        message.className = 'meeting-form-message is-error';
+    } finally {
+        button.disabled = false;
+        button.textContent = 'Create opportunity';
+    }
 }
 
 async function loadLicenses() {
@@ -3616,21 +4964,9 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     };
 
     // Format Firestore timestamps
-    const fmtDate = (ts) => {
-        if (!ts) return null;
-        const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
-        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-    };
-    const fmtShortDate = (ts) => {
-        if (!ts) return null;
-        const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
-        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-    };
-    const fmtTime = (ts) => {
-        if (!ts) return '';
-        const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
-        return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-    };
+    const fmtDate = ts => crmDate(ts)?.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) ?? null;
+    const fmtShortDate = ts => crmDate(ts)?.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) ?? null;
+    const fmtTime = ts => crmDate(ts)?.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) ?? '';
 
     const registrationDate = fmtDate(member.createdAt);
     const registrationTime = fmtTime(member.createdAt);
@@ -5656,6 +6992,55 @@ window.generateClientPDF = generateClientPDF;
 let globalRevenueChartInstance = null;
 let clientRevenueChartInstance = null;
 
+function renderCommercialPerformanceChart() {
+    const canvas = document.getElementById('commercialPerformanceChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+    const start = new Date();
+    const day = (start.getDay() + 6) % 7;
+    start.setDate(start.getDate() - day);
+    start.setHours(0, 0, 0, 0);
+    const labels = [];
+    const leads = Array(7).fill(0);
+    const conversions = Array(7).fill(0);
+    for (let index = 0; index < 7; index++) {
+        const date = new Date(start.getTime() + index * 86400000);
+        labels.push(new Intl.DateTimeFormat(currentLang === 'es' ? 'es-ES' : currentLang === 'pt' ? 'pt-PT' : 'en-GB', { weekday: 'short' }).format(date));
+    }
+    const bucket = value => {
+        const date = crmDate(value);
+        if (!date) return -1;
+        return Math.floor((date.getTime() - start.getTime()) / 86400000);
+    };
+    _allClients.forEach(contact => {
+        const index = bucket(contact.createdAt);
+        if (index >= 0 && index < 7 && ['lead', 'prospect'].includes(contact.lifecycle)) leads[index] += 1;
+    });
+    _opportunities.filter(item => item.stage === 'won').forEach(opportunity => {
+        const index = bucket(opportunity.closedAt || opportunity.updatedAt);
+        if (index >= 0 && index < 7) conversions[index] += 1;
+    });
+    commercialPerformanceChartInstance?.destroy();
+    commercialPerformanceChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                { label: 'New leads', data: leads, borderColor: '#2997ff', backgroundColor: 'rgba(41,151,255,.14)', fill: true, tension: .35, pointRadius: 3 },
+                { label: 'Won', data: conversions, borderColor: '#00c875', backgroundColor: 'rgba(0,200,117,.08)', fill: true, tension: .35, pointRadius: 3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(255,255,255,.07)' } }
+            }
+        }
+    });
+}
+
 /**
  * Ingresos globales de los últimos 6 meses, leídos del libro de pagos.
  *
@@ -5868,59 +7253,115 @@ function renderClientRevenueChart(payments) {
     });
 }
 
-// Newest page shown in the Inquiries table. The badge still reports the true
-// total through an aggregation query.
-const CONTACTS_PAGE_SIZE = 200;
-
-async function loadContacts() {
-    const contactsList = document.getElementById('contacts-list');
-    const badge = document.getElementById('sidebar-contacts-count');
-    const t = translations[currentLang];
-    contactsList.innerHTML = '<tr><td colspan="6"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>';
-
+// ── UNIFIED REPORTS ─────────────────────────────────────────────────────────
+async function loadReports() {
+    const table = document.getElementById('reports-list');
+    const kpis = document.getElementById('reports-kpis');
+    if (!table || !kpis) return;
+    table.innerHTML = '<tr><td colspan="6"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>';
+    kpis.innerHTML = '<div class="premium-loader"></div>';
+    document.querySelectorAll('[data-report-days]').forEach(button => {
+        button.classList.toggle('is-active', Number(button.dataset.reportDays) === _reportDays);
+    });
     try {
-        // Unbounded before: the whole collection came down on every visit, and
-        // it is the one collection an anonymous form can grow.
-        const q = query(collection(db, 'contacts'), orderBy('submittedAt', 'desc'), limit(CONTACTS_PAGE_SIZE));
-        const snap = await getDocs(q);
-
-        // The badge counts every inquiry; the table shows the newest page.
-        try {
-            const total = await getCountFromServer(collection(db, 'contacts'));
-            if (badge) badge.textContent = total.data().count;
-        } catch (countError) {
-            logger.warn('Could not count contacts.', countError);
-            if (badge) badge.textContent = snap.size;
-        }
-
-        if (snap.empty) {
-            contactsList.innerHTML = '<tr><td colspan="6" class="license-empty">No inquiries found.</td></tr>';
-            return;
-        }
-
-        let html = '';
-        snap.forEach(doc => {
-            const data = doc.data();
-            const date = data.submittedAt ? new Date(data.submittedAt.seconds * 1000).toLocaleDateString() : '-';
-            html += `
-                <tr>
-                    <td data-label="${esc(t.table_date || 'Date')}">${date}</td>
-                    <td data-label="${esc(t.table_name || 'Name')}"><strong>${esc(data.name) || '-'}</strong></td>
-                    <td data-label="${esc(t.table_email || 'Email')}"><a href="mailto:${esc(data.email) || ''}" class="portal-link">${esc(data.email) || '-'}</a></td>
-                    <td data-label="${esc(t.table_phone || 'Phone')}"><a href="tel:${esc(data.phone) || ''}" class="portal-link">${esc(data.phone) || '-'}</a></td>
-                    <td data-label="${esc(t.table_service || 'Interest')}"><span class="portal-status">${esc(data.service) || '-'}</span></td>
-                    <td data-label="${esc(t.table_message || 'Message')}" class="contact-message-cell" title="${esc(data.message) || ''}">${esc(data.message) || '-'}</td>
-                </tr>
-            `;
+        await Promise.all([
+            loadUnifiedContactData(),
+            loadOpportunityData(),
+            _crmUsers.length ? Promise.resolve(_crmUsers) : loadCrmUsers()
+        ]);
+        const since = Date.now() - _reportDays * 86400000;
+        const inPeriod = value => (crmDate(value)?.getTime() || 0) >= since;
+        const periodContacts = _allClients.filter(contact => inPeriod(contact.createdAt));
+        const periodOpportunities = _opportunities.filter(opportunity => inPeriod(opportunity.createdAt || opportunity.updatedAt));
+        const won = _opportunities.filter(opportunity => opportunity.stage === 'won' && inPeriod(opportunity.closedAt || opportunity.updatedAt));
+        const lost = _opportunities.filter(opportunity => opportunity.stage === 'lost' && inPeriod(opportunity.closedAt || opportunity.updatedAt));
+        const open = _opportunities.filter(opportunity => !['won', 'lost'].includes(opportunity.stage));
+        const owners = new Map(_crmUsers.map(user => [user.id, {
+            id: user.id, name: user.displayName || user.email || 'Elysium team',
+            contacts: 0, open: 0, won: 0, lost: 0, value: 0, totals: {}
+        }]));
+        const unassigned = {
+            id: 'unassigned', name: 'Unassigned / legacy',
+            contacts: 0, open: 0, won: 0, lost: 0, value: 0, totals: {}
+        };
+        const ownerRow = ownerId => owners.get(ownerId) || unassigned;
+        periodContacts.forEach(contact => { ownerRow(contact.ownerId).contacts += 1; });
+        _opportunities.forEach(opportunity => {
+            const row = ownerRow(opportunity.ownerId);
+            if (!['won', 'lost'].includes(opportunity.stage)) {
+                row.open += 1;
+                // Por divisa, no en un único acumulador: el orden de la tabla y
+                // el CSV se derivan de aquí y mezclarlas falsea ambos.
+                const code = opportunity.currency || 'EUR';
+                row.totals[code] = (row.totals[code] || 0) + (Number(opportunity.amount) || 0);
+                row.value += Number(opportunity.amount) || 0;
+            } else if (inPeriod(opportunity.closedAt || opportunity.updatedAt)) {
+                if (opportunity.stage === 'won') row.won += 1;
+                else row.lost += 1;
+            }
         });
-        if (snap.size === CONTACTS_PAGE_SIZE) {
-            html += `<tr><td colspan="6" class="license-empty">${esc(t.contacts_truncated(CONTACTS_PAGE_SIZE))}</td></tr>`;
-        }
-        contactsList.innerHTML = html;
-    } catch (e) {
-        logger.error("Error loading contacts:", e);
-        contactsList.innerHTML = '<tr><td colspan="6" class="license-empty">Error loading inquiries.</td></tr>';
+        _reportRows = [...owners.values(), unassigned]
+            .filter(row => row.contacts || row.open || row.won || row.lost || row.value)
+            .map(row => ({
+                ...row,
+                valueLabel: formatRevenue(row.totals),
+                conversion: row.won + row.lost ? Math.round(row.won / (row.won + row.lost) * 100) : 0
+            }))
+            // `value` sigue existiendo sólo como criterio de orden interno; es
+            // una magnitud mezclada y por eso nunca se muestra ni se exporta.
+            .sort((a, b) => b.value - a.value || a.name.localeCompare(b.name));
+        const conversion = won.length + lost.length ? Math.round(won.length / (won.length + lost.length) * 100) : 0;
+        // Igual que en el panel: se agrega por divisa en lugar de sumar
+        // colones con euros y rotular el resultado con un símbolo €.
+        const wonValue = formatRevenue(revenueByCurrency(won));
+        const pipelineValue = formatRevenue(revenueByCurrency(open));
+        const metric = (value, label, accent) => `<div class="license-metric ${accent}"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`;
+        kpis.innerHTML = [
+            metric(periodContacts.length, `New contacts · ${_reportDays} days`, 'license-metric-blue'),
+            metric(periodOpportunities.length, 'New opportunities', 'license-metric-gold'),
+            metric(pipelineValue, 'Open pipeline', 'license-metric-blue'),
+            metric(wonValue, 'Won revenue', 'license-metric-green'),
+            metric(`${conversion}%`, 'Conversion', conversion ? 'license-metric-green' : 'license-metric-gold is-clear')
+        ].join('');
+        table.innerHTML = _reportRows.length ? _reportRows.map(row => `
+            <tr><td data-label="Owner"><strong>${esc(row.name)}</strong></td><td data-label="Contacts">${row.contacts}</td><td data-label="Open opportunities">${row.open}</td><td data-label="Won">${row.won}</td><td data-label="Pipeline value">${esc(row.valueLabel)}</td><td data-label="Conversion">${row.conversion}%</td></tr>
+        `).join('') : '<tr><td colspan="6" class="license-empty">No metrics in this period.</td></tr>';
+    } catch (error) {
+        logger.error('Reports failed:', error);
+        kpis.innerHTML = '';
+        table.innerHTML = `<tr><td colspan="6" class="license-empty">${esc(error.message)}</td></tr>`;
     }
+}
+
+function safeCsvCell(value) {
+    let text = String(value ?? '');
+    if (/^[=+\-@]/.test(text)) text = `'${text}`;
+    return `"${text.replaceAll('"', '""')}"`;
+}
+
+function exportReportsCsv() {
+    // Una columna por divisa presente. Una sola columna «EUR» con la suma de
+    // todas era un número que no corresponde a ninguna cuenta real.
+    const currencies = [...new Set(_reportRows.flatMap(row => Object.keys(row.totals || {})))].sort();
+    const header = [
+        'Owner', 'Contacts', 'Open opportunities', 'Won',
+        ...currencies.map(code => `Pipeline value ${code}`),
+        'Conversion %'
+    ];
+    const rows = [header, ..._reportRows.map(row => [
+        row.name, row.contacts, row.open, row.won,
+        ...currencies.map(code => (row.totals?.[code] ?? 0)),
+        row.conversion
+    ])];
+    const blob = new Blob([`\uFEFF${rows.map(row => row.map(safeCsvCell).join(',')).join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `elysium-crm-report-${_reportDays}d-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /* ─── MAIL ────────────────────────────────────────────────────────────────────
@@ -5990,15 +7431,8 @@ async function loadMailSenders() {
     const c = mailText();
 
     try {
-        if (ADMIN_MAIL_PREVIEW) {
-            _mailSenders = [
-                { name: 'Elysium', address: 'info@elysiumdr.eu', ready: true, envSuffix: 'INFO' },
-                { name: 'Daniel Morales', address: 'daniel.morales@elysiumdr.eu', ready: true, envSuffix: 'DANIEL_MORALES' }
-            ];
-        } else {
-            const result = await platformRequest('/api/mail/senders', { method: 'GET' });
-            _mailSenders = Array.isArray(result.senders) ? result.senders : [];
-        }
+        const result = await platformRequest('/api/mail/senders', { method: 'GET' });
+        _mailSenders = Array.isArray(result.senders) ? result.senders : [];
     } catch (error) {
         logger.warn('Could not load the sender list:', error);
         _mailSenders = [];
@@ -6045,10 +7479,6 @@ async function loadMailSenders() {
 async function fillMailRecipientOptions() {
     const list = document.getElementById('mail-client-emails');
     if (!list) return;
-    if (ADMIN_MAIL_PREVIEW) {
-        list.innerHTML = '<option value="client@example.com" label="Atelier Norte"></option>';
-        return;
-    }
     try {
         await ensureAgendaClients(_agendaLoadVersion);
     } catch (error) {
@@ -6335,11 +7765,6 @@ async function submitMailForm(event) {
     event.preventDefault();
     const c = mailText();
     const button = document.getElementById('mail-send-btn');
-    if (ADMIN_MAIL_PREVIEW) {
-        setMailMessage(c.previewOnly || 'Local preview: delivery is disabled.', 'is-warning');
-        return;
-    }
-
     const from = document.getElementById('mail-sender')?.value || '';
     const { recipients, error: recipientError } = parseMailRecipients(
         document.getElementById('mail-recipient')?.value || '');
@@ -6494,24 +7919,4 @@ async function loadMailSection() {
     initMailSection();
     fillMailRecipientOptions();  // asíncrona: rellena el datalist cuando pueda
     loadMailSenders();
-    if (ADMIN_MAIL_PREVIEW && !_mailTemplateHtml) {
-        const recipient = document.getElementById('mail-recipient');
-        const subject = document.getElementById('mail-subject');
-        const sendButton = document.getElementById('mail-send-btn');
-        if (recipient) recipient.value = 'client@example.com';
-        if (subject) subject.value = 'A considered update from Elysium';
-        if (sendButton) {
-            sendButton.disabled = true;
-            sendButton.title = 'Local visual preview — sending disabled';
-        }
-        try {
-            const response = await fetch('/scripts/fixtures/elysium-email-preview.html');
-            if (!response.ok) throw new Error(`preview_template_${response.status}`);
-            const html = await response.text();
-            await setMailTemplate(new File([html], 'elysium-email-preview.html', { type: 'text/html' }));
-            setMailMessage('Local visual preview — sending is disabled.', 'is-warning');
-        } catch (error) {
-            logger.warn('Could not load the local mail preview fixture:', error);
-        }
-    }
 }

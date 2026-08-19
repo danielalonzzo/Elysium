@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" role="img" aria-label="Costa">
+  <defs>
+    <linearGradient id="bg-1s6pol" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2eaf1"/>
+      <stop offset="1" stop-color="#b2c6d8"/>
+    </linearGradient>
+    <radialGradient id="glow-1s6pol" cx="0.5" cy="0.36427780847996477" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-1s6pol" x1="0" y1="0" x2="0.58" y2="1">
+      <stop offset="0" stop-color="#33637f"/>
+      <stop offset="1" stop-color="#1c2c3a"/>
+    </linearGradient>
+    <filter id="soft-1s6pol" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="900" height="600" fill="url(#bg-1s6pol)"/>
+  <rect width="900" height="600" fill="url(#glow-1s6pol)"/>
+  <circle cx="679" cy="180" r="84" fill="#33637f" opacity="0.85"/>
+  <path d="M-90 408 L144 220 L522 408 Z" fill="#1c2c3a" opacity="0.22"/>
+  <path d="M378 408 L558 254 L1008 408 Z" fill="#1c2c3a" opacity="0.18"/>
+  <rect x="0" y="344" width="900" height="21" fill="#e2eaf1" opacity="0.22"/>
+  <path d="M-90 408 L324 150 L702 408 Z" fill="#1c2c3a" opacity="0.44"/>
+  <path d="M378 408 L630 196 L1008 408 Z" fill="#1c2c3a" opacity="0.38"/>
+  <rect x="0" y="320" width="900" height="21" fill="#e2eaf1" opacity="0.17"/>
+  <path d="M-90 408 L504 68 L882 408 Z" fill="#1c2c3a" opacity="0.66"/>
+  <path d="M378 408 L702 130 L1008 408 Z" fill="#1c2c3a" opacity="0.58"/>
+  <rect x="0" y="293" width="900" height="21" fill="#e2eaf1" opacity="0.12"/>
+  <rect x="0" y="408" width="900" height="192" fill="#1c2c3a" opacity="0.55"/>
+  <path d="M0 408 h900 v192 H0 Z" fill="url(#glow-1s6pol)" opacity="0.5"/>
+  <path d="M0 431 q108 -14 225 0 t225 0 t225 0 t225 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 456 q108 -14 225 0 t225 0 t225 0 t225 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 481 q108 -14 225 0 t225 0 t225 0 t225 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 506 q108 -14 225 0 t225 0 t225 0 t225 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 531 q108 -14 225 0 t225 0 t225 0 t225 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 556 q108 -14 225 0 t225 0 t225 0 t225 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 581 q108 -14 225 0 t225 0 t225 0 t225 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+</svg>

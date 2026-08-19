@@ -120,10 +120,15 @@ despliegue**, porque si no se serviría en `elysiumdr.eu/Prototipos/`:
   portafolio y **está vacía de contenido a propósito**: se enseña para mostrar
   la arquitectura, no un proyecto. Tiene su propio `CLAUDE.md`; léelo antes de
   tocarla. Se publica con el script, en la raíz.
-- `Regalarte/` — aplicación Next que se despliega como **Worker propio** en
-  `regalarte.danielalonzzo.workers.dev`. Elysium solo guarda una redirección
-  (`/regalarte` → el Worker, en `firebase.json`), así que no tiene carpeta
-  publicada.
+- `Selva y Sal/` — aplicación Next que se despliega como **Worker propio** en
+  `selva-y-sal.danielalonzzo.workers.dev`. Elysium solo guarda la redirección
+  (`/selva-y-sal` → el Worker, en `_redirects`), así que no tiene carpeta
+  publicada. **La marca es ficticia a propósito**: se construyó para un cliente
+  que no cerró y, al retirar su oferta, se le quitó todo rastro suyo y se
+  rellenó con una empresa inventada, para poder enseñar la demo llena de
+  contenido a cualquier otro cliente. No metas ahí datos de nadie real; hay una
+  prueba en `tests/rendered-html.test.mjs` que falla si vuelve a colarse una
+  marca de cliente en el HTML.
 - `Elysium Games CR/`, `Ideas/` — documentos y grabaciones, no son webs. Las
   grabaciones (`*.mov`) están fuera de git: sin git-lfs, un vídeo se queda para
   siempre en el historial aunque luego se borre.
@@ -154,6 +159,6 @@ Es la causa principal de la confusión al entrar:
   propósito, porque el sitio se despliega desde el repositorio. Van marcadas como
   generadas en `.gitattributes` para que no ensucien los `git diff`.
 - **Un solo git.** Ningún proyecto tiene repositorio, rama ni remoto propios
-  mientras viva aquí. `Regalarte/` y `Demo-arbol/` traían uno de
-  antes; se retiró y su historial quedó guardado como `.bundle` en
-  `λ/_git-backup/`, fuera del repositorio.
+  mientras viva aquí. `Selva y Sal/` y `Demo-arbol/` traían uno de antes; se
+  retiró y su historial quedó guardado como `.bundle` en `λ/_git-backup/`, fuera
+  del repositorio.

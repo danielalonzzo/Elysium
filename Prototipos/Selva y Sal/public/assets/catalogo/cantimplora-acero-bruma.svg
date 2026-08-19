@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Cantimplora de Acero Bruma">
+  <defs>
+    <linearGradient id="bg-19vice" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2eaf1"/>
+      <stop offset="1" stop-color="#b2c6d8"/>
+    </linearGradient>
+    <radialGradient id="glow-19vice" cx="0.5" cy="0.3801373526453972" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-19vice" x1="0" y1="0" x2="0.48" y2="1">
+      <stop offset="0" stop-color="#33637f"/>
+      <stop offset="1" stop-color="#1c2c3a"/>
+    </linearGradient>
+    <filter id="soft-19vice" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg-19vice)"/>
+    <rect width="800" height="800" fill="url(#glow-19vice)"/>
+    <circle cx="400" cy="376" r="240.8" fill="none" stroke="#1c2c3a" stroke-opacity="0.070" stroke-width="2"/><circle cx="400" cy="376" r="355.0" fill="none" stroke="#1c2c3a" stroke-opacity="0.050" stroke-width="2"/><circle cx="400" cy="376" r="457.7" fill="none" stroke="#1c2c3a" stroke-opacity="0.030" stroke-width="2"/>
+  <ellipse cx="400" cy="646" rx="190" ry="36.1" fill="#000" opacity="0.16" filter="url(#soft-19vice)"/>
+  
+      <rect x="363" y="204" width="73" height="76" rx="16" fill="#1c2c3a"/>
+      <path d="M310 292 q90 -26 180 0 v244 q0 62 -90 62 t-90 -62 z" fill="url(#body-19vice)"/>
+      <rect x="310" y="368" width="180" height="66" fill="#e2eaf1" opacity="0.55"/>
+      <path d="M348 470 v70" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="10" stroke-linecap="round"/>
+  <rect width="800" height="800" fill="none" stroke="none"/>
+    <g opacity="0.05">
+      <circle cx="400.0" cy="376.0" r="1.0" fill="#000"/><circle cx="392.0" cy="383.3" r="2.0" fill="#000"/><circle cx="401.9" cy="354.5" r="3.0" fill="#000"/><circle cx="419.7" cy="401.7" r="1.0" fill="#000"/><circle cx="357.5" cy="368.5" r="2.0" fill="#000"/><circle cx="445.5" cy="347.1" r="3.0" fill="#000"/><circle cx="383.2" cy="438.5" r="1.0" fill="#000"/><circle cx="365.2" cy="309.0" r="2.0" fill="#000"/><circle cx="481.0" cy="405.6" r="3.0" fill="#000"/><circle cx="310.3" cy="413.0" r="1.0" fill="#000"/><circle cx="445.7" cy="278.3" r="2.0" fill="#000"/><circle cx="435.5" cy="489.2" r="3.0" fill="#000"/><circle cx="288.1" cy="311.1" r="1.0" fill="#000"/><circle cx="536.9" cy="345.9" r="2.0" fill="#000"/><circle cx="313.2" cy="499.5" r="3.0" fill="#000"/><circle cx="379.2" cy="215.6" r="1.0" fill="#000"/><circle cx="531.9" cy="487.2" r="2.0" fill="#000"/><circle cx="216.9" cy="383.6" r="3.0" fill="#000"/><circle cx="537.6" cy="239.1" r="1.0" fill="#000"/><circle cx="390.5" cy="580.7" r="2.0" fill="#000"/><circle cx="261.8" cy="210.4" r="3.0" fill="#000"/><circle cx="624.4" cy="406.2" r="1.0" fill="#000"/><circle cx="205.3" cy="511.5" r="2.0" fill="#000"/><circle cx="454.5" cy="134.1" r="3.0" fill="#000"/><circle cx="528.6" cy="600.5" r="1.0" fill="#000"/><circle cx="143.2" cy="294.0" r="2.0" fill="#000"/><circle cx="654.5" cy="258.4" r="3.0" fill="#000"/><circle cx="287.6" cy="644.5" r="1.0" fill="#000"/><circle cx="297.8" cy="91.9" r="2.0" fill="#000"/><circle cx="676.8" cy="521.5" r="3.0" fill="#000"/><circle cx="87.2" cy="458.4" r="1.0" fill="#000"/><circle cx="580.8" cy="94.9" r="2.0" fill="#000"/><circle cx="458.4" cy="716.1" r="3.0" fill="#000"/><circle cx="118.7" cy="158.1" r="1.0" fill="#000"/><circle cx="765.4" cy="345.8" r="2.0" fill="#000"/><circle cx="143.7" cy="653.0" r="3.0" fill="#000"/><circle cx="402.0" cy="-12.2" r="1.0" fill="#000"/><circle cx="668.0" cy="671.5" r="2.0" fill="#000"/><circle cx="-8.0" cy="338.1" r="3.0" fill="#000"/><circle cx="735.0" cy="121.8" r="1.0" fill="#000"/><circle cx="322.7" cy="800.3" r="2.0" fill="#000"/><circle cx="164.6" cy="1.8" r="3.0" fill="#000"/><circle cx="836.7" cy="495.8" r="1.0" fill="#000"/><circle cx="-12.5" cy="587.6" r="2.0" fill="#000"/><circle cx="565.0" cy="-68.8" r="3.0" fill="#000"/><circle cx="582.9" cy="825.4" r="1.0" fill="#000"/>
+    </g>
+</svg>

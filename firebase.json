@@ -1,6 +1,7 @@
 {
   "firestore": {
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "storage": {
     "rules": "storage.rules"
@@ -21,7 +22,7 @@
       "_fuentes/**",
       "Prototipos/**",
       "scripts/**",
-      "Regalarte/**",
+      "Selva y Sal/**",
       "CLAUDE.md",
       "**/CLAUDE.md",
       "**/firebase.json",
@@ -32,6 +33,7 @@
       "**/*.py",
       "storage.rules",
       "firestore.rules",
+      "firestore.indexes.json",
       "sounds/*.wav"
     ],
     "redirects": [
@@ -56,13 +58,13 @@
         "type": 301
       },
       {
-        "source": "/regalarte",
-        "destination": "https://regalarte.danielalonzzo.workers.dev",
+        "source": "/selva-y-sal",
+        "destination": "https://selva-y-sal.danielalonzzo.workers.dev",
         "type": 301
       },
       {
-        "source": "/regalarte/**",
-        "destination": "https://regalarte.danielalonzzo.workers.dev",
+        "source": "/selva-y-sal/**",
+        "destination": "https://selva-y-sal.danielalonzzo.workers.dev",
         "type": 301
       }
     ],
@@ -119,7 +121,7 @@
           },
           {
             "key": "Content-Security-Policy",
-            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com wss://*.firebaseio.com https://www.google-analytics.com; frame-src https://www.googletagmanager.com; object-src 'none'; base-uri 'self'; form-action 'self';"
+            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebase.com https://*.firebasestorage.app https://*.r2.cloudflarestorage.com wss://*.firebaseio.com https://www.google-analytics.com; frame-src 'self' https://www.googletagmanager.com https://elysiumdr-eu.firebaseapp.com; object-src 'none'; base-uri 'self'; form-action 'self';"
           },
           {
             "key": "X-Elysium-Compliance",

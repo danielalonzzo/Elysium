@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 630" width="1600" height="630" role="img" aria-label="La ruta del Arenal">
+  <defs>
+    <linearGradient id="bg-3zgsec" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d3b34"/>
+      <stop offset="1" stop-color="#06231f"/>
+    </linearGradient>
+    <radialGradient id="glow-3zgsec" cx="0.5" cy="0.3246384611632675" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-3zgsec" x1="0" y1="0" x2="0.30" y2="1">
+      <stop offset="0" stop-color="#f4c94f"/>
+      <stop offset="1" stop-color="#f4f1e6"/>
+    </linearGradient>
+    <filter id="soft-3zgsec" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="630" fill="url(#bg-3zgsec)"/>
+  <rect width="1600" height="630" fill="url(#glow-3zgsec)"/>
+  <circle cx="1267" cy="189" r="88" fill="#f4c94f" opacity="0.85"/>
+  <path d="M-160 542 L256 325 L928 542 Z" fill="#f4f1e6" opacity="0.22"/>
+  <path d="M672 542 L992 364 L1792 542 Z" fill="#f4f1e6" opacity="0.18"/>
+  <rect x="0" y="468" width="1600" height="22" fill="#0d3b34" opacity="0.22"/>
+  <path d="M-160 542 L576 240 L1248 542 Z" fill="#f4f1e6" opacity="0.44"/>
+  <path d="M672 542 L1120 294 L1792 542 Z" fill="#f4f1e6" opacity="0.38"/>
+  <rect x="0" y="439" width="1600" height="22" fill="#0d3b34" opacity="0.17"/>
+  <path d="M-160 542 L896 175 L1568 542 Z" fill="#f4f1e6" opacity="0.66"/>
+  <path d="M672 542 L1248 241 L1792 542 Z" fill="#f4f1e6" opacity="0.58"/>
+  <rect x="0" y="417" width="1600" height="22" fill="#0d3b34" opacity="0.12"/>
+  <rect x="0" y="542" width="1600" height="88" fill="#f4f1e6" opacity="0.7"/>
+  <path d="M4 452 L41 554 L-34 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M4 477 L27 531 L-20 531 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M114 458 L149 554 L78 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M114 481 L135 532 L92 532 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M198 444 L239 554 L157 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M198 471 L223 530 L172 530 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M264 494 L284 554 L244 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M264 507 L276 536 L252 536 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M331 426 L380 554 L283 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M331 458 L362 528 L301 528 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M468 437 L512 554 L424 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M468 466 L495 529 L441 529 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M535 427 L583 554 L487 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M535 459 L565 528 L505 528 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M620 441 L662 554 L577 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M620 469 L646 530 L594 530 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M719 447 L759 554 L679 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M719 474 L744 530 L695 530 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M786 477 L814 554 L759 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M786 495 L803 534 L769 534 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M864 452 L902 554 L826 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M864 477 L887 531 L841 531 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M977 460 L1011 554 L942 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M977 483 L998 532 L956 532 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M1085 442 L1127 554 L1043 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M1085 470 L1111 530 L1059 530 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M1152 492 L1172 554 L1131 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M1152 506 L1165 536 L1139 536 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M1269 441 L1311 554 L1227 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M1269 469 L1295 530 L1243 530 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M1350 480 L1376 554 L1324 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M1350 497 L1366 534 L1334 534 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M1443 454 L1480 554 L1406 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M1443 478 L1466 531 L1420 531 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M1487 432 L1533 554 L1441 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M1487 463 L1516 529 L1459 529 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M1605 447 L1645 554 L1565 554 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M1605 474 L1629 530 L1580 530 Z" fill="#06231f" opacity="0.5"/>
+</svg>

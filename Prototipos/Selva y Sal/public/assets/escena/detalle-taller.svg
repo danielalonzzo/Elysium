@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" role="img" aria-label="Taller">
+  <defs>
+    <linearGradient id="bg-q65sdr" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4e2c4"/>
+      <stop offset="1" stop-color="#dcb877"/>
+    </linearGradient>
+    <radialGradient id="glow-q65sdr" cx="0.5" cy="0.30100426605902614" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-q65sdr" x1="0" y1="0" x2="0.53" y2="1">
+      <stop offset="0" stop-color="#b8761f"/>
+      <stop offset="1" stop-color="#3d2a10"/>
+    </linearGradient>
+    <filter id="soft-q65sdr" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="900" height="600" fill="url(#bg-q65sdr)"/>
+  <rect width="900" height="600" fill="url(#glow-q65sdr)"/>
+  <circle cx="732" cy="180" r="84" fill="#b8761f" opacity="0.85"/>
+  <path d="M-90 516 L144 325 L522 516 Z" fill="#3d2a10" opacity="0.22"/>
+  <path d="M378 516 L558 360 L1008 516 Z" fill="#3d2a10" opacity="0.18"/>
+  <rect x="0" y="451" width="900" height="21" fill="#f4e2c4" opacity="0.22"/>
+  <path d="M-90 516 L324 242 L702 516 Z" fill="#3d2a10" opacity="0.44"/>
+  <path d="M378 516 L630 291 L1008 516 Z" fill="#3d2a10" opacity="0.38"/>
+  <rect x="0" y="423" width="900" height="21" fill="#f4e2c4" opacity="0.17"/>
+  <path d="M-90 516 L504 152 L882 516 Z" fill="#3d2a10" opacity="0.66"/>
+  <path d="M378 516 L702 218 L1008 516 Z" fill="#3d2a10" opacity="0.58"/>
+  <rect x="0" y="392" width="900" height="21" fill="#f4e2c4" opacity="0.12"/>
+  <rect x="0" y="516" width="900" height="84" fill="#3d2a10" opacity="0.7"/>
+  <path d="M11 454 L37 528 L-15 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M11 471 L27 509 L-6 509 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M84 466 L105 528 L63 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M84 480 L97 510 L71 510 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M201 454 L227 528 L175 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M201 471 L217 509 L184 509 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M251 455 L277 528 L226 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M251 472 L267 509 L235 509 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M347 468 L367 528 L327 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M347 482 L360 510 L335 510 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M450 442 L481 528 L419 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M450 463 L469 507 L431 507 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M516 429 L553 528 L480 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M516 453 L539 506 L494 506 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M621 459 L645 528 L597 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M621 475 L636 509 L606 509 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M723 472 L741 528 L704 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M723 484 L734 511 L711 511 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M816 425 L855 528 L778 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M816 451 L840 505 L793 505 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M886 452 L913 528 L859 528 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M886 470 L902 508 L869 508 Z" fill="#dcb877" opacity="0.5"/>
+</svg>

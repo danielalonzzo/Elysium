@@ -40,7 +40,7 @@ const logger = {
     error: (...a) => console.error('[Elysium Portal]', ...a)
 };
 
-const SUPER_ADMIN_EMAIL = 'danielalonzzo@icloud.com';
+const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
 
 const PLANS = {
     hosting:      { code: 'H0ST', price: { monthly: null, annual: 99 },    tier: 1 },
@@ -564,7 +564,7 @@ function canEmbedProject(url) {
         'elysiumdr.eu', 'www.elysiumdr.eu',
         'moyracr.com', 'www.moyracr.com',
         'pmorais.pt', 'www.pmorais.pt',
-        'regalarte.danielalonzzo.workers.dev'
+        'selva-y-sal.danielalonzzo.workers.dev'
     ]);
     return allowedHosts.has(url.hostname);
 }
@@ -2040,12 +2040,17 @@ if (localPreviewState) {
             leaveDashboard();
             return;
         }
-        // Mismo criterio que el CRM: el custom claim `admin`, con el correo
-        // histórico aceptado mientras dura la migración. Ver `firestore.rules`.
+        // El panel de administración reutiliza esta misma sesión de Elysium.
+        // Solo las cuentas con el permiso administrativo vigente se redirigen.
         const claims = await user.getIdTokenResult().then(result => result?.claims).catch(() => null);
-        const isAdmin = claims?.admin === true
-            || String(user.email || '').toLowerCase() === SUPER_ADMIN_EMAIL;
-        if (isAdmin && sessionStorage.getItem('dev_mode') !== 'true') {
+        const normalizedEmail = String(user.email || '').toLowerCase();
+        const isAdmin = claims?.admin === true || normalizedEmail === SUPER_ADMIN_EMAIL;
+        const searchParams = new URLSearchParams(window.location.search);
+        const isClientPreview = searchParams.get('view') === 'client'
+            || searchParams.get('preview') === '1'
+            || sessionStorage.getItem('client_preview') === 'true';
+
+        if (isAdmin && !isClientPreview) {
             window.location.assign('/admin');
             return;
         }

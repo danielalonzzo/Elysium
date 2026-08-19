@@ -25,8 +25,10 @@ node_modules/
 # Salidas de compilación de los prototipos: las genera el script de publicación,
 # y lo que se versiona es la carpeta ya publicada en la raíz.
 Prototipos/Demo-arbol/out/
-Prototipos/Regalarte/dist/
-Prototipos/Regalarte/build/
+Prototipos/Selva y Sal/dist/
+# `build/` NO se ignora: no es salida de compilación, es el plugin de Vite
+# que empaqueta la configuración de hosting. Ignorarlo lo sacó de git y dejó
+# el build roto hasta que se recuperó del historial.
 .next/
 
 # Vídeo en bruto. Sin git-lfs, una grabación de pantalla de 70 MB se queda para
@@ -44,3 +46,7 @@ firebase-debug.log
 .env
 .env.*
 !.env.example
+
+# Cachés de los scripts de Python del repositorio.
+__pycache__/
+*.pyc

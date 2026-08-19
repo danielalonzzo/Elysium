@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 630" width="1600" height="630" role="img" aria-label="Un recuerdo honesto">
+  <defs>
+    <linearGradient id="bg-1v2v17" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4e2c4"/>
+      <stop offset="1" stop-color="#dcb877"/>
+    </linearGradient>
+    <radialGradient id="glow-1v2v17" cx="0.5" cy="0.3857062221691013" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-1v2v17" x1="0" y1="0" x2="0.37" y2="1">
+      <stop offset="0" stop-color="#b8761f"/>
+      <stop offset="1" stop-color="#3d2a10"/>
+    </linearGradient>
+    <filter id="soft-1v2v17" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="630" fill="url(#bg-1v2v17)"/>
+  <rect width="1600" height="630" fill="url(#glow-1v2v17)"/>
+  <circle cx="1207" cy="189" r="88" fill="#b8761f" opacity="0.85"/>
+  <path d="M-160 542 L256 346 L928 542 Z" fill="#3d2a10" opacity="0.22"/>
+  <path d="M672 542 L992 381 L1792 542 Z" fill="#3d2a10" opacity="0.18"/>
+  <rect x="0" y="475" width="1600" height="22" fill="#f4e2c4" opacity="0.22"/>
+  <path d="M-160 542 L576 244 L1248 542 Z" fill="#3d2a10" opacity="0.44"/>
+  <path d="M672 542 L1120 297 L1792 542 Z" fill="#3d2a10" opacity="0.38"/>
+  <rect x="0" y="440" width="1600" height="22" fill="#f4e2c4" opacity="0.17"/>
+  <path d="M-160 542 L896 170 L1568 542 Z" fill="#3d2a10" opacity="0.66"/>
+  <path d="M672 542 L1248 237 L1792 542 Z" fill="#3d2a10" opacity="0.58"/>
+  <rect x="0" y="415" width="1600" height="22" fill="#f4e2c4" opacity="0.12"/>
+  <rect x="0" y="542" width="1600" height="88" fill="#3d2a10" opacity="0.7"/>
+  <path d="M11 443 L53 554 L-30 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M11 471 L37 530 L-15 530 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M64 441 L107 554 L22 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M64 469 L91 530 L38 530 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M202 444 L243 554 L161 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M202 472 L227 530 L176 530 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M251 482 L276 554 L226 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M251 499 L266 535 L235 535 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M332 496 L352 554 L313 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M332 509 L344 536 L320 536 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M436 434 L481 554 L391 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M436 464 L464 529 L408 529 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M524 487 L547 554 L501 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M524 502 L538 535 L510 535 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M597 458 L632 554 L562 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M597 482 L619 532 L575 532 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M721 455 L758 554 L685 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M721 479 L744 531 L699 531 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M815 493 L836 554 L795 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M815 507 L828 536 L802 536 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M874 434 L919 554 L828 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M874 464 L902 529 L846 529 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M996 483 L1021 554 L972 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M996 500 L1011 535 L981 535 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M1048 496 L1068 554 L1029 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M1048 509 L1060 536 L1037 536 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M1181 442 L1223 554 L1139 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M1181 470 L1207 530 L1155 530 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M1228 480 L1254 554 L1202 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M1228 497 L1244 534 L1212 534 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M1309 437 L1353 554 L1265 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M1309 467 L1336 529 L1282 529 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M1429 491 L1450 554 L1408 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M1429 505 L1442 536 L1416 536 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M1533 431 L1580 554 L1487 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M1533 462 L1562 529 L1505 529 Z" fill="#dcb877" opacity="0.5"/>
+  <path d="M1589 465 L1621 554 L1557 554 Z" fill="#3d2a10" opacity="0.75"/>
+  <path d="M1589 486 L1609 533 L1569 533 Z" fill="#dcb877" opacity="0.5"/>
+</svg>

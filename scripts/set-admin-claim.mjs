@@ -15,7 +15,7 @@
  * GOOGLE_APPLICATION_CREDENTIALS apuntando al JSON de una cuenta de servicio.
  *
  *   GOOGLE_APPLICATION_CREDENTIALS=~/elysium-sa.json \
- *     node scripts/set-admin-claim.mjs danielalonzzo@icloud.com
+ *     node scripts/set-admin-claim.mjs daniel.morales@elysiumdr.eu
  *
  * El claim viaja dentro del ID token, así que NO surte efecto hasta que el
  * token se renueva: cierra sesión y vuelve a entrar, o espera hasta una hora.

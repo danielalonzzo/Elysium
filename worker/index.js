@@ -9,8 +9,9 @@
  *
  * `/api/*` se reenvía a `elysium-billing` (el servicio de `backend/`), que es
  * quien agenda reuniones, entrega el correo del CRM, genera recuperaciones de
- * contraseña y recibe las consultas públicas con límites de abuso. Mantenerlo
- * bajo el mismo origen evita CORS y evita tener que abrir otro host en la CSP.
+ * contraseña, recibe consultas públicas y firma el acceso privado a R2.
+ * Mantenerlo bajo el mismo origen evita CORS para la API; el PUT binario va
+ * directamente al endpoint R2 permitido por la CSP y el CORS del bucket.
  *
  * Configuración: la variable `ELYSIUM_API_ORIGIN` apunta al servicio
  * desplegado (por ejemplo `https://elysium-billing-xxxx.europe-west1.run.app`).
@@ -39,6 +40,14 @@ const LEGACY_ADMIN_LANGUAGES = new Map([
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
+
+        // Durante la consolidación existió una SPA separada en /admin/.
+        // Los marcadores antiguos vuelven al único CRM sin perder el query.
+        if (url.pathname === '/admin/' || url.pathname === '/admin/index.html') {
+            const target = new URL('/admin', url);
+            target.search = url.search;
+            return Response.redirect(target, 308);
+        }
 
         const legacyProfileLanguage = LEGACY_PROFILE_LANGUAGES.get(url.pathname);
         if (legacyProfileLanguage) {

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Temporada">
+  <defs>
+    <linearGradient id="bg-bpp3lc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2eaf1"/>
+      <stop offset="1" stop-color="#b2c6d8"/>
+    </linearGradient>
+    <radialGradient id="glow-bpp3lc" cx="0.5" cy="0.3787039623223245" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-bpp3lc" x1="0" y1="0" x2="0.28" y2="1">
+      <stop offset="0" stop-color="#33637f"/>
+      <stop offset="1" stop-color="#1c2c3a"/>
+    </linearGradient>
+    <filter id="soft-bpp3lc" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#bg-bpp3lc)"/>
+  <rect width="1024" height="1024" fill="url(#glow-bpp3lc)"/>
+  <circle cx="690" cy="307" r="143" fill="#33637f" opacity="0.85"/>
+  <path d="M-102 696 L164 354 L594 696 Z" fill="#1c2c3a" opacity="0.22"/>
+  <path d="M430 696 L635 416 L1147 696 Z" fill="#1c2c3a" opacity="0.18"/>
+  <rect x="0" y="580" width="1024" height="36" fill="#e2eaf1" opacity="0.22"/>
+  <path d="M-102 696 L369 230 L799 696 Z" fill="#1c2c3a" opacity="0.44"/>
+  <path d="M430 696 L717 314 L1147 696 Z" fill="#1c2c3a" opacity="0.38"/>
+  <rect x="0" y="538" width="1024" height="36" fill="#e2eaf1" opacity="0.17"/>
+  <path d="M-102 696 L573 120 L1004 696 Z" fill="#1c2c3a" opacity="0.66"/>
+  <path d="M430 696 L799 224 L1147 696 Z" fill="#1c2c3a" opacity="0.58"/>
+  <rect x="0" y="500" width="1024" height="36" fill="#e2eaf1" opacity="0.12"/>
+  <rect x="0" y="696" width="1024" height="328" fill="#1c2c3a" opacity="0.55"/>
+  <path d="M0 696 h1024 v328 H0 Z" fill="url(#glow-bpp3lc)" opacity="0.5"/>
+  <path d="M0 736 q123 -14 256 0 t256 0 t256 0 t256 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 778 q123 -14 256 0 t256 0 t256 0 t256 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 821 q123 -14 256 0 t256 0 t256 0 t256 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 863 q123 -14 256 0 t256 0 t256 0 t256 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 906 q123 -14 256 0 t256 0 t256 0 t256 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 949 q123 -14 256 0 t256 0 t256 0 t256 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+  <path d="M0 991 q123 -14 256 0 t256 0 t256 0 t256 0" fill="none" stroke="#e2eaf1" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -13,7 +13,12 @@ const assert = require('node:assert/strict');
 const { Timestamp } = require('firebase-admin/firestore');
 const {
   MeetingValidationError,
+  MeetingRangeError,
+  meetingListRange,
+  MAX_MEETING_RANGE_DAYS,
+  MEETING_PAGE_SIZE,
   isFirebaseAdmin,
+  platformCapabilities,
   normalizedEmail,
   validateIanaTimeZone,
   resolveZonedLocalDateTime,
@@ -51,12 +56,29 @@ const {
   prospectRateLimited
 } = require('./platform-server');
 
+test('reports only configured platform capabilities to the CRM', () => {
+  const withoutR2 = platformCapabilities({});
+  assert.equal(withoutR2.meetings.update, true);
+  assert.equal(withoutR2.files.provider, 'cloudflare-r2');
+  assert.equal(withoutR2.files.upload, false);
+
+  const withR2 = platformCapabilities({
+    R2_ENDPOINT: 'https://account.eu.r2.cloudflarestorage.com',
+    R2_BUCKET: 'elysium-private',
+    R2_ACCESS_KEY_ID: 'access-key',
+    R2_SECRET_ACCESS_KEY: 'secret-key'
+  });
+  assert.equal(withR2.files.upload, true);
+  assert.equal(withR2.files.download, true);
+});
+
 test('recognizes only verified configured or claim-backed administrators', () => {
-  assert.equal(isFirebaseAdmin({ email: 'danielalonzzo@icloud.com', email_verified: true }), true);
+  assert.equal(isFirebaseAdmin({ email: 'daniel.morales@elysiumdr.eu', email_verified: true }), true);
   assert.equal(isFirebaseAdmin({ email: 'admin@example.com', email_verified: true, admin: true }), true);
+  assert.equal(isFirebaseAdmin({ email: 'admin@example.com', email_verified: true, crmRole: 'admin' }), true);
   assert.equal(isFirebaseAdmin({ email: 'root@example.com', email_verified: true, role: 'root' }), true);
   assert.equal(isFirebaseAdmin({ email: 'member@example.com', email_verified: true, role: 'partner' }), false);
-  assert.equal(isFirebaseAdmin({ email: 'danielalonzzo@icloud.com', email_verified: false }), false);
+  assert.equal(isFirebaseAdmin({ email: 'daniel.morales@elysiumdr.eu', email_verified: false }), false);
 });
 
 test('resolves ordinary zoned local times to one exact UTC instant', () => {
@@ -157,6 +179,38 @@ test('builds localized, escaped multizone meeting email and calendar invite', ()
   assert.match(Buffer.from(payload.attachments[0].content, 'base64').toString('utf8'), /BEGIN:VCALENDAR/);
 });
 
+test('permite llamadas sin enlace y no genera URLs vacías en correo o calendario', () => {
+  const call = emailMeeting({ type: 'call', meetingUrl: '' });
+  const normalized = normalizeMeetingInput({
+    contactId: 'contact_123',
+    contactCollection: 'contacts',
+    type: 'call',
+    title: call.title,
+    notes: call.notes,
+    clientRegion: call.clientRegion,
+    adminTimeZone: call.adminTimeZone,
+    clientTimeZone: call.clientTimeZone,
+    date: '2030-08-06',
+    time: '14:30',
+    durationMinutes: 30,
+    locale: 'es'
+  }, Date.UTC(2030, 0, 1));
+  assert.equal(normalized.type, 'call');
+  assert.equal(normalized.contactCollection, 'contacts');
+  assert.equal(normalized.meetingUrl, '');
+
+  const email = buildMeetingEmail(call);
+  assert.match(email.subject, /Llamada agendada/);
+  assert.match(email.html, /Tu llamada con Elysium ha sido agendada/);
+  assert.doesNotMatch(email.html, /href=""/);
+  assert.doesNotMatch(email.text, /Acceder a la reunión:\s*$/m);
+
+  const invite = buildMeetingIcs(call, 'confirmation', new Date('2026-08-01T00:00:00Z'));
+  assert.doesNotMatch(invite, /^URL:/m);
+  assert.match(invite, /METHOD:REQUEST\r\n/);
+  assert.equal(meetingEmailPayload(call).attachments[0].filename, 'elysium-call.ics');
+});
+
 test('envía por SMTP con Message-ID determinista y sin conexión real', async () => {
   let captured = null;
   const transport = { sendMail: async message => { captured = message; return { messageId: message.messageId, rejected: [] }; } };
@@ -238,6 +292,57 @@ test('serializes meeting and nested delivery timestamps as ISO strings', () => {
   });
   assert.equal(serialized.startAt, '2026-08-06T13:30:00.000Z');
   assert.equal(serialized.notifications.confirmation.sentAt, '2026-08-06T13:30:00.000Z');
+});
+
+test('la ventana por defecto de la agenda mira atras y adelante', () => {
+  const now = Date.parse('2026-08-18T12:00:00Z');
+  const { from, to, userId } = meetingListRange({}, now);
+  const day = 86400_000;
+  // El defecto anterior arrancaba en now-7d y vaciaba la pestana «Past».
+  assert.ok(now - from.getTime() >= 300 * day, 'el defecto debe incluir historico');
+  assert.ok(to.getTime() - now >= 300 * day, 'y tambien futuro');
+  assert.equal(userId, null);
+  assert.ok(to.getTime() - from.getTime() <= MAX_MEETING_RANGE_DAYS * day,
+    'el defecto tiene que caber en el tope, o el endpoint se rechaza a si mismo');
+});
+
+test('la ventana que pide el CRM (365+365) es aceptada', () => {
+  const now = Date.parse('2026-08-18T12:00:00Z');
+  const day = 86400_000;
+  const range = meetingListRange({
+    from: new Date(now - 365 * day).toISOString(),
+    to: new Date(now + 365 * day).toISOString()
+  }, now);
+  assert.equal(range.from.getTime(), now - 365 * day);
+  assert.equal(range.to.getTime(), now + 365 * day);
+});
+
+test('rangos invalidos y userId malformado se rechazan con su codigo', () => {
+  const now = Date.parse('2026-08-18T12:00:00Z');
+  const day = 86400_000;
+  const rejects = (query, code) => {
+    assert.throws(() => meetingListRange(query, now), error => {
+      assert.ok(error instanceof MeetingRangeError);
+      assert.equal(error.code, code);
+      return true;
+    });
+  };
+  rejects({ from: 'no-es-fecha' }, 'invalid_meeting_range');
+  rejects({ from: '2026-08-18', to: '2026-08-17' }, 'invalid_meeting_range');
+  rejects({
+    from: new Date(now).toISOString(),
+    to: new Date(now + (MAX_MEETING_RANGE_DAYS + 1) * day).toISOString()
+  }, 'invalid_meeting_range');
+  rejects({ userId: 'con espacios' }, 'invalid_user_id');
+  rejects({ userId: 'x'.repeat(129) }, 'invalid_user_id');
+});
+
+test('un userId valido se devuelve para filtrar dentro de la consulta', () => {
+  // Aplicado despues del limit, pedir la agenda de un cliente podia devolver
+  // cero citas aunque existieran. El handler lo usa como `where`.
+  const { userId } = meetingListRange({ userId: 'abc-123:XYZ_9' }, Date.now());
+  assert.equal(userId, 'abc-123:XYZ_9');
+  assert.ok(MEETING_PAGE_SIZE > 0);
 });
 
 test('password-reset helpers remain neutral, localized and rate limited', () => {

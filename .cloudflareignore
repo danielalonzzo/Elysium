@@ -24,7 +24,7 @@ node_modules/
 # grabaciones. La raíz del repositorio es la raíz de la web, así que sin esta
 # regla se serviría en «elysiumdr.eu/Prototipos/».
 Prototipos/
-Regalarte/
+Selva y Sal/
 _fuentes/
 CLAUDE.md
 **/CLAUDE.md
@@ -35,4 +35,15 @@ CLAUDE.md
 **/_comercial/
 **/node_modules/
 **/*.nosync/
+firestore.rules
+storage.rules
+firestore.indexes.json
+firebase.json
+wrangler.jsonc
+.cloudflareignore
+.assetsignore
+.gitignore
+.gitattributes
 worker/
+.claude/
+.idx/

@@ -10,10 +10,28 @@
 
 /* Shell ------------------------------------------------------------------ */
 
+.customer-portal.is-admin {
+    --crm-canvas: #070b12;
+    --crm-panel: #0d131d;
+    --crm-panel-raised: #111927;
+    --portal-sidebar-width: 16.5rem;
+    --crm-line: rgba(148, 163, 184, 0.13);
+    --crm-line-strong: rgba(148, 163, 184, 0.22);
+    --crm-text: #f4f7fb;
+    --crm-muted: #8f9caf;
+    --crm-blue: #2f7df6;
+    --crm-blue-soft: rgba(47, 125, 246, 0.14);
+    --crm-mint: #38d9ae;
+    min-height: 100dvh;
+    background:
+}
+
 /* The portal switches views with `hidden`; the CRM has always used `.active`
    and JS/admin.js depends on it. Keep that contract. */
 .customer-portal.is-admin .portal-section {
     display: none;
+    width: min(100%, 112rem);
+    margin-inline: auto;
 }
 
 .customer-portal.is-admin .portal-section.active {
@@ -28,6 +46,7 @@
 .customer-portal.is-admin .portal-header {
     align-items: flex-end;
     flex-wrap: wrap;
+    margin-bottom: 1.8rem;
 }
 
 .customer-portal.is-admin .dashboard-date {
@@ -35,10 +54,12 @@
     padding: 0.42rem 0.8rem;
     border: 1px solid var(--portal-border);
     border-radius: var(--radius-pill, 9999px);
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--color-text-secondary, #a0a5b5);
+    background: rgba(255, 255, 255, 0.025);
+    color: #7f8ca0;
     font-size: 0.72rem;
     font-weight: 620;
+    margin-right: 0.35rem;
+    border-color: var(--crm-line);
 }
 
 /* Language lives in the sidebar footer: the portfolio navbar is gone. */
@@ -175,6 +196,27 @@
     align-items: start;
 }
 
+.customer-portal.is-admin .overview-chart-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+    gap: 1.25rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.customer-portal.is-admin .overview-chart-canvas {
+    position: relative;
+    width: 100%;
+    height: 18rem;
+}
+
+/* Red de seguridad: Chart.js dimensiona el <canvas> por atributo, y si no
+   llega a inicializarse se queda en su tamaño intrínseco de 300 px y desborda
+   el contenedor en pantallas estrechas. */
+.customer-portal.is-admin .overview-chart-canvas canvas {
+    max-width: 100%;
+}
+
 /* Activity feed */
 .customer-portal.is-admin .feed-list {
     display: grid;
@@ -276,13 +318,96 @@
 
 .customer-portal.is-admin .pipeline-board {
     display: flex;
-    gap: 1rem;
-    padding-bottom: 0.75rem;
+    gap: 0.8rem;
+    padding-bottom: 1rem;
     overflow-x: auto;
     scroll-snap-type: x proximity;
     scrollbar-width: thin;
     scrollbar-color: rgba(160, 165, 181, 0.3) transparent;
 }
+
+.customer-portal.is-admin .crm-header-actions,
+.customer-portal.is-admin .meeting-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+
+.customer-portal.is-admin .crm-view-switch,
+.customer-portal.is-admin .reports-period-bar {
+    display: inline-flex;
+    gap: 0.2rem;
+    padding: 0.2rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.025);
+    width: max-content;
+    max-width: 100%;
+    margin-bottom: 1.25rem;
+}
+
+.customer-portal.is-admin :where(.crm-view-switch, .reports-period-bar) button {
+    min-height: 2.25rem;
+    padding: 0.45rem 0.8rem;
+    border: 0;
+    border-radius: 0.62rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 680;
+    background: transparent;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin :where(.crm-view-switch, .reports-period-bar) button.is-active {
+    color: #eaf4ff;
+    background: rgba(41, 151, 255, 0.17);
+    box-shadow: inset 0 0 0 1px rgba(41, 151, 255, 0.25);
+}
+
+.customer-portal.is-admin .stage-new         { --stage-color: #8b93a8; }
+.customer-portal.is-admin .stage-contacted   { --stage-color: #2997ff; }
+.customer-portal.is-admin .stage-negotiation { --stage-color: #f5b544; }
+.customer-portal.is-admin .stage-won         { --stage-color: #00c875; }
+.customer-portal.is-admin .stage-lost        { --stage-color: #ff7676; }
+
+.customer-portal.is-admin .pipeline-card[draggable="true"] {
+    cursor: grab;
+}
+
+.customer-portal.is-admin .pipeline-card.is-dragging {
+    opacity: 0.45;
+    transform: rotate(1deg) scale(0.98);
+}
+
+.customer-portal.is-admin .pipeline-col-cards.is-drop-target {
+    min-height: 5rem;
+    border-radius: 0.9rem;
+    outline: 2px dashed rgba(41, 151, 255, 0.45);
+    outline-offset: 0.25rem;
+}
+
+.customer-portal.is-admin .pipeline-card-meta,
+.customer-portal.is-admin .pipeline-card-tags {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.66rem;
+}
+
+.customer-portal.is-admin .pipeline-card-value {
+    color: #eaf4ff;
+    font-weight: 760;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .pipeline-tag,
 
 .customer-portal.is-admin .pipeline-column {
     display: flex;
@@ -292,9 +417,10 @@
     padding: 1rem 0.85rem;
     border: 1px solid var(--portal-border);
     border-top: 2px solid var(--stage-color, var(--portal-info));
-    border-radius: 1.15rem;
-    background: linear-gradient(145deg, rgba(15, 29, 55, 0.7), var(--portal-surface));
+    border-radius: 0.95rem;
+    background: rgba(11, 17, 26, 0.78);
     scroll-snap-align: start;
+    border-color: var(--crm-line);
 }
 
 /* Stage palette — the CRM's own identity, kept as-is. */
@@ -362,10 +488,11 @@
     gap: 0.65rem;
     padding: 0.7rem;
     border: 1px solid var(--portal-border);
-    border-radius: 0.9rem;
-    background: rgba(255, 255, 255, 0.03);
+    border-radius: 0.8rem;
+    background: rgba(20, 28, 41, 0.9);
     cursor: pointer;
     transition: border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease), transform var(--transition-fast, 0.2s ease);
+    border-color: rgba(148, 163, 184, 0.11);
 }
 
 .customer-portal.is-admin .pipeline-card:hover {
@@ -417,11 +544,15 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 0.7rem;
-    margin-bottom: 1.5rem;
-    padding: 0.85rem;
-    border: 1px solid var(--portal-border);
-    border-radius: 1.15rem;
-    background: linear-gradient(145deg, rgba(15, 29, 55, 0.7), var(--portal-surface));
+    margin-bottom: 0.8rem;
+    padding: 0.75rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.95rem;
+    background: rgba(10, 15, 23, 0.88);
+    position: sticky;
+    z-index: 8;
+    top: 5rem;
+    backdrop-filter: blur(16px);
 }
 
 .customer-portal.is-admin .crm-search-wrapper {
@@ -511,11 +642,24 @@
     font-size: 0.71rem;
 }
 
-.customer-portal.is-admin .clients-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+.customer-portal.is-admin .crm-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 1rem;
+    margin-top: 1.5rem;
 }
+
+.customer-portal.is-admin .crm-pagination[hidden] { display: none; }
+
+.customer-portal.is-admin .crm-pagination span {
+    min-width: 8rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+.customer-portal.is-admin .crm-pagination .btn { min-width: 6.5rem; }
 
 .customer-portal.is-admin .client-card {
     display: flex;
@@ -539,13 +683,6 @@
     transform: translateY(-0.18rem);
 }
 
-.customer-portal.is-admin .client-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-}
-
 .customer-portal.is-admin .client-card-avatar {
     display: grid;
     width: 2.65rem;
@@ -566,7 +703,7 @@
     flex: 1 1 auto;
 }
 
-.customer-portal.is-admin :where(.client-name, .client-company, .client-meta-email) {
+.customer-portal.is-admin :where(.client-name, .client-company) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -583,39 +720,6 @@
     margin-top: 0.12rem;
     color: var(--color-text-secondary, #a0a5b5);
     font-size: 0.74rem;
-}
-
-.customer-portal.is-admin .client-projects {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-}
-
-.customer-portal.is-admin .client-projects span {
-    padding: 0.18rem 0.5rem;
-    border: 1px solid var(--portal-border);
-    border-radius: var(--radius-pill, 9999px);
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--color-text-secondary, #a0a5b5);
-    font-size: 0.68rem;
-    font-weight: 620;
-}
-
-.customer-portal.is-admin .client-meta {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
-    margin-top: auto;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--portal-border);
-    color: var(--color-text-secondary, #a0a5b5);
-    font-size: 0.72rem;
-}
-
-.customer-portal.is-admin .client-joined {
-    flex: 0 0 auto;
-    opacity: 0.75;
 }
 
 /* Licenses --------------------------------------------------------------- */
@@ -713,13 +817,6 @@
 .customer-portal.is-admin .portal-link:hover {
     text-decoration: underline;
     text-underline-offset: 0.2rem;
-}
-
-.customer-portal.is-admin .contact-message-cell {
-    max-width: 20rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 /* Agenda ----------------------------------------------------------------- */
@@ -858,6 +955,10 @@
 .customer-portal.is-admin .meeting-form-footer .btn {
     flex: 0 0 auto;
     min-width: 9.5rem;
+}
+
+.customer-portal.is-admin .meeting-form-actions .btn {
+    min-width: auto;
 }
 
 .customer-portal.is-admin .meeting-form-message {
@@ -1100,16 +1201,271 @@
     outline-offset: 2px;
 }
 
-.customer-portal.is-admin .client-duplicate-badge {
-    margin-top: 0.6rem;
-    padding: 0.3rem 0.55rem;
-    border: 1px solid rgba(255, 171, 0, 0.3);
-    border-radius: var(--radius-pill, 9999px);
-    background: rgba(255, 171, 0, 0.09);
-    color: #ffab00;
-    font-size: 0.65rem;
-    font-weight: 720;
-    text-align: center;
+/* Reports --------------------------------------------------------------- */
+
+.customer-portal.is-admin .reports-kpi-grid {
+    margin-bottom: 1.5rem;
+}
+
+/* CRM dialogs and contact 360º drawer ---------------------------------- */
+
+.crm-dialog {
+    width: min(92vw, 42rem);
+    max-height: min(90vh, 48rem);
+    padding: 0;
+    overflow: auto;
+    border: 1px solid rgba(126, 159, 213, 0.26);
+    border-radius: 1.25rem;
+    outline: 0;
+    color: #e1e1e5;
+    background: #071022;
+    box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
+}
+
+.crm-dialog::backdrop {
+    background: rgba(1, 4, 14, 0.76);
+    backdrop-filter: blur(0.4rem);
+}
+
+.crm-dialog-card {
+    display: grid;
+    gap: 1.25rem;
+    padding: clamp(1.1rem, 3vw, 1.65rem);
+    background: radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.12), transparent 38%);
+}
+
+.crm-dialog-header,
+.crm-dialog-footer,
+.crm-drawer-header,
+.crm-drawer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.crm-dialog-header h2,
+.crm-drawer-header h2 {
+    margin: 0.15rem 0 0;
+    color: #f4f7fb;
+    font-size: 1.25rem;
+    letter-spacing: -0.025em;
+}
+
+.crm-dialog-close,
+.crm-drawer-close {
+    display: grid;
+    width: 2.35rem;
+    height: 2.35rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid rgba(126, 159, 213, 0.2);
+    border-radius: 0.75rem;
+    color: #a0a5b5;
+    font: inherit;
+    font-size: 1.35rem;
+    background: rgba(255, 255, 255, 0.03);
+    cursor: pointer;
+}
+
+.crm-drawer-backdrop {
+    position: fixed;
+    z-index: 10000;
+    inset: 0;
+    background: rgba(1, 4, 14, 0.68);
+    backdrop-filter: blur(0.35rem);
+}
+
+.crm-drawer-backdrop[hidden] { display: none; }
+
+.crm-drawer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: min(100%, 34rem);
+    height: 100%;
+    overflow-y: auto;
+    border-left: 1px solid rgba(126, 159, 213, 0.24);
+    color: #e1e1e5;
+    background:
+        radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.13), transparent 36%),
+        #071022;
+    box-shadow: -2rem 0 5rem rgba(0, 0, 0, 0.4);
+}
+
+.crm-drawer-section {
+    padding: 1.25rem 1.4rem;
+    border-bottom: 1px solid rgba(126, 159, 213, 0.14);
+}
+
+.crm-drawer-identity {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.9rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.crm-drawer-avatar {
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    place-items: center;
+    border: 1px solid rgba(41, 151, 255, 0.38);
+    border-radius: 1rem;
+    color: #fff;
+    font-weight: 760;
+    background: linear-gradient(145deg, #2f9cff, #125ecb);
+}
+
+.crm-drawer-subtitle,
+.crm-drawer-muted {
+    margin: 0.25rem 0 0;
+    color: #a0a5b5;
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+.crm-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.crm-detail-item {
+    min-width: 0;
+    padding: 0.75rem;
+    border: 1px solid rgba(126, 159, 213, 0.14);
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.crm-detail-item span,
+.crm-drawer-label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #7f899d;
+    font-size: 0.62rem;
+    font-weight: 740;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.crm-detail-item strong,
+.crm-detail-item a {
+    display: block;
+    overflow: hidden;
+    color: #e1e1e5;
+    font-size: 0.78rem;
+    font-weight: 620;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.crm-inquiry-message {
+    margin: 0;
+    padding: 0.9rem;
+    border: 1px solid rgba(41, 151, 255, 0.18);
+    border-radius: 0.85rem;
+    color: #cad4e5;
+    font-size: 0.78rem;
+    line-height: 1.65;
+    background: rgba(41, 151, 255, 0.055);
+    white-space: pre-wrap;
+}
+
+.crm-tag-list,
+.crm-file-list,
+.crm-activity-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.crm-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.28rem 0.52rem;
+    border: 1px solid rgba(41, 151, 255, 0.23);
+    border-radius: 999px;
+    color: #b8dcff;
+    font-size: 0.68rem;
+    background: rgba(41, 151, 255, 0.08);
+}
+
+.crm-tag button {
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+}
+
+.crm-inline-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.crm-note-input {
+    width: 100%;
+    min-height: 6.5rem;
+    padding: 0.8rem;
+    resize: vertical;
+    border: 1px solid rgba(126, 159, 213, 0.2);
+    border-radius: 0.8rem;
+    outline: 0;
+    color: #e1e1e5;
+    font: inherit;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.crm-activity-list,
+.crm-file-list {
+    flex-direction: column;
+}
+
+.crm-activity-item,
+.crm-file-item {
+    padding: 0.75rem 0.8rem;
+    border: 1px solid rgba(126, 159, 213, 0.14);
+    border-radius: 0.8rem;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.crm-activity-item strong,
+.crm-file-item strong {
+    display: block;
+    color: #e1e1e5;
+    font-size: 0.76rem;
+}
+
+.crm-activity-item p,
+.crm-file-item p {
+    margin: 0.3rem 0 0;
+    color: #a0a5b5;
+    font-size: 0.7rem;
+    line-height: 1.5;
+}
+
+.crm-upload-progress {
+    height: 0.3rem;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.crm-upload-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #2997ff;
 }
 
 /* ===========================================================================
@@ -2047,23 +2403,12 @@
     font-size: 0.8rem;
 }
 
-.customer-portal.is-admin .suspended-badge {
-    padding: 0.2rem 0.5rem;
-    border: 1px solid rgba(255, 118, 118, 0.3);
-    border-radius: var(--radius-pill, 9999px);
-    background: rgba(255, 118, 118, 0.1);
-    color: #ff8a84;
-    font-size: 0.62rem;
-    font-weight: 730;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
-
 /* Responsive ------------------------------------------------------------- */
 
 @media (max-width: 70rem) {
     .customer-portal.is-admin .agenda-layout,
-    .customer-portal.is-admin .overview-bottom-grid {
+    .customer-portal.is-admin .overview-bottom-grid,
+    .customer-portal.is-admin .overview-chart-grid {
         grid-template-columns: 1fr;
     }
 }
@@ -2080,6 +2425,26 @@
 }
 
 @media (max-width: 48rem) {
+    .customer-portal.is-admin .crm-header-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .customer-portal.is-admin .crm-view-switch,
+    .customer-portal.is-admin .crm-header-actions > .btn {
+        flex: 1 1 auto;
+    }
+
+    .crm-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .crm-inline-form,
+    .crm-dialog-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
     .customer-portal.is-admin .crm-toolbar {
         flex-direction: column;
         align-items: stretch;
@@ -2193,6 +2558,8 @@
 .customer-portal.is-admin .mail-compose-panel,
 .customer-portal.is-admin .mail-preview-panel {
     min-width: 0;
+    position: sticky;
+    top: 1.25rem;
 }
 
 .customer-portal.is-admin .mail-panel-heading {
@@ -2247,12 +2614,13 @@
     padding: 0.38rem 0.66rem;
     border: 1px solid rgba(72, 180, 255, 0.2);
     border-radius: 999px;
-    background: rgba(41, 151, 255, 0.07);
-    color: #9fcff5;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-muted, #76849a);
     font-size: 0.66rem;
     font-weight: 680;
     letter-spacing: 0.025em;
     white-space: nowrap;
+    border-color: var(--portal-border);
 }
 
 .customer-portal.is-admin .mail-secure-chip > span:first-child {
@@ -2261,12 +2629,6 @@
     border-radius: 50%;
     background: var(--portal-success, #40d896);
     box-shadow: 0 0 0 0.2rem rgba(64, 216, 150, 0.1);
-}
-
-.customer-portal.is-admin .mail-preview-badge {
-    border-color: var(--portal-border);
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--color-text-muted, #76849a);
 }
 
 .customer-portal.is-admin .mail-preview-badge.is-ready {
@@ -2499,11 +2861,6 @@
     height: 1rem;
 }
 
-.customer-portal.is-admin .mail-preview-panel {
-    position: sticky;
-    top: 1.25rem;
-}
-
 .customer-portal.is-admin .mail-preview-stage {
     position: relative;
     min-height: clamp(30rem, 64vh, 43rem);
@@ -2649,16 +3006,13 @@
     margin: 0;
     font-size: 0.7rem;
     line-height: 1.45;
+    overflow-wrap: anywhere;
+    color: #dce8f2;
+    font-weight: 610;
 }
 
 .customer-portal.is-admin .mail-confirm-summary dt {
     color: var(--color-text-muted, #76849a);
-}
-
-.customer-portal.is-admin .mail-confirm-summary dd {
-    overflow-wrap: anywhere;
-    color: #dce8f2;
-    font-weight: 610;
 }
 
 .customer-portal.is-admin .mail-confirm-actions {
@@ -2706,4 +3060,800 @@
     .customer-portal.is-admin .mail-confirm-actions .btn {
         width: 100%;
     }
+}
+
+/* ===========================================================================
+   ELYSIUM CRM 2026 — unified workspace
+   This layer deliberately restyles the existing operational application. It
+   does not introduce another shell or duplicate any module.
+   ========================================================================== */
+
+/* El ancho lo fija `--portal-sidebar-width`, que es lo que dimensiona la
+   columna de la rejilla en `customer-portal.css`. Declararlo aparte con
+   `width` dejaba la columna (17rem) y el sidebar (16.5rem) descuadrados. */
+.customer-portal.is-admin .portal-sidebar {
+    padding: 1.25rem 0.9rem 1rem;
+    border-right: 1px solid var(--crm-line);
+    background: rgba(5, 9, 16, 0.96);
+    box-shadow: 1.5rem 0 4rem rgba(0, 0, 0, 0.18);
+}
+
+.customer-portal.is-admin .portal-sidebar > .portal-brand {
+    margin: 0 0.35rem 1.1rem;
+    padding: 0.2rem 0.1rem;
+    letter-spacing: 0.16em;
+}
+
+.customer-portal.is-admin .portal-user-card {
+    margin: 1rem 0.2rem 1.4rem;
+    padding: 0.8rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.9rem;
+    background: linear-gradient(145deg, rgba(47, 125, 246, 0.09), rgba(255, 255, 255, 0.025));
+}
+
+.customer-portal.is-admin .portal-user-card strong {
+    max-width: 10rem;
+    overflow: hidden;
+    color: var(--crm-text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .portal-user-card span {
+    max-width: 10rem;
+    overflow: hidden;
+    color: var(--crm-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .sidebar-admin-avatar {
+    background: linear-gradient(145deg, #3c8cff, #214fcc);
+    box-shadow: 0 0.65rem 1.6rem rgba(35, 100, 230, 0.3);
+}
+
+.customer-portal.is-admin .portal-nav {
+    padding: 0 0.1rem;
+}
+
+.customer-portal.is-admin .portal-nav-label {
+    margin: 0.2rem 0.7rem 0.55rem;
+    color: #526075;
+    font-size: 0.61rem;
+    font-weight: 750;
+    letter-spacing: 0.18em;
+}
+
+.customer-portal.is-admin .portal-nav-label-secondary {
+    margin-top: 1.25rem;
+}
+
+.customer-portal.is-admin .portal-nav-item {
+    min-height: 2.75rem;
+    margin: 0.12rem 0;
+    padding: 0.68rem 0.78rem;
+    border: 1px solid transparent;
+    border-radius: 0.72rem;
+    color: #8f9bad;
+    font-size: 0.79rem;
+    font-weight: 570;
+}
+
+.customer-portal.is-admin .portal-nav-item:hover {
+    border-color: rgba(148, 163, 184, 0.09);
+    color: #e4ebf6;
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.customer-portal.is-admin .portal-nav-item.active {
+    border-color: rgba(47, 125, 246, 0.28);
+    color: #fff;
+    background: linear-gradient(90deg, rgba(47, 125, 246, 0.2), rgba(47, 125, 246, 0.07));
+    box-shadow: inset 2px 0 #3f8cff;
+}
+
+.customer-portal.is-admin .portal-nav-item svg { opacity: 0.82; }
+.customer-portal.is-admin .portal-nav-item.active svg { color: #6ca5ff; opacity: 1; }
+
+/* Sin `margin-left`: `.portal-main` ocupa la columna «main» de la rejilla,
+   que ya deja hueco al sidebar. El margen que habia aqui lo contaba dos
+   veces y empujaba todo el CRM ~264 px a la derecha, comiendose ese ancho. */
+.customer-portal.is-admin .portal-main {
+    padding: 0 2rem 3rem;
+    background: transparent;
+}
+
+.customer-portal.is-admin .crm-command-bar {
+    position: sticky;
+    z-index: 30;
+    top: 0;
+    /* Anula el `width: min(100%, ...)` de `.portal-main > *`: sin esto los
+       margenes negativos la corren a la izquierda pero no la ensanchan, y la
+       barra acaba 2rem antes que el contenido por la derecha. */
+    width: auto;
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) minmax(18rem, 30rem) minmax(12rem, 1fr);
+    align-items: center;
+    min-height: 4.4rem;
+    margin: 0 -2rem 2.2rem;
+    padding: 0 2rem;
+    border-bottom: 1px solid var(--crm-line);
+    background: rgba(7, 11, 18, 0.84);
+    backdrop-filter: blur(18px) saturate(140%);
+}
+
+.customer-portal.is-admin .crm-command-context {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: #526075;
+    font-size: 0.76rem;
+}
+
+.customer-portal.is-admin .crm-command-product {
+    color: #7ea9ff;
+    font-weight: 720;
+    letter-spacing: 0.06em;
+}
+
+.customer-portal.is-admin .crm-command-context strong {
+    color: #cfd8e6;
+    font-weight: 620;
+}
+
+.customer-portal.is-admin .crm-command-search {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-height: 2.45rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.7rem;
+    color: #77869a;
+    background: rgba(255, 255, 255, 0.025);
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .crm-command-search:hover {
+    border-color: rgba(91, 149, 255, 0.38);
+    color: #bdc9d9;
+    background: rgba(47, 125, 246, 0.06);
+}
+
+.customer-portal.is-admin .crm-command-search svg { width: 1rem; }
+.customer-portal.is-admin .crm-command-search span { flex: 1; text-align: left; }
+.customer-portal.is-admin .crm-command-search kbd {
+    padding: 0.18rem 0.38rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.3rem;
+    color: #647287;
+    background: rgba(255, 255, 255, 0.03);
+    font: inherit;
+    font-size: 0.65rem;
+}
+
+.customer-portal.is-admin .crm-command-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    color: #748399;
+    font-size: 0.71rem;
+}
+
+.customer-portal.is-admin .crm-command-status i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: var(--crm-mint);
+    box-shadow: 0 0 0.8rem rgba(56, 217, 174, 0.75);
+}
+
+.customer-portal.is-admin .crm-command-status.is-partial i {
+    background: #f4b740;
+    box-shadow: 0 0 0.8rem rgba(244, 183, 64, 0.65);
+}
+
+.customer-portal.is-admin .crm-command-status.is-offline i {
+    background: #f16e75;
+    box-shadow: 0 0 0.8rem rgba(241, 110, 117, 0.58);
+}
+
+.customer-portal.is-admin .crm-file-capability {
+    margin-top: 0.8rem;
+    font-size: 0.72rem;
+    line-height: 1.55;
+}
+
+.customer-portal.is-admin .portal-header h1 {
+    margin: 0.25rem 0 0.35rem;
+    color: var(--crm-text);
+    font-size: clamp(2rem, 3vw, 3.1rem);
+    font-weight: 640;
+    letter-spacing: -0.055em;
+}
+
+.customer-portal.is-admin .crm-section-eyebrow,
+.customer-portal.is-admin .crm-section-heading span {
+    color: #5f91ed;
+    font-size: 0.65rem;
+    font-weight: 760;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .crm-dashboard-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.customer-portal.is-admin .crm-section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.9rem;
+}
+
+.customer-portal.is-admin .crm-section-heading-secondary { margin-top: 1.4rem; }
+.customer-portal.is-admin .crm-section-heading h2 {
+    margin: 0.24rem 0 0;
+    color: #dce4ef;
+    font-size: 1rem;
+    font-weight: 620;
+    letter-spacing: -0.02em;
+}
+
+.customer-portal.is-admin .crm-text-action {
+    border: 0;
+    color: #6f9ff3;
+    background: transparent;
+    font-size: 0.72rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin #stats-overview,
+.customer-portal.is-admin #stats-operations {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.customer-portal.is-admin .kpi-card {
+    min-height: 12.6rem;
+    padding: 1.15rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 1rem;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.038), transparent 65%),
+        var(--crm-panel);
+    box-shadow: 0 1.1rem 3rem rgba(0, 0, 0, 0.14);
+}
+
+.customer-portal.is-admin #stats-overview .kpi-card:first-child {
+    border-color: rgba(65, 132, 255, 0.3);
+    background:
+        radial-gradient(circle at 100% 0, rgba(47, 125, 246, 0.2), transparent 55%),
+        var(--crm-panel-raised);
+}
+
+.customer-portal.is-admin .crm-operational-kpis .kpi-card {
+    min-height: 10.5rem;
+    background: rgba(13, 19, 29, 0.66);
+}
+
+.customer-portal.is-admin .kpi-value {
+    font-size: clamp(1.9rem, 2.6vw, 2.75rem);
+    font-weight: 640;
+    letter-spacing: -0.055em;
+}
+
+.customer-portal.is-admin .overview-panel,
+.customer-portal.is-admin .portal-card {
+    border-color: var(--crm-line);
+    border-radius: 1rem;
+    background: rgba(13, 19, 29, 0.75);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.12);
+}
+
+.customer-portal.is-admin .crm-contact-directory {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--crm-line);
+    border-radius: 1rem;
+    background: rgba(11, 17, 26, 0.72);
+}
+
+.customer-portal.is-admin .crm-directory-table { min-width: 58rem; }
+
+.customer-portal.is-admin .crm-directory-row {
+    display: grid;
+    grid-template-columns: minmax(16rem, 1.45fr) minmax(12rem, 1fr) 8rem minmax(9rem, 0.8fr) minmax(9rem, 0.7fr) 1.5rem;
+    align-items: center;
+    min-height: 4.8rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.085);
+    color: #b7c2d2;
+    cursor: pointer;
+    transition: background 160ms ease, transform 160ms ease;
+}
+
+.customer-portal.is-admin .crm-directory-row:last-child { border-bottom: 0; }
+.customer-portal.is-admin .crm-directory-row:not(.crm-directory-head):hover,
+.customer-portal.is-admin .crm-directory-row:not(.crm-directory-head):focus-visible {
+    outline: none;
+    background: linear-gradient(90deg, rgba(47, 125, 246, 0.09), rgba(47, 125, 246, 0.02));
+}
+
+.customer-portal.is-admin .crm-directory-head {
+    min-height: 2.85rem;
+    color: #5d6a7e;
+    background: rgba(255, 255, 255, 0.018);
+    cursor: default;
+    font-size: 0.61rem;
+    font-weight: 720;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .crm-directory-person,
+.customer-portal.is-admin .crm-directory-company,
+.customer-portal.is-admin .crm-directory-activity {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.22rem;
+}
+
+.customer-portal.is-admin .crm-directory-person {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .crm-directory-person strong,
+.customer-portal.is-admin .crm-directory-company strong,
+.customer-portal.is-admin .crm-directory-activity strong {
+    overflow: hidden;
+    color: #e5ebf4;
+    font-size: 0.78rem;
+    font-weight: 610;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .crm-directory-person span,
+.customer-portal.is-admin .crm-directory-company span,
+.customer-portal.is-admin .crm-directory-activity span {
+    overflow: hidden;
+    color: #708096;
+    font-size: 0.68rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .crm-directory-owner {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #8f9caf;
+    font-size: 0.7rem;
+}
+
+.customer-portal.is-admin .crm-owner-dot {
+    width: 0.42rem;
+    height: 0.42rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #5476a7;
+}
+
+.customer-portal.is-admin .crm-directory-chevron {
+    color: #516078;
+    font-size: 1.35rem;
+    text-align: right;
+}
+
+.customer-portal.is-admin .crm-drawer {
+    width: min(42rem, 100vw);
+    border-left-color: rgba(85, 139, 239, 0.26);
+    background: #0a1019;
+    box-shadow: -2rem 0 5rem rgba(0, 0, 0, 0.48);
+}
+
+@media (max-width: 1180px) {
+    .customer-portal.is-admin #stats-overview,
+    .customer-portal.is-admin #stats-operations { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .customer-portal.is-admin .crm-command-bar { grid-template-columns: 1fr minmax(16rem, 26rem); }
+    .customer-portal.is-admin .crm-command-status { display: none; }
+}
+
+@media (max-width: 860px) {
+    .customer-portal.is-admin .portal-main {
+        padding: 0 1rem 6rem;
+    }
+    .customer-portal.is-admin .crm-command-bar {
+        top: 0;
+        grid-template-columns: 1fr auto;
+        margin: 0 -1rem 1.5rem;
+        padding: 0 1rem;
+    }
+    .customer-portal.is-admin .crm-command-search { width: 2.6rem; padding: 0; justify-content: center; }
+    .customer-portal.is-admin .crm-command-search span,
+    .customer-portal.is-admin .crm-command-search kbd { display: none; }
+    .customer-portal.is-admin .crm-dashboard-header { align-items: flex-start; }
+    .customer-portal.is-admin .crm-dashboard-actions { justify-content: flex-start; }
+}
+
+@media (max-width: 620px) {
+    .customer-portal.is-admin #stats-overview,
+    .customer-portal.is-admin #stats-operations { grid-template-columns: minmax(0, 1fr); }
+    .customer-portal.is-admin .crm-dashboard-actions .dashboard-date { width: 100%; margin: 0 0 0.25rem; }
+    .customer-portal.is-admin .crm-dashboard-actions .btn { flex: 1; }
+    .customer-portal.is-admin .crm-section-heading { align-items: flex-start; }
+}
+
+/* Segmentación y valoración del tablero ----------------------------------- */
+
+.customer-portal.is-admin .crm-filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 9.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .crm-filter-field-grow {
+    flex: 1 1 14rem;
+}
+
+.customer-portal.is-admin .crm-filter-field .form-control {
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.85rem;
+}
+
+/* La valoración va bajo la cabecera de la columna y no dentro del área
+   scrollable de tarjetas: es el dato que se consulta sin desplazarse. */
+.customer-portal.is-admin .pipeline-col-total {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin: 0 0 0.6rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.7rem;
+    background: rgba(148, 163, 184, 0.06);
+}
+
+.customer-portal.is-admin .pipeline-col-total strong {
+    font-size: 1rem;
+    color: var(--crm-text);
+}
+
+.customer-portal.is-admin .pipeline-col-total span {
+    font-size: 0.7rem;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .pipeline-card-due {
+    margin-top: 0.4rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .pipeline-card-due.is-overdue {
+    color: #f16e75;
+    font-weight: 600;
+}
+
+.customer-portal.is-admin .pipeline-card-due.is-week {
+    color: #f4b740;
+}
+
+.customer-portal.is-admin .pipeline-card.is-overdue {
+    border-left: 2px solid rgba(241, 110, 117, 0.55);
+}
+
+/* Resumen diario ---------------------------------------------------------- */
+
+.customer-portal.is-admin .crm-briefing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.customer-portal.is-admin .crm-briefing-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--crm-line);
+    border-left: 2px solid var(--crm-line-strong);
+    border-radius: 0.95rem;
+    background: var(--crm-panel);
+}
+
+.customer-portal.is-admin .crm-briefing-card.is-blue    { border-left-color: var(--crm-blue); }
+.customer-portal.is-admin .crm-briefing-card.is-danger  { border-left-color: #f16e75; }
+.customer-portal.is-admin .crm-briefing-card.is-warning { border-left-color: #f4b740; }
+
+.customer-portal.is-admin .crm-briefing-card header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+}
+
+.customer-portal.is-admin .crm-briefing-count {
+    font-size: 1.7rem;
+    font-weight: 650;
+    line-height: 1;
+    color: var(--crm-text);
+}
+
+.customer-portal.is-admin .crm-briefing-card h3 {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .crm-briefing-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.customer-portal.is-admin .crm-briefing-list li {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.customer-portal.is-admin .crm-briefing-list strong {
+    font-weight: 550;
+    color: var(--crm-text);
+    /* Los títulos de cita y oportunidad son libres; se acotan a una línea para
+       que una tarjeta larga no descuadre la rejilla. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .crm-briefing-list span,
+.customer-portal.is-admin .crm-briefing-empty {
+    font-size: 0.72rem;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .crm-briefing-empty {
+    margin: 0;
+}
+
+.customer-portal.is-admin .crm-briefing-card .crm-text-action {
+    align-self: flex-start;
+    margin-top: auto;
+    padding-top: 0.3rem;
+}
+
+/* Calendario maestro ------------------------------------------------------ */
+
+.customer-portal.is-admin .agenda-view-switch {
+    display: flex;
+    gap: 0.3rem;
+    margin-bottom: 0.7rem;
+}
+
+.customer-portal.is-admin .agenda-view {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--crm-muted);
+    font-size: 0.76rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .agenda-view.is-active {
+    border-color: var(--crm-blue);
+    background: var(--crm-blue-soft);
+    color: var(--crm-text);
+}
+
+.customer-portal.is-admin .agenda-calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.customer-portal.is-admin .agenda-calendar-nav strong {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--crm-text);
+    text-transform: capitalize;
+}
+
+/* Mes: rejilla de 7 columnas. Se desplaza en horizontal en pantallas
+   estrechas en lugar de comprimir las casillas hasta hacerlas ilegibles. */
+.customer-portal.is-admin .agenda-calendar {
+    overflow-x: auto;
+}
+
+.customer-portal.is-admin .agenda-cal-month {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(6.5rem, 1fr));
+    gap: 1px;
+    min-width: 46rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.8rem;
+    background: var(--crm-line);
+    overflow: hidden;
+}
+
+.customer-portal.is-admin .agenda-cal-weekday {
+    padding: 0.45rem 0.6rem;
+    background: var(--crm-panel-raised);
+    color: var(--crm-muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .agenda-cal-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-height: 6.2rem;
+    padding: 0.4rem;
+    background: var(--crm-panel);
+}
+
+.customer-portal.is-admin .agenda-cal-cell.is-outside {
+    opacity: 0.4;
+}
+
+.customer-portal.is-admin .agenda-cal-cell.is-today {
+    box-shadow: inset 0 0 0 1px var(--crm-blue);
+}
+
+.customer-portal.is-admin .agenda-cal-daynum {
+    font-size: 0.72rem;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .agenda-cal-more {
+    font-size: 0.66rem;
+    color: var(--crm-muted);
+}
+
+/* Semana y día */
+.customer-portal.is-admin .agenda-cal-week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(7rem, 1fr));
+    gap: 0.4rem;
+    min-width: 50rem;
+}
+
+.customer-portal.is-admin .agenda-cal-daycol {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.5rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.7rem;
+    background: var(--crm-panel);
+}
+
+.customer-portal.is-admin .agenda-cal-daycol.is-today {
+    border-color: var(--crm-blue);
+}
+
+.customer-portal.is-admin .agenda-cal-daycol-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.72rem;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .agenda-cal-daycol-head strong {
+    color: var(--crm-text);
+    text-transform: capitalize;
+}
+
+.customer-portal.is-admin .agenda-cal-daycol-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 4rem;
+}
+
+.customer-portal.is-admin .agenda-cal-hour {
+    display: grid;
+    grid-template-columns: 4rem 1fr;
+    gap: 0.6rem;
+    padding: 0.3rem 0;
+    border-top: 1px solid var(--crm-line);
+}
+
+.customer-portal.is-admin .agenda-cal-hour-label {
+    font-size: 0.7rem;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .agenda-cal-hour-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-height: 1.4rem;
+}
+
+.customer-portal.is-admin .agenda-cal-outside {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0.9rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--crm-line-strong);
+}
+
+.customer-portal.is-admin .agenda-cal-outside > span,
+.customer-portal.is-admin .agenda-cal-empty {
+    font-size: 0.7rem;
+    color: var(--crm-muted);
+}
+
+/* Cita */
+.customer-portal.is-admin .agenda-cal-chip {
+    display: flex;
+    gap: 0.35rem;
+    align-items: baseline;
+    width: 100%;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid transparent;
+    border-left: 2px solid var(--crm-blue);
+    border-radius: 0.35rem;
+    background: var(--crm-blue-soft);
+    color: var(--crm-text);
+    font-size: 0.7rem;
+    text-align: left;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .agenda-cal-chip.is-call {
+    border-left-color: var(--crm-mint);
+    background: rgba(56, 217, 174, 0.13);
+}
+
+/* Solape: dos citas que se pisan. Es el fallo que la lista no dejaba ver. */
+.customer-portal.is-admin .agenda-cal-chip.is-clash {
+    border-color: #f16e75;
+    border-left-color: #f16e75;
+    background: rgba(241, 110, 117, 0.16);
+}
+
+.customer-portal.is-admin .agenda-cal-chip-time {
+    flex: none;
+    font-variant-numeric: tabular-nums;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .agenda-cal-chip-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

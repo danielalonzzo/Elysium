@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" role="img" aria-label="Arenal">
+  <defs>
+    <linearGradient id="bg-10xih5" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d3b34"/>
+      <stop offset="1" stop-color="#06231f"/>
+    </linearGradient>
+    <radialGradient id="glow-10xih5" cx="0.5" cy="0.32000861527398233" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-10xih5" x1="0" y1="0" x2="0.68" y2="1">
+      <stop offset="0" stop-color="#f4c94f"/>
+      <stop offset="1" stop-color="#f4f1e6"/>
+    </linearGradient>
+    <filter id="soft-10xih5" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="900" height="600" fill="url(#bg-10xih5)"/>
+  <rect width="900" height="600" fill="url(#glow-10xih5)"/>
+  <circle cx="734" cy="180" r="84" fill="#f4c94f" opacity="0.85"/>
+  <path d="M-90 516 L144 330 L522 516 Z" fill="#f4f1e6" opacity="0.22"/>
+  <path d="M378 516 L558 363 L1008 516 Z" fill="#f4f1e6" opacity="0.18"/>
+  <rect x="0" y="453" width="900" height="21" fill="#0d3b34" opacity="0.22"/>
+  <path d="M-90 516 L324 241 L702 516 Z" fill="#f4f1e6" opacity="0.44"/>
+  <path d="M378 516 L630 290 L1008 516 Z" fill="#f4f1e6" opacity="0.38"/>
+  <rect x="0" y="422" width="900" height="21" fill="#0d3b34" opacity="0.17"/>
+  <path d="M-90 516 L504 162 L882 516 Z" fill="#f4f1e6" opacity="0.66"/>
+  <path d="M378 516 L702 226 L1008 516 Z" fill="#f4f1e6" opacity="0.58"/>
+  <rect x="0" y="396" width="900" height="21" fill="#0d3b34" opacity="0.12"/>
+  <rect x="0" y="516" width="900" height="84" fill="#f4f1e6" opacity="0.7"/>
+  <path d="M25 443 L56 528 L-6 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M25 463 L44 507 L6 507 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M105 464 L126 528 L83 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M105 478 L118 510 L91 510 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M201 429 L238 528 L165 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M201 453 L224 506 L179 506 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M288 459 L312 528 L264 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M288 475 L303 509 L273 509 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M345 424 L383 528 L306 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M345 450 L369 505 L321 505 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M473 409 L518 528 L428 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M473 439 L501 503 L445 503 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M525 466 L546 528 L505 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M525 480 L538 510 L512 510 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M621 472 L640 528 L603 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M621 484 L633 511 L610 511 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M732 443 L763 528 L702 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M732 463 L751 507 L713 507 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M796 409 L841 528 L751 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M796 439 L824 503 L768 503 Z" fill="#06231f" opacity="0.5"/>
+  <path d="M925 464 L947 528 L904 528 Z" fill="#f4f1e6" opacity="0.75"/>
+  <path d="M925 479 L939 510 L912 510 Z" fill="#06231f" opacity="0.5"/>
+</svg>

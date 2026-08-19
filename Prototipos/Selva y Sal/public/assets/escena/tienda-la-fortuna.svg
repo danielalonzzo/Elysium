@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="La tienda de La Fortuna">
+  <defs>
+    <linearGradient id="bg-eo9su" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ece8e1"/>
+      <stop offset="1" stop-color="#cbc3b6"/>
+    </linearGradient>
+    <radialGradient id="glow-eo9su" cx="0.5" cy="0.38251873685978355" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-eo9su" x1="0" y1="0" x2="0.67" y2="1">
+      <stop offset="0" stop-color="#8a7351"/>
+      <stop offset="1" stop-color="#332e26"/>
+    </linearGradient>
+    <filter id="soft-eo9su" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg-eo9su)"/>
+  <rect width="1200" height="630" fill="url(#glow-eo9su)"/>
+  <circle cx="884" cy="189" r="88" fill="#8a7351" opacity="0.85"/>
+  <path d="M-120 542 L192 340 L696 542 Z" fill="#332e26" opacity="0.22"/>
+  <path d="M504 542 L744 376 L1344 542 Z" fill="#332e26" opacity="0.18"/>
+  <rect x="0" y="473" width="1200" height="22" fill="#ece8e1" opacity="0.22"/>
+  <path d="M-120 542 L432 251 L936 542 Z" fill="#332e26" opacity="0.44"/>
+  <path d="M504 542 L840 303 L1344 542 Z" fill="#332e26" opacity="0.38"/>
+  <rect x="0" y="443" width="1200" height="22" fill="#ece8e1" opacity="0.17"/>
+  <path d="M-120 542 L672 176 L1176 542 Z" fill="#332e26" opacity="0.66"/>
+  <path d="M504 542 L936 242 L1344 542 Z" fill="#332e26" opacity="0.58"/>
+  <rect x="0" y="417" width="1200" height="22" fill="#ece8e1" opacity="0.12"/>
+  <rect x="0" y="542" width="1200" height="88" fill="#332e26" opacity="0.7"/>
+  <path d="M20 459 L55 554 L-14 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M20 482 L42 532 L-1 532 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M81 478 L108 554 L55 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M81 496 L98 534 L65 534 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M206 495 L226 554 L186 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M206 508 L218 536 L194 536 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M253 454 L291 554 L216 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M253 478 L276 531 L230 531 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M366 455 L402 554 L329 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M366 479 L388 531 L343 531 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M461 426 L509 554 L412 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M461 459 L491 528 L431 528 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M570 441 L613 554 L528 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M570 469 L597 530 L544 530 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M651 479 L678 554 L625 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M651 496 L668 534 L635 534 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M749 424 L798 554 L699 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M749 457 L780 528 L718 528 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M819 489 L841 554 L797 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M819 504 L832 536 L805 536 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M940 431 L986 554 L893 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M940 462 L969 529 L911 529 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M1028 452 L1065 554 L990 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M1028 477 L1051 531 L1004 531 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M1105 443 L1147 554 L1064 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M1105 470 L1131 530 L1079 530 Z" fill="#cbc3b6" opacity="0.5"/>
+  <path d="M1196 432 L1243 554 L1150 554 Z" fill="#332e26" opacity="0.75"/>
+  <path d="M1196 463 L1225 529 L1168 529 Z" fill="#cbc3b6" opacity="0.5"/>
+</svg>

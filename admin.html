@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin CRM — Elysium λ</title>
+    <title>Elysium CRM</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,7 +25,7 @@
     <!-- The admin CRM shares the customer portal's design system: the shell,
          cards, tables, buttons and chips all come from this stylesheet. -->
     <link rel="stylesheet" href="CSS/customer-portal.css?v=2026080606">
-    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026080606">
+    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026081806">
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
@@ -63,14 +63,14 @@
         <div class="portal-user-card">
             <div class="sidebar-admin-avatar" aria-hidden="true">λ</div>
             <div>
-                <strong>Super Admin</strong>
-                <span>Elysium λ CRM</span>
+                <strong id="sidebar-admin-name">Elysium Team</strong>
+                <span id="sidebar-admin-role">Commercial workspace</span>
             </div>
         </div>
 
         <!-- Navigation -->
         <nav class="portal-nav" aria-label="Admin CRM">
-            <div class="portal-nav-label">Workspace</div>
+            <div class="portal-nav-label">CRM</div>
 
             <button type="button" class="portal-nav-item active" data-target="overview" id="nav-overview" aria-current="page">
                 <!-- Overview icon -->
@@ -78,7 +78,7 @@
                     <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                     <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
                 </svg>
-                <span class="portal-nav-text">Overview</span>
+                <span class="portal-nav-text">Dashboard</span>
             </button>
 
             <button type="button" class="portal-nav-item" data-target="pipeline" id="nav-pipeline">
@@ -98,7 +98,7 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
-                <span class="portal-nav-text">Partners</span>
+                <span class="portal-nav-text">Contacts</span>
                 <span class="portal-nav-badge" id="sidebar-clients-count">0</span>
             </button>
 
@@ -112,12 +112,22 @@
                 <span class="portal-nav-badge" id="sidebar-agenda-count">0</span>
             </button>
 
+            <div class="portal-nav-label portal-nav-label-secondary">Operations</div>
+
             <button type="button" class="portal-nav-item" data-target="mail" id="nav-mail">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                     <polyline points="22,6 12,13 2,6"/>
                 </svg>
                 <span class="portal-nav-text">Mail</span>
+            </button>
+
+            <button type="button" class="portal-nav-item" data-target="reports" id="nav-reports">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/>
+                    <path d="M2 21h20"/>
+                </svg>
+                <span class="portal-nav-text">Reports</span>
             </button>
 
             <button type="button" class="portal-nav-item" data-target="licenses" id="nav-licenses">
@@ -129,14 +139,7 @@
                 <span class="portal-nav-text">Licenses</span>
             </button>
 
-            <button type="button" class="portal-nav-item" data-target="contacts" id="nav-contacts">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                    <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                <span class="portal-nav-text">Inquiries</span>
-                <span class="portal-nav-badge" id="sidebar-contacts-count">0</span>
-            </button>
+            <div class="portal-nav-label portal-nav-label-secondary">Delivery</div>
 
             <button type="button" class="portal-nav-item" data-target="prototypes" id="nav-prototypes">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -155,13 +158,6 @@
                 <button type="button" class="lang-select" data-lang="es" aria-pressed="false">ES</button>
                 <button type="button" class="lang-select" data-lang="pt" aria-pressed="false">PT</button>
             </div>
-            <button type="button" id="devViewBtn" class="portal-support-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                </svg>
-                <span>Dev View</span>
-            </button>
             <button type="button" id="logoutBtn" class="sidebar-logout-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
@@ -178,33 +174,73 @@
     ═══════════════════════════════════════════════════════ -->
     <main class="portal-main" id="portal-main" tabindex="-1">
 
+        <div class="crm-command-bar">
+            <div class="crm-command-context">
+                <span class="crm-command-product">Elysium OS</span>
+                <span aria-hidden="true">/</span>
+                <strong id="crm-command-section">Dashboard</strong>
+            </div>
+            <button type="button" class="crm-command-search" id="crm-global-search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span>Search relationships</span><kbd>⌘ K</kbd>
+            </button>
+            <div class="crm-command-status" id="crm-platform-status"><i></i><span>Connecting workspace…</span></div>
+        </div>
+
         <!-- ─── OVERVIEW ──────────────────────────────────────── -->
         <section id="overview" class="portal-section active">
-            <div class="portal-header">
+            <div class="portal-header crm-dashboard-header">
                 <div>
+                    <span class="crm-section-eyebrow">Commercial command center</span>
                     <h1 id="overview-title">Dashboard</h1>
                     <p class="color-text-secondary" id="overview-subtitle">Welcome back, Super Admin.</p>
                 </div>
-                <div class="dashboard-date" id="dashboard-date"></div>
+                <div class="crm-dashboard-actions">
+                    <div class="dashboard-date" id="dashboard-date"></div>
+                    <button type="button" class="btn btn-secondary" id="dashboard-new-contact">New contact</button>
+                    <button type="button" class="btn btn-primary" id="dashboard-new-opportunity">New opportunity</button>
+                </div>
             </div>
 
-            <!-- KPI Row -->
+            <!-- Resumen del día. Va antes que los KPI: es lo accionable ahora,
+                 mientras que los indicadores describen el trimestre. -->
+            <div class="crm-section-heading">
+                <div><span>Today</span><h2 id="briefing-title">Daily briefing</h2></div>
+                <button type="button" class="crm-text-action" data-target-nav="agenda">Open agenda →</button>
+            </div>
+            <div class="crm-briefing-grid" id="crm-daily-briefing">
+                <div class="loader-container"><div class="premium-loader"></div></div>
+            </div>
+
+            <div class="crm-section-heading">
+                <div><span>Revenue system</span><h2>Commercial overview</h2></div>
+                <button type="button" class="crm-text-action" data-target-nav="reports">Open reports →</button>
+            </div>
             <div class="kpi-grid" id="stats-overview">
                 <!-- Injected by JS -->
             </div>
 
-            <!-- Global Revenue Chart -->
-            <div class="portal-card overview-panel" style="margin-bottom: 2rem;">
-                <div class="overview-panel-header">
-                    <div>
-                        <h4 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-primary); display: flex; align-items: center; gap: 0.5rem; margin: 0;">
-                            <i data-lucide="trending-up" style="width: 1rem; height: 1rem; color: var(--color-accent-primary);"></i>
-                        Global Revenue (Last 12 Months)
-                        </h4>
+            <div class="crm-section-heading crm-section-heading-secondary">
+                <div><span>Existing operation</span><h2>Delivery &amp; subscriptions</h2></div>
+            </div>
+            <div class="kpi-grid crm-operational-kpis" id="stats-operations">
+                <!-- Existing partner, project and license KPIs injected by JS -->
+            </div>
+
+            <div class="overview-chart-grid">
+                <div class="portal-card overview-panel">
+                    <div class="overview-panel-header">
+                        <h3 class="overview-panel-title">Global revenue · 12 months</h3>
                     </div>
+                    <div class="overview-chart-canvas"><canvas id="globalRevenueChart"></canvas></div>
                 </div>
-                <div style="height: 300px; width: 100%;">
-                    <canvas id="globalRevenueChart"></canvas>
+
+                <div class="portal-card overview-panel">
+                    <div class="overview-panel-header">
+                        <h3 class="overview-panel-title">Commercial performance · this week</h3>
+                        <span class="overview-panel-link" data-target-nav="reports">View report →</span>
+                    </div>
+                    <div class="overview-chart-canvas"><canvas id="commercialPerformanceChart"></canvas></div>
                 </div>
             </div>
 
@@ -253,23 +289,67 @@
             <div class="portal-header">
                 <div>
                     <h1>Pipeline</h1>
-                    <p class="color-text-secondary">Track partner progress across project stages.</p>
+                    <p class="color-text-secondary">Commercial opportunities and active delivery in one workflow.</p>
                 </div>
+                <div class="crm-header-actions">
+                    <div class="crm-view-switch" role="group" aria-label="Pipeline view">
+                        <button type="button" class="is-active" data-pipeline-mode="commercial">Opportunities</button>
+                        <button type="button" data-pipeline-mode="delivery">Projects</button>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="create-opportunity-btn">New opportunity</button>
+                </div>
+            </div>
+            <!-- Segmentación del tablero. `urgency` se deriva de
+                 `expectedCloseAt`, que ya existe: la forma de `opportunities`
+                 está cerrada por `crmIsValidOpportunity` en firestore.rules y
+                 un campo «priority» nuevo sería rechazado al escribir. -->
+            <div class="crm-toolbar" id="pipeline-filters">
+                <label class="crm-filter-field">
+                    <span>Owner</span>
+                    <select id="pipeline-filter-owner" class="form-control">
+                        <option value="">Everyone</option>
+                    </select>
+                </label>
+                <label class="crm-filter-field">
+                    <span>Created</span>
+                    <select id="pipeline-filter-created" class="form-control">
+                        <option value="">Any time</option>
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="90">Last 90 days</option>
+                    </select>
+                </label>
+                <label class="crm-filter-field">
+                    <span>Urgency</span>
+                    <select id="pipeline-filter-urgency" class="form-control">
+                        <option value="">All</option>
+                        <option value="overdue">Overdue</option>
+                        <option value="week">Closing this week</option>
+                        <option value="month">Closing this month</option>
+                        <option value="undated">No close date</option>
+                    </select>
+                </label>
+                <label class="crm-filter-field crm-filter-field-grow">
+                    <span>Search</span>
+                    <input type="search" id="pipeline-filter-search" class="form-control"
+                           placeholder="Opportunity, contact or company…" autocomplete="off">
+                </label>
+                <button type="button" class="btn btn-secondary" id="pipeline-filter-reset">Reset</button>
+                <span class="crm-results-count" id="pipeline-filter-count"></span>
             </div>
             <div class="pipeline-board" id="pipeline-board">
                 <div class="loader-container"><div class="premium-loader"></div></div>
-
-                
             </div>
         </section>
 
-        <!-- ─── CLIENTS / PARTNERS ────────────────────────────── -->
+        <!-- ─── UNIFIED CONTACTS / CLIENTS ───────────────────── -->
         <section id="clients" class="portal-section">
             <div class="portal-header">
                 <div>
-                    <h1>Partners</h1>
-                    <p class="color-text-secondary">Manage and view all registered partners.</p>
+                    <h1>Contacts</h1>
+                    <p class="color-text-secondary">Leads, inquiries, prospects and clients in one directory.</p>
                 </div>
+                <button type="button" class="btn btn-primary" id="create-contact-btn">New contact</button>
             </div>
 
             <!-- CRM Toolbar: Search + Sort + Filters -->
@@ -286,22 +366,25 @@
                     </svg>
                     <span id="crm-sort-label">A → Z</span>
                 </button>
-                <!-- Stage filter pills -->
+                <!-- Unified lifecycle filters -->
                 <div class="crm-filter-pills" id="crm-filter-pills">
                     <button class="crm-pill active" data-filter="all">All</button>
-                    <button class="crm-pill" data-filter="prospect">Prospect</button>
-                    <button class="crm-pill" data-filter="onboarding">Onboarding</button>
-                    <button class="crm-pill" data-filter="active">Active</button>
-                    <button class="crm-pill" data-filter="delivered">Delivered</button>
+                    <button class="crm-pill" data-filter="lead">Leads</button>
+                    <button class="crm-pill" data-filter="prospect">Prospects</button>
+                    <button class="crm-pill" data-filter="client">Clients</button>
+                    <button class="crm-pill" data-filter="inactive">Inactive</button>
                 </div>
                 <span class="crm-results-count" id="crm-results-count"></span>
             </div>
 
-            <div class="clients-grid" id="clients-list">
+            <div class="crm-contact-directory" id="clients-list">
                 <div class="loader-container"><div class="premium-loader"></div></div>
-
-                
             </div>
+            <nav class="crm-pagination" id="crm-pagination" aria-label="Contacts pagination" hidden>
+                <button type="button" class="btn btn-secondary" id="crm-page-prev">Previous</button>
+                <span id="crm-page-status" aria-live="polite"></span>
+                <button type="button" class="btn btn-secondary" id="crm-page-next">Next</button>
+            </nav>
         </section>
 
         <!-- ─── LICENSES ──────────────────────────────────────── -->
@@ -318,8 +401,8 @@
                 <article class="agenda-panel agenda-create-panel">
                     <div class="agenda-panel-heading">
                         <div>
-                            <span class="agenda-eyebrow" id="agenda-form-eyebrow">New appointment</span>
-                            <h2 id="agenda-form-title">Schedule a client meeting</h2>
+                            <span class="agenda-eyebrow" id="agenda-form-eyebrow">New activity</span>
+                            <h2 id="agenda-form-title">Schedule a meeting or call</h2>
                         </div>
                         <span class="agenda-timezone-chip">PT · Europe/Lisbon</span>
                     </div>
@@ -330,6 +413,21 @@
                                 <span id="meeting-client-label">Client</span>
                                 <select id="meeting-client" name="clientId" required>
                                     <option value="">Select a client…</option>
+                                </select>
+                            </label>
+
+                            <label class="meeting-field">
+                                <span id="meeting-type-label">Activity type</span>
+                                <select id="meeting-type" name="type" required>
+                                    <option value="meeting">Meeting</option>
+                                    <option value="call">Call</option>
+                                </select>
+                            </label>
+
+                            <label class="meeting-field">
+                                <span id="meeting-assignee-label">Assigned to</span>
+                                <select id="meeting-assignee" name="assigneeId" required>
+                                    <option value="">Current administrator</option>
                                 </select>
                             </label>
 
@@ -375,9 +473,9 @@
                                 <input id="meeting-client-region" name="clientRegion" type="text" maxlength="100" required autocomplete="off" placeholder="Costa Rica">
                             </label>
 
-                            <label class="meeting-field meeting-field-wide">
+                            <label class="meeting-field meeting-field-wide" id="meeting-link-field">
                                 <span id="meeting-link-label">HTTPS meeting link</span>
-                                <input id="meeting-link" name="meetingUrl" type="url" inputmode="url" maxlength="2048" required autocomplete="off" placeholder="https://meet.google.com/…">
+                                <input id="meeting-link" name="meetingUrl" type="url" inputmode="url" maxlength="2048" autocomplete="off" placeholder="https://meet.google.com/…">
                             </label>
 
                             <label class="meeting-field meeting-field-wide">
@@ -390,7 +488,10 @@
 
                         <div class="meeting-form-footer">
                             <p id="meeting-form-message" class="meeting-form-message" aria-live="polite"></p>
-                            <button id="meeting-create-btn" class="btn btn-primary" type="submit">Create meeting</button>
+                            <div class="meeting-form-actions">
+                                <button id="meeting-edit-cancel" class="btn btn-secondary" type="button" hidden>Discard changes</button>
+                                <button id="meeting-create-btn" class="btn btn-primary" type="submit">Create activity</button>
+                            </div>
                         </div>
                     </form>
                 </article>
@@ -404,16 +505,33 @@
                         <button id="agenda-refresh" class="agenda-refresh" type="button" aria-label="Refresh meetings">Refresh</button>
                     </div>
 
-                    <div class="agenda-filters" role="group" aria-label="Meeting status filter">
+                    <div class="agenda-view-switch" role="group" aria-label="Calendar view">
+                        <button type="button" class="agenda-view is-active" data-agenda-view="list">List</button>
+                        <button type="button" class="agenda-view" data-agenda-view="month">Month</button>
+                        <button type="button" class="agenda-view" data-agenda-view="week">Week</button>
+                        <button type="button" class="agenda-view" data-agenda-view="day">Day</button>
+                    </div>
+
+                    <div class="agenda-filters" role="group" aria-label="Meeting status filter" id="agenda-status-filters">
                         <button type="button" class="agenda-filter is-active" data-agenda-filter="upcoming">Upcoming</button>
                         <button type="button" class="agenda-filter" data-agenda-filter="past">Past</button>
                         <button type="button" class="agenda-filter" data-agenda-filter="cancelled">Cancelled</button>
                         <button type="button" class="agenda-filter" data-agenda-filter="all">All</button>
                     </div>
 
+                    <!-- Barra de navegación temporal: sólo tiene sentido en las
+                         vistas de calendario, la lista se gobierna por estado. -->
+                    <div class="agenda-calendar-nav" id="agenda-calendar-nav" hidden>
+                        <button type="button" class="agenda-refresh" id="agenda-cal-prev" aria-label="Previous period">←</button>
+                        <strong id="agenda-cal-label" aria-live="polite"></strong>
+                        <button type="button" class="agenda-refresh" id="agenda-cal-next" aria-label="Next period">→</button>
+                        <button type="button" class="agenda-refresh" id="agenda-cal-today">Today</button>
+                    </div>
+
                     <div id="agenda-meeting-list" class="agenda-meeting-list" aria-live="polite">
                         <div class="premium-loader"></div>
                     </div>
+                    <div id="agenda-calendar" class="agenda-calendar" hidden aria-live="polite"></div>
                 </article>
             </div>
         </section>
@@ -591,27 +709,34 @@
             </div>
         </section>
 
-        <!-- ─── CONTACTS / INQUIRIES ────────────────────────────── -->
-        <section id="contacts" class="portal-section">
+        <!-- ─── REPORTS ─────────────────────────────────────── -->
+        <section id="reports" class="portal-section">
             <div class="portal-header">
                 <div>
-                    <h1 id="contacts-title">Inquiries</h1>
-                    <p class="color-text-secondary" id="contacts-desc">Review contact form submissions.</p>
+                    <h1 id="reports-title">Reports</h1>
+                    <p class="color-text-secondary" id="reports-desc">Commercial and operational metrics from the same source of truth.</p>
                 </div>
+                <button type="button" class="btn btn-primary" id="reports-export-btn">Export CSV</button>
             </div>
+            <div class="reports-period-bar" role="group" aria-label="Reporting period">
+                <button type="button" data-report-days="7">7 days</button>
+                <button type="button" class="is-active" data-report-days="30">30 days</button>
+                <button type="button" data-report-days="90">90 days</button>
+            </div>
+            <div class="kpi-grid reports-kpi-grid" id="reports-kpis"></div>
             <div class="portal-table-wrap">
                 <table class="portal-table">
                     <thead>
                         <tr>
-                            <th id="th-date">Date</th>
-                            <th id="th-name">Name</th>
-                            <th id="th-email">Email</th>
-                            <th id="th-phone">Phone</th>
-                            <th id="th-service">Interest</th>
-                            <th id="th-message">Message</th>
+                            <th>Owner</th>
+                            <th>Contacts</th>
+                            <th>Open opportunities</th>
+                            <th>Won</th>
+                            <th>Pipeline value</th>
+                            <th>Conversion</th>
                         </tr>
                     </thead>
-                    <tbody id="contacts-list">
+                    <tbody id="reports-list">
                         <tr><td colspan="6"><div class="loader-container"><div class="premium-loader"></div></div></td></tr>
                     </tbody>
                 </table>
@@ -676,22 +801,22 @@
                     </div>
                 </div>
 
-                <!-- Project: Regalarte de las Américas -->
+                <!-- Project: Selva y Sal (marca ficticia de demostración) -->
                 <div class="project-card" data-category="retail">
-                    <a href="/regalarte" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                    <a href="/selva-y-sal" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
-                            <iframe src="/regalarte" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="Images/Portfolio/regalarte.jpg" alt="Regalarte de las Américas Preview" loading="lazy">
+                            <iframe src="/selva-y-sal" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="Images/Portfolio/selva-y-sal.jpg" alt="Selva y Sal Preview" loading="lazy">
                         </div>
                         <div class="project-overlay">
-                            <span>Ver Prototipo Regalarte (v1.0.0 Beta)</span>
+                            <span>Ver Demo Selva y Sal (v1.0.0 Beta)</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>Regalarte de las Américas <span class="project-location">COSTA RICA</span></h3>
-                        <p>Rediseño e-commerce completo con estética Liquid Glass, catálogo interactivo, narrativa inmersiva y checkout optimizado.</p>
+                        <h3>Selva y Sal <span class="project-location">DEMO · COSTA RICA</span></h3>
+                        <p>Demo de e-commerce con marca ficticia: estética Liquid Glass, catálogo interactivo, narrativa inmersiva con escena 3D y checkout optimizado.</p>
                         <div class="project-tags">
-                            <a href="/regalarte" target="_blank">Ver Prototipo</a>
+                            <a href="/selva-y-sal" target="_blank">Ver Demo</a>
                             <span>Liquid Glass</span>
                             <span>v1.0.0 Beta</span>
                         </div>
@@ -758,6 +883,53 @@
 
     </main>
 
+    <!-- Contact 360º drawer -->
+    <div class="crm-drawer-backdrop" id="contact-drawer-backdrop" hidden>
+        <aside class="crm-drawer" id="contact-drawer" role="dialog" aria-modal="true" aria-labelledby="contact-drawer-title">
+            <div id="contact-drawer-content"></div>
+        </aside>
+    </div>
+
+    <!-- Unified contact creation -->
+    <dialog class="crm-dialog" id="contact-dialog" aria-labelledby="contact-dialog-title">
+        <form method="dialog" class="crm-dialog-card" id="contact-form">
+            <div class="crm-dialog-header">
+                <div><span class="agenda-eyebrow">Relationship</span><h2 id="contact-dialog-title">New contact</h2></div>
+                <button type="button" class="crm-dialog-close" data-close-dialog="contact-dialog" aria-label="Close">×</button>
+            </div>
+            <div class="meeting-form-grid">
+                <label class="meeting-field"><span>First name</span><input id="contact-first-name" maxlength="100" required autocomplete="given-name"></label>
+                <label class="meeting-field"><span>Last name</span><input id="contact-last-name" maxlength="100" autocomplete="family-name"></label>
+                <label class="meeting-field"><span>Email</span><input id="contact-email" type="email" maxlength="254" autocomplete="email"></label>
+                <label class="meeting-field"><span>Phone</span><input id="contact-phone" type="tel" maxlength="40" autocomplete="tel"></label>
+                <label class="meeting-field"><span>Company</span><input id="contact-company" maxlength="160" autocomplete="organization"></label>
+                <label class="meeting-field"><span>Role</span><input id="contact-job-title" maxlength="120" autocomplete="organization-title"></label>
+            </div>
+            <p class="meeting-form-message" id="contact-form-message" aria-live="polite"></p>
+            <div class="crm-dialog-footer"><button type="button" class="btn btn-secondary" data-close-dialog="contact-dialog">Cancel</button><button type="submit" class="btn btn-primary" id="contact-save-btn">Save contact</button></div>
+        </form>
+    </dialog>
+
+    <!-- Commercial opportunity creation -->
+    <dialog class="crm-dialog" id="opportunity-dialog" aria-labelledby="opportunity-dialog-title">
+        <form method="dialog" class="crm-dialog-card" id="opportunity-form">
+            <div class="crm-dialog-header">
+                <div><span class="agenda-eyebrow">Pipeline</span><h2 id="opportunity-dialog-title">New opportunity</h2></div>
+                <button type="button" class="crm-dialog-close" data-close-dialog="opportunity-dialog" aria-label="Close">×</button>
+            </div>
+            <div class="meeting-form-grid">
+                <label class="meeting-field meeting-field-wide"><span>Contact</span><select id="opportunity-contact" required><option value="">Select a contact…</option></select></label>
+                <label class="meeting-field meeting-field-wide"><span>Opportunity</span><input id="opportunity-title" maxlength="180" required placeholder="Commercial proposal"></label>
+                <label class="meeting-field"><span>Value (€)</span><input id="opportunity-value" type="number" min="0" step="0.01" required></label>
+                <label class="meeting-field"><span>Stage</span><select id="opportunity-stage" required><option value="new">New</option><option value="contacted">Contacted</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="lost">Lost</option></select></label>
+                <label class="meeting-field"><span>Expected close</span><input id="opportunity-close-date" type="date"></label>
+                <label class="meeting-field"><span>Tags</span><input id="opportunity-tags" maxlength="400" placeholder="priority, web"></label>
+            </div>
+            <p class="meeting-form-message" id="opportunity-form-message" aria-live="polite"></p>
+            <div class="crm-dialog-footer"><button type="button" class="btn btn-secondary" data-close-dialog="opportunity-dialog">Cancel</button><button type="submit" class="btn btn-primary" id="opportunity-save-btn">Create opportunity</button></div>
+        </form>
+    </dialog>
+
     </div><!-- /.customer-portal -->
 
     <!-- Scripts -->
@@ -768,7 +940,7 @@
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="JS/admin.js?v=2026081101"></script>
+    <script type="module" src="JS/admin.js?v=2026081805"></script>
     <script src="JS/version-modal.js"></script>
 </body>
 </html>

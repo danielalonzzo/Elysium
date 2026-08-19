@@ -11,12 +11,9 @@ backend/**
 # «Prototipos/» es material de trabajo que vive dentro del repositorio: fuentes
 # sin compilar, documentos y grabaciones. La raíz del repositorio es la raíz de
 # la web, así que sin esta regla se serviría en «elysiumdr.eu/Prototipos/».
-Prototipos/
-# El resto son red de seguridad a cualquier profundidad, porque el fallo
-# peligroso es que una carpeta de proyecto acabe DENTRO de una publicada:
-# entonces `_comercial/` (informes internos del cliente) se serviría en abierto.
-Regalarte/
-_fuentes/
+Prototipos/**
+Selva y Sal/**
+_fuentes/**
 **/firebase.json
 **/_fuentes/
 **/_comercial/
@@ -33,16 +30,16 @@ CLAUDE.md
 **/*.nosync/
 
 # Herramientas y estado local — nunca deben servirse en la web pública.
-.claude/
-.firebase/
-.wrangler/
-.idx/
-.openai/
+.claude/**
+.firebase/**
+.wrangler/**
+.idx/**
+.openai/**
 
 # Scripts, secretos y configuración de infraestructura (no son assets del sitio).
 # `scripts/` entero: el de publicación es un `.sh` y llegó a servirse en abierto
 # en «elysiumdr.eu/scripts/publish-demo-arbol.sh».
-scripts/
+scripts/**
 *.py
 *.sh
 *.log
@@ -51,6 +48,7 @@ firebase-debug.log
 **/.env.*
 firestore.rules
 storage.rules
+firestore.indexes.json
 firebase.json
 wrangler.jsonc
 .cloudflareignore

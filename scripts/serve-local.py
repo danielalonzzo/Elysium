@@ -19,6 +19,10 @@ de Cloudflare que importan para la CSP: los valores repetidos se unen con coma
 (dos CSP se aplican como intersección) y «! Cabecera» desprende la heredada de
 un bloque anterior. Sin esto, la política se probaría en producción.
 
+Las rutas `/api/*` se reenvían al mismo `ELYSIUM_API_ORIGIN` configurado en
+`wrangler.jsonc` (o a la variable de entorno homónima). De esta forma agenda,
+correo y archivos R2 funcionan en localhost con la sesión real de Firebase.
+
 Uso:  python3 scripts/serve-local.py [puerto]
 """
 import fnmatch
@@ -26,11 +30,36 @@ import functools
 import http.server
 import os
 import pathlib
+import re
 import sys
 import urllib.parse
+import urllib.error
+import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8123
+
+
+def platform_api_origin():
+    """Usa el mismo backend configurado para el Worker, sin duplicar secretos."""
+    configured = os.environ.get("ELYSIUM_API_ORIGIN", "").strip().rstrip("/")
+    if configured:
+        return configured
+    wrangler = ROOT / "wrangler.jsonc"
+    if not wrangler.is_file():
+        return ""
+    match = re.search(
+        r'"ELYSIUM_API_ORIGIN"\s*:\s*"(https://[^"/]+(?:/[^\"]*)?)"',
+        wrangler.read_text(encoding="utf-8"),
+    )
+    return match.group(1).rstrip("/") if match else ""
+
+
+API_ORIGIN = platform_api_origin()
+HOP_BY_HOP_HEADERS = {
+    "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
+    "te", "trailers", "transfer-encoding", "upgrade", "host", "content-length",
+}
 
 
 def load_headers_rules():
@@ -77,8 +106,36 @@ def headers_for(url_path):
 
 
 class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
+    def do_POST(self):
+        self._proxy_api_or_404()
+
+    def do_PATCH(self):
+        self._proxy_api_or_404()
+
+    def do_PUT(self):
+        self._proxy_api_or_404()
+
+    def do_OPTIONS(self):
+        path = urllib.parse.urlparse(self.path).path
+        if path == "/api" or path.startswith("/api/"):
+            self.send_response(204)
+            self.send_header("Access-Control-Allow-Origin", self.headers.get("Origin", "*"))
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+            self.send_header("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key")
+            self.send_header("Access-Control-Max-Age", "86400")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+        else:
+            self.send_response(204)
+            self.send_header("Allow", "GET, HEAD, OPTIONS")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+
     def send_head(self):
         path = urllib.parse.urlparse(self.path).path
+        if path == "/api" or path.startswith("/api/"):
+            self._proxy_api_or_404()
+            return None
         rel = urllib.parse.unquote(path).lstrip("/")
 
         # /about.html → /about   (Cloudflare quita la extensión)
@@ -101,6 +158,42 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
         if (ROOT / rel / "index.html").is_file():
             return self._redirect("/" + rel + "/")
         return super().send_head()
+
+    def _proxy_api_or_404(self):
+        path = urllib.parse.urlparse(self.path).path
+        if path != "/api" and not path.startswith("/api/"):
+            self.send_error(404, "API route not found")
+            return
+        if not API_ORIGIN:
+            self.send_error(503, "ELYSIUM_API_ORIGIN is not configured")
+            return
+
+        content_length = int(self.headers.get("Content-Length", "0") or 0)
+        body = self.rfile.read(content_length) if content_length else None
+        target = f"{API_ORIGIN}{self.path}"
+        headers = {
+            name: value for name, value in self.headers.items()
+            if name.lower() not in HOP_BY_HOP_HEADERS
+        }
+        request = urllib.request.Request(target, data=body, headers=headers, method=self.command)
+        try:
+            upstream = urllib.request.urlopen(request, timeout=30)
+        except urllib.error.HTTPError as error:
+            upstream = error
+        except Exception as error:
+            self.send_error(502, f"Elysium API unavailable: {error}")
+            return
+
+        payload = b"" if self.command == "HEAD" else upstream.read()
+        self.send_response(upstream.status)
+        for name, value in upstream.headers.items():
+            if name.lower() not in HOP_BY_HOP_HEADERS:
+                self.send_header(name, value)
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        if payload:
+            self.wfile.write(payload)
 
     def _redirect(self, location):
         self.send_response(307)

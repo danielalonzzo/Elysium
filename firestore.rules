@@ -18,7 +18,7 @@ service cloud.firestore {
       return request.auth != null
         && (
           ('admin' in request.auth.token && request.auth.token.admin == true)
-          || request.auth.token.email == 'danielalonzzo@icloud.com'
+          || request.auth.token.email == 'daniel.morales@elysiumdr.eu'
         );
     }
     
@@ -35,6 +35,253 @@ service cloud.firestore {
 
     function isOptionalText(value, maxLength) {
       return value == null || (value is string && value.size() <= maxLength && !value.matches('.*[<>].*'));
+    }
+
+    // ── CRM interno tenant-aware ─────────────────────────────────────
+    // Estas funciones llevan prefijo `crm` porque esta base también contiene el
+    // portal legacy. En particular, `contacts` y `activities` alojan dos formas
+    // de documento distintas que se separan mediante `tenantId/schemaVersion`.
+    function crmHasVerifiedEmail() {
+      return request.auth != null
+        && ('email' in request.auth.token)
+        && request.auth.token.email is string
+        && ('email_verified' in request.auth.token)
+        && request.auth.token.email_verified == true;
+    }
+
+    function crmIsDomainIdentity() {
+      return crmHasVerifiedEmail()
+        && request.auth.token.email.lower().matches('^[^@]+@elysiumdr[.]eu$');
+    }
+
+    function crmHasExplicitAccess(tenantId) {
+      return crmHasVerifiedEmail()
+        && ('crmAccess' in request.auth.token)
+        && request.auth.token.crmAccess == true
+        && ('crmTenantId' in request.auth.token)
+        && request.auth.token.crmTenantId == tenantId;
+    }
+
+    function crmIsCompanyMember(tenantId) {
+      return tenantId == 'elysiumdr-eu'
+        && (crmIsDomainIdentity() || crmHasExplicitAccess(tenantId) || isSuperAdmin());
+    }
+
+    function crmHasRole(tenantId, roles) {
+      return crmIsCompanyMember(tenantId)
+        && (
+          isSuperAdmin()
+          || (
+            ('crmRole' in request.auth.token)
+            && request.auth.token.crmRole in roles
+          )
+        );
+    }
+
+    function crmCanOperate(tenantId) {
+      return crmIsDomainIdentity()
+        || crmHasRole(tenantId, ['admin', 'manager', 'sales', 'operations']);
+    }
+
+    function crmCanManage(tenantId) {
+      return crmHasRole(tenantId, ['admin', 'manager']);
+    }
+
+    function crmIsTenantAdmin(tenantId) {
+      return crmHasRole(tenantId, ['admin']);
+    }
+
+    function crmIsShortText(value, maxLength) {
+      return value is string
+        && value.size() <= maxLength
+        // RE2 admite escapes hexadecimales. Se preservan tab, LF y CR para
+        // notas multilínea, pero se rechazan los demás controles ASCII.
+        && !value.matches('.*[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F].*');
+    }
+
+    function crmIsRequiredText(value, maxLength) {
+      return crmIsShortText(value, maxLength) && value.size() > 0;
+    }
+
+    function crmIsOptionalText(data, key, maxLength) {
+      return !(key in data) || data[key] == null || crmIsShortText(data[key], maxLength);
+    }
+
+    function crmIsOptionalTimestamp(data, key) {
+      return !(key in data) || data[key] == null || data[key] is timestamp;
+    }
+
+    function crmIsValidEmail(value) {
+      return value is string
+        && value.size() <= 254
+        && (value.size() == 0 || value.matches('^[^\\s@]+@[^\\s@]+[.][^\\s@]+$'));
+    }
+
+    function crmHasStringTagAt(tags, index) {
+      return tags.size() <= index || tags[index] is string;
+    }
+
+    function crmHasSafeTags(value) {
+      return value is list
+        && value.size() <= 20
+        && value.toSet().size() == value.size()
+        // Rules no tiene genéricos ni `every`; se comprueban los 20 slots
+        // permitidos antes de unirlos. `join` por sí solo también aceptaría
+        // primitivos como enteros o booleanos y no basta como type guard.
+        && crmHasStringTagAt(value, 0)
+        && crmHasStringTagAt(value, 1)
+        && crmHasStringTagAt(value, 2)
+        && crmHasStringTagAt(value, 3)
+        && crmHasStringTagAt(value, 4)
+        && crmHasStringTagAt(value, 5)
+        && crmHasStringTagAt(value, 6)
+        && crmHasStringTagAt(value, 7)
+        && crmHasStringTagAt(value, 8)
+        && crmHasStringTagAt(value, 9)
+        && crmHasStringTagAt(value, 10)
+        && crmHasStringTagAt(value, 11)
+        && crmHasStringTagAt(value, 12)
+        && crmHasStringTagAt(value, 13)
+        && crmHasStringTagAt(value, 14)
+        && crmHasStringTagAt(value, 15)
+        && crmHasStringTagAt(value, 16)
+        && crmHasStringTagAt(value, 17)
+        && crmHasStringTagAt(value, 18)
+        && crmHasStringTagAt(value, 19)
+        // El separador se prohíbe dentro de la etiqueta y el patrón acota
+        // cada elemento a 40 caracteres, sin controles ni delimitadores HTML.
+        && (
+          value.size() == 0
+          || value.join('|').matches(
+            '^([^|<>[:cntrl:]]{1,40})([|][^|<>[:cntrl:]]{1,40}){0,19}$'
+          )
+        );
+    }
+
+    function crmIsLegacyTagsOnlyUpdate() {
+      let affected = request.resource.data.diff(resource.data).affectedKeys();
+      return affected.hasOnly(['tags'])
+        && affected.hasAll(['tags'])
+        && crmHasSafeTags(request.resource.data.tags);
+    }
+
+    function crmHasCreateAudit(data) {
+      return data.createdAt == request.time
+        && data.updatedAt == request.time
+        && data.createdBy == request.auth.uid
+        && data.updatedBy == request.auth.uid;
+    }
+
+    function crmHasUpdateAudit() {
+      return request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+
+    function crmKeepsTenant() {
+      return request.resource.data.tenantId == resource.data.tenantId;
+    }
+
+    function crmIsValidContact(data) {
+      return data.keys().hasOnly([
+          'schemaVersion', 'tenantId', 'recordType', 'firstName', 'lastName',
+          'displayName', 'email', 'phone', 'companyName', 'jobTitle', 'website',
+          'ownerId', 'status', 'lifecycleStage', 'tags', 'leadScore', 'source',
+          'locale', 'searchName', 'searchEmail', 'searchCompany', 'avatarUrl',
+          'archived', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'
+        ])
+        && data.keys().hasAll([
+          'schemaVersion', 'tenantId', 'recordType', 'firstName', 'lastName',
+          'displayName', 'email', 'phone', 'companyName', 'ownerId', 'status',
+          'lifecycleStage', 'tags', 'leadScore', 'source', 'searchName',
+          'searchEmail', 'searchCompany', 'archived', 'createdAt', 'createdBy',
+          'updatedAt', 'updatedBy'
+        ])
+        && data.schemaVersion == 2
+        && data.tenantId == 'elysiumdr-eu'
+        && data.recordType in ['contact', 'inquiry']
+        && crmIsShortText(data.firstName, 100)
+        && crmIsShortText(data.lastName, 100)
+        && crmIsRequiredText(data.displayName, 160)
+        && crmIsValidEmail(data.email)
+        && crmIsShortText(data.phone, 40)
+        && (data.email.size() > 0 || data.phone.size() > 0)
+        && crmIsShortText(data.companyName, 160)
+        && crmIsOptionalText(data, 'jobTitle', 120)
+        && crmIsOptionalText(data, 'website', 2048)
+        && (data.ownerId == null || crmIsShortText(data.ownerId, 128))
+        && data.status in ['new', 'active', 'nurturing', 'customer', 'inactive']
+        && data.lifecycleStage in ['lead', 'qualified', 'opportunity', 'customer', 'lost']
+        && crmHasSafeTags(data.tags)
+        && data.leadScore is int && data.leadScore >= 0 && data.leadScore <= 100
+        && data.source in ['website', 'referral', 'manual', 'import', 'event', 'partner', 'outbound', 'research', 'other']
+        && crmIsOptionalText(data, 'locale', 10)
+        && data.searchName == data.displayName.lower()
+        && data.searchEmail == data.email.lower()
+        && data.searchCompany == data.companyName.lower()
+        && crmIsOptionalText(data, 'avatarUrl', 2048)
+        && data.archived is bool;
+    }
+
+    function crmIsValidOpportunity(data) {
+      return data.keys().hasOnly([
+          'schemaVersion', 'tenantId', 'contactId', 'contactName', 'title',
+          'companyName', 'ownerId', 'stage', 'amountMinor', 'currency',
+          'probability', 'rank', 'tags', 'expectedCloseAt', 'closedAt',
+          'lostReason', 'archived', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'
+        ])
+        && data.keys().hasAll([
+          'schemaVersion', 'tenantId', 'contactId', 'title', 'companyName',
+          'ownerId', 'stage', 'amountMinor', 'currency', 'probability', 'rank',
+          'tags', 'archived', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'
+        ])
+        && data.schemaVersion == 1
+        && data.tenantId == 'elysiumdr-eu'
+        && crmIsRequiredText(data.contactId, 128)
+        && crmIsOptionalText(data, 'contactName', 160)
+        && crmIsRequiredText(data.title, 180)
+        && crmIsShortText(data.companyName, 160)
+        && crmIsRequiredText(data.ownerId, 128)
+        && data.stage in ['new', 'contacted', 'negotiation', 'won', 'lost']
+        && data.amountMinor is int && data.amountMinor >= 0
+        && data.currency is string && data.currency.matches('^[A-Z]{3}$')
+        && data.probability is int && data.probability >= 0 && data.probability <= 100
+        && crmIsRequiredText(data.rank, 64)
+        && crmHasSafeTags(data.tags)
+        && crmIsOptionalTimestamp(data, 'expectedCloseAt')
+        && crmIsOptionalTimestamp(data, 'closedAt')
+        && crmIsOptionalText(data, 'lostReason', 500)
+        && data.archived is bool;
+    }
+
+    function crmIsValidActivity(data) {
+      return data.keys().hasOnly([
+          'schemaVersion', 'tenantId', 'entityType', 'entityId', 'contactId',
+          'opportunityId', 'meetingId', 'type', 'summary', 'body', 'payload',
+          'actorUid', 'actorEmail', 'actorRole', 'fileId', 'occurredAt', 'createdAt'
+        ])
+        && data.keys().hasAll([
+          'schemaVersion', 'tenantId', 'entityType', 'entityId', 'type',
+          'summary', 'body', 'payload', 'actorUid', 'occurredAt', 'createdAt'
+        ])
+        && data.schemaVersion == 1
+        && data.tenantId == 'elysiumdr-eu'
+        && data.entityType in ['contact', 'opportunity', 'meeting', 'user', 'file']
+        && crmIsRequiredText(data.entityId, 128)
+        && crmIsOptionalText(data, 'contactId', 128)
+        && crmIsOptionalText(data, 'opportunityId', 128)
+        && crmIsOptionalText(data, 'meetingId', 128)
+        && crmIsRequiredText(data.type, 64)
+        && crmIsRequiredText(data.summary, 240)
+        && crmIsShortText(data.body, 5000)
+        && data.payload is map && data.payload.keys().size() <= 30
+        && data.actorUid == request.auth.uid
+        && crmIsOptionalText(data, 'actorEmail', 254)
+        && crmIsOptionalText(data, 'actorRole', 40)
+        && crmIsOptionalText(data, 'fileId', 128)
+        && data.occurredAt == request.time
+        && data.createdAt == request.time;
     }
 
     // Los seis valores del <select> de los tres `contact.html`.
@@ -93,11 +340,17 @@ service cloud.firestore {
     // ── Members (Partners / Clients) ──────────────────────────────────────────
     match /members/{userId} {
       allow read, write: if isSuperAdmin();
+      // El CRM comercial agrega los clientes legacy como contactos. El acceso
+      // es de solo lectura para identidades corporativas verificadas o cuentas
+      // externas provisionadas mediante los claims del tenant.
+      allow read: if crmIsCompanyMember('elysiumdr-eu');
       allow read: if isOwner(userId);
       // On create: owner can create their own doc (initial registration)
       allow create: if isOwner(userId) && isValidNewMember();
       // On update: owner can update ONLY allowlisted profile fields
       allow update: if isOwner(userId) && isValidProfileUpdate();
+      allow update: if crmCanOperate('elysiumdr-eu')
+        && crmIsLegacyTagsOnlyUpdate();
     }
 
     // ── Licenses ──────────────────────────────────────────────────────────────
@@ -128,6 +381,9 @@ service cloud.firestore {
     // ── Prospects ────────────────────────────────────────────────────────────
     match /prospects/{prospectId} {
       allow read, write: if isSuperAdmin();
+      allow read: if crmIsCompanyMember('elysiumdr-eu');
+      allow update: if crmCanOperate('elysiumdr-eu')
+        && crmIsLegacyTagsOnlyUpdate();
       // Public submissions pass through the rate-limited platform endpoint;
       // browsers never write this collection directly.
     }
@@ -143,6 +399,29 @@ service cloud.firestore {
     // rechazarlos sólo tiraría consultas legítimas («mejorar > 50%»).
     match /contacts/{contactId} {
       allow read, write: if isSuperAdmin();
+      // La consulta de migración del CRM agrega registros tenant-aware y
+      // formularios legacy en una sola colección. Esta condición independiente
+      // del documento permite esa query completa sin abrirla al público.
+      allow read: if crmIsCompanyMember('elysiumdr-eu');
+      // Los registros comerciales nuevos comparten colección, pero siempre
+      // llevan tenant/schema y nunca satisfacen la forma pública de abajo.
+      allow read: if ('tenantId' in resource.data)
+        && crmIsCompanyMember(resource.data.tenantId);
+      allow create: if crmIsValidContact(request.resource.data)
+        && crmCanOperate(request.resource.data.tenantId)
+        && crmHasCreateAudit(request.resource.data);
+      allow update: if ('tenantId' in resource.data)
+        && crmKeepsTenant()
+        && crmCanOperate(resource.data.tenantId)
+        && crmIsValidContact(request.resource.data)
+        && crmHasUpdateAudit();
+      allow update: if !('tenantId' in resource.data)
+        && crmCanOperate('elysiumdr-eu')
+        && crmIsLegacyTagsOnlyUpdate();
+      allow delete: if ('tenantId' in resource.data)
+        && crmIsTenantAdmin(resource.data.tenantId);
+
+      // Formulario público legacy: forma cerrada, sin `tenantId`.
       allow create: if request.resource.data.keys().hasOnly([
           'name', 'email', 'phone', 'service', 'message', 'lang', 'submittedAt'
         ])
@@ -178,7 +457,75 @@ service cloud.firestore {
     // portal can show what is coming; the invitation is sent by the admin.
     match /meetings/{meetingId} {
       allow read, write: if isSuperAdmin();
+      allow read: if crmIsCompanyMember('elysiumdr-eu');
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // ── CRM comercial interno (mismo proyecto, datos tenant-aware) ─────
+    match /tenants/{tenantId} {
+      allow read: if crmIsCompanyMember(tenantId);
+      // Alta, dominios y suspensión pasan exclusivamente por Admin SDK.
+      allow write: if false;
+    }
+
+    match /users/{userId} {
+      allow read: if ('tenantId' in resource.data)
+        && crmIsCompanyMember(resource.data.tenantId);
+      allow update: if request.auth != null
+        && request.auth.uid == userId
+        && crmIsCompanyMember(resource.data.tenantId)
+        && crmKeepsTenant()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'displayName', 'avatarUrl', 'locale', 'timeZone', 'updatedAt', 'updatedBy'
+        ])
+        && crmHasUpdateAudit();
+      // Provisionar empleados y sincronizar claims siempre pasa por backend.
+      allow create, delete: if false;
+    }
+
+    match /opportunities/{opportunityId} {
+      allow read: if ('tenantId' in resource.data)
+        && crmIsCompanyMember(resource.data.tenantId);
+      allow create: if crmIsValidOpportunity(request.resource.data)
+        && crmHasCreateAudit(request.resource.data)
+        && (
+          crmCanManage(request.resource.data.tenantId)
+          || (
+            crmCanOperate(request.resource.data.tenantId)
+            && request.resource.data.ownerId == request.auth.uid
+          )
+        );
+      allow update: if ('tenantId' in resource.data)
+        && crmKeepsTenant()
+        && crmIsValidOpportunity(request.resource.data)
+        && crmHasUpdateAudit()
+        && (
+          crmCanManage(resource.data.tenantId)
+          || (
+            crmCanOperate(resource.data.tenantId)
+            && resource.data.ownerId == request.auth.uid
+            && request.resource.data.ownerId == request.auth.uid
+          )
+        );
+      allow delete: if ('tenantId' in resource.data)
+        && crmIsTenantAdmin(resource.data.tenantId);
+    }
+
+    match /files/{fileId} {
+      allow read: if resource.data.status == 'ready'
+        && crmIsCompanyMember(resource.data.tenantId);
+      // Metadatos, claves y estado R2 los escribe sólo el backend verificado.
+      allow write: if false;
+    }
+
+    match /file_upload_intents/{intentId} {
+      // Intents y claves de cuarentena nunca son visibles al navegador.
+      allow read, write: if false;
+    }
+
+    // Alias defensivo para el nombre usado por la primera documentación.
+    match /upload_intents/{intentId} {
+      allow read, write: if false;
     }
 
     // ── Activities (append-only audit log) ────────────────────────────────────
@@ -186,6 +533,13 @@ service cloud.firestore {
     // admin — so history stays trustworthy. Cleanup only via Firebase console.
     match /activities/{activityId} {
       allow read, create: if isSuperAdmin();
+      // El timeline nuevo normaliza tanto eventos CRM como eventos legacy. La
+      // lectura interna no altera el ledger ni concede creación legacy.
+      allow read: if crmIsCompanyMember('elysiumdr-eu');
+      allow read: if ('tenantId' in resource.data)
+        && crmIsCompanyMember(resource.data.tenantId);
+      allow create: if crmIsValidActivity(request.resource.data)
+        && crmCanOperate(request.resource.data.tenantId);
       // A member may only log their own registration, stamped with the server
       // clock (no backdating). Onboarding events are written by the admin.
       allow create: if request.auth != null

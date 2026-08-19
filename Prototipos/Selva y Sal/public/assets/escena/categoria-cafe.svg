@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="Café y cacao">
+  <defs>
+    <linearGradient id="bg-j34lza" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8d8c4"/>
+      <stop offset="1" stop-color="#bf9a72"/>
+    </linearGradient>
+    <radialGradient id="glow-j34lza" cx="0.5" cy="0.32277255723252896" r="0.62">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body-j34lza" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#7a4a22"/>
+      <stop offset="1" stop-color="#33200f"/>
+    </linearGradient>
+    <filter id="soft-j34lza" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="900" height="900" fill="url(#bg-j34lza)"/>
+  <rect width="900" height="900" fill="url(#glow-j34lza)"/>
+  <circle cx="708" cy="270" r="126" fill="#7a4a22" opacity="0.85"/>
+  <path d="M-90 774 L144 459 L522 774 Z" fill="#33200f" opacity="0.22"/>
+  <path d="M378 774 L558 516 L1008 774 Z" fill="#33200f" opacity="0.18"/>
+  <rect x="0" y="667" width="900" height="32" fill="#e8d8c4" opacity="0.22"/>
+  <path d="M-90 774 L324 361 L702 774 Z" fill="#33200f" opacity="0.44"/>
+  <path d="M378 774 L630 436 L1008 774 Z" fill="#33200f" opacity="0.38"/>
+  <rect x="0" y="634" width="900" height="32" fill="#e8d8c4" opacity="0.17"/>
+  <path d="M-90 774 L504 266 L882 774 Z" fill="#33200f" opacity="0.66"/>
+  <path d="M378 774 L702 358 L1008 774 Z" fill="#33200f" opacity="0.58"/>
+  <rect x="0" y="601" width="900" height="32" fill="#e8d8c4" opacity="0.12"/>
+  <rect x="0" y="774" width="900" height="126" fill="#33200f" opacity="0.7"/>
+  <path d="M2 702 L32 792 L-28 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M2 722 L21 765 L-17 765 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M115 710 L142 792 L88 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M115 728 L132 766 L98 766 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M199 701 L230 792 L168 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M199 721 L218 765 L180 765 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M252 676 L293 792 L210 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M252 703 L277 762 L226 762 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M362 698 L394 792 L330 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M362 719 L382 765 L342 765 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M439 611 L508 792 L370 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M439 656 L482 754 L396 754 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M528 706 L557 792 L499 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M528 725 L546 766 L510 766 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M631 700 L662 792 L600 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M631 721 L650 765 L612 765 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M737 633 L796 792 L678 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M737 673 L773 757 L700 757 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M804 678 L844 792 L764 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M804 705 L829 763 L779 763 Z" fill="#bf9a72" opacity="0.5"/>
+  <path d="M903 676 L944 792 L862 792 Z" fill="#33200f" opacity="0.75"/>
+  <path d="M903 703 L929 762 L877 762 Z" fill="#bf9a72" opacity="0.5"/>
+</svg>

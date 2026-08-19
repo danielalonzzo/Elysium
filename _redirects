@@ -1,7 +1,7 @@
-# Regalarte de las Américas — el prototipo se sirve desde su propio Worker.
-# elysiumdr.eu/regalarte redirige (301) al despliegue de la app.
-/regalarte      https://regalarte.danielalonzzo.workers.dev/   301
-/regalarte/*    https://regalarte.danielalonzzo.workers.dev/   301
+# Selva y Sal — el prototipo se sirve desde su propio Worker.
+# elysiumdr.eu/selva-y-sal redirige (301) al despliegue de la app.
+/selva-y-sal      https://selva-y-sal.danielalonzzo.workers.dev/   301
+/selva-y-sal/*    https://selva-y-sal.danielalonzzo.workers.dev/   301
 
 # Pura Vida Pets salió de Elysium al firmarse el contrato: repositorio y dominio
 # propios. La carpeta `puravidapets/` ya no existe aquí, así que sin esto la URL
