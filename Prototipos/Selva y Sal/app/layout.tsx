@@ -4,7 +4,6 @@ import Script from "next/script";
 import "./globals.css";
 import "./redesign.css";
 import "./premium.css";
-import ElysiumPrototypePopup from "./components/redesign/ElysiumPrototypePopup";
 import { brand, brandAssets } from "./data/brand";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -58,7 +57,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body suppressHydrationWarning>
         {children}
-        <ElysiumPrototypePopup />
       </body>
     </html>
   );

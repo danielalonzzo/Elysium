@@ -263,3 +263,12 @@
 - Despliegue de reglas de seguridad Firestore, índices y Firebase Storage.
 - Despliegue de Worker y assets estáticos en Cloudflare.
 - Publicación y sincronización de cambios en repositorio GitHub (main).
+
+=== CHAT ID: b6c05fce-f246-48f6-93e3-3c4040991f21 - Despliegue Global a Producción (Backend, Firebase, Cloudflare, GitHub) ===
+- Validación y ejecución exitosa de pruebas unitarias del backend (39/39 pasadas) y lógica CRM (12/12 pasadas).
+- Ejecución de pruebas y validación del prototipo Selva y Sal (5/5 pasadas).
+- Compilación y sincronización del prototipo Demo-arbol (Next.js 16) con scripts/publish-demo-arbol.sh.
+- Despliegue del backend en Google Cloud Run (servicio elysium-billing en elysiumdr-eu, revisión 00021-p7t).
+- Despliegue de reglas de seguridad Firestore, índices compuestos y reglas de Storage en Firebase (elysiumdr-eu).
+- Despliegue del Worker y assets estáticos en Cloudflare Workers (versión 80f620ba-1d85-4af4-b899-63deabd9dd6c).
+- Sincronización y publicación de todos los cambios en GitHub (rama main).
