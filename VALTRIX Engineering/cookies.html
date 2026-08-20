@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookies y rastreo | VALTRIX Engineering</title>
+    <meta name="description" content="Este sitio no pone cookies ni mide a sus visitantes. Aquí está la lista completa de lo que sí se guarda en su navegador, a quién se le pide algo y cómo comprobarlo usted mismo.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://elysiumdr.eu/VALTRIX%20Engineering/cookies">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Cookies y rastreo | VALTRIX Engineering">
+    <meta property="og:description" content="Cero cookies, cero medición de audiencia. La lista completa de lo que se guarda en su navegador, y un panel para comprobarlo en el suyo.">
+    <meta property="og:url" content="https://elysiumdr.eu/VALTRIX%20Engineering/cookies">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loading">
+
+    <!-- Loading Page -->
+    <div id="loader" class="loader">
+        <div class="loader-content">
+            <div class="loader-logo" data-text="VALTRIX Engineering">VALTRIX <span class="brand-accent">Engineering</span></div>
+        </div>
+    </div>
+    <script>
+        // Immediate scroll prevention
+        document.body.style.overflow = 'hidden';
+    </script>
+
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="index.html" class="brand-logo">VALTRIX <span class="brand-accent">Engineering</span></a>
+
+            <ul class="nav-menu">
+                <li><a href="panel-de-control.html" class="nav-link">Panel de Control</a></li>
+                <li><a href="orden-operativo.html" class="nav-link">Orden Operativo</a></li>
+                <li><a href="precios.html" class="nav-link">Precios</a></li>
+                <li><a href="valeria-vargas.html" class="nav-link">Nosotros</a></li>
+                <li><a href="contacto.html" class="btn btn-primary nav-btn">Contacto</a></li>
+            </ul>
+
+            <button class="hamburger">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </nav>
+
+
+    <section class="page-hero">
+        <div class="container">
+            <span class="eyebrow">Documento legal</span>
+            <h1>Cookies y rastreo</h1>
+            <p class="lede">Este sitio no pone ni una sola cookie y no mide a sus visitantes. Abajo está la lista completa de lo que sí se guarda en su navegador y de a quién se le pide algo para que la página se vea — y un panel que lo comprueba en el suyo, ahora mismo, sin pedirle que nos crea.</p>
+            <div class="legal-meta">
+                <span><strong>Versión</strong> 1.0</span>
+                <span><strong>En vigor desde</strong> 20 de agosto de 2026</span>
+                <span><strong>Ámbito</strong> Este sitio web</span>
+                <span><strong>Responsable</strong> VALTRIX Engineering</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Panel de comprobación -->
+    <section class="section section-tight section-light">
+        <div class="container">
+            <div class="trk-panel glass-panel">
+                <div class="trk-head">
+                    <span class="trk-title">Estado del rastreo en su navegador</span>
+                    <span class="trk-stamp" id="trk-stamp">comprobación local · sin envío de datos</span>
+                </div>
+
+                <div class="trk-row">
+                    <span class="trk-label">Cookies puestas por este sitio</span>
+                    <span class="trk-value"><span class="trk-dot"></span><span id="trk-cookies">0</span></span>
+                </div>
+                <div class="trk-row">
+                    <span class="trk-label">Guardado en el almacenamiento local</span>
+                    <span class="trk-value"><span class="trk-dot"></span><span id="trk-local">nada</span></span>
+                </div>
+                <div class="trk-row">
+                    <span class="trk-label">Guardado en el almacenamiento de sesión</span>
+                    <span class="trk-value"><span class="trk-dot"></span><span id="trk-session">nada</span></span>
+                </div>
+                <div class="trk-row">
+                    <span class="trk-label">Programas de terceros cargados en la página</span>
+                    <span class="trk-value"><span class="trk-dot"></span><span id="trk-scripts">0</span></span>
+                </div>
+                <div class="trk-row">
+                    <span class="trk-label">Dominios ajenos a los que se pidió algo</span>
+                    <span class="trk-value"><span class="trk-dot"></span><span id="trk-hosts">solo tipografías</span></span>
+                </div>
+                <div class="trk-row">
+                    <span class="trk-label">Identificador asignado a usted</span>
+                    <span class="trk-value"><span class="trk-dot"></span><span id="trk-id">ninguno</span></span>
+                </div>
+                <div class="trk-row">
+                    <span class="trk-label">Su señal de «no me rastree»</span>
+                    <span class="trk-value"><span class="trk-dot"></span><span id="trk-dnt">se respeta siempre</span></span>
+                </div>
+
+                <div class="trk-foot">
+                    <p class="trk-note">La comprobación la hace su propio navegador y el resultado no sale de su pantalla: no se envía a ningún servidor, ni al nuestro.</p>
+                    <button type="button" class="trk-btn" id="trk-clear">Borrar lo guardado</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-tight">
+        <div class="container">
+            <div class="legal-layout">
+
+                <aside class="legal-index">
+                    <div class="legal-index-title">Contenido</div>
+                    <ol>
+                        <li><a href="#c1">Lo corto</a></li>
+                        <li><a href="#c2">Qué es una cookie y por qué aquí no hay</a></li>
+                        <li><a href="#c3">Lo único que sí se guarda</a></li>
+                        <li><a href="#c4">A quién se le pide algo</a></li>
+                        <li><a href="#c5">Los enlaces que lo sacan del sitio</a></li>
+                        <li><a href="#c6">Los registros del alojamiento</a></li>
+                        <li><a href="#c7">Lo que no hacemos</a></li>
+                        <li><a href="#c8">Por qué no hay ventana de cookies</a></li>
+                        <li><a href="#c9">Cómo borrarlo o impedirlo</a></li>
+                        <li><a href="#c10">Señales del navegador</a></li>
+                        <li><a href="#c11">Si algún día medimos</a></li>
+                        <li><a href="#c12">Cambios y contacto</a></li>
+                    </ol>
+                </aside>
+
+                <div class="legal-body">
+
+                    <article class="legal-article" id="c1">
+                        <span class="legal-num">01</span>
+                        <h2>Lo corto</h2>
+                        <div class="legal-plain">
+                            <p>Cero cookies, cero medición de audiencia, cero publicidad. Lo único que este sitio guarda son dos interruptores que usted mismo puede haber movido, y se borran con un botón.</p>
+                        </div>
+                        <p>Este sitio es un folleto: páginas escritas a mano que se sirven tal cual y no llevan detrás ningún sistema que siga a quien las lee. No hay Google Analytics, no hay píxel de Facebook, no hay herramienta de mapas de calor ni grabación de sesiones, y no hay ninguna red publicitaria.</p>
+                        <p>Tampoco hay una base de datos de visitantes: el formulario de contacto no envía nada a ningún servidor nuestro —abre su programa de correo con el mensaje escrito para que usted lo revise y lo mande—, así que no existe un lugar donde se acumulen los datos de quien pasó por aquí.</p>
+                    </article>
+
+                    <article class="legal-article" id="c2">
+                        <span class="legal-num">02</span>
+                        <h2>Qué es una cookie y por qué aquí no hay</h2>
+                        <div class="legal-plain">
+                            <p>Una cookie es una marca que un sitio deja en su navegador para reconocerlo después. Este sitio no necesita reconocerlo, así que no deja ninguna.</p>
+                        </div>
+                        <p>Una cookie es un archivo pequeño que un sitio web guarda en su navegador y que se le devuelve en cada visita siguiente. Sirve para cosas legítimas —mantener la sesión abierta, recordar el idioma— y también para lo que casi todo el mundo tiene en la cabeza cuando oye la palabra: reconocer a la misma persona entre sitios distintos y construirle un perfil.</p>
+                        <p>Aquí no hay sesión que mantener, no hay carrito de compras y no hay nada personalizado que recordar. Sin ninguna de esas necesidades, una cookie solo serviría para lo segundo. Por eso no se pone: <strong>este sitio no escribe ni lee ninguna cookie</strong>, ni propia ni de terceros.</p>
+                    </article>
+
+                    <article class="legal-article" id="c3">
+                        <span class="legal-num">03</span>
+                        <h2>Lo único que sí se guarda</h2>
+                        <div class="legal-plain">
+                            <p>Dos preferencias suyas, y solo si toca los interruptores de la ficha del sistema. No son cookies, no viajan a ningún lado y no dicen nada de usted.</p>
+                        </div>
+                        <p>En el pie de cada página hay una etiqueta con la versión del sitio. Al abrirla aparece la ficha del sistema, con dos interruptores: apagar las animaciones del fondo y ocultar el botón flotante de contacto. Si usted mueve alguno, la elección se guarda en el <em>almacenamiento local</em> de su navegador para no tener que repetirla en la página siguiente.</p>
+
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-valtrix">Qué guarda</th>
+                                        <th>Nombre técnico</th>
+                                        <th>Cuándo se crea</th>
+                                        <th>Cuánto dura</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="row-label">Que usted apagó las animaciones del fondo</td>
+                                        <td><code>vtx-pref-motion</code></td>
+                                        <td>Solo al mover ese interruptor</td>
+                                        <td>Hasta que usted lo borre</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="row-label">Que usted ocultó el botón flotante de contacto</td>
+                                        <td><code>vtx-pref-fab</code></td>
+                                        <td>Solo al mover ese interruptor</td>
+                                        <td>Hasta que usted lo borre</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p>Las dos guardan un <code>1</code> o un <code>0</code>. No contienen su nombre, ni un número que lo identifique, ni un historial de páginas. A diferencia de una cookie, <strong>el almacenamiento local nunca se envía al servidor</strong>: se queda en el aparato desde el que usted navega y nosotros no podemos leerlo. Si nunca toca los interruptores, no se guarda absolutamente nada.</p>
+                    </article>
+
+                    <article class="legal-article" id="c4">
+                        <span class="legal-num">04</span>
+                        <h2>A quién se le pide algo para que la página se vea</h2>
+                        <div class="legal-plain">
+                            <p>A un tercero: Google, por la letra del sitio. Le llega su dirección IP y qué navegador usa. Es la única petición fuera de nuestro alojamiento, y se la contamos porque existe.</p>
+                        </div>
+                        <p>Al abrir esta página su navegador pide dos tipografías —Inter y Playfair Display— al servicio de fuentes de Google. Esa petición sale de su equipo directamente hacia Google, sin pasar por nosotros, y Google recibe lo que recibe cualquier servidor al que se le pide un archivo: su dirección IP, el navegador y el sistema que usa, y la página desde la que se hizo la petición.</p>
+
+                        <div class="table-scroll">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-valtrix">A quién</th>
+                                        <th>Qué se le pide</th>
+                                        <th>Qué recibe</th>
+                                        <th>Pone cookies</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="row-label">Google Fonts<br><code>fonts.googleapis.com</code> · <code>fonts.gstatic.com</code></td>
+                                        <td>Las dos tipografías del sitio</td>
+                                        <td>Su IP, su navegador y la página que la pidió</td>
+                                        <td>No, en las peticiones de fuentes</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="row-label">Cloudflare<br><em>(alojamiento del sitio)</em></td>
+                                        <td>Las páginas, la hoja de estilo y las imágenes</td>
+                                        <td>Su IP, la hora, la página pedida y el navegador</td>
+                                        <td>No, en la entrega de estas páginas</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="legal-callout">
+                            <p><strong>Por qué se dice y no se esconde.</strong> Muchos sitios que juran no rastrear cargan la letra desde Google sin mencionarlo. Es una petición a un tercero y hay que declararla. Si prefiere evitarla, cualquier bloqueador de contenido o el modo estricto de su navegador la corta: el sitio se sigue leyendo entero, solo cambia el tipo de letra.</p>
+                        </div>
+                    </article>
+
+                    <article class="legal-article" id="c5">
+                        <span class="legal-num">05</span>
+                        <h2>Los enlaces que lo sacan del sitio</h2>
+                        <div class="legal-plain">
+                            <p>Si pulsa el botón de WhatsApp, ya no está aquí: está en WhatsApp, con sus reglas y no con las nuestras.</p>
+                        </div>
+                        <p>El sitio tiene enlaces que abren otras aplicaciones: WhatsApp (<code>wa.me</code>, de Meta) y su programa de correo. Nada se activa solo, hace falta que usted pulse. En el momento en que lo hace, la conversación pasa a esa plataforma y se rige por las políticas de quien la opera, no por este documento. Si prefiere no usar WhatsApp, el correo y el teléfono llevan al mismo sitio.</p>
+                    </article>
+
+                    <article class="legal-article" id="c6">
+                        <span class="legal-num">06</span>
+                        <h2>Los registros del alojamiento</h2>
+                        <div class="legal-plain">
+                            <p>El servidor anota que alguien pidió una página, como hace cualquier servidor del mundo. Es un registro de seguridad, no un sistema de medición, y no se usa para perfilar a nadie.</p>
+                        </div>
+                        <p>El sitio está alojado en Cloudflare. Como cualquier servidor web, registra las peticiones que atiende —dirección IP, fecha y hora, página pedida, navegador— para poder entregarlas y para frenar ataques automatizados. Ese registro es técnico y de seguridad: no está conectado a ninguna herramienta de analítica, no genera informes de audiencia y no se cruza con ninguna otra información para identificar a quien visita.</p>
+                    </article>
+
+                    <article class="legal-article" id="c7">
+                        <span class="legal-num">07</span>
+                        <h2>Lo que no hacemos</h2>
+                        <div class="legal-plain">
+                            <p>Esta lista es tan importante como la anterior: es la que dice qué no va a encontrar aquí.</p>
+                        </div>
+                        <ul>
+                            <li>No usamos cookies, ni propias ni de terceros.</li>
+                            <li>No usamos herramientas de analítica ni de medición de audiencia.</li>
+                            <li>No hay píxeles de seguimiento de redes sociales ni de plataformas de publicidad.</li>
+                            <li>No grabamos su sesión, ni sus clics, ni el movimiento del ratón.</li>
+                            <li>No construimos un perfil suyo ni le asignamos un identificador.</li>
+                            <li>No hacemos huella digital del navegador (<em>fingerprinting</em>).</li>
+                            <li>No hacemos pruebas A/B ni le mostramos una versión distinta del sitio según quién parezca ser.</li>
+                            <li>No compramos, vendemos ni intercambiamos datos de visitantes con nadie.</li>
+                            <li>No hay boletín automático: si nos escribe, le responde una persona.</li>
+                        </ul>
+                    </article>
+
+                    <article class="legal-article" id="c8">
+                        <span class="legal-num">08</span>
+                        <h2>Por qué no hay ventana de cookies</h2>
+                        <div class="legal-plain">
+                            <p>Porque no hay cookies que consentir. Una ventana pidiendo permiso para nada sería teatro.</p>
+                        </div>
+                        <p>El permiso hay que pedirlo cuando se guarda algo que no es imprescindible para prestar el servicio: medición, publicidad, personalización. Aquí no se guarda nada de eso. Las dos únicas cosas que se almacenan las escribe usted mismo al mover un interruptor, y esa acción <em>es</em> la petición: guardar la preferencia es exactamente lo que usted pidió al moverlo.</p>
+                        <p>Ponerle una ventana encima de la página para que acepte lo que no existe no lo protegería de nada. Preferimos publicar la lista completa, dejarla comprobable en el panel de arriba y responder por ella.</p>
+                    </article>
+
+                    <article class="legal-article" id="c9">
+                        <span class="legal-num">09</span>
+                        <h2>Cómo borrarlo o impedirlo</h2>
+                        <div class="legal-plain">
+                            <p>Con el botón de arriba, con el propio interruptor, o desde su navegador. Las tres funcionan y ninguna necesita pedirnos permiso.</p>
+                        </div>
+                        <h3>Desde este sitio</h3>
+                        <ul>
+                            <li>El botón <strong>Borrar lo guardado</strong> del panel elimina las dos preferencias al instante.</li>
+                            <li>Volver a mover el interruptor en la ficha del sistema deja la preferencia en su valor de origen.</li>
+                        </ul>
+                        <h3>Desde su navegador</h3>
+                        <ul>
+                            <li><strong>Chrome y Edge:</strong> Configuración → Privacidad y seguridad → Borrar datos de navegación → «Cookies y otros datos de sitios».</li>
+                            <li><strong>Safari (Mac):</strong> Ajustes → Privacidad → Gestionar datos de sitios web → buscar el sitio y eliminarlo.</li>
+                            <li><strong>Safari (iPhone y iPad):</strong> Ajustes → Safari → Avanzado → Datos de sitios web.</li>
+                            <li><strong>Firefox:</strong> Ajustes → Privacidad y seguridad → Cookies y datos del sitio → Administrar datos.</li>
+                        </ul>
+                        <h3>Para que no se guarde nada nunca</h3>
+                        <p>Navegar en ventana privada o de incógnito: al cerrarla no queda rastro. También puede bloquear el almacenamiento local para este sitio desde la configuración de su navegador; el sitio funciona igual, solo dejará de recordar los dos interruptores.</p>
+                    </article>
+
+                    <article class="legal-article" id="c10">
+                        <span class="legal-num">10</span>
+                        <h2>Señales del navegador: «no rastrear» y GPC</h2>
+                        <div class="legal-plain">
+                            <p>Si su navegador manda la señal de no rastrear, aquí ya está cumplida antes de llegar: no hay nada que apagar.</p>
+                        </div>
+                        <p>Algunos navegadores envían una señal —<em>Do Not Track</em> o <em>Global Privacy Control</em>— pidiendo que no se rastree a quien navega ni se vendan sus datos. Muchos sitios la ignoran porque no es obligatoria. Aquí la situación es más simple: <strong>no hay rastreo que desactivar ni datos que vender</strong>, de modo que el resultado es el mismo con la señal activada o sin ella. El panel de arriba le indica si su navegador la está enviando.</p>
+                    </article>
+
+                    <article class="legal-article" id="c11">
+                        <span class="legal-num">11</span>
+                        <h2>Si algún día medimos</h2>
+                        <div class="legal-plain">
+                            <p>Si en el futuro hiciera falta medir, se dirá aquí antes de encenderlo, y se elegirá una herramienta que no siga a nadie.</p>
+                        </div>
+                        <p>No prometemos que este sitio no vaya a medir nunca nada: puede llegar el día en que haga falta saber qué páginas se leen para escribir mejor. Si ocurre, tres compromisos, en este orden:</p>
+                        <ol>
+                            <li>Se actualiza este documento <strong>antes</strong> de encender nada, con la fecha y el nombre de la herramienta.</li>
+                            <li>Se elige una medición sin cookies y con datos agregados, que cuente páginas y no personas.</li>
+                            <li>Si esa herramienta necesitara consentimiento, se pedirá de verdad: con la opción de decir que no igual de visible que la de aceptar, y sin que negarse estropee el sitio.</li>
+                        </ol>
+                    </article>
+
+                    <article class="legal-article" id="c12">
+                        <span class="legal-num">12</span>
+                        <h2>Cambios y contacto</h2>
+                        <p>Cuando este documento cambie, cambia también el número de versión y la fecha de la cabecera. Los cambios rigen desde su publicación y no se aplican hacia atrás.</p>
+                        <ul class="legal-facts">
+                            <li><span class="fact-key">Responsable</span><span class="fact-val">VALTRIX Engineering · Valeria Vargas Ávila</span></li>
+                            <li><span class="fact-key">Correo</span><span class="fact-val is-mono"><a href="mailto:valeria.vargas@valtrix.com">valeria.vargas@valtrix.com</a></span></li>
+                            <li><span class="fact-key">WhatsApp</span><span class="fact-val is-mono"><a href="https://wa.me/50684880406" target="_blank" rel="noopener">+506 8488-0406</a></span></li>
+                            <li><span class="fact-key">Documentos relacionados</span><span class="fact-val"><a href="privacidad.html">Privacidad</a> · <a href="terminos.html">Términos</a></span></li>
+                        </ul>
+                        <div class="legal-sign">
+                            VALTRIX Engineering · Política de cookies y rastreo v1.0 · En vigor desde el 20 de agosto de 2026 · Costa Rica.
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section section-tight section-gray">
+        <div class="container">
+            <div class="section-header">
+                <span class="eyebrow">Los tres documentos</span>
+                <h2 class="section-title" style="font-size: 1.9rem;">Lo demás por escrito</h2>
+            </div>
+            <div class="legal-switch">
+                <a href="privacidad.html">
+                    <span class="switch-name">Política de privacidad</span>
+                    <span class="switch-desc">Qué datos suyos y de su negocio se tratan, con qué fin, cuánto se guardan y cómo pedir que se borren.</span>
+                </a>
+                <a href="terminos.html">
+                    <span class="switch-name">Términos y condiciones</span>
+                    <span class="switch-desc">Alcance, precios, plazos, garantía de 30 días, propiedad de los entregables y límites del servicio.</span>
+                </a>
+                <a href="cookies.html" aria-current="page">
+                    <span class="switch-name">Cookies y rastreo</span>
+                    <span class="switch-desc">Está leyéndolo: qué se guarda en su navegador, a quién se le pide algo y cómo comprobarlo.</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="brand-logo">VALTRIX <span>Engineering</span></div>
+                    <p class="footer-desc">Ingeniería industrial para micro y pequeñas empresas, emprendedores y startups de Costa Rica.</p>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Servicios</h4>
+                    <ul class="footer-links">
+                        <li><a href="panel-de-control.html">Panel de Control</a></li>
+                        <li><a href="orden-operativo.html">Orden Operativo</a></li>
+                        <li><a href="precios.html">Precios y alcance</a></li>
+                        <li><a href="metodologia.html">Cómo trabajamos</a></li>
+                        <li><a href="valeria-vargas.html">Valeria Vargas</a></li>
+                        <li><a href="https://elysiumdr.eu/es/profiles">Su cuenta</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="footer-title">Detalles de Contacto</h4>
+                    <ul class="footer-meta">
+                        <li>info@valtrix.com</li>
+                        <li><a href="https://wa.me/50684880406" target="_blank" rel="noopener">WhatsApp</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-bottom-group">
+                    <div>VALTRIX Engineering © 2026</div>
+                    <div class="footer-bottom-links">
+                        <a href="contacto.html">Contacto</a>
+                        <a href="metodologia.html">Cómo trabajamos</a>
+                        <a href="privacidad.html">Privacidad</a>
+                        <a href="terminos.html">Términos</a>
+                        <a href="cookies.html">Cookies</a>
+                    </div>
+                </div>
+                <div class="footer-credits">
+                    <a href="https://elysiumdr.eu" target="_blank" rel="noopener" style="color: inherit; text-decoration: none; letter-spacing: 0.05em;">Elysium λ Development &amp; Research</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/version-modal.js"></script>
+    <script src="js/anios-experiencia.js"></script>
+    <script src="js/cookies.js"></script>
+
+</body>
+</html>

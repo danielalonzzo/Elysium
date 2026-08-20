@@ -1,14 +1,18 @@
 ================================================================================
 ELYSIUM λ DEVELOPMENT & RESEARCH — FULL SITE CONTENT FOR AI MODELS
 https://elysiumdr.eu | info@elysiumdr.eu
-Last verified against the website: 19 July 2026
+Last verified against the website: 20 August 2026
+Interface version at time of verification: V1.7.0
 Languages: English · Español · Português
 ================================================================================
 
 This file contains an expanded textual representation and index of the public
 content on elysiumdr.eu for AI and language model consumption. It is provided
 voluntarily under the llms.txt convention to enable accurate, informed responses
-about Elysium λ. Linked pages remain the primary source for full article text.
+about Elysium λ Development & Research. The published pages remain the primary
+source: where this file and the website ever disagree, the website is correct.
+
+The company is always named "Elysium λ Development & Research" in full.
 
 ================================================================================
 PART 1 — ENGLISH (EN)
@@ -18,17 +22,19 @@ PART 1 — ENGLISH (EN)
 URL: https://elysiumdr.eu/
 
 Title: Elysium λ Development & Research
-Hero: Digital Infrastructure for SMEs: No Development Costs
+Hero: Digital Infrastructure for small-businesses and startups: No Development Costs
 
 Description:
-Subscription-based digital infrastructure for SMEs: cloud systems, bespoke CRM,
-cybersecurity and applied R&D in the EU and Costa Rica, with no development cost.
+Subscription-based digital infrastructure for startups and micro-businesses:
+cloud systems, bespoke CRM, cybersecurity and applied R&D in the EU and Costa
+Rica, with no development cost.
 
 ORGANISATION PROFILE:
 Elysium λ Development & Research is a European digital-infrastructure company
-and an independent software-engineering, IT-consulting, and R&D laboratory.
-It was founded in January 2026, is established in Portugal, and operates in
-Costa Rica. It serves SMEs across the European Union and Costa Rica.
+and an independent software-engineering, IT-consulting, and applied-R&D
+laboratory. It was founded in January 2026, is established in Portugal, and
+operates in Costa Rica. It serves micro and small businesses, entrepreneurs,
+and startups across the European Union and Costa Rica.
 
 OPERATING MODEL:
 Digital infrastructure is included in a monthly subscription. Elysium assumes
@@ -63,11 +69,17 @@ CORE COMPETENCIES:
 
 SUBSCRIPTION OPTIONS SHOWN ON THE HOMEPAGE:
 - Presence: EUR 70/month or EUR 700/year.
-- System: EUR 99/month or EUR 990/year.
-- Operations: EUR 120/month or EUR 1,200/year.
-- Independent Hosting Maintenance: EUR 99/year.
-Annual billing is the equivalent of two months free.
+- Infrastructure: EUR 99/month or EUR 990/year.
+- Ecosystem: EUR 120/month or EUR 1,200/year (marked "Most Popular").
+- Hosting (independent service): EUR 99/year, billed annually.
+Annual billing is the equivalent of two months free. Prices are shown in EUR by
+default and converted to USD and CRC in real time.
 See https://elysiumdr.eu/services for the complete scope and conditions.
+
+TOOLS DISPLAYED ON THE HOMEPAGE:
+Antigravity, GitHub, HTML5, CSS3, JavaScript, Cloudflare, IONOS, Python,
+Firebase, Git, NPM, Node.js, cPanel.
+
 λ DEVELOPMENT FRAMEWORK — SCIENTIFIC METHODOLOGY:
 1. Current Operational Environment — analyse data flows, daily processes, and
    the client's industry context.
@@ -87,127 +99,157 @@ See https://elysiumdr.eu/services for the complete scope and conditions.
     the client's team.
 
 RESEARCH & DEVELOPMENT:
-Elysium λ operates as an independent software-engineering and IT-consulting
-laboratory in the European Union and Costa Rica. It combines scientific thinking,
-ergonomic design, and continuous experimentation to solve structural inefficiencies
-and make high-level engineering accessible to SMEs.
+Elysium λ Development & Research operates as an independent engineering,
+research, and IT-consulting laboratory in the European Union and Costa Rica.
+It combines scientific thinking, ergonomic design, and continuous experimentation
+to solve structural inefficiencies and make high-level digital infrastructure
+accessible to small businesses and startups.
 
-Mission statement: Democratise access to digital infrastructure by giving SMEs
-accessible technological ecosystems that automate their processes and support
-their scalability.
+Mission statement: Democratise access to digital infrastructure, providing small
+businesses and startups with accessible technological ecosystems that automate
+their processes and ensure their scalability.
 
 TEAM AND CURRENT SOCIAL PROOF:
 - Developer: Daniel Alonso Morales Ávila, Founder & Computer Science Engineer.
-- Featured partner review: Paulo Morais, founder of Consciênciavaliativa —
-  Unipessoal Lda, describes improved communication, visibility, and client
-  acquisition after the website project. Full review:
+- Featured partner review: Paulo Morais, osteopath and specialist trainer,
+  founder of Consciênciavaliativa — Unipessoal Lda. Quoted on the homepage:
+  before the website project, the practice had difficulty communicating its
+  offer and reaching its target audience, which limited the visibility of its
+  work and the acquisition of new clients. Full review:
   https://elysiumdr.eu/review-pmorais
 
 Contact: info@elysiumdr.eu
-Phone/WhatsApp: +351 934086075
-Social: @elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
-https://www.linkedin.com/company/elysiumdr (LinkedIn)
+Phone Portugal: +351 934 086 075 | Phone Costa Rica: +506 6260 7300
+Social: https://www.linkedin.com/company/elysiumdr (LinkedIn) |
+@elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
+WhatsApp +351 934 086 075 | @elysium.dr (TikTok)
 
 --- SERVICES PAGE ---
 URL: https://elysiumdr.eu/services
 
 Title: Services — Elysium λ Development & Research
-Description: Zero Development Costs: High-performance digital infrastructure included in your monthly subscription.
+Description: Zero Development Costs: High-performance digital infrastructure
+included in your monthly subscription.
 
 ENTERPRISE-GRADE DIGITAL INFRASTRUCTURE
 
 Zero Development Cost Model:
-High-performance digital infrastructure included in monthly subscription.
+High-performance digital infrastructure included in the monthly subscription.
 You don't pay for website construction — each monthly fee is an investment in
 an ecosystem that evolves with your business, guaranteeing peak performance,
 operational security, and high lead retention.
 
-SUBSCRIPTION TIERS:
+There are four tiers. Hosting is infrastructure only; Presence, Infrastructure
+and Ecosystem are cumulative — each one includes everything in the tier below.
 
-1. Hosting — €99/year (infrastructure only)
+1. Hosting — EUR 99/year (infrastructure only)
+   - Domain, email and hosting for a site that already exists.
    - Domain management and brand digital identity.
    - Web hosting on high-availability servers (always online).
    - Base infrastructure maintenance and updates.
-   - Website development is not included.
+   - Website development is NOT included.
+   - For websites that need continuous maintenance and support.
 
-2. Presence — €70/month or €700/year
-   - Website, domain, email and hosting.
-   - Online booking with automatic reminders, which is what removes no-shows.
-   - Client records.
+2. Presence — EUR 70/month or EUR 700/year
+   - Everything in Hosting.
+   - Website development.
    - GDPR compliance and legal notices kept current.
-   - One hour of changes per month.
+   - Base technical package: loading page, mobile-first header, scroll reveal,
+     anchor glide, information system, system settings, system update, security
+     core, cookies management, magic bottom, Elysium signature, seasonal effects,
+     clean URLs, discovery core, SEO.
+   - For businesses that do not yet have a digital presence.
+   - NOTE: online booking, client records, client area, CRM and payments are NOT
+     part of this tier. They belong to Ecosystem.
 
-3. System — €99/month or €990/year
+3. Infrastructure — EUR 99/month or EUR 990/year
    - Everything in Presence.
-   - Private client area where each client logs in and sees their own history.
-   - Administrator CRM.
-   - Availability and cancellation management.
-   - Up to 3 professionals. Two hours of changes per month.
+   - Multi-language structure.
+   - Smart light and dark mode.
+   - Plus magic mouse, system sound, dynamic theme, theme switcher, multi-language.
+   - For companies with an obsolete website.
 
-4. Operations — €120/month or €1,200/year
-   - Everything in System.
-   - Online payments and session packs with running balances.
+4. Ecosystem — EUR 120/month or EUR 1,200/year (Most Popular)
+   - Everything in Infrastructure.
+   - Real-time currency conversion.
+   - Installable web app.
+   - Public agenda with automatic reminders.
+   - Client records.
+   - Private client area with login and history.
+   - Administrator CRM.
+   - Online payments and session packs.
    - Occupancy and no-show reporting.
-   - Custom-built software that scales alongside the business.
-   - Unlimited professionals. Four hours of changes per month.
+   - Plus multi-currency, web app downloader, personalized CRM, smart booking,
+     client records, online payments, occupancy reports.
+   - For businesses that want lead generation and a CRM.
+
+The services page also directs research institutes and independent researchers
+to https://elysiumdr.eu/research rather than to a subscription tier.
 
 TRANSPARENCY & LICENSING:
-- Zero Development Cost: Elysium assumes 100% of initial engineering.
-- Code Ownership (IP): Source code remains intellectual property of Elysium λ.
-  Clients acquire a full-use licence tied to their active subscription.
-- Lifecycle & Continuity: If subscription is interrupted, system and support
-  will be suspended.
-- Valuation & Buyout: If your business model requires total code ownership,
-  we offer an auditing and valuation process for project buyout.
+- Zero Development Cost: Elysium assumes 100% of the initial engineering. The
+  subscription ensures the system evolves without becoming obsolete.
+- Code Ownership (IP): Source code remains intellectual property of Elysium λ
+  Development & Research. Clients acquire a full-use licence tied to their
+  active subscription.
+- Lifecycle: If the subscription is interrupted, the system and its support are
+  automatically suspended to protect the infrastructure.
+- Valuation and Transfer: Audits are offered for code purchase where the client's
+  model requires it. After purchase, maintaining base support (Hosting) is required.
 
 --- PORTFOLIO PAGE ---
 URL: https://elysiumdr.eu/portfolio
 
 Title: Portfolio — Elysium λ Development & Research
+Filters shown: All · Health · Tech · Food · Retail
 
-SELECTED PROJECTS:
+The portfolio currently presents four projects:
 
-Paulo Morais — pmorais.pt (Portugal)
+Paulo Morais — https://pmorais.pt (Portugal)
 Type: Osteopathy and specialist personal training practice.
+Tagline shown: "O verdadeiro treino personalizado que se adapta mesmo à tua vida!"
 Work: End-to-end functional platform with frontend, backend, Firebase database,
 user accounts, appointment scheduling, service organisation, automation,
 responsive presentation, and European privacy compliance.
 Case study: https://elysiumdr.eu/case-pmorais
+Prototype: https://elysiumdr.eu/prototype-pmorais
 Review: https://elysiumdr.eu/review-pmorais
 
-ONCORE (Portugal)
-Type: Cancer Recovery & Performance Center.
-Work: Premium clinical and physical recovery experience for cancer survivors.
-Portfolio: https://elysiumdr.eu/ONCORE/index-en
-
 VALTRIX Engineering (Costa Rica)
-Type: Engineering consultancy firm
+Type: Industrial-engineering services for small businesses — data dashboards
+and process standardisation.
+Tagline shown: "Paneles de control para que un negocio pequeño sepa qué le deja
+plata"
 Work: Full digital ecosystem development.
+Site: https://elysiumdr.eu/VALTRIX%20Engineering/
 Case study: https://elysiumdr.eu/case-valtrix
+Prototype: https://elysiumdr.eu/prototype-valtrix
 
-Moyra (Costa Rica)
+Moyra — https://moyracr.com (Costa Rica)
 Type: Food studio, takeaway, and online ordering.
-Work: Digital presence and online-ordering experience.
+Tagline shown: "Comida artesanal, lista para llevar. Food Studio, Takeaway &
+Online Orders"
 Case study: https://elysiumdr.eu/case-moyra
+Prototype: https://elysiumdr.eu/prototype-moyra
 
-Dr. Johnny Piedra (Costa Rica)
-Type: Advanced urology and minimally invasive surgery.
-Work: Premium medical and surgical digital presence.
-Portfolio: https://elysiumdr.eu/Dr-Johnny-Piedra/
-
-Pura Vida Pets (Costa Rica)
+Pura Vida Pets — https://puravidapetscr.com (Costa Rica)
 Type: Premium pet care and dog-walking services.
-Work: Web application and client-portal experience for pet-care services.
-Portfolio entry: https://elysiumdr.eu/puravidapets/
+Tagline shown: "Aventuras Únicas para Mascotas. Premium pet care and walking
+services."
+The project has its own domain and repository; there is no case study or review
+page for it on elysiumdr.eu.
 
 --- RESEARCH PAGE ---
 URL: https://elysiumdr.eu/research
 
 Title: Research — Elysium λ Development & Research
+Description: Applied research at Elysium λ in human-computer interaction, data
+science and digital infrastructure for startups and micro-businesses, with active
+ontology and data-intelligence projects.
 
 APPLIED RESEARCH LINES:
-Elysium λ explores Human-Computer Interaction (HCI), Data Science, and
-Digital Infrastructures through three current lines:
+Elysium λ Development & Research explores Human-Computer Interaction (HCI),
+Data Science, and Digital Infrastructures through three current lines:
 
 1. Intuitive Interfaces
    Management systems designed to reduce users' mental load.
@@ -218,54 +260,114 @@ Digital Infrastructures through three current lines:
 3. Security and High Availability
    Cloud infrastructures developed with high-level encryption standards.
 
+ACTIVE RESEARCH PROJECTS:
+
+1. Ontology for digital inclusion and service access in rural environments
+   Author: Daniel A. Morales Ávila | Year: 2026 | Status: Pilot Study
+   Tags: Digital Inclusion · Artificial Intelligence
+   URL: https://elysiumdr.eu/research/ontology-research
+   Research question: How can an ontology-based approach and a recommender
+   (rules + ML) improve the localization and prioritization of digital inclusion
+   resources and essential services in a rural context, minimizing ethical risks
+   (bias, exclusion, opacity) and maximizing social utility?
+   General objective: design and evaluate a reproducible prototype (knowledge
+   graph + recommendation) for a local case, with an explicit framework for
+   ethical evaluation and social utility.
+   Specific objectives: define a minimal ontology for "resources/services + user
+   profile + access barriers"; build a small knowledge graph (RDF or equivalent)
+   from verifiable public data; implement a transparent rules-plus-ranking
+   recommender and justify it as appropriate, non-oversized technology; evaluate
+   coverage, semantic coherence, basic explainability and risk scenarios; write
+   a mini-paper with a state-of-the-art review and ethical discussion.
+   Methodology: literature review; ontology design via competency questions;
+   knowledge-graph implementation with a query endpoint; technical evaluation
+   (consistency tests, coverage metrics, query cases); socio-technical evaluation
+   using a risk matrix based on UNESCO/OECD frameworks.
+   Data sources: public listings of services, associations, municipal resources,
+   training and libraries; OpenStreetMap as geographic base and POIs; a small
+   corpus of synthetic user needs.
+
+2. Data-Driven Small Business and Startup Intelligence: Leveraging Machine
+   Learning for Operational Insight Extraction in Small Businesses and Startups
+   Author: Daniel A. Morales Ávila | Year: 2026 | Status: Concept Phase
+   Tags: Machine Learning · Data Analysis · Small Business and Startup Strategy
+   URL: https://elysiumdr.eu/research/data-driven-sme-intelligence
+   RQ1: What minimum data volume and quality thresholds are required for machine
+   learning models to generate reliable operational insights in typical startup
+   and micro-business digital environments?
+   RQ2: Which machine learning methodologies — supervised classification,
+   clustering, anomaly detection, or time-series forecasting — produce the most
+   actionable and interpretable outputs for non-specialist operators?
+   RQ3: To what extent does providing natural language explanations alongside ML
+   model outputs increase operator confidence in, and adoption of, data-driven
+   recommendations?
+   Published structure: Abstract; I. Research Problem & Motivation; II. Theoretical
+   Framework; III. Research Questions; IV. Methodology; V. Data Sources &
+   Collection Protocol; VI. Preliminary Observations; VII. Limitations;
+   VIII. Future Work; References.
+   The project is in concept phase: the research questions and the reference list
+   are published, and the body sections are not yet written. There are no results
+   to report.
+
 --- ABOUT PAGE ---
 URL: https://elysiumdr.eu/about
 
-Title: Our Ethos — Elysium λ Development & Research
-Description: Mission, vision, R&D ethos, and story of Elysium λ Development &
-Research, a European digital-infrastructure company established in Portugal and
-operating in Costa Rica.
+Title: About — Elysium λ Development & Research
+Description: Mission, vision and story of Elysium λ, a digital-infrastructure and
+applied-R&D company established in Portugal, operating in Costa Rica and serving
+startups and micro-businesses in both regions.
 
 ETHOS:
 "Our work is guided by the conviction that digital infrastructure should be
 accessible, transparent, and focused on R&D."
 
 MISSION:
-Democratise access to digital infrastructure by providing SMEs with accessible
-technological ecosystems that automate their processes and ensure scalability.
-The mission is to give small and medium-sized enterprises infrastructure that
-evolves with their businesses.
+Democratize access to digital infrastructure, providing small businesses and
+startups with accessible technological ecosystems that automate their processes
+and ensure their scalability. The mission is to provide micro and small
+businesses, entrepreneurs, and startups with the opportunity to have an
+infrastructure that evolves with their businesses.
 
 VISION:
-To become the Elysium λ Institute of Development & Research, dedicated to the
-study, development, and application of digital infrastructures and to training
-new generations of scientists and developers. Elysium λ aims to contribute to
-a digital European Union and a Costa Rica advancing towards modernity.
+To be the Elysium λ Institute of Development & Research, an institute dedicated
+to the study, development, and application of Digital Infrastructures, as well as
+the training of new generations of scientists and developers. The vision is to
+actively contribute to the construction of a digital European Union and a Costa
+Rica that moves forward towards modernity.
 
 OUR STORY:
-Elysium λ was founded to work alongside SMEs, strengthen their digital presence,
-and give them infrastructure that enables them to scale. SMEs are a structural
-backbone of both the European Union and Costa Rican economies, but many remain
-excluded from technological transformation by cost, complexity, and digital-
-literacy barriers. Elysium λ investigates and develops infrastructure intended
-to make advanced technology more accessible, transparent, and trustworthy.
+Elysium λ Development & Research was founded with a clear purpose: to work hand
+in hand with micro and small businesses, entrepreneurs, and startups to boost
+their digital presence and grant them access to infrastructure that allows them
+to scale their businesses.
+
+Small businesses and startups represent the backbone of the European Union and
+Costa Rican economy. Yet many remain excluded from the benefits of technological
+transformation due to barriers of complexity, cost and digital literacy.
+Elysium λ seeks to investigate and develop digital infrastructures that make
+advanced technologies more accessible, transparent and trustworthy for micro and
+small businesses, entrepreneurs, and startups navigating this transformation.
 
 MEANING OF THE NAME:
-- Elysium comes from the ancient Greek Ἠλύσιον, associated with justice, harmony,
-  and brotherhood. The name also evokes Friedrich Schiller's 1785 poem
-  "An die Freude" (Ode to Joy), incorporated by Ludwig van Beethoven into the
-  fourth movement of his Ninth Symphony; its instrumental setting is the anthem
-  of the European Union.
-- λ (lambda) is the eleventh Greek letter and the second letter of Ἠλύσιον.
-  For this project, it represents the abstraction of ideas into executable systems.
-- Together, Elysium λ expresses the aspiration to contribute to an increasingly
-  unified European Union.
+- Elysium comes from the ancient Greek Ἠλύσιον: a place reserved for those
+  virtuous souls who promoted justice, harmony, and brotherhood. Elysium also
+  appears in the poem "An die Freude" (Ode to Joy) written by Friedrich von
+  Schiller in 1785. In 1824, Ludwig van Beethoven incorporated this poem into the
+  fourth movement of his Ninth Symphony, a work that is currently the official
+  anthem of the European Union.
+- λ (lambda) is the eleventh letter of the Greek alphabet and the second letter
+  in the word Ἠλύσιον (Elysium). It represents the abstraction of ideas into
+  executable systems.
+- Within the European context of this project, Elysium λ symbolizes the
+  aspiration to contribute to an increasingly unified European Union.
 
 CURRENT DIRECTION AND LOCATION:
-Beginning with digital infrastructure for SMEs, Elysium λ intends to grow into
-research and the training of scientific developers for a European and Costa Rican
-digital future focused on R&D. It is a European company established in Portugal,
-with operations in Costa Rica, serving SMEs across the European Union and Costa Rica.
+Beginning with digital infrastructure for small businesses and startups, Elysium λ
+aims to evolve toward research and the training of scientific developers that
+support a European and Costa Rican digital future focused on R&D. It is a European
+company established in Portugal and with operations in Costa Rica, serving micro
+and small businesses, entrepreneurs, and startups across the European Union and
+Costa Rica with digital infrastructure and accessible research.
 
 CERTIFICATION AUTHORITIES AND INSTITUTIONAL PARTNERS DISPLAYED:
 ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
@@ -276,10 +378,14 @@ URL: https://elysiumdr.eu/daniel-morales
 
 Title: Daniel Morales — Full-Stack & Cloud Developer | Elysium λ
 Full name: Daniel Alonso Morales Ávila
-Role: Freelance Full-Stack & Cloud Developer
-Residence and Work Permit: Portugal | Nationality: Costa Rican | Fiscal Address: Bragança, Portugal
+Role as shown on the profile: Freelance Full-Stack Web Developer
+Role in the page metadata: Full-Stack & Cloud Developer
+Role on the homepage and About page: Founder & Computer Science Engineer
+Nationality: Costa Rican | Residence and work permit: Portugal
+Address: Bragança, Portugal | Registered NIF and NISS in Portugal
+Driving licence: category B
 Email: daniel.morales@elysiumdr.eu
-Phone: +351 934086075
+Phone: +351 934 086 075
 LinkedIn: https://www.linkedin.com/in/danielalonzzo/
 GitHub: https://github.com/danielalonzzo
 
@@ -288,309 +394,228 @@ Full-Stack & Cloud Developer with a BSc in Computer Science Engineering.
 Experienced in building end-to-end web ecosystems, combining reactive interfaces
 with serverless microservices (Firebase, Cloudflare Workers), Python automation,
 and Artificial Intelligence tool integration. Multilingual professional focused on
-delivering efficient, structured, and high-value technical solutions for the end-user.
+delivering efficient, structured, and high-value technical solutions for the end
+user.
 
 WORK EXPERIENCE:
 
 1. Freelance Full-Stack Web Developer — Elysium λ Development & Research
-   08/09/2025 – Present | Portugal
-   - Full-Stack Architecture & Development: Autonomous design and implementation
-     of web applications using React, Next.js 16, Vite, and JavaScript (ES6+),
-     connecting reactive interfaces to edge-serverless infrastructures (Cloudflare Workers)
-     and Firebase.
-   - Serverless Backend & Automation: Engineering backend services and APIs utilising
-     Firebase Cloud Functions (Node.js) and Cloud Firestore.
-   - Web Security & Infrastructure: Network- and data-level security policies (CSP,
-     HSTS, Firestore & Storage granular access control rules).
-   - Performance, SEO & Accessibility: Core Web Vitals optimisation, technical SEO,
-     and WCAG 2.1 AAA accessibility compliance.
-   - AI-Assisted Engineering: Integration of AI agents and LLM models (Antigravity SDK,
-     Claude, Codex) into the software lifecycle.
-   Technologies: HTML5, CSS3, JavaScript (ES6+), React, Next.js 16, Vite, Cloudflare
-   Workers, Firebase (Cloud Functions, Firestore, Auth, Storage), Node.js, Python,
-   CSP, HSTS, Core Web Vitals, WCAG 2.1 AAA, Technical SEO, Antigravity SDK, Claude, Codex.
+   Sep 2025 – Present | Portugal | Remote | Self-employed
+   - Full-Stack architecture & development: autonomous design and implementation
+     of web applications using React, Next.js 16, Vite and JavaScript (ES6+),
+     connecting reactive interfaces to serverless edge infrastructure (Cloudflare
+     Workers) and Firebase.
+   - Serverless backend & automation: engineering of backend services and APIs
+     with Firebase Cloud Functions (Node.js) and Cloud Firestore.
+   - Web security & infrastructure: network- and data-level security policies
+     (Content Security Policy, HSTS, granular Firestore and Storage access rules).
+   - Performance, SEO & accessibility: continuous auditing and optimisation
+     targeting top Core Web Vitals scores, technical SEO and WCAG 2.1 AAA.
+   - AI-assisted engineering: integration of AI agents and LLMs (Antigravity SDK,
+     Claude, Codex) into the development lifecycle.
+   Technologies: HTML5, CSS3, JavaScript (ES6+), React, Next.js 16, Vite,
+   Responsive Web Design, Serverless, Cloudflare Workers, Firebase (Cloud
+   Functions, Firestore DB, Auth, Storage), Node.js, Python, CSP, HSTS, Firestore
+   Security Rules, Core Web Vitals, WCAG 2.1 AAA, Technical SEO, Git, LLM
+   integration.
 
-2. Professional Internship — SMF360 Ingenio Futuro
-   09/09/2024 – 21/02/2025 | Miami, United States
-   - CRM Systems: Integration and customisation of CRM platforms to optimise workflows.
-   - Web Development: Redesign and optimisation of corporate websites in WordPress and
-     Elementor Pro focused on UI/UX.
-   - Leadership & Mentorship: Supervision, onboarding, and technical guidance of interns.
+2. Professional Internship — SMF360, Ingenio Futuro
+   Sep 2024 – Feb 2025 | Miami, United States | Remote | Traineeship contract
+   - CRM systems: integration and customisation of CRM platforms to optimise
+     workflows and client management.
+   - Web development: redesign and optimisation of corporate web pages in
+     WordPress and Elementor Pro, focused on UI/UX.
+   - Leadership: support in the supervision, onboarding and technical mentoring
+     of the intern team.
 
-3. University Community Outreach (Digital Literacy) — Fundación SIFAIS
-   06/02/2023 – 28/07/2023 | Heredia, Costa Rica
-   - Led digital literacy and inclusion programme in Guararí.
-   - Trained +50 youth in digital productivity tools (Microsoft 365, Canva) and AI intro.
-   - Promoted equitable access to technology and information.
+3. Digital Literacy Project (University Community Service Programme) —
+   Fundación SIFAIS
+   Jan 2023 – Jul 2023 | Heredia, Costa Rica | On-site | Traineeship contract
+   - Led a community digital literacy and inclusion programme in Guararí.
+   - Trained over 50 young participants in digital tools (Microsoft 365, Canva)
+     and introduced them to Artificial Intelligence.
+   - Promoted equitable access to information and technology.
 
-EDUCATION:
+EDUCATION & TRAINING (in the order shown on the page):
 
-1. Bachelor's Degree in Computer Science Engineering
-   ULACIT — Universidad Latinoamericana de la Ciencia y la Tecnología
-   20/01/2020 – 15/12/2026 | San José, Costa Rica | EQF Level 6
+1. Universidade Aberta de Portugal — Bachelor's Degree in Applied Languages for
+   European Studies and Geopolitics
+   Sep 2026 – Aug 2029 | Distance learning, Portugal | EQF level 6
+   Status: course in progress; degree certificate pending.
 
-2. Bachelor's Degree in Applied Languages for European Studies & Geopolitics
-   Universidade Aberta de Portugal
-   14/09/2026 – 31/08/2029 | Distance Learning, Portugal | EQF Level 6
+2. Universidad Latinoamericana de Ciencia y Tecnología (ULACIT) — Bachelor's
+   Degree in Computer Science Engineering
+   Jan 2020 – Dec 2026 | San José, Costa Rica | EQF level 6 | Grade 73.91/100
+   Documented: Certification of completion of the study plan, issued by the
+   ULACIT Registry Department on 20 February 2026.
+   Status: degree certificate pending — graduation paperwork in progress.
 
-3. Bachelor's Degree in Business Administration
-   Universidad Nacional de Costa Rica (UNA)
-   2019 – 2021 | Heredia, Costa Rica | EQF Level 6
+3. Instituto Politécnico de Bragança — Erasmus+ exchange programme, web
+   application development and Portuguese language and culture
+   Sep 2023 – May 2024 | Bragança, Portugal | EQF level 6
+   Status: mobility certificate not yet uploaded.
+
+4. Universidad Nacional de Costa Rica (UNA) — Bachelor's Degree in Business
+   Administration and Management
+   Jan 2019 – Dec 2021 | Heredia, Costa Rica | EQF level 6
+   Status: INCOMPLETE; diploma level obtained. Document not yet uploaded.
+
+5. Centro Educativo Santa Inés — Costa Rican Upper Secondary Education Diploma
+   Feb 2014 – Dec 2018 | Heredia, Costa Rica | Grade 87/100
+   Documented: official diploma issued by the Ministry of Public Education of
+   Costa Rica.
+
+6. Instituto de Enseñanza General Básica San Francisco de Asís — Primary education
+   Feb 2008 – Dec 2013 | Heredia, Costa Rica | Grade 85/100
+
+LICENCES & CERTIFICATIONS:
+- Google Data Analytics Professional Certificate — Google / Coursera.
+  Issued October 2025, no expiry. Credential ID ZI89ORJ94EUY.
+  Eight-course programme covering data collection, cleaning, processing, analysis
+  and visualisation, with spreadsheets, SQL, R, Google BigQuery and Tableau.
+- TOEIC® Listening and Reading Test — ETS, TOEIC Program.
+  Issued August 2025, expires August 2027. Credential ID 9907011115688.
 
 LANGUAGE SKILLS:
-- Spanish: Native (C2+)
-- English: B2 (Independent Professional / TOEIC Certified)
-- Portuguese: C1/B2 (Advanced / Fluent)
+Mother tongue: Spanish. Other languages self-assessed against the CEFR, as
+published on the page:
+- English: listening B2, reading B2, spoken production B1, spoken interaction B1,
+  writing B2.
+- Portuguese: listening C1, reading B2, spoken production B1, spoken interaction
+  B1, writing B2.
 
-CERTIFICATIONS & MOBILITY:
-- Google Data Analytics Professional Certificate (Google / Coursera, 26/10/2025)
-- TOEIC® Listening and Reading Certification (ETS Global, 23/08/2025)
-- Driving Licence: Category B (Available for Remote, Hybrid, On-site, and Relocation)
+SKILLS AS GROUPED ON THE PAGE:
+- Front-end (2 years): React, Next.js 16, Vite, JavaScript (ES6+), HTML5, CSS3,
+  Responsive Design, Design Systems.
+- Back-end & Cloud (1 year): Node.js, Python, Firebase, Cloudflare Workers,
+  RESTful APIs, Firestore DB, Serverless.
+- Security, performance & SEO (1 year): CSP, HSTS, Firestore Security Rules,
+  Core Web Vitals, WCAG 2.1 AAA, Technical SEO.
+- Data (1 year): data analysis & visualisation, SQL, Google BigQuery, R, Python
+  data processing.
+- Tooling (2 years): Git, GitHub, Antigravity SDK, Claude, Codex, LLM integration.
 
 --- CONTACT PAGE ---
 URL: https://elysiumdr.eu/contact
 
 Title: Contact — Elysium λ Development & Research
+Heading: Initiate Dialogue
 Email: info@elysiumdr.eu
-WhatsApp: +351 934086075
-Location: Bragança, Portugal, European Union
-Service area: Portugal, Spain, Costa Rica, European Union, Ibero-America
+Phone Portugal: +351 934 086 075
+Phone Costa Rica: +506 6260 7300
+Office: Portugal, European Union
+Operating across: Costa Rica, the European Union, all the Americas
+Enquiry form options: Presence, Infrastructure, Ecosystem, Hosting, Research, Other
+Stated response time: within 24 hours.
 
-
---- TERMS AND CONDITIONS ---
+--- TERMS OF SERVICE ---
 URL: https://elysiumdr.eu/terms
+Last updated: August 2026
 
-λ
+1. Identification of the service provider — Elysium λ Development & Research;
+   legal representative Daniel Alonso Morales Ávila; NIF/VAT 321979257PT;
+   registered address Bragança, Portugal, European Union; info@elysiumdr.eu.
+2. Scope of services — software engineering, web development, system architecture,
+   digital research and related technical consulting, delivered under the
+   subscription model published on the Services page. Depending on the plan
+   contracted this may include website development, domain, email and hosting,
+   GDPR compliance and legal notices, a public agenda with automatic reminders,
+   client records, a private client area with login and history, an administrator
+   CRM, online payments and session packs, and occupancy and no-show reporting.
+3. Right of withdrawal — cooling-off period (EU): under Directive 2011/83/EU,
+   consumers resident in the European Union may withdraw from a distance contract
+   within 14 calendar days, without giving a reason, by writing to
+   info@elysiumdr.eu. It does not apply to services fully performed with prior
+   express consent, or to custom digital content delivered and accepted.
+4. Data protection & privacy — governed by the Privacy Policy, incorporated by
+   reference. Compliance with the GDPR (EU 2016/679), Law No. 8968 (Costa Rica,
+   supervised by PRODHAB) and Law No. 58/2019 (Portugal). Sensitive data,
+   including health information, only on explicit documented consent.
+5. Intellectual property — all content, code, designs and materials remain the
+   exclusive intellectual property of the company unless transferred in writing.
+6. Limitation of liability — no liability for indirect, incidental or
+   consequential damages; maximum aggregate liability limited to amounts paid for
+   the specific service in the 12 months preceding the event.
+7. Tax obligations — prices exclude applicable taxes unless stated. Portuguese
+   clients are subject to VAT under the CIVA; certain health-related professional
+   services may qualify for exemption under Art. 9 CIVA.
+8. Dispute resolution — amicable resolution via info@elysiumdr.eu; otherwise the
+   European Commission's Online Dispute Resolution platform,
+   https://ec.europa.eu/consumers/odr. Designated ODR email: info@elysiumdr.eu.
+9. Governing law & jurisdiction — the laws of Portugal and the European Union;
+   competent courts of Bragança, Portugal, without prejudice to mandatory consumer
+   protection provisions in the user's country of residence.
+10. Infrastructure & security certifications — hosted on Google Cloud / Firebase:
+    ISO/IEC 27001, 27017, 27018; SOC 1, SOC 2, SOC 3; PCI-DSS compatibility and
+    HIPAA-eligible services. The platform implements HSTS, CSP Level 3 and
+    HMAC-SHA256 token signing.
+11. Amendments — the terms may be updated at any time; the "Last Updated" date
+    reflects the most recent revision.
 
-Terms of Service
-
-Last Updated: February 2026
-
-1. Identification of the Service Provider
-
-These Terms of Service govern the contractual relationship between the user and:
-
-                    - Legal Entity: Elysium λ Development & Research
-
-                    - Legal Representative: Daniel Alonso Morales Ávila
-
-                    - NIF / VAT: 321979257PT
-
-                    - Registered Address: Bragança, Portugal, European Union
-
-                    - Contact: info@elysiumdr.eu
-
-By accessing or using this website, you agree to be bound by these Terms and acknowledge responsibility for compliance with applicable local and international laws.
-
-2. Scope of Services
-
-Elysium λ Development & Research provides professional services in the fields of software engineering, web development, system architecture, digital research, and related technical consulting. Specific deliverables, deadlines, and pricing are governed by individual service agreements or project proposals issued separately.
-
-3. Right of Withdrawal — Cooling-Off Period (EU)
-
-In accordance with Directive 2011/83/EU on consumer rights, consumers who are residents of the European Union have the right to withdraw from a distance contract within 14 calendar days from the date the contract is concluded, without providing any reason.
-
-To exercise this right, notify us in writing at info@elysiumdr.eu before the 14-day period expires. This right does not apply to services that have been fully performed with your prior express consent, or to custom digital content delivered and accepted by you.
-
-4. Data Protection & Privacy
-
-The processing of your personal data is governed by our Privacy Policy, which is incorporated by reference into these Terms. We comply with:
-
-                    - GDPR (EU 2016/679) — for users residing in the European Union and European Economic Area.
-
-                    - Law No. 8968 (Costa Rica) — Ley de Protección de la Persona frente al Tratamiento de sus Datos Personales, supervised by PRODHAB.
-
-                    - Law No. 58/2019 (Portugal) — domestic implementation of the GDPR.
-
-Sensitive data (including health-related information, where applicable) will only be processed upon obtaining your explicit, documented consent as required by Art. 9 GDPR and Art. 9 of Law 8968.
-
-5. Intellectual Property
-
-All content, code, designs, and materials produced by Elysium λ Development & Research and published on this website remain the exclusive intellectual property of the company unless explicitly transferred in writing via a client agreement. Temporary access to materials for personal, non-commercial viewing is granted under these Terms but does not constitute assignment of any intellectual property rights.
-
-6. Limitation of Liability
-
-To the maximum extent permitted by applicable law, Elysium λ Development & Research shall not be liable for indirect, incidental, or consequential damages arising from the use of this website or our services. Our maximum aggregate liability is limited to the amounts paid by you for the specific service giving rise to the claim in the 12 months preceding the event.
-
-7. Tax Obligations
-
-Fees quoted by Elysium λ Development & Research are exclusive of applicable taxes unless otherwise stated. For clients in Portugal, services are subject to the applicable VAT rate under CIVA (Código do IVA). Certain health-related professional services may qualify for VAT exemption under Art. 9 CIVA where legally applicable. Tax invoices will be issued according to Portuguese fiscal law.
-
-8. Dispute Resolution
-
-In the event of a dispute, we encourage amicable resolution via direct contact at info@elysiumdr.eu. If no resolution is reached, consumers in the European Union may use the European Commission's Online Dispute Resolution (ODR) platform:
-
-https://ec.europa.eu/consumers/odr
-
-Our designated email for ODR purposes is info@elysiumdr.eu.
-
-9. Governing Law & Jurisdiction
-
-These Terms are governed by the laws of Portugal and the European Union. In the absence of amicable resolution, disputes shall be submitted to the competent courts of Bragança, Portugal, without prejudice to any mandatory consumer protection provisions applicable in the user's country of residence.
-
-10. Infrastructure & Security Certifications
-
-Our services are hosted on Google Cloud / Firebase infrastructure, which holds the following internationally recognised certifications inherited by our platform:
-
-                    - ISO/IEC 27001, 27017, 27018 — Information Security Management and Cloud Security.
-
-                    - SOC 1, SOC 2, SOC 3 — System and Organisation Controls.
-
-                    - PCI-DSS compatibility and HIPAA-eligible services.
-
-Our platform also implements HSTS, Content Security Policy (CSP) Level 3, and HMAC-SHA256 cryptographic token signing as technical security measures.
-
-11. Amendments
-
-We reserve the right to update these Terms at any time. The "Last Updated" date at the top of this page will reflect the most recent revision. Continued use of our services after any modification constitutes acceptance of the updated Terms.
+NOTE ON LOCALISATION: the right of withdrawal is localised per market. The English
+and Portuguese versions apply Directive 2011/83/EU with 14 days (the Portuguese
+version also cites its transposition, Decreto-Lei n.º 24/2014). The Spanish
+version applies Costa Rica's Law No. 7472 with 8 working days and the MEIC
+e-commerce provisions.
 
 --- PRIVACY POLICY ---
 URL: https://elysiumdr.eu/privacy
-
-λ
-
-Privacy Policy
-
-Last Updated: July 2026
-
-1. Identity and Contact Information of the Data Controller
-
-The data controller for your personal information is:
-
-                    - Full Legal Name: Elysium λ Development & Research
-
-                    - Legal Representative: Daniel Alonso Morales Ávila
-
-                    - NIF / VAT: 321979257PT
-
-                    - Registered Address: Bragança, Portugal, European Union
-
-                    - Email for Privacy Enquiries: info@elysiumdr.eu
-
-2. Information We Collect and Purpose
-
-We only collect personal information that you provide voluntarily through our digital channels:
-
-                    - Contact & Onboarding Forms: Full name, professional email address, company name, website, and project-specific details.
-
-                    - Purpose: To manage your inquiries, provide requested technical information, and execute pre-contractual or contractual measures necessary to initiate our professional services.
-
-3. Sensitive Data — Health Information (Art. 9 GDPR / Art. 9 Law 8968)
-
-Where our services involve health-related or clinically sensitive data (e.g., physical assessments, medical history), this constitutes special category data under Art. 9 of the GDPR (EU 2016/679) and sensitive personal data under Art. 9 of Costa Rica's Law No. 8968.
-
-Such data will only be processed upon your explicit, documented consent (recorded as consentHealthData: true in our system). You may withdraw this consent at any time. Processing without consent is strictly prohibited.
-
-4. Legal Basis for Processing
-
-We process your data based on the following legal foundations:
-
-                    - Explicit Consent: When you voluntarily complete our forms and check the explicit acceptance box, or specifically authorise health data processing.
-
-                    - Pre-contractual measures: When your request involves the preparation of a budget, quote, or technical assessment.
-
-                    - Legitimate Interest: To maintain the security, integrity, and optimal functioning of our internal systems and digital delivery infrastructure.
-
-                    - Legal Obligation: To comply with applicable fiscal, regulatory, and security obligations in Portugal (EU) and Costa Rica.
-
-5. Data Retention & Automated Purging
-
-We retain your personal data only for as long as necessary to fulfill the purposes for which it was collected, or to comply with applicable legal, tax, or regulatory obligations. Our automated retention policy operates as follows:
-
-                    - Health & clinical data: Anonymised after 5 years of inactivity.
-
-                    - Fiscal & user profile data: Fully anonymised and purged from authentication systems after 10 years of inactivity, in line with European fiscal obligations and Costa Rica's Law 8968.
-
-Automated purging is executed via scheduled backend tasks to ensure compliance without manual intervention.
-
-6. Your Comprehensive Rights
-
-Consistent with the GDPR (EU), Law No. 58/2019 (Portugal), and Law No. 8968 (Costa Rica / PRODHAB), you possess the following rights which may be exercised free of charge:
-
-                    - Access: To obtain confirmation on whether your data is being processed and access it.
-
-                    - Rectification: To correct inaccurate or incomplete data.
-
-                    - Erasure (Right to be Forgotten): To request the deletion of data when it is no longer necessary.
-
-                    - Restriction of Processing: To limit how your data is used under specific circumstances.
-
-                    - Data Portability: To receive your data in a structured, electronic format.
-
-                    - Objection: To oppose processing for specific reasons or marketing purposes.
-
-                    - Withdrawal of Consent: You may withdraw your consent at any time without affecting the lawfulness of prior processing.
-
-To exercise these rights, please send an explicit request to info@elysiumdr.eu.
-
-7. Recipients and Third Parties
-
-We do not sell or trade your data. We share information only with essential service providers who act as processors under our strict instructions:
-
-                    - Hosting & Backend: Firebase (Google Cloud), with servers primarily in the EU.
-
-                    - Communication: Corporate email and secure CRM systems used strictly for project management.
-
-8. International Data Transfers
-
-When using global infrastructure like Google Cloud, data may occasionally be transferred to regions outside the European Economic Area (EEA). We ensure these transfers are covered by Standard Contractual Clauses (SCCs) approved by the European Commission (Art. 46 GDPR), guaranteeing a level of protection equivalent to the GDPR.
-
-For Costa Rica users, cross-border transfers comply with Law No. 8968, which requires that recipient systems guarantee adequate levels of security and confidentiality — a condition met by Google Cloud's internationally certified infrastructure.
-
-9. Technical Security Measures
-
-We implement robust technical and organisational security measures, including:
-
-                    - HSTS (Strict-Transport-Security): Forces exclusive HTTPS connections for one year, protecting against man-in-the-middle (MitM) attacks.
-
-                    - Content Security Policy (CSP) Level 3: Strict directives blocking unauthorised script and style injection (XSS).
-
-                    - X-Frame-Options / frame-ancestors: Mitigates Clickjacking attacks.
-
-                    - Permissions-Policy: Restricts browser access to camera, microphone, and geolocation.
-
-                    - HMAC-SHA256 Cryptographic Signing: Used for token integrity verification, preventing tampering.
-
-                    - Role-Based Access Control (RBAC): Enforced at database level via Firestore security rules — only authenticated data owners can access their own records.
-
-                    - User Enumeration Protection: Sensitive endpoints return generic responses to prevent user account discovery.
-
-                    - Constant-Time Comparison: Token verification uses timing-safe equality to prevent timing-based information leakage.
-
-                    - Secret Manager: All credentials and cryptographic secrets are stored in Google Cloud Secret Manager — never in source code.
-
-10. Infrastructure Certifications
-
-Our platform is hosted on Google Cloud / Firebase infrastructure. Although Elysium λ Development & Research does not hold private audit certifications (standard for independent professional businesses), our platform inherits the following Google Cloud certifications:
-
-                    - ISO/IEC 27001, 27017, 27018 — Information Security Management and Cloud Security.
-
-                    - SOC 1, SOC 2, SOC 3 — System and Organisation Controls.
-
-                    - PCI-DSS compatibility and HIPAA-eligible services (de facto reference standard for private clinics in Costa Rica selecting cloud providers).
-
-11. Cookies and Tracking
-
-Our website utilises only essential and technical cookies required for navigation and basic security. We do not employ third-party tracking, profiling, or behavioral advertising cookies without your explicit, opt-in consent, in compliance with the ePrivacy Directive (2002/58/EC) and the principles of Law No. 8968 (Costa Rica).
-
-12. Mandatory Nature of Information
-
-Fields marked with an asterisk (*) in our forms are strictly mandatory to process your request. Failure to provide this minimum information will prevent us from establishing contact or delivering the requested services.
-
-13. Right to Lodge a Complaint
-
-If you believe your data has been handled improperly, you have the right to claim before the competent supervisory authorities:
-
-                    - Portugal (EU): Comissão Nacional de Proteção de Dados (CNPD) — www.cnpd.pt
-
-                    - Costa Rica: Agencia de Protección de Datos de los Habitantes (PRODHAB) — www.prodhab.go.cr
+Last updated: July 2026 (English and Spanish); August 2026 (Portuguese, published
+later with the same content)
+
+1. Data controller — Elysium λ Development & Research; legal representative
+   Daniel Alonso Morales Ávila; NIF/VAT 321979257PT; Bragança, Portugal, European
+   Union; privacy enquiries to info@elysiumdr.eu.
+2. Information collected and purpose — only data provided voluntarily through
+   contact and onboarding forms: full name, professional email, company name,
+   website and project details. Purpose: manage enquiries, provide technical
+   information and execute pre-contractual or contractual measures.
+3. Sensitive data — health information: where services involve health-related or
+   clinically sensitive data, this is special category data under Art. 9 GDPR and
+   sensitive personal data under Art. 9 of Law No. 8968. Processed only on
+   explicit documented consent, recorded as consentHealthData: true, revocable at
+   any time. Processing without consent is strictly prohibited.
+4. Legal basis — explicit consent; pre-contractual measures; legitimate interest
+   in the security and integrity of internal systems; legal obligation in
+   Portugal (EU) and Costa Rica.
+5. Retention and automated purging — health and clinical data anonymised after
+   5 years of inactivity; fiscal and user profile data anonymised and purged from
+   authentication systems after 10 years of inactivity. Purging runs as scheduled
+   backend tasks.
+6. Rights — access, rectification, erasure, restriction, portability, objection
+   and withdrawal of consent, exercised free of charge via info@elysiumdr.eu,
+   under the GDPR, Law No. 58/2019 (Portugal) and Law No. 8968 (Costa Rica /
+   PRODHAB).
+7. Recipients and third parties — data is never sold or traded. Processors:
+   Firebase (Google Cloud), servers primarily in the EU; corporate email and
+   secure CRM systems for project management.
+8. International transfers — transfers outside the EEA are covered by Standard
+   Contractual Clauses approved by the European Commission (Art. 46 GDPR). For
+   Costa Rica, transfers comply with Law No. 8968.
+9. Technical security measures — HSTS for one year; Content Security Policy
+   Level 3; X-Frame-Options / frame-ancestors; Permissions-Policy restricting
+   camera, microphone and geolocation; HMAC-SHA256 cryptographic signing;
+   role-based access control enforced by Firestore security rules; user
+   enumeration protection; constant-time comparison for token verification;
+   credentials stored in Google Cloud Secret Manager, never in source code.
+10. Infrastructure certifications — Elysium λ Development & Research does NOT hold
+    private audit certifications; the platform inherits Google Cloud's:
+    ISO/IEC 27001, 27017, 27018; SOC 1, SOC 2, SOC 3; PCI-DSS compatibility and
+    HIPAA-eligible services.
+11. Cookies and tracking — only essential and technical cookies. No third-party
+    tracking, profiling or behavioural advertising cookies without explicit
+    opt-in consent, per the ePrivacy Directive (2002/58/EC) and Law No. 8968.
+12. Mandatory nature of information — fields marked with an asterisk are required.
+13. Right to lodge a complaint — Portugal (EU): Comissão Nacional de Proteção de
+    Dados (CNPD), www.cnpd.pt. Costa Rica: Agencia de Protección de Datos de los
+    Habitantes (PRODHAB), www.prodhab.go.cr.
 
 --- SYSTEM & SECURITY INFORMATION ---
-URL: Footer Modal (version-modal.js)
+URL: footer modal, available on every page (version-modal.js)
 
 SYSTEM INFORMATION:
 Software Specifications:
-- Interface Version: V1.6.5
+- Interface Version: V1.7.0
 - Product Licence: ELY-EC03-ANL9-321979257
 
 Security & Compliance:
@@ -606,7 +631,8 @@ Corporate Information:
 
 Software Attributions:
 - Icon Ecosystem: Lucide Icons v0.460.0
-- Cloud Certifications: ISO 27001 · SOC 2/3 · PCI-DSS · Firebase
+- Cloud Certifications: ISO 27001 · SOC 2/3 · PCI-DSS · Firebase (inherited from
+  the Google Cloud / Firebase infrastructure; see the Privacy Policy, section 10)
 
 ================================================================================
 PART 2 — ESPAÑOL (ES)
@@ -616,17 +642,20 @@ PART 2 — ESPAÑOL (ES)
 URL: https://elysiumdr.eu/es/
 
 Título: Elysium λ Development & Research
-Titular: Infraestructura Digital para pymes: Sin Costes de Desarrollo
+Titular: Infraestructura Digital para pequeñas empresas y emprendedores: Sin
+Costes de Desarrollo
 
 Descripción:
-Infraestructura digital por suscripción para pymes: sistemas cloud, CRM a medida,
-ciberseguridad e I+D aplicada en la UE y Costa Rica, sin costes de desarrollo.
+Infraestructura digital por suscripción para startups y microempresas: sistemas
+cloud, CRM a medida, ciberseguridad e I+D aplicada en la UE y Costa Rica, sin
+costes de desarrollo.
 
 PERFIL DE LA ORGANIZACIÓN:
 Elysium λ Development & Research es una empresa europea de infraestructura
 digital y un laboratorio independiente de ingeniería de software, consultoría
-informática e I+D. Fue fundada en enero de 2026, está establecida en Portugal
-y opera en Costa Rica. Atiende a pymes de la Unión Europea y Costa Rica.
+informática e I+D aplicada. Fue fundada en enero de 2026, está establecida en
+Portugal y opera en Costa Rica. Atiende a micro y pequeñas empresas,
+emprendedores y startups de la Unión Europea y Costa Rica.
 
 MODELO OPERATIVO:
 La infraestructura digital está incluida en una suscripción mensual. Elysium
@@ -658,12 +687,20 @@ en la nube, el software de gestión y la seguridad evolucionen con cada negocio.
    - Cumplimiento con el RGPD, la Ley N.º 8968 de Costa Rica y la normativa local.
 
 OPCIONES DE SUSCRIPCIÓN MOSTRADAS EN INICIO:
-- Presencia: 70 EUR/mes o 700 EUR/año.
-- Sistema: 99 EUR/mes o 990 EUR/año.
-- Operación: 120 EUR/mes o 1.200 EUR/año.
-- Mantenimiento de Hosting independiente: 99 EUR/año.
-La facturación anual equivale a dos meses gratis.
-Consulta https://elysiumdr.eu/es/services para el alcance y condiciones.
+- Presence: 70 EUR/mes o 700 EUR/año.
+- Infrastructure: 99 EUR/mes o 990 EUR/año.
+- Ecosystem: 120 EUR/mes o 1.200 EUR/año (marcado como "Más Popular").
+- Hosting (servicio independiente): 99 EUR/año, facturación anual.
+La facturación anual equivale a dos meses gratis. Los precios se muestran en EUR
+y se convierten a USD y CRC en tiempo real.
+La portada usa los nombres de plan en inglés; la página de servicios en español
+los traduce como Alojamiento, Presencia, Infraestructura y Ecosistema.
+Consulta https://elysiumdr.eu/es/services para el alcance y las condiciones.
+
+HERRAMIENTAS MOSTRADAS EN LA PORTADA:
+Antigravity, GitHub, HTML5, CSS3, JavaScript, Cloudflare, IONOS, Python,
+Firebase, Git, NPM, Node.js, cPanel.
+
 FRAMEWORK DE DESARROLLO λ — METODOLOGÍA CIENTÍFICA:
 1. Entorno Operativo Actual — analizar flujos de datos, procesos diarios y sector.
 2. Estado del Arte y Limitaciones — documentar la infraestructura existente.
@@ -677,33 +714,37 @@ FRAMEWORK DE DESARROLLO λ — METODOLOGÍA CIENTÍFICA:
 10. Entrega y Capacitación — lanzar, sincronizar datos y formar al equipo.
 
 INVESTIGACIÓN Y DESARROLLO:
-Elysium λ opera como laboratorio independiente de ingeniería de software y
-consultoría informática desde la Unión Europea y Costa Rica. Combina pensamiento
-científico, diseño ergonómico y experimentación continua para resolver
-ineficiencias estructurales y democratizar el acceso a ingeniería de alto nivel.
+Elysium λ Development & Research opera como laboratorio independiente de
+ingeniería, investigación y consultoría informática desde la Unión Europea y
+Costa Rica. Combina pensamiento científico, diseño ergonómico y experimentación
+continua para resolver ineficiencias estructurales y democratizar el acceso a
+infraestructura digital de alto nivel para pequeñas empresas y emprendedores.
 
 Declaración de misión: democratizar el acceso a la infraestructura digital,
-dotando a las pymes de ecosistemas tecnológicos accesibles que automaticen sus
-procesos y garanticen su escalabilidad.
+dotando a las pequeñas empresas y a los emprendedores de ecosistemas
+tecnológicos accesibles que automatizan sus procesos y garantizan su
+escalabilidad.
 
 EQUIPO Y TESTIMONIO ACTUAL:
 - Desarrollador: Daniel Alonso Morales Ávila, Fundador e Ingeniero Informático.
-- Testimonio destacado: Paulo Morais, fundador de Consciênciavaliativa —
-  Unipessoal Lda, describe mejoras en comunicación, visibilidad y captación de
-  clientes tras el proyecto. Reseña completa:
+- Testimonio destacado: Paulo Morais, osteópata y entrenador especialista,
+  fundador de Consciênciavaliativa — Unipessoal Lda. Describe las dificultades
+  previas para comunicar su oferta y llegar a su público, que limitaban la
+  visibilidad de su trabajo y la captación de clientes. Reseña completa:
   https://elysiumdr.eu/es/review-pmorais
 
 Contacto: info@elysiumdr.eu
-Teléfono/WhatsApp: +351 934086075
-Redes: @elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
-https://www.linkedin.com/company/elysiumdr (LinkedIn)
+Teléfono Portugal: +351 934 086 075 | Teléfono Costa Rica: +506 6260 7300
+Redes: https://www.linkedin.com/company/elysiumdr (LinkedIn) |
+@elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
+WhatsApp +351 934 086 075 | @elysium.dr (TikTok)
 
 --- PÁGINA DE SERVICIOS ---
 URL: https://elysiumdr.eu/es/services
 
 Título: Servicios — Elysium λ Development & Research
-Descripción: Desarrollo web profesional, diseño, mantenimiento y soporte para
-PYMEs — precios flexibles y transparentes. Portugal, Unión Europea.
+Descripción: Cero Costos de Desarrollo: Infraestructura digital de alto
+rendimiento incluida en su suscripción mensual.
 
 INFRAESTRUCTURA DIGITAL DE NIVEL EMPRESARIAL
 
@@ -713,34 +754,83 @@ No pagas el desarrollo del sitio web — cada cuota mensual es una inversión en
 un ecosistema que evoluciona con tu negocio, garantizando máximo rendimiento,
 seguridad operativa y alta retención de clientes.
 
-PLANES DE SUSCRIPCIÓN:
+Hay cuatro escalones. Alojamiento es solo infraestructura; Presencia,
+Infraestructura y Ecosistema son acumulativos: cada uno incluye todo lo del
+anterior.
 
-1. Alojamiento — €99/año (solo infraestructura)
+1. Alojamiento — 99 EUR/año (solo infraestructura)
+   - Dominio, correo y alojamiento para una web ya existente.
    - Gestión del dominio e identidad digital de marca.
    - Alojamiento web en servidores de alta disponibilidad (siempre en línea).
    - Mantenimiento y actualizaciones de infraestructura base.
-   - El desarrollo de la web no está incluido.
+   - El desarrollo de la web NO está incluido.
+   - Para webs que necesitan mantenimiento y soporte continuo.
 
-2. Presencia — €70/mes o €700/año
-   - Web, dominio, correo y alojamiento.
-   - Agenda pública con recordatorios automáticos, que es lo que elimina las ausencias.
-   - Ficha de cliente.
+2. Presencia — 70 EUR/mes o 700 EUR/año
+   - Todo lo de Alojamiento.
+   - Desarrollo de la web.
    - Cumplimiento del RGPD y avisos legales al día.
-   - Una hora de cambios al mes.
+   - Paquete técnico base: página de carga, cabecera mobile-first, scroll reveal,
+     anchor glide, sistema de información, ajustes del sistema, actualización del
+     sistema, núcleo de seguridad, gestión de cookies, magic bottom, firma
+     Elysium, efectos de temporada, URLs limpias, discovery core y SEO.
+   - Para negocios que aún no tienen presencia digital.
+   - AVISO: la agenda, la ficha de cliente, el área privada, el CRM y los cobros
+     NO están en este plan; pertenecen a Ecosistema.
 
-3. Sistema — €99/mes o €990/año
-   - Todo lo del plan Presencia.
-   - Área privada donde cada cliente accede y consulta su propio historial.
+3. Infraestructura — 99 EUR/mes o 990 EUR/año
+   - Todo lo de Presencia.
+   - Estructura multi-idioma.
+   - Modo claro y oscuro inteligente.
+   - Además: magic mouse, sonido del sistema, tema dinámico, conmutador de tema
+     y multi-idioma.
+   - Para empresas con una web obsoleta.
+
+4. Ecosistema — 120 EUR/mes o 1.200 EUR/año (Más Popular)
+   - Todo lo de Infraestructura.
+   - Conversión de divisas en tiempo real.
+   - Web instalable como aplicación.
+   - Agenda pública con recordatorios automáticos.
+   - Ficha de cliente.
+   - Área privada del cliente con acceso e historial.
    - CRM del administrador.
-   - Gestión de disponibilidad y cancelaciones.
-   - Hasta 3 profesionales. Dos horas de cambios al mes.
-
-4. Operación — €120/mes o €1.200/año
-   - Todo lo del plan Sistema.
-   - Cobro online y bonos de sesiones con saldo.
+   - Cobro online y bonos de sesiones.
    - Informes de ocupación y ausencias.
-   - Software a medida que escala junto con el crecimiento del negocio.
-   - Profesionales ilimitados. Cuatro horas de cambios al mes.
+   - Además: multi-divisa, descargador de la app web, CRM personalizado, reservas
+     inteligentes, fichas de cliente, cobros online e informes de ocupación.
+   - Para negocios que quieren captación de clientes y un CRM.
+
+La página remite además a institutos de investigación y a la investigación
+independiente a https://elysiumdr.eu/es/research, sin plan de suscripción.
+
+TRANSPARENCIA Y LICENCIAS:
+- Coste Cero de Desarrollo: Elysium asume el 100 % de la ingeniería inicial. La
+  suscripción garantiza que el sistema evoluciona sin quedar obsoleto.
+- Propiedad del Código (PI): el código fuente es propiedad intelectual de
+  Elysium λ Development & Research. El cliente adquiere una licencia de uso
+  completa vinculada a su suscripción activa.
+- Ciclo de vida: si se interrumpe la suscripción, el sistema y su soporte quedan
+  suspendidos automáticamente para proteger la infraestructura.
+- Valoración y transferencia: se ofrecen auditorías para la compra del código si
+  el modelo del cliente lo exige. Tras la compra sigue siendo obligatorio
+  mantener el soporte base (Alojamiento).
+
+--- PÁGINA DE PORTAFOLIO ---
+URL: https://elysiumdr.eu/es/portfolio
+
+Cuatro proyectos, los mismos que en la versión inglesa:
+- Paulo Morais (Portugal) — https://pmorais.pt
+  Caso: https://elysiumdr.eu/es/case-pmorais
+  Prototipo: https://elysiumdr.eu/es/prototype-pmorais
+  Reseña: https://elysiumdr.eu/es/review-pmorais
+- VALTRIX Engineering (Costa Rica) — https://elysiumdr.eu/VALTRIX%20Engineering/
+  Caso: https://elysiumdr.eu/es/case-valtrix
+  Prototipo: https://elysiumdr.eu/es/prototype-valtrix
+- Moyra (Costa Rica) — https://moyracr.com
+  Caso: https://elysiumdr.eu/es/case-moyra
+  Prototipo: https://elysiumdr.eu/es/prototype-moyra
+- Pura Vida Pets (Costa Rica) — https://puravidapetscr.com
+  Sin caso de estudio ni reseña en elysiumdr.eu.
 
 --- PÁGINA DE INVESTIGACIÓN ---
 URL: https://elysiumdr.eu/es/research
@@ -748,8 +838,8 @@ URL: https://elysiumdr.eu/es/research
 Título: Investigación — Elysium λ Development & Research
 
 LÍNEAS DE INVESTIGACIÓN APLICADA:
-Elysium λ explora la Interacción Humano-Computadora (HCI), la Ciencia de
-Datos y las Infraestructuras Digitales mediante tres líneas actuales:
+Elysium λ Development & Research explora la Interacción Humano-Computadora
+(HCI), la Ciencia de Datos y las Infraestructuras Digitales mediante tres líneas:
 
 1. Interfaces Intuitivas
    Sistemas de gestión diseñados para reducir la carga mental de los usuarios.
@@ -763,27 +853,28 @@ Datos y las Infraestructuras Digitales mediante tres líneas actuales:
 
 PROYECTOS DE INVESTIGACIÓN ACTIVOS:
 
-1. Ontología para la inclusión digital y acceso a servicios en entornos rurales
+1. Ontología para la inclusión digital y el acceso a servicios en entornos
+   rurales
    Autor: Daniel A. Morales Ávila | Año: 2026 | Estado: Estudio Piloto
+   URL: https://elysiumdr.eu/es/research/ontology-research
    Pregunta: cómo un enfoque basado en ontologías y un recomendador de reglas
    más aprendizaje automático puede mejorar la localización y priorización de
    recursos de inclusión digital y servicios esenciales en contextos rurales,
    minimizando sesgo, exclusión y opacidad y maximizando la utilidad social.
-   Objetivo: diseñar y evaluar un prototipo reproducible de knowledge graph y
-   recomendación con evaluación ética y de utilidad social.
-   URL: https://elysiumdr.eu/es/research/ontology-research
+   Objetivo: diseñar y evaluar un prototipo reproducible de grafo de conocimiento
+   y recomendación, con un marco explícito de evaluación ética y utilidad social.
 
-2. Inteligencia para PYMES Basada en Datos: Aplicación del Aprendizaje
-   Automático para la Extracción de Conocimiento Operativo en Pequeñas y
-   Medianas Empresas
+2. Inteligencia para las Pequeñas Empresas y los Emprendedores Basada en Datos
    Autor: Daniel A. Morales Ávila | Año: 2026 | Estado: Fase de Concepto
-   Preguntas actuales: umbrales mínimos de volumen y calidad de datos; qué
-   métodos entre clasificación, clustering, detección de anomalías y series
-   temporales producen resultados más accionables e interpretables; y cómo las
-   explicaciones en lenguaje natural influyen en la confianza y adopción.
-   No hay resultados publicados todavía: las secciones de resumen, metodología,
-   observaciones, limitaciones y trabajo futuro están pendientes.
    URL: https://elysiumdr.eu/es/research/data-driven-sme-intelligence
+   Preguntas: umbrales mínimos de volumen y calidad de datos; qué métodos entre
+   clasificación supervisada, clustering, detección de anomalías y series
+   temporales producen resultados más accionables e interpretables; y en qué
+   medida las explicaciones en lenguaje natural aumentan la confianza y la
+   adopción de las recomendaciones.
+   El proyecto está en fase de concepto: se publican las preguntas de
+   investigación y la bibliografía, y el cuerpo de las secciones todavía no está
+   escrito. No hay resultados que reportar.
 
 --- SOBRE NOSOTROS ---
 URL: https://elysiumdr.eu/es/about
@@ -794,70 +885,127 @@ ETHOS:
 "Nuestro trabajo se guía por la convicción de que la infraestructura digital
 debe ser accesible, transparente y centrada en I+D."
 
-Misión:
-Democratizar el acceso a la infraestructura digital, dotando a las pymes de
-ecosistemas tecnológicos accesibles que automaticen sus procesos y garanticen
-su escalabilidad. La misión es brindar a las pequeñas y medianas empresas una
-infraestructura que evolucione con sus negocios.
+MISIÓN:
+Democratizar el acceso a la infraestructura digital, dotando a las pequeñas
+empresas y a los emprendedores de ecosistemas tecnológicos accesibles que
+automatizan sus procesos y garantizan su escalabilidad. Nuestra misión es
+brindar a las micro y pequeñas empresas, emprendedores y startups la oportunidad
+de tener una infraestructura que evoluciona con sus negocios.
 
-Visión:
-Ser el Elysium λ Institute of Development & Research, dedicado al estudio,
-desarrollo y aplicación de infraestructuras digitales y a la formación de nuevas
-generaciones de científicos y desarrolladores. Elysium λ aspira a contribuir a
-una Unión Europea digital y a una Costa Rica que avanza hacia la modernidad.
+VISIÓN:
+Ser el Elysium λ Institute of Development & Research, un instituto dedicado al
+estudio, desarrollo y aplicación de Infraestructuras Digitales, así como a la
+formación de nuevas generaciones de científicos y desarrolladores. Nuestra visión
+es contribuir activamente a la construcción de una Unión Europea digital y a una
+Costa Rica que avanza hacia la modernidad.
 
 NUESTRA HISTORIA:
-Elysium λ fue fundada para trabajar de la mano con las pymes, impulsar su
-presencia digital y darles infraestructura que les permita escalar. Las pymes
-son la columna vertebral de las economías de la Unión Europea y Costa Rica,
-pero muchas quedan fuera de la transformación tecnológica por barreras de coste,
-complejidad y alfabetización digital. Elysium λ investiga y desarrolla
-infraestructuras para hacer la tecnología avanzada más accesible, transparente
-y confiable.
+Elysium λ Development & Research fue fundada con un propósito claro: trabajar de
+la mano con las micro y pequeñas empresas, emprendedores y startups para impulsar
+su presencia digital y otorgarles acceso a infraestructura que les permita
+escalar sus negocios.
+
+Las pequeñas empresas y emprendedores representan la columna vertebral de la
+economía de la Unión Europea y la costarricense. Sin embargo, muchas permanecen
+excluidas de los beneficios de la transformación tecnológica debido a barreras de
+complejidad, coste y alfabetización digital. Elysium λ busca investigar y
+desarrollar infraestructuras digitales que hagan que las tecnologías avanzadas
+sean más accesibles, transparentes y confiables para las micro y pequeñas
+empresas, emprendedores y startups que navegan por esta transformación.
 
 SIGNIFICADO DEL NOMBRE:
-- Elysium proviene del griego antiguo Ἠλύσιον, vinculado con la justicia, la
-  armonía y la hermandad. También remite al poema "An die Freude" (Oda a la
-  Alegría) de Friedrich Schiller, incorporado por Ludwig van Beethoven a su
-  Novena Sinfonía; su versión instrumental es el himno de la Unión Europea.
-- λ (lambda) es la undécima letra griega y la segunda de Ἠλύσιον. En este
-  proyecto representa la abstracción de ideas en sistemas ejecutables.
-- Elysium λ expresa la aspiración de contribuir a una Unión Europea cada vez
-  más unificada.
+- Elysium proviene del griego antiguo Ἠλύσιον: un lugar reservado para aquellas
+  almas virtuosas que promovieron la justicia, la armonía y la hermandad.
+  Elysium también aparece en el poema "An die Freude" (Oda a la Alegría) escrito
+  por el alemán Friedrich von Schiller en 1785. En 1824, Ludwig van Beethoven
+  incorporó este poema al cuarto movimiento de su Novena Sinfonía (Himno de la
+  Alegría), una obra que actualmente es el himno oficial de la Unión Europea.
+- El símbolo λ (lambda) es la undécima letra del alfabeto griego y la segunda
+  letra en la palabra Ἠλύσιον (Elysium). Representa la abstracción de ideas en
+  sistemas ejecutables.
+- Dentro del contexto europeo de este proyecto, Elysium λ simboliza la aspiración
+  de contribuir a una Unión Europea cada vez más unificada.
 
 DIRECCIÓN Y UBICACIÓN ACTUALES:
-Desde la infraestructura digital para pymes, Elysium λ pretende evolucionar
-hacia la investigación y la formación de desarrolladores científicos para un
-futuro digital europeo y costarricense centrado en I+D. Es una empresa europea
-establecida en Portugal, con operaciones en Costa Rica, que atiende a pymes de
-la Unión Europea y Costa Rica.
+Comenzando con infraestructura digital para pequeñas empresas y emprendedores,
+Elysium λ pretende evolucionar hacia la investigación y formación de
+desarrolladores científicos que apoyen un futuro digital europeo y costarricense
+enfocado en I+D. Es una empresa europea establecida en Portugal y con operaciones
+en Costa Rica, que atiende a micro y pequeñas empresas, emprendedores y startups
+en toda la Unión Europea y Costa Rica.
 
 ENTIDADES CERTIFICADORAS Y SOCIOS INSTITUCIONALES MOSTRADOS:
 ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
-Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
+Bragança (IPB); Autoridade Tributária; Made in EU; Libro de Reclamaciones; Google.
 
 --- DANIEL MORALES ---
 URL: https://elysiumdr.eu/es/daniel-morales
 
 Nombre completo: Daniel Alonso Morales Ávila
-Cargo: Fundador e Ingeniero Informático
-Nacionalidad: Costarricense | Residencia: Bragança, Portugal, Unión Europea
-Email: daniel.morales@elysiumdr.eu
-Teléfono: +351 934086075
+Cargo en la portada y en Nosotros: Fundador e Ingeniero Informático
+Cargo en la ficha: Desarrollador Web Full-Stack freelance
+Nacionalidad: costarricense | Residencia y permiso de trabajo: Portugal
+Dirección: Bragança, Portugal | NIF y NISS registrados en Portugal
+Email: daniel.morales@elysiumdr.eu | Teléfono: +351 934 086 075
+LinkedIn: https://www.linkedin.com/in/danielalonzzo/
+GitHub: https://github.com/danielalonzzo
 
-Sobre Daniel:
-Con una sólida comprensión tanto de la tecnología como del diseño centrado en
-las personas, Daniel se enfoca en transformar desafíos complejos en soluciones
-estructuradas y escalables. Como Fundador de Elysium λ Development & Research,
-lidera iniciativas en desarrollo web, consultoría técnica e investigación aplicada.
+El contenido íntegro de la ficha —experiencia, formación, certificaciones,
+idiomas y competencias— es el mismo que figura en la versión inglesa de esta
+página. Ver "DANIEL MORALES PAGE" en la Parte 1. Puntos que conviene no
+tergiversar: el título de Ingeniería Informática de ULACIT está en trámite (lo
+acreditado es la certificación de plan de estudios completo, de 20 de febrero de
+2026); la licenciatura de Administración de Empresas de la UNA está incompleta,
+con nivel de diplomado obtenido; y los niveles de idiomas son autoevaluados según
+el MCER, con producción e interacción oral en B1 tanto en inglés como en
+portugués.
 
 --- CONTACTO ---
 URL: https://elysiumdr.eu/es/contact
 
 Email: info@elysiumdr.eu
-WhatsApp: +351 934086075
-Ubicación: Bragança, Portugal, Unión Europea
-Área de servicio: Portugal, España, Costa Rica, Unión Europea, Iberoamérica
+Teléfono Portugal: +351 934 086 075
+Teléfono Costa Rica: +506 6260 7300
+Oficina: Portugal, Unión Europea
+Operando en: Costa Rica, la Unión Europea, todas las Américas
+Opciones del formulario: Presencia, Infraestructura, Ecosistema, Alojamiento,
+Investigación, Otros
+Tiempo de respuesta declarado: 24 horas.
+
+--- TÉRMINOS Y CONDICIONES ---
+URL: https://elysiumdr.eu/es/terms
+Última actualización: agosto 2026
+
+Once secciones, con el mismo contenido que la versión inglesa salvo el derecho
+de desistimiento, que está localizado para Costa Rica:
+1. Identificación del prestador de servicios (NIF 321979257PT, Bragança).
+2. Alcance de los servicios, incluido el catálogo de la suscripción.
+3. Derecho de retracto (Costa Rica — Ley N.º 7472): 8 días hábiles desde la
+   contratación o recepción del servicio, sin necesidad de invocar causa, según
+   la Ley de Promoción de la Competencia y Defensa Efectiva del Consumidor y las
+   disposiciones de comercio electrónico del MEIC. No aplica a servicios
+   completamente prestados con consentimiento expreso previo ni a contenido
+   digital personalizado entregado y aceptado.
+4. Protección de datos personales (RGPD, Ley 8968, Ley 58/2019).
+5. Propiedad intelectual.
+6. Limitación de responsabilidad (12 meses).
+7. Obligaciones tributarias (CIVA; art. 9 CIVA para servicios de salud).
+8. Resolución de conflictos (plataforma ODR de la Comisión Europea).
+9. Ley aplicable y jurisdicción (Portugal y la UE; tribunales de Bragança).
+10. Certificaciones de infraestructura y seguridad.
+11. Modificaciones.
+
+--- POLÍTICA DE PRIVACIDAD ---
+URL: https://elysiumdr.eu/es/privacy
+Última actualización: julio 2026
+
+Trece secciones, con el mismo contenido que la versión inglesa: responsable del
+tratamiento; información recopilada y finalidad; datos sensibles de salud
+(art. 9 RGPD / art. 9 Ley 8968); base jurídica; plazos de conservación y purga
+automatizada (5 y 10 años); derechos; destinatarios y terceros; transferencias
+internacionales; medidas técnicas de seguridad; certificaciones de
+infraestructura heredadas de Google Cloud; cookies; obligatoriedad de los datos;
+y derecho a reclamar ante la CNPD (Portugal) o la PRODHAB (Costa Rica).
 
 ================================================================================
 PART 3 — PORTUGUÊS (PT)
@@ -867,131 +1015,193 @@ PART 3 — PORTUGUÊS (PT)
 URL: https://elysiumdr.eu/pt/
 
 Título: Elysium λ Development & Research
-Título principal: Infraestrutura Digital para PME: Sem Custos de Desenvolvimento
+Título principal: Infraestrutura Digital para pequenas empresas e startups: Sem
+Custos de Desenvolvimento
 
 Descrição:
-Infraestrutura digital por subscrição para PMEs: sistemas cloud, CRM à medida,
-cibersegurança e I&D aplicada na UE e Costa Rica, sem custos de desenvolvimento.
+Infraestrutura digital por subscrição para startups e microempresas: sistemas
+cloud, CRM à medida, cibersegurança e I&D aplicada na UE e Costa Rica, sem custos
+de desenvolvimento.
 
 PERFIL DA ORGANIZAÇÃO:
 A Elysium λ Development & Research é uma empresa europeia de infraestrutura
 digital e um laboratório independente de engenharia de software, consultoria
-informática e I&D. Foi fundada em janeiro de 2026, está estabelecida em Portugal
-e opera na Costa Rica. Serve PMEs da União Europeia e Costa Rica.
+informática e I&D aplicada. Foi fundada em janeiro de 2026, está estabelecida em
+Portugal e opera na Costa Rica. Serve micro e pequenas empresas, empreendedores
+e startups da União Europeia e da Costa Rica.
 
 MODELO OPERACIONAL:
 A infraestrutura digital está incluída numa subscrição mensal. A Elysium assume
-o custo inicial de desenvolvimento para que o website, a infraestrutura cloud,
-o software de gestão e a segurança evoluam com cada negócio.
+o custo inicial de desenvolvimento para que o site, a infraestrutura na cloud, o
+software de gestão e a segurança evoluam com cada negócio.
 
 ÁREAS DE ESPECIALIZAÇÃO:
 
 1. Interfaces ergonómicas adaptadas ao comportamento humano
    - Plataformas com resposta imediata.
-   - Processos complexos, como marcações ou formulários longos, transformados
-     em fluxos simples para reduzir o cansaço mental e os erros.
-   - Acessibilidade e funcionamento integral em telemóvel, tablet e computador.
+   - Processos complexos, como marcações ou formulários longos, convertidos em
+     fluxos simples para reduzir o cansaço mental e o erro humano.
+   - Acessibilidade e funcionamento completo em telemóvel, tablet e computador.
 
 2. Infraestrutura digital e bases de dados na cloud
    - Infraestrutura que se adapta ao tráfego e mantém alta disponibilidade.
    - Sincronização imediata das alterações entre membros autorizados da equipa.
-   - Integração com gateways de pagamento, calendários e serviços externos.
+   - Integração com gateways de pagamento, calendários e outros serviços externos.
 
 3. Sistemas de gestão (CRM) à medida
    - Software criado segundo as regras do projeto, incluindo gestão financeira
      ou faturação.
    - Automatização de processos manuais repetitivos.
-   - Dados do negócio centralizados num painel para a equipa autorizada.
+   - Dados do negócio centralizados num painel para o pessoal autorizado.
 
 4. Cibersegurança e governação
-   - Padrões elevados de segurança e encriptação.
-   - Controlo de acesso estrito para limitar a informação segundo cada função.
-   - Conformidade com o RGPD, a Lei N.º 8968 da Costa Rica e normas locais.
+   - Padrões elevados de segurança e cifragem.
+   - Controlo de acesso estrito, limitando a informação a cada função.
+   - Conformidade com o RGPD, a Lei n.º 8968 da Costa Rica e a legislação local.
 
-OPÇÕES DE SUBSCRIÇÃO APRESENTADAS NA PÁGINA INICIAL:
-- Presença: 70 EUR/mês ou 700 EUR/ano.
-- Sistema: 99 EUR/mês ou 990 EUR/ano.
-- Operação: 120 EUR/mês ou 1.200 EUR/ano.
-- Manutenção de Alojamento independente: 99 EUR/ano.
-A facturação anual equivale a dois meses grátis.
+OPÇÕES DE SUBSCRIÇÃO MOSTRADAS NA PÁGINA INICIAL:
+- Presence: 70 EUR/mês ou 700 EUR/ano.
+- Infrastructure: 99 EUR/mês ou 990 EUR/ano.
+- Ecosystem: 120 EUR/mês ou 1.200 EUR/ano (assinalado como "Mais Popular").
+- Hosting (serviço independente): 99 EUR/ano, faturação anual.
+A faturação anual equivale a dois meses grátis. Os preços são apresentados em EUR
+e convertidos para USD e CRC em tempo real.
+A página inicial usa os nomes dos planos em inglês; a página de serviços em
+português traduz-os como Alojamento, Presença, Infraestrutura e Ecossistema.
 Consulte https://elysiumdr.eu/pt/services para o âmbito e as condições.
+
+FERRAMENTAS MOSTRADAS NA PÁGINA INICIAL:
+Antigravity, GitHub, HTML5, CSS3, JavaScript, Cloudflare, IONOS, Python,
+Firebase, Git, NPM, Node.js, cPanel.
+
 FRAMEWORK DE DESENVOLVIMENTO λ — METODOLOGIA CIENTÍFICA:
 1. Ambiente Operacional Atual — analisar fluxos de dados, processos e setor.
-2. Estado da Arte e Limitações — documentar a infraestrutura existente.
+2. Estado da Arte e Limitações — documentar a infraestrutura já existente.
 3. Variáveis Críticas — detetar processos manuais, gestão de dados e riscos.
 4. Definição do Problema — precisar o problema que o sistema deve resolver.
-5. Impacto — mitigar riscos e tempos mortos e aumentar a presença digital.
-6. Arquitetura — propor SaaS, CRM à medida ou redesenho, segundo o caso.
+5. Impacto — mitigar riscos e tempos de inatividade e aumentar a presença digital.
+6. Arquitetura — propor SaaS, CRM à medida ou redesenho do site, conforme o caso.
 7. Seleção de Tecnologias — escolher segurança, bases de dados e integrações.
 8. Design, Desenvolvimento e Base de Dados — construir o ecossistema digital.
-9. QA e Auditoria — testar, validar acessos e auditar RGPD e Lei N.º 8968.
+9. QA e Auditoria — testar, validar acessos e auditar RGPD e Lei n.º 8968.
 10. Entrega e Formação — lançar, sincronizar dados e formar a equipa.
 
 INVESTIGAÇÃO E DESENVOLVIMENTO:
-A Elysium λ opera como laboratório independente de engenharia de software e
-consultoria informática a partir da União Europeia e Costa Rica. Combina
-pensamento científico, design ergonómico e experimentação contínua para resolver
-ineficiências estruturais e democratizar o acesso a engenharia de alto nível.
+A Elysium λ Development & Research opera como laboratório independente de
+engenharia, investigação e consultoria informática a partir da União Europeia e
+Costa Rica. Combina pensamento científico, design ergonómico e experimentação
+contínua para resolver ineficiências estruturais e democratizar o acesso a
+infraestrutura digital de alto nível para pequenas empresas e startups.
 
-Declaração de missão: democratizar o acesso à infraestrutura digital, dotando
-as PMEs de ecossistemas tecnológicos acessíveis que automatizem os seus processos
-e garantam a sua escalabilidade.
+Declaração de missão: democratizar o acesso a infraestrutura digital, dotando as
+pequenas empresas e startups de ecossistemas tecnológicos acessíveis que
+automatizam os seus processos e garantem a sua escalabilidade.
 
-EQUIPA E TESTEMUNHO ATUAL:
-- Desenvolvedor: Daniel Alonso Morales Ávila, Fundador e Engenheiro Informático.
-- Testemunho em destaque: Paulo Morais, fundador da Consciênciavaliativa —
-  Unipessoal Lda, descreve melhorias na comunicação, visibilidade e aquisição
-  de clientes após o projeto. Testemunho completo:
+EQUIPA E PROVA SOCIAL ATUAL:
+- Programador: Daniel Alonso Morales Ávila, Fundador e Engenheiro Informático.
+- Testemunho em destaque: Paulo Morais, osteopata e treinador especialista,
+  fundador da Consciênciavaliativa — Unipessoal Lda. Descreve as dificuldades
+  anteriores em comunicar a sua oferta e chegar ao seu público, que limitavam a
+  visibilidade do trabalho e a angariação de clientes. Análise completa:
   https://elysiumdr.eu/pt/review-pmorais
 
 Contacto: info@elysiumdr.eu
-Telefone/WhatsApp: +351 934086075
-Redes sociais: @elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
-https://www.linkedin.com/company/elysiumdr (LinkedIn)
+Telefone Portugal: +351 934 086 075 | Telefone Costa Rica: +506 6260 7300
+Redes: https://www.linkedin.com/company/elysiumdr (LinkedIn) |
+@elysiumdr (X/Twitter) | @elysium.dr (Instagram) |
+WhatsApp +351 934 086 075 | @elysium.dr (TikTok)
 
 --- PÁGINA DE SERVIÇOS ---
 URL: https://elysiumdr.eu/pt/services
 
 Título: Serviços — Elysium λ Development & Research
-Descrição: Desenvolvimento web profissional, design, manutenção e suporte para
-PMEs — preços flexíveis e transparentes. Portugal, União Europeia.
+Descrição: Zero Custos de Desenvolvimento: Infraestrutura digital de alto
+desempenho incluída na sua subscrição mensal.
 
 INFRAESTRUTURA DIGITAL DE NÍVEL EMPRESARIAL
 
 Modelo de Custo Zero de Desenvolvimento:
-Infraestrutura digital de alto desempenho incluída na subscrição mensal.
-Não paga pelo desenvolvimento do website — cada mensalidade é um investimento
-num ecossistema que evolui com o seu negócio, garantindo máxima performance,
-segurança operacional e alta retenção de clientes.
+Infraestrutura digital de alto desempenho incluída na subscrição mensal. Não
+paga a construção do site — cada mensalidade é um investimento num ecossistema
+que evolui com o seu negócio, garantindo desempenho máximo, segurança
+operacional e elevada retenção de clientes.
 
-PLANOS DE SUBSCRIÇÃO:
+Quatro escalões. Alojamento é apenas infraestrutura; Presença, Infraestrutura e
+Ecossistema são cumulativos: cada um inclui tudo o do anterior.
 
-1. Alojamento — €99/ano (apenas infraestrutura)
+1. Alojamento — 99 EUR/ano (apenas infraestrutura)
+   - Domínio, e-mail e alojamento para um site já existente.
    - Gestão do domínio e identidade digital da marca.
    - Alojamento web em servidores de alta disponibilidade (sempre online).
-   - Manutenção e actualizações da infraestrutura base.
-   - O desenvolvimento do site não está incluído.
+   - Manutenção e atualizações da infraestrutura base.
+   - O desenvolvimento web NÃO está incluído.
+   - Para sites que precisam de manutenção e suporte contínuos.
 
-2. Presença — €70/mês ou €700/ano
-   - Site, domínio, correio e alojamento.
-   - Agenda pública com lembretes automáticos, que é o que elimina as faltas.
+2. Presença — 70 EUR/mês ou 700 EUR/ano
+   - Tudo o que consta em Alojamento.
+   - Desenvolvimento web.
+   - Conformidade RGPD e avisos legais atualizados.
+   - Pacote técnico base: página de carregamento, cabeçalho mobile-first, scroll
+     reveal, anchor glide, sistema de informação, definições do sistema,
+     atualização do sistema, núcleo de segurança, gestão de cookies, magic
+     bottom, assinatura Elysium, efeitos sazonais, URLs limpos, discovery core
+     e SEO.
+   - Para empresas que ainda não têm presença digital.
+   - AVISO: a agenda, a ficha de cliente, a área privada, o CRM e os pagamentos
+     NÃO fazem parte deste plano; pertencem ao Ecossistema.
+
+3. Infraestrutura — 99 EUR/mês ou 990 EUR/ano
+   - Tudo o que consta em Presença.
+   - Estrutura multi-idioma.
+   - Modo claro e escuro inteligente.
+   - Ainda: magic mouse, som do sistema, tema dinâmico, alternador de tema e
+     multi-idioma.
+   - Para empresas com um site obsoleto.
+
+4. Ecossistema — 120 EUR/mês ou 1.200 EUR/ano (Mais Popular)
+   - Tudo o que consta em Infraestrutura.
+   - Conversão de moedas em tempo real.
+   - App web instalável (PWA).
+   - Agenda pública com lembretes automáticos.
    - Ficha de cliente.
-   - Conformidade com o RGPD e avisos legais actualizados.
-   - Uma hora de alterações por mês.
-
-3. Sistema — €99/mês ou €990/ano
-   - Tudo o que inclui o plano Presença.
-   - Área privada onde cada cliente acede e consulta o seu próprio histórico.
+   - Área privada do cliente com login e histórico.
    - CRM do administrador.
-   - Gestão de disponibilidade e cancelamentos.
-   - Até 3 profissionais. Duas horas de alterações por mês.
-
-4. Operação — €120/mês ou €1.200/ano
-   - Tudo o que inclui o plano Sistema.
-   - Pagamento online e pacotes de sessões com saldo.
+   - Pagamentos online e pacotes de sessões.
    - Relatórios de ocupação e faltas.
-   - Software à medida que escala com o crescimento do negócio.
-   - Profissionais ilimitados. Quatro horas de alterações por mês.
+   - Ainda: multi-moeda, descarregador da app web, CRM personalizado, marcações
+     inteligentes, fichas de cliente, pagamentos online e relatórios de ocupação.
+   - Para negócios que desejam captação e CRM.
+
+A página remete ainda institutos de investigação e a investigação independente
+para https://elysiumdr.eu/pt/research, sem plano de subscrição.
+
+TRANSPARÊNCIA E LICENCIAMENTO:
+- Custo Zero de Desenvolvimento: a Elysium assume 100 % da engenharia inicial.
+- Propriedade do Código (PI): o código-fonte é propriedade intelectual da
+  Elysium λ Development & Research. O cliente adquire uma licença de utilização
+  completa associada à sua subscrição ativa.
+- Ciclo de vida: se a subscrição for interrompida, o sistema e o respetivo
+  suporte são automaticamente suspensos para proteger a infraestrutura.
+- Avaliação e transferência: são oferecidas auditorias para compra do código
+  quando o modelo do cliente o exige. Após a compra, mantém-se obrigatório o
+  suporte base (Alojamento).
+
+--- PÁGINA DE PORTEFÓLIO ---
+URL: https://elysiumdr.eu/pt/portfolio
+
+Quatro projetos, os mesmos das outras versões:
+- Paulo Morais (Portugal) — https://pmorais.pt
+  Caso: https://elysiumdr.eu/pt/case-pmorais
+  Protótipo: https://elysiumdr.eu/pt/prototype-pmorais
+  Análise: https://elysiumdr.eu/pt/review-pmorais
+- VALTRIX Engineering (Costa Rica) — https://elysiumdr.eu/VALTRIX%20Engineering/
+  Caso: https://elysiumdr.eu/pt/case-valtrix
+  Protótipo: https://elysiumdr.eu/pt/prototype-valtrix
+- Moyra (Costa Rica) — https://moyracr.com
+  Caso: https://elysiumdr.eu/pt/case-moyra
+  Protótipo: https://elysiumdr.eu/pt/prototype-moyra
+- Pura Vida Pets (Costa Rica) — https://puravidapetscr.com
+  Sem caso de estudo nem análise em elysiumdr.eu.
 
 --- PÁGINA DE INVESTIGAÇÃO ---
 URL: https://elysiumdr.eu/pt/research
@@ -999,42 +1209,44 @@ URL: https://elysiumdr.eu/pt/research
 Título: Investigação — Elysium λ Development & Research
 
 LINHAS DE INVESTIGAÇÃO APLICADA:
-A Elysium λ explora a Interação Humano-Computador (HCI), a Ciência de Dados
-e as Infraestruturas Digitais através de três linhas atuais:
+A Elysium λ Development & Research explora a Interação Humano-Computador (HCI),
+a Ciência de Dados e as Infraestruturas Digitais através de três linhas:
 
 1. Interfaces Intuitivas
    Sistemas de gestão desenhados para reduzir a carga mental dos utilizadores.
 
 2. Processamento de Dados
    Investigação e aplicação de arquiteturas de bases de dados para construir
-   CRM precisos.
+   CRMs precisos.
 
 3. Segurança e Alta Disponibilidade
-   Infraestruturas na nuvem com padrões de criptografia de alto nível.
+   Infraestruturas cloud com padrões de cifragem de alto nível.
 
 PROJETOS DE INVESTIGAÇÃO ATIVOS:
 
-1. Ontologia para a inclusão digital e acesso a serviços em ambientes rurais
+1. Ontologia para a inclusão digital e o acesso a serviços em ambientes rurais
    Autor: Daniel A. Morales Ávila | Ano: 2026 | Estado: Estudo Piloto
-   Pergunta: como uma abordagem baseada em ontologias e um recomendador de regras
-   mais aprendizagem automática pode melhorar a localização e priorização de
-   recursos de inclusão digital e serviços essenciais em contextos rurais,
-   minimizando viés, exclusão e opacidade e maximizando a utilidade social.
-   Objetivo: desenhar e avaliar um protótipo reprodutível de knowledge graph e
-   recomendação com avaliação ética e de utilidade social.
    URL: https://elysiumdr.eu/pt/research/ontology-research
+   Questão: como uma abordagem baseada em ontologias e um recomendador de regras
+   mais aprendizagem automática pode melhorar a localização e a priorização de
+   recursos de inclusão digital e serviços essenciais em contexto rural,
+   minimizando enviesamento, exclusão e opacidade e maximizando a utilidade
+   social.
+   Objetivo: desenhar e avaliar um protótipo reproduzível de grafo de
+   conhecimento e recomendação, com um quadro explícito de avaliação ética e de
+   utilidade social.
 
-2. Inteligência para PMEs Baseada em Dados: Aplicação da Aprendizagem
-   Automática para a Extração de Conhecimento Operacional em Pequenas e
-   Médias Empresas
+2. Inteligência para pequenas empresas e startups baseada em dados
    Autor: Daniel A. Morales Ávila | Ano: 2026 | Estado: Fase de Conceito
-   Questões atuais: limiares mínimos de volume e qualidade de dados; quais os
-   métodos entre classificação, clustering, deteção de anomalias e séries
-   temporais que produzem resultados mais acionáveis e interpretáveis; e como
-   as explicações em linguagem natural influenciam a confiança e a adoção.
-   Não existem resultados publicados: as secções de resumo, metodologia,
-   observações, limitações e trabalho futuro continuam pendentes.
    URL: https://elysiumdr.eu/pt/research/data-driven-sme-intelligence
+   Questões: limiares mínimos de volume e qualidade de dados; que métodos entre
+   classificação supervisionada, clustering, deteção de anomalias e séries
+   temporais produzem resultados mais acionáveis e interpretáveis; e em que
+   medida as explicações em linguagem natural aumentam a confiança e a adoção
+   das recomendações.
+   O projeto está em fase de conceito: publicam-se as questões de investigação e
+   a bibliografia, e o corpo das secções ainda não está escrito. Não há
+   resultados a reportar.
 
 --- SOBRE NÓS ---
 URL: https://elysiumdr.eu/pt/about
@@ -1042,46 +1254,55 @@ URL: https://elysiumdr.eu/pt/about
 Título: O Nosso Ethos — Elysium λ Development & Research
 
 ETHOS:
-"O nosso trabalho é guiado pela convicção de que a infraestrutura digital
-deve ser acessível, transparente e centrada em I&D."
+"O nosso trabalho é guiado pela convicção de que a infraestrutura digital deve
+ser acessível, transparente e centrada em I&D."
 
-Missão:
-Democratizar o acesso à infraestrutura digital, dotando as PMEs de ecossistemas
-tecnológicos acessíveis que automatizem os seus processos e garantam a sua
-escalabilidade. A missão é proporcionar às pequenas e médias empresas uma
-infraestrutura que evolua com os seus negócios.
+MISSÃO:
+Democratizar o acesso a infraestrutura digital, dotando as pequenas empresas e
+startups de ecossistemas tecnológicos acessíveis que automatizam os seus
+processos e garantem a sua escalabilidade. A nossa missão é proporcionar às
+micro e pequenas empresas, empreendedores e startups a oportunidade de ter uma
+infraestrutura que evolui com os seus negócios.
 
-Visão:
-Ser o Elysium λ Institute of Development & Research, dedicado ao estudo,
-desenvolvimento e aplicação de infraestruturas digitais e à formação de novas
-gerações de cientistas e desenvolvedores. A Elysium λ pretende contribuir para
-uma União Europeia digital e uma Costa Rica que avança rumo à modernidade.
+VISÃO:
+Ser o Elysium λ Institute of Development & Research, um instituto dedicado ao
+estudo, desenvolvimento e aplicação de Infraestruturas Digitais, bem como à
+formação de novas gerações de cientistas e desenvolvedores. A nossa visão é
+contribuir ativamente para a construção de uma União Europeia digital e de uma
+Costa Rica que avança rumo à modernidade.
 
 A NOSSA HISTÓRIA:
-A Elysium λ foi fundada para trabalhar lado a lado com as PMEs, impulsionar a
-sua presença digital e dar-lhes infraestrutura que lhes permita escalar. As PMEs
-são a espinha dorsal das economias da União Europeia e Costa Rica, mas muitas
-ficam excluídas da transformação tecnológica por barreiras de custo, complexidade
-e literacia digital. A Elysium λ investiga e desenvolve infraestruturas para
-tornar a tecnologia avançada mais acessível, transparente e confiável.
+A Elysium λ Development & Research foi fundada com um propósito claro: trabalhar
+de mãos dadas com as micro e pequenas empresas, empreendedores e startups para
+impulsionar a sua presença digital e conceder-lhes acesso a infraestrutura que
+lhes permita escalar os seus negócios.
+
+As pequenas empresas e startups representam a espinha dorsal da economia da
+União Europeia e da Costa Rica. Ainda assim, muitas permanecem excluídas dos
+benefícios da transformação tecnológica devido a barreiras de complexidade,
+custo e literacia digital. A Elysium λ procura investigar e desenvolver
+infraestruturas digitais que tornem as tecnologias avançadas mais acessíveis,
+transparentes e fiáveis.
 
 SIGNIFICADO DO NOME:
-- Elysium provém do grego antigo Ἠλύσιον, associado à justiça, harmonia e
-  irmandade. Remete também para o poema "An die Freude" (Ode à Alegria) de
-  Friedrich Schiller, incorporado por Ludwig van Beethoven na sua Nona Sinfonia;
-  a versão instrumental é o hino da União Europeia.
-- λ (lambda) é a décima primeira letra grega e a segunda de Ἠλύσιον. Neste
-  projeto representa a abstração de ideias em sistemas executáveis.
-- Elysium λ exprime a aspiração de contribuir para uma União Europeia cada vez
-  mais unificada.
+- Elysium provém do grego antigo Ἠλύσιον: um lugar reservado às almas virtuosas
+  que promoveram a justiça, a harmonia e a fraternidade. Elysium surge também no
+  poema "An die Freude" (Ode à Alegria), escrito por Friedrich von Schiller em
+  1785 e incorporado por Ludwig van Beethoven, em 1824, no quarto andamento da
+  sua Nona Sinfonia — obra que é atualmente o hino oficial da União Europeia.
+- O símbolo λ (lambda) é a décima primeira letra do alfabeto grego e a segunda
+  da palavra Ἠλύσιον. Representa a abstração de ideias em sistemas executáveis.
+- No contexto europeu deste projeto, Elysium λ simboliza a aspiração de
+  contribuir para uma União Europeia cada vez mais unida.
 
 DIREÇÃO E LOCALIZAÇÃO ATUAIS:
-Partindo da infraestrutura digital para PMEs, a Elysium λ pretende evoluir para
-a investigação e formação de desenvolvedores científicos para um futuro digital
-europeu e costa-riquenho centrado em I&D. É uma empresa europeia estabelecida em
-Portugal, com operações na Costa Rica, que serve PMEs da União Europeia e Costa Rica.
+Começando pela infraestrutura digital para pequenas empresas e startups, a
+Elysium λ pretende evoluir para a investigação e a formação de programadores
+científicos que sustentem um futuro digital europeu e costa-riquenho centrado em
+I&D. É uma empresa europeia estabelecida em Portugal e com operações na Costa
+Rica.
 
-ENTIDADES CERTIFICADORAS E PARCEIROS INSTITUCIONAIS APRESENTADOS:
+ENTIDADES CERTIFICADORAS E PARCEIROS INSTITUCIONAIS MOSTRADOS:
 ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
 
@@ -1089,26 +1310,66 @@ Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Goo
 URL: https://elysiumdr.eu/pt/daniel-morales
 
 Nome completo: Daniel Alonso Morales Ávila
-Cargo: Fundador e Engenheiro Informático
-Nacionalidade: Costarriquenho | Residência: Bragança, Portugal, União Europeia
-Email: daniel.morales@elysiumdr.eu
-Telefone: +351 934086075
+Cargo na página inicial e em Sobre nós: Fundador e Engenheiro Informático
+Cargo na ficha: Programador Web Full-Stack freelance
+Nacionalidade: costa-riquenha | Residência e autorização de trabalho: Portugal
+Morada: Bragança, Portugal | NIF e NISS registados em Portugal
+Email: daniel.morales@elysiumdr.eu | Telefone: +351 934 086 075
+LinkedIn: https://www.linkedin.com/in/danielalonzzo/
+GitHub: https://github.com/danielalonzzo
 
-Sobre Daniel:
-Com uma sólida compreensão tanto da tecnologia como do design centrado nas
-pessoas, Daniel concentra-se em transformar desafios complexos em soluções
-estruturadas e escaláveis. Como Fundador da Elysium λ Development & Research,
-lidera iniciativas em desenvolvimento web, consultoria técnica e investigação
-aplicada, entregando soluções que integram rigor de engenharia com impacto real
-e mensurável.
+O conteúdo integral da ficha — experiência, formação, certificações, idiomas e
+competências — é o mesmo da versão inglesa desta página. Ver "DANIEL MORALES
+PAGE" na Parte 1. Pontos a não deturpar: o grau em Engenharia Informática da
+ULACIT está em processo de emissão (o que está documentado é a certificação de
+conclusão do plano de estudos, de 20 de fevereiro de 2026); a licenciatura em
+Administração de Empresas da UNA está incompleta, com nível de diploma obtido; e
+os níveis de idiomas são autoavaliados segundo o QECR, com produção e interação
+oral em B1 tanto em inglês como em português.
 
 --- CONTACTO ---
 URL: https://elysiumdr.eu/pt/contact
 
 Email: info@elysiumdr.eu
-WhatsApp: +351 934086075
-Localização: Bragança, Portugal, União Europeia
-Área de serviço: Portugal, Espanha, Costa Rica, União Europeia, Ibero-América
+Telefone Portugal: +351 934 086 075
+Telefone Costa Rica: +506 6260 7300
+Escritório: Portugal, União Europeia
+A operar em: Costa Rica, toda a União Europeia, todas as Américas
+Opções do formulário: Presença, Infraestrutura, Ecossistema, Alojamento,
+Investigação, Outros
+Tempo de resposta declarado: 24 horas.
+
+--- TERMOS DE SERVIÇO ---
+URL: https://elysiumdr.eu/pt/terms
+Última atualização: agosto 2026
+
+Onze secções, com o mesmo conteúdo da versão inglesa:
+1. Identificação do prestador de serviços (NIF 321979257PT, Bragança).
+2. Âmbito dos serviços, incluindo o catálogo da subscrição.
+3. Direito de livre resolução — prazo de reflexão (UE): 14 dias seguidos ao
+   abrigo da Diretiva 2011/83/UE, transposta para o direito português pelo
+   Decreto-Lei n.º 24/2014.
+4. Proteção de dados e privacidade (RGPD, Lei 8968, Lei 58/2019).
+5. Propriedade intelectual.
+6. Limitação de responsabilidade (12 meses).
+7. Obrigações fiscais (CIVA; art. 9.º do CIVA para serviços de saúde).
+8. Resolução de litígios (plataforma RLL/ODR da Comissão Europeia).
+9. Lei aplicável e jurisdição (Portugal e UE; tribunais de Bragança).
+10. Certificações de infraestrutura e segurança.
+11. Alterações.
+
+--- POLÍTICA DE PRIVACIDADE ---
+URL: https://elysiumdr.eu/pt/privacy
+Última atualização: agosto 2026
+
+Treze secções, com o mesmo conteúdo da versão inglesa: responsável pelo
+tratamento; informação recolhida e finalidade; dados sensíveis de saúde
+(art. 9.º RGPD / art. 9.º Lei 8968); fundamento jurídico; prazos de conservação e
+eliminação automatizada (5 e 10 anos); direitos; destinatários e terceiros;
+transferências internacionais; medidas técnicas de segurança; certificações de
+infraestrutura herdadas da Google Cloud; cookies e rastreio; obrigatoriedade da
+informação; e direito a apresentar reclamação junto da CNPD (Portugal) ou da
+PRODHAB (Costa Rica).
 
 ================================================================================
 END OF FILE

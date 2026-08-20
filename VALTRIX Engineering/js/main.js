@@ -108,61 +108,66 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, revealOptions);
 
-    // 5. Contact Form Submission
+    // 5. Contact Form Submission (Multi-form support: contacto.html & index.html)
     //
     // No hay backend todavía (queda para la fase 2 con Firebase). Hasta entonces
     // el formulario redacta la solicitud y la abre en el cliente de correo del
-    // visitante: el envío lo confirma él. Antes se simulaba con un alert() de
-    // éxito y el lead se perdía en silencio, que es peor que no tener formulario.
-    const contactForm = document.getElementById('contact-form');
-    if (contactForm) {
-        const DESTINATARIO = 'valeria.vargas@valtrix.cr';
+    // visitante: el envío lo confirma él. Ambos formularios van a info@valtrix.com.
+    const contactForms = document.querySelectorAll('.contact-form');
+    if (contactForms.length > 0) {
+        const DESTINATARIO = 'info@valtrix.com';
 
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+        contactForms.forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
 
-            const val = (id) => {
-                const field = document.getElementById(id);
-                return field ? field.value.trim() : '';
-            };
+                const getVal = (name) => {
+                    const field = form.querySelector(`[name="${name}"]`);
+                    return field ? field.value.trim() : '';
+                };
 
-            const empresa = val('company');
-            const asunto = 'Solicitud de diagnóstico — ' + (empresa || 'VALTRIX');
+                const negocio = getVal('company');
+                const asunto = 'Solicitud de llamada — ' + (negocio || 'VALTRIX');
 
-            const cuerpo = [
-                'Solicitud de diagnóstico sin costo',
-                '',
-                'Nombre:      ' + val('name'),
-                'Empresa:     ' + empresa,
-                'Cargo:       ' + val('role'),
-                'Correo:      ' + val('email'),
-                'Teléfono:    ' + val('phone'),
-                'Ubicación:   ' + val('location'),
-                'Sector:      ' + val('sector'),
-                'Interés:     ' + val('interest'),
-                '',
-                '¿Qué lo trae hoy?',
-                val('trigger'),
-                '',
-                '—',
-                'Enviado desde valtrix.cr'
-            ].join('\n');
+                const cuerpo = [
+                    'Solicitud de llamada de 30 minutos, sin costo',
+                    '',
+                    'Nombre:      ' + getVal('name'),
+                    'Negocio:     ' + negocio,
+                    'Correo:      ' + getVal('email'),
+                    'WhatsApp:    ' + getVal('phone'),
+                    'Zona:        ' + getVal('canton'),
+                    'Se dedica a: ' + getVal('sector'),
+                    'Personas:    ' + getVal('size'),
+                    'Interés:     ' + getVal('interest'),
+                    '',
+                    '¿Qué lo trae hoy?',
+                    getVal('trigger'),
+                    '',
+                    '—',
+                    'Enviado desde valtrix.cr'
+                ].join('\n');
 
-            const enlace = 'mailto:' + DESTINATARIO +
-                '?subject=' + encodeURIComponent(asunto) +
-                '&body=' + encodeURIComponent(cuerpo);
+                const enlace = 'mailto:' + DESTINATARIO +
+                    '?subject=' + encodeURIComponent(asunto) +
+                    '&body=' + encodeURIComponent(cuerpo);
 
-            const submitBtn = contactForm.querySelector('button[type="submit"]');
-            const originalHTML = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Abriendo su correo…';
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalHTML = submitBtn ? submitBtn.innerHTML : 'Preparar la solicitud';
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Abriendo su correo…';
+                }
 
-            window.location.href = enlace;
+                window.location.href = enlace;
 
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalHTML;
-            }, 2500);
+                if (submitBtn) {
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalHTML;
+                    }, 2500);
+                }
+            });
         });
     }
 
@@ -178,14 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 6. FAB & Theme Toggle Logic
+    // 6. FAB Toggle Logic
     const fabMain = document.getElementById('fab-main');
     const fabWrapper = document.getElementById('fab-wrapper');
-    const themeToggle = document.getElementById('theme-toggle');
-    const sunIcon = document.querySelector('.sun-icon');
-    const moonIcon = document.querySelector('.moon-icon');
 
-    // FAB Toggle
     if (fabMain && fabWrapper) {
         fabMain.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -199,55 +200,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // Theme Switch Function
-    function setTheme(isLight, isManual = false) {
-        if (isLight) {
-            document.body.classList.add('light-mode');
-            if (sunIcon) sunIcon.style.display = 'none';
-            if (moonIcon) moonIcon.style.display = 'block';
-        } else {
-            document.body.classList.remove('light-mode');
-            if (sunIcon) sunIcon.style.display = 'block';
-            if (moonIcon) moonIcon.style.display = 'none';
-        }
-        
-        if (isManual) {
-            localStorage.setItem('theme_preference', isLight ? 'light' : 'dark');
-        }
-    }
-
-    // Automatic theme based on Costa Rica time (UTC-6)
-    function applyAutoTheme() {
-        const savedTheme = localStorage.getItem('theme_preference');
-        if (savedTheme) {
-            setTheme(savedTheme === 'light');
-            return;
-        }
-
-        try {
-            const now = new Date();
-            const crTime = now.toLocaleString("en-US", {timeZone: "America/Costa_Rica", hour12: false, hour: "numeric"});
-            const crHour = parseInt(crTime);
-            
-            // Light Mode: 6am to 6pm (18:00)
-            const isLightTime = crHour >= 6 && crHour < 18;
-            setTheme(isLightTime);
-        } catch (e) {
-            console.error("Error calculating Costa Rica time:", e);
-            setTheme(true); // Default to light on error
-        }
-    }
-
-    // Theme Toggle Click
-    if (themeToggle) {
-        themeToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isCurrentlyLight = document.body.classList.contains('light-mode');
-            setTheme(!isCurrentlyLight, true);
-        });
-    }
-
-    // Initialize Theme
-    applyAutoTheme();
 });

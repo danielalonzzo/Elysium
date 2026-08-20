@@ -1,16 +1,16 @@
 # VALTRIX Engineering — Modelo de Pricing y Condiciones Comerciales
 
-**v1.0 · Agosto 2026 · Clasificación: interno.**
+**v2.0 · Agosto 2026 · Clasificación: interno.**
 Documento vinculado a `00-constitucion-valtrix.md`.
 
-> **Nomenclatura:** los planes se nombran por el alcance de la operación del
-> cliente (Línea Base, Escala Industrial, Multi-Sitio / Métrica Esencial,
-> Ecosistema Integrado, Arquitectura de Datos). «Tier 1/2/3» suena a software
-> genérico y VALTRIX es una firma boutique de ingeniería.
+> **v2.0 — Repricing completo.** La v1.0 tarifaba entre $1.850 y $8.500 por
+> instalación, con retainers de $320 a $1.150, para el Tier 2/3 de la industria
+> regulada. El pivote a micro y pequeña empresa (§10 de la constitución) obliga a
+> reconstruir el tarifario entero. La v1.0 queda en el historial de git.
 >
-> Contiene el tarifario público **y** la capa interna que no se publica: umbrales de
-> descuento, costo real por proyecto y guion de negociación. La versión pública vive
-> en `precios.html`.
+> Contiene el tarifario público **y** la capa interna que no se publica: horas
+> reales, umbrales de descuento y guion de negociación. La versión pública vive en
+> `precios.html`.
 
 ---
 
@@ -18,252 +18,268 @@ Documento vinculado a `00-constitucion-valtrix.md`.
 
 Cinco reglas que gobiernan toda cotización:
 
-1. **No se cobra por hora.** La hora convierte a VALTRIX en gasto y castiga la
-   eficiencia: cuanto mejor es la consultora, menos factura. Se cobra por entregable
-   con precio cerrado.
-2. **El precio se ancla al riesgo evitado, no al esfuerzo.** Un sistema metrológico
-   de $4.600 protege un contrato de zona franca que sostiene la planilla. Ese es el
-   marco de referencia, no las horas invertidas.
-3. **Boutique, no volumen.** VALTRIX nunca es la opción barata. Si el prospecto
-   compara solo por precio, no es el cliente (§6 de la constitución).
-4. **La instalación existe para vender el Soporte Continuo.** El pago único financia el
-   levantamiento; el recurrente es el negocio. Conversión objetivo: **60 %**.
-5. **Todo precio publicado es un piso con alcance definido.** Fuera de ese alcance,
-   adenda. Sin excepción.
+1. **No se cobra por hora.** La hora castiga la eficiencia: cuanto mejor es la
+   consultora, menos factura. Se cobra por entregable con precio cerrado.
+2. **El precio se publica.** No hay «solicite una cotización». Ante un cliente
+   pequeño, que ha sido entrenado a temer que le cobren carísimo, publicar el precio
+   es la barrera de entrada que se elimina primero — y filtra solo a quien no iba a
+   comprar.
+3. **El margen viene de la plantilla, no del precio.** A $350–$600 no hay espacio
+   para hacer cada trabajo desde cero. La rentabilidad de este modelo está en que el
+   trabajo número seis cueste 35 % menos de horas que el primero (KR3.3).
+4. **La instalación existe para vender el mantenimiento.** El pago único financia el
+   levantamiento; el recurrente es el negocio, y es el único ingreso que no consume
+   agenda. Conversión objetivo: **50 %**.
+5. **Todo precio publicado es un piso con alcance definido.** Fuera de ese alcance no
+   se sube el precio a mitad de camino: se avisa con el costo y el cliente decide.
 
 ---
 
-## 2. Servicio 01 — Trazabilidad Metrológica
+## 2. Servicio 01 — Panel de Control de Ventas e Inventario
 
-> El servicio con menor competencia y mayor margen del portafolio. Se cotiza más alto
-> que BI a igual esfuerzo porque el riesgo que evita es de otra magnitud: un hallazgo
-> mayor puede costar el contrato entero.
+> El producto vendible. Es lo que se puede enseñar en una captura de pantalla y lo
+> que produce el «ajá» en treinta segundos.
 
-### 2.1 Fase 1 · Instalación (pago único)
+### 2.1 Tarifario público
 
-| | **Plan Línea Base** | **Plan Escala Industrial** | **Plan Multi-Sitio** |
+| | **Panel Básico** | **Panel Completo** | **Panel a la Medida** |
 |---|---|---|---|
-| **Precio** | **$2.400** | **$4.600** | **$8.500** |
-| Parque de instrumentos | hasta 75 | 76–300 | 301–1.000+ |
-| Sitios | 1 | 1–2 | Multi-sitio |
-| Levantamiento físico | ✓ | ✓ | ✓ con codificación e identificación física |
-| Análisis de criticidad | Básico | Por impacto en producto | Por impacto en producto y en requisito regulatorio |
-| Auditoría de estado normativo | ✓ | ✓ con brechas priorizadas | ✓ con plan de acción y responsables |
-| Sistema de alertas | Calendario automatizado | Sistema con alertas 60/30/15 días | Sistema + tablero de cumplimiento en vivo |
-| Procedimiento documentado | Ficha de equipo | Procedimiento de control + fichas | Procedimiento, fichas, matriz de trazabilidad a patrones |
-| Selección de laboratorios ECA | Lista sugerida | Matriz comparativa por magnitud | Matriz, negociación de tarifas y calendario anual |
-| Duración | 2 semanas | 3–5 semanas | 6–8 semanas |
-| Capacitación | 2 h | 4 h + manual | 8 h + manual + simulacro de auditoría |
+| **Precio** | **$350** | **$480** | **$600** |
+| Aproximado en colones | ₡180.000 | ₡245.000 | ₡310.000 |
+| Archivos a unir | 1 | hasta 3 | hasta 5 |
+| Indicadores | hasta 5 | hasta 10 | los que haga falta |
+| Vistas del panel | 1 | 2 | 3, una por rol |
+| Alertas | — | Stock mínimo y morosos | A la medida |
+| Entrega | 5 días hábiles | 8 días hábiles | 10 días hábiles |
+| Capacitación | 1 h | 2 h | 2 h + manual |
 
-**Incluye en los tres planes:** inventario físico equipo por equipo con marca, modelo,
-serie, ubicación y responsable · verificación del estado de calibración vigente ·
-identificación de equipos vencidos, no trazables o fuera de uso · frecuencias de
-calibración justificadas por criticidad, no por costumbre · expediente digital
-ordenado y listo para presentar ante auditor · capacitación con acta · 30 días de
-garantía.
+**Incluye en los tres planes:** revisión de cómo se captura cada dato hoy · limpieza
+de los archivos (nombres, fechas, códigos, duplicados) · panel armado en Power BI y
+publicado en el equipo del cliente · el Excel limpio y estructurado devuelto ·
+instrucciones escritas de actualización · capacitación · 30 días de garantía de
+corrección.
 
-**No incluye — y se dice en la primera reunión:** **VALTRIX no calibra ni emite
-certificados.** La calibración física la ejecuta un laboratorio acreditado por el ECA
-y se factura directamente al cliente · no se repara ni ajusta instrumental · no se
-garantiza la aprobación de una auditoría de tercera parte · no se asume la
-representación legal ante entes reguladores.
+**No incluye:** licencias de Power BI ni de ninguna plataforma —las paga y las posee
+el cliente— · digitación de historia en papel (se cotiza aparte) · desarrollo de
+software o conexiones a medida vía API · corrección de datos históricos erróneos
+anteriores al trabajo · hardware ni puntos de venta.
 
-### 2.2 Fase 2 · Soporte Continuo
+### 2.2 Nota sobre licencias
 
-| | **Vigilancia** | **Cumplimiento** | **Cero Hallazgos** |
-|---|---|---|---|
-| **Precio/mes** | **$380** | **$690** | **$1.150** |
-| Mantenimiento del calendario | ✓ | ✓ | ✓ |
-| Alertas de vencimiento | 30 y 15 días | 60, 30 y 15 días | 60, 30 y 15 días + escalado a gerencia |
-| Reporte de cumplimiento | Mensual | Mensual + indicador de % de parque conforme | Mensual + tablero en vivo |
-| Auditoría interna de cumplimiento | — | Mensual, remota | Mensual, presencial |
-| Gestión con laboratorios ECA | — | Coordinación de envíos y recepción | Coordinación, verificación técnica de certificados recibidos |
-| Verificación de certificados | — | Vigencia y alcance | Vigencia, alcance, trazabilidad e incertidumbre declarada |
-| Altas y bajas de equipo | 5/mes | 15/mes | Sin límite |
-| Acompañamiento en auditoría de cliente o ente | — | Remoto | **Presencial**, hasta 2/año |
-| Tiempo de respuesta | 24 h hábiles | 24 h hábiles | 8 h hábiles |
-
-**Excluido de todo Soporte Continuo:** el costo de las calibraciones · transporte de equipos ·
-compra de instrumentos o patrones · ampliación del parque por encima del plan
-contratado sin adenda · representación legal.
+Power BI Desktop es gratuito y basta para el uso local, que es el caso de la mayoría
+de estos clientes. Compartir el panel por internet entre varias personas requiere
+licencia mensual por usuario de Microsoft, que el cliente paga y posee. **Se confirma
+el precio vigente antes de citarlo a un cliente; no se cita de memoria.**
 
 ---
 
-## 3. Servicio 02 — Inteligencia Operativa (BI & Data)
+## 3. Servicio 02 — Orden Operativo
 
-### 3.1 Fase 1 · Instalación (pago único)
+### 3.1 Tarifario público
 
-| | **Plan Métrica Esencial** | **Plan Ecosistema Integrado** | **Plan Arquitectura de Datos** |
+| | **Proceso Simple** | **Proceso Completo** | **Área Completa** |
 |---|---|---|---|
-| **Precio** | **$1.850** | **$3.400** | **$6.200** |
-| Perfil | PYME, 1 área | Mediana, varias áreas | Proveedor de zona franca, multi-planta |
-| Fuentes de datos | 1 (Excel o export) | 2–3 (incluye ERP/SAP) | 4+ con orígenes heterogéneos |
-| Indicadores | hasta 15 | hasta 35 | sin tope definido, por modelo |
-| Tableros | 1 | 2–3 con drill-down | Modelo gobernado, seguridad por rol (RLS) |
-| Levantamiento en sitio | 1 sesión | 2–3 sesiones | Inmersión, hasta 5 sesiones |
-| Duración | 2 semanas | 3–4 semanas | 5–7 semanas |
-| Capacitación | 2 h, 1 persona | 4 h, hasta 3 personas | 8 h, hasta 6 personas + manual de gobierno |
+| **Precio** | **$250** | **$350** | **$450** |
+| Aproximado en colones | ₡130.000 | ₡180.000 | ₡230.000 |
+| Procesos | 1 | 1, de punta a punta | hasta 3 relacionados |
+| Extensión | hasta 6 pasos | hasta 12 pasos | sin tope de pasos |
+| Plantillas de registro | hasta 2 | hasta 4 | las que haga falta |
+| Guía visual | 1 página | 1 página + matriz de responsables | una por puesto |
+| Entrega | 1 semana | 2 semanas | 2 semanas |
+| Capacitación | 1 h | 2 h | 2 h |
 
-**Incluye en los tres planes:** entrevistas de levantamiento y definición de
-indicadores con el responsable de cada área · auditoría de calidad del dato en origen
-(dónde se captura mal y por qué) · limpieza y modelado · diccionario de indicadores
-con fórmula, origen y responsable · publicación en el entorno del cliente ·
-capacitación con acta · 30 días de garantía de corrección sobre lo entregado.
+**Módulo opcional de equipos de medición: +$150** sobre cualquier plan. Inventario de
+balanzas y termómetros, calendario con aviso a 60 y 30 días, y lista corta de
+laboratorios acreditados por el ECA con precios de referencia. **VALTRIX no cobra
+comisión de ningún laboratorio**, y eso se dice: es lo que hace creíble la
+recomendación de frecuencia.
 
-**No incluye:** licencias de Power BI o de cualquier plataforma (las paga y las
-posee el cliente) · desarrollo de software o integraciones a medida vía API ·
-digitación histórica masiva (se cotiza aparte) · hardware · corrección de datos
-históricos erróneos anteriores al proyecto.
-
-### 3.2 Fase 2 · Soporte Continuo
-
-| | **Esencial** | **Control** | **Gobierno** |
-|---|---|---|---|
-| **Precio/mes** | **$320** | **$580** | **$950** |
-| Actualización de datos | Mensual | Quincenal | Semanal |
-| Reporte ejecutivo escrito | ✓ | ✓ | ✓ |
-| Sesión de lectura de indicadores | — | 1 h/mes | 2 h/mes, presencial |
-| Horas de ajuste incluidas | 2 h | 5 h | 10 h |
-| Indicadores o vistas nuevas | — | 1/trimestre | 1/mes |
-| Tiempo de respuesta | 24 h hábiles | 24 h hábiles | 8 h hábiles |
-| Soporte de incidencia crítica | — | ✓ | ✓ (4 h) |
-| Tablero adicional | — | — | 1/trimestre |
-
-**Excluido de todo Soporte Continuo:** proyectos nuevos de levantamiento (se cotizan como
-instalación) · migración a otra plataforma · formación de personal nuevo más allá de las
-horas incluidas · recuperación de datos por fallo de sistemas del cliente.
-
-**Hora adicional fuera de plan:** $65.
+**No incluye:** calibración física ni emisión de certificados · garantía de aprobar
+una inspección o certificación · operar procesos del cliente · contratar o evaluar
+personal · manuales extensos para archivar.
 
 ---
 
-## 4. Paquete combinado — «Sala de Control VALTRIX»
+## 4. Mantenimiento mensual
 
-Contratar ambas instalaciones en el mismo proyecto: **−15 % sobre la suma de los dos**. El
-descuento se justifica en costo real: el levantamiento en sitio, las entrevistas y el
-conocimiento de la operación se comparten entre los dos servicios.
+| | **Al Día** | **Acompañado** |
+|---|---|---|
+| **Precio/mes** | **$75** | **$120** |
+| Actualización del panel | Mensual | Cada quince días |
+| Horas de ajuste incluidas | 1 h | 2 h |
+| Llamada para leer los números | — | 30 min al mes |
+| Indicador o vista nueva | — | 1 por trimestre |
+| Respuesta a consultas | 48 h hábiles | 24 h hábiles |
+| Permanencia mínima | 3 meses | 3 meses |
+
+**Hora adicional fuera de plan: $35.**
+
+**Excluido:** trabajos nuevos de levantamiento (se cotizan como panel o proceso) ·
+cambio de plataforma · capacitación de personal nuevo más allá de las horas incluidas
+· recuperación de datos por fallo de equipos del cliente.
+
+**Permanencia de 3 meses, no de 6.** Un negocio pequeño no firma seis meses a ciegas,
+y tres bastan para que el valor se note. Bajar la barrera de entrada al recurrente
+importa más que asegurar el plazo.
+
+---
+
+## 5. Paquete combinado
+
+Contratar los dos servicios en el mismo proyecto: **−15 %** sobre la suma. El
+descuento se justifica en costo real: la visita, las entrevistas y el entender la
+operación se hacen una sola vez y sirven para los dos trabajos.
 
 | Combinación | Suma | Con descuento | Ahorro |
 |---|---|---|---|
-| Línea Base + Métrica Esencial | $4.250 | **$3.613** | $637 |
-| Escala Industrial + Ecosistema Integrado | $8.000 | **$6.800** | $1.200 |
-| Multi-Sitio + Arquitectura de Datos | $14.700 | **$12.495** | $2.205 |
+| Panel Básico + Proceso Simple | $600 | **$510** | $90 |
+| Panel Completo + Proceso Completo | $830 | **$706** | $124 |
+| Panel a la Medida + Área Completa | $1.050 | **$893** | $157 |
 
-Soporte Continuo combinado: **−10 %** sobre la suma mensual.
+Los descuentos no se acumulan entre sí.
 
 ---
 
-## 5. Condiciones y formas de pago
+## 6. Condiciones y formas de pago
 
-### 5.1 Instalación
+### 6.1 Trabajos
 
-- **50 %** a la firma del contrato — habilita el inicio, no antes.
-- **50 %** contra acta de aceptación firmada.
-- Tier 3 admite tres pagos: **40 / 30 / 30** (firma / hito intermedio / aceptación).
+- **50 %** al empezar, que reserva la semana de trabajo.
+- **50 %** contra entrega, con el cliente habiendo visto el panel funcionando.
+- Precio cerrado antes de empezar. Cambio de alcance: se avisa con el costo antes de
+  tocarlo y el cliente decide.
 
-### 5.2 Soporte Continuo
+### 6.2 Mantenimiento
 
-- Facturación **por adelantado**, primeros 5 días hábiles del mes.
-- **Permanencia mínima: 6 meses.** Es lo que tarda un sistema en demostrar valor; por
-  debajo de eso el cliente juzga sobre ruido.
-- Renovación automática mensual tras el periodo mínimo.
-- Baja con **30 días** de preaviso escrito.
+- Facturación por adelantado, primeros 5 días hábiles del mes.
+- Permanencia mínima **3 meses**, luego renovación mensual automática.
+- Baja con **30 días** de aviso escrito.
 - **10 % de descuento** por pago anual anticipado.
 
-### 5.3 Medios de pago
+### 6.3 Medios de pago
 
-Transferencia bancaria en **CRC** o **USD** · **SINPE Móvil** (hasta el límite
-regulatorio) · transferencia internacional para clientes fuera de CR (comisiones a
-cargo del cliente).
+**SINPE Móvil** (es el medio natural a estos montos y hay que ofrecerlo primero) ·
+transferencia bancaria en CRC o USD · **factura electrónica** conforme a Hacienda en
+toda operación.
 
-**Factura electrónica** conforme a Hacienda en toda operación. **Todos los precios
-son netos: el IVA 13 % no está incluido.** Las cotizaciones tienen **15 días** de
-vigencia.
+**Todos los precios son netos: el IVA 13 % no está incluido.** Los montos en colones
+son referenciales y dependen del tipo de cambio del día. Las cotizaciones tienen
+**15 días** de vigencia.
 
-### 5.4 Mora y suspensión
+### 6.4 Mora
 
-- Interés moratorio desde el día **31** de vencida la factura.
-- A los **45** días de mora se suspende el servicio de retainer, con aviso previo.
-- El expediente y los entregables ya aceptados son **propiedad del cliente** y se
-  entregan siempre, incluso en caso de mora. VALTRIX no retiene información del
-  cliente como mecanismo de cobro.
+- A los **30** días de mora se suspende el mantenimiento, con aviso previo.
+- Los entregables ya aceptados son **propiedad del cliente** y se entregan siempre,
+  incluso en mora. VALTRIX no retiene información de un cliente para cobrarle.
 
-### 5.5 Viáticos
+### 6.5 Viáticos
 
-Incluidos dentro de la **Gran Área Metropolitana**. Fuera de la GAM: $0,45/km más
-hospedaje si el sitio exige pernocta, presupuestado y aprobado por adelantado.
+Una visita presencial incluida dentro de la **GAM**. Fuera de la GAM: $0,45/km,
+presupuestado y aprobado por adelantado. Visitas adicionales dentro de la GAM: $40.
 
 ---
 
-## 6. Capa interna — no publicar
+## 7. Capa interna — no publicar
 
-### 6.1 Costo real y margen objetivo
+### 7.1 Horas reales y rentabilidad
 
-| Servicio / Tier | Precio | Días de trabajo estimados | Ingreso/día | Margen objetivo |
-|---|---|---|---|---|
-| Métrica Esencial | $1.850 | 5 | $370 | alto |
-| Ecosistema Integrado | $3.400 | 10 | $340 | alto |
-| Arquitectura de Datos | $6.200 | 18 | $344 | medio-alto |
-| Línea Base | $2.400 | 6 | $400 | alto |
-| Escala Industrial | $4.600 | 12 | $383 | alto |
-| Multi-Sitio | $8.500 | 22 | $386 | medio-alto |
+La unidad de medida interna es la **hora efectiva**, no el día: la fundadora dispone
+de ~8–10 h semanales, no de jornadas.
 
-**Piso absoluto: $300/día efectivo.** Por debajo se rechaza el proyecto o se recorta
-alcance. No se baja el precio: se baja el alcance.
+| Servicio / Plan | Precio | Horas sin plantilla | $/h inicial | Horas con plantilla | $/h maduro |
+|---|---|---|---|---|---|
+| Panel Básico | $350 | 14–18 | ~$22 | 9–11 | ~$35 |
+| Panel Completo | $480 | 22–28 | ~$19 | 14–18 | ~$30 |
+| Panel a la Medida | $600 | 32–40 | ~$17 | 21–26 | ~$26 |
+| Proceso Simple | $250 | 10–14 | ~$21 | 7–9 | ~$31 |
+| Proceso Completo | $350 | 16–22 | ~$18 | 11–14 | ~$28 |
+| Área Completa | $450 | 22–28 | ~$18 | 15–19 | ~$26 |
+| Módulo de equipos | $150 | 5–7 | ~$25 | 3–4 | ~$43 |
+| **Mantenimiento Al Día** | **$75/mes** | 1,5–2 | **~$43** | 1–1,5 | **~$60** |
+| **Mantenimiento Acompañado** | **$120/mes** | 2,5–3 | **~$44** | 2–2,5 | **~$53** |
 
-### 6.2 Umbrales de descuento
+**Las dos lecturas que gobiernan todo el negocio:**
+
+1. **Sin plantillas esto no es rentable.** A ~$18–$22/hora, una ingeniera colegiada
+   está trabajando por debajo de su valor. Es aceptable durante los primeros tres
+   trabajos, como inversión de aprendizaje (§5 de la constitución), y deja de serlo
+   después. Si al trabajo seis las horas no bajaron, el problema no es el precio: es
+   que no se está plantillando.
+2. **El mantenimiento es el mejor producto del portafolio, con diferencia.** Duplica
+   el $/h de cualquier instalación y no consume agenda. Toda la venta de instalación
+   existe para llegar ahí. Un cliente en Acompañado durante un año vale $1.440: más
+   que dos paneles completos, con una fracción del trabajo.
+
+**Piso absoluto: $15/hora efectiva en los primeros tres trabajos, $28/hora del cuarto
+en adelante.** Por debajo se recorta alcance, nunca se baja el precio.
+
+### 7.2 Umbrales de descuento
 
 | Situación | Descuento máximo | Quién autoriza |
 |---|---|---|
-| Primer cliente de un plan (caso documentable) | **20 %**, a cambio de permiso escrito para publicar el caso | Fundadora |
+| Primer cliente de un plan, a cambio de permiso escrito para publicar el caso | **20 %** | Fundadora |
+| Referido de un contador o despacho con acuerdo activo | 15 % | Automático |
 | Referido de cliente activo | 10 % | Fundadora |
 | Combinado de servicios | 15 % (ya tabulado) | Automático |
-| Pago 100 % anticipado del Setup | 7 % | Automático |
+| Pago 100 % anticipado | 5 % | Automático |
 | Cualquier otro caso | **0 %** | — |
 
-Los descuentos **no se acumulan**. Tope duro por proyecto: **20 %**.
+Los descuentos **no se acumulan**. Tope duro por trabajo: **20 %**.
 
-### 6.3 Guion de negociación
+### 7.3 Guion de negociación
 
 **«Está muy caro.»**
-No se defiende el precio: se recontextualiza. *«Entiendo. Póngalo al lado de lo que
-cuesta el problema: si la auditoría de su cliente arroja un hallazgo mayor en control
-de instrumentos, ¿qué pasa con ese contrato? El sistema cuesta una fracción de un
-mes de esa facturación, y se paga una vez.»*
+No se defiende el precio: se pone al lado del problema. *«Entiendo. Póngalo al lado
+de lo que le cuesta no saberlo: si uno solo de sus productos le está dejando menos de
+lo que cree, en un mes eso ya vale más que el panel. Y el panel se paga una vez.»*
+
+**«¿No me puede hacer algo más barato?»**
+*«El precio no lo bajo, pero el alcance sí. Con un solo archivo y cinco números son
+$350 en vez de $480. Empecemos por ahí y si le sirve lo ampliamos después.»*
+**Bajar alcance, nunca precio.**
 
 **«Déjeme pensarlo.»**
-*«Claro. ¿Le sirve que le deje el diagnóstico por escrito con los equipos vencidos
-que encontramos? Así, decida lo que decida, sabe exactamente dónde está parado.»*
-El informe trabaja solo.
+*«Claro. ¿Le sirve que le mande por escrito qué encontramos en sus archivos y qué se
+podría armar? Así, decida lo que decida, sabe dónde está parado.»*
 
-**«Tengo una cotización más barata.»**
-*«Es probable, y le digo en qué se van a diferenciar: pregúnteles si le entregan el
-sistema de alertas funcionando y quién lo gestiona en marzo, o si le entregan un
-inventario en Excel. No es el mismo producto.»*
+**«Mi sobrino me hace eso en Excel.»**
+*«Puede ser, y si le funciona es la opción correcta. Pregúntele dos cosas: si le va a
+dejar escrito cómo se actualiza, y quién lo arregla en marzo si él no está. Lo que le
+vendo no es la hoja: es que no dependa de una persona.»*
 
-**«¿Y si lo hacemos internamente?»**
-*«Es la opción correcta a largo plazo y le ayudo a llegar ahí: por eso capacitamos a
-su gente y el sistema queda documentado. Lo que le vendemos es no esperar dos años ni
-aprenderlo a punta de hallazgos.»*
+**«Ya tengo un sistema de facturación que da reportes.»**
+*«Y lo vamos a usar, ese export es una de las fuentes. Lo que su sistema no puede
+hacer es cruzar sus ventas con lo que tiene en bodega y con quién le debe, porque eso
+vive en otros archivos. Eso es lo que armamos.»*
 
-**«¿Me garantiza que pasamos la auditoría?»**
-Nunca se promete. *«No, y desconfíe de quien se lo prometa: eso lo decide el auditor.
-Lo que le garantizo es que el control de instrumentos deja de ser el motivo del
-hallazgo, con evidencia lista para presentar.»*
+**«¿Y si mis datos están muy desordenados?»**
+*«Es el caso normal. Ordenarlos es el trabajo, no un requisito previo. Lo único que
+no hago es digitar años de papel; eso se cotiza aparte y casi nunca hace falta.»*
 
-### 6.4 Señales para no vender
+**«¿Me garantiza que voy a vender más?»**
+Nunca se promete. *«No. Lo que le garantizo es que va a saber qué le deja plata y
+qué no. Qué hace con esa información es decisión suya, y ahí usted sabe más que yo.»*
 
-Se declina cuando: el prospecto pide honorarios contra resultado · quiere solo el
-documento sin tocar la operación · no hay un responsable identificable de calidad ·
-regatea antes del diagnóstico · pide entrega en un plazo que rompe KR3.1 · o ya hay
-dos Setup en curso (KR3.4).
+### 7.4 Señales para no vender
 
-**Decir que no a tiempo es más rentable que entregar tarde y mal.** El primer cliente
-insatisfecho, en un mercado donde todos los gerentes de calidad del Valle Central se
-conocen, cuesta más que los tres proyectos siguientes.
+Se declina cuando: el negocio no registra absolutamente nada, ni en papel · el
+problema es de ventas o de capital de trabajo y no de información · pide desarrollo
+de software o integración con un ERP · pide pago contra resultado · regatea antes de
+conocer el alcance · exige un plazo que rompe KR3.1 · o ya hay dos trabajos en curso
+(KR3.4).
 
-### 6.5 Revisión de precios
+**Decir que no a tiempo es más rentable que entregar tarde y mal.** En este mercado
+los dueños se conocen por cantón: un cliente insatisfecho cuesta más que los tres
+trabajos siguientes.
+
+### 7.5 Revisión de precios
 
 Anual, o antes si **tres prospectos consecutivos del mismo plan** rechazan
-explícitamente por precio. Si la conversión Instalación → Soporte Continuo cae por debajo del 40 %,
-el problema no es el precio: es el alcance del Soporte Continuo o la calidad de la entrega.
+explícitamente por precio. Si la conversión instalación → mantenimiento cae por
+debajo del 35 %, el problema no es el precio: es el alcance del mantenimiento o la
+calidad de la entrega.
+
+**Y una revisión al alza, que es la que se suele olvidar:** cuando las plantillas
+estén maduras (KR3.2 y KR3.3 cumplidos) y haya dos casos documentados, hay margen
+para subir la banda un 20–30 % sin salirse del mercado. El precio bajo es una
+decisión de entrada, no una condena.

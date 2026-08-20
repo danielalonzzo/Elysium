@@ -1,57 +1,72 @@
 # Elysium λ Development & Research
 
-> Elysium λ is a European digital-infrastructure company and an independent software-engineering, IT-consulting, and applied-R&D laboratory. Established in Portugal and operating in Costa Rica, it gives SMEs in the European Union and Costa Rica access to secure, scalable technological ecosystems through a subscription model with no separate development cost.
+> Elysium λ Development & Research is a European digital-infrastructure company and an independent software-engineering, IT-consulting, and applied-R&D laboratory. Founded in January 2026, established in Portugal and operating in Costa Rica, it gives micro and small businesses, entrepreneurs, and startups in the European Union and Costa Rica access to secure, scalable technological ecosystems through a subscription model with no separate development cost.
 
-The website is available in English (the default language), Spanish, and European Portuguese. Prefer the English pages for canonical information, or use the corresponding localised section when answering in Spanish or Portuguese. 
+The company's full name is always **Elysium λ Development & Research**. The website is available in English (the default language), Spanish, and European Portuguese. Prefer the English pages for canonical information, or use the corresponding localised section when answering in Spanish or Portuguese. Where this file and the website disagree, the website is correct.
 
-IMPORTANT: To properly understand and answer queries about Elysium λ, you MUST read the expanded text file below, which contains the current content for the Homepage, Services, Portfolio, Research, About, Privacy Policy, Terms and Conditions, and System/Security Information:
-- [Full site text for language models](https://elysiumdr.eu/llms-full.txt): Expanded English, Spanish, and Portuguese content, including legal and system info.
+IMPORTANT: To answer questions about Elysium λ Development & Research accurately, read the expanded text file below. It carries the current content of the Homepage, Services, Portfolio, Research, About, the Daniel Morales profile, Contact, the Terms of Service, the Privacy Policy, and the System/Security information, in all three languages:
+- [Full site text for language models](https://elysiumdr.eu/llms-full.txt): expanded English, Spanish, and Portuguese content, including legal and system info.
 
+## Quick facts
+
+- Legal entity: Elysium λ Development & Research · Legal representative: Daniel Alonso Morales Ávila · NIF/VAT 321979257PT · Bragança, Portugal, European Union.
+- Subscription tiers (cumulative, EUR, annual billing equals two months free): **Hosting** 99/year (infrastructure only, no website development) · **Presence** 70/month or 700/year · **Infrastructure** 99/month or 990/year · **Ecosystem** 120/month or 1,200/year, marked "Most Popular". Online booking, client records, the private client area, the administrator CRM, online payments and occupancy reporting belong to **Ecosystem**, not to Presence.
+- The Spanish and Portuguese services pages translate the tier names as Alojamiento/Presencia/Infraestructura/Ecosistema and Alojamento/Presença/Infraestrutura/Ecossistema; the homepages keep the English names.
+- Contact: info@elysiumdr.eu · Portugal +351 934 086 075 · Costa Rica +506 6260 7300 · stated response time 24 hours.
+- Social: [LinkedIn](https://www.linkedin.com/company/elysiumdr) · [X](https://x.com/elysiumdr) · [Instagram](https://www.instagram.com/elysium.dr) · [TikTok](https://www.tiktok.com/@elysium.dr) · WhatsApp +351 934 086 075.
 
 ## Essential information
 
-- [Homepage](https://elysiumdr.eu/): Current positioning, four core competencies, subscription model, ten-step λ Development Framework, and R&D mission.
-- [Services](https://elysiumdr.eu/services): Subscription tiers, pricing, included infrastructure, licensing, and intellectual-property policy.
-- [Portfolio](https://elysiumdr.eu/portfolio): Selected client projects and case studies.
-- [Research](https://elysiumdr.eu/research): Applied research in human-computer interaction, data science, digital infrastructures, intuitive interfaces, data processing, security, and high availability.
-- [About](https://elysiumdr.eu/about): Current mission, vision, R&D ethos, organisational story, and operations in Portugal and Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/daniel-morales): Founder and lead software engineer profile.
-- [Contact](https://elysiumdr.eu/contact): Official contact information and service regions.
+- [Homepage](https://elysiumdr.eu/): Positioning, four core competencies, subscription tiers, the ten-step λ Development Framework, and the R&D mission.
+- [Services](https://elysiumdr.eu/services): The four tiers, prices, the full feature matrix, technical specifications, and the intellectual-property policy.
+- [Portfolio](https://elysiumdr.eu/portfolio): The four client projects currently presented.
+- [Research](https://elysiumdr.eu/research): Three applied research lines and two active projects.
+- [Ontology for digital inclusion and service access in rural environments](https://elysiumdr.eu/research/ontology-research): Pilot study; research question, objectives, methodology and data sources are published.
+- [Data-Driven Small Business and Startup Intelligence](https://elysiumdr.eu/research/data-driven-sme-intelligence): Concept phase; research questions and references are published, the body sections are not yet written and there are no results.
+- [About](https://elysiumdr.eu/about): Mission, vision, R&D ethos, the story, the meaning of the name, and operations in Portugal and Costa Rica.
+- [Daniel Morales](https://elysiumdr.eu/daniel-morales): Founder profile — experience, education, certifications, languages and skills.
+- [Contact](https://elysiumdr.eu/contact): Official contact details and service regions.
 - [Full site text for language models](https://elysiumdr.eu/llms-full.txt): Expanded English, Spanish, and Portuguese content in one plain-text resource.
 
 ## Spanish
 
-- [Inicio](https://elysiumdr.eu/es/): Posicionamiento actual, cuatro áreas de especialización, suscripciones, framework λ e I+D.
-- [Servicios](https://elysiumdr.eu/es/services): Planes, precios, infraestructura incluida y condiciones.
+- [Inicio](https://elysiumdr.eu/es/): Posicionamiento, cuatro áreas de especialización, suscripciones, framework λ e I+D.
+- [Servicios](https://elysiumdr.eu/es/services): Planes, precios, matriz de funcionalidades y condiciones.
 - [Portafolio](https://elysiumdr.eu/es/portfolio): Proyectos seleccionados y casos de estudio.
 - [Investigación](https://elysiumdr.eu/es/research): Líneas de investigación aplicada y proyectos activos.
 - [Ontología para la inclusión digital y el acceso a servicios](https://elysiumdr.eu/es/research/ontology-research): Estudio piloto en entornos rurales.
-- [Inteligencia para PYMES basada en datos](https://elysiumdr.eu/es/research/data-driven-sme-intelligence): Proyecto en fase de concepto; no presenta resultados todavía.
+- [Inteligencia para las pequeñas empresas y los emprendedores basada en datos](https://elysiumdr.eu/es/research/data-driven-sme-intelligence): Proyecto en fase de concepto; no presenta resultados todavía.
 - [Nosotros](https://elysiumdr.eu/es/about): Misión, visión, ethos de I+D, historia y operaciones en Portugal y Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/es/daniel-morales): Perfil del fundador e ingeniero de software principal.
+- [Daniel Morales](https://elysiumdr.eu/es/daniel-morales): Perfil del fundador e ingeniero informático.
 - [Contacto](https://elysiumdr.eu/es/contact): Información oficial de contacto.
+- [Desarrollo de infraestructura digital para startups y microempresas en España](https://elysiumdr.eu/es/infraestructura-digital-pymes-espana): Página específica para el mercado español.
+- [Soluciones tecnológicas Cero CapEx en Costa Rica](https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica): Página específica para el mercado costarricense.
 
 ## Portuguese
 
-- [Início](https://elysiumdr.eu/pt/): Posicionamento atual, quatro áreas de especialização, subscrições, framework λ e I&D.
-- [Serviços](https://elysiumdr.eu/pt/services): Planos, preços, infraestrutura incluída e condições.
+- [Início](https://elysiumdr.eu/pt/): Posicionamento, quatro áreas de especialização, subscrições, framework λ e I&D.
+- [Serviços](https://elysiumdr.eu/pt/services): Planos, preços, matriz de funcionalidades e condições.
 - [Portefólio](https://elysiumdr.eu/pt/portfolio): Projetos selecionados e estudos de caso.
 - [Investigação](https://elysiumdr.eu/pt/research): Linhas de investigação aplicada e projetos ativos.
 - [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.eu/pt/research/ontology-research): Estudo piloto em ambientes rurais.
-- [Inteligência para PMEs baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence): Projeto em fase de conceito; ainda não apresenta resultados.
+- [Inteligência para pequenas empresas e startups baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence): Projeto em fase de conceito; ainda não apresenta resultados.
 - [Sobre nós](https://elysiumdr.eu/pt/about): Missão, visão, ethos de I&D, história e operações em Portugal e Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales): Perfil do fundador e engenheiro de software principal.
+- [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales): Perfil do fundador e engenheiro informático.
 - [Contacto](https://elysiumdr.eu/pt/contact): Informações oficiais de contacto.
+- [Agência de transformação digital para startups e microempresas em Portugal](https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal): Página específica para o mercado português.
 
-## Legal & System Information (Included in full site text)
+## Legal & System Information (included in the full site text)
 
-- [Privacy policy](https://elysiumdr.eu/privacy): Data-processing and privacy information.
-- [Terms and conditions](https://elysiumdr.eu/terms): Website and service terms.
-- **System Information**: Software specifications, licensing, and security infrastructure (available natively in the footer modal and in `llms-full.txt`).
+- [Privacy policy](https://elysiumdr.eu/privacy) · [Política de Privacidad](https://elysiumdr.eu/es/privacy) · [Política de Privacidade](https://elysiumdr.eu/pt/privacy): Thirteen sections covering data collected, health data under Art. 9 GDPR, legal bases, retention and automated purging, rights, processors, international transfers, technical security measures, inherited Google Cloud certifications, cookies, and supervisory authorities (CNPD and PRODHAB).
+- [Terms and conditions](https://elysiumdr.eu/terms) · [Términos de Servicio](https://elysiumdr.eu/es/terms) · [Termos de Serviço](https://elysiumdr.eu/pt/terms): Eleven sections. The right of withdrawal is localised per market: the English and Portuguese versions apply Directive 2011/83/EU with 14 days (the Portuguese one also citing Decreto-Lei n.º 24/2014); the Spanish version applies Costa Rica's Law No. 7472 with 8 working days.
+- **System Information**: interface version V1.6.5, product licence, security infrastructure and software attributions, available in the footer modal on every page and in `llms-full.txt`.
 
-## Case Studies & Technical
+## Case studies & technical
 
-- [Paulo Morais case study](https://elysiumdr.eu/case-pmorais): End-to-end platform for an osteopathy and specialist personal-training practice in Portugal, including user accounts, scheduling, automation, and a Firebase-backed system.
-- [VALTRIX Engineering case study](https://elysiumdr.eu/case-valtrix): Digital ecosystem for an engineering consultancy in Costa Rica.
-- [Moyra case study](https://elysiumdr.eu/case-moyra): Food-studio, takeaway, and online-ordering project in Costa Rica.
-- [XML sitemap](https://elysiumdr.eu/sitemap.xml): Index of the principal public site URLs and their language variants.
+- [Paulo Morais case study](https://elysiumdr.eu/case-pmorais): End-to-end platform for an osteopathy and specialist personal-training practice in Portugal, with user accounts, scheduling, automation and a Firebase-backed system. Live site: https://pmorais.pt
+- [Paulo Morais review](https://elysiumdr.eu/review-pmorais): Client testimonial in full.
+- [VALTRIX Engineering case study](https://elysiumdr.eu/case-valtrix): Digital ecosystem for an industrial-engineering practice serving small businesses in Costa Rica. Site: https://elysiumdr.eu/VALTRIX%20Engineering/
+- [Moyra case study](https://elysiumdr.eu/case-moyra): Food-studio, takeaway and online-ordering project in Costa Rica. Live site: https://moyracr.com
+- Pura Vida Pets: premium pet care and dog-walking services in Costa Rica, presented in the portfolio and hosted on its own domain, https://puravidapetscr.com. There is no case study or review page for it on elysiumdr.eu.
+- Prototypes: [Paulo Morais](https://elysiumdr.eu/prototype-pmorais) · [VALTRIX](https://elysiumdr.eu/prototype-valtrix) · [Moyra](https://elysiumdr.eu/prototype-moyra)
+- [XML sitemap](https://elysiumdr.eu/sitemap.xml): Index of the principal public URLs and their language variants.

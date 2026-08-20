@@ -1,11 +1,15 @@
 # Elysium λ Development & Research — robots.txt
 # https://elysiumdr.eu
+# Última revisión: 20 de agosto de 2026
 
 # ──────────────────────────────────────────────
 # DEFAULT: Allow all crawlers
 # ──────────────────────────────────────────────
 User-agent: *
 Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /Demo-arbol/
 
 # Las páginas privadas (/admin, /onboarding, /profiles, /seed-licenses,
 # /thank-you, /payment-*) NO se bloquean aquí a propósito: todas llevan
@@ -14,96 +18,170 @@ Allow: /
 # buscado — /profiles quedaba indexada como «duplicada sin canónica» porque
 # el rastreador nunca podía ver que estaba marcada como noindex.
 #
-# Demo-arbol sí se bloquea: es la única que no tiene ninguna etiqueta noindex
-# propia (la cabecera X-Robots-Tag de firebase.json no se aplica, el sitio lo
-# sirve Cloudflare; la buena es la de `_headers`).
-Disallow: /Demo-arbol/
+# Demo-arbol sí se bloquea: es la única carpeta publicada que no tiene ninguna
+# etiqueta noindex propia (la cabecera X-Robots-Tag de firebase.json no se
+# aplica, el sitio lo sirve Cloudflare; la buena es la de `_headers`).
+#
+# IMPORTANTE sobre el formato: bajo la RFC 9309 un rastreador obedece SOLO su
+# grupo más específico, sin heredar nada del grupo `*`. Por eso cada agente de
+# IA con grupo propio repite abajo el `Disallow: /Demo-arbol/`: sin esa línea
+# quedaban los veinte con acceso libre a la única carpeta que se quiere fuera
+# del índice.
 
 # ──────────────────────────────────────────────
 # AI CRAWLERS — Explicitly allowed
 # ──────────────────────────────────────────────
+# El sitio se ofrece de forma deliberada a los modelos de lenguaje: por eso
+# existen /llms.txt y /llms-full.txt. Se declara cada agente de forma explícita,
+# distinguiendo los tres papeles que hoy cumplen: rastreo para entrenamiento,
+# recuperación en vivo cuando un usuario pregunta, e indexación para búsqueda.
 
-# OpenAI ChatGPT
+# OpenAI — rastreo para entrenamiento
 User-agent: GPTBot
 Allow: /
+Disallow: /Demo-arbol/
 
-# OpenAI ChatGPT Browsing
+# OpenAI — recuperación en vivo iniciada por el usuario
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /Demo-arbol/
 
-# Anthropic Claude
+# OpenAI — índice de ChatGPT Search (es el que genera las citas)
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /Demo-arbol/
+
+# Anthropic — rastreo para entrenamiento
 User-agent: ClaudeBot
 Allow: /
+Disallow: /Demo-arbol/
 
-# Anthropic Claude (legacy)
+# Anthropic — recuperación en vivo iniciada por el usuario
+User-agent: Claude-User
+Allow: /
+Disallow: /Demo-arbol/
+
+# Anthropic — índice de búsqueda
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /Demo-arbol/
+
+# Anthropic — token heredado, ya sin uso; se mantiene por compatibilidad
 User-agent: anthropic-ai
 Allow: /
+Disallow: /Demo-arbol/
 
-# Perplexity AI
+# Perplexity — rastreo del índice
 User-agent: PerplexityBot
 Allow: /
+Disallow: /Demo-arbol/
 
-# Google AI (Gemini / Bard / AI Overviews)
+# Perplexity — recuperación en vivo iniciada por el usuario
+User-agent: Perplexity-User
+Allow: /
+Disallow: /Demo-arbol/
+
+# Google — control de Gemini y de las AI Overviews
 User-agent: Google-Extended
 Allow: /
+Disallow: /Demo-arbol/
 
-# Google Vertex AI
+# Google — rastreo interno y experimental (NO es el de Vertex AI)
 User-agent: GoogleOther
 Allow: /
+Disallow: /Demo-arbol/
 
-# Meta AI (Llama)
+# Google — Vertex AI Agents
+User-agent: Google-CloudVertexBot
+Allow: /
+Disallow: /Demo-arbol/
+
+# Apple — Siri y Spotlight
+User-agent: Applebot
+Allow: /
+Disallow: /Demo-arbol/
+
+# Apple — uso del contenido para entrenar Apple Intelligence.
+# Sin este grupo el permiso era implícito; queda declarado a propósito.
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /Demo-arbol/
+
+# Meta — Llama
 User-agent: Meta-ExternalAgent
 Allow: /
+Disallow: /Demo-arbol/
 
-# Meta External Fetcher
+# Meta — recuperación de enlaces
 User-agent: Meta-ExternalFetcher
 Allow: /
+Disallow: /Demo-arbol/
 
-# Cohere AI
+# Mistral / Le Chat — recuperación en vivo (token documentado por Mistral)
+User-agent: MistralAI-User
+Allow: /
+Disallow: /Demo-arbol/
+
+# Cohere
 User-agent: cohere-ai
 Allow: /
+Disallow: /Demo-arbol/
 
 # You.com
 User-agent: YouBot
 Allow: /
+Disallow: /Demo-arbol/
 
-# Common Crawl (training data)
+# Common Crawl — corpus usado para entrenamiento por terceros
 User-agent: CCBot
 Allow: /
+Disallow: /Demo-arbol/
 
-# Apple Applebot (Siri / Apple Intelligence)
-User-agent: Applebot
-Allow: /
-
-# Bytedance / Doubao
-User-agent: Bytespider
-Allow: /
-
-# Amazon Alexa
-User-agent: ia_archiver
-Allow: /
-
-# DuckDuckBot (DuckDuckGo AI)
+# DuckDuckGo — rastreador del buscador
 User-agent: DuckDuckBot
 Allow: /
+Disallow: /Demo-arbol/
 
-# Diffbot (AI data extraction)
-User-agent: Diffbot
+# DuckDuckGo — DuckAssist, la capa de respuestas con IA
+User-agent: DuckAssistBot
 Allow: /
+Disallow: /Demo-arbol/
 
-# Amazon Kendra (enterprise AI search)
+# ByteDance / Doubao
+User-agent: Bytespider
+Allow: /
+Disallow: /Demo-arbol/
+
+# Amazon — rastreador general (alimenta Alexa y Rufus)
 User-agent: Amazonbot
 Allow: /
+Disallow: /Demo-arbol/
 
-# Mistral / Le Chat
-User-agent: MistralBot
+# Diffbot — extracción estructurada de datos
+User-agent: Diffbot
 Allow: /
+Disallow: /Demo-arbol/
+
+# Allen Institute for AI
+User-agent: AI2Bot
+Allow: /
+Disallow: /Demo-arbol/
+
+# Internet Archive / Alexa Internet (token histórico, hoy en desuso)
+User-agent: ia_archiver
+Allow: /
+Disallow: /Demo-arbol/
 
 # ──────────────────────────────────────────────
 # AI CONTENT FILES
 # ──────────────────────────────────────────────
-# llms.txt and llms-full.txt are explicitly public and indexable.
-# All crawlers are allowed to read /llms.txt and /llms-full.txt.
+# /llms.txt y /llms-full.txt son públicos e indexables a propósito: describen la
+# empresa, los planes, la investigación y el marco legal en los tres idiomas.
+# El `Allow` explícito del grupo `*`, arriba, documenta esa intención y sobrevive
+# a cualquier Disallow más general que se añada en el futuro.
+#
+#   https://elysiumdr.eu/llms.txt       — índice y datos esenciales
+#   https://elysiumdr.eu/llms-full.txt  — contenido completo en EN, ES y PT
 
 # ──────────────────────────────────────────────
 # SITEMAP

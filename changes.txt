@@ -256,3 +256,10 @@
 - Despliegue de reglas de seguridad Firestore y Firebase Storage.
 - Despliegue de Worker y assets estáticos en Cloudflare.
 - Publicación y sincronización de cambios en repositorio GitHub (main).
+
+=== CHAT ID: 14bc6e3e-4af6-49b7-9715-5fa25d3e1905 - Actualización a V1.7.0 y Despliegue Global a Producción ===
+- Actualización de versión del footer y del sistema a V1.7.0 en version-modal.js, llms-full.txt, ONCORE, Prototipos y compilación de Demo-arbol.
+- Despliegue de Backend (Cloud Run: elysium-billing) con suite de pruebas unitarias al 100%.
+- Despliegue de reglas de seguridad Firestore, índices y Firebase Storage.
+- Despliegue de Worker y assets estáticos en Cloudflare.
+- Publicación y sincronización de cambios en repositorio GitHub (main).

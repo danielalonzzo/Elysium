@@ -3,100 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valeria Vargas Ávila | Fundadora de VALTRIX Engineering</title>
     <meta name="description"
         content="Valeria Vargas Ávila, Ingeniera Industrial colegiada (CFIA) y auditora interna ISO 9001:2015. Nueve años en manufactura de dispositivos médicos, electrónica e infraestructura aeroportuaria.">
-    <title>Valeria Vargas Ávila | Fundadora de VALTRIX Engineering</title>
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://elysiumdr.eu/VALTRIX%20Engineering/valeria-vargas">
+    <meta property="og:type" content="profile">
+    <meta property="og:title" content="Valeria Vargas Ávila | Fundadora de VALTRIX Engineering">
+    <meta property="og:description" content="Ingeniera Industrial colegiada (CFIA) y auditora interna ISO 9001:2015. Nueve años en manufactura de dispositivos médicos, electrónica e infraestructura aeroportuaria.">
+    <meta property="og:image" content="https://elysiumdr.eu/VALTRIX%20Engineering/Images/avatar/AVATAR-VALTRIX-VALERIA-VXe-TITANIO-1024.png">
 
     <link rel="stylesheet" href="css/style.css">
 
-    <!-- CSS -->
+    <!-- Estructura de datos: Persona -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Valeria Vargas Ávila",
+        "jobTitle": "Ingeniera Industrial",
+        "image": "https://elysiumdr.eu/VALTRIX%20Engineering/Images/avatar/AVATAR-VALTRIX-VALERIA-VXe-TITANIO-1024.png",
+        "url": "https://elysiumdr.eu/VALTRIX%20Engineering/valeria-vargas",
+        "email": "valeria.vargas@valtrix.com",
+        "telephone": "+50684880406",
+        "worksFor": {
+            "@type": "Organization",
+            "name": "VALTRIX Engineering",
+            "url": "https://elysiumdr.eu/VALTRIX%20Engineering/"
+        },
+        "alumniOf": {
+            "@type": "EducationalOrganization",
+            "name": "Universidad Fidélitas"
+        },
+        "memberOf": {
+            "@type": "Organization",
+            "name": "Colegio Federado de Ingenieros y de Arquitectos de Costa Rica (CFIA)"
+        },
+        "hasCredential": {
+            "@type": "EducationalOccupationalCredential",
+            "name": "Auditor en la Norma Internacional de Calidad ISO 9001:2015",
+            "credentialCategory": "certificate",
+            "recognizedBy": { "@type": "Organization", "name": "SHERPA Consultores" }
+        }
+    }
+    </script>
+
+    <!-- ==========================================================================
+         PERFIL EJECUTIVO — arquitectura de dos columnas
+
+         Misma arquitectura que el perfil de Elysium (elysiumdr.eu/daniel-morales),
+         traída al lenguaje visual de VALTRIX: cristal titanio, acento #0077B6 y
+         títulos versalita como en el resto del sitio. No se copió ni un color.
+
+         Tres cosas que conviene no romper:
+
+         1. El avatar es el PNG con bisel propio y fondo transparente. NO lleva
+            `border-radius` ni `border`: el marco ya viene dibujado en la imagen.
+            Si se le añade un aro, salen dos.
+         2. Las entradas desplegables son <details>/<summary> nativos. No dependen
+            de JS, así que la página se imprime e indexa entera.
+         3. Los huecos «is-pending» están puestos a propósito: cuando llegue un
+            título o un certificado, se copia el PDF y se cambia ese único bloque
+            por uno con «href» + «profile-credential-action».
+         ========================================================================== -->
     <style>
-        .profile-header {
-            position: relative;
-            z-index: 1;
-            overflow: hidden;
-            border-bottom: 1px solid var(--color-border);
-        }
-        .profile-hero {
-            display: flex;
-            align-items: center;
-            gap: 4rem;
-            flex-wrap: wrap;
-        }
-        .profile-hero-img-wrapper {
-            flex-shrink: 0;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid var(--color-accent);
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
-        }
-        .profile-hero-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .profile-hero-text {
-            flex: 1;
-            min-width: 300px;
-        }
-        .profile-contact-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            font-size: 0.95rem;
-            color: var(--color-text-secondary);
-        }
-        .profile-link {
-            color: var(--color-accent);
-            font-weight: 500;
-        }
-        .profile-link:hover {
-            color: var(--color-spark);
-            text-decoration: underline;
-        }
-        .profile-separator {
-            color: var(--color-border);
-        }
-        
-        .cv-container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-        
-        .cv-section {
-            margin-bottom: 4rem;
-        }
-        
-        .cv-section-title {
-            font-size: 1.1rem;
-            color: var(--color-accent);
-            margin-bottom: 2rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid var(--color-border);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            min-height: 3.5rem;
-            display: flex;
-            align-items: flex-end;
-            line-height: 1.3;
+        /* Tokens locales: solo viven dentro del perfil. */
+        .profile-layout-grid {
+            --pf-muted: #64748B;
+            --pf-line: rgba(6, 10, 19, 0.09);
+            --pf-accent-soft: rgba(0, 119, 182, 0.09);
+            --pf-accent-line: rgba(0, 119, 182, 0.28);
         }
 
-        .cv-card {
-            background: var(--color-card-bg);
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), inset 0 -1px 1px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: var(--card-blur);
-            -webkit-backdrop-filter: var(--card-blur);
+        /* ---------------------------------------------------------------- Rejilla */
+
+        .profile-layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        @media (min-width: 992px) {
+            .profile-layout-grid {
+                grid-template-columns: minmax(0, 1fr) 320px;
+                align-items: start;
+                gap: 1.75rem;
+            }
+        }
+
+        .profile-main,
+        .profile-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            min-width: 0;
+        }
+
+        @media (min-width: 992px) {
+            .profile-sidebar {
+                position: sticky;
+                top: calc(var(--nav-height) + 24px);
+                max-height: calc(100vh - var(--nav-height) - 48px);
+                overflow-y: auto;
+                scrollbar-width: thin;
+                overscroll-behavior: contain;
+            }
+        }
+
+        /* ------------------------------------------------- Sistema de tarjetas */
+
+        .profile-card {
             position: relative;
             z-index: 1;
-            transition: all var(--transition-normal);
-            margin-bottom: 2rem;
+            padding: 0;
+            background: var(--color-card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: var(--card-blur);
+            -webkit-backdrop-filter: var(--card-blur);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 1px rgba(255, 255, 255, 0.05),
+                0 8px 32px rgba(6, 10, 19, 0.12);
+            transition: box-shadow var(--transition-normal);
         }
-        .cv-card::before {
+
+        .profile-card::before {
             content: "";
             position: absolute;
             inset: 0;
@@ -107,187 +142,1094 @@
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             z-index: -1;
-            opacity: 0.3;
+            opacity: 0.35;
+            pointer-events: none;
             transition: opacity var(--transition-normal);
         }
-        .cv-card:hover {
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-        }
-        .cv-card:hover::before {
+
+        .profile-card:hover::before {
             opacity: 1;
         }
-        
-        .cv-timeline {
-            position: relative;
-            padding-left: 2.5rem;
-            --line-mask-stop: -200px; 
+
+        .profile-card-padding {
+            padding: 1.5rem 1.25rem;
         }
-        .cv-timeline::after {
-            content: '';
+
+        @media (min-width: 768px) {
+            .profile-card-padding {
+                padding: 1.85rem 2rem;
+            }
+        }
+
+        .profile-card-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.35rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--pf-line);
+        }
+
+        .profile-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .profile-card-note {
+            font-size: 0.78rem;
+            color: var(--pf-muted);
+            margin: 0;
+        }
+
+        /* --------------------------------------------------------- Portada */
+
+        /* Sin imagen de fondo a propósito: el degradado y la escala graduada
+           inferior son puro CSS y repiten el bisel del avatar. */
+        .profile-intro-cover {
+            aspect-ratio: 1640 / 340;
+            /* El `min-height` no es decorativo: a 375 px la proporción deja la
+               portada en 68 px, y el avatar —138 px con -72 de margen— se salía
+               por arriba de la tarjeta, que lo recorta con `overflow: hidden`. */
+            min-height: 116px;
+            position: relative;
+            border-bottom: 1px solid var(--pf-line);
+            background:
+                linear-gradient(115deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 48%),
+                linear-gradient(135deg, #063E5E 0%, #0077B6 52%, #0596D6 100%);
+            overflow: hidden;
+        }
+
+        /* Escala graduada: las mismas marcas del avatar, tumbadas. */
+        .profile-intro-cover::before {
+            content: "";
             position: absolute;
             left: 0;
-            top: 0;
+            right: 0;
             bottom: 0;
-            width: 2px;
-            background: var(--color-border);
-            -webkit-mask-image: linear-gradient(to bottom, transparent var(--line-mask-stop), black calc(var(--line-mask-stop) + 80px));
-            mask-image: linear-gradient(to bottom, transparent var(--line-mask-stop), black calc(var(--line-mask-stop) + 80px));
+            height: 26px;
+            background: repeating-linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.55) 0 1.5px,
+                    transparent 1.5px 15px);
+            -webkit-mask-image: linear-gradient(to top, #000, transparent);
+            mask-image: linear-gradient(to top, #000, transparent);
         }
-        
-        .cv-timeline-item {
-            position: relative;
-            margin-bottom: 3rem;
-        }
-        .cv-timeline-dot {
+
+        /* Aclarado hacia la esquina del avatar, para que su bisel claro apoye. */
+        .profile-intro-cover::after {
+            content: "";
             position: absolute;
-            left: -2.8rem;
-            top: 2rem;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--color-accent);
-            z-index: 3;
-            box-shadow: 0 0 15px var(--color-accent);
+            inset: 0;
+            background: radial-gradient(circle at 13% 125%, rgba(255, 255, 255, 0.6) 0%, transparent 44%);
+            pointer-events: none;
         }
-        
-        .cv-timeline-header h3 {
-            font-size: 1.15rem;
-            color: var(--color-primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.01em;
-            text-transform: none;
-            min-height: 3.2rem;
-            display: flex;
-            align-items: flex-start;
+
+        .profile-intro-body {
+            padding: 0 1.25rem 1.5rem;
         }
-        
-        .cv-company {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--color-primary);
-            margin-bottom: 0.5rem;
+
+        @media (min-width: 768px) {
+            .profile-intro-body {
+                padding: 0 2rem 1.85rem;
+            }
         }
-        
-        .cv-date {
-            font-size: 0.85rem;
-            color: var(--color-spark);
-            font-weight: 600;
+
+        .profile-intro-avatar-wrapper {
+            margin-top: -72px;
+            margin-bottom: 0.9rem;
+            position: relative;
+            display: inline-block;
+            line-height: 0;
+        }
+
+        /* Ver nota 1 de la cabecera: el marco ya viene en el PNG. */
+        .profile-intro-avatar {
+            width: 138px;
+            height: 138px;
             display: block;
-            margin-bottom: 1rem;
-            letter-spacing: 0.05em;
-        }
-        
-        .cv-list {
-            margin-left: 1.5rem;
-            color: var(--color-text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.7;
-        }
-        .cv-list li {
-            margin-bottom: 0.75rem;
-        }
-        
-        .cv-section-title, 
-        .cv-timeline-item, 
-        .cv-card, 
-        .cv-timeline-dot {
-             will-change: opacity, filter, transform;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 24px rgba(6, 10, 19, 0.22));
         }
 
-        @media (max-width: 768px) {
-            .profile-hero {
-                flex-direction: column;
-                text-align: center;
-                gap: 2rem;
+        @media (min-width: 768px) {
+            .profile-intro-avatar-wrapper {
+                margin-top: -86px;
             }
-            .profile-hero-img-wrapper {
-                width: 200px;
-                height: 200px;
-            }
-            .profile-contact-links {
-                justify-content: center;
-            }
-            .cv-timeline {
-                padding-left: 1.5rem;
-            }
-            .cv-timeline-dot {
-                left: -1.8rem;
-            }
-        }
-        .cv-side-by-side {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 2.5rem;
-            align-items: start;
-        }
 
-        @media (max-width: 992px) {
-            .cv-side-by-side {
-                grid-template-columns: 1fr;
-                gap: 0;
+            .profile-intro-avatar {
+                width: 164px;
+                height: 164px;
             }
         }
 
-        .pro-link-badge {
+        .profile-intro-name-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.45rem;
+        }
+
+        .profile-intro-name {
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--color-primary);
+            margin: 0;
+            line-height: 1.12;
+            text-transform: none;
+        }
+
+        @media (min-width: 768px) {
+            .profile-intro-name {
+                font-size: 2.1rem;
+            }
+        }
+
+        .profile-intro-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 50px;
+            background: var(--pf-accent-soft);
+            border: 1px solid var(--pf-accent-line);
+            color: var(--color-accent);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+
+        a.profile-intro-badge:hover {
+            background: rgba(0, 119, 182, 0.16);
+            border-color: var(--color-accent);
+        }
+
+        .profile-intro-headline {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.6rem 1.25rem;
-            background: var(--color-card-bg);
-            border-radius: 50px;
-            border: 1px solid var(--color-border);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin: 0 0 0.55rem 0;
+            line-height: 1.4;
+        }
+
+        .profile-intro-location {
+            font-size: 0.88rem;
+            color: var(--pf-muted);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-intro-location a {
+            color: var(--color-accent);
             text-decoration: none;
-            transition: all var(--transition-normal);
-            color: var(--color-primary);
             font-weight: 600;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        }
+
+        .profile-intro-location a:hover {
+            text-decoration: underline;
+        }
+
+        /* Al partirse la línea, el «·» se quedaba solo al principio de la
+           segunda: en vertical sobra. */
+        @media (max-width: 559px) {
+            .profile-intro-location {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .profile-intro-location [aria-hidden="true"] {
+                display: none;
+            }
+
+            .profile-intro-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.6rem;
+            }
+
+            .profile-intro-actions .btn-profile-primary {
+                grid-column: 1 / -1;
+                justify-content: center;
+                width: 100%;
+                padding: 0.65rem 1rem;
+            }
+
+            .profile-intro-actions .btn-profile-secondary {
+                justify-content: center;
+                width: 100%;
+                padding: 0.6rem 0.75rem;
+                font-size: 0.78rem;
+            }
+        }
+
+        .profile-intro-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 1.35rem;
+        }
+
+        .btn-profile-primary,
+        .btn-profile-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1.25rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-profile-primary {
+            background: var(--color-accent);
+            color: var(--btn-text);
+            border: 1px solid var(--color-accent);
+            box-shadow: 0 6px 18px rgba(0, 119, 182, 0.25);
+        }
+
+        .btn-profile-primary:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .btn-profile-secondary {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
-        .pro-link-badge:hover {
-            border-color: var(--color-accent);
+
+        .btn-profile-secondary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.15);
+            border-color: var(--color-accent);
             color: var(--color-accent);
         }
-        .cfia-box {
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            padding: 1.25rem;
-            background: var(--color-card-bg);
-            border: 1px solid var(--color-border);
-            border-radius: 16px;
-            margin-top: 2rem;
-            max-width: 480px;
-            transition: all var(--transition-normal);
-            position: relative;
-            overflow: hidden;
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 8px 24px rgba(0, 0, 0, 0.1);
-            -webkit-backdrop-filter: blur(10px);
-            backdrop-filter: blur(10px);
+
+        .btn-profile-primary svg,
+        .btn-profile-secondary svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
         }
-        .cfia-box::before {
-            content: '';
+
+        /* Bloque de identidad: va abierto siempre, no detrás de un clic. */
+        .profile-identity {
+            margin-top: 1.6rem;
+            padding-top: 1.4rem;
+            border-top: 1px solid var(--pf-line);
+        }
+
+        .profile-identity-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin: 0 0 1.1rem 0;
+        }
+
+        .profile-identity-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem 1.75rem;
+            margin: 0;
+        }
+
+        /* Dos columnas y no tres: a tres, «valeria.vargas@valtrix.com» se parte
+           a mitad de palabra. */
+        @media (min-width: 560px) {
+            .profile-identity-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* El icono es un ::before para que <dl> solo contenga <div>, <dt> y <dd>:
+           un <span> ahí dentro es HTML inválido. */
+        .profile-identity-item {
+            display: grid;
+            grid-template-columns: 32px minmax(0, 1fr);
+            column-gap: 0.75rem;
+            align-items: start;
+            min-width: 0;
+        }
+
+        .profile-identity-item::before {
+            content: attr(data-icon);
+            grid-column: 1;
+            grid-row: 1 / span 2;
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            background: var(--pf-accent-soft);
+            border: 1px solid var(--pf-accent-line);
+            color: var(--color-accent);
+            font-size: 0.85rem;
+            line-height: 1;
+        }
+
+        .profile-identity-label {
+            grid-column: 2;
+            grid-row: 1;
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin-bottom: 0.15rem;
+        }
+
+        .profile-identity-value {
+            grid-column: 2;
+            grid-row: 2;
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            line-height: 1.35;
+            overflow-wrap: break-word;
+        }
+
+        .profile-identity-value a {
+            color: var(--color-primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--pf-accent-line);
+        }
+
+        .profile-identity-value a:hover {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        .profile-identity-value .mono {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: var(--color-spark);
+            letter-spacing: 0.05em;
+        }
+
+        /* -------------------------------------------------------- Texto corrido */
+
+        .profile-text-body {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        .profile-text-body p {
+            margin: 0 0 1rem 0;
+        }
+
+        .profile-text-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .profile-text-body strong {
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .profile-quote {
+            margin: 1.5rem 0 0 0;
+            padding: 1.1rem 1.25rem;
+            border-left: 3px solid var(--color-accent);
+            border-radius: 0 10px 10px 0;
+            background: var(--pf-accent-soft);
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--color-primary);
+        }
+
+        .profile-quote footer {
+            display: block;
+            margin-top: 0.6rem;
+            font-style: normal;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+        }
+
+        /* ------------------------------------------- Entradas desplegables */
+
+        .profile-feed-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-entry {
+            border-bottom: 1px solid var(--pf-line);
+        }
+
+        .profile-entry:last-child {
+            border-bottom: none;
+        }
+
+        .profile-entry-head {
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+            padding: 1.15rem 0;
+            cursor: pointer;
+            list-style: none;
+            transition: opacity var(--transition-fast);
+        }
+
+        .profile-entry:first-child > .profile-entry-head {
+            padding-top: 0;
+        }
+
+        .profile-entry:last-child:not([open]) > .profile-entry-head {
+            padding-bottom: 0;
+        }
+
+        .profile-entry-head::-webkit-details-marker {
+            display: none;
+        }
+
+        .profile-entry-head:hover .profile-entry-title,
+        .profile-entry-head:focus-visible .profile-entry-title {
+            color: var(--color-accent);
+        }
+
+        .profile-entry-head:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 4px;
+            border-radius: 8px;
+        }
+
+        .profile-entry-logo {
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid var(--color-border);
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            color: var(--color-accent);
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            overflow: hidden;
+        }
+
+        .profile-entry-heading {
+            flex: 1;
+            min-width: 0;
+            display: block;
+        }
+
+        .profile-entry-title {
+            display: block;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.35;
+            letter-spacing: -0.01em;
+            transition: color var(--transition-fast);
+        }
+
+        .profile-entry-subtitle {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            line-height: 1.4;
+            margin-top: 0.15rem;
+        }
+
+        .profile-entry-meta {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--color-spark);
+            line-height: 1.4;
+            margin-top: 0.2rem;
+        }
+
+        .profile-entry-teaser {
+            display: block;
+            font-size: 0.86rem;
+            color: var(--pf-muted);
+            line-height: 1.55;
+            margin-top: 0.55rem;
+        }
+
+        .profile-entry[open] .profile-entry-teaser {
+            display: none;
+        }
+
+        .profile-entry-chevron {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: var(--pf-muted);
+            border: 1px solid transparent;
+            transition: transform var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+        }
+
+        .profile-entry-chevron::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: translateY(-2px) rotate(45deg);
+        }
+
+        .profile-entry-head:hover .profile-entry-chevron {
+            color: var(--color-accent);
+            border-color: var(--pf-accent-line);
+        }
+
+        .profile-entry[open] > .profile-entry-head .profile-entry-chevron {
+            transform: rotate(180deg);
+            color: var(--color-accent);
+        }
+
+        .profile-entry-body {
+            padding: 0 0 1.35rem 0;
+        }
+
+        @media (min-width: 560px) {
+            .profile-entry-body {
+                padding-left: calc(46px + 0.9rem);
+            }
+        }
+
+        .profile-entry-points {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .profile-entry-points li {
+            position: relative;
+            padding-left: 1.15rem;
+            font-size: 0.89rem;
+            line-height: 1.65;
+            color: var(--color-text-secondary);
+        }
+
+        .profile-entry-points li::before {
+            content: "";
             position: absolute;
             left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
+            top: 0.62em;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
             background: var(--color-accent);
-            border-radius: 4px 0 0 4px;
         }
-        .cfia-box:hover {
+
+        .profile-entry-points strong {
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .profile-entry-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 1rem;
+        }
+
+        /* Animación de apertura donde el navegador la soporta; donde no, abre y
+           cierra de golpe, que es el comportamiento nativo correcto. */
+        @supports selector(::details-content) {
+            /* Acotado a la entrada, no en :root: `interpolate-size` es heredable
+               y afectaría a las transiciones de todo el sitio. */
+            .profile-entry {
+                interpolate-size: allow-keywords;
+            }
+
+            .profile-entry::details-content {
+                block-size: 0;
+                overflow: hidden;
+                opacity: 0;
+                content-visibility: hidden;
+                transition: block-size var(--transition-normal), opacity var(--transition-fast), content-visibility var(--transition-normal) allow-discrete;
+            }
+
+            .profile-entry[open]::details-content {
+                block-size: auto;
+                opacity: 1;
+                content-visibility: visible;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .profile-entry::details-content,
+            .profile-entry-chevron {
+                transition: none;
+            }
+        }
+
+        /* ------------------------------------------------------ Credenciales */
+
+        .profile-credentials {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            margin-top: 1.1rem;
+        }
+
+        .profile-credential {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.7rem 0.9rem;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .profile-credential-icon {
+            flex-shrink: 0;
+            width: 32px;
+            height: 40px;
+            border-radius: 4px;
+            display: grid;
+            place-items: center;
+            background: var(--pf-accent-soft);
+            border: 1px solid var(--pf-accent-line);
+            color: var(--color-accent);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .profile-credential-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .profile-credential-name {
+            display: block;
+            font-size: 0.87rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.35;
+        }
+
+        .profile-credential-note {
+            display: block;
+            font-size: 0.77rem;
+            color: var(--pf-muted);
+            line-height: 1.4;
+            margin-top: 0.12rem;
+        }
+
+        .profile-credential-action {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 50px;
+            border: 1px solid var(--pf-accent-line);
+            color: var(--color-accent);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+
+        .profile-credential-action:hover {
+            background: var(--color-accent);
+            color: var(--btn-text);
             border-color: var(--color-accent);
-            box-shadow: 0 12px 30px rgba(0, 212, 255, 0.1);
+        }
+
+        /* Hueco reservado: la entrada existe, el documento todavía no. */
+        .profile-credential.is-pending {
+            border-style: dashed;
+            background: transparent;
+        }
+
+        .profile-credential.is-pending .profile-credential-icon {
+            background: rgba(255, 255, 255, 0.35);
+            border-style: dashed;
+            border-color: var(--color-border);
+            color: var(--pf-muted);
+        }
+
+        .profile-credential.is-pending .profile-credential-name {
+            color: var(--color-text-secondary);
+            font-weight: 600;
+        }
+
+        .profile-credential-status {
+            flex-shrink: 0;
+            padding: 0.3rem 0.75rem;
+            border-radius: 50px;
+            background: rgba(6, 10, 19, 0.05);
+            border: 1px solid var(--color-border);
+            color: var(--pf-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+
+        /* En móvil el botón no cabe al lado del texto: baja a su propia fila. */
+        @media (max-width: 559px) {
+            .profile-credential {
+                display: grid;
+                grid-template-columns: 32px minmax(0, 1fr);
+                column-gap: 0.8rem;
+                row-gap: 0.7rem;
+                align-items: start;
+            }
+
+            .profile-credential-icon { grid-area: 1 / 1; }
+            .profile-credential-text { grid-area: 1 / 2; }
+
+            .profile-credential-action,
+            .profile-credential-status {
+                grid-area: 2 / 2;
+                justify-self: start;
+            }
+        }
+
+        /* ------------------------------------------------------- Competencias */
+
+        .profile-skill-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-secondary);
+            font-size: 0.77rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .profile-skill-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .profile-skill-group-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin: 0 0 0.75rem 0;
+        }
+
+        .profile-skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* --------------------------------------------------------- Referencias */
+
+        .profile-references {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 700px) {
+            .profile-references {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        .profile-reference {
+            padding: 1rem 1.1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .profile-reference-name {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.35;
+        }
+
+        .profile-reference-role {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--pf-muted);
+            line-height: 1.5;
+            margin-top: 0.2rem;
+        }
+
+        .profile-reference-tel {
+            display: inline-block;
+            margin-top: 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .profile-reference-tel:hover {
+            text-decoration: underline;
+        }
+
+        /* ------------------------------------------------------ Barra lateral */
+
+        .profile-widget {
+            position: relative;
+            z-index: 1;
+            background: var(--color-card-bg);
+            border-radius: 12px;
+            padding: 1.35rem 1.25rem;
+            backdrop-filter: var(--card-blur);
+            -webkit-backdrop-filter: var(--card-blur);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                0 8px 32px rgba(6, 10, 19, 0.1);
+        }
+
+        .profile-widget::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: var(--chrome-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .profile-widget-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin: 0 0 1.1rem 0;
+        }
+
+        .profile-authority {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .profile-authority-item {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            column-gap: 0.75rem;
+            align-items: baseline;
+            padding-bottom: 0.9rem;
+            border-bottom: 1px solid var(--pf-line);
+        }
+
+        .profile-authority-item:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .profile-authority-value {
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: var(--color-accent);
+            white-space: nowrap;
+        }
+
+        .profile-authority-label {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            line-height: 1.45;
+        }
+
+        .profile-quick-facts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .profile-fact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-fact-item a {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--pf-accent-line);
+        }
+
+        .profile-fact-item a:hover {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        .profile-fact-icon {
+            flex-shrink: 0;
+            width: 18px;
+            color: var(--color-accent);
+            line-height: 1.5;
+        }
+
+        .profile-fact-icon svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+        }
+
+        .profile-widget-cta {
+            display: block;
+            margin-top: 1.25rem;
+            padding: 0.7rem 1rem;
+            border-radius: 50px;
+            background: var(--color-accent);
+            border: 1px solid var(--color-accent);
+            color: var(--btn-text);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            box-shadow: 0 6px 18px rgba(0, 119, 182, 0.25);
+        }
+
+        .profile-widget-cta:hover {
             transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .profile-service-links {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-service-link {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--pf-line);
+            color: var(--color-primary);
+            font-size: 0.87rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .profile-service-link:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .profile-service-link:hover {
+            color: var(--color-accent);
+        }
+
+        .profile-service-link span {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--pf-muted);
+            white-space: nowrap;
+        }
+
+        /* ---------------------------------------------------------- Impresión */
+
+        /* El perfil es un CV: tiene que salir entero en papel. */
+        @media print {
+            .navbar,
+            .footer,
+            .fab-wrapper,
+            #loader,
+            .profile-sidebar,
+            .profile-intro-actions,
+            .profile-entry-chevron {
+                display: none !important;
+            }
+
+            body::before,
+            body::after {
+                display: none !important;
+            }
+
+            .profile-entry-body,
+            .profile-entry::details-content {
+                display: block !important;
+                block-size: auto !important;
+                opacity: 1 !important;
+                content-visibility: visible !important;
+            }
+
+            .profile-entry-teaser {
+                display: none !important;
+            }
+
+            .profile-card {
+                background: none;
+                border: 1px solid #ccc;
+                box-shadow: none;
+                backdrop-filter: none;
+                break-inside: avoid;
+            }
         }
     </style>
 </head>
 
-<body class="loading light-mode">
+<body class="loading">
 
     <!-- Loading Page -->
     <div id="loader" class="loader">
@@ -299,18 +1241,17 @@
         document.body.style.overflow = 'hidden';
     </script>
 
-
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container navbar-container">
             <a href="index.html" class="brand-logo">VALTRIX <span class="brand-accent">Engineering</span></a>
-            
+
             <ul class="nav-menu">
-                <li><a href="control-metrologico.html" class="nav-link">Metrología</a></li>
-                <li><a href="tableros-de-control.html" class="nav-link">Inteligencia BI</a></li>
-                <li><a href="precios.html" class="nav-link">Inversión</a></li>
-                <li><a href="metodologia.html" class="nav-link">Metodología</a></li>
-                <li><a href="contacto.html" class="btn btn-primary nav-btn">CONTACTO <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></a></li>
+                <li><a href="panel-de-control.html" class="nav-link">Panel de Control</a></li>
+                <li><a href="orden-operativo.html" class="nav-link">Orden Operativo</a></li>
+                <li><a href="precios.html" class="nav-link">Precios</a></li>
+                <li><a href="valeria-vargas.html" class="nav-link" aria-current="page">Nosotros</a></li>
+                <li><a href="contacto.html" class="btn btn-primary nav-btn">Contacto</a></li>
             </ul>
 
             <button class="hamburger">
@@ -321,256 +1262,562 @@
         </div>
     </nav>
 
-    <!-- Header -->
-    <header class="page-header profile-header" style="padding: 10rem 0 3rem 0;">
-        <div class="container">
-            <div class="profile-hero">
-                <div class="profile-hero-img-wrapper">
-                    <img src="Images/IMG_6429.jpg" alt="Valeria Vargas Ávila" class="profile-hero-img">
-                </div>
-                <div class="profile-hero-text">
-                    <h1 style="font-size: 3rem; margin-bottom: 0.25rem; color: var(--color-primary); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;">Valeria Vargas Ávila</h1>
-                    <p style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--color-accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
-                        Ingeniera Industrial & Fundadora
-                    </p>
-                    
-                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <a href="mailto:vargasavila98@gmail.com" class="pro-link-badge">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            vargasavila98@gmail.com
-                        </a>
-                        <a href="https://wa.me/50684880406" class="pro-link-badge" target="_blank">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            (+506) 8488-0406
-                        </a>
+    <main style="padding-top: calc(var(--nav-height) + 3rem); padding-bottom: 5rem;">
+        <div class="profile-layout-grid">
+
+            <!-- Columna principal -->
+            <div class="profile-main">
+
+                <!-- Portada -->
+                <section class="profile-card">
+                    <div class="profile-intro-cover" role="img" aria-label="VALTRIX Engineering"></div>
+                    <div class="profile-intro-body">
+                        <div class="profile-intro-avatar-wrapper">
+                            <img src="Images/avatar/AVATAR-VALTRIX-VALERIA-VXe-TITANIO-TRANSPARENTE-512.png"
+                                 alt="Valeria Vargas Ávila" class="profile-intro-avatar" width="164" height="164">
+                        </div>
+                        <div class="profile-intro-name-row">
+                            <h1 class="profile-intro-name">Valeria Vargas Ávila</h1>
+                            <a class="profile-intro-badge" href="index.html">VALTRIX Engineering</a>
+                        </div>
+                        <p class="profile-intro-headline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; flex-shrink: 0;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                            Ingeniera Industrial &amp; Fundadora
+                        </p>
+                        <p class="profile-intro-location">
+                            <span>Costa Rica · Gran Área Metropolitana y remoto</span>
+                            <span aria-hidden="true">·</span>
+                            <a href="contacto.html">Datos de contacto</a>
+                        </p>
+
+                        <div class="profile-intro-actions">
+                            <a href="contacto.html" class="btn-profile-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                Agende una visita, sin costo
+                            </a>
+                            <a href="https://wa.me/50684880406" target="_blank" rel="noopener noreferrer" class="btn-profile-secondary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                WhatsApp
+                            </a>
+                            <a href="mailto:valeria.vargas@valtrix.com" class="btn-profile-secondary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                Correo
+                            </a>
+                        </div>
+
+                        <div class="profile-identity">
+                            <h2 class="profile-identity-title">Datos profesionales</h2>
+                            <dl class="profile-identity-grid">
+                                <div class="profile-identity-item" data-icon="✔">
+                                    <dt class="profile-identity-label">Colegiatura</dt>
+                                    <dd class="profile-identity-value">Miembro activa CFIA desde 2025</dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="▤">
+                                    <dt class="profile-identity-label">Carné</dt>
+                                    <dd class="profile-identity-value"><span class="mono">000000</span></dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="◎">
+                                    <dt class="profile-identity-label">Certificación</dt>
+                                    <dd class="profile-identity-value">Auditora interna ISO 9001:2015</dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="⧗">
+                                    <dt class="profile-identity-label">Trayectoria</dt>
+                                    <dd class="profile-identity-value"><span data-anios>9</span> años en manufactura e infraestructura</dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="@">
+                                    <dt class="profile-identity-label">Correo</dt>
+                                    <dd class="profile-identity-value"><a href="mailto:valeria.vargas@valtrix.com">valeria.vargas@valtrix.com</a></dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="✆">
+                                    <dt class="profile-identity-label">WhatsApp</dt>
+                                    <dd class="profile-identity-value"><a href="https://wa.me/50684880406" target="_blank" rel="noopener noreferrer">(+506) 8488-0406</a></dd>
+                                </div>
+                            </dl>
+                        </div>
                     </div>
-                    
-                    <div class="cfia-box">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px; flex-shrink: 0; margin-top: 0.2rem;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                        <div>
-                            <p style="margin: 0; color: var(--color-primary); font-weight: 700; font-size: 1.05rem; margin-bottom: 0.35rem; letter-spacing: -0.01em;">Miembro Activa CFIA</p>
-                            <p style="margin: 0; color: var(--color-text-secondary); font-size: 0.9rem; line-height: 1.6;">Colegiada ante el Colegio Federado de Ingenieros y Arquitectos desde 2025.</p>
-                            <div style="margin-top: 0.75rem; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.05); padding: 0.25rem 0.75rem; border-radius: 6px; border: 1px solid rgba(0,0,0,0.05);">
-                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Carné</span>
-                                <span style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--color-spark); font-size: 1rem;">000000</span>
+                </section>
+
+                <!-- Sobre mí -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Sobre mí</h2>
+                        </div>
+                        <div class="profile-text-body">
+                            <p>Ingeniera industrial con <strong><span data-anios>9</span> años</strong> entre industria electrónica, médica, construcción e infraestructura, y auditora certificada en la Norma Internacional de Calidad <strong>ISO 9001:2015</strong>. Mi trabajo ha sido siempre el mismo: entrar a una operación, entender cómo funciona de verdad y dejarla ordenada, medida y documentada.</p>
+                            <p>Fundé VALTRIX Engineering para llevar ese mismo rigor a los negocios que nunca van a tener un ingeniero industrial en planilla: talleres, consultorios, distribuidoras, sodas y microfábricas de tres a veinte personas. Son negocios que funcionan, que venden, y que operan a ciegas porque su información vive repartida entre varias hojas de Excel y una libreta. Ordenar eso no requiere un sistema corporativo: requiere criterio y una semana de trabajo bien hecho. Cada trabajo lo atiendo personalmente.</p>
+                            <blockquote class="profile-quote">
+                                “Sé por qué un procedimiento se incumple en la práctica, no solo por qué debería cumplirse en el papel. Atiendo personalmente cada intervención.”
+                                <footer>Valeria Vargas Ávila — Fundadora</footer>
+                            </blockquote>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Experiencia laboral -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Experiencia laboral</h2>
+                            <p class="profile-card-note">Pulse cualquier entrada para desplegarla</p>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <details class="profile-entry" open>
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">A</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Ingeniera Industrial</span>
+                                        <span class="profile-entry-subtitle">AERIS Holding Costa Rica</span>
+                                        <span class="profile-entry-meta">Ene 2024 – Actualidad</span>
+                                        <span class="profile-entry-teaser">Gestión integral de proyectos de infraestructura aeroportuaria: cronograma, costos, alcance y calidad en obra.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li>Soporte estratégico en la gestión integral de proyectos de infraestructura aeroportuaria.</li>
+                                        <li>Coordinación de equipos multidisciplinarios (ingeniería civil, electromecánica, pavimentos e industrial), asegurando alineación con los objetivos del proyecto.</li>
+                                        <li>Planificación, seguimiento y control de cronograma, costos y alcance, garantizando cumplimiento de hitos establecidos.</li>
+                                        <li>Elaboración de reportes ejecutivos y análisis de indicadores clave de desempeño para la toma de decisiones gerenciales.</li>
+                                        <li>Gestión y control de documentación técnica y contractual, asegurando trazabilidad y cumplimiento normativo.</li>
+                                        <li>Implementación y seguimiento de estándares de calidad en obra, verificando cumplimiento de especificaciones técnicas y buenas prácticas constructivas.</li>
+                                        <li>Apoyo en procesos de aseguramiento y control de calidad mediante inspecciones, revisión de entregables y validación de actividades ejecutadas.</li>
+                                        <li>Articulación entre áreas técnicas y administrativas para optimizar la eficiencia operativa de los proyectos.</li>
+                                        <li>Soporte en la supervisión de campo, asegurando cumplimiento de plazos, calidad y requisitos técnicos.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Gestión de proyectos</span>
+                                        <span class="profile-skill-chip">Cronograma, costos y alcance</span>
+                                        <span class="profile-skill-chip">Indicadores de desempeño</span>
+                                        <span class="profile-skill-chip">Control documental</span>
+                                        <span class="profile-skill-chip">Calidad en obra</span>
+                                        <span class="profile-skill-chip">Supervisión de campo</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">S</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Asistente Administrativa</span>
+                                        <span class="profile-entry-subtitle">Grupo SEAR</span>
+                                        <span class="profile-entry-meta">Jun 2022 – May 2023</span>
+                                        <span class="profile-entry-teaser">Mejora de procesos y control documental bajo la Norma Internacional de Calidad, con levantamiento de datos e indicadores.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li>Realizar mejora en proceso realizando y controlando documentos bajo la Norma Internacional de Calidad.</li>
+                                        <li>Controlar, revisar, archivar, cuestionar y estandarizar documentos tanto digital como físicamente, creando distintos respaldos por cualquier eventualidad en el sistema tecnológico.</li>
+                                        <li>Realizar observaciones, seguimiento, cuestionamientos, análisis para establecer idea en la mejora continua de los procesos, con levantamiento de datos, para ser expuestos por medio de indicadores.</li>
+                                        <li>Realización de diagrama de flujos, disminución de tiempos de respuesta en los distintos servicios ya sea cliente interno y externo.</li>
+                                        <li>Proponer ideas de innovación, eficientes, optimas y confiables en los distintos procesos.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Mejora continua</span>
+                                        <span class="profile-skill-chip">Control documental</span>
+                                        <span class="profile-skill-chip">Estandarización</span>
+                                        <span class="profile-skill-chip">Diagramas de flujo</span>
+                                        <span class="profile-skill-chip">Indicadores</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">P</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Técnico de Procesos y Operaria</span>
+                                        <span class="profile-entry-subtitle">Philips</span>
+                                        <span class="profile-entry-meta">Jul 2020 – Jul 2022</span>
+                                        <span class="profile-entry-teaser">Control de más de 1000 equipos de medición y su calibración, bajo cumplimiento regulatorio internacional.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li><strong>Técnico de procesos (Jul 2021 – Jun 2022):</strong> Controlar más de 1000 equipos de medición (Tool, reglas, termómetros, hornos, etc.).</li>
+                                        <li>Controlar el seguimiento de la calibración y qué tipo de calibración, implicando el orden y cuestionamiento del proceso.</li>
+                                        <li>Contar con criterio propio y respuesta inmediata ante situaciones del día a día (cumplimiento regulatorio internacional).</li>
+                                        <li>Uso de SAP para la identificación de inventarios, productos, costos, inversión en equipos, verificar fechas y fabricantes.</li>
+                                        <li>Seguimiento y realización de documentos controlados con sus respectivas revisiones y mejoras para cumplir la Norma Internacional de Calidad.</li>
+                                        <li><strong>Operaria (Jul 2020 – Jul 2021):</strong> Uso de microscopios y soldadoras en líneas de producción, con seguimiento de ayudas visuales, diagramas de flujos y estándares de calidad.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Control de calibración</span>
+                                        <span class="profile-skill-chip">Metrología</span>
+                                        <span class="profile-skill-chip">SAP</span>
+                                        <span class="profile-skill-chip">Cumplimiento regulatorio</span>
+                                        <span class="profile-skill-chip">Documentos controlados</span>
+                                        <span class="profile-skill-chip">Dispositivos médicos</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">T</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Técnico de Producción y Operaria</span>
+                                        <span class="profile-entry-subtitle">Trimpot Electrónica</span>
+                                        <span class="profile-entry-meta">May 2017 – May 2020</span>
+                                        <span class="profile-entry-teaser">Control estadístico de producción con SAP, Excel y Minitab, e interpretación de planos y simbología.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li><strong>Técnico de producción (May 2018 – May 2020):</strong> Seguimiento y control de gráficas con interpretación de variaciones, medias, límites, usando herramientas como SAP, Excel y minitab.</li>
+                                        <li>Análisis de recolección de datos de forma precisa y óptima, con programación de tiempos establecidos.</li>
+                                        <li>Interpretar los planos y su simbología para tomar decisiones con criterio sólido.</li>
+                                        <li>Realización de documentos controlados bajo la Norma Internacional de Calidad.</li>
+                                        <li><strong>Operaria (May 2017 – May 2018):</strong> Uso de microscopios y soldadoras. Cumplimiento de metas con análisis crítico visual si el producto pasaba o no pasaba.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Gráficas de control</span>
+                                        <span class="profile-skill-chip">Minitab</span>
+                                        <span class="profile-skill-chip">Excel</span>
+                                        <span class="profile-skill-chip">SAP</span>
+                                        <span class="profile-skill-chip">Lectura de planos</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Formación académica.
+                     Los huecos «is-pending» están puestos a propósito: cuando
+                     llegue un título, se copia el PDF a «Titulos/» y se cambia
+                     ese único bloque por uno con «href» +
+                     «profile-credential-action». No hace falta tocar nada más. -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Formación académica</h2>
+                            <p class="profile-card-note">Pulse cualquier entrada para desplegarla</p>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <details class="profile-entry" open>
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">F</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Licenciatura en Ingeniería Industrial</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">2026</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <div class="profile-credentials">
+                                        <div class="profile-credential is-pending">
+                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
+                                            <span class="profile-credential-text">
+                                                <span class="profile-credential-name">Título de Licenciatura en Ingeniería Industrial</span>
+                                                <span class="profile-credential-note">Documento no publicado</span>
+                                            </span>
+                                            <span class="profile-credential-status">Pendiente</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">F</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Bachillerato en Ingeniería Industrial</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">2023</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <div class="profile-credentials">
+                                        <div class="profile-credential is-pending">
+                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
+                                            <span class="profile-credential-text">
+                                                <span class="profile-credential-name">Título de Bachillerato en Ingeniería Industrial</span>
+                                                <span class="profile-credential-note">Documento no publicado</span>
+                                            </span>
+                                            <span class="profile-credential-status">Pendiente</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">F</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Ingeniería en Cadena de Suministros y Logística</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">75 % de la malla curricular</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <div class="profile-credentials">
+                                        <div class="profile-credential is-pending">
+                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
+                                            <span class="profile-credential-text">
+                                                <span class="profile-credential-name">Ingeniería en Cadena de Suministros y Logística</span>
+                                                <span class="profile-credential-note">Malla curricular completada al 75 %</span>
+                                            </span>
+                                            <span class="profile-credential-status">En curso</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Certificaciones -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Certificaciones</h2>
+                            <p class="profile-card-note">Pulse cualquier entrada para desplegarla</p>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <details class="profile-entry" open>
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">◎</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Auditor en la Norma Internacional de Calidad 9001-2015</span>
+                                        <span class="profile-entry-subtitle">SHERPA Consultores</span>
+                                        <span class="profile-entry-meta">2023</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <div class="profile-credentials">
+                                        <div class="profile-credential is-pending">
+                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
+                                            <span class="profile-credential-text">
+                                                <span class="profile-credential-name">Certificado de auditor ISO 9001:2015</span>
+                                                <span class="profile-credential-note">Documento no publicado</span>
+                                            </span>
+                                            <span class="profile-credential-status">Pendiente</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">▦</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Power BI</span>
+                                        <span class="profile-entry-subtitle">UTN — Universidad Técnica Nacional</span>
+                                        <span class="profile-entry-meta">2023</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <div class="profile-credentials">
+                                        <div class="profile-credential is-pending">
+                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
+                                            <span class="profile-credential-text">
+                                                <span class="profile-credential-name">Certificado de Power BI</span>
+                                                <span class="profile-credential-note">Documento no publicado</span>
+                                            </span>
+                                            <span class="profile-credential-status">Pendiente</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Habilidades (formación complementaria) -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Habilidades</h2>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <details class="profile-entry" open>
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">▤</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Excel Intermedio</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">2022</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <div class="profile-credentials">
+                                        <div class="profile-credential is-pending">
+                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
+                                            <span class="profile-credential-text">
+                                                <span class="profile-credential-name">Certificado de Excel Intermedio</span>
+                                                <span class="profile-credential-note">Documento no publicado</span>
+                                            </span>
+                                            <span class="profile-credential-status">Pendiente</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">EN</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Inglés Ejecutivo</span>
+                                        <span class="profile-entry-subtitle">Academia Líder</span>
+                                        <span class="profile-entry-meta">Nivel A2</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <div class="profile-credentials">
+                                        <div class="profile-credential is-pending">
+                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
+                                            <span class="profile-credential-text">
+                                                <span class="profile-credential-name">Certificado de Inglés Ejecutivo — nivel A2</span>
+                                                <span class="profile-credential-note">Documento no publicado</span>
+                                            </span>
+                                            <span class="profile-credential-status">Pendiente</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Competencias: agrupa lo que ya aparece en la experiencia, para
+                     poder leerlo de un vistazo sin desplegar cada entrada. -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Competencias</h2>
+                            <p class="profile-card-note">Resumen de la experiencia listada arriba</p>
+                        </div>
+                        <div class="profile-skill-groups">
+                            <div>
+                                <h3 class="profile-skill-group-title">Calidad y normativa</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">ISO 9001:2015</span>
+                                    <span class="profile-skill-chip">Auditoría interna</span>
+                                    <span class="profile-skill-chip">Documentos controlados</span>
+                                    <span class="profile-skill-chip">Cumplimiento regulatorio</span>
+                                    <span class="profile-skill-chip">Mejora continua</span>
+                                    <span class="profile-skill-chip">Trazabilidad</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Datos e indicadores</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Power BI</span>
+                                    <span class="profile-skill-chip">Excel</span>
+                                    <span class="profile-skill-chip">Minitab</span>
+                                    <span class="profile-skill-chip">SAP</span>
+                                    <span class="profile-skill-chip">Indicadores de desempeño</span>
+                                    <span class="profile-skill-chip">Gráficas de control</span>
+                                    <span class="profile-skill-chip">Levantamiento de datos</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Procesos y operación</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Diagramas de flujo</span>
+                                    <span class="profile-skill-chip">Estandarización</span>
+                                    <span class="profile-skill-chip">Ayudas visuales</span>
+                                    <span class="profile-skill-chip">Control de calibración</span>
+                                    <span class="profile-skill-chip">Metrología</span>
+                                    <span class="profile-skill-chip">Control de inventarios</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Gestión de proyectos</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Cronograma, costos y alcance</span>
+                                    <span class="profile-skill-chip">Reportes ejecutivos</span>
+                                    <span class="profile-skill-chip">Equipos multidisciplinarios</span>
+                                    <span class="profile-skill-chip">Supervisión de campo</span>
+                                    <span class="profile-skill-chip">Documentación contractual</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
+
+
+
             </div>
-        </div>
-    </header>
 
-    <main class="page-content section-gray" style="padding: 2.5rem 0;">
-        <div class="container cv-container">
+            <!-- Barra lateral -->
+            <div class="profile-sidebar">
 
-            <!-- Objetivo Profesional -->
-            <section class="cv-section">
-                <h2 class="cv-section-title">Sobre Mí</h2>
-                <div class="cv-card cv-about-card">
-                    <p style="color: var(--color-text-secondary); line-height: 1.8;">Ingeniera industrial con 9 años entre industria electrónica, médica, construcción e infraestructura, y auditora certificada en la Norma Internacional de Calidad ISO 9001:2015. Mi trabajo ha sido siempre el mismo: entrar a una operación, entender cómo funciona de verdad y dejarla ordenada, medida y documentada.</p>
-                    <p style="color: var(--color-text-secondary); line-height: 1.8; margin-top: 1rem;">Fundé VALTRIX Engineering para llevar ese rigor a las empresas que no pueden tener un ingeniero industrial en planilla: proveedores de zona franca, contratistas de obra civil y electromecánica, e industria alimentaria y farmacéutica nacional. Son operaciones a las que su cliente o el regulador les exige evidencia de control, con estructura de empresa mediana para responder. Cada intervención la atiendo personalmente.</p>
-                </div>
-            </section>
-
-            <!-- Experiencia Laboral -->
-            <section class="cv-section">
-                <h2 class="cv-section-title">Experiencia Laboral</h2>
-                <div class="cv-timeline">
-                    <!-- Item 1 -->
-                    <div class="cv-timeline-item">
-                        <div class="cv-timeline-dot"></div>
-                        <div class="cv-timeline-content cv-card">
-                            <div class="cv-timeline-header">
-                                <h3>Ingeniera Industrial</h3>
-                                <p class="cv-company">AERIS Holding Costa Rica</p>
-                                <span class="cv-date">Ene 2024 – Actualidad</span>
-                            </div>
-                            <ul class="cv-list">
-                                <li>Soporte estratégico en la gestión integral de proyectos de infraestructura aeroportuaria.</li>
-                                <li>Coordinación de equipos multidisciplinarios (ingeniería civil, electromecánica, pavimentos e industrial), asegurando alineación con los objetivos del proyecto.</li>
-                                <li>Planificación, seguimiento y control de cronograma, costos y alcance, garantizando cumplimiento de hitos establecidos.</li>
-                                <li>Elaboración de reportes ejecutivos y análisis de indicadores clave de desempeño para la toma de decisiones gerenciales.</li>
-                                <li>Gestión y control de documentación técnica y contractual, asegurando trazabilidad y cumplimiento normativo.</li>
-                                <li>Implementación y seguimiento de estándares de calidad en obra, verificando cumplimiento de especificaciones técnicas y buenas prácticas constructivas.</li>
-                                <li>Apoyo en procesos de aseguramiento y control de calidad mediante inspecciones, revisión de entregables y validación de actividades ejecutadas.</li>
-                                <li>Articulación entre áreas técnicas y administrativas para optimizar la eficiencia operativa de los proyectos.</li>
-                                <li>Soporte en la supervisión de campo, asegurando cumplimiento de plazos, calidad y requisitos técnicos.</li>
-                            </ul>
+                <div class="profile-widget">
+                    <h2 class="profile-widget-title">Credenciales</h2>
+                    <div class="profile-authority">
+                        <div class="profile-authority-item">
+                            <span class="profile-authority-value">CFIA</span>
+                            <span class="profile-authority-label">Ingeniera Industrial colegiada</span>
                         </div>
-                    </div>
-
-                    <!-- Item 2 -->
-                    <div class="cv-timeline-item">
-                        <div class="cv-timeline-dot"></div>
-                        <div class="cv-timeline-content cv-card">
-                            <div class="cv-timeline-header">
-                                <h3>Asistente Administrativa</h3>
-                                <p class="cv-company">Grupo SEAR</p>
-                                <span class="cv-date">Jun 2022 - May 2023</span>
-                            </div>
-                            <ul class="cv-list">
-                                <li>Realizar mejora en proceso realizando y controlando documentos bajo la Norma Internacional de Calidad.</li>
-                                <li>Controlar, revisar, archivar, cuestionar y estandarizar documentos tanto digital como físicamente, creando distintos respaldos por cualquier eventualidad en el sistema tecnológico.</li>
-                                <li>Realizar observaciones, seguimiento, cuestionamientos, análisis para establecer idea en la mejora continua de los procesos, con levantamiento de datos, para ser expuestos por medio de indicadores.</li>
-                                <li>Realización de diagrama de flujos, disminución de tiempos de respuesta en los distintos servicios ya sea cliente interno y externo.</li>
-                                <li>Proponer ideas de innovación, eficientes, optimas y confiables en los distintos procesos.</li>
-                            </ul>
+                        <div class="profile-authority-item">
+                            <span class="profile-authority-value">ISO 9001:2015</span>
+                            <span class="profile-authority-label">Auditora interna certificada</span>
                         </div>
-                    </div>
-
-                    <!-- Item 3 -->
-                    <div class="cv-timeline-item">
-                        <div class="cv-timeline-dot"></div>
-                        <div class="cv-timeline-content cv-card">
-                            <div class="cv-timeline-header">
-                                <h3>Técnico de Procesos y Operaria</h3>
-                                <p class="cv-company">Philips</p>
-                                <span class="cv-date">Jul 2020 - Jul 2022</span>
-                            </div>
-                            <ul class="cv-list">
-                                <li><strong>Técnico de procesos (Jul 2021 - Jun 2022):</strong> Controlar más de 1000 equipos de medición (Tool, reglas, termómetros, hornos, etc.).</li>
-                                <li>Controlar el seguimiento de la calibración y qué tipo de calibración, implicando el orden y cuestionamiento del proceso.</li>
-                                <li>Contar con criterio propio y respuesta inmediata ante situaciones del día a día (cumplimiento regulatorio internacional).</li>
-                                <li>Uso de SAP para la identificación de inventarios, productos, costos, inversión en equipos, verificar fechas y fabricantes.</li>
-                                <li>Seguimiento y realización de documentos controlados con sus respectivas revisiones y mejoras para cumplir la Norma Internacional de Calidad.</li>
-                                <li><strong>Operaria (Jul 2020 - Jul 2021):</strong> Uso de microscopios y soldadoras en líneas de producción, con seguimiento de ayudas visuales, diagramas de flujos y estándares de calidad.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Item 4 -->
-                    <div class="cv-timeline-item">
-                        <div class="cv-timeline-dot"></div>
-                        <div class="cv-timeline-content cv-card">
-                            <div class="cv-timeline-header">
-                                <h3>Técnico de Producción y Operaria</h3>
-                                <p class="cv-company">Trimpot Electrónica</p>
-                                <span class="cv-date">May 2017 - May 2020</span>
-                            </div>
-                            <ul class="cv-list">
-                                <li><strong>Técnico de producción (May 2018 - May 2020):</strong> Seguimiento y control de gráficas con interpretación de variaciones, medias, límites, usando herramientas como SAP, Excel y minitab.</li>
-                                <li>Análisis de recolección de datos de forma precisa y óptima, con programación de tiempos establecidos.</li>
-                                <li>Interpretar los planos y su simbología para tomar decisiones con criterio sólido.</li>
-                                <li>Realización de documentos controlados bajo la Norma Internacional de Calidad.</li>
-                                <li><strong>Operaria (May 2017 - May 2018):</strong> Uso de microscopios y soldadoras. Cumplimiento de metas con análisis crítico visual si el producto pasaba o no pasaba.</li>
-                            </ul>
+                        <div class="profile-authority-item">
+                            <span class="profile-authority-value"><span data-anios>9</span> años</span>
+                            <span class="profile-authority-label">Manufactura e infraestructura industrial</span>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <div class="cv-side-by-side">
-                <!-- Educación -->
-                <section class="cv-section">
-                    <h2 class="cv-section-title">FORMACIÓN ACADÉMICA</h2>
-                    <div class="cv-timeline">
-                        <div class="cv-timeline-item">
-                            <div class="cv-timeline-dot"></div>
-                            <div class="cv-timeline-content cv-card">
-                                <div class="cv-timeline-header">
-                                    <h3>Licenciatura en Ingeniería Industrial</h3>
-                                    <span class="cv-date">Universidad Fidélitas | 2026</span>
-                                </div>
-                            </div>
+                <div class="profile-widget">
+                    <h2 class="profile-widget-title">Contacto</h2>
+                    <div class="profile-quick-facts">
+                        <div class="profile-fact-item">
+                            <span class="profile-fact-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            </span>
+                            <span><a href="mailto:valeria.vargas@valtrix.com">valeria.vargas@valtrix.com</a></span>
                         </div>
-                        
-                        <div class="cv-timeline-item">
-                            <div class="cv-timeline-dot"></div>
-                            <div class="cv-timeline-content cv-card">
-                                <div class="cv-timeline-header">
-                                    <h3>Bachillerato en Ingeniería Industrial</h3>
-                                    <span class="cv-date">Universidad Fidélitas | 2023</span>
-                                </div>
-                            </div>
+                        <div class="profile-fact-item">
+                            <span class="profile-fact-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            </span>
+                            <span><a href="https://wa.me/50684880406" target="_blank" rel="noopener noreferrer">(+506) 8488-0406</a></span>
                         </div>
-
-                        <div class="cv-timeline-item">
-                            <div class="cv-timeline-dot"></div>
-                            <div class="cv-timeline-content cv-card">
-                                <div class="cv-timeline-header">
-                                    <h3>Ingeniería en Cadena de Suministros y Logística</h3>
-                                    <span class="cv-date">Universidad Fidélitas | 75% malla curricular</span>
-                                </div>
-                            </div>
+                        <div class="profile-fact-item">
+                            <span class="profile-fact-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            </span>
+                            <span>Toda Costa Rica, casi todo remoto. La visita al local va incluida dentro de la GAM.</span>
                         </div>
                     </div>
-                </section>
+                    <a class="profile-widget-cta" href="contacto.html">Agende una visita, sin costo</a>
+                </div>
 
-                <!-- Certificados Parte 1 -->
-                <section class="cv-section">
-                    <h2 class="cv-section-title">CERTIFICACIONES</h2>
-                    <div class="cv-timeline">
-                        <div class="cv-timeline-item">
-                            <div class="cv-timeline-dot"></div>
-                            <div class="cv-timeline-content cv-card">
-                                <div class="cv-timeline-header">
-                                    <h3>Auditor en la Norma Internacional de Calidad 9001-2015</h3>
-                                    <span class="cv-date">SHERPA Consultores | 2023</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="cv-timeline-item">
-                            <div class="cv-timeline-dot"></div>
-                            <div class="cv-timeline-content cv-card">
-                                <div class="cv-timeline-header">
-                                    <h3>Power BI</h3>
-                                    <span class="cv-date">UTN | 2023</span>
-                                </div>
-                            </div>
-                        </div>
+                <div class="profile-widget">
+                    <h2 class="profile-widget-title">Servicios</h2>
+                    <div class="profile-service-links">
+                        <a class="profile-service-link" href="panel-de-control.html">Panel de Control <span>desde $350</span></a>
+                        <a class="profile-service-link" href="orden-operativo.html">Orden Operativo <span>desde $250</span></a>
+                        <a class="profile-service-link" href="precios.html">Precios y alcance <span>Tarifario</span></a>
+                        <a class="profile-service-link" href="metodologia.html">Cómo trabajamos <span>4 pasos</span></a>
                     </div>
-                </section>
+                </div>
 
-                <!-- Certificados Parte 2 -->
-                <section class="cv-section">
-                    <h2 class="cv-section-title">HABILIDADES</h2>
-                    <div class="cv-timeline">
-                        <div class="cv-timeline-item">
-                            <div class="cv-timeline-dot"></div>
-                            <div class="cv-timeline-content cv-card">
-                                <div class="cv-timeline-header">
-                                    <h3>Excel Intermedio</h3>
-                                    <span class="cv-date">Universidad Fidélitas | 2022</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="cv-timeline-item">
-                            <div class="cv-timeline-dot"></div>
-                            <div class="cv-timeline-content cv-card">
-                                <div class="cv-timeline-header">
-                                    <h3>Inglés Ejecutivo</h3>
-                                    <span class="cv-date">Academia Líder | A2</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
             </div>
-            
-            <!-- Referencias -->
-            <section class="cv-section">
-                <h2 class="cv-section-title">Referencias</h2>
-                <div class="cv-card">
-                    <ul style="list-style: none; padding: 0; color: var(--color-text-secondary); line-height: 1.8;">
-                        <li style="margin-bottom: 1rem;">
-                            <strong style="color: var(--color-primary);">Gabriela Alfaro Gutiérrez</strong> - Jefatura de Recursos Humanos, Grupo SEAR. <br>
-                            Tel: (+506) 8994-5632
-                        </li>
-                        <li style="margin-bottom: 1rem;">
-                            <strong style="color: var(--color-primary);">Ana Yancy Murillo</strong> - Inventory Maintenance Technician. <br>
-                            Tel: (+506) 8523-2362
-                        </li>
-                        <li style="margin-bottom: 1rem;">
-                            <strong style="color: var(--color-primary);">Carlos Rojas Esquivel</strong> - Supervisor Trimpot Electrónicas Ltda. <br>
-                            Tel: (+506) 8834-9080
-                        </li>
-                    </ul>
-                </div>
-            </section>
 
         </div>
     </main>
@@ -581,45 +1828,40 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <div class="brand-logo">VALTRIX <span>Engineering</span></div>
-                    <p class="footer-desc">Ingeniería de implementación para la industria regulada costarricense: control metrológico con trazabilidad e información operativa que sostiene la decisión gerencial.</p>
+                    <p class="footer-desc">Ingeniería industrial para micro y pequeñas empresas, emprendedores y startups de Costa Rica.</p>
                 </div>
-                
+
                 <div>
-                    <h4 class="footer-title">Navegación</h4>
+                    <h4 class="footer-title">Servicios</h4>
                     <ul class="footer-links">
-                        <li><a href="control-metrologico.html">Trazabilidad Metrológica</a></li>
-                        <li><a href="tableros-de-control.html">Inteligencia Operativa</a></li>
-                        <li><a href="precios.html">Inversión y alcance</a></li>
-                        <li><a href="metodologia.html">Metodología y estándares</a></li>
+                        <li><a href="panel-de-control.html">Panel de Control</a></li>
+                        <li><a href="orden-operativo.html">Orden Operativo</a></li>
+                        <li><a href="precios.html">Precios y alcance</a></li>
+                        <li><a href="metodologia.html">Cómo trabajamos</a></li>
+                        <li><a href="https://elysiumdr.eu/es/profiles">Su cuenta</a></li>
                     </ul>
                 </div>
-                
+
                 <div>
                     <h4 class="footer-title">Detalles de Contacto</h4>
                     <ul class="footer-meta">
-                        <li>valeria.vargas@valtrix.cr</li>
-                        <li>+506 8488-0406</li>
-                        <li style="margin-top: 1rem; color: var(--color-spark); font-weight: 700;">WhatsApp</li>
-                        <li>
-                            <a href="https://wa.me/50684880406" target="_blank" style="padding: 0.5rem;">
-                                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-                            </a>
-                        </li>
+                        <li>info@valtrix.com</li>
+                        <li><a href="https://wa.me/50684880406" target="_blank" rel="noopener">WhatsApp</a></li>
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
                 <div class="footer-bottom-group">
                     <div>VALTRIX Engineering © 2026</div>
                     <div class="footer-bottom-links">
                         <a href="#">Configuración de Privacidad</a>
                         <a href="#">Política de Privacidad</a>
-                        <a href="#">Términos & Condiciones</a>
+                        <a href="#">Términos &amp; Condiciones</a>
                     </div>
                 </div>
                 <div class="footer-credits">
-                    <a href="https://elysiumdr.eu" target="_blank" style="color: inherit; text-decoration: none; letter-spacing: 0.05em;">Elysium λ Development & Research</a>
+                    <a href="https://elysiumdr.eu" target="_blank" style="color: inherit; text-decoration: none; letter-spacing: 0.05em;">Elysium λ Development &amp; Research</a>
                 </div>
             </div>
         </div>
@@ -636,16 +1878,9 @@
             </div>
             <div class="fab-option-item">
                 <span class="fab-label">Email</span>
-                <a href="mailto:valeria.vargas@valtrix.cr" class="fab-option-btn email-btn" aria-label="Email">
+                <a href="mailto:valeria.vargas@valtrix.com" class="fab-option-btn email-btn" aria-label="Email">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                 </a>
-            </div>
-            <div class="fab-option-item">
-                <span class="fab-label">Tema</span>
-                <button class="fab-option-btn theme-btn" id="theme-toggle" aria-label="Cambiar Tema">
-                    <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                    <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-                </button>
             </div>
         </div>
         <button class="fab-main" id="fab-main" aria-label="Más opciones">
@@ -653,78 +1888,8 @@
         </button>
     </div>
 
-    <!-- Scroll Blur Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const handleScrollBlur = () => {
-                // Select main logical scroll-aware blocks: sections, cards, and timeline items
-                const elements = Array.from(document.querySelectorAll('.cv-about-card, .cv-timeline-item, section.cv-section > .cv-card'));
-                const midpoint = window.innerHeight / 2;
-                
-                elements.forEach((el) => {
-                    const rect = el.getBoundingClientRect();
-                    // Find the first element that is physically below the current one
-                    const nextEl = elements.find(other => {
-                        const otherRect = other.getBoundingClientRect();
-                        return otherRect.top > rect.top + 50; 
-                    });
-                    
-                    let progress = 0;
-
-                    if (nextEl) {
-                        const nextRect = nextEl.getBoundingClientRect();
-                        
-                        // We start fading when the NEXT element passes the midpoint (center of screen)
-                        if (nextRect.top < midpoint) {
-                            // Fade progress based on next element's approach to its resting point
-                            // It starts at midpoint and finishes when next element hits ~200px from top
-                            const fadeRange = midpoint - 200;
-                            progress = (midpoint - nextRect.top) / fadeRange;
-                        }
-                    } else {
-                        // Last element: use legacy behavior (fades as it hits the top area)
-                        const fadeStartPoint = 150;
-                        const fadeDistance = 150;
-                        if (rect.top < fadeStartPoint) {
-                            progress = (fadeStartPoint - rect.top) / fadeDistance;
-                        }
-                    }
-
-                    progress = Math.max(0, Math.min(1, progress));
-                    
-                    el.style.opacity = 1 - progress;
-                    el.style.filter = `blur(${progress * 20}px)`;
-                    el.style.pointerEvents = progress > 0.6 ? 'none' : 'auto';
-                });
-                
-                // Handle timeline line mask separately
-                document.querySelectorAll('.cv-timeline').forEach(timeline => {
-                    const rect = timeline.getBoundingClientRect();
-                    let maskAmount = 150 - rect.top;
-                    timeline.style.setProperty('--line-mask-stop', maskAmount > 0 ? `${maskAmount}px` : `-200px`);
-                });
-
-                // Handle section titles separately to keep them readable
-                document.querySelectorAll('.cv-section-title').forEach(title => {
-                    const rect = title.getBoundingClientRect();
-                    const restingTop = 90;
-                    if (rect.top < restingTop) {
-                        let progress = (restingTop - rect.top) / 100;
-                        progress = Math.max(0, Math.min(1, progress));
-                        title.style.opacity = 1 - progress;
-                        title.style.filter = `blur(${progress * 15}px)`;
-                    } else {
-                        title.style.opacity = 1;
-                        title.style.filter = 'blur(0px)';
-                    }
-                });
-            };
-
-            window.addEventListener('scroll', handleScrollBlur, { passive: true });
-            handleScrollBlur();
-            window.addEventListener('resize', handleScrollBlur, { passive: true });
-        });
-    </script>
     <script src="js/main.js"></script>
+    <script src="js/version-modal.js"></script>
+    <script src="js/anios-experiencia.js"></script>
 </body>
 </html>

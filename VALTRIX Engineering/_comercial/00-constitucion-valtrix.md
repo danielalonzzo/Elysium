@@ -1,12 +1,19 @@
 # VALTRIX Engineering — Constitución Corporativa
 
-**Documento rector · v1.0 · Agosto 2026**
+**Documento rector · v2.0 · Agosto 2026**
 **Clasificación: interno.** No se publica. Reside en `_comercial/`, excluido de las
 tres listas de despliegue (`firebase.json`, `.assetsignore`, `.cloudflareignore`).
 
 > Este documento define qué es VALTRIX, qué vende, a quién, a qué precio y bajo qué
 > estándares. Cuando una decisión operativa contradiga lo escrito aquí, gana este
 > documento o se modifica este documento. No hay tercera opción.
+
+> **v2.0 — Pivote de mercado.** La v1.0 posicionaba a VALTRIX como consultora
+> boutique para el Tier 2/3 de la industria regulada: proveedores de zona franca,
+> contratistas medianos y plantas de alimentos, con tickets de $1.850 a $8.500 y
+> ciclos de venta de meses. La marca estaba construida para el cliente que el
+> currículum de la fundadora podía atender, no para el que su vida podía atender.
+> Ver §10, que explica por qué se descartó y qué se conservó.
 
 ---
 
@@ -17,19 +24,24 @@ en credenciales verificables:
 
 - Ingeniera Industrial colegiada — **CFIA**
 - **Auditora Interna certificada ISO 9001:2015**
-- **9 años** de industria: Trimpot → Philips → Grupo SEAR → AERIS Holding
-- **>1.000 equipos de medición** bajo control simultáneo en entorno de dispositivos
-  médicos regulado
-- Certificación en **Power BI**; experiencia operativa en **SAP**, Minitab, Excel
+- Certificación en **Power BI**
+- **Industria desde mayo de 2017**: Trimpot → Philips → Grupo SEAR → AERIS Holding
+  (en las páginas la cifra de años no se escribe a mano: la calcula
+  `js/anios-experiencia.js` desde esa fecha, así que no envejece)
 
 **Prohibido en todo material de VALTRIX:** testimonios inventados, logotipos de
 clientes que no lo son, porcentajes de mejora no medidos en un proyecto real, «+50
 empresas confían en nosotros». La credibilidad técnica es el único activo que la
-firma tiene el día uno; una cifra inventada la destruye entera y es irrecuperable en
-un mercado donde todos los gerentes de calidad del Valle Central se conocen.
+firma tiene el día uno; una cifra inventada la destruye entera.
 
 Cuando exista el primer caso medido, se documenta con línea base, método de medición
-y cifra final, y **entonces** se publica.
+y cifra final, y **entonces** se publica. Esta regla está declarada en público, en
+`metodologia.html`: es en sí misma un argumento de venta ante un dueño de negocio
+que está harto de que le prometan.
+
+**Aplica también a las cifras de mercado de este documento.** Las que no tienen
+fuente verificada están marcadas como pendientes. No se usan en material público
+hasta confirmarlas.
 
 ---
 
@@ -37,42 +49,61 @@ y cifra final, y **entonces** se publica.
 
 ### 1.1 Qué es VALTRIX
 
-VALTRIX Engineering es una **consultora boutique de ingeniería de implementación**.
-No vende diagnósticos ni recomendaciones: vende **sistemas de control instalados y
-funcionando** dentro de la operación del cliente, y después los mantiene vivos.
+VALTRIX Engineering vende **dos servicios empaquetados, de alcance cerrado y precio
+publicado**, a negocios pequeños de Costa Rica que operan a ciegas:
 
-La firma opera sobre dos activos que las empresas medianas costarricenses tienen
-descontrolados y que, cuando fallan, no fallan barato:
+1. **Panel de Control de Ventas e Inventario** — $350 a $600, entrega en 5 a 10 días.
+2. **Orden Operativo** (estandarización de procesos) — $250 a $450 por proceso,
+   entrega en 1 a 2 semanas.
 
-1. **Sus datos operativos** — existen, pero están dispersos en Excel, cuadernos y
-   módulos de ERP que nadie cruza. La gerencia decide a ciegas o decide tarde.
-2. **Sus equipos de medición** — existen, pero nadie sabe cuáles están vencidos hasta
-   que un auditor lo pregunta. Entonces ya es un hallazgo.
+Más un **mantenimiento mensual opcional** de $75 a $120, que es el producto de mayor
+margen del portafolio y el objetivo real de todo el modelo.
+
+No vende horas, no vende diagnósticos y no vende «acompañamiento». Vende un
+entregable con nombre, precio y fecha.
 
 ### 1.2 Qué NO es VALTRIX
 
-Definir el borde es tan importante como definir el servicio; es lo que evita el
-desgaste por alcance difuso:
+Definir el borde es lo que evita el desgaste por alcance difuso:
 
-- **No es un laboratorio de calibración.** VALTRIX no calibra ni emite certificados.
-  Gestiona el sistema que determina qué se calibra, cuándo, con quién y con qué
-  evidencia. Los laboratorios acreditados por el ECA son **proveedores y aliados**,
-  no competencia.
-- **No es una casa de software.** No desarrolla aplicaciones ni vende licencias.
-  Construye sobre la plataforma que el cliente ya paga.
-- **No es un ente certificador.** No emite la certificación ISO 9001; prepara la
-  operación para que la supere.
-- **No es una bolsa de horas.** No se vende tiempo. Se venden entregables con precio
-  cerrado y fecha.
+- **No es una casa de software.** No desarrolla aplicaciones, no vende licencias y no
+  instala puntos de venta. Construye sobre lo que el cliente ya tiene.
+- **No es un contador ni un asesor financiero.** No lleva contabilidad, no declara
+  impuestos y no da consejo de inversión.
+- **No es un laboratorio de calibración.** No calibra ni emite certificados. En el
+  módulo de equipos gestiona el calendario y señala a quién acudir.
+- **No es un ente certificador.** No emite ISO 9001 ni garantiza inspecciones.
+- **No es una bolsa de horas.** Precio cerrado por entregable, siempre.
+- **No es una consultora corporativa.** Si el prospecto necesita seis semanas de
+  levantamiento, un comité y una integración con SAP, no es cliente de VALTRIX: se
+  le dice y se le deriva.
 
 ### 1.3 Tesis de negocio
 
-> En Costa Rica hay dos mercados llenos y un espacio vacío entre ellos. Los
-> laboratorios venden el **certificado** de un equipo pero no gestionan el parque
-> completo. Las casas de software venden el **tablero** pero no saben qué es una
-> merma ni por qué un lote se rechaza. En el medio queda el trabajo que nadie hace:
-> **traducir el requisito normativo y el dato crudo en un sistema que la operación
-> use todos los días.** Ese es el negocio de VALTRIX.
+> Un negocio de ocho personas tiene exactamente los mismos problemas de información
+> que uno de ochocientos —no saber qué producto deja margen, no saber qué hay en
+> bodega, no saber quién debe— pero nadie los atiende. El software le vende una
+> herramienta y lo deja solo con ella. El contador le dice cuánto pagó de impuestos
+> tres meses tarde. La consultora que sí sabe hacerlo cobra $4.000 y tarda dos meses.
+> **En el medio no hay nadie: nadie toma los cuatro Excel de un taller y los
+> convierte en un panel por $480 en cinco días.** Ese es el negocio de VALTRIX.
+
+### 1.4 La restricción que define el modelo
+
+VALTRIX es **una persona con empleo a tiempo completo en AERIS, una maestría en
+curso y maternidad**. Esto no es una limitación temporal que se resolverá: es el
+parámetro de diseño del negocio. De ahí salen, y no son negociables:
+
+- **Trabajos cortos.** Nada que dure más de dos semanas de calendario.
+- **80 % asincrónico.** El modelado y la limpieza se hacen de noche y en fin de
+  semana. Solo el diagnóstico y la entrega necesitan a las dos partes conectadas, y
+  se agendan a conveniencia del cliente.
+- **Alcance cerrado por escrito.** Un cliente que puede pedir cambios indefinidos
+  consume la única hora libre que había esa semana.
+- **Máximo dos trabajos simultáneos.** Restricción dura (§4, KR3.4).
+- **Un mercado que compra rápido.** Un dueño de negocio pequeño decide solo, en una
+  llamada. Una transnacional decide en comité, en cuatro meses. El segundo ciclo de
+  venta es incompatible con esta agenda, por mucho que el currículum lo permita.
 
 ---
 
@@ -80,376 +111,479 @@ desgaste por alcance difuso:
 
 ### Misión
 
-Garantizar la **continuidad operativa** de la empresa costarricense mediante sistemas
-de control instalados en su operación: trazabilidad metrológica que evita hallazgos y
-paros, e información operativa que sustituye la intuición por el dato. VALTRIX
-interviene antes de que el riesgo se convierta en costo.
+Que un dueño de negocio pequeño sepa cómo va su empresa sin tener que sacar las
+cuentas de noche: información ordenada, procesos escritos y sistemas que siguen
+funcionando cuando VALTRIX ya no está.
 
 ### Visión
 
-Ser, en cinco años, la firma a la que un proveedor de zona franca acude **por
-defecto** cuando su cliente multinacional le exige evidencia de control — y hacerlo
-sin haber crecido en número de consultores, sino en profundidad de sistema y volumen
-de retainer.
+Ser, en tres años, la primera llamada de un negocio pequeño del Valle Central cuando
+se da cuenta de que ya no le alcanza con el Excel — y llegar ahí con producto
+estandarizado, no con más horas de trabajo. El crecimiento se mide en **plantillas
+reutilizables y clientes en mantenimiento**, nunca en horas facturadas.
 
 ### Los cuatro principios
 
-1. **La continuidad manda sobre la optimización.** Antes de hacer un proceso más
-   rápido hay que hacerlo predecible. Una operación optimizada que se cae no sirve.
-2. **Lo que no deja evidencia no ocurrió.** En industria regulada, el trabajo bien
-   hecho sin registro es indistinguible del trabajo no hecho.
-3. **Se implementa en piso, no en sala de juntas.** El entregable se instala donde
-   trabaja la gente y se capacita a quien lo va a usar.
-4. **El sistema debe sobrevivir a la consultora.** Si al terminar la intervención el
-   cliente depende de VALTRIX para que funcione, la intervención falló. El retainer
-   se contrata porque aporta, no porque el cliente quedó atrapado.
+1. **Primero que salga igual siempre, después que salga rápido.** Antes de optimizar
+   hay que hacer predecible.
+2. **Lo que no queda escrito, no queda.** El trabajo que solo vive en la cabeza de
+   alguien se pierde el día que esa persona falta.
+3. **Se instala donde se trabaja.** El entregable va al mostrador, a la bodega o a la
+   computadora que se usa. Un documento que nadie abrió no es un entregable.
+4. **Tiene que funcionar sin nosotros.** Si al terminar el cliente depende de VALTRIX,
+   el trabajo falló. El mantenimiento se contrata porque aporta, no porque atrape.
 
 ---
 
-## 3. Estudio de mercado — Costa Rica
+## 3. Mercado — micro y pequeña empresa de Costa Rica
 
-### 3.1 Dimensión real de la oportunidad
+### 3.1 Dimensión
 
-| Dato | Cifra | Fuente / año | Lectura para VALTRIX |
+| Dato | Cifra | Fuente | Lectura para VALTRIX |
 |---|---|---|---|
-| Compras locales de zonas francas | **>$6.000 M** en bienes y servicios | cierre 2024 | El universo de proveedores locales es grande y está monetizado, no es una promesa |
-| Peso de esa compra local | **57 %** del gasto total del régimen | cierre 2024 | La estrategia nacional de encadenamiento es estructural, no coyuntural |
-| Encadenados 2026 (PROCOMER) | **350** compradoras · **700** proveedoras · **+3.000** citas · 1.200 participantes | junio 2026 | Un directorio anual, presencial y calificado del ICP exacto |
-| Acumulado histórico Encadenados | **>$26,5 M** negociados desde 2022 | 2022-2026 | El canal cierra negocio real |
-| Certificación ISO 9001 para PYME | **$2.000–$5.000** por contrato trienal | mercado CR | Es el costo del *certificador*; el cliente ya asume gasto en compliance |
-| BI/Power BI en CR | desde **~€1.200** (Ionia Solutions) | mercado CR | Hay competencia con precio de entrada publicado: no se compite por precio |
+| Parque empresarial de Costa Rica, 2019 | **137.378** empresas, de ellas **133.845 PYME** | MEIC, *Estado de Situación PYME 2021* (datos BCCR/REVEC) | Verificado |
+| Peso de la PYME en el parque | **97,4 %** (promedio 2015-2019) | MEIC, ídem | El universo es enorme; el problema nunca será su tamaño sino llegar a él |
+| Micro + pequeñas, 2019 | **128.210** empresas — micro 110.973, pequeñas 17.237 | MEIC, ídem, cuadro 3 | **Es el mercado direccionable.** 93,3 % de todo el parque empresarial |
+| Reparto por tamaño | 80,84 % micro · 12,46 % pequeña · 4,10 % mediana | MEIC, ídem (promedio 5 años) | La microempresa es cuatro de cada cinco empresas del país |
+| PYME en las cuatro provincias de la GAM, 2019 | **108.202** — San José 57.626 · Alajuela 24.360 · Heredia 15.488 · Cartago 10.728 | MEIC, ídem, cuadro 4 | **81 % de la PYME del país está donde VALTRIX puede ir en carro** |
+| MIPYME con registro vigente ante el MEIC | de 18.301 a **36.098** entre mayo 2022 y mayo 2026 | Prensa (Infobae, jul. 2026), citando al MEIC | **El universo localizable es mucho menor que el real.** Es el que se puede prospectar por directorio |
+| Precio de entrada de BI en CR | desde ~€1.200 (Ionia Solutions) | verificado v1.0 | VALTRIX entra por debajo, con alcance mucho menor y entrega en días |
+| Sistemas de punto de venta locales | $30–$80/mes típicos | **Sin verificar** | El cliente ya paga software; lo que no tiene es quien lo lea |
 
-**Conclusión de dimensionamiento.** El motor del mercado no es que las empresas
-quieran mejorar. Es que **su cliente les exige evidencia**. Una multinacional en El
-Coyol no compra a un proveedor que no demuestre control de sus instrumentos y de sus
-procesos. Ese requisito, impuesto aguas arriba, es el que financia a VALTRIX. Es un
-dolor con fecha límite y con consecuencia contractual — la clase de dolor que se paga
-rápido y sin regatear.
+**Dos salvedades sobre estas cifras, para no usarlas mal:**
 
-### 3.2 El nicho: Tier 2 y Tier 3 de la industria regulada
+1. **«3 a 20 personas» no es una categoría del MEIC.** La clasificación oficial sale
+   de la fórmula de la Ley 8262, que combina personal, ingresos y activos, no del
+   número de empleados a secas. Micro + pequeña es el mejor proxy disponible del ICP,
+   y así hay que presentarlo: como aproximación, no como recuento exacto.
+2. **Provincia no es GAM.** Los 108.202 corresponden a las cuatro provincias
+   completas; la GAM es un subconjunto y el estudio no la desagrega. La cifra es un
+   techo, no el dato del área metropolitana.
 
-VALTRIX **no** le apunta a las multinacionales de zona franca: tienen departamentos
-de calidad e ingeniería propios. Tampoco al microcomercio. El objetivo es la franja
-intermedia, que sufre exigencia de nivel corporativo con estructura de PYME:
+Los datos duros son de 2019 —es la serie completa más reciente publicada por el
+MEIC— y conviene rehacer este cuadro cuando salga la actualización.
 
-**A. Proveedores locales de zonas francas** — empaque, inyección de plástico,
-metalmecánica, logística, servicios técnicos. Venden (o quieren vender) a Philips,
-Boston Scientific, Intel, Establishment Labs. Deben sostener auditorías de proveedor
-periódicas. *Concentración: El Coyol de Alajuela, AFZ Heredia, Zona Franca Coyol,
-Cartago.*
+**Conclusión de dimensionamiento.** El motor de este mercado **no** es una exigencia
+externa con fecha, como lo era en el Tier 2/3. Es la frustración del dueño: sabe que
+está perdiendo plata en algún lado y no sabe dónde. Eso cambia todo el enfoque
+comercial: **no hay urgencia impuesta, hay que crearla mostrando el número.** Por eso
+la llamada de diagnóstico existe y por eso es gratuita.
 
-**B. Contratistas y subcontratistas de obra civil y electromecánica** — medianos,
-trabajando en proyectos de infraestructura, hospitalarios, aeroportuarios o naves
-industriales. Excelentes técnicamente, caóticos en control documental, avance de obra
-y equipos de topografía y medición. *Es el terreno que la fundadora conoce desde
-adentro por AERIS.*
+### 3.2 El nicho
 
-**C. Industria alimentaria y farmacéutica nacional** — bajo supervisión del
-Ministerio de Salud, con exigencia de trazabilidad absoluta. Termómetros, balanzas y
-registradores de temperatura descalibrados no son una molestia: son causa de cierre
-sanitario o de pérdida de lote.
+Negocios de **3 a 20 personas**, en la **Gran Área Metropolitana**, con dueño
+identificable que decide solo, que ya facturan de forma estable y que llevan la
+información en Excel, en un punto de venta que nadie consulta o en una libreta:
+
+**A. Comercio y distribución** — abastecedores, ferreterías, distribuidoras de
+repuestos, tiendas especializadas. Inventario grande, márgenes por producto
+desconocidos, cuentas por cobrar sin control.
+
+**B. Talleres y servicios técnicos** — mecánicos, electromecánicos, imprentas,
+lavanderías industriales pequeñas. No saben qué tipo de trabajo les deja plata; el
+tiempo y el material se estiman «a ojo».
+
+**C. Alimentación y producción pequeña** — sodas, panaderías, cafeterías,
+microfábricas de alimentos. Merma alta, costo de receta desconocido, y **equipos de
+medición sin control**: es el único segmento donde el módulo de metrología (+$150)
+entra de forma natural y donde la credencial ISO de la fundadora se convierte en
+argumento.
+
+**D. Clínicas y consultorios pequeños** — odontología, fisioterapia, veterinarias.
+Agenda, cobros y pendientes en tres sistemas distintos.
+
+**No entra:** menos de 3 personas sin facturación estable · quien no tiene ningún
+dato registrado, ni siquiera en papel (primero hay que crear el registro: eso es
+Servicio 02, no Servicio 01) · quien pide desarrollo de software · quien exige
+integraciones en tiempo real con un ERP · quien regatea antes de la llamada.
 
 ### 3.3 Análisis competitivo
 
-| Competidor | Qué vende | Cómo vende | Su límite estructural | Ángulo de VALTRIX |
-|---|---|---|---|---|
-| **Laboratorios acreditados ECA** (Metrología Consultores LC-046, SCM Metrología, Metrocal, Lanamme) | El certificado de calibración de un equipo | Reactivo: esperan que el cliente lleve el equipo | Su negocio es el ensayo, no la gestión del parque. No le avisan al cliente que 40 equipos vencen el mes que viene | **No competimos: los usamos.** VALTRIX es la capa de gestión encima de ellos. Somos su canal de trabajo y ellos nuestra red de ejecución |
-| **Casas de software y BI** (Ionia, Boyala, Produsoft, Acselco, NobleProg) | Dashboards, licencias, soporte | Venta técnica; precio de entrada publicado (~€1.200) | Entregan la herramienta, no el criterio. No saben qué KPI importa en una línea de ensamble ni por qué el dato de merma está mal capturado en origen | **Empatía operativa.** El tablero lo diseña quien estuvo en la línea, en metrología y en gerencia de proyecto |
-| **Firmas consultoras grandes** | «Transformación digital», sistemas de gestión corporativos | Contrato anual alto, comité, entregable teórico | Precio y ritmo fuera del alcance del Tier 2/3. Diagnóstico voluminoso, implementación ajena | **Implementación paquetizada.** Precio cerrado, semanas y no años, entregable instalado |
-| **Consultor ISO independiente** | Manuales y preparación documental | Red de contactos, precio bajo | Genérico y documental: entrega carpetas que nadie usa. Sin capacidad técnica en metrología ni en modelado de datos | **Especialización dura.** Dos servicios, no veinte. Sistemas vivos, no carpetas |
-| **No hacer nada (el rival real)** | — | Inercia | Funciona hasta la primera auditoría fallida o el primer contrato perdido | **Cuantificar el costo de la inacción** en el diagnóstico gratuito. Es la venta principal |
+| Competidor | Qué vende | Su límite estructural | Ángulo de VALTRIX |
+|---|---|---|---|
+| **El contador** | Cumplimiento tributario | Mira hacia atrás y hacia Hacienda, no hacia la operación. No le dice qué producto le deja margen | **No competimos: es el mejor canal de referidos que existe.** Ve el desorden todos los meses y no puede arreglarlo. Ver §8.2 |
+| **Sistemas de punto de venta y facturación** | Licencia mensual y reportes enlatados | Reportes genéricos que no cruzan con el resto de los archivos del negocio. Nadie los abre | Tomamos el export de ese sistema y lo unimos con todo lo demás. Somos complemento, no reemplazo |
+| **Freelancer de Excel / «el sobrino»** | Una hoja a la medida | Sin documentación ni capacitación: se rompe cuando esa persona se va. Sin criterio para decidir qué medir | Documentación escrita, personal capacitado y criterio de ingeniería industrial sobre qué indicador importa |
+| **Consultoras y BI corporativo** | Proyectos de $1.500 en adelante | Precio y ritmo fuera del alcance de un negocio de ocho personas | Precio publicado, entrega en días, alcance cerrado |
+| **No hacer nada (el rival real)** | — | Funciona hasta el pedido que se pierde o el inventario que se compró de más | **Poner número al costo de la inacción en la llamada.** Es la venta principal |
 
-**El espacio vacío.** Ningún actor del mercado costarricense vende hoy *la gestión
-del sistema metrológico como servicio recurrente*. Los laboratorios no quieren
-(no es su negocio) y las consultoras generalistas no pueden (no tienen el perfil
-técnico). Es el océano azul del portafolio y por eso es la punta de lanza comercial.
+**El espacio vacío.** Nadie en Costa Rica vende hoy *un panel de control terminado,
+con precio publicado, por menos de $600 y en menos de dos semanas*. Las consultoras
+no pueden bajar ahí sin perder plata; los freelancers no tienen el criterio ni dejan
+documentación. VALTRIX puede, y solo puede si el producto está estandarizado — de ahí
+que las plantillas sean el activo estratégico de la firma (§4, O3).
 
 ---
 
 ## 4. Objetivos estratégicos — OKR a 12 meses
 
-Métricas de resultado, no de actividad. Se revisan el último viernes de cada
+Métricas de resultado, no de actividad. Dimensionadas contra ~8–10 horas semanales
+reales, no contra una jornada completa. Se revisan el último viernes de cada
 trimestre.
 
 ### O1 — Validar el modelo con facturación real y repetible
 
 | KR | Meta 12 meses | Medición |
 |---|---|---|
-| KR1.1 | **8** proyectos de Setup cerrados y entregados | Contratos firmados y aceptados |
-| KR1.2 | **5** clientes en retainer activo al cierre del mes 12 | Facturación recurrente |
-| KR1.3 | **$4.000/mes** de ingreso recurrente (MRR) al mes 12 | Suma de retainers |
-| KR1.4 | **60 %** de los Setup convierten a retainer | Conversión Fase 1 → Fase 2 |
+| KR1.1 | **12** trabajos cerrados y entregados | Aceptación del cliente |
+| KR1.2 | **6** clientes en mantenimiento activo al cierre del mes 12 | Facturación recurrente |
+| KR1.3 | **$600/mes** de ingreso recurrente (MRR) al mes 12 | Suma de mantenimientos |
+| KR1.4 | **50 %** de los trabajos convierten a mantenimiento | Conversión |
 
-### O2 — Instalar la autoridad técnica de la marca
+Facturación implícita a 12 meses: ~$5.000 de trabajos más ~$3.500 acumulados de
+mantenimiento. **Es una cifra modesta a propósito.** El objetivo del año uno no es
+la plata: es tener producto estandarizado, dos casos medidos y una base recurrente
+sobre la cual el año dos sí escale sin pedir más horas.
+
+### O2 — Instalar la autoridad de la marca en su mercado real
 
 | KR | Meta 12 meses | Medición |
 |---|---|---|
-| KR2.1 | **24** publicaciones técnicas en LinkedIn (2/mes) | Publicadas |
-| KR2.2 | **30** diagnósticos gratuitos ejecutados | Agenda |
-| KR2.3 | Participación como proveedora en **Encadenados** | Inscripción y citas |
+| KR2.1 | **24** publicaciones en LinkedIn (2/mes), en lenguaje de dueño de negocio | Publicadas |
+| KR2.2 | **30** llamadas de diagnóstico ejecutadas | Agenda |
+| KR2.3 | **3** contadores o despachos con acuerdo de referidos activo | Acuerdo escrito |
 | KR2.4 | **2** casos documentados con línea base y resultado medido | Publicables |
 
-### O3 — Blindar la entrega (que el crecimiento no rompa la calidad)
+### O3 — Blindar la entrega y construir el activo
 
 | KR | Meta 12 meses | Medición |
 |---|---|---|
-| KR3.1 | **100 %** de proyectos entregados dentro del plazo comprometido | Fecha de aceptación vs. contrato |
-| KR3.2 | **Cero** hallazgos atribuibles a un sistema VALTRIX en auditorías de cliente | Reporte de auditoría |
-| KR3.3 | Plantillas reutilizables para los dos servicios al mes 6 | Existencia y uso |
-| KR3.4 | **≤2** proyectos de Setup simultáneos | Control de agenda |
+| KR3.1 | **100 %** de trabajos entregados dentro del plazo comprometido | Fecha de aceptación vs. contrato |
+| KR3.2 | **Plantillas reutilizables de los dos servicios al mes 3** | Existencia y uso |
+| KR3.3 | Horas efectivas por trabajo **−35 %** entre el trabajo 1 y el trabajo 6 | Registro de horas |
+| KR3.4 | **≤2** trabajos simultáneos | Control de agenda |
 
-**KR3.4 es una restricción, no una aspiración.** Con un solo consultor, aceptar el
-tercer proyecto simultáneo es la vía más rápida a incumplir KR3.1 y perder la única
-credibilidad que la firma tiene.
+**KR3.2 y KR3.3 son el corazón del modelo.** A estos precios, un trabajo hecho desde
+cero no deja margen aceptable; uno hecho sobre plantilla sí. Si al mes 3 no hay
+plantillas, el negocio es un empleo mal pagado.
+
+**KR3.4 es una restricción, no una aspiración.** Aceptar el tercer trabajo simultáneo
+es la vía más rápida a incumplir KR3.1.
 
 ### O4 — Sostenibilidad financiera
 
 | KR | Meta 12 meses | Medición |
 |---|---|---|
-| KR4.1 | **≥60 %** de los ingresos facturados por adelantado o al 50 % de avance | Flujo de caja |
-| KR4.2 | Días de cobro promedio **≤30** | Antigüedad de cuentas |
-| KR4.3 | Ningún cliente supera el **35 %** de la facturación anual | Concentración de riesgo |
+| KR4.1 | **≥50 %** de cada trabajo cobrado por adelantado | Flujo de caja |
+| KR4.2 | Días de cobro promedio **≤15** | Antigüedad de cuentas |
+| KR4.3 | Ningún cliente supera el **25 %** de la facturación anual | Concentración de riesgo |
 
 ---
 
-## 5. Libro de marca
+## 5. Recuperación de habilidad técnica
 
-### 5.1 Arquetipo — El Gobernante técnico
+> Sección nueva en v2.0. Está aquí porque es un riesgo real del negocio y porque el
+> mercado elegido es precisamente el que permite gestionarlo.
 
-VALTRIX no es el Mago (no promete transformación) ni el Héroe (no promete rescate).
-Es el **Gobernante**: trae orden, control y previsibilidad a un territorio donde
-reina la improvisación. Su promesa emocional no es el entusiasmo — es **dormir
-tranquilo antes de una auditoría**.
+La fundadora está certificada en Power BI pero lleva tiempo sin usarlo a diario.
+Prometer integraciones complejas en ese estado sería ponerse la soga al cuello. Con
+volúmenes de datos de un negocio de ocho personas hay margen para equivocarse,
+corregir y aprender — **esa es la segunda razón, después de la agenda, por la que
+este mercado es el correcto.**
 
-Rasgos: autoridad serena · rigor verificable · discreción · precisión. Nunca:
-euforia, urgencia artificial, condescendencia.
+### 5.1 Lo que hay que dominar, y nada más
 
-### 5.2 Tono de voz
+| Herramienta | Alcance necesario | No hace falta |
+|---|---|---|
+| **Power Query** | Limpieza básica: quitar nulos, unificar columnas, cambiar tipos, combinar consultas | Lenguaje M avanzado |
+| **Modelado** | Relacional simple: tablas conectadas por un ID, tabla de calendario | Esquemas complejos, RLS |
+| **DAX** | `SUM`, `DIVIDE`, `CALCULATE`, `SUMX`, variación contra periodo anterior | Time intelligence avanzada, `USERELATIONSHIP` |
+| **Excel** | Tablas oficiales, formato condicional, `BUSCARX`/`XLOOKUP`, tablas dinámicas | Macros, VBA |
+| **Criterio de IE** | Qué métrica le genera dinero a este negocio y cuál solo lo satura | — |
 
-- **Técnico y específico.** «Parque de 340 instrumentos con 62 vencidos», no
-  «mejoramos su gestión».
-- **Directo, sin adornos.** Frases cortas. El lector es un gerente de operaciones con
-  quince minutos.
+### 5.2 Reglas de aprendizaje
+
+- **Los primeros tres trabajos se cotizan en el plan más bajo**, aunque el cliente
+  califique para uno mayor. Se compra tiempo de aprendizaje, no se regala.
+- **Todo lo que se resuelva se convierte en plantilla el mismo día.** Un problema
+  resuelto y no plantillado es un problema que se va a volver a pagar entero.
+- **Ningún compromiso público sobre una capacidad que no se ha ejecutado ya.** Si un
+  cliente pide algo que no se ha hecho antes, se dice: «eso lo reviso y le confirmo
+  mañana». Nunca se promete en la llamada.
+- **No se acepta ningún trabajo con más de 5 fuentes de datos** hasta que existan las
+  plantillas (KR3.2), sin importar lo que pague.
+
+---
+
+## 6. Libro de marca
+
+### 6.1 Arquetipo — El Gobernante técnico, en versión cercana
+
+VALTRIX sigue siendo el **Gobernante**: trae orden y previsibilidad donde reina la
+improvisación. Lo que cambia en v2.0 es la distancia: el interlocutor ya no es un
+gerente de calidad en una sala de juntas, es el dueño que está cerrando caja a las
+nueve de la noche. La promesa emocional pasa de «dormir tranquilo antes de una
+auditoría» a **«saber cómo va su negocio sin tener que sacar las cuentas de noche»**.
+
+Rasgos: autoridad serena · rigor verificable · cercanía sin condescendencia ·
+precisión. Nunca: euforia, urgencia artificial, ni hablarle a un dueño de negocio
+como si no entendiera su propia operación — la entiende mejor que nosotros.
+
+### 6.2 Tono de voz
+
+- **Concreto y de negocio, no técnico.** «Sepa qué producto le deja plata», no
+  «visibilidad de márgenes por SKU».
+- **Directo, sin adornos.** Frases cortas. El lector tiene quince minutos y está
+  cansado.
 - **Usted, siempre.** Tratamiento formal costarricense. Nunca tuteo.
-- **Afirmativo, jamás alarmista.** Se nombra el riesgo con su consecuencia real y se
-  presenta el control. No se asusta al cliente.
-- **La cifra antes que el adjetivo.** Si no hay dato, se describe el mecanismo; no se
-  rellena con superlativos.
+- **El precio se dice.** No se esconde detrás de «solicite una cotización». Publicar
+  el precio es la principal señal de respeto hacia un cliente pequeño, que ha sido
+  entrenado a temer que le cobren carísimo.
+- **La cifra antes que el adjetivo.** Si no hay dato, se describe el mecanismo.
 
-### 5.3 Léxico
+### 6.3 Léxico
 
-**Obligatorio** — trazabilidad · compliance normativo · KPI · merma · cuello de
-botella · hallazgo de auditoría · no conformidad · parque de instrumentos ·
-incertidumbre de medición · patrón de referencia · línea base · tiempo de ciclo ·
-OEE · continuidad operativa · evidencia objetiva · plan de calibración · criticidad
-del equipo · gobierno del dato.
+**Obligatorio** — panel de control · margen · inventario · stock mínimo · cuentas por
+cobrar · proceso · plantilla de registro · guía de una página · precio cerrado ·
+entrega · qué le deja plata · cómo cerró el mes.
 
-**Prohibido** — «soluciones integrales» · «sinergia» · «llevamos su empresa al
-siguiente nivel» · «transformación digital» a secas · «somos apasionados» ·
-«innovador y disruptivo» · «socio estratégico» sin contrato que lo respalde ·
-cualquier porcentaje de mejora no medido.
+**Prohibido en material público** — «trazabilidad metrológica» · «inteligencia
+operativa» · «industria regulada» · «hallazgo de auditoría» · «no conformidad» ·
+«parque de instrumentos» · «incertidumbre de medición» · «OEE» · «gobierno del dato»
+· «KPI» a secas · «transformación digital» · «soluciones integrales» · «socio
+estratégico» · «innovador y disruptivo» · cualquier porcentaje de mejora no medido.
 
-### 5.4 Directrices visuales
+> **Regla del vocabulario técnico.** No desapareció: se movió. La jerga sigue siendo
+> correcta y sigue siendo lo que la fundadora sabe, pero vive en la página de
+> trayectoria y en la conversación con un cliente que ya la usa. **En la puerta de
+> entrada, no.** Un dueño de taller que lee «trazabilidad metrológica» cierra la
+> pestaña convencido de que eso es para fábricas y de que le va a costar carísimo.
 
-Alineadas al sistema ya implementado en `css/style.css`:
+### 6.4 Directrices visuales
+
+Sin cambios respecto de la v1.0. El sistema de `css/style.css` se conserva entero: el
+pivote es de mensaje, no de estética, y la sobriedad del diseño es justamente lo que
+sostiene la credibilidad cuando el precio es bajo.
 
 | Rol | Oscuro | Claro | Uso |
 |---|---|---|---|
-| Fondo | `#060A13` azul corporativo profundo | `#EAEFF5` | Base |
-| Acento de datos | `#00D4FF` cian | `#0077B6` azul técnico | Un solo acento; jamás dos |
+| Fondo | `#060A13` | `#EAEFF5` | Base |
+| Acento de datos | `#00D4FF` | `#0077B6` | Un solo acento; jamás dos |
 | Gris acero | `#8E9AAF` | `#4A5568` | Texto secundario |
 | Blanco puro | `#F0F4F8` | `#060A13` | Texto principal |
 
-- **Tipografía:** Inter para todo. La cursiva serif (Playfair) se reserva a un único
-  remate por página; usada dos veces pierde el efecto.
-- **Densidad:** aire generoso. El vacío comunica control; la saturación comunica
-  desorden, justo lo que el cliente nos contrata para eliminar.
-- **Fotografía:** de campo, real, la fundadora en sitio. Nunca banco de imágenes de
-  gente en traje señalando gráficos.
-- **Iconografía:** trazo lineal, 2px, un solo grosor en todo el sitio.
-- **Marca:** «VALTRIX» en peso alto, «Engineering» en el acento. Nunca se traduce ni
-  se declina.
+Tipografía Inter; la cursiva serif se reserva a un remate por página. Densidad
+generosa. Fotografía real de la fundadora, nunca banco de imágenes. Marca: «VALTRIX»
+en peso alto, «Engineering» en el acento; no se traduce ni se declina.
 
 ---
 
-## 6. Perfil del Cliente Ideal (ICP)
+## 7. Perfil del Cliente Ideal (ICP)
 
 ### Filtros de calificación
 
-**Entra:** 20–250 empleados · factura $1M–$25M · **le exigen evidencia desde fuera**
-(cliente multinacional, ente regulador o pliego de licitación) · tiene a alguien
-identificable a cargo de calidad, aunque sea de medio tiempo · decisión en una o dos
-personas.
+**Entra:** 3–20 personas · facturación estable · **el dueño decide solo** · ya
+registra algo, aunque sea en papel · está en la GAM o acepta trabajo remoto · siente
+que pierde plata y no sabe dónde.
 
-**No entra:** menos de 10 empleados sin exigencia externa · quien busca solo el papel
-sin cambiar la operación · quien pide pago contra resultado · multinacional con
-departamento de calidad propio · quien compara exclusivamente por precio.
+**No entra:** quien no tiene ningún registro · quien pide desarrollo de software o
+integración con un ERP · quien pide pago contra resultado · quien necesita el
+documento y no el orden · quien compara exclusivamente por precio · quien requiere
+comité para decidir.
 
-### Arquetipo A — «El proveedor bajo auditoría»
+### Arquetipo A — «El dueño que cierra caja de noche»
 
-> Gerente de Operaciones o dueño. Empaque, plástico o metalmecánica en El Coyol o
-> Heredia. 40–120 empleados. Le vende a una transnacional de dispositivos médicos.
+> Dueño de una distribuidora, ferretería o abastecedor. 6–15 personas. GAM.
 
-**Dolores técnicos.** Auditoría de proveedor anual con hallazgos repetidos en control
-de instrumentos. No sabe cuántos equipos tiene ni cuáles están vencidos. Calibra a la
-carrera cuando avisan la visita. Un hallazgo mayor amenaza el único contrato que
-sostiene la planilla.
+**Dolores.** Tiene inventario grande y no sabe cuál rota. Compra por costumbre.
+Sospecha que dos o tres productos le están costando más de lo que dejan pero no puede
+demostrarlo. La lista de quién le debe está en tres lugares distintos.
 
-**Disparador.** Recibió la fecha de la auditoría, o un hallazgo previo con plan de
-acción vencido.
+**Disparador.** Un mes malo sin explicación, o un faltante de un producto que sí
+vendía.
 
-**Qué le quita el sueño.** Perder al cliente ancla. No es un problema de calidad: es
-existencial.
+**Puerta de entrada.** Panel Completo, $480. **Firma:** el dueño, en la llamada.
 
-**Puerta de entrada.** Control Metrológico, Tier 2. **Presupuesto:** $4.000–$7.000
-Setup + retainer. **Firma:** Gerente General.
+### Arquetipo B — «El taller que no sabe qué trabajo le deja»
 
-### Arquetipo B — «El contratista que gestiona en WhatsApp»
+> Dueño de taller mecánico, electromecánico o imprenta. 3–10 personas.
 
-> Dueño o Gerente de Proyecto. Constructora o electromecánica mediana. 30–150
-> colaboradores. Subcontrata para proyectos grandes.
+**Dolores.** Cotiza a ojo, con el tiempo y el material estimados de memoria. Los
+trabajos grandes «se sienten» buenos y los pequeños molestos, sin evidencia de cuál
+deja más. El repuesto se compra por trabajo, sin control de existencias.
 
-**Dolores técnicos.** Domina la obra y no la documentación. Avance físico y
-financiero descuadrados. Reportes al cliente atrasados que retrasan el pago. Equipos
-de topografía y medición sin plan de calibración: al cliente le basta eso para
-rechazar la entrega. Costos reales conocidos cuando el proyecto ya cerró.
+**Disparador.** Un trabajo grande que salió mal en plata, o querer subir precios sin
+saber cuánto.
 
-**Disparador.** Rechazo de entregable, retención de pago, o un pliego que exige
-sistema de gestión.
+**Puerta de entrada.** Proceso Completo ($350) primero —hay que crear el registro
+antes de poder graficarlo— y Panel Básico después. **Firma:** el dueño.
 
-**Qué le quita el sueño.** Que el descontrol documental le cueste un proyecto que
-ejecutó bien.
+### Arquetipo C — «La cocina vigilada»
 
-**Puerta de entrada.** Tableros de Control, Tier 2. **Presupuesto:** $3.000–$5.000
-Setup + retainer. **Firma:** el dueño.
+> Dueño o encargado de soda, panadería o microfábrica de alimentos. 5–20 personas.
 
-### Arquetipo C — «La planta de alimentos vigilada»
+**Dolores.** Merma alta y sin medir. Costo real de receta desconocido. Registros de
+temperatura en papel que nadie lee. Balanzas y termómetros sin calibrar, con el
+Ministerio de Salud de por medio.
 
-> Gerente de Planta o Regente. Alimentaria o farmacéutica nacional. 25–100 empleados.
+**Disparador.** Una prevención girada en inspección, o una subida de costos que no
+se puede trasladar a precio sin saber el margen.
 
-**Dolores técnicos.** Registros de temperatura en papel, ilegibles y sin análisis.
-Termómetros y balanzas sin patrón trazable. Trazabilidad de lote reconstruible solo a
-mano y en horas. Ministerio de Salud con potestad de cierre.
+**Puerta de entrada.** Proceso Completo + módulo de equipos ($350 + $150). Es el
+único arquetipo donde la credencial ISO y la experiencia metrológica se venden
+directamente. **Firma:** el dueño o el regente.
 
-**Disparador.** Inspección con prevención girada, incidente de lote, o exigencia de
-una cadena de supermercados.
+### Arquetipo D — «El consultorio con tres agendas»
 
-**Qué le quita el sueño.** Un cierre sanitario o un retiro de producto.
+> Odontología, fisioterapia o veterinaria. 3–8 personas.
 
-**Puerta de entrada.** Control Metrológico, Tier 1–2, con expansión natural a
-Tableros. **Presupuesto:** $2.500–$5.000 Setup + retainer. **Firma:** Gerente de
-Planta con visto bueno de dirección.
+**Dolores.** Agenda en una app, cobros en otra, pendientes en un cuaderno. No sabe
+cuántos pacientes no volvieron ni cuánto le deben.
 
----
-
-## 7. SLA y estándares internos
-
-### 7.1 Compromisos con el cliente
-
-| Compromiso | Estándar | Aplicación |
-|---|---|---|
-| Respuesta a solicitud comercial | **≤24 h** hábiles | Toda vía de contacto |
-| Diagnóstico agendado tras primer contacto | **≤5** días hábiles | — |
-| Informe del diagnóstico entregado | **≤3** días hábiles tras la visita | Por escrito, siempre |
-| Propuesta formal tras diagnóstico | **≤5** días hábiles | Precio cerrado |
-| Respuesta a consulta de cliente en retainer | **≤24 h** hábiles (**≤8 h** en plan superior) | — |
-| Incidencia crítica que detiene producción | **≤4 h** hábiles | Solo retainer |
-| Reporte ejecutivo mensual | **Primeros 5** días hábiles del mes | Retainer |
-| Aviso de vencimiento de calibración | **60, 30 y 15** días de antelación | Retainer metrológico |
-
-### 7.2 Definición de entregable aceptado
-
-Un entregable **no** está terminado cuando VALTRIX lo considera listo. Lo está cuando
-cumple las cuatro condiciones:
-
-1. **Instalado** en el entorno del cliente, funcionando con sus datos reales.
-2. **Documentado** — el cliente tiene por escrito cómo opera y cómo se mantiene.
-3. **Transferido** — al menos una persona del cliente fue capacitada y lo operó
-   delante de la consultora.
-4. **Aceptado** — acta de aceptación firmada. Sin acta no hay cierre ni facturación
-   final.
-
-### 7.3 Estándares de ejecución
-
-- **Un proyecto, una responsable.** La fundadora ejecuta. No se subcontrata el núcleo
-  técnico sin comunicarlo por escrito.
-- **Máximo dos Setup simultáneos.** Restricción dura (KR3.4).
-- **Todo hallazgo se documenta con evidencia objetiva:** fotografía, número de serie,
-  registro. Nunca sobre dicho.
-- **Ningún dato del cliente sale de su entorno** sin autorización escrita. NDA
-  ofrecido de oficio antes del diagnóstico.
-- **Cambio de alcance = adenda.** Verbal no cuenta, ni para el cliente ni para
-  VALTRIX.
-- **Fin de proyecto = retrospectiva interna** de una página: qué se subestimó, qué se
-  reutiliza.
-
-### 7.4 Lo que VALTRIX no se compromete a hacer
-
-Escribirlo evita el conflicto antes de que nazca:
-
-- No garantiza la obtención de una certificación: eso lo decide el ente certificador.
-- No emite certificados de calibración ni realiza la calibración física.
-- No opera procesos del cliente ni asume responsabilidad de línea.
-- No responde por decisiones de negocio tomadas con la información entregada.
-- No acepta honorarios contingentes al resultado financiero del cliente.
-- No garantiza ahorros porcentuales antes de medir la línea base.
+**Puerta de entrada.** Panel Básico, $350. **Firma:** el profesional dueño.
 
 ---
 
 ## 8. Go-to-market
 
-### 8.1 Secuencia «Caballo de Troya»
+### 8.1 Secuencia
 
-1. **Se entra por Metrología.** Es dolor urgente, con fecha y consecuencia
-   contractual. Se compra rápido y es el terreno donde no hay competencia.
-2. **Se entrega impecable.** El sistema evita el hallazgo. VALTRIX pasa de proveedor
-   a criterio de confianza.
-3. **Se expande a Tableros.** Con la confianza ganada y el conocimiento de la
-   operación ya adquirido, el segundo servicio se vende sin fricción y con costo de
-   levantamiento casi nulo.
-4. **Se consolida en retainer.** El objetivo real: ingreso recurrente sobre los dos
-   sistemas.
+1. **Se entra por el Panel.** Es lo que se ve, lo que se puede enseñar en una captura
+   de pantalla y lo que produce el «ajá» en treinta segundos. Es el producto vendible.
+2. **Se descubre el desorden de origen.** En el 80 % de los casos, al limpiar los
+   datos aparece que el problema está en cómo se anotan. Eso vende el Servicio 02 sin
+   necesidad de venderlo: el cliente lo ve en el informe.
+3. **Se consolida en mantenimiento.** El objetivo real. Es el producto de mayor margen
+   por hora del portafolio y el único ingreso que no consume agenda.
+
+> **Nota de orden.** Técnicamente conviene ordenar el proceso antes de armar el panel
+> —si el dato entra mal, el panel solo acelera el error—. Comercialmente es al revés:
+> nadie compra «ordenar procesos» sin haber visto antes para qué sirve. Se vende el
+> panel y se recomienda el proceso con la evidencia en la mano.
 
 ### 8.2 Canales, por rendimiento esperado
 
-1. **Red profesional directa** *(mayor conversión)* — proveedores conocidos en SEAR y
-   subcontratistas en AERIS. No se captan clientes ajenos: se contacta a empresas
-   cuyo dolor la fundadora presenció. Mensaje: «Sé lo que les rechazan y por qué.»
-2. **Encadenados / PROCOMER** — 350 compradoras y 700 proveedoras en un salón. El ICP
-   completo, calificado y presencial, una vez al año.
-3. **LinkedIn con autoridad técnica** — 2 publicaciones al mes, cero venta. Formato:
-   «Tres razones por las que un proveedor de zona franca falla la auditoría de
-   instrumentos», «Qué revisa un auditor ISO 9001 en su plan de calibración». Cierre
-   con oferta de diagnóstico, nunca con oferta de servicio.
-4. **Alianza con laboratorios acreditados** — canal cruzado natural: ellos ven
-   clientes desordenados sin poder ayudarlos; VALTRIX les deriva volumen de
-   calibración ordenado y recurrente. Beneficio mutuo, sin conflicto.
-5. **Colegio de Ingenieros (CFIA)** — pertenencia como credencial y como red.
+1. **Contadores y despachos contables** *(canal estructural)* — es el equivalente de
+   lo que eran los laboratorios ECA en la v1.0. Ven el desorden de decenas de
+   negocios cada mes, no pueden arreglarlo y no compiten con nosotros. Acuerdo de
+   referidos con comisión o descuento cruzado. Meta: 3 acuerdos activos (KR2.3).
+2. **Referidos de cliente** — en este segmento los dueños se conocen entre sí por
+   cantón y por cámara. Un trabajo bien hecho en una ferretería de Desamparados vale
+   más que cualquier campaña.
+3. **Red personal directa** — proveedores y contratistas conocidos por la fundadora
+   que tengan negocio propio pequeño.
+4. **LinkedIn, con lenguaje de dueño** — 2 publicaciones al mes, cero venta. Formato:
+   «Tres números que un taller debería revisar cada lunes», «Por qué su inventario
+   nunca cuadra con el sistema». Cierre con oferta de llamada, nunca de servicio.
+5. **Cámaras de comercio cantonales y grupos de emprendedores** — presencia local,
+   barata y con el ICP exacto en la sala.
+6. **Colegio de Ingenieros (CFIA)** — credencial y red, no canal de venta.
 
-### 8.3 El diagnóstico gratuito: qué es y qué no
+### 8.3 La llamada de diagnóstico: qué es y qué no
 
-**Es** una visita de 60–90 minutos con informe escrito de máximo tres páginas que
-cuantifica lo que la operación pierde hoy: número de equipos vencidos, datos que no
-se cruzan, riesgos concretos de hallazgo. El cliente **se queda con el informe** aun
-si no contrata.
+**Es** una videollamada de 30 minutos en la que se miran los archivos reales del
+cliente y se le dice qué se puede armar con ellos, qué plan le corresponde y cuánto
+cuesta. La confirmación por escrito llega en un máximo de dos días hábiles.
 
-**No es** consultoría gratuita ni un plan de acción. Nombra el problema con precisión
-y lo dimensiona. Resolverlo es el servicio.
+**No es** consultoría gratuita, no es una visita de 90 minutos y no es un informe de
+tres páginas. Eso era la v1.0, y era caro de producir para un ticket de $350.
 
-Es la mejor herramienta comercial de la firma porque hace visible el costo de la
-inacción, que es el competidor real. Y demuestra el criterio técnico antes de pedir
-un colón.
+Su función comercial es **poner número al costo de la inacción**, que es el
+competidor real. Y demuestra criterio técnico antes de pedir un colón.
+
+**Se declina en la llamada, sin cotizar,** cuando: el negocio no registra nada · el
+problema es de capital de trabajo o de ventas y no de información · el prospecto pide
+software a la medida · regatea antes de conocer el alcance · o ya hay dos trabajos en
+curso (KR3.4).
 
 ---
 
-## 9. Vigencia y control de cambios
+## 9. SLA y estándares internos
+
+### 9.1 Compromisos con el cliente
+
+| Compromiso | Estándar |
+|---|---|
+| Respuesta a una consulta | **≤24 h** hábiles |
+| Llamada agendada tras el primer contacto | **≤3** días hábiles |
+| Cotización con precio cerrado | **≤2** días hábiles tras la llamada |
+| Entrega del panel | **5 a 10** días hábiles según plan |
+| Entrega de un proceso | **1 a 2** semanas según plan |
+| Garantía de corrección tras la entrega | **30** días |
+| Respuesta a cliente con mantenimiento | **≤48 h** (≤24 h en plan Acompañado) |
+| Aviso de vencimiento de calibración | **60 y 30** días de antelación |
+
+### 9.2 Definición de entregable aceptado
+
+1. **Instalado** en el entorno del cliente, con sus datos reales.
+2. **Escrito** — el cliente tiene por escrito cómo se usa y cómo se actualiza.
+3. **Enseñado** — al menos una persona del cliente lo operó delante de la consultora.
+4. **Aceptado** — el cliente lo da por bueno. Hasta ahí no se cobra el saldo.
+
+### 9.3 Estándares de ejecución
+
+- **Un trabajo, una responsable.** La fundadora ejecuta. No se subcontrata el núcleo
+  técnico sin comunicarlo por escrito.
+- **Máximo dos trabajos simultáneos.** Restricción dura (KR3.4).
+- **Se trabaja con copias.** Ningún dato del cliente se mueve a un servicio ajeno sin
+  autorización escrita. NDA ofrecido de oficio antes de recibir el primer archivo.
+- **Cambio de alcance = se avisa con el costo antes de tocarlo.** Verbal no cuenta.
+- **Fin de trabajo = plantilla.** Lo aprendido se guarda como activo reutilizable el
+  mismo día (KR3.2).
+
+### 9.4 Lo que VALTRIX no se compromete a hacer
+
+- No garantiza el resultado de una inspección ni la obtención de una certificación.
+- No calibra ni emite certificados de calibración.
+- No opera procesos del cliente ni asume responsabilidad de línea.
+- No responde por decisiones de negocio tomadas con la información entregada.
+- No cobra contra resultado ni comisión sobre ventas.
+- No promete porcentajes de ahorro antes de medir la línea base.
+
+---
+
+## 10. Por qué se descartó la v1.0
+
+Queda escrito para no repetir el error, y porque parte de lo descartado puede volver.
+
+**Lo que estaba mal.** El posicionamiento se construyó para el cliente que el
+currículum de la fundadora podía atender —proveedores de zona franca, manufactura
+médica, contratistas medianos— y no para el que su vida podía atender. Tres choques
+concretos:
+
+1. **Ahuyentaba al mercado alcanzable.** «Trazabilidad metrológica», «industria
+   regulada» y «conexión con SAP» hacen que un dueño de negocio pequeño cierre la
+   pestaña convencido de que eso no es para él.
+2. **El ciclo de venta era incompatible con la agenda.** Vender a una transnacional o
+   a su proveedor Tier 2 exige meses de reuniones, homologación de proveedor y
+   burocracia técnica. Con empleo a tiempo completo, maestría y maternidad, ese
+   proceso no se puede sostener — y abandonarlo a mitad es peor que no empezarlo.
+3. **El riesgo técnico era innecesario.** Prometer integraciones en tiempo real con
+   sistemas corporativos, tras tiempo sin usar Power BI a diario, en un entorno donde
+   un error de dato cuesta millones. En una empresa pequeña hay margen para corregir
+   y aprender; en manufactura médica no.
+
+**Lo que se conservó, y por qué.** Las credenciales (CFIA, ISO 9001, Power BI, nueve
+años de planta) no se tocan: son verdaderas y son exactamente lo que distingue a
+VALTRIX de un freelancer de Excel. Lo que cambió no es quién es la fundadora, sino a
+quién se lo cuenta y con qué palabras. El rigor —alcance escrito, acta de aceptación,
+límites publicados, prohibición de inventar cifras— se conserva entero: es más
+diferenciador ante un dueño de negocio pequeño de lo que era ante un gerente de
+calidad, que ya lo daba por supuesto.
+
+**Qué queda vivo de la metrología.** No se tiró: bajó de servicio principal a
+**módulo opcional de $150** dentro del Servicio 02, escrito en lenguaje de negocio
+(«si su negocio pesa, mide o refrigera»). Sigue siendo el terreno donde no hay
+competencia y donde la credencial ISO vale, pero como argumento del arquetipo C, no
+como puerta de entrada del sitio.
+
+**Cuándo se podría volver.** Si en algún momento la agenda cambia —fin de la
+maestría, cambio de empleo, socio que asuma la ejecución— la propuesta Tier 2/3 sigue
+siendo válida y el análisis de la v1.0 sigue siendo bueno. Está en el historial de
+git de este archivo. **No se recupera por antojo: se recupera cuando la restricción
+del §1.4 deje de existir, y no antes.**
+
+---
+
+## 11. Vigencia y control de cambios
 
 | Versión | Fecha | Cambio |
 |---|---|---|
-| 1.0 | Agosto 2026 | Documento inicial. Pivote a dos servicios y al nicho Tier 2/3 de industria regulada. |
+| 1.0 | Agosto 2026 | Documento inicial. Dos servicios y nicho Tier 2/3 de industria regulada. |
+| 2.0 | Agosto 2026 | **Pivote de mercado a micro y pequeña empresa (3–20 personas).** Servicios reempaquetados y reprecios de $250–$600. Metrología degradada a módulo. Nuevas secciones §1.4 (restricción de agenda), §5 (recuperación de habilidad) y §10 (por qué se descartó la v1.0). Marca y directrices visuales sin cambios. |
 
-**Revisión obligatoria:** trimestral, junto a los OKR. Los precios se revisan una vez
-al año o cuando tres prospectos consecutivos del mismo tier rechacen por precio.
+**Revisión obligatoria:** trimestral, junto a los OKR. Los precios se revisan cuando
+tres prospectos consecutivos del mismo plan rechacen por precio, o cuando las
+plantillas (KR3.2) permitan subir el margen sin subir el precio.
 
-**Documentos vinculados:** `01-modelo-pricing.md` (tarifario, alcance y condiciones
-comerciales).
+**Documentos vinculados:** `01-modelo-pricing.md` (tarifario, alcance y condiciones).

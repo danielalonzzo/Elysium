@@ -21,15 +21,25 @@
 /pt/admin          /admin?lang=pt      308
 /pt/admin.html     /admin?lang=pt      308
 
-# VALTRIX Engineering — el sitio pasó de tres servicios sobre bodega a dos
-# servicios especializados (control metrológico y tableros operativos), y las
-# páginas se renombraron para que la URL diga de qué trata cada una. Las rutas
-# viejas se mantienen vivas porque están enlazadas desde correos y propuestas
-# ya enviadas al cliente.
+# VALTRIX Engineering — dos renombrados de páginas acumulados. Primero el sitio
+# pasó de tres servicios sobre bodega a dos especializados (control metrológico y
+# tableros operativos); después, en agosto de 2026, pivotó de industria regulada a
+# micro y pequeña empresa, y los dos servicios se reempaquetaron: el control
+# metrológico quedó como módulo dentro de `orden-operativo` y los tableros se
+# convirtieron en `panel-de-control`. Todas las rutas viejas siguen vivas porque
+# están enlazadas desde correos y propuestas ya enviadas.
 #
-# Nota sobre el espacio del nombre de la carpeta: la URL pública lo lleva
-# codificado como %20, y así hay que escribirlo aquí.
-/VALTRIX%20Engineering/servicios    /VALTRIX%20Engineering/control-metrologico   301
-/VALTRIX%20Engineering/soluciones   /VALTRIX%20Engineering/tableros-de-control    301
-/VALTRIX%20Engineering/paquetes     /VALTRIX%20Engineering/precios                301
-/VALTRIX%20Engineering/nosotros     /VALTRIX%20Engineering/metodologia            301
+# Dos notas de formato:
+#  - El espacio del nombre de la carpeta va codificado como %20 en la URL pública,
+#    y así hay que escribirlo aquí.
+#  - Las variantes con `.html` necesitan regla propia. Cloudflare solo reescribe
+#    `/pagina.html` → `/pagina` cuando el archivo existe; borrados los dos HTML,
+#    sin estas líneas darían 404 en vez de redirigir.
+/VALTRIX%20Engineering/control-metrologico       /VALTRIX%20Engineering/orden-operativo   301
+/VALTRIX%20Engineering/control-metrologico.html  /VALTRIX%20Engineering/orden-operativo   301
+/VALTRIX%20Engineering/tableros-de-control       /VALTRIX%20Engineering/panel-de-control  301
+/VALTRIX%20Engineering/tableros-de-control.html  /VALTRIX%20Engineering/panel-de-control  301
+/VALTRIX%20Engineering/servicios                 /VALTRIX%20Engineering/orden-operativo   301
+/VALTRIX%20Engineering/soluciones                /VALTRIX%20Engineering/panel-de-control  301
+/VALTRIX%20Engineering/paquetes                  /VALTRIX%20Engineering/precios           301
+/VALTRIX%20Engineering/nosotros                  /VALTRIX%20Engineering/metodologia       301

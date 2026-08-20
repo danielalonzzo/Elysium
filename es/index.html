@@ -55,25 +55,33 @@
       "@graph": [
         {
           "@type": ["Organization", "ResearchOrganization"],
-          "name": "Elysium Development & Research",
+          "name": "Elysium λ Development & Research",
           "alternateName": ["ElysiumDR", "Elysium λ", "Elysium web", "Elysium Daniel"],
           "url": "https://elysiumdr.eu",
           "logo": "https://elysiumdr.eu/Images/favicon-512.png",
           "description": "Empresa europea de infraestructura digital y laboratorio independiente de ingeniería de software, consultoría informática e I+D aplicada para startups y microempresas de la Unión Europea y Costa Rica.",
           "foundingDate": "2026-01",
           "sameAs": [
+            "https://www.linkedin.com/company/elysiumdr",
             "https://x.com/elysiumdr",
-            "https://www.instagram.com/elysium.dr"
+            "https://www.instagram.com/elysium.dr",
+            "https://www.tiktok.com/@elysium.dr"
           ]
         },
         {
           "@type": "LocalBusiness",
-          "name": "Elysium Development & Research",
+          "name": "Elysium λ Development & Research",
           "image": "https://elysiumdr.eu/Images/favicon-512.png",
           "description": "Infraestructura digital por suscripción para startups y microempresas, con sistemas cloud, CRM a medida, ciberseguridad, ingeniería de software e I+D aplicada, sin un coste de desarrollo separado.",
           "founder": {
             "@type": "Person",
-            "name": "Daniel Morales"
+            "name": "Daniel Alonso Morales Ávila",
+            "alternateName": "Daniel Morales",
+            "url": "https://elysiumdr.eu/es/daniel-morales",
+            "sameAs": [
+              "https://www.linkedin.com/in/danielalonzzo/",
+              "https://github.com/danielalonzzo"
+            ]
           },
           "address": {
             "@type": "PostalAddress",
@@ -83,11 +91,24 @@
           },
           "areaServed": ["Unión Europea", "Costa Rica", "España", "Portugal", "Iberoamérica"],
           "serviceType": ["Infraestructura Digital", "Infraestructura Cloud", "Desarrollo de CRM a Medida", "Ingeniería de Software", "Consultoría Informática", "Ciberseguridad", "Investigación Aplicada", "Desarrollo Web"],
-          "contactPoint": {
-            "@type": "ContactPoint",
-            "email": "info@elysiumdr.eu",
-            "contactType": "customer support"
-          }
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "email": "info@elysiumdr.eu",
+              "telephone": "+351934086075",
+              "contactType": "customer support",
+              "areaServed": ["PT", "ES", "EU"],
+              "availableLanguage": ["en", "es", "pt"]
+            },
+            {
+              "@type": "ContactPoint",
+              "email": "info@elysiumdr.eu",
+              "telephone": "+50662607300",
+              "contactType": "customer support",
+              "areaServed": "CR",
+              "availableLanguage": ["es", "en"]
+            }
+          ]
         }
       ]
     }
@@ -150,7 +171,7 @@
         <div class="hero-symbol-bg" aria-hidden="true">λ</div>
         <div class="hero-content">
             <p class="hero-subtitle">Development & Research</p>
-            <h1>Infraestructura Digital para startups y microempresas: <span class="hero-title-suffix">Sin Costes de Desarrollo</span></h1>
+            <h1>Infraestructura Digital para pequeñas empresas y emprendedores: <span class="hero-title-suffix">Sin Costes de Desarrollo</span></h1>
             <div class="hero-cta">
                 <a href="contact" class="btn btn-primary">Iniciar un proyecto</a>
                 <a href="services" class="btn">Ver servicios</a>
@@ -767,13 +788,13 @@
             <div class="research-teaser-flex">
                 <div class="animate-on-scroll" style="flex: 1; min-width: 300px; padding-right: 2rem;">
                     <h2>Investigación y Desarrollo (I+D)</h2>
-                    <p class="mb-md" style="text-align: justify;">Elysium λ opera como un laboratorio independiente de ingeniería de software y consultoría informática.<br><br>Desde la Unión Europea y Costa Rica, nuestro propósito es democratizar el acceso a la ingeniería de alto nivel, permitiéndole a las startups y microempresas escalar sus operaciones mediante infraestructura digital y ecosistemas tecnológicos.<br><br>No construimos simples interfaces; combinamos pensamiento científico, diseño ergonómico y experimentación continua para entregar software que resuelve ineficiencias estructurales.</p>
+                    <p class="mb-md" style="text-align: justify;">Elysium λ Development & Research opera como un laboratorio independiente de ingeniería, investigación y consultoría informática.<br><br>Desde la Unión Europea y Costa Rica, nuestro propósito es democratizar el acceso a infraestructura digital de alto nivel, permitiéndole a las pequeñas empresas y a los emprendedores a escalar sus operaciones mediante un ecosistema tecnológico.<br><br>No construimos simples interfaces; combinamos pensamiento científico, diseño ergonómico y experimentación continua para entregar software que resuelve ineficiencias estructurales.</p>
                     <a href="research" class="btn btn-primary">Research Lab</a>
                 </div>
                 <div class="animate-on-scroll delay-1"
                     style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 2rem; border-left: 1px solid var(--color-text-primary);">
                     <h3 class="home-subheading">Declaración de Misión</h3>
-                    <p style="margin-bottom: 0;">Democratizar el acceso a la infraestructura digital, dotando a las startups y microempresas de ecosistemas tecnológicos accesibles que automatizan sus procesos y garantizan su escalabilidad.</p>
+                    <p style="margin-bottom: 0;">Democratizar el acceso a infraestructura digital, dotando a las pequeñas empresas y a los emprendedores de ecosistemas tecnológicos accesibles que automatizan sus procesos y garantizan su escalabilidad.</p>
                 </div>
             </div>
         </div>
@@ -866,7 +887,7 @@
                 <div class="unified-pricing-grid-2col">
                     <!-- Hosting Plan -->
                     <div class="pricing-col" style="flex: 0 0 100%; min-width: 280px; scroll-snap-align: center; border-right: none;">
-                        <h3 class="home-subheading">Mantenimiento de Hosting</h3>
+                        <h3 class="home-subheading">Hosting</h3>
                         <p style="font-size: 1.5rem; font-weight: 700; color: var(--color-accent); margin-bottom: 0.25rem;"><span class="dynamic-price" data-base-price="99">99 €</span> <span style="font-size: 0.9rem; font-weight: normal; color: var(--color-text-secondary);">/ anuales</span></p>
                         <div style="font-size: 0.8rem; color: var(--color-text-secondary); margin-bottom: 1.5rem;">Facturación anual</div>
                         <ul style="list-style:none; padding:0; margin:0; font-size: 0.9rem; line-height: 1.6; color: var(--color-text-secondary); flex-grow: 1;">
@@ -876,7 +897,7 @@
                             <li style="margin-bottom: 0.5rem;"><i>*El desarrollo de la página web no está incluido</i></li>
                         </ul>
                         <a href="../profiles?subscribe=domain_hosting" class="btn"
-                            aria-label="Suscribirse al Mantenimiento de Hosting"
+                            aria-label="Suscribirse a Hosting"
                             style="margin-top: 2rem; width: 100%;">Suscribirse</a>
                     </div>
 
@@ -893,7 +914,7 @@
     <section class="cta-final section text-center" style="padding-top: 3rem;">
         <div class="container animate-on-scroll">
             <h2 class="mb-md">Eleve su presencia digital</h2>
-            <p class="mb-lg">Presence web profesional para su empresa. Construida sobre valores europeos.</p>
+            <p class="mb-lg">Ecosistema digital para su empresa. Construida sobre valores europeos y costarricenses.</p>
             <a href="contact" class="btn btn-primary">Agendar consulta</a>
         </div>
     </section>
@@ -921,7 +942,7 @@
                         </div>
                     </div>
                     <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, Unión Europea</p>
-                    <p class="footer-service-note">También en Hispanoamérica.</p>
+                    <p class="footer-service-note">También en todas las Américas.</p>
                 </div>
                 <div class="footer-col">
                     <h3>Empresa</h3>
@@ -950,6 +971,8 @@
                         <li><a
                                 href="https://www.instagram.com/elysium.dr?igsh=YmFhNnlqbWttM3h0&utm_source=qr">Instagram</a>
                         </li>
+                        <li><a href="https://api.whatsapp.com/send/?phone=351934086075&amp;text&amp;type=phone_number&amp;app_absent=0" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+                        <li><a href="https://www.tiktok.com/@elysium.dr?_r=1&amp;_t=ZS-992i4U8ZNje" target="_blank" rel="noopener noreferrer">TikTok</a></li>
                         <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
                     </ul>
                 </div>
