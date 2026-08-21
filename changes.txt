@@ -272,3 +272,12 @@
 - Despliegue de reglas de seguridad Firestore, índices compuestos y reglas de Storage en Firebase (elysiumdr-eu).
 - Despliegue del Worker y assets estáticos en Cloudflare Workers (versión 80f620ba-1d85-4af4-b899-63deabd9dd6c).
 - Sincronización y publicación de todos los cambios en GitHub (rama main).
+
+=== CHAT ID: 8711fd42-87bf-4c12-847b-a55cb9c744b0 - Fase 1 & 2: Nacionalización España (elysiumdr.es) y Portugal (elysiumdr.pt), Documentación LLMs y Versión V1.8.0 ===
+- Fase 1 (España - elysiumdr.es): Localización integral a castellano de España en es/index.html y es/about.html (hero, servicios, sobre nosotros, selector de región con España en 1ª posición y banderas WebP).
+- Fase 2 (Portugal - elysiumdr.pt): Localización integral a portugués de Portugal en pt/index.html y pt/about.html (hero, serviços, sobre nós, selector de região com Portugal em 1.º lugar).
+- Cloudflare Edge Routing: Enrutamiento multi-dominio inteligente y transparente en worker/index.js para elysiumdr.es, elysiumdr.pt y elysiumdr.cr.
+- Creación de documentación dedicada para LLMs: es/llms.txt y es/llms-full.txt (España), pt/llms.txt y pt/llms-full.txt (Portugal), y alineación del 100% de los documentos a "pequeñas empresas y a los emprendedores / pequenas empresas e aos empreendedores".
+- Actualización de versión del footer y sistema a V1.8.0 en version-modal.js, ONCORE, Prototipos y compilación de Demo-arbol.
+- Despliegue global a producción (GitHub main, Cloudflare Workers, Firebase y Backend).
+

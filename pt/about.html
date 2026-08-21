@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Missão, visão e história da Elysium λ, empresa de infraestrutura digital e I&D aplicada estabelecida em Portugal, com operações na Costa Rica e serviço a startups e microempresas de ambas as regiões.">
+        content="Missão, visão e história da Elysium λ, empresa de infraestrutura digital e I&D aplicada estabelecida em Portugal, ao serviço de pequenas empresas e empreendedores.">
     <title>Sobre Nós — Elysium λ Development & Research</title>
 
     <!-- AI / LLM Discoverability -->
@@ -23,17 +23,18 @@
     <link rel="alternate" type="text/plain" title="LLM full site content" href="https://elysiumdr.eu/llms-full.txt">
 
     <!-- Canonical & hreflang -->
-    <link rel="canonical" href="https://elysiumdr.eu/pt/about">
-    <link rel="alternate" hreflang="en" href="https://elysiumdr.eu/about">
-    <link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/about">
-    <link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/about">
+    <link rel="canonical" href="https://elysiumdr.pt/about">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.pt/about">
+    <link rel="alternate" hreflang="es-ES" href="https://elysiumdr.es/about">
+    <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/about">
+    <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.cr/about">
     <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/about">
 
     <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://elysiumdr.eu/pt/about">
+    <meta property="og:url" content="https://elysiumdr.pt/about">
     <meta property="og:title" content="Sobre Nós — Elysium λ Development & Research">
-    <meta property="og:description" content="Missão, visão e história da Elysium λ, empresa de infraestrutura digital e I&D aplicada estabelecida em Portugal, com operações na Costa Rica e serviço a startups e microempresas de ambas as regiões.">
+    <meta property="og:description" content="Missão, visão e história da Elysium λ, empresa de infraestrutura digital e I&D aplicada estabelecida em Portugal, ao serviço de pequenas empresas e empreendedores.">
     <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
@@ -44,7 +45,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@elysiumdr">
     <meta name="twitter:title" content="Sobre Nós — Elysium λ Development & Research">
-    <meta name="twitter:description" content="Missão, visão e história da Elysium λ, empresa de infraestrutura digital e I&D aplicada estabelecida em Portugal, com operações na Costa Rica e serviço a startups e microempresas de ambas as regiões.">
+    <meta name="twitter:description" content="Missão, visão e história da Elysium λ, empresa de infraestrutura digital e I&D aplicada estabelecida em Portugal, ao serviço de pequenas empresas e empreendedores.">
     <meta name="twitter:image" content="https://elysiumdr.eu/Images/favicon-512.png">
 
     <!-- View Transition -->
@@ -68,17 +69,17 @@
       "@context": "https://schema.org",
       "@type": "AboutPage",
       "name": "Sobre Nós — Elysium λ Development & Research",
-      "url": "https://elysiumdr.eu/pt/about",
+      "url": "https://elysiumdr.pt/about",
       "description": "Missão, visão, ethos de I&D e história da Elysium λ Development & Research.",
       "inLanguage": "pt-PT",
       "mainEntity": {
         "@type": ["Organization", "ResearchOrganization"],
         "name": "Elysium λ Development & Research",
-        "url": "https://elysiumdr.eu",
+        "url": "https://elysiumdr.pt",
         "logo": "https://elysiumdr.eu/Images/favicon-512.png",
-        "description": "Empresa europeia de infraestrutura digital e laboratório independente de I&D aplicada estabelecido em Portugal, com operações na Costa Rica e serviço a startups e microempresas da União Europeia e Costa Rica.",
+        "description": "Empresa de infraestrutura digital e laboratório independente de I&D aplicada estabelecido em Portugal, ao serviço de pequenas empresas e empreendedores em Portugal e na União Europeia.",
         "slogan": "Infraestrutura digital acessível e transparente, centrada em I&D.",
-        "areaServed": ["União Europeia", "Costa Rica"]
+        "areaServed": ["Portugal", "União Europeia", "Espanha", "Costa Rica"]
       }
     }
     </script>
@@ -98,7 +99,31 @@
 
     <nav class="navbar">
         <div class="container">
-            <a href="./" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
+            <div class="nav-brand-container">
+                <a href="./" class="nav-brand"><span class="brand-symbol">λ</span> ELYSIUM</a>
+                <!-- Region Switcher Dropdown (Portugal en primer lugar) -->
+                <div class="region-switcher-dropdown" id="regionSwitcher">
+                    <button type="button" class="region-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Selecionar região">
+                        <span class="region-tag">PORTUGAL</span>
+                        <span class="region-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="region-switcher-menu" role="menu">
+                        <a href="https://elysiumdr.pt/" class="region-item active" role="menuitem" data-region="PT">
+                            <span class="region-indicator">●</span> PORTUGAL
+                        </a>
+                        <a href="https://elysiumdr.eu/" class="region-item" role="menuitem" data-region="EU">
+                            EUROPA
+                        </a>
+                        <a href="https://elysiumdr.es/" class="region-item" role="menuitem" data-region="ES">
+                            ESPANHA
+                        </a>
+                        <a href="https://elysiumdr.cr/" class="region-item" role="menuitem" data-region="CR">
+                            COSTA RICA
+                        </a>
+                    </div>
+                </div>
+            </div>
             <div class="nav-links">
                 <a href="services" class="nav-link">Serviços</a>
                 <a href="portfolio" class="nav-link">Portefólio</a>
@@ -108,12 +133,12 @@
                 <a href="contact" class="btn btn-primary">Contacto</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Selecionar idioma"><span class="lang-current-label">PT</span> <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                        aria-label="Selecionar idioma"><span class="lang-current-label">PT</span> <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
-                        <a href="../about" role="menuitem">English <img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="../es/about" role="menuitem">Español <img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="about" role="menuitem">Português <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="about" role="menuitem">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="../about" role="menuitem">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="../es/about" role="menuitem">Español <img src="../Images/Optimized/flag-es-64.webp" alt="ES" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                     </div>
                 </div>
             </div>
@@ -135,13 +160,13 @@
                     <h3
                         style="border-bottom: 2px solid var(--color-text-primary); padding-bottom: 0.5rem; display: inline-block;">
                         Missão</h3>
-                    <p style="margin-top: 1rem;">Democratizar o acesso a infraestrutura digital, dotando as pequenas empresas e startups de ecossistemas tecnológicos acessíveis que automatizam os seus processos e garantem a sua escalabilidade. A nossa missão é proporcionar às micro e pequenas empresas, empreendedores e startups a oportunidade de ter uma infraestrutura que evolui com os seus negócios.</p>
+                    <p style="margin-top: 1rem;">Democratizar o acesso a infraestrutura digital, dotando as pequenas empresas e empreendedores de ecossistemas tecnológicos acessíveis que automatizam os seus processos e garantem a sua escalabilidade. A nossa missão é proporcionar aos negócios portugueses a oportunidade de ter uma infraestrutura que evolui com as suas operações.</p>
                 </div>
                 <div class="card" style="border: none; background: transparent;">
                     <h3
                         style="border-bottom: 2px solid var(--color-text-primary); padding-bottom: 0.5rem; display: inline-block;">
                         Visão</h3>
-                    <p style="margin-top: 1rem;">Ser o Elysium λ Institute of Development & Research, um instituto dedicado ao estudo, desenvolvimento e aplicação de Infraestruturas Digitais, bem como à formação de novas gerações de cientistas e desenvolvedores. A nossa visão é contribuir ativamente para a construção de uma União Europeia digital e de uma Costa Rica que avança rumo à modernidade.</p>
+                    <p style="margin-top: 1rem;">Ser o Elysium λ Institute of Development & Research, um instituto dedicado ao estudo, desenvolvimento e aplicação de Infraestruturas Digitais, bem como à formação de novas gerações de cientistas e desenvolvedores. A nossa visão é contribuir ativamente para a construção de um Portugal digital e inovador que avança rumo à modernidade.</p>
                 </div>
             </div>
 
@@ -166,8 +191,6 @@
             <div class="logos">
                 <div class="logos-slide">
                     <!-- Institutions -->
-
-
                     <div class="logo-item">
                         <img src="../Images/Certification Authorities and Institutional Partners/ULACIT.png"
                             alt="ULACIT" style="transform: scale(1.25);" />
@@ -188,7 +211,6 @@
                             alt="Autoridade Tributária" />
                         <span>Autoridade Tributária</span>
                     </div>
-
 
                     <div class="logo-item">
                         <img src="../Images/Certification Authorities and Institutional Partners/MADE IN EU.png"
@@ -210,8 +232,6 @@
                 <!-- Duplicate for infinite loop -->
                 <div class="logos-slide">
                     <!-- Institutions -->
-
-
                     <div class="logo-item">
                         <img src="../Images/Certification Authorities and Institutional Partners/ULACIT.png"
                             alt="ULACIT" style="transform: scale(1.25);" />
@@ -232,7 +252,6 @@
                             alt="Autoridade Tributária" />
                         <span>Autoridade Tributária</span>
                     </div>
-
 
                     <div class="logo-item">
                         <img src="../Images/Certification Authorities and Institutional Partners/MADE IN EU.png"
@@ -261,7 +280,7 @@
                 <h2>A nossa história</h2>
             </div>
             <div style="max-width: 720px; margin: 0 auto;" class="animate-on-scroll">
-                <p class="mb-md">A Elysium λ Development & Research foi fundada com um propósito claro: trabalhar de mãos dadas com as micro e pequenas empresas, empreendedores e startups para impulsionar a sua presença digital e conceder-lhes acesso a infraestrutura que lhes permita escalar os seus negócios.</p>
+                <p class="mb-md">A Elysium λ Development & Research foi fundada com um propósito claro: trabalhar de mãos dadas com as pequenas empresas e empreendedores para impulsionar a sua presença digital e conceder-lhes acesso a infraestrutura que lhes permita escalar as suas operações.</p>
 
                 <div style="text-align: center; margin: 2rem 0;">
                     <button class="btn btn-outline read-more-btn" aria-expanded="false" aria-controls="story-read-more"
@@ -269,7 +288,7 @@
                 </div>
 
                 <div id="story-read-more" class="read-more-content">
-                    <p class="mb-md">As pequenas empresas e startups representam a espinha dorsal da economia da União Europeia e costa-riquenha. No entanto, muitas permanecem excluídas dos benefícios da transformação tecnológica devido a barreiras de complexidade, custo e literacia digital. A Elysium λ procura investigar e desenvolver infraestruturas digitais que tornem as tecnologias avançadas mais acessíveis, transparentes e confiáveis para as micro e pequenas empresas, empreendedores e startups que navegam nesta transformação.</p>
+                    <p class="mb-md">As pequenas empresas e empreendedores representam a espinha dorsal da economia portuguesa. No entanto, muitas permanecem excluídas dos benefícios da transformação tecnológica devido a barreiras de complexidade, custo e literacia digital. A Elysium λ procura investigar e desenvolver infraestruturas digitais que tornem as tecnologias avançadas mais acessíveis, transparentes e confiáveis para os negócios que navegam nesta transformação.</p>
 
                     <p class="mb-md">O nome Elysium λ reflete a alma deste projeto:</p>
 
@@ -277,20 +296,16 @@
 
                     <p class="mb-md">O símbolo <strong>λ (lambda)</strong> é a décima primeira letra do alfabeto grego e a segunda letra da palavra Ἠλύσιον (Elysium). Representa a abstração de ideias em sistemas executáveis.</p>
 
-                    <p class="mb-md">No contexto europeu deste projeto, a <strong>Elysium λ</strong> simboliza a aspiração de contribuir para uma União Europeia cada vez mais unificada.</p>
-
-
+                    <p class="mb-md">No contexto deste projeto, a <strong>Elysium λ</strong> simboliza a aspiração de contribuir para um Portugal e uma Europa cada vez mais inovadores e competitivos.</p>
                 </div>
 
                 <div
                     style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass-border); opacity: 0.85; font-size: 0.95rem;">
-                    <p class="mb-0">Começando com infraestrutura digital para pequenas empresas e startups, a Elysium λ pretende evoluir no sentido da investigação e formação de desenvolvedores científicos que apoiem um futuro digital europeu e costa-riquenho focado em I&D.</p>
+                    <p class="mb-0">Começando com infraestrutura digital para pequenas empresas e empreendedores, a Elysium λ pretende evoluir no sentido da investigação e formação de desenvolvedores científicos que apoiem um futuro digital português focado em I&D.</p>
                 </div>
             </div>
         </div>
     </section>
-
-
 
     <section class="section" style="background: var(--color-bg-secondary);">
         <div class="container">
@@ -321,7 +336,7 @@
                 <h2>Onde estamos</h2>
             </div>
             <div style="max-width: 560px; margin: 0 auto; text-align: center;" class="animate-on-scroll">
-                <p>A Elysium λ Development and Research é uma empresa europeia estabelecida em Portugal e com operações na Costa Rica. Servimos micro e pequenas empresas, empreendedores e startups em toda a União Europeia e Costa Rica com infraestrutura digital e investigação acessível.</p>
+                <p>A Elysium λ Development and Research é uma empresa estabelecida em Portugal. Servimos pequenas empresas, empreendedores e startups em Portugal e em toda a União Europeia com infraestrutura digital e investigação acessível.</p>
                 <p class="mb-0"><a href="contact" class="btn btn-primary" style="margin-top: 1rem;">Contactar</a>
                 </p>
             </div>
@@ -337,17 +352,17 @@
                         <div class="lang-switcher-dropdown footer-lang-switcher">
                             <button type="button" class="lang-switcher-trigger" aria-expanded="false"
                                 aria-haspopup="true" aria-label="Selecionar idioma"><span
-                                    class="lang-current-label">PT</span> <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
+                                    class="lang-current-label">PT</span> <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
                                     aria-hidden="true">▼</span></button>
                             <div class="lang-switcher-menu" role="menu">
-                                <a href="../about" role="menuitem">English <img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="../es/about" role="menuitem">Español <img src="../Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="about" role="menuitem">Português <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="about" role="menuitem">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="../about" role="menuitem">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="../es/about" role="menuitem">Español <img src="../Images/Optimized/flag-es-64.webp" alt="ES" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                             </div>
                         </div>
                     </div>
-                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, União Europeia</p>
-                    <p class="footer-service-note">Também em todas as Américas.</p>
+                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal & Espanha, União Europeia</p>
+                    <p class="footer-service-note">Também em toda a União Europeia e Américas.</p>
                 </div>
                 <div class="footer-col">
                     <h4>Empresa</h4>

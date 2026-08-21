@@ -159,6 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (trigger && menu) {
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
+                // Close region dropdowns if open
+                document.querySelectorAll('.region-switcher-dropdown').forEach(d => d.classList.remove('is-open'));
                 langDropdown.classList.toggle('is-open');
                 trigger.setAttribute('aria-expanded', langDropdown.classList.contains('is-open'));
             });
@@ -169,10 +171,44 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Set language override when manually selecting a language
-            menu.querySelectorAll('a').forEach(link => {
+            menu.querySelectorAll('a, button').forEach(link => {
                 link.addEventListener('click', () => {
                     try {
                         localStorage.setItem('langOverride', 'true');
+                    } catch (error) {
+                        // Storage can be disabled; navigation must still work.
+                    }
+                });
+            });
+        }
+    });
+
+    // Region switcher dropdowns
+    const regionDropdowns = document.querySelectorAll('.region-switcher-dropdown');
+    regionDropdowns.forEach(regionDropdown => {
+        const trigger = regionDropdown.querySelector('.region-switcher-trigger');
+        const menu = regionDropdown.querySelector('.region-switcher-menu');
+
+        if (trigger && menu) {
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close language dropdowns if open
+                document.querySelectorAll('.lang-switcher-dropdown').forEach(d => d.classList.remove('is-open'));
+                regionDropdown.classList.toggle('is-open');
+                trigger.setAttribute('aria-expanded', regionDropdown.classList.contains('is-open'));
+            });
+
+            document.addEventListener('click', () => {
+                regionDropdown.classList.remove('is-open');
+                trigger.setAttribute('aria-expanded', 'false');
+            });
+
+            // Set region override when manually navigating regions
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    try {
+                        localStorage.setItem('elysium_region_override', 'true');
+                        document.cookie = "elysium_region_override=true; path=/; max-age=31536000; SameSite=Lax";
                     } catch (error) {
                         // Storage can be disabled; navigation must still work.
                     }

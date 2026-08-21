@@ -40,6 +40,95 @@ const LEGACY_ADMIN_LANGUAGES = new Map([
 export default {
     async fetch(request, env) {
         const url = new URL(request.url);
+        const host = url.hostname.toLowerCase();
+
+        // Redirección por IP / Geolocalización en el dominio principal .eu (con anulación manual vía cookie)
+        if ((host === 'elysiumdr.eu' || host === 'www.elysiumdr.eu') && (url.pathname === '/' || url.pathname === '/index.html')) {
+            const cookieHeader = request.headers.get('Cookie') || '';
+            const hasManualOverride = cookieHeader.includes('elysium_region_override=true');
+
+            if (!hasManualOverride) {
+                const country = request.cf?.country; // Código ISO de 2 letras provisto por Cloudflare (p. ej. 'ES', 'PT', 'CR')
+
+                if (country === 'ES') {
+                    const target = new URL(url.pathname + url.search, 'https://elysiumdr.es');
+                    return Response.redirect(target.toString(), 302);
+                } else if (country === 'PT') {
+                    const target = new URL(url.pathname + url.search, 'https://elysiumdr.pt');
+                    return Response.redirect(target.toString(), 302);
+                } else if (country === 'CR') {
+                    const target = new URL(url.pathname + url.search, 'https://elysiumdr.cr');
+                    return Response.redirect(target.toString(), 302);
+                }
+            }
+        }
+
+        // Mapeo transparente para dominios nacionalizados (elysiumdr.es, elysiumdr.pt, elysiumdr.cr)
+        if (host === 'elysiumdr.es' || host === 'www.elysiumdr.es') {
+            if (url.pathname === '/llms.txt') {
+                return env.ASSETS.fetch(new Request(new URL('/es/llms.txt', request.url), request));
+            }
+            if (url.pathname === '/llms-full.txt') {
+                return env.ASSETS.fetch(new Request(new URL('/es/llms-full.txt', request.url), request));
+            }
+            const staticPrefixes = ['/CSS/', '/JS/', '/Images/', '/api/', '/sounds/', '/Titulos/', '/CV/', '/favicon'];
+            const isStatic = staticPrefixes.some(p => url.pathname.startsWith(p)) || (url.pathname.includes('.') && !url.pathname.endsWith('.html'));
+
+            if (!isStatic) {
+                let targetPath = url.pathname;
+                if (targetPath === '/' || targetPath === '/index.html') {
+                    targetPath = '/es/';
+                } else if (!targetPath.startsWith('/es/') && !targetPath.startsWith('/pt/')) {
+                    targetPath = '/es' + (targetPath.startsWith('/') ? targetPath : '/' + targetPath);
+                }
+                const rewrittenUrl = new URL(targetPath + url.search, request.url);
+                return env.ASSETS.fetch(new Request(rewrittenUrl, request));
+            }
+        }
+
+        if (host === 'elysiumdr.pt' || host === 'www.elysiumdr.pt') {
+            if (url.pathname === '/llms.txt') {
+                return env.ASSETS.fetch(new Request(new URL('/pt/llms.txt', request.url), request));
+            }
+            if (url.pathname === '/llms-full.txt') {
+                return env.ASSETS.fetch(new Request(new URL('/pt/llms-full.txt', request.url), request));
+            }
+            const staticPrefixes = ['/CSS/', '/JS/', '/Images/', '/api/', '/sounds/', '/Titulos/', '/CV/', '/favicon'];
+            const isStatic = staticPrefixes.some(p => url.pathname.startsWith(p)) || (url.pathname.includes('.') && !url.pathname.endsWith('.html'));
+
+            if (!isStatic) {
+                let targetPath = url.pathname;
+                if (targetPath === '/' || targetPath === '/index.html') {
+                    targetPath = '/pt/';
+                } else if (!targetPath.startsWith('/pt/') && !targetPath.startsWith('/es/')) {
+                    targetPath = '/pt' + (targetPath.startsWith('/') ? targetPath : '/' + targetPath);
+                }
+                const rewrittenUrl = new URL(targetPath + url.search, request.url);
+                return env.ASSETS.fetch(new Request(rewrittenUrl, request));
+            }
+        }
+
+        if (host === 'elysiumdr.cr' || host === 'www.elysiumdr.cr') {
+            if (url.pathname === '/llms.txt') {
+                return env.ASSETS.fetch(new Request(new URL('/es/llms.txt', request.url), request));
+            }
+            if (url.pathname === '/llms-full.txt') {
+                return env.ASSETS.fetch(new Request(new URL('/es/llms-full.txt', request.url), request));
+            }
+            const staticPrefixes = ['/CSS/', '/JS/', '/Images/', '/api/', '/sounds/', '/Titulos/', '/CV/', '/favicon'];
+            const isStatic = staticPrefixes.some(p => url.pathname.startsWith(p)) || (url.pathname.includes('.') && !url.pathname.endsWith('.html'));
+
+            if (!isStatic) {
+                let targetPath = url.pathname;
+                if (targetPath === '/' || targetPath === '/index.html') {
+                    targetPath = '/es/';
+                } else if (!targetPath.startsWith('/es/') && !targetPath.startsWith('/pt/')) {
+                    targetPath = '/es' + (targetPath.startsWith('/') ? targetPath : '/' + targetPath);
+                }
+                const rewrittenUrl = new URL(targetPath + url.search, request.url);
+                return env.ASSETS.fetch(new Request(rewrittenUrl, request));
+            }
+        }
 
         // Durante la consolidación existió una SPA separada en /admin/.
         // Los marcadores antiguos vuelven al único CRM sin perder el query.

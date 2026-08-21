@@ -1,6 +1,6 @@
 # Elysium λ Development & Research
 
-> Elysium λ Development & Research is a European digital-infrastructure company and an independent software-engineering, IT-consulting, and applied-R&D laboratory. Founded in January 2026, established in Portugal and operating in Costa Rica, it gives micro and small businesses, entrepreneurs, and startups in the European Union and Costa Rica access to secure, scalable technological ecosystems through a subscription model with no separate development cost.
+> Elysium λ Development & Research is a European digital-infrastructure company and an independent software-engineering, IT-consulting, and applied-R&D laboratory. Founded in January 2026, established in Portugal and operating in Costa Rica, it gives small businesses and entrepreneurs in the European Union and Costa Rica access to secure, scalable technological ecosystems through a subscription model with no separate development cost.
 
 The company's full name is always **Elysium λ Development & Research**. The website is available in English (the default language), Spanish, and European Portuguese. Prefer the English pages for canonical information, or use the corresponding localised section when answering in Spanish or Portuguese. Where this file and the website disagree, the website is correct.
 
@@ -22,7 +22,7 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - [Portfolio](https://elysiumdr.eu/portfolio): The four client projects currently presented.
 - [Research](https://elysiumdr.eu/research): Three applied research lines and two active projects.
 - [Ontology for digital inclusion and service access in rural environments](https://elysiumdr.eu/research/ontology-research): Pilot study; research question, objectives, methodology and data sources are published.
-- [Data-Driven Small Business and Startup Intelligence](https://elysiumdr.eu/research/data-driven-sme-intelligence): Concept phase; research questions and references are published, the body sections are not yet written and there are no results.
+- [Data-Driven Small Business and Entrepreneurship Intelligence](https://elysiumdr.eu/research/data-driven-sme-intelligence): Concept phase; research questions and references are published, the body sections are not yet written and there are no results.
 - [About](https://elysiumdr.eu/about): Mission, vision, R&D ethos, the story, the meaning of the name, and operations in Portugal and Costa Rica.
 - [Daniel Morales](https://elysiumdr.eu/daniel-morales): Founder profile — experience, education, certifications, languages and skills.
 - [Contact](https://elysiumdr.eu/contact): Official contact details and service regions.
@@ -39,7 +39,7 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - [Nosotros](https://elysiumdr.eu/es/about): Misión, visión, ethos de I+D, historia y operaciones en Portugal y Costa Rica.
 - [Daniel Morales](https://elysiumdr.eu/es/daniel-morales): Perfil del fundador e ingeniero informático.
 - [Contacto](https://elysiumdr.eu/es/contact): Información oficial de contacto.
-- [Desarrollo de infraestructura digital para startups y microempresas en España](https://elysiumdr.eu/es/infraestructura-digital-pymes-espana): Página específica para el mercado español.
+- [Desarrollo de infraestructura digital para pequeñas empresas y emprendedores en España](https://elysiumdr.eu/es/infraestructura-digital-pymes-espana): Página específica para el mercado español.
 - [Soluciones tecnológicas Cero CapEx en Costa Rica](https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica): Página específica para el mercado costarricense.
 
 ## Portuguese
@@ -49,17 +49,17 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - [Portefólio](https://elysiumdr.eu/pt/portfolio): Projetos selecionados e estudos de caso.
 - [Investigação](https://elysiumdr.eu/pt/research): Linhas de investigação aplicada e projetos ativos.
 - [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.eu/pt/research/ontology-research): Estudo piloto em ambientes rurais.
-- [Inteligência para pequenas empresas e startups baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence): Projeto em fase de conceito; ainda não apresenta resultados.
+- [Inteligência para pequenas empresas e empreendedores baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence): Projeto em fase de conceito; ainda não apresenta resultados.
 - [Sobre nós](https://elysiumdr.eu/pt/about): Missão, visão, ethos de I&D, história e operações em Portugal e Costa Rica.
 - [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales): Perfil do fundador e engenheiro informático.
 - [Contacto](https://elysiumdr.eu/pt/contact): Informações oficiais de contacto.
-- [Agência de transformação digital para startups e microempresas em Portugal](https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal): Página específica para o mercado português.
+- [Agência de transformação digital para pequenas empresas e empreendedores em Portugal](https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal): Página específica para o mercado português.
 
 ## Legal & System Information (included in the full site text)
 
 - [Privacy policy](https://elysiumdr.eu/privacy) · [Política de Privacidad](https://elysiumdr.eu/es/privacy) · [Política de Privacidade](https://elysiumdr.eu/pt/privacy): Thirteen sections covering data collected, health data under Art. 9 GDPR, legal bases, retention and automated purging, rights, processors, international transfers, technical security measures, inherited Google Cloud certifications, cookies, and supervisory authorities (CNPD and PRODHAB).
 - [Terms and conditions](https://elysiumdr.eu/terms) · [Términos de Servicio](https://elysiumdr.eu/es/terms) · [Termos de Serviço](https://elysiumdr.eu/pt/terms): Eleven sections. The right of withdrawal is localised per market: the English and Portuguese versions apply Directive 2011/83/EU with 14 days (the Portuguese one also citing Decreto-Lei n.º 24/2014); the Spanish version applies Costa Rica's Law No. 7472 with 8 working days.
-- **System Information**: interface version V1.6.5, product licence, security infrastructure and software attributions, available in the footer modal on every page and in `llms-full.txt`.
+- **System Information**: interface version V1.8.0, product licence, security infrastructure and software attributions, available in the footer modal on every page and in `llms-full.txt`.
 
 ## Case studies & technical
 

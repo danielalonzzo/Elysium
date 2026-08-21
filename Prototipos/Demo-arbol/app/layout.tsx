@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   description: "",
   robots: { index: false, follow: false, nocache: true },
-  other: { "app-version": "V1.7.0" },
+  other: { "app-version": "V1.8.0" },
 };
 
 export const viewport: Viewport = {
