@@ -22,10 +22,10 @@ PART 1 — ENGLISH (EN)
 URL: https://elysiumdr.eu/
 
 Title: Elysium λ Development & Research
-Hero: Digital Infrastructure for small-businesses and entrepreneurs: No Development Costs
+Hero: Digital Infrastructure for small-businesses and startups: No Development Costs
 
 Description:
-Subscription-based digital infrastructure for small businesses and entrepreneurs:
+Subscription-based digital infrastructure for startups and micro-businesses:
 cloud systems, bespoke CRM, cybersecurity and applied R&D in the EU and Costa
 Rica, with no development cost.
 
@@ -33,8 +33,8 @@ ORGANISATION PROFILE:
 Elysium λ Development & Research is a European digital-infrastructure company
 and an independent software-engineering, IT-consulting, and applied-R&D
 laboratory. It was founded in January 2026, is established in Portugal, and
-operates in Costa Rica. It serves small businesses and entrepreneurs
-across the European Union and Costa Rica.
+operates in Costa Rica. It serves micro and small businesses, entrepreneurs,
+and startups across the European Union and Costa Rica.
 
 OPERATING MODEL:
 Digital infrastructure is included in a monthly subscription. Elysium assumes
@@ -103,10 +103,10 @@ Elysium λ Development & Research operates as an independent engineering,
 research, and IT-consulting laboratory in the European Union and Costa Rica.
 It combines scientific thinking, ergonomic design, and continuous experimentation
 to solve structural inefficiencies and make high-level digital infrastructure
-accessible to small businesses and entrepreneurs.
+accessible to small businesses and startups.
 
-Mission statement: Democratise access to digital infrastructure, providing small
-businesses and entrepreneurs with accessible technological ecosystems that automate
+Mission statement: Democratize access to digital infrastructure, providing small
+businesses and startups with accessible technological ecosystems that automate
 their processes and ensure their scalability.
 
 TEAM AND CURRENT SOCIAL PROOF:
@@ -244,7 +244,7 @@ URL: https://elysiumdr.eu/research
 
 Title: Research — Elysium λ Development & Research
 Description: Applied research at Elysium λ in human-computer interaction, data
-science and digital infrastructure for small businesses and entrepreneurs, with active
+science and digital infrastructure for startups and micro-businesses, with active
 ontology and data-intelligence projects.
 
 APPLIED RESEARCH LINES:
@@ -287,14 +287,14 @@ ACTIVE RESEARCH PROJECTS:
    training and libraries; OpenStreetMap as geographic base and POIs; a small
    corpus of synthetic user needs.
 
-2. Data-Driven Small Business and Entrepreneurship Intelligence: Leveraging Machine
-   Learning for Operational Insight Extraction in Small Businesses and Entrepreneurs
+2. Data-Driven Small Business and Startup Intelligence: Leveraging Machine
+   Learning for Operational Insight Extraction in Small Businesses and Startups
    Author: Daniel A. Morales Ávila | Year: 2026 | Status: Concept Phase
-   Tags: Machine Learning · Data Analysis · Small Business and Entrepreneurship Strategy
+   Tags: Machine Learning · Data Analysis · Small Business and Startup Strategy
    URL: https://elysiumdr.eu/research/data-driven-sme-intelligence
    RQ1: What minimum data volume and quality thresholds are required for machine
-   learning models to generate reliable operational insights in typical small
-   business and entrepreneur digital environments?
+   learning models to generate reliable operational insights in typical startup
+   and micro-business digital environments?
    RQ2: Which machine learning methodologies — supervised classification,
    clustering, anomaly detection, or time-series forecasting — produce the most
    actionable and interpretable outputs for non-specialist operators?
@@ -315,7 +315,7 @@ URL: https://elysiumdr.eu/about
 Title: About — Elysium λ Development & Research
 Description: Mission, vision and story of Elysium λ, a digital-infrastructure and
 applied-R&D company established in Portugal, operating in Costa Rica and serving
-small businesses and entrepreneurs in both regions.
+startups and micro-businesses in both regions.
 
 ETHOS:
 "Our work is guided by the conviction that digital infrastructure should be
@@ -323,30 +323,30 @@ accessible, transparent, and focused on R&D."
 
 MISSION:
 Democratize access to digital infrastructure, providing small businesses and
-entrepreneurs with accessible technological ecosystems that automate their processes
-and ensure their scalability. The mission is to provide small
-businesses and entrepreneurs with the opportunity to have an
+startups with accessible technological ecosystems that automate their processes
+and ensure their scalability. The mission is to provide micro and small
+businesses, entrepreneurs, and startups with the opportunity to have an
 infrastructure that evolves with their businesses.
 
 VISION:
 To be the Elysium λ Institute of Development & Research, an institute dedicated
 to the study, development, and application of Digital Infrastructures, as well as
-the training of new generations of scientists and developers. The vision is to
+the training of new generations of scientists and developers. Our vision is to
 actively contribute to the construction of a digital European Union and a Costa
 Rica that moves forward towards modernity.
 
 OUR STORY:
 Elysium λ Development & Research was founded with a clear purpose: to work hand
-in hand with small businesses and entrepreneurs to boost
+in hand with micro and small businesses, entrepreneurs, and startups to boost
 their digital presence and grant them access to infrastructure that allows them
 to scale their businesses.
 
-Small businesses and entrepreneurs represent the backbone of the European Union and
+Small businesses and startups represent the backbone of the European Union and
 Costa Rican economy. Yet many remain excluded from the benefits of technological
 transformation due to barriers of complexity, cost and digital literacy.
 Elysium λ seeks to investigate and develop digital infrastructures that make
-advanced technologies more accessible, transparent and trustworthy for
-small businesses and entrepreneurs navigating this transformation.
+advanced technologies more accessible, transparent and trustworthy for micro and
+small businesses, entrepreneurs, and startups navigating this transformation.
 
 MEANING OF THE NAME:
 - Elysium comes from the ancient Greek Ἠλύσιον: a place reserved for those
@@ -362,11 +362,11 @@ MEANING OF THE NAME:
   aspiration to contribute to an increasingly unified European Union.
 
 CURRENT DIRECTION AND LOCATION:
-Beginning with digital infrastructure for small businesses and entrepreneurs, Elysium λ
+Beginning with digital infrastructure for small businesses and startups, Elysium λ
 aims to evolve toward research and the training of scientific developers that
 support a European and Costa Rican digital future focused on R&D. It is a European
-company established in Portugal and with operations in Costa Rica, serving
-small businesses and entrepreneurs across the European Union and
+company established in Portugal and with operations in Costa Rica, serving micro
+and small businesses, entrepreneurs, and startups across the European Union and
 Costa Rica with digital infrastructure and accessible research.
 
 CERTIFICATION AUTHORITIES AND INSTITUTIONAL PARTNERS DISPLAYED:
@@ -720,7 +720,7 @@ Costa Rica. Combina pensamiento científico, diseño ergonómico y experimentaci
 continua para resolver ineficiencias estructurales y democratizar el acceso a
 infraestructura digital de alto nivel para pequeñas empresas y emprendedores.
 
-Declaración de misión: democratizar el acceso a la infraestructura digital,
+Declaración de misión: Democratizar el acceso a infraestructura digital,
 dotando a las pequeñas empresas y a los emprendedores de ecosistemas
 tecnológicos accesibles que automatizan sus procesos y garantizan su
 escalabilidad.
@@ -1093,7 +1093,7 @@ Costa Rica. Combina pensamento científico, design ergonómico e experimentaçã
 contínua para resolver ineficiências estruturais e democratizar o acesso a
 infraestrutura digital de alto nível para pequenas empresas e empreendedores.
 
-Declaração de missão: democratizar o acesso a infraestrutura digital, dotando as
+Declaração de missão: Democratizar o acesso a infraestrutura digital, dotando as
 pequenas empresas e os empreendedores de ecossistemas tecnológicos acessíveis que
 automatizam os seus processos e garantem a sua escalabilidade.
 
