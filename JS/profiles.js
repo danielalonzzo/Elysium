@@ -1,4 +1,4 @@
-import { auth, db } from './firebase-config.js';
+import { auth, db, hasPersistentCache } from './firebase-config.js';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -20,7 +20,9 @@ import {
     query,
     where,
     getDocs,
-    onSnapshot
+    onSnapshot,
+    terminate,
+    clearIndexedDbPersistence
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 import {
     timestampMillis,
@@ -909,6 +911,25 @@ async function loadMemberDashboard(user) {
         if (!dashboardLoadIsCurrent(userId, loadVersion)) return;
         logger.error('[portal] account load failed', error);
         renderLoadError();
+    }
+}
+
+/**
+ * Borra la caché en disco del socio. `terminate` deja la instancia inservible,
+ * así que la página se recarga: no hay forma de seguir usando `db` después de
+ * esto, y volver al formulario de acceso es justo lo que toca.
+ */
+async function purgeLocalCache() {
+    if (!hasPersistentCache) return;
+    try {
+        await terminate(db);
+        await clearIndexedDbPersistence(db);
+    } catch (error) {
+        // `failed-precondition` significa que otra pestaña sigue abierta con la
+        // sesión viva. No es un fallo: allí la caché aún tiene dueño.
+        logger.warn('[portal] local cache purge', error);
+    } finally {
+        window.location.replace('/profiles');
     }
 }
 
@@ -2033,11 +2054,17 @@ if (localPreviewState) {
             return;
         }
         if (!user) {
+            const hadSession = Boolean(currentUser);
             currentUser = null;
             currentUserData = null;
             currentDraft = null;
             currentDrafts = [];
             leaveDashboard();
+            // Al perderse la sesión —el botón de salir, la expiración del token
+            // o un cierre desde otra pestaña— la caché en disco se queda sin
+            // dueño. Va aquí y no en el manejador del botón porque el botón es
+            // solo una de las tres formas de salir.
+            if (hadSession) purgeLocalCache();
             return;
         }
         // El panel de administración reutiliza esta misma sesión de Elysium.

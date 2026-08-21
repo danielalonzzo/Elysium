@@ -243,3 +243,76 @@ test('calendarPeriodLabel cambia con la vista activa', () => {
     assert.notEqual(month, day);
     assert.ok(month.includes('2026') && day.includes('2026'));
 });
+
+// ── Carga diferida de las CDN y memoria del directorio ──────────────────────
+// `loadScript` y `noteCrmWrite` tocan el DOM y el estado del módulo. Se extraen
+// igual que las demás y se evalúan contra un `document` de mentira, para poder
+// comprobar lo que no se ve en pantalla: que tres gráficas pidiendo Chart.js a
+// la vez inyectan una sola etiqueta, y que una escritura invalida la memoria
+// del directorio.
+const infra = await import('data:text/javascript,' + encodeURIComponent(`
+const _pendingScripts = new Map();
+const injected = [];
+const document = {
+    createElement: () => ({}),
+    head: { appendChild: tag => injected.push(tag) }
+};
+const CACHED_CONTACT_COLLECTIONS = new Set(['members', 'prospects', 'contacts']);
+const counters = { contacts: 0, opportunities: 0 };
+const invalidateContactCache = () => { counters.contacts += 1; };
+const invalidateOpportunityCache = () => { counters.opportunities += 1; };
+
+${extract(['loadScript', 'noteCrmWrite'])}
+
+export { loadScript, noteCrmWrite, injected, counters, _pendingScripts };
+`));
+
+test('loadScript inyecta una sola etiqueta aunque se le pida tres veces a la vez', async () => {
+    const url = 'https://cdn.example/chart.js';
+    const promises = [infra.loadScript(url), infra.loadScript(url), infra.loadScript(url)];
+    assert.equal(infra.injected.length, 1, 'tres peticiones simultáneas inyectaron más de una etiqueta');
+    assert.equal(promises[0], promises[1], 'no se está memoizando la promesa, sino el resultado');
+
+    infra.injected[0].onload();
+    await Promise.all(promises);
+
+    // Una cuarta petición, ya cargado, tampoco vuelve a inyectar.
+    await infra.loadScript(url);
+    assert.equal(infra.injected.length, 1);
+});
+
+test('loadScript olvida el intento fallido para poder reintentarlo', async () => {
+    const url = 'https://cdn.example/roto.js';
+    const first = infra.loadScript(url);
+    infra.injected.at(-1).onerror();
+    await assert.rejects(first, /roto\.js could not be loaded/);
+
+    // Si la entrada se quedara en el mapa, el CDN quedaría marcado como
+    // intentado para siempre y el botón de exportar no volvería a funcionar.
+    assert.equal(infra._pendingScripts.has(url), false);
+    const retry = infra.loadScript(url);
+    assert.equal(infra.injected.filter(tag => tag.src === url).length, 2);
+    infra.injected.at(-1).onload();
+    await retry;
+});
+
+test('noteCrmWrite invalida la memoria que corresponde a cada colección', () => {
+    const before = { ...infra.counters };
+
+    // Un documento conoce su colección en `parent`.
+    infra.noteCrmWrite({ parent: { id: 'members' } });
+    infra.noteCrmWrite({ parent: { id: 'prospects' } });
+    assert.equal(infra.counters.contacts - before.contacts, 2);
+
+    // Una colección de primer nivel no tiene `parent`: es ella misma.
+    infra.noteCrmWrite({ id: 'contacts', parent: null });
+    assert.equal(infra.counters.contacts - before.contacts, 3);
+
+    infra.noteCrmWrite({ parent: { id: 'opportunities' } });
+    assert.equal(infra.counters.opportunities - before.opportunities, 1);
+
+    // Una colección que no se guarda en memoria no invalida nada.
+    infra.noteCrmWrite({ parent: { id: 'onboarding_drafts' } });
+    assert.equal(infra.counters.contacts - before.contacts, 3);
+    assert.equal(infra.counters.opportunities - before.opportunities, 1);
+});

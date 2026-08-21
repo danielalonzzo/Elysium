@@ -216,6 +216,7 @@
                 <div><span>Revenue system</span><h2>Commercial overview</h2></div>
                 <button type="button" class="crm-text-action" data-target-nav="reports">Open reports →</button>
             </div>
+            <div class="portal-alert is-warning" id="stats-truncation-warning" hidden></div>
             <div class="kpi-grid" id="stats-overview">
                 <!-- Injected by JS -->
             </div>
@@ -938,9 +939,7 @@
          Served under /api on this same origin; set window.ELYSIUM_API_URL
          instead if it ever moves to its own host (and add it to connect-src). -->
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="JS/admin.js?v=2026081805"></script>
-    <script src="JS/version-modal.js"></script>
+    <script defer src="JS/version-modal.js"></script>
 </body>
 </html>

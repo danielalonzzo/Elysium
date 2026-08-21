@@ -3,18 +3,19 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 import { 
     collection,
     getDocs,
+    getCountFromServer,
     doc,
     getDoc,
     query,
     where,
     orderBy,
     limit,
-    updateDoc,
-    deleteDoc,
-    addDoc,
+    updateDoc as fsUpdateDoc,
+    deleteDoc as fsDeleteDoc,
+    addDoc as fsAddDoc,
     serverTimestamp,
-    writeBatch,
-    runTransaction,
+    writeBatch as fsWriteBatch,
+    runTransaction as fsRunTransaction,
     onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import {
@@ -39,6 +40,103 @@ import {
 } from './elysium-domain.js';
 
 const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
+
+// ── Dependencias externas, bajo demanda ─────────────────────────────────────
+// `html2pdf` y Chart.js estaban en `admin.html` como <script> síncronos de dos
+// CDN distintas: 340 KB en la ruta crítica para exportar un PDF y dibujar dos
+// gráficas que la mayoría de las sesiones no llega a abrir.
+const CHART_JS_URL = 'https://cdn.jsdelivr.net/npm/chart.js';
+const HTML2PDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+const _pendingScripts = new Map();
+
+/**
+ * Carga un script una sola vez. Guarda **la promesa**, no el resultado, y la
+ * guarda antes de devolverla: si tres gráficas piden Chart.js en el mismo
+ * fotograma, las tres esperan a la misma etiqueta en lugar de inyectar tres.
+ */
+function loadScript(url) {
+    if (_pendingScripts.has(url)) return _pendingScripts.get(url);
+    const promise = new Promise((resolve, reject) => {
+        const tag = document.createElement('script');
+        tag.src = url;
+        tag.onload = () => resolve();
+        tag.onerror = () => reject(new Error(`${url} could not be loaded.`));
+        document.head.appendChild(tag);
+    }).catch(error => {
+        // Si falla la red, no dejar el CDN marcado como intentado para siempre.
+        _pendingScripts.delete(url);
+        throw error;
+    });
+    _pendingScripts.set(url, promise);
+    return promise;
+}
+
+async function ensureChartJs() {
+    if (typeof Chart !== 'undefined') return;
+    await loadScript(CHART_JS_URL);
+}
+
+async function ensureHtml2Pdf() {
+    if (typeof html2pdf !== 'undefined') return;
+    await loadScript(HTML2PDF_URL);
+}
+
+// ── Escrituras que invalidan la memoria del directorio ──────────────────────
+// El CRM guarda contactos y oportunidades en memoria durante `CRM_CACHE_MS`
+// para no releer Firestore al cambiar de pestaña. Para que esa memoria no
+// sobreviva a una edición, se envuelven las primitivas de escritura en lugar de
+// repetir la invalidación en los doce sitios que escriben: así una escritura
+// que se añada mañana tampoco se olvida de hacerlo.
+const CACHED_CONTACT_COLLECTIONS = new Set(['members', 'prospects', 'contacts']);
+
+function noteCrmWrite(reference) {
+    // Un DocumentReference conoce su colección en `parent`; un
+    // CollectionReference de primer nivel es él mismo y tiene `parent` nulo.
+    const collectionId = reference?.parent?.id ?? reference?.id ?? '';
+    if (CACHED_CONTACT_COLLECTIONS.has(collectionId)) invalidateContactCache();
+    if (collectionId === 'opportunities') invalidateOpportunityCache();
+}
+
+async function updateDoc(reference, ...rest) {
+    const result = await fsUpdateDoc(reference, ...rest);
+    noteCrmWrite(reference);
+    return result;
+}
+
+async function deleteDoc(reference, ...rest) {
+    const result = await fsDeleteDoc(reference, ...rest);
+    noteCrmWrite(reference);
+    return result;
+}
+
+async function addDoc(reference, ...rest) {
+    const result = await fsAddDoc(reference, ...rest);
+    noteCrmWrite(reference);
+    return result;
+}
+
+// Un lote o una transacción pueden tocar varias colecciones a la vez y no
+// exponen cuáles. Se invalidan las dos memorias: en este CRM siempre escriben
+// sobre el perfil de un socio, y una relectura de más es justo lo que se quiere
+// después de una operación así.
+function writeBatch(database) {
+    const batch = fsWriteBatch(database);
+    const commit = batch.commit.bind(batch);
+    batch.commit = async (...args) => {
+        const result = await commit(...args);
+        invalidateContactCache();
+        invalidateOpportunityCache();
+        return result;
+    };
+    return batch;
+}
+
+async function runTransaction(database, updateFunction, options) {
+    const result = await fsRunTransaction(database, updateFunction, options);
+    invalidateContactCache();
+    invalidateOpportunityCache();
+    return result;
+}
 
 /**
  * El panel operativo incluye finanzas, correo, onboarding y acciones de
@@ -97,6 +195,21 @@ const logger = {
 // ── CRM State ───────────────────────────────────────────────────────────────
 // Holds all loaded clients in memory so search/sort never re-hits Firestore.
 let _allClients   = [];
+// Los documentos de `members` tal cual salen de Firestore. `_allClients` los
+// funde por correo con prospectos y consultas, así que no sirve para contar
+// socios; esta lista sí, y evita volver a descargar la colección en Overview
+// y en Licenses.
+let _memberRecords = [];
+let _contactsTruncated = false;
+let _membersUnavailable = false;
+// Memoización del directorio y del pipeline. Volver de un perfil a la lista,
+// o cambiar de idioma, repintaba antes recargándolo todo desde Firestore.
+const CRM_CACHE_MS = 60000;
+const CONTACTS_PAGE_LIMIT = 1000;
+let _contactsLoadedAt = 0;
+let _opportunitiesLoadedAt = 0;
+let _contactsInFlight = null;
+let _opportunitiesInFlight = null;
 let _sortAZ       = true;    // true = A→Z, false = newest first
 let _activeFilter = 'all';   // lifecycle filter on the unified directory
 let _clientPage = 1;
@@ -120,10 +233,21 @@ let _reportRows = [];
 let _selectedContactId = null;
 let _editingMeetingId = null;
 let commercialPerformanceChartInstance = null;
+// Las capacidades de la plataforma tienen tres estados, no dos. Mientras la
+// sonda vuela, `unknown` no es «no se puede»: es «todavía no se sabe», y los
+// controles que dependen de ella se pintan presentes pero deshabilitados. Con
+// un booleano, los valores por defecto optimistas (`create`, `cancel`) dejaban
+// pulsar durante esos segundos acciones que iban a fallar contra el backend.
+let _platformState = 'unknown';   // 'unknown' | 'ready' | 'partial' | 'offline'
 let _platformCapabilities = {
     meetings: { create: true, update: false, cancel: true, notifications: true },
     files: { provider: 'cloudflare-r2', upload: false, download: false }
 };
+
+/** ¿Seguimos sin saber qué permite la plataforma? */
+function capabilitiesPending() {
+    return _platformState === 'unknown';
+}
 
 const PORTUGAL_TIME_ZONE = 'Europe/Lisbon';
 // Ventana de la agenda. La suma tiene que caber en MAX_MEETING_RANGE_DAYS del
@@ -230,20 +354,80 @@ function findUnifiedContactById(contactId) {
         || contact._linkedRecords?.some(record => record.id === contactId)) || null;
 }
 
-async function loadUnifiedContactData() {
+/**
+ * Descarga el directorio unificado. Dentro de `CRM_CACHE_MS` devuelve lo que ya
+ * hay en memoria: navegar entre pestañas y cambiar de idioma repintan, no
+ * recargan. Las mutaciones pasan `{ force: true }`.
+ */
+async function loadUnifiedContactData({ force = false } = {}) {
+    if (!force && _contactsLoadedAt && Date.now() - _contactsLoadedAt < CRM_CACHE_MS) return _allClients;
+    if (_contactsInFlight) return _contactsInFlight;
+    _contactsInFlight = fetchUnifiedContactData().finally(() => { _contactsInFlight = null; });
+    return _contactsInFlight;
+}
+
+/**
+ * El directorio se pide con `limit(CONTACTS_PAGE_LIMIT)`. Mientras quepa, los
+ * totales de Overview y Licenses son exactos; el día que no quepa, dejarían de
+ * serlo en silencio. Esto lo dice en pantalla, y solo entonces gasta una
+ * agregación de recuento para dar la cifra real.
+ */
+function reportContactTruncation() {
+    const warning = document.getElementById('stats-truncation-warning');
+    if (!warning) return;
+    if (_membersUnavailable) {
+        warning.hidden = false;
+        warning.textContent = 'Partner records could not be read. The figures below cover contacts and opportunities only.';
+        return;
+    }
+    if (!_contactsTruncated) {
+        warning.hidden = true;
+        return;
+    }
+    warning.hidden = false;
+    warning.textContent = `Showing the first ${CONTACTS_PAGE_LIMIT} partner records. The totals below are calculated on that page only.`;
+    getCountFromServer(collection(db, 'members'))
+        .then(snapshot => {
+            const total = snapshot.data().count;
+            warning.textContent = `Showing ${CONTACTS_PAGE_LIMIT} of ${total} partner records. The totals below are calculated on that page only.`;
+        })
+        .catch(error => logger.warn('The exact member count could not be read.', error));
+}
+
+/** Invalida el directorio tras una escritura. */
+function invalidateContactCache() {
+    _contactsLoadedAt = 0;
+}
+
+async function fetchUnifiedContactData() {
     const [membersResult, prospectsResult, contactsResult] = await Promise.allSettled([
-        getDocs(query(collection(db, 'members'), limit(1000))),
-        getDocs(query(collection(db, 'prospects'), limit(1000))),
-        getDocs(query(collection(db, 'contacts'), limit(1000)))
+        getDocs(query(collection(db, 'members'), limit(CONTACTS_PAGE_LIMIT))),
+        getDocs(query(collection(db, 'prospects'), limit(CONTACTS_PAGE_LIMIT))),
+        getDocs(query(collection(db, 'contacts'), limit(CONTACTS_PAGE_LIMIT)))
     ]);
     const records = [];
     if (membersResult.status === 'fulfilled') {
+        // Se guardan crudos para Overview y Licenses, que antes volvían a
+        // descargar la colección entera para calcular lo mismo.
+        _memberRecords = membersResult.value.docs.map(item => ({ id: item.id, ...item.data() }));
+        _membersUnavailable = false;
+        // Si la página vuelve llena, hay socios que no se han bajado y los
+        // totales serían mentira. Se marca para avisarlo en pantalla.
+        _contactsTruncated = membersResult.value.docs.length >= CONTACTS_PAGE_LIMIT;
         membersResult.value.docs.forEach(item => {
             const data = item.data();
             if (data.email === SUPER_ADMIN_EMAIL || ['admin', 'root'].includes(String(data.role || '').toLowerCase())) return;
             records.push(normalizeContactRecord(item, 'members'));
         });
-    } else logger.warn('Members could not be loaded.', membersResult.reason);
+    } else {
+        // Antes, un fallo aquí hacía estallar `loadStats` y se veía el error. Al
+        // calcular desde `_memberRecords`, ese mismo fallo pintaría ceros sin
+        // decir nada: se marca para avisarlo igual que el truncamiento.
+        _memberRecords = [];
+        _contactsTruncated = false;
+        _membersUnavailable = true;
+        logger.warn('Members could not be loaded.', membersResult.reason);
+    }
     if (prospectsResult.status === 'fulfilled') {
         prospectsResult.value.docs.forEach(item => records.push(normalizeContactRecord(item, 'prospects')));
     } else logger.warn('Prospects could not be loaded.', prospectsResult.reason);
@@ -252,6 +436,7 @@ async function loadUnifiedContactData() {
     } else logger.warn('Contacts could not be loaded.', contactsResult.reason);
 
     _allClients = mergeUnifiedContacts(records);
+    _contactsLoadedAt = Date.now();
     return _allClients;
 }
 
@@ -794,8 +979,10 @@ async function platformRequest(path, { method = 'POST', body = null, headers = {
 }
 
 function updatePlatformStatus(state, label) {
+    _platformState = state;
     const status = document.getElementById('crm-platform-status');
     if (!status) return;
+    status.classList.toggle('is-checking', state === 'unknown');
     status.classList.toggle('is-partial', state === 'partial');
     status.classList.toggle('is-offline', state === 'offline');
     const text = status.querySelector('span');
@@ -809,7 +996,10 @@ function updatePlatformStatus(state, label) {
  */
 async function loadPlatformCapabilities() {
     try {
-        const capabilities = await platformRequest('/api/capabilities', { method: 'GET' });
+        // 20 s son para una mutación que el administrador ha lanzado a
+        // conciencia. Esta sonda solo decide qué botones se activan: si el
+        // servicio no contesta en 5, se sigue con las capacidades por defecto.
+        const capabilities = await platformRequest('/api/capabilities', { method: 'GET', timeoutMs: 5000 });
         _platformCapabilities = {
             meetings: { ..._platformCapabilities.meetings, ...(capabilities.meetings || {}) },
             files: { ..._platformCapabilities.files, ...(capabilities.files || {}) }
@@ -831,6 +1021,36 @@ async function loadPlatformCapabilities() {
         logger.warn('Platform capabilities could not be loaded.', error);
     }
     return _platformCapabilities;
+}
+
+/**
+ * Repinta lo que depende de las capacidades cuando la sonda por fin contesta.
+ * Se llama dos veces: al arrancar, para dejar los controles en su estado de
+ * espera, y al resolverse la promesa, para fijarlos.
+ */
+function refreshCapabilityDependentViews() {
+    const pending = capabilitiesPending();
+
+    // El botón de crear/guardar reunión no se puede pulsar mientras no se sepa.
+    const createButton = document.getElementById('meeting-create-btn');
+    if (createButton) {
+        createButton.disabled = pending;
+        if (pending) createButton.setAttribute('aria-busy', 'true');
+        else createButton.removeAttribute('aria-busy');
+    }
+
+    const activeSection = document.querySelector('.portal-section.active')?.id;
+    if (activeSection === 'agenda') {
+        if (_agendaView === 'list') renderAgendaMeetings();
+        else renderAgendaCalendar();
+    }
+
+    // El cajón 360º usa las capacidades de archivos. `_crmActivities` y
+    // `_crmFiles` guardan lo que ya se descargó, así que se repinta sin red.
+    if (_selectedContactId) {
+        const contact = findUnifiedContactById(_selectedContactId);
+        if (contact) renderContactDrawer(contact, { activities: _crmActivities, files: _crmFiles });
+    }
 }
 
 /** Shows or clears an inline `.portal-alert`, instead of an alert() dialog. */
@@ -1845,8 +2065,13 @@ function renderAgendaMeetings() {
         const status = meetingDisplayStatus(meeting);
         const clientLabel = meeting.clientName || meeting.clientEmail || c.client;
         const link = safeHttpsUrl(meeting.meetingUrl);
-        const canCancel = status === 'upcoming' && meeting.id && _platformCapabilities.meetings.cancel;
-        const canEdit = status === 'upcoming' && meeting.id && _platformCapabilities.meetings.update;
+        // Presentes pero deshabilitados mientras la sonda no conteste: el botón
+        // ya ocupa su sitio, así que al resolverse solo cambia de estado y el
+        // diseño no salta. Y nadie puede lanzar una acción que iba a fallar.
+        const pending = capabilitiesPending();
+        const busy = pending ? ' disabled aria-busy="true"' : '';
+        const canCancel = status === 'upcoming' && meeting.id && (pending || _platformCapabilities.meetings.cancel);
+        const canEdit = status === 'upcoming' && meeting.id && (pending || _platformCapabilities.meetings.update);
         return `
             <article class="meeting-card is-${status}">
                 <div class="meeting-card-accent" aria-hidden="true"></div>
@@ -1877,10 +2102,10 @@ function renderAgendaMeetings() {
                     <div class="meeting-card-footer">
                         ${link ? `<a class="meeting-join-link" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(c.join)}</a>` : '<span></span>'}
                         <div class="meeting-card-actions">
-                            ${canEdit ? `<button type="button" class="meeting-action-btn" data-meeting-edit="${esc(meeting.id)}">Edit</button>` : ''}
+                            ${canEdit ? `<button type="button" class="meeting-action-btn" data-meeting-edit="${esc(meeting.id)}"${busy}>Edit</button>` : ''}
                             <button type="button" class="meeting-action-btn" data-meeting-ics="${esc(meeting.id)}">${esc(c.downloadIcs)}</button>
                             ${meeting.clientEmail ? `<a class="meeting-action-btn" href="${esc(meetingMailtoUrl(meeting, status === 'cancelled'))}">${esc(c.notifyClient)}</a>` : ''}
-                            ${canCancel ? `<button type="button" class="meeting-cancel-btn" data-meeting-id="${esc(meeting.id)}">${esc(c.cancel)}</button>` : ''}
+                            ${canCancel ? `<button type="button" class="meeting-cancel-btn" data-meeting-id="${esc(meeting.id)}"${busy}>${esc(c.cancel)}</button>` : ''}
                         </div>
                     </div>
                 </div>
@@ -2247,6 +2472,12 @@ async function createAgendaMeeting(event) {
     const form = event.currentTarget;
     const c = agendaCopy();
     setAgendaMessage('');
+    // Segunda línea de defensa: el botón ya está deshabilitado mientras se
+    // comprueba, pero el formulario también se envía con Intro.
+    if (capabilitiesPending()) {
+        setAgendaMessage('Checking what the platform service allows — one moment.', 'warning');
+        return;
+    }
     if ((_editingMeetingId && !_platformCapabilities.meetings.update)
         || (!_editingMeetingId && !_platformCapabilities.meetings.create)) {
         setAgendaMessage(c.apiMissing, 'error');
@@ -2558,16 +2789,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initPipelineFilters();
     initUnifiedCrmControls();
 
+    // El `#elysium-preloader` no se toca: `CSS/components.css` lo deja
+    // `visibility:hidden` de serie y solo se muestra con `.is-leaving` en las
+    // transiciones de navegación. La clase `is-loaded` que se añadía aquí no
+    // tenía ninguna regla CSS.
     const launchDashboard = () => {
-        // Remove preloader
-        const preloader = document.getElementById('elysium-preloader');
-        if (preloader) {
-            setTimeout(() => {
-                preloader.classList.add('is-loaded');
-                setTimeout(() => preloader.remove(), 800);
-            }, 1000);
-        }
-
         applyTranslations();
         initDashboard();
     };
@@ -2583,8 +2809,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const sidebarRole = document.getElementById('sidebar-admin-role');
         if (sidebarName) sidebarName.textContent = displayName;
         if (sidebarRole) sidebarRole.textContent = user.email || 'Administrator';
-        await Promise.all([loadCrmUsers(), loadPlatformCapabilities()]);
+
+        // El panel se pinta con lo que ya tiene. Ninguna de las dos cargas
+        // puede retrasar la primera pantalla: la sonda de capacidades va contra
+        // Cloud Run a través del Worker y, en arranque en frío, dejaba el CRM
+        // en blanco hasta agotar su espera.
+        updatePlatformStatus('unknown', 'Checking platform…');
         launchDashboard();
+        refreshCapabilityDependentViews();
+
+        // `loadCrmUsers` ya repinta el selector de responsable al terminar.
+        loadCrmUsers();
+        loadPlatformCapabilities()
+            .then(refreshCapabilityDependentViews)
+            .catch(error => logger.warn('Capability refresh failed:', error));
     });
 
     // Mobile: the sidebar is a bottom tab bar and the hamburger expands it.
@@ -2677,14 +2915,21 @@ function navigateTo(target, { push = true } = {}) {
         window.history.pushState({}, '', url);
     }
 
-    if (target === 'overview') loadStats();
-    if (target === 'clients') loadClients();
-    if (target === 'pipeline') loadPipeline();
-    if (target === 'licenses') loadLicenses();
-    if (target === 'reports') loadReports();
-    if (target === 'mail') loadMailSection();
-    if (target === 'agenda') loadAgenda();
-    else _agendaLoadVersion++;
+    // Encadenado de verdad: antes era una serie de `if` sueltos y el `else`
+    // final solo se ataba al último, de modo que salir de la agenda solo
+    // invalidaba su carga si además se iba a «mail».
+    switch (target) {
+        case 'overview': loadStats(); break;
+        case 'clients':  loadClients(); break;
+        case 'pipeline': loadPipeline(); break;
+        case 'licenses': loadLicenses(); break;
+        case 'reports':  loadReports(); break;
+        case 'mail':     loadMailSection(); break;
+        case 'agenda':   loadAgenda(); break;
+        default: break;
+    }
+    // Cualquier destino que no sea la agenda descarta una carga en vuelo suya.
+    if (target !== 'agenda') _agendaLoadVersion++;
 }
 
 function applyTranslations() {
@@ -2882,36 +3127,31 @@ async function loadStats() {
     const t = translations[currentLang];
 
     try {
-        const [membersSnap] = await Promise.all([
-            getDocs(collection(db, 'members')),
-            loadUnifiedContactData(),
-            loadOpportunityData()
-        ]);
-        
-        // Filter real partners
-        const partnerDocs = membersSnap.docs.filter(d => {
-            const r = d.data().role;
-            return r !== 'admin' && r !== 'root' && d.data().email !== SUPER_ADMIN_EMAIL;
-        });
+        await Promise.all([loadUnifiedContactData(), loadOpportunityData()]);
+        reportContactTruncation();
+
+        // `members` llega ya descargada por `loadUnifiedContactData`. Antes se
+        // pedía aquí una segunda vez, entera y sin tope, para lo mismo.
+        const partnerDocs = _memberRecords.filter(member => (
+            member.role !== 'admin' && member.role !== 'root' && member.email !== SUPER_ADMIN_EMAIL
+        ));
 
         const totalPartners     = partnerDocs.length;
-        const completedOB       = partnerDocs.filter(d => d.data().onboardingCompleted).length;
+        const completedOB       = partnerDocs.filter(member => member.onboardingCompleted).length;
         const onboardingRate    = totalPartners > 0 ? Math.round((completedOB / totalPartners) * 100) : 0;
-        const totalProjects     = partnerDocs.reduce((count, item) => {
-            const data = item.data();
-            const projects = Array.isArray(data.projects) ? data.projects : [];
-            return count + (projects.length ? projects.length : data.projectUrl || data.projectStage ? 1 : 0);
+        const totalProjects     = partnerDocs.reduce((count, member) => {
+            const projects = Array.isArray(member.projects) ? member.projects : [];
+            return count + (projects.length ? projects.length : member.projectUrl || member.projectStage ? 1 : 0);
         }, 0);
-        const activeProjects    = partnerDocs.reduce((count, item) => {
-            const data = item.data();
-            const projects = Array.isArray(data.projects) ? data.projects : [];
+        const activeProjects    = partnerDocs.reduce((count, member) => {
+            const projects = Array.isArray(member.projects) ? member.projects : [];
             return count + (projects.length
                 ? projects.filter(project => project?.projectUrl).length
-                : data.projectUrl ? 1 : 0);
+                : member.projectUrl ? 1 : 0);
         }, 0);
-        const subscribedPartners = partnerDocs.filter(d => d.data().subscription?.licenseCode);
+        const subscribedPartners = partnerDocs.filter(member => member.subscription?.licenseCode);
         const totalLicenses      = subscribedPartners.length;
-        const activeLicenses     = subscribedPartners.filter(d => subscriptionStatus(d.data().subscription) === 'active').length;
+        const activeLicenses     = subscribedPartners.filter(member => subscriptionStatus(member.subscription) === 'active').length;
         const licenseHealth      = totalLicenses > 0 ? Math.round((activeLicenses / totalLicenses) * 100) : 0;
         const totalContacts      = _allClients.length;
         const openOpportunities  = _opportunities.filter(item => !['won', 'lost'].includes(item.stage));
@@ -3058,7 +3298,7 @@ async function loadStats() {
         loadRecentActivity();
         loadPipelineSnapshot();
         renderGlobalRevenueChart().catch(error => logger.warn('Global revenue chart failed:', error));
-        renderCommercialPerformanceChart();
+        renderCommercialPerformanceChart().catch(error => logger.warn('Commercial performance chart failed:', error));
 
     } catch (error) {
         logger.error('Error loading stats:', error);
@@ -3338,7 +3578,19 @@ async function loadPipeline() {
     return loadCommercialPipeline();
 }
 
-async function loadOpportunityData() {
+async function loadOpportunityData({ force = false } = {}) {
+    if (!force && _opportunitiesLoadedAt && Date.now() - _opportunitiesLoadedAt < CRM_CACHE_MS) return _opportunities;
+    if (_opportunitiesInFlight) return _opportunitiesInFlight;
+    _opportunitiesInFlight = fetchOpportunityData().finally(() => { _opportunitiesInFlight = null; });
+    return _opportunitiesInFlight;
+}
+
+/** Invalida el pipeline tras una escritura. */
+function invalidateOpportunityCache() {
+    _opportunitiesLoadedAt = 0;
+}
+
+async function fetchOpportunityData() {
     const snap = await getDocs(query(
         collection(db, 'opportunities'),
         where('tenantId', '==', CRM_TENANT_ID),
@@ -3357,6 +3609,7 @@ async function loadOpportunityData() {
             };
         })
         .filter(item => item.archived !== true);
+    _opportunitiesLoadedAt = Date.now();
     return _opportunities;
 }
 
@@ -4054,8 +4307,14 @@ function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
         ...record.data, _sourceCollection: record.sourceCollection
     }));
     const uniqueSources = sourceRecords.filter((source, index) => sourceRecords.indexOf(source) === index);
-    const canUploadFiles = _platformCapabilities.files.upload;
-    const canDownloadFiles = _platformCapabilities.files.download;
+    const filesPending = capabilitiesPending();
+    const canUploadFiles = filesPending || _platformCapabilities.files.upload;
+    const canDownloadFiles = filesPending || _platformCapabilities.files.download;
+    // Un `<label>` no admite `disabled`: se le quita el `for`, y sin él el clic
+    // no abre el selector de archivos.
+    const uploadLabelAttrs = filesPending
+        ? ' aria-disabled="true" aria-busy="true"'
+        : ' for="contact-file-input"';
     content.innerHTML = `
         <section class="crm-drawer-section">
             <div class="crm-drawer-header">
@@ -4098,11 +4357,11 @@ function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
             `).join('') : '<span class="crm-drawer-muted">No activity yet.</span>'}</div>
         </section>
         <section class="crm-drawer-section">
-            <div class="crm-drawer-actions"><span class="crm-drawer-label" style="margin:0">Cloudflare files</span>${canUploadFiles ? '<label class="btn btn-secondary" for="contact-file-input">Upload file</label>' : ''}</div>
+            <div class="crm-drawer-actions"><span class="crm-drawer-label" style="margin:0">Cloudflare files</span>${canUploadFiles ? `<label class="btn btn-secondary"${uploadLabelAttrs}>Upload file</label>` : ''}</div>
             ${canUploadFiles ? '<input id="contact-file-input" type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">' : '<div class="portal-alert is-warning crm-file-capability">Private file storage needs its Cloudflare R2 credentials before uploads can be enabled.</div>'}
             <div id="contact-file-progress" class="crm-upload-progress" hidden><span style="width:0"></span></div>
             <div class="crm-file-list" style="margin-top:1rem">${files.length ? files.map(file => `
-                <article class="crm-file-item"><div class="crm-drawer-actions"><div><strong>${esc(file.originalName || file.originalFilename || 'File')}</strong><p>${Math.max(1, Math.round((file.size || file.bytes || 0) / 1024))} KB · ${esc(formatAdminDate(file.createdAt))}</p></div>${canDownloadFiles ? `<button class="btn btn-secondary" type="button" data-download-file="${esc(file.id)}">Download</button>` : ''}</div></article>
+                <article class="crm-file-item"><div class="crm-drawer-actions"><div><strong>${esc(file.originalName || file.originalFilename || 'File')}</strong><p>${Math.max(1, Math.round((file.size || file.bytes || 0) / 1024))} KB · ${esc(formatAdminDate(file.createdAt))}</p></div>${canDownloadFiles ? `<button class="btn btn-secondary" type="button" data-download-file="${esc(file.id)}"${filesPending ? ' disabled aria-busy="true"' : ''}>Download</button>` : ''}</div></article>
             `).join('') : '<span class="crm-drawer-muted">No files attached.</span>'}</div>
         </section>`;
 
@@ -4394,9 +4653,9 @@ async function loadLicenses() {
     try {
         // A license exists because a member has a subscription. The old pool is
         // deliberately not listed: unassigned codes are no longer inventory.
-        const membersSnap = await getDocs(collection(db, 'members'));
-        const licenses = membersSnap.docs.flatMap(memberDoc => {
-            const member = memberDoc.data();
+        await loadUnifiedContactData();
+        reportContactTruncation();
+        const licenses = _memberRecords.flatMap(member => {
 
             // Keep old assigned codes visible until their first subscription
             // renewal migrates them to the new structure.
@@ -4412,10 +4671,10 @@ async function loadLicenses() {
             if (!sub?.licenseCode) return [];
 
             return [{
-                userId: memberDoc.id,
+                userId: member.id,
                 userName: member.name || member.company || '—',
                 userEmail: member.email || '—',
-                memberRecord: { ...member, id: memberDoc.id },
+                memberRecord: { ...member },
                 ...sub,
                 status: subscriptionStatus(sub)
             }];
@@ -5906,7 +6165,9 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 panel.hidden = panel.id !== `profile-panel-${_profileTab}`;
             });
             // Chart.js can only measure the canvas once its panel is visible.
-            if (_profileTab === 'summary') renderClientRevenueChart(allPayments);
+            if (_profileTab === 'summary') {
+                renderClientRevenueChart(allPayments).catch(error => logger.warn('Client revenue chart failed:', error));
+            }
         });
     });
 
@@ -6724,7 +6985,9 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
 
     // La gráfica de ingresos es del panel Resumen y no tiene nada que ver con
     // el botón de notas, dentro de cuyo bloque estaba metida.
-    setTimeout(() => renderClientRevenueChart(allPayments), 50);
+    setTimeout(() => {
+        renderClientRevenueChart(allPayments).catch(error => logger.warn('Client revenue chart failed:', error));
+    }, 50);
 
     // Edit Profile
     const editBtn = document.getElementById('btn-edit-profile');
@@ -6887,14 +7150,18 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     if (pdfBtn) {
         pdfBtn.addEventListener('click', () => {
             logger.log('Generating PDF for', member.name);
-            generateClientPDF(member, onboarding, t);
+            generateClientPDF(member, onboarding, t)
+                .catch(error => logger.error('PDF generation failed:', error));
         });
     }
 }
 
-function generateClientPDF(member, onboarding, t) {
-    if (typeof html2pdf === 'undefined') {
-        alert("PDF Generator library is loading or failed to load. Please try again.");
+async function generateClientPDF(member, onboarding, t) {
+    try {
+        await ensureHtml2Pdf();
+    } catch (error) {
+        logger.error('The PDF library could not be loaded:', error);
+        alert('The PDF generator could not be loaded. Check the connection and try again.');
         return;
     }
 
@@ -6992,9 +7259,10 @@ window.generateClientPDF = generateClientPDF;
 let globalRevenueChartInstance = null;
 let clientRevenueChartInstance = null;
 
-function renderCommercialPerformanceChart() {
+async function renderCommercialPerformanceChart() {
     const canvas = document.getElementById('commercialPerformanceChart');
-    if (!canvas || typeof Chart === 'undefined') return;
+    if (!canvas) return;
+    await ensureChartJs();
     const start = new Date();
     const day = (start.getDay() + 6) % 7;
     start.setDate(start.getDate() - day);
@@ -7097,6 +7365,7 @@ async function renderGlobalRevenueChart() {
         globalRevenueChartInstance.destroy();
     }
 
+    await ensureChartJs();
     const ctx = canvas.getContext('2d');
     
     // Set chart.js defaults for dark theme if body has dark mode, but we will use fixed styling for Elysium
@@ -7177,9 +7446,10 @@ async function renderGlobalRevenueChart() {
  * `project.reports`, así que en cuanto un comprobante se trasladaba al libro la
  * gráfica se quedaba vacía mientras el KPI seguía contando el importe.
  */
-function renderClientRevenueChart(payments) {
+async function renderClientRevenueChart(payments) {
     const canvas = document.getElementById('clientRevenueChart');
     if (!canvas) return;
+    await ensureChartJs();
 
     if (clientRevenueChartInstance) {
         clientRevenueChartInstance.destroy();

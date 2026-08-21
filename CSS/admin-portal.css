@@ -3251,6 +3251,22 @@
     box-shadow: 0 0 0.8rem rgba(56, 217, 174, 0.75);
 }
 
+/* Mientras se comprueba qué permite la plataforma: ni verde ni rojo todavía. */
+.customer-portal.is-admin .crm-command-status.is-checking i {
+    background: #748399;
+    box-shadow: none;
+    animation: crm-status-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes crm-status-pulse {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .customer-portal.is-admin .crm-command-status.is-checking i { animation: none; }
+}
+
 .customer-portal.is-admin .crm-command-status.is-partial i {
     background: #f4b740;
     box-shadow: 0 0 0.8rem rgba(244, 183, 64, 0.65);
