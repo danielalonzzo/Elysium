@@ -24,6 +24,14 @@
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "startAt", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "meetings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "startAt", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": [

@@ -159,6 +159,7 @@ consulta usa de verdad. Un índice compuesto no es gratis: se reescribe en cada
 | `users` tenantId + status | `loadCrmUsers()` en `JS/admin.js` |
 | `files` tenantId + status + entityId | `loadContactDrawerData()` en `JS/admin.js` |
 | `meetings` userId + startAt | `GET /api/meetings?userId=` |
+| `meetings` status + startAt | `POST /api/meetings/reminders/run` |
 
 Las consultas de un solo campo —`contacts` sin filtros, `opportunities` por
 `tenantId`, `activities` por `contactId` o `memberId`, `meetings` por rango de
