@@ -4,7 +4,11 @@
  * Es la versión en el navegador de lo mismo que sirve `/mcp`: un agente que
  * llega con un navegador (Chrome con WebMCP, una extensión) no puede hablar
  * JSON-RPC con el Worker, pero sí puede llamar a lo que la página declare en
- * `navigator.modelContext`. Las herramientas son las mismas y de solo lectura.
+ * `document.modelContext`. Las tres herramientas de consulta son las mismas;
+ * `open_page` añade una navegación visible dentro del propio sitio.
+ * Durante la transición se conserva `navigator.modelContext` como respaldo:
+ * fue la ubicación de la prueba temprana y todavía la inyectan algunos
+ * comprobadores externos.
  *
  * `get_page` no lleva conversor propio: pide la página con
  * `Accept: text/markdown` y es el Worker quien la convierte, así que el texto
@@ -17,12 +21,13 @@
  *
  * Si el navegador no trae WebMCP, este fichero no hace absolutamente nada.
  */
-(() => {
+(async () => {
     'use strict';
 
-    const context = navigator.modelContext;
-    const declares = value => context && typeof context[value] === 'function';
-    if (!declares('registerTool') && !declares('provideContext')) return;
+    const contexts = [document.modelContext, navigator.modelContext].filter(Boolean);
+    const modernContext = contexts.find(context => typeof context.registerTool === 'function');
+    const legacyContext = contexts.find(context => typeof context.provideContext === 'function');
+    if (!modernContext && !legacyContext) return;
 
     const text = value => ({ content: [{ type: 'text', text: value }] });
     const failure = value => ({ content: [{ type: 'text', text: value }], isError: true });
@@ -43,9 +48,12 @@
     const PRIVATE = /^\/(admin|profiles|onboarding|seed-licenses|auth-action|api\/|Titulos\/|Demo-arbol\/|\.)/;
 
     let corpus = null;
-    async function siteCorpus() {
+    async function siteCorpus(signal) {
         if (corpus === null) {
-            const response = await fetch('/llms-full.txt', { headers: { Accept: 'text/plain' } });
+            const response = await fetch('/llms-full.txt', {
+                headers: { Accept: 'text/plain' },
+                signal
+            });
             corpus = response.ok ? await response.text() : '';
         }
         return corpus;
@@ -61,13 +69,15 @@
                     query: { type: 'string', description: 'Words to look for.' },
                     limit: { type: 'integer', minimum: 1, maximum: 20, description: 'How many passages to return. Default 5.' }
                 },
-                required: ['query']
+                required: ['query'],
+                additionalProperties: false
             },
-            async execute({ query, limit }) {
+            annotations: { readOnlyHint: true, untrustedContentHint: false },
+            async execute({ query, limit }, { signal } = {}) {
                 const words = fold(String(query || '')).match(/[\p{L}\p{N}]+/gu) || [];
                 if (!words.length) return failure('Give at least one word to search for.');
 
-                const source = await siteCorpus();
+                const source = await siteCorpus(signal);
                 if (!source) return failure('The site corpus could not be read.');
 
                 let heading = '';
@@ -94,9 +104,10 @@
         {
             name: 'list_pages',
             description: 'List every page published on this site, in the three languages, with its canonical URL. Public URLs carry no .html extension.',
-            inputSchema: { type: 'object', properties: {} },
-            async execute() {
-                const response = await fetch('/sitemap.xml');
+            inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+            annotations: { readOnlyHint: true, untrustedContentHint: false },
+            async execute(_input, { signal } = {}) {
+                const response = await fetch('/sitemap.xml', { signal });
                 if (!response.ok) return failure('The sitemap could not be read.');
                 const urls = [...(await response.text()).matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)]
                     .map(match => match[1])
@@ -110,13 +121,18 @@
             inputSchema: {
                 type: 'object',
                 properties: { path: { type: 'string', description: 'Path on this site, starting with "/".' } },
-                required: ['path']
+                required: ['path'],
+                additionalProperties: false
             },
-            async execute({ path }) {
+            annotations: { readOnlyHint: true, untrustedContentHint: false },
+            async execute({ path }, { signal } = {}) {
                 const target = samePath(path);
                 if (!target) return failure(`"${path}" is not a path on this site.`);
                 if (PRIVATE.test(target.pathname)) return failure(`${target.pathname} is not part of the public site.`);
-                const response = await fetch(target, { headers: { Accept: 'text/markdown' } });
+                const response = await fetch(target, {
+                    headers: { Accept: 'text/markdown' },
+                    signal
+                });
                 if (!response.ok) {
                     return failure(`${target.pathname} does not exist. Use list_pages to see the published URLs.`);
                 }
@@ -129,8 +145,10 @@
             inputSchema: {
                 type: 'object',
                 properties: { path: { type: 'string', description: 'Path on this site, starting with "/".' } },
-                required: ['path']
+                required: ['path'],
+                additionalProperties: false
             },
+            annotations: { readOnlyHint: false, untrustedContentHint: false },
             execute({ path }) {
                 const target = samePath(path);
                 if (!target) return failure(`"${path}" is not a path on this site.`);
@@ -142,36 +160,38 @@
     ];
 
     /**
-     * `registerTool` primero, `provideContext` si no está.
+     * `registerTool` primero, `provideContext` solo para navegadores antiguos.
      *
-     * Son la misma API en dos momentos distintos: `registerTool` añade una
-     * herramienta y devuelve con qué retirarla, `provideContext` reemplaza la
-     * lista entera de una vez. Chrome trae las dos, pero es `registerTool` lo
-     * que mira quien comprueba desde fuera si el sitio declara herramientas, y
-     * una implementación a medias puede traer solo una. Nunca se llaman las
-     * dos: registrar dos veces el mismo nombre es un error.
+     * La API vigente vive en `document` y `registerTool` devuelve una promesa.
+     * La señal del `AbortController` es la que retira las herramientas; no hay
+     * un handle con `destroy`. `provideContext` quedó fuera del borrador, pero
+     * se conserva como último respaldo para implementaciones de la prueba
+     * temprana. Nunca se llaman las dos: repetir un nombre es un error.
      *
      * El `AbortController` retira las herramientas al dejar la página. Sin él,
      * una navegación dentro del sitio —que es justo lo que hace `open_page`—
      * puede dejar declarada una herramienta cuyo `execute` ya no existe.
      */
     const controller = new AbortController();
-    const handles = [];
+    let clearLegacyContext = null;
 
     try {
-        if (declares('registerTool')) {
-            for (const tool of tools) {
-                handles.push(context.registerTool(tool, { signal: controller.signal }));
-            }
+        if (modernContext) {
+            await Promise.all(tools.map(tool => (
+                modernContext.registerTool(tool, { signal: controller.signal })
+            )));
         } else {
-            context.provideContext({ tools });
+            await legacyContext.provideContext({ tools });
+            clearLegacyContext = () => legacyContext.clearContext?.();
         }
     } catch (error) {
+        controller.abort();
         console.warn('WebMCP no disponible:', error);
+        return;
     }
 
     addEventListener('pagehide', () => {
         controller.abort();
-        for (const handle of handles) handle?.destroy?.();
+        clearLegacyContext?.();
     }, { once: true });
 })();

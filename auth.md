@@ -16,12 +16,26 @@ and [`/openapi.json`](https://elysiumdr.eu/openapi.json).
 | The MCP server at `/mcp` | None. Read-only. |
 | Everything else under `/api/` | A Firebase ID token from an administrator account. |
 
-**There is no self-service registration, for agents or for anyone else.**
-Accounts and licences are issued by hand by the administrator after a contract
-exists; the client area at `/profiles` and the CRM at `/admin` are reached with
-those credentials and no other way. An agent that needs authenticated access
-should ask its principal to obtain a licence through
-[the contact page](https://elysiumdr.eu/contact), not attempt to register.
+The interactive page at `/profiles` lets a person create a free partner account,
+but that account has no subscription and no administrator claim. It can use its
+own portal record; it **cannot** call the protected CRM API described here.
+Administrator/API access and licences are provisioned by hand after a contract
+exists.
+
+## Agent registration
+
+- **Machine registration endpoint:** none.
+- **Supported agent identity types:** none. Elysium does not accept ID-JAG,
+  anonymous agent registration or agent-issued email assertions.
+- **Agent credential issuance:** none. The site has no agent token, claim,
+  client-credentials or delegation flow.
+- **Human partner signup:** interactive only at
+  [`/profiles`](https://elysiumdr.eu/profiles); it does not grant protected API
+  access and must not be automated as a substitute for an agent protocol.
+
+An agent that needs authenticated API access should ask its principal to obtain
+the appropriate account and licence through
+[the contact page](https://elysiumdr.eu/contact), not attempt to register itself.
 
 ## Identity model for the authenticated API
 
@@ -36,10 +50,10 @@ should ask its principal to obtain a licence through
 - **Authorization:** endpoints tagged `crm` in the OpenAPI description also
   require the administrator custom claim on the account. A valid token without
   it gets `403`.
-- **Scopes:** none. `scopes_supported` is published as an empty array on
-  purpose: no OAuth scope value is ever requested or checked. What an account
-  may do is decided by the administrator custom claim on the token, not by the
-  scopes it carries.
+- **Scopes:** none. `scopes_supported` is omitted from the protected-resource
+  metadata because RFC 9728 forbids zero-element metadata arrays. No OAuth
+  scope value is requested or checked; what an account may do is decided by
+  the administrator custom claim on the token.
 - **Delegation:** there is no agent-delegation, service-account or
   client-credentials flow. A token always represents a person.
 

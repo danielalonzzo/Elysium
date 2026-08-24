@@ -1,14 +1,11 @@
 {
-  "resource": "https://elysiumdr.eu/api",
+  "resource": "https://elysiumdr.eu",
   "authorization_servers": [
     "https://securetoken.google.com/elysiumdr-eu"
   ],
-  "scopes_supported": [],
-  "jwks_uri": "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
   "bearer_methods_supported": ["header"],
   "resource_documentation": "https://elysiumdr.eu/auth.md",
   "resource_policy_uri": "https://elysiumdr.eu/terms",
   "resource_name": "Elysium platform API",
-  "resource_signing_alg_values_supported": ["RS256"],
   "tls_client_certificate_bound_access_tokens": false
 }

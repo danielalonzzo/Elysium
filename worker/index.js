@@ -428,9 +428,11 @@ async function serveHostRobots(request, env, url) {
  *     que un registro pueda leerlo desde el navegador; `_headers` no llega a
  *     estas rutas con la precisión necesaria.
  */
+const PROTECTED_RESOURCE_METADATA_PATH = '/.well-known/oauth-protected-resource';
 const AGENT_FILES = new Map([
     ['/.well-known/api-catalog', { asset: '/.well-known/api-catalog.json', type: 'application/linkset+json' }],
-    ['/.well-known/oauth-protected-resource', { asset: '/.well-known/oauth-protected-resource.json', type: 'application/json' }],
+    [PROTECTED_RESOURCE_METADATA_PATH, { asset: '/.well-known/oauth-protected-resource.json', type: 'application/json' }],
+    [`${PROTECTED_RESOURCE_METADATA_PATH}/api`, { asset: '/.well-known/oauth-protected-resource.json', type: 'application/json' }],
     ['/.well-known/ai-catalog.json', { asset: '/.well-known/ai-catalog.json', type: 'application/json' }],
     ['/.well-known/mcp/server-card.json', { asset: '/.well-known/mcp/server-card.json', type: 'application/json' }],
     ['/.well-known/agent-skills/index.json', { asset: '/.well-known/agent-skills/index.json', type: 'application/json' }],
@@ -466,14 +468,52 @@ async function serveAgentFile(url, request, env) {
 
     const assetPath = known ? known.asset : url.pathname;
     const asset = new URL(assetPath, url.origin);
-    const response = await env.ASSETS.fetch(new Request(asset, { method: request.method }));
-    if (!response.ok) return response;
+    const isProtectedResourceMetadata = url.pathname === PROTECTED_RESOURCE_METADATA_PATH
+        || url.pathname === `${PROTECTED_RESOURCE_METADATA_PATH}/api`;
+    // Solo estos metadatos necesitan leer el JSON para materializar el host. El
+    // resto conserva un HEAD real en el binding y no descarga un cuerpo que no
+    // va a consumir.
+    const assetMethod = isProtectedResourceMetadata ? 'GET' : request.method;
+    const response = await env.ASSETS.fetch(new Request(asset, { method: assetMethod }));
+    if (!response.ok) {
+        // El binding suele respetar HEAD, pero el Worker mantiene la semántica
+        // aunque un origen de assets devuelva por error un cuerpo de diagnóstico.
+        if (request.method !== 'HEAD') return response;
+        return new Response(null, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: response.headers
+        });
+    }
 
     const headers = new Headers(response.headers);
     headers.set('Content-Type', known ? known.type : 'text/markdown; charset=utf-8');
     headers.set('Cache-Control', 'public, max-age=3600');
     for (const [name, value] of Object.entries(corsHeaders())) headers.set(name, value);
-    return new Response(response.body, { status: response.status, headers });
+
+    let body = response.body;
+    if (isProtectedResourceMetadata) {
+        const metadata = await response.json();
+        const hostname = url.hostname.toLowerCase();
+        const origin = hostname === 'elysiumdr.eu' || LOCALIZED_HOSTS.has(hostname)
+            ? publicOrigin(url)
+            : 'https://elysiumdr.eu';
+        metadata.resource = url.pathname.endsWith('/api') ? `${origin}/api` : origin;
+        metadata.resource_documentation = `${origin}/auth.md`;
+        metadata.resource_policy_uri = `${origin}/terms`;
+        body = `${JSON.stringify(metadata, null, 2)}\n`;
+        headers.delete('Content-Length');
+        // El asset de origen tiene un único validador, pero estas
+        // representaciones cambian por host y por `/api`; compartir su ETag
+        // permitiría un 304 para un cuerpo distinto.
+        headers.delete('ETag');
+        headers.delete('Last-Modified');
+    }
+
+    return new Response(request.method === 'HEAD' ? null : body, {
+        status: response.status,
+        headers
+    });
 }
 
 // ── Markdown para agentes ─────────────────────────────────────────────────────

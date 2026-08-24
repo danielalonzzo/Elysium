@@ -19,6 +19,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { runInNewContext } from 'node:vm';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const worker = (await import(`file://${join(ROOT, 'worker', 'index.js')}`)).default;
@@ -57,7 +58,12 @@ const env = {
             const type = TYPES.get(file.split('.').pop()) || 'application/octet-stream';
             return new Response(readFileSync(file), {
                 status: 200,
-                headers: { 'Content-Type': type, 'Cache-Control': 'public, max-age=3600' }
+                headers: {
+                    'Content-Type': type,
+                    'Cache-Control': 'public, max-age=3600',
+                    ETag: '"asset-compartido"',
+                    'Last-Modified': 'Mon, 24 Aug 2026 00:00:00 GMT'
+                }
             });
         }
     },
@@ -120,11 +126,31 @@ test('los metadatos de recurso protegido apuntan al emisor real de Firebase', as
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('Content-Type'), 'application/json');
     const body = await response.json();
+    assert.equal(body.resource, 'https://elysiumdr.eu');
     assert.deepEqual(body.authorization_servers, ['https://securetoken.google.com/elysiumdr-eu']);
     assert.deepEqual(body.bearer_methods_supported, ['header']);
-    // Vacío a propósito: la API no usa ningún valor de scope. Va declarado, y no
-    // omitido, para que se lea como una respuesta y no como un olvido.
-    assert.deepEqual(body.scopes_supported, []);
+    // RFC 9728 prohíbe los arrays vacíos. La API no usa scopes, así que no se
+    // inventa uno para satisfacer comprobadores que exigen una lista no vacía.
+    assert.ok(!('scopes_supported' in body));
+    // Estas claves describirían firmas de respuestas del recurso, no las claves
+    // con las que Firebase firma los ID tokens que recibe la API.
+    assert.ok(!('jwks_uri' in body));
+    assert.ok(!('resource_signing_alg_values_supported' in body));
+    assert.equal(response.headers.get('ETag'), null);
+    assert.equal(response.headers.get('Last-Modified'), null);
+});
+
+test('los metadatos de recurso protegido se atan al host y al path solicitados', async () => {
+    const national = await (await call(
+        'https://elysiumdr.pt/.well-known/oauth-protected-resource'
+    )).json();
+    assert.equal(national.resource, 'https://elysiumdr.pt');
+    assert.equal(national.resource_documentation, 'https://elysiumdr.pt/auth.md');
+
+    const api = await (await call(
+        'https://elysiumdr.eu/.well-known/oauth-protected-resource/api'
+    )).json();
+    assert.equal(api.resource, 'https://elysiumdr.eu/api');
 });
 
 /**
@@ -159,19 +185,34 @@ test('los ficheros de descubrimiento contestan la preflight de CORS', async () =
     assert.equal(response.headers.get('Access-Control-Allow-Origin'), '*');
 });
 
+test('HEAD nunca entrega cuerpo, ni cuando falta un fichero de descubrimiento', async () => {
+    const present = await call('https://elysiumdr.eu/auth.md', { method: 'HEAD' });
+    assert.equal(present.status, 200);
+    assert.equal(await present.text(), '');
+
+    const missing = await call(
+        'https://elysiumdr.eu/.well-known/agent-skills/missing/SKILL.md',
+        { method: 'HEAD' }
+    );
+    assert.equal(missing.status, 404);
+    assert.equal(await missing.text(), '');
+});
+
 /**
  * Las herramientas del navegador solo existen si la portada carga el fichero.
  *
- * `JS/webmcp.js` llegó a producción con su regla de caché en `_headers` y su
- * párrafo en CLAUDE.md, pero ninguna página lo cargaba: declaraba sus
- * herramientas a nadie. No hay forma de verlo abriendo el sitio —la portada se
- * ve igual con el script y sin él—, así que se comprueba aquí.
+ * Las tres portadas físicas ya cargaban `JS/webmcp.js`, pero las dos bases que
+ * realmente sirven `.es` y `.pt` después de la reescritura no. No hay forma de
+ * verlo abriendo el sitio —la portada se ve igual con el script y sin él—, así
+ * que se comprueban las cinco fuentes aquí.
  */
-test('las tres portadas declaran las herramientas WebMCP y el manifiesto ARD', () => {
+test('todas las portadas públicas declaran las herramientas WebMCP y el manifiesto ARD', () => {
     const portadas = [
         ['index.html', 'JS/webmcp.js'],
         ['es/index.html', '../JS/webmcp.js'],
-        ['pt/index.html', '../JS/webmcp.js']
+        ['pt/index.html', '../JS/webmcp.js'],
+        ['_national/es/index.html', '../JS/webmcp.js'],
+        ['_national/pt/index.html', '../JS/webmcp.js']
     ];
     for (const [page, src] of portadas) {
         const html = readFileSync(join(ROOT, page), 'utf8');
@@ -180,12 +221,59 @@ test('las tres portadas declaran las herramientas WebMCP y el manifiesto ARD', (
     }
 });
 
-/** El fichero declara las herramientas por las dos vías de la API, no solo una. */
-test('WebMCP se declara con registerTool cuando el navegador lo trae', () => {
+/** El fichero usa la API vigente y conserva compatibilidad con el comprobador. */
+test('WebMCP prefiere document.registerTool y conserva el respaldo antiguo', () => {
     const source = readFileSync(join(ROOT, 'JS', 'webmcp.js'), 'utf8');
+    assert.match(source, /document\.modelContext/);
+    assert.match(source, /navigator\.modelContext/);
     assert.match(source, /registerTool/);
     assert.match(source, /provideContext/);
     assert.match(source, /AbortController/);
+});
+
+test('WebMCP registra cuatro herramientas y las retira al abandonar la página', async () => {
+    const source = readFileSync(join(ROOT, 'JS', 'webmcp.js'), 'utf8');
+    const registrations = [];
+    let onPageHide = null;
+
+    await runInNewContext(source, {
+        document: {
+            modelContext: {
+                registerTool(tool, options) {
+                    registrations.push({ tool, signal: options.signal });
+                    return Promise.resolve();
+                }
+            }
+        },
+        navigator: {
+            modelContext: {
+                registerTool() {
+                    throw new Error('No debe usarse navigator cuando document ofrece la API vigente.');
+                }
+            }
+        },
+        AbortController,
+        URL,
+        location: { origin: 'https://elysiumdr.eu', assign() {} },
+        fetch() { throw new Error('Registrar herramientas no debe hacer peticiones.'); },
+        addEventListener(type, listener) {
+            if (type === 'pagehide') onPageHide = listener;
+        },
+        console
+    });
+
+    assert.deepEqual(
+        registrations.map(({ tool }) => tool.name),
+        ['search_elysium', 'list_pages', 'get_page', 'open_page']
+    );
+    assert.ok(registrations.every(({ signal }) => !signal.aborted));
+    assert.equal(
+        registrations.find(({ tool }) => tool.name === 'open_page').tool.annotations.readOnlyHint,
+        false
+    );
+    assert.equal(typeof onPageHide, 'function');
+    onPageHide();
+    assert.ok(registrations.every(({ signal }) => signal.aborted));
 });
 
 test('los dominios nacionales sirven los mismos ficheros, sin prefijo de idioma', async () => {

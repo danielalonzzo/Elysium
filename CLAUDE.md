@@ -54,17 +54,23 @@ fácil romperlo sin enterarse — por eso está cubierto por
   puro a propósito: escrito con HTMLRewriter solo se podría probar desplegando.
 - **`/mcp`** es un servidor MCP de solo lectura (JSON-RPC por POST, sin sesión):
   `list_pages`, `get_page` y `search_site`. Ninguna herramienta escribe.
-- **`JS/webmcp.js`** declara esas mismas herramientas en el navegador, para un
-  agente que llegue con WebMCP. Solo va en las tres portadas, y solo existe si
-  esas portadas lo cargan: estuvo publicado meses sin que ninguna lo hiciera,
-  declarando sus herramientas a nadie. La prueba que lo vigila está en
+- **`JS/webmcp.js`** declara esas mismas herramientas de consulta y una
+  navegación visible en el navegador, para un agente que llegue con WebMCP.
+  Prefiere la API vigente en `document.modelContext` y conserva el respaldo
+  antiguo de `navigator.modelContext`. Tiene que cargarse en las cinco fuentes
+  de portada (las tres físicas y las dos bases nacionales): estas últimas se
+  quedaron fuera aunque las primeras ya lo cargaban, así que un escáner
+  redirigido por país no veía herramientas. La prueba que lo vigila está en
   `agents.test.mjs`, porque abriendo el sitio no se nota.
 - **`.well-known/`** guarda el catálogo de APIs (RFC 9727), el manifiesto ARD,
   la tarjeta del servidor MCP, los metadatos de recurso protegido (RFC 9728) y
   los skills. Más `/openapi.json` y `/auth.md` en la raíz.
 - **DNS-AID** es la única pieza que no está en el repositorio: los registros
   `_agents` viven en la zona DNS de Cloudflare, así que no se despliegan con un
-  push. Están escritos, con sus trampas, en `scripts/dns-aid.md`.
+  push. Están escritos, con sus trampas, en `scripts/dns-aid.md`, y los aplica
+  `scripts/publish-dns-aid.sh` con un token de `Zone.DNS Edit` — el de
+  `wrangler` solo trae `zone (read)` y devuelve 403. `--check` los comprueba por
+  DoH sin token.
 
 Cuatro cosas que hay que saber antes de tocarlo:
 
