@@ -1,14 +1,15 @@
 {
-  "specVersion": "0.1",
+  "specVersion": "1.0",
   "host": {
-    "name": "Elysium λ Development & Research",
+    "identifier": "urn:air:elysiumdr.eu",
+    "displayName": "Elysium λ Development & Research",
     "description": "European digital-infrastructure company and independent software-engineering, IT-consulting and applied-R&D laboratory. Established in Portugal, operating in Costa Rica. Subscription tiers for micro and small businesses, entrepreneurs and startups, with no separate development cost.",
     "url": "https://elysiumdr.eu",
     "contact": "info@elysiumdr.eu"
   },
   "entries": [
     {
-      "id": "urn:air:elysiumdr.eu:content:llms",
+      "identifier": "urn:air:elysiumdr.eu:content:llms",
       "displayName": "Site index for language models",
       "description": "Essential facts about the company, the subscription tiers and the published research, plus a linked index of every page in English, Spanish and Portuguese.",
       "type": "text/plain",
@@ -20,7 +21,7 @@
       ]
     },
     {
-      "id": "urn:air:elysiumdr.eu:content:llms-full",
+      "identifier": "urn:air:elysiumdr.eu:content:llms-full",
       "displayName": "Full site text for language models",
       "description": "The expanded text of every page — homepage, services, portfolio, research, about, founder profile, contact, terms of service, privacy policy and system information — in English, Spanish and European Portuguese.",
       "type": "text/plain",
@@ -33,7 +34,7 @@
       ]
     },
     {
-      "id": "urn:air:elysiumdr.eu:mcp:site",
+      "identifier": "urn:air:elysiumdr.eu:mcp:site",
       "displayName": "Elysium site MCP server",
       "description": "Read-only Model Context Protocol server over the public site: list the published pages, fetch any page as Markdown, and search the language-model corpus. Streamable HTTP at https://elysiumdr.eu/mcp, no authentication.",
       "type": "application/json",
@@ -45,7 +46,7 @@
       ]
     },
     {
-      "id": "urn:air:elysiumdr.eu:api:openapi",
+      "identifier": "urn:air:elysiumdr.eu:api:openapi",
       "displayName": "Elysium platform API",
       "description": "OpenAPI 3.1 description of the service behind the site: the public enquiry and password-recovery endpoints, and the administrator-only CRM surface for meetings, mail and files.",
       "type": "application/openapi+json",
@@ -57,7 +58,7 @@
       ]
     },
     {
-      "id": "urn:air:elysiumdr.eu:api:catalog",
+      "identifier": "urn:air:elysiumdr.eu:api:catalog",
       "displayName": "API catalog",
       "description": "RFC 9727 catalog of the APIs this origin exposes, linking each one to its description, documentation, metadata and status endpoint.",
       "type": "application/linkset+json",
@@ -68,7 +69,7 @@
       ]
     },
     {
-      "id": "urn:air:elysiumdr.eu:auth:protected-resource",
+      "identifier": "urn:air:elysiumdr.eu:auth:protected-resource",
       "displayName": "API authentication metadata",
       "description": "RFC 9728 protected-resource metadata. The authenticated API accepts Firebase Authentication ID tokens issued by https://securetoken.google.com/elysiumdr-eu; there is no self-service registration.",
       "type": "application/json",
@@ -79,7 +80,7 @@
       ]
     },
     {
-      "id": "urn:air:elysiumdr.eu:skills:index",
+      "identifier": "urn:air:elysiumdr.eu:skills:index",
       "displayName": "Agent skills",
       "description": "Discovery index for the two skills this site publishes: answering questions about the company and its subscription tiers, and handing over a project enquiry on someone's behalf.",
       "type": "application/json",
@@ -91,7 +92,7 @@
       ]
     },
     {
-      "id": "urn:air:elysiumdr.eu:content:sitemap",
+      "identifier": "urn:air:elysiumdr.eu:content:sitemap",
       "displayName": "Sitemap",
       "description": "Every canonical URL of the site, in the three languages. Public URLs carry no .html extension.",
       "type": "application/xml",

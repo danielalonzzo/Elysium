@@ -3,6 +3,7 @@
   "authorization_servers": [
     "https://securetoken.google.com/elysiumdr-eu"
   ],
+  "scopes_supported": [],
   "jwks_uri": "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com",
   "bearer_methods_supported": ["header"],
   "resource_documentation": "https://elysiumdr.eu/auth.md",

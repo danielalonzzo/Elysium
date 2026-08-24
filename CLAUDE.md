@@ -55,12 +55,18 @@ fácil romperlo sin enterarse — por eso está cubierto por
 - **`/mcp`** es un servidor MCP de solo lectura (JSON-RPC por POST, sin sesión):
   `list_pages`, `get_page` y `search_site`. Ninguna herramienta escribe.
 - **`JS/webmcp.js`** declara esas mismas herramientas en el navegador, para un
-  agente que llegue con WebMCP. Solo va en las tres portadas.
+  agente que llegue con WebMCP. Solo va en las tres portadas, y solo existe si
+  esas portadas lo cargan: estuvo publicado meses sin que ninguna lo hiciera,
+  declarando sus herramientas a nadie. La prueba que lo vigila está en
+  `agents.test.mjs`, porque abriendo el sitio no se nota.
 - **`.well-known/`** guarda el catálogo de APIs (RFC 9727), el manifiesto ARD,
   la tarjeta del servidor MCP, los metadatos de recurso protegido (RFC 9728) y
   los skills. Más `/openapi.json` y `/auth.md` en la raíz.
+- **DNS-AID** es la única pieza que no está en el repositorio: los registros
+  `_agents` viven en la zona DNS de Cloudflare, así que no se despliegan con un
+  push. Están escritos, con sus trampas, en `scripts/dns-aid.md`.
 
-Tres cosas que hay que saber antes de tocarlo:
+Cuatro cosas que hay que saber antes de tocarlo:
 
 1. **Las rutas de las especificaciones no llevan extensión** —
    `/.well-known/api-catalog`, no `.json`— pero un fichero sin extensión se
@@ -70,7 +76,13 @@ Tres cosas que hay que saber antes de tocarlo:
 2. **El índice de skills no se escribe a mano.** Publica un `sha256` de cada
    `SKILL.md` que se queda obsoleto al editar una coma, sin que nada avise:
    `node scripts/build-agent-skills-index.mjs` (con `--check` para CI).
-3. **Lo que se publica tiene que ser verdad.** No hay metadatos de servidor de
+3. **El manifiesto ARD se anuncia por tres sitios a la vez:** el propio
+   `/.well-known/ai-catalog.json`, un `<link rel="ai-catalog">` en las portadas
+   y la línea `Agentmap:` de `robots.txt`. Si cambia de sitio, cambian los tres.
+   Y sus entradas se identifican con `identifier`, no con `id`: publicado como
+   `id`, el manifiesto entero se da por inválido desde la primera entrada sin
+   que nada falle ni se vea.
+4. **Lo que se publica tiene que ser verdad.** No hay metadatos de servidor de
    autorización propio porque Elysium no lo es: el emisor real es Firebase
    (`https://securetoken.google.com/elysiumdr-eu`) y así se declara. Una tarjeta
    o un `.well-known` que describa algo que no existe es peor que no tenerlo.

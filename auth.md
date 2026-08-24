@@ -1,4 +1,4 @@
-# Authenticating against Elysium λ Development & Research
+# auth.md — Elysium λ Development & Research
 
 This file describes, for automated clients, how to reach the API behind
 <https://elysiumdr.eu>. It is the human- and agent-readable companion to
@@ -36,6 +36,10 @@ should ask its principal to obtain a licence through
 - **Authorization:** endpoints tagged `crm` in the OpenAPI description also
   require the administrator custom claim on the account. A valid token without
   it gets `403`.
+- **Scopes:** none. `scopes_supported` is published as an empty array on
+  purpose: no OAuth scope value is ever requested or checked. What an account
+  may do is decided by the administrator custom claim on the token, not by the
+  scopes it carries.
 - **Delegation:** there is no agent-delegation, service-account or
   client-credentials flow. A token always represents a person.
 

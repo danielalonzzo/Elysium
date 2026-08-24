@@ -232,6 +232,16 @@ Disallow: /Demo-arbol/
 #   https://elysiumdr.eu/llms-full.txt  — contenido completo en EN, ES y PT
 
 # ──────────────────────────────────────────────
+# AGENT DISCOVERY
+# ──────────────────────────────────────────────
+# El manifiesto ARD (`/.well-known/ai-catalog.json`) enumera lo que este origen
+# ofrece a un agente: el servidor MCP, la descripción OpenAPI, los skills y los
+# ficheros para modelos de lenguaje. La especificación admite tres vías para
+# anunciarlo —el well-known, un <link> en el HTML y esta línea— y esta es la
+# única que ve quien solo lee robots.txt.
+Agentmap: https://elysiumdr.eu/.well-known/ai-catalog.json
+
+# ──────────────────────────────────────────────
 # SITEMAP
 # ──────────────────────────────────────────────
 Sitemap: https://elysiumdr.eu/sitemap.xml

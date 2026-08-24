@@ -21,7 +21,8 @@
     'use strict';
 
     const context = navigator.modelContext;
-    if (!context || typeof context.provideContext !== 'function') return;
+    const declares = value => context && typeof context[value] === 'function';
+    if (!declares('registerTool') && !declares('provideContext')) return;
 
     const text = value => ({ content: [{ type: 'text', text: value }] });
     const failure = value => ({ content: [{ type: 'text', text: value }], isError: true });
@@ -140,9 +141,37 @@
         }
     ];
 
+    /**
+     * `registerTool` primero, `provideContext` si no está.
+     *
+     * Son la misma API en dos momentos distintos: `registerTool` añade una
+     * herramienta y devuelve con qué retirarla, `provideContext` reemplaza la
+     * lista entera de una vez. Chrome trae las dos, pero es `registerTool` lo
+     * que mira quien comprueba desde fuera si el sitio declara herramientas, y
+     * una implementación a medias puede traer solo una. Nunca se llaman las
+     * dos: registrar dos veces el mismo nombre es un error.
+     *
+     * El `AbortController` retira las herramientas al dejar la página. Sin él,
+     * una navegación dentro del sitio —que es justo lo que hace `open_page`—
+     * puede dejar declarada una herramienta cuyo `execute` ya no existe.
+     */
+    const controller = new AbortController();
+    const handles = [];
+
     try {
-        context.provideContext({ tools });
+        if (declares('registerTool')) {
+            for (const tool of tools) {
+                handles.push(context.registerTool(tool, { signal: controller.signal }));
+            }
+        } else {
+            context.provideContext({ tools });
+        }
     } catch (error) {
         console.warn('WebMCP no disponible:', error);
     }
+
+    addEventListener('pagehide', () => {
+        controller.abort();
+        for (const handle of handles) handle?.destroy?.();
+    }, { once: true });
 })();

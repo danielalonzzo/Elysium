@@ -84,10 +84,35 @@ test('el manifiesto ARD lleva CORS abierto, como exige la especificación', asyn
     assert.equal(response.headers.get('Content-Type'), 'application/json');
     assert.equal(response.headers.get('Access-Control-Allow-Origin'), '*');
     const body = await response.json();
-    assert.ok(body.entries.every(entry => entry.id.startsWith('urn:air:elysiumdr.eu:')));
     assert.ok(body.entries.every(entry => ('url' in entry) !== ('data' in entry)));
     assert.ok(body.entries.every(entry => entry.representativeQueries.length >= 2
         && entry.representativeQueries.length <= 5));
+});
+
+/**
+ * La clave es `identifier`, no `id`.
+ *
+ * Se publicó como `id` y el manifiesto entero se daba por inválido desde la
+ * primera entrada, sin que nada fallara: es JSON correcto y el sitio se sigue
+ * viendo igual. Lo mismo vale para el `host`, que necesita nombre e
+ * identificador propios.
+ */
+test('cada entrada del manifiesto ARD se identifica como manda la especificación', async () => {
+    const response = await call('https://elysiumdr.eu/.well-known/ai-catalog.json');
+    const body = await response.json();
+
+    assert.equal(typeof body.specVersion, 'string');
+    assert.ok(body.specVersion.length > 0);
+    assert.equal(body.host.identifier, 'urn:air:elysiumdr.eu');
+    assert.ok(body.host.displayName);
+
+    for (const entry of body.entries) {
+        assert.ok(entry.identifier?.startsWith('urn:air:elysiumdr.eu:'),
+            `entrada sin identifier en forma urn:air: ${JSON.stringify(entry.displayName)}`);
+        assert.ok(entry.displayName, `${entry.identifier} no tiene displayName`);
+        assert.ok(entry.type, `${entry.identifier} no declara tipo de medio`);
+        assert.ok(!('id' in entry), `${entry.identifier} conserva la clave vieja "id"`);
+    }
 });
 
 test('los metadatos de recurso protegido apuntan al emisor real de Firebase', async () => {
@@ -96,6 +121,24 @@ test('los metadatos de recurso protegido apuntan al emisor real de Firebase', as
     assert.equal(response.headers.get('Content-Type'), 'application/json');
     const body = await response.json();
     assert.deepEqual(body.authorization_servers, ['https://securetoken.google.com/elysiumdr-eu']);
+    assert.deepEqual(body.bearer_methods_supported, ['header']);
+    // Vacío a propósito: la API no usa ningún valor de scope. Va declarado, y no
+    // omitido, para que se lea como una respuesta y no como un olvido.
+    assert.deepEqual(body.scopes_supported, []);
+});
+
+/**
+ * El encabezado de `/auth.md` tiene que nombrar el propio formato.
+ *
+ * Es lo que busca quien comprueba desde fuera si el fichero es un Auth.md, y no
+ * un texto cualquiera que casualmente se llama así.
+ */
+test('auth.md se anuncia como Auth.md en su encabezado', async () => {
+    const response = await call('https://elysiumdr.eu/auth.md');
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('Content-Type'), /^text\/markdown/);
+    const heading = (await response.text()).split('\n').find(line => line.startsWith('# '));
+    assert.match(heading, /auth\.md/i);
 });
 
 test('los SKILL.md se sirven como Markdown, y su digest coincide con el índice', async () => {
@@ -114,6 +157,35 @@ test('los ficheros de descubrimiento contestan la preflight de CORS', async () =
     const response = await call('https://elysiumdr.eu/.well-known/ai-catalog.json', { method: 'OPTIONS' });
     assert.equal(response.status, 204);
     assert.equal(response.headers.get('Access-Control-Allow-Origin'), '*');
+});
+
+/**
+ * Las herramientas del navegador solo existen si la portada carga el fichero.
+ *
+ * `JS/webmcp.js` llegó a producción con su regla de caché en `_headers` y su
+ * párrafo en CLAUDE.md, pero ninguna página lo cargaba: declaraba sus
+ * herramientas a nadie. No hay forma de verlo abriendo el sitio —la portada se
+ * ve igual con el script y sin él—, así que se comprueba aquí.
+ */
+test('las tres portadas declaran las herramientas WebMCP y el manifiesto ARD', () => {
+    const portadas = [
+        ['index.html', 'JS/webmcp.js'],
+        ['es/index.html', '../JS/webmcp.js'],
+        ['pt/index.html', '../JS/webmcp.js']
+    ];
+    for (const [page, src] of portadas) {
+        const html = readFileSync(join(ROOT, page), 'utf8');
+        assert.ok(html.includes(`<script src="${src}"`), `${page} no carga ${src}`);
+        assert.ok(html.includes('rel="ai-catalog"'), `${page} no enlaza el manifiesto ARD`);
+    }
+});
+
+/** El fichero declara las herramientas por las dos vías de la API, no solo una. */
+test('WebMCP se declara con registerTool cuando el navegador lo trae', () => {
+    const source = readFileSync(join(ROOT, 'JS', 'webmcp.js'), 'utf8');
+    assert.match(source, /registerTool/);
+    assert.match(source, /provideContext/);
+    assert.match(source, /AbortController/);
 });
 
 test('los dominios nacionales sirven los mismos ficheros, sin prefijo de idioma', async () => {
