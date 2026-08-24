@@ -3,9 +3,30 @@
 # Última revisión: 20 de agosto de 2026
 
 # ──────────────────────────────────────────────
+# CONTENT SIGNALS
+# ──────────────────────────────────────────────
+# `Content-Signal` (contentsignals.org) declara para qué puede usarse lo que se
+# rastrea, que es una pregunta distinta de si se puede rastrear. Las tres van a
+# «yes» a propósito y en coherencia con todo lo de abajo: el sitio se ofrece
+# deliberadamente a los modelos de lenguaje, y para eso existen /llms.txt y
+# /llms-full.txt.
+#
+#   search    — aparecer en un buscador y ser enlazado.
+#   ai-input  — usarse como contexto para responder a alguien (RAG).
+#   ai-train  — usarse para entrenar o afinar un modelo.
+#
+# Se repite en CADA grupo por la misma razón que el `Disallow: /Demo-arbol/`:
+# bajo la RFC 9309 un rastreador obedece solo su grupo más específico y no
+# hereda nada del grupo `*`. Declararlo únicamente arriba dejaría sin señal a
+# los veintisiete agentes que tienen grupo propio. La misma declaración viaja
+# además como cabecera HTTP `Content-Signal`, en `_headers`, para los recursos
+# a los que no se llega desde aquí.
+
+# ──────────────────────────────────────────────
 # DEFAULT: Allow all crawlers
 # ──────────────────────────────────────────────
 User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Allow: /llms.txt
 Allow: /llms-full.txt
@@ -38,137 +59,164 @@ Disallow: /Demo-arbol/
 
 # OpenAI — rastreo para entrenamiento
 User-agent: GPTBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # OpenAI — recuperación en vivo iniciada por el usuario
 User-agent: ChatGPT-User
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # OpenAI — índice de ChatGPT Search (es el que genera las citas)
 User-agent: OAI-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Anthropic — rastreo para entrenamiento
 User-agent: ClaudeBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Anthropic — recuperación en vivo iniciada por el usuario
 User-agent: Claude-User
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Anthropic — índice de búsqueda
 User-agent: Claude-SearchBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Anthropic — token heredado, ya sin uso; se mantiene por compatibilidad
 User-agent: anthropic-ai
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Perplexity — rastreo del índice
 User-agent: PerplexityBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Perplexity — recuperación en vivo iniciada por el usuario
 User-agent: Perplexity-User
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Google — control de Gemini y de las AI Overviews
 User-agent: Google-Extended
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Google — rastreo interno y experimental (NO es el de Vertex AI)
 User-agent: GoogleOther
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Google — Vertex AI Agents
 User-agent: Google-CloudVertexBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Apple — Siri y Spotlight
 User-agent: Applebot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Apple — uso del contenido para entrenar Apple Intelligence.
 # Sin este grupo el permiso era implícito; queda declarado a propósito.
 User-agent: Applebot-Extended
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Meta — Llama
 User-agent: Meta-ExternalAgent
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Meta — recuperación de enlaces
 User-agent: Meta-ExternalFetcher
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Mistral / Le Chat — recuperación en vivo (token documentado por Mistral)
 User-agent: MistralAI-User
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Cohere
 User-agent: cohere-ai
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # You.com
 User-agent: YouBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Common Crawl — corpus usado para entrenamiento por terceros
 User-agent: CCBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # DuckDuckGo — rastreador del buscador
 User-agent: DuckDuckBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # DuckDuckGo — DuckAssist, la capa de respuestas con IA
 User-agent: DuckAssistBot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # ByteDance / Doubao
 User-agent: Bytespider
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Amazon — rastreador general (alimenta Alexa y Rufus)
 User-agent: Amazonbot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Diffbot — extracción estructurada de datos
 User-agent: Diffbot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Allen Institute for AI
 User-agent: AI2Bot
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 
 # Internet Archive / Alexa Internet (token histórico, hoy en desuso)
 User-agent: ia_archiver
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 Disallow: /Demo-arbol/
 

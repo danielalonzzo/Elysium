@@ -23,16 +23,15 @@
     <link rel="alternate" type="text/plain" title="LLM full site content" href="https://elysiumdr.eu/llms-full.txt">
 
     <!-- Canonical & hreflang -->
-    <link rel="canonical" href="https://elysiumdr.pt/about">
-    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.pt/about">
-    <link rel="alternate" hreflang="es-ES" href="https://elysiumdr.es/about">
+    <link rel="canonical" href="https://elysiumdr.eu/pt/about">
     <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/about">
     <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.eu/es/about">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.eu/pt/about">
     <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/about">
 
     <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://elysiumdr.pt/about">
+    <meta property="og:url" content="https://elysiumdr.eu/pt/about">
     <meta property="og:title" content="Sobre Nós — Elysium λ Development & Research">
     <meta property="og:description" content="Missão, visão e história da Elysium λ, empresa de infraestrutura digital e I&D aplicada estabelecida em Portugal, ao serviço de pequenas empresas e empreendedores.">
     <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
@@ -69,13 +68,13 @@
       "@context": "https://schema.org",
       "@type": "AboutPage",
       "name": "Sobre Nós — Elysium λ Development & Research",
-      "url": "https://elysiumdr.pt/about",
+      "url": "https://elysiumdr.eu/pt/about",
       "description": "Missão, visão, ethos de I&D e história da Elysium λ Development & Research.",
       "inLanguage": "pt-PT",
       "mainEntity": {
         "@type": ["Organization", "ResearchOrganization"],
         "name": "Elysium λ Development & Research",
-        "url": "https://elysiumdr.pt",
+        "url": "https://elysiumdr.eu/pt",
         "logo": "https://elysiumdr.eu/Images/favicon-512.png",
         "description": "Empresa de infraestrutura digital e laboratório independente de I&D aplicada estabelecido em Portugal, ao serviço de pequenas empresas e empreendedores em Portugal e na União Europeia.",
         "slogan": "Infraestrutura digital acessível e transparente, centrada em I&D.",
@@ -105,22 +104,14 @@
                 <div class="region-switcher-dropdown" id="regionSwitcher">
                     <button type="button" class="region-switcher-trigger" aria-expanded="false" aria-haspopup="true"
                         aria-label="Selecionar região">
-                        <span class="region-tag">PORTUGAL</span>
+                        <span class="region-tag">EUROPA</span>
                         <span class="region-arrow" aria-hidden="true">▼</span>
                     </button>
                     <div class="region-switcher-menu" role="menu">
-                        <a href="https://elysiumdr.pt/" class="region-item active" role="menuitem" data-region="PT">
-                            <span class="region-indicator">●</span> PORTUGAL
-                        </a>
-                        <a href="https://elysiumdr.eu/" class="region-item" role="menuitem" data-region="EU">
-                            EUROPA
-                        </a>
-                        <a href="https://elysiumdr.es/" class="region-item" role="menuitem" data-region="ES">
-                            ESPANHA
-                        </a>
-                        <a href="https://elysiumdr.eu/es/" class="region-item" role="menuitem" data-region="CR">
-                            COSTA RICA
-                        </a>
+                        <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
+                        <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item active" role="menuitem" data-region="EU" aria-current="true"><span class="region-indicator" aria-hidden="true">●</span> EUROPA</a>
+                        <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">ESPANHA</a>
+                        <a href="https://elysiumdr.eu/es/?region=CR&amp;override=true" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
                     </div>
                 </div>
             </div>
@@ -133,12 +124,12 @@
                 <a href="contact" class="btn btn-primary">Contacto</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Selecionar idioma"><span class="lang-current-label">PT</span> <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                        aria-label="Select language" data-i18n-aria="authLanguage"><span class="lang-current-label">PT</span> <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
-                        <a href="about" role="menuitem">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="../about" role="menuitem">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="../es/about" role="menuitem">Español <img src="../Images/Optimized/flag-es-64.webp" alt="ES" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/about" class="lang-select" role="menuitem" data-lang="en">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/es/about" class="lang-select" role="menuitem" data-lang="es">Español <img src="../Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/pt/about" class="lang-select" role="menuitem" data-lang="pt">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                     </div>
                 </div>
             </div>
@@ -355,9 +346,9 @@
                                     class="lang-current-label">PT</span> <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
                                     aria-hidden="true">▼</span></button>
                             <div class="lang-switcher-menu" role="menu">
-                                <a href="about" role="menuitem">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="../about" role="menuitem">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="../es/about" role="menuitem">Español <img src="../Images/Optimized/flag-es-64.webp" alt="ES" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/pt/about" role="menuitem" data-lang="pt">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/about" role="menuitem" data-lang="en">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/es/about" role="menuitem" data-lang="es">Español <img src="../Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                             </div>
                         </div>
                     </div>

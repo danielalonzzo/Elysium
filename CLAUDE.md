@@ -42,6 +42,39 @@ aplica `_headers`. Está versionado a la fuerza, como
 `publish-demo-arbol.sh`: `*.py` y `*.sh` están en `.gitignore` para
 los scripts de usar y tirar, no para las herramientas del repositorio.
 
+## Lo que lee un agente
+
+El sitio se sirve dos veces: en HTML para las personas y en formato legible por
+máquina para los agentes. Lo segundo no se ve abriendo el navegador, así que es
+fácil romperlo sin enterarse — por eso está cubierto por
+`scripts/agents.test.mjs` (`node --test`).
+
+- **Cualquier página se entrega en Markdown** si se pide con `Accept:
+  text/markdown`. La conversión la hace `worker/html-to-markdown.js`, un módulo
+  puro a propósito: escrito con HTMLRewriter solo se podría probar desplegando.
+- **`/mcp`** es un servidor MCP de solo lectura (JSON-RPC por POST, sin sesión):
+  `list_pages`, `get_page` y `search_site`. Ninguna herramienta escribe.
+- **`JS/webmcp.js`** declara esas mismas herramientas en el navegador, para un
+  agente que llegue con WebMCP. Solo va en las tres portadas.
+- **`.well-known/`** guarda el catálogo de APIs (RFC 9727), el manifiesto ARD,
+  la tarjeta del servidor MCP, los metadatos de recurso protegido (RFC 9728) y
+  los skills. Más `/openapi.json` y `/auth.md` en la raíz.
+
+Tres cosas que hay que saber antes de tocarlo:
+
+1. **Las rutas de las especificaciones no llevan extensión** —
+   `/.well-known/api-catalog`, no `.json`— pero un fichero sin extensión se
+   serviría como `application/octet-stream`. El contenido se guarda con su
+   `.json` y el Worker le pone el tipo exacto y el CORS. La tabla está en
+   `AGENT_FILES`.
+2. **El índice de skills no se escribe a mano.** Publica un `sha256` de cada
+   `SKILL.md` que se queda obsoleto al editar una coma, sin que nada avise:
+   `node scripts/build-agent-skills-index.mjs` (con `--check` para CI).
+3. **Lo que se publica tiene que ser verdad.** No hay metadatos de servidor de
+   autorización propio porque Elysium no lo es: el emisor real es Firebase
+   (`https://securetoken.google.com/elysiumdr-eu`) y así se declara. Una tarjeta
+   o un `.well-known` que describa algo que no existe es peor que no tenerlo.
+
 ## Dónde está cada cosa
 
 Todo vive dentro de este repositorio, con un único git. Un proyecto solo sale de

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agentskills.io/schemas/v0.2.0/index.json",
+  "version": "0.2.0",
+  "name": "Elysium λ Development & Research",
+  "description": "Skills for working with elysiumdr.eu: answering questions about the company and its subscription tiers, and handing over a project enquiry.",
+  "homepage": "https://elysiumdr.eu",
+  "skills": [
+    {
+      "name": "contact-elysium",
+      "type": "skill",
+      "description": "Hand a project enquiry to Elysium λ Development & Research on behalf of a person, using the public POST /api/prospects endpoint, with the consent, honeypot, origin and rate-limit rules it enforces. Use when a user asks to contact Elysium, request a quote, or start a project.",
+      "url": "https://elysiumdr.eu/.well-known/agent-skills/contact-elysium/SKILL.md",
+      "sha256": "8ca3501e5a2f8c1f7665683be7b34929a9a77dcfe8c7d19627334b3f54952573"
+    },
+    {
+      "name": "elysium-services",
+      "type": "skill",
+      "description": "Answer questions about Elysium λ Development & Research — what the company is, which subscription tier covers which capability, and what each one costs — without inventing features or prices. Use when someone asks about Elysium's plans, pricing, services, research or legal entity.",
+      "url": "https://elysiumdr.eu/.well-known/agent-skills/elysium-services/SKILL.md",
+      "sha256": "cc3177da133e86e8bf0738031b8a2b1018e026d7d044204a4ade40fab12e9f76"
+    }
+  ]
+}

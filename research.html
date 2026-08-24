@@ -23,9 +23,9 @@
 
     <!-- Canonical & hreflang -->
     <link rel="canonical" href="https://elysiumdr.eu/research">
-    <link rel="alternate" hreflang="en" href="https://elysiumdr.eu/research">
-    <link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/research">
-    <link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/research">
+    <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/research">
+    <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.eu/es/research">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.eu/pt/research">
     <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/research">
 
     <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
@@ -116,9 +116,31 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
-            <a href="./" class="nav-brand">
-                <span class="brand-symbol">λ</span> ELYSIUM
-            </a>
+            <div class="nav-brand-container">
+                <a href="./" class="nav-brand" data-localized-route=""><span class="brand-symbol">λ</span> ELYSIUM</a>
+                <!-- Region Switcher Dropdown -->
+                <div class="region-switcher-dropdown" id="regionSwitcher">
+                    <button type="button" class="region-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select region">
+                        <span class="region-tag">EUROPE</span>
+                        <span class="region-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="region-switcher-menu" role="menu">
+                        <a href="https://elysiumdr.eu/?region=EU&override=true" class="region-item active" role="menuitem" data-region="EU">
+                            <span class="region-indicator">●</span> EUROPE
+                        </a>
+                        <a href="https://elysiumdr.es/?region=ES" class="region-item " role="menuitem" data-region="ES">
+                            SPAIN
+                        </a>
+                        <a href="https://elysiumdr.pt/?region=PT" class="region-item " role="menuitem" data-region="PT">
+                            PORTUGAL
+                        </a>
+                        <a href="https://elysiumdr.eu/es/?region=CR&override=true" class="region-item" role="menuitem" data-region="CR">
+                            COSTA RICA
+                        </a>
+                    </div>
+                </div>
+            </div>
             <div class="nav-links">
                 <a href="services" class="nav-link">Services</a>
                 <a href="portfolio" class="nav-link">Portfolio</a>
@@ -128,12 +150,12 @@
                 <a href="contact" class="btn btn-primary">Contact</a>
                 <div class="lang-switcher-dropdown">
                     <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
-                        aria-label="Select language"><span class="lang-current-label">EN</span> <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                        aria-label="Select language" data-i18n-aria="authLanguage"><span class="lang-current-label">EN</span> <img src="Images/Optimized/flag-eu-64.webp" alt="EN" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
                             class="lang-arrow" aria-hidden="true">▼</span></button>
                     <div class="lang-switcher-menu" role="menu">
-                        <a href="research" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="es/research" role="menuitem">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                        <a href="pt/research" role="menuitem">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/research" class="lang-select" role="menuitem" data-lang="en">English <img src="Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/es/research" class="lang-select" role="menuitem" data-lang="es">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/pt/research" class="lang-select" role="menuitem" data-lang="pt">Português <img src="Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                     </div>
                 </div>
             </div>
@@ -231,9 +253,9 @@
                                     class="lang-current-label">EN</span> <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
                                     aria-hidden="true">▼</span></button>
                             <div class="lang-switcher-menu" role="menu">
-                                <a href="research" role="menuitem">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="es/research" role="menuitem">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
-                                <a href="pt/research" role="menuitem">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/research" role="menuitem" data-lang="en">English <img src="Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/es/research" role="menuitem" data-lang="es">Español <img src="Images/Banderas/costa-rica.png" alt="CR" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/pt/research" role="menuitem" data-lang="pt">Português <img src="Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
                             </div>
                         </div>
                     </div>

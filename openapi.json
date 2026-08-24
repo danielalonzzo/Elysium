@@ -1,0 +1,336 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Elysium platform API",
+    "version": "1.0.0",
+    "summary": "The service behind elysiumdr.eu: public enquiries and password recovery, plus the authenticated CRM surface (meetings, mail, files).",
+    "description": "Two endpoints are open to anyone: `POST /api/prospects` records a project enquiry and `POST /api/auth/password-reset` starts password recovery. Everything else needs a Firebase ID token from an account with the administrator claim; those accounts are created by hand, there is no self-service registration. See https://elysiumdr.eu/auth.md.\n\nThe API is reached through the site's own origin (`https://elysiumdr.eu/api/...`, and likewise on `elysiumdr.es` and `elysiumdr.pt`); a Cloudflare Worker forwards it to the platform service, which is why no CORS preflight is needed from the site itself.",
+    "contact": {
+      "name": "Elysium λ Development & Research",
+      "email": "info@elysiumdr.eu",
+      "url": "https://elysiumdr.eu/contact"
+    },
+    "license": {
+      "name": "Terms of service",
+      "url": "https://elysiumdr.eu/terms"
+    }
+  },
+  "servers": [
+    { "url": "https://elysiumdr.eu", "description": "European site and canonical origin" },
+    { "url": "https://elysiumdr.es", "description": "Spanish national domain" },
+    { "url": "https://elysiumdr.pt", "description": "Portuguese national domain" }
+  ],
+  "tags": [
+    { "name": "public", "description": "No credentials required." },
+    { "name": "crm", "description": "Administrator-only. Requires a Firebase ID token with the admin claim." },
+    { "name": "status", "description": "Liveness." }
+  ],
+  "components": {
+    "securitySchemes": {
+      "firebaseIdToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "A Firebase Authentication ID token for the project `elysiumdr-eu`, sent as `Authorization: Bearer <token>`. Issuer `https://securetoken.google.com/elysiumdr-eu`. Endpoints tagged `crm` additionally require the administrator claim."
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "description": "Human-readable message." },
+          "code": { "type": "string", "description": "Stable machine-readable code." },
+          "field": { "type": "string", "description": "Offending field, on validation errors." }
+        },
+        "required": ["error", "code"]
+      },
+      "Prospect": {
+        "type": "object",
+        "required": ["name", "company", "email"],
+        "properties": {
+          "name": { "type": "string", "maxLength": 120, "description": "Contact name. The characters `<` and `>` are rejected." },
+          "company": { "type": "string", "maxLength": 120 },
+          "email": { "type": "string", "format": "email" },
+          "projectDescription": { "type": "string", "maxLength": 2000 },
+          "isExistingClient": { "type": "boolean", "default": false, "description": "When true, `licenseCode` becomes mandatory." },
+          "licenseCode": {
+            "type": "string",
+            "pattern": "^ELY-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4,20}$",
+            "description": "Elysium licence, required only when `isExistingClient` is true."
+          },
+          "website": {
+            "type": "string",
+            "description": "Honeypot. It is invisible in the browser form and must be left empty; a filled value is answered with 202 and silently discarded."
+          }
+        }
+      }
+    }
+  },
+  "security": [],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["status"],
+        "summary": "Liveness of the platform service",
+        "operationId": "getHealth",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "The service is up.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": { "type": "boolean" },
+                    "service": { "type": "string" }
+                  }
+                },
+                "example": { "ok": true, "service": "elysium-platform-api" }
+              }
+            }
+          },
+          "503": {
+            "description": "The Worker has no platform service configured (`code: api_not_configured`).",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/prospects": {
+      "post": {
+        "tags": ["public"],
+        "summary": "Record a project enquiry",
+        "description": "The public contact form. Rate limited per IP address and per email address. A request carrying an `Origin` header that is not on the service's allow-list is refused, so this endpoint is meant to be called from the Elysium sites themselves rather than cross-origin.",
+        "operationId": "createProspect",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Prospect" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Enquiry stored.",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "ok": { "type": "boolean" } } }, "example": { "ok": true } } }
+          },
+          "202": { "description": "Accepted and discarded: the honeypot field was filled." },
+          "400": { "description": "Validation error (`code: prospect_invalid`); `field` names the offending property.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "403": { "description": "The `Origin` header is not allowed (`code: origin_not_allowed`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "429": { "description": "Rate limited (`code: prospect_rate_limited`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "503": { "description": "The enquiry could not be stored (`code: prospect_unavailable`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/auth/password-reset": {
+      "post": {
+        "tags": ["public"],
+        "summary": "Send a password-recovery email",
+        "description": "Always answers 202 with the same body whether or not an account exists, on purpose: the response must not reveal which addresses are registered. Rate limited per IP address and per email address.",
+        "operationId": "requestPasswordReset",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "locale": { "type": "string", "description": "Language of the email; `en`, `es` or `pt`.", "enum": ["en", "es", "pt"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Request accepted. The same body is returned whatever the outcome.",
+            "content": {
+              "application/json": {
+                "schema": { "type": "object", "properties": { "ok": { "type": "boolean" }, "message": { "type": "string" } } },
+                "example": { "ok": true, "message": "If an eligible account exists, a password reset email will arrive shortly." }
+              }
+            }
+          },
+          "503": { "description": "Password-reset email is not configured (`code: email_not_configured`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/capabilities": {
+      "get": {
+        "tags": ["crm"],
+        "summary": "Which platform features are configured",
+        "operationId": "getCapabilities",
+        "security": [{ "firebaseIdToken": [] }],
+        "responses": {
+          "200": { "description": "Capability flags for the running deployment.", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." }
+        }
+      }
+    },
+    "/api/meetings": {
+      "get": {
+        "tags": ["crm"],
+        "summary": "List meetings in a date range",
+        "operationId": "listMeetings",
+        "security": [{ "firebaseIdToken": [] }],
+        "parameters": [
+          { "name": "from", "in": "query", "schema": { "type": "string", "format": "date-time" }, "description": "Defaults to one year ago." },
+          { "name": "to", "in": "query", "schema": { "type": "string", "format": "date-time" }, "description": "Defaults to one year ahead. The range may not exceed the service's maximum span." },
+          { "name": "userId", "in": "query", "schema": { "type": "string", "pattern": "^[A-Za-z0-9:_-]{1,128}$" } }
+        ],
+        "responses": {
+          "200": { "description": "A page of meetings.", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "400": { "description": "Invalid range (`code: invalid_meeting_range`) or user id (`code: invalid_user_id`)." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." }
+        }
+      },
+      "post": {
+        "tags": ["crm"],
+        "summary": "Schedule a meeting and send its notifications",
+        "operationId": "createMeeting",
+        "security": [{ "firebaseIdToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+        "responses": {
+          "201": { "description": "Meeting created." },
+          "400": { "description": "Validation error." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." }
+        }
+      }
+    },
+    "/api/meetings/{meetingId}": {
+      "patch": {
+        "tags": ["crm"],
+        "summary": "Reschedule or amend a meeting",
+        "operationId": "updateMeeting",
+        "security": [{ "firebaseIdToken": [] }],
+        "parameters": [{ "name": "meetingId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+        "responses": {
+          "200": { "description": "Meeting updated." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "404": { "description": "No such meeting." }
+        }
+      }
+    },
+    "/api/meetings/{meetingId}/cancel": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Cancel a meeting and notify the attendees",
+        "operationId": "cancelMeeting",
+        "security": [{ "firebaseIdToken": [] }],
+        "parameters": [{ "name": "meetingId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "Meeting cancelled." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "404": { "description": "No such meeting." }
+        }
+      }
+    },
+    "/api/meetings/reminders/run": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Send the meeting reminders that are due",
+        "description": "Driven by Cloud Scheduler rather than by a person. It depends on a composite Firestore index; without it the endpoint answers 500.",
+        "operationId": "runMeetingReminders",
+        "responses": {
+          "200": { "description": "Reminders processed." },
+          "500": { "description": "The query could not run — usually the missing composite index." }
+        }
+      }
+    },
+    "/api/mail/senders": {
+      "get": {
+        "tags": ["crm"],
+        "summary": "Addresses the CRM is allowed to send from",
+        "operationId": "listMailSenders",
+        "security": [{ "firebaseIdToken": [] }],
+        "responses": {
+          "200": { "description": "The configured sender identities." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." }
+        }
+      }
+    },
+    "/api/mail/send": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Send a message from the CRM",
+        "operationId": "sendMail",
+        "security": [{ "firebaseIdToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+        "responses": {
+          "200": { "description": "Message handed to the delivery provider." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." }
+        }
+      }
+    },
+    "/api/files/upload-intents": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Open an upload intent and get a signed R2 destination",
+        "description": "Only metadata passes through the API; the file itself is sent by the browser straight to the signed R2 endpoint.",
+        "operationId": "createUploadIntent",
+        "security": [{ "firebaseIdToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object" } } } },
+        "responses": {
+          "201": { "description": "Intent created, with the signed destination." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." }
+        }
+      }
+    },
+    "/api/files/upload-intents/{intentId}/complete": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Confirm an upload and register the file",
+        "operationId": "completeUploadIntent",
+        "security": [{ "firebaseIdToken": [] }],
+        "parameters": [{ "name": "intentId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "File registered." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "404": { "description": "No such intent." }
+        }
+      }
+    },
+    "/api/files/{fileId}/download-url": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Sign a short-lived download URL",
+        "operationId": "createFileDownloadUrl",
+        "security": [{ "firebaseIdToken": [] }],
+        "parameters": [{ "name": "fileId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "200": { "description": "A signed URL." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "404": { "description": "No such file." }
+        }
+      }
+    },
+    "/api/files/{fileId}": {
+      "delete": {
+        "tags": ["crm"],
+        "summary": "Delete a stored file",
+        "operationId": "deleteFile",
+        "security": [{ "firebaseIdToken": [] }],
+        "parameters": [{ "name": "fileId", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": {
+          "204": { "description": "Deleted." },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "404": { "description": "No such file." }
+        }
+      }
+    }
+  }
+}

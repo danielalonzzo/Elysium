@@ -1,0 +1,35 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://elysiumdr.eu/api",
+      "service-desc": [
+        {
+          "href": "https://elysiumdr.eu/openapi.json",
+          "type": "application/openapi+json",
+          "title": "Elysium platform API — OpenAPI 3.1 description"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://elysiumdr.eu/auth.md",
+          "type": "text/markdown",
+          "title": "How agents authenticate against the Elysium platform API"
+        }
+      ],
+      "service-meta": [
+        {
+          "href": "https://elysiumdr.eu/.well-known/oauth-protected-resource",
+          "type": "application/json",
+          "title": "OAuth 2.0 Protected Resource Metadata (RFC 9728)"
+        }
+      ],
+      "status": [
+        {
+          "href": "https://elysiumdr.eu/api/health",
+          "type": "application/json",
+          "title": "Liveness of the Elysium platform service"
+        }
+      ]
+    }
+  ]
+}

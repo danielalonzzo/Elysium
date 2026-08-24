@@ -1,0 +1,22 @@
+{
+  "serverInfo": {
+    "name": "elysiumdr.eu",
+    "title": "Elysium λ Development & Research — site knowledge",
+    "version": "1.0.0",
+    "websiteUrl": "https://elysiumdr.eu"
+  },
+  "description": "Read-only access to the public content of elysiumdr.eu: page listing, full page text as Markdown, and a search over the language-model corpus published at /llms-full.txt.",
+  "transport": {
+    "type": "streamable-http",
+    "endpoint": "https://elysiumdr.eu/mcp"
+  },
+  "capabilities": {
+    "tools": {
+      "listChanged": false
+    }
+  },
+  "authentication": {
+    "required": false
+  },
+  "protocolVersion": "2025-06-18"
+}

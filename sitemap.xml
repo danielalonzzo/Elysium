@@ -151,8 +151,7 @@
   <url><loc>https://elysiumdr.eu/es/research/ontology-research</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
   <url><loc>https://elysiumdr.eu/es/research/data-driven-sme-intelligence</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
 
-  <!-- Landings regionales (hreflang es-ES / es-CR) -->
-  <url><loc>https://elysiumdr.eu/es/infraestructura-digital-pymes-espana</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <!-- Costa Rica permanece dentro de la región europea en español. -->
   <url><loc>https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
   <!-- Portuguese pages -->
@@ -171,9 +170,6 @@
   <url><loc>https://elysiumdr.eu/pt/review-pmorais</loc><lastmod>2026-07-18</lastmod><changefreq>yearly</changefreq><priority>0.6</priority></url>
   <url><loc>https://elysiumdr.eu/pt/research/ontology-research</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
   <url><loc>https://elysiumdr.eu/pt/research/data-driven-sme-intelligence</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
-
-  <!-- Landing regional (hreflang pt-PT) -->
-  <url><loc>https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 
   <!-- AI/LLM Content Files -->
   <url>

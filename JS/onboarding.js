@@ -93,8 +93,46 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeDraftExists = false;
     let pendingUploadCount = 0;
 
-    const fullLang = document.documentElement.lang || 'en';
-    const lang = fullLang.split('-')[0].toLowerCase();
+    const SUPPORTED_RUNTIME_LANGUAGES = new Set(['en', 'es', 'pt']);
+
+    function normalizeRuntimeLanguage(value) {
+        if (typeof value !== 'string') return null;
+        const match = /^(en|es|pt)(?:[-_][a-z]{2})?$/i.exec(value.trim());
+        const normalized = match ? match[1].toLowerCase() : null;
+        return normalized && SUPPORTED_RUNTIME_LANGUAGES.has(normalized) ? normalized : null;
+    }
+
+    function detectRuntimeLanguage(explicitLanguage = null) {
+        const explicit = normalizeRuntimeLanguage(explicitLanguage);
+        if (explicit) return explicit;
+
+        // Once the national i18n engine has applied a language, its body marker
+        // is authoritative even if the one-time hand-off query is still present.
+        const active = normalizeRuntimeLanguage(document.body?.dataset.activeLanguage);
+        if (active) return active;
+
+        const params = new URLSearchParams(window.location.search);
+        const queryLanguage = normalizeRuntimeLanguage(params.get('lang'));
+        if (queryLanguage) return queryLanguage;
+
+        const engineLanguage = normalizeRuntimeLanguage(window.ElysiumI18n?.language);
+        if (engineLanguage) return engineLanguage;
+
+        const hostname = window.location.hostname.toLowerCase();
+        if (hostname === 'elysiumdr.es' || hostname.endsWith('.elysiumdr.es')) return 'es';
+        if (hostname === 'elysiumdr.pt' || hostname.endsWith('.elysiumdr.pt')) return 'pt';
+
+        const localNational = normalizeRuntimeLanguage(params.get('national'));
+        if (localNational === 'es' || localNational === 'pt') return localNational;
+
+        const documentLanguage = normalizeRuntimeLanguage(document.documentElement.lang);
+        if (documentLanguage) return documentLanguage;
+        if (/^\/es(?:\/|$)/.test(window.location.pathname)) return 'es';
+        if (/^\/pt(?:\/|$)/.test(window.location.pathname)) return 'pt';
+        return 'en';
+    }
+
+    let lang = detectRuntimeLanguage();
 
     const i18n = {
         en: {
@@ -113,6 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
             of: 'of',
             planDetected: 'Plan',
             modules: 'modules',
+            stepCategories: [
+                'λ 01 · Organization', 'λ 01 · Operational Telemetry',
+                'λ 01 · Team & Ergonomics', 'λ 02 · Technical Inventory',
+                'λ 02 · Asset Ingestion', 'λ 03–04 · Problem Definition',
+                'λ 07 · Security & RBAC', 'λ 06 · Functional Scope',
+                'λ 06 · Identity & Design', 'λ 08–10 · Operations & Launch',
+                'Submission'
+            ],
             adminSession: 'Guided session',
             adminSessionWith: 'Filling the onboarding with',
             adminProject: 'Project',
@@ -137,6 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
             of: 'de',
             planDetected: 'Plan',
             modules: 'módulos',
+            stepCategories: [
+                'λ 01 · Organización', 'λ 01 · Telemetría Operativa',
+                'λ 01 · Equipo y Ergonomía', 'λ 02 · Inventario Técnico',
+                'λ 02 · Ingesta de Activos', 'λ 03–04 · Definición del Problema',
+                'λ 07 · Seguridad y RBAC', 'λ 06 · Alcance Funcional',
+                'λ 06 · Identidad y Diseño', 'λ 08–10 · Operación y Lanzamiento',
+                'Envío'
+            ],
             adminSession: 'Sesión conjunta',
             adminSessionWith: 'Rellenando el onboarding con',
             adminProject: 'Proyecto',
@@ -161,6 +215,14 @@ document.addEventListener('DOMContentLoaded', () => {
             of: 'de',
             planDetected: 'Plano',
             modules: 'módulos',
+            stepCategories: [
+                'λ 01 · Organização', 'λ 01 · Telemetria Operacional',
+                'λ 01 · Equipa e Ergonomia', 'λ 02 · Inventário Técnico',
+                'λ 02 · Ingestão de Ativos', 'λ 03–04 · Definição do Problema',
+                'λ 07 · Segurança e RBAC', 'λ 06 · Âmbito Funcional',
+                'λ 06 · Identidade e Design', 'λ 08–10 · Operação e Lançamento',
+                'Envio'
+            ],
             adminSession: 'Sessão conjunta',
             adminSessionWith: 'A preencher o onboarding com',
             adminProject: 'Projeto',
@@ -170,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
             adminSending: 'A publicar...'
         }
     };
-    const t = i18n[lang] || i18n.en;
+    let t = i18n[lang] || i18n.en;
 
     // ── Admin session ────────────────────────────────────────────────────────
     // The CRM lives only at the site root: the localized folders have no copy,
@@ -208,8 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
         container.prepend(banner);
 
         // Switching language mid-session must keep the client and the project
-        document.querySelectorAll('.lang-switcher-menu a').forEach(link => {
-            link.href = `${link.getAttribute('href')}${window.location.search}`;
+        document.querySelectorAll('.lang-switcher-menu a, .lang-switcher-menu button').forEach(control => {
+            if (control instanceof HTMLAnchorElement) {
+                control.href = `${control.getAttribute('href')}${window.location.search}`;
+            }
         });
     }
 
@@ -299,6 +363,64 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.onboarding-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
+
+    function refreshRuntimeLanguage(explicitLanguage = null) {
+        lang = detectRuntimeLanguage(explicitLanguage);
+        t = i18n[lang] || i18n.en;
+
+        // data-category is operational state, so the generic DOM translator
+        // deliberately leaves it untouched. Keep the runtime progress label in
+        // the selected language without replacing any form controls.
+        allSteps.forEach((step, index) => {
+            if (t.stepCategories[index]) step.dataset.category = t.stepCategories[index];
+        });
+
+        if (tierNote) {
+            const hasUnavailablePlan = adminMode && memberData
+                && (!planType || !subscriptionAllowsAccess(memberData.subscription));
+            tierNote.textContent = hasUnavailablePlan
+                ? t.adminNoPlan
+                : planType
+                    ? `${t.planDetected}: ${PLAN_LABELS[planType] || planType} — ${visibleSteps.length} ${t.modules}`
+                    : '';
+        }
+
+        const banner = document.getElementById('admin-session-banner');
+        if (banner) {
+            const projectId = currentProjectId();
+            const clientName = memberData?.name || memberData?.company || targetEmail || targetUserId;
+            const badge = banner.querySelector('.admin-session-badge');
+            const who = banner.querySelector('.admin-session-who');
+            const back = banner.querySelector('.admin-session-back');
+            if (badge) badge.textContent = t.adminSession;
+            if (who) {
+                who.textContent = `${t.adminSessionWith} ${clientName}`
+                    + (targetEmail ? ` · ${targetEmail}` : '')
+                    + (projectId ? ` · ${t.adminProject} ${projectId}` : '');
+            }
+            if (back) back.textContent = t.adminBackToCrm;
+        }
+
+        document.querySelectorAll('.upload-done .upload-file-remove, .upload-file-readonly .upload-file-remove')
+            .forEach(button => {
+                button.title = t.excludeFile;
+                button.setAttribute('aria-label', t.excludeFile);
+            });
+
+        if (submitBtn) {
+            submitBtn.textContent = submitBtn.disabled
+                ? (adminMode ? t.adminSending : t.sending)
+                : (adminMode ? t.adminSubmitLabel : t.submitLabel);
+        }
+        updateFormUI(false);
+    }
+
+    document.addEventListener('elysium:languagechange', event => {
+        refreshRuntimeLanguage(event.detail?.language);
+        // National language buttons do not navigate, but changing language must
+        // still checkpoint the current answers just like the physical links do.
+        persistProgress();
+    });
 
     function validateCurrentStep() {
         const activeStep = visibleSteps[currentIndex];
@@ -1193,7 +1315,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleConditionals();
 
     // Language switch: persist before navigating away
-    document.querySelectorAll('.lang-switcher-menu a').forEach(link => {
-        link.addEventListener('click', () => persistProgress());
+    document.querySelectorAll('.lang-switcher-menu a, .lang-switcher-menu button').forEach(control => {
+        control.addEventListener('click', () => persistProgress());
     });
 });

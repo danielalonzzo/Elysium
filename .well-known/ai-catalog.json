@@ -1,0 +1,105 @@
+{
+  "specVersion": "0.1",
+  "host": {
+    "name": "Elysium λ Development & Research",
+    "description": "European digital-infrastructure company and independent software-engineering, IT-consulting and applied-R&D laboratory. Established in Portugal, operating in Costa Rica. Subscription tiers for micro and small businesses, entrepreneurs and startups, with no separate development cost.",
+    "url": "https://elysiumdr.eu",
+    "contact": "info@elysiumdr.eu"
+  },
+  "entries": [
+    {
+      "id": "urn:air:elysiumdr.eu:content:llms",
+      "displayName": "Site index for language models",
+      "description": "Essential facts about the company, the subscription tiers and the published research, plus a linked index of every page in English, Spanish and Portuguese.",
+      "type": "text/plain",
+      "url": "https://elysiumdr.eu/llms.txt",
+      "representativeQueries": [
+        "What does Elysium λ Development & Research do?",
+        "Which pages does elysiumdr.eu have?",
+        "Who is the legal entity behind elysiumdr.eu?"
+      ]
+    },
+    {
+      "id": "urn:air:elysiumdr.eu:content:llms-full",
+      "displayName": "Full site text for language models",
+      "description": "The expanded text of every page — homepage, services, portfolio, research, about, founder profile, contact, terms of service, privacy policy and system information — in English, Spanish and European Portuguese.",
+      "type": "text/plain",
+      "url": "https://elysiumdr.eu/llms-full.txt",
+      "representativeQueries": [
+        "How much does the Ecosystem subscription cost?",
+        "Is online booking included in the Presence tier?",
+        "What does Elysium's privacy policy say about health data?",
+        "What research is Elysium publishing?"
+      ]
+    },
+    {
+      "id": "urn:air:elysiumdr.eu:mcp:site",
+      "displayName": "Elysium site MCP server",
+      "description": "Read-only Model Context Protocol server over the public site: list the published pages, fetch any page as Markdown, and search the language-model corpus. Streamable HTTP at https://elysiumdr.eu/mcp, no authentication.",
+      "type": "application/json",
+      "url": "https://elysiumdr.eu/.well-known/mcp/server-card.json",
+      "representativeQueries": [
+        "Search elysiumdr.eu for its subscription pricing",
+        "Read the Elysium services page as Markdown",
+        "List every page published on elysiumdr.eu"
+      ]
+    },
+    {
+      "id": "urn:air:elysiumdr.eu:api:openapi",
+      "displayName": "Elysium platform API",
+      "description": "OpenAPI 3.1 description of the service behind the site: the public enquiry and password-recovery endpoints, and the administrator-only CRM surface for meetings, mail and files.",
+      "type": "application/openapi+json",
+      "url": "https://elysiumdr.eu/openapi.json",
+      "representativeQueries": [
+        "How do I submit a project enquiry to Elysium programmatically?",
+        "Which Elysium API endpoints need authentication?",
+        "What does POST /api/prospects expect?"
+      ]
+    },
+    {
+      "id": "urn:air:elysiumdr.eu:api:catalog",
+      "displayName": "API catalog",
+      "description": "RFC 9727 catalog of the APIs this origin exposes, linking each one to its description, documentation, metadata and status endpoint.",
+      "type": "application/linkset+json",
+      "url": "https://elysiumdr.eu/.well-known/api-catalog",
+      "representativeQueries": [
+        "Which APIs does elysiumdr.eu publish?",
+        "Where is the OpenAPI document for elysiumdr.eu?"
+      ]
+    },
+    {
+      "id": "urn:air:elysiumdr.eu:auth:protected-resource",
+      "displayName": "API authentication metadata",
+      "description": "RFC 9728 protected-resource metadata. The authenticated API accepts Firebase Authentication ID tokens issued by https://securetoken.google.com/elysiumdr-eu; there is no self-service registration.",
+      "type": "application/json",
+      "url": "https://elysiumdr.eu/.well-known/oauth-protected-resource",
+      "representativeQueries": [
+        "How does an agent authenticate against the Elysium API?",
+        "Can an agent register an account with Elysium?"
+      ]
+    },
+    {
+      "id": "urn:air:elysiumdr.eu:skills:index",
+      "displayName": "Agent skills",
+      "description": "Discovery index for the two skills this site publishes: answering questions about the company and its subscription tiers, and handing over a project enquiry on someone's behalf.",
+      "type": "application/json",
+      "url": "https://elysiumdr.eu/.well-known/agent-skills/index.json",
+      "representativeQueries": [
+        "Does elysiumdr.eu publish any agent skills?",
+        "How should an agent talk about Elysium's pricing?",
+        "How does an agent contact Elysium on my behalf?"
+      ]
+    },
+    {
+      "id": "urn:air:elysiumdr.eu:content:sitemap",
+      "displayName": "Sitemap",
+      "description": "Every canonical URL of the site, in the three languages. Public URLs carry no .html extension.",
+      "type": "application/xml",
+      "url": "https://elysiumdr.eu/sitemap.xml",
+      "representativeQueries": [
+        "List the canonical URLs of elysiumdr.eu",
+        "Where is the Spanish version of the Elysium services page?"
+      ]
+    }
+  ]
+}

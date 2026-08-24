@@ -53,22 +53,96 @@ const PLANS = {
 
 const pathParts = window.location.pathname.split('/').filter(Boolean);
 const supportedLanguages = new Set(['en', 'es', 'pt']);
-const LANGUAGE_LOCALES = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' };
-const requestedLanguage = new URLSearchParams(window.location.search).get('lang');
-const pathLanguage = supportedLanguages.has(pathParts[0]) ? pathParts[0] : null;
-const storedLanguage = localStorage.getItem('elysium_lang');
-let currentLang = supportedLanguages.has(requestedLanguage)
+const languageParams = new URLSearchParams(window.location.search);
+const currentHostname = window.location.hostname.toLowerCase();
+const localNationalLanguage = ['localhost', '127.0.0.1', '::1'].includes(currentHostname)
+    && supportedLanguages.has(languageParams.get('national'))
+    && languageParams.get('national') !== 'en'
+    ? languageParams.get('national')
+    : null;
+const nationalLanguage = currentHostname === 'elysiumdr.es' || currentHostname === 'www.elysiumdr.es'
+    ? 'es'
+    : currentHostname === 'elysiumdr.pt' || currentHostname === 'www.elysiumdr.pt'
+        ? 'pt'
+        : localNationalLanguage;
+const isNationalDomain = Boolean(nationalLanguage);
+const currentRegion = nationalLanguage === 'es' ? 'ES' : nationalLanguage === 'pt' ? 'PT' : 'EU';
+const SHARED_LANGUAGE_STORAGE_KEY = 'elysium_lang_pref';
+const LEGACY_LANGUAGE_STORAGE_KEY = 'elysium_lang';
+const QUERY_OVERRIDE_KEY_PREFIX = 'elysium_portal_lang_query_override:';
+
+function queryLanguageOverrideKey(language) {
+    return `${QUERY_OVERRIDE_KEY_PREFIX}${window.location.pathname}${window.location.search}:${language}`;
+}
+
+function isQueryLanguageSuperseded(language) {
+    if (!supportedLanguages.has(language)) return false;
+    try {
+        const replacement = sessionStorage.getItem(queryLanguageOverrideKey(language));
+        return supportedLanguages.has(replacement) && replacement !== language;
+    } catch (error) {
+        return false;
+    }
+}
+
+function readStoredLanguage() {
+    try {
+        const sharedLanguage = localStorage.getItem(SHARED_LANGUAGE_STORAGE_KEY);
+        if (supportedLanguages.has(sharedLanguage)) return sharedLanguage;
+
+        const legacyLanguage = localStorage.getItem(LEGACY_LANGUAGE_STORAGE_KEY);
+        if (supportedLanguages.has(legacyLanguage)) {
+            localStorage.setItem(SHARED_LANGUAGE_STORAGE_KEY, legacyLanguage);
+            return legacyLanguage;
+        }
+    } catch (error) {
+        // Private browsing can disable storage. The host-native fallback remains valid.
+    }
+    return null;
+}
+
+function persistLanguage(language) {
+    try {
+        localStorage.setItem(SHARED_LANGUAGE_STORAGE_KEY, language);
+        // Keep older portal builds interoperable during the migration.
+        localStorage.setItem(LEGACY_LANGUAGE_STORAGE_KEY, language);
+    } catch (error) {
+        // Language switching is still fully functional without persistence.
+    }
+
+    if (!isNationalDomain || !supportedLanguages.has(requestedLanguage)) return;
+    try {
+        const key = queryLanguageOverrideKey(requestedLanguage);
+        if (language === requestedLanguage) sessionStorage.removeItem(key);
+        else sessionStorage.setItem(key, language);
+    } catch (error) {
+        // The current document remains translated even when session storage is unavailable.
+    }
+}
+
+function localeForLanguage(language) {
+    if (language === 'es') return isNationalDomain ? 'es-ES' : 'es-CR';
+    if (language === 'pt') return 'pt-PT';
+    return 'en-GB';
+}
+
+const requestedLanguage = languageParams.get('lang');
+const pathLanguage = !isNationalDomain && supportedLanguages.has(pathParts[0]) ? pathParts[0] : null;
+const storedLanguage = readStoredLanguage();
+let currentLang = supportedLanguages.has(requestedLanguage) && !isQueryLanguageSuperseded(requestedLanguage)
     ? requestedLanguage
-    : pathLanguage || (supportedLanguages.has(storedLanguage) ? storedLanguage : 'en');
-let locale = LANGUAGE_LOCALES[currentLang];
+    : pathLanguage || storedLanguage || nationalLanguage || 'en';
+let locale = localeForLanguage(currentLang);
 
 function localizedPath(path = '', language = currentLang) {
     const clean = String(path || '').replace(/^\/+|\/+$/g, '');
     const base = clean ? `/${clean}` : '/';
+    if (isNationalDomain) return base;
     return language === 'en' ? base : `/${language}${base}`;
 }
 
 function localizedProfilePath(language = currentLang) {
+    if (isNationalDomain) return '/profiles';
     return language === 'en' ? '/profiles' : `/profiles?lang=${language}`;
 }
 
@@ -304,13 +378,109 @@ const COPY = {
 };
 let t = COPY[currentLang];
 
+const LANGUAGE_FLAGS = {
+    en: { src: '/Images/Optimized/flag-eu-64.webp', alt: 'EU' },
+    es: {
+        src: isNationalDomain
+            ? '/Images/Optimized/flag-es-64.webp'
+            : '/Images/Optimized/flag-cr-64.webp',
+        alt: isNationalDomain ? 'ES' : 'CR'
+    },
+    pt: { src: '/Images/Optimized/flag-pt-64.webp', alt: 'PT' }
+};
+
+const REGION_COPY = {
+    en: {
+        select: 'Select region',
+        labels: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA' },
+        location: { EU: 'Europe', ES: 'Spain, European Union', PT: 'Portugal, European Union' }
+    },
+    es: {
+        select: 'Seleccionar región',
+        labels: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA' },
+        location: { EU: 'Europa', ES: 'España, Unión Europea', PT: 'Portugal, Unión Europea' }
+    },
+    pt: {
+        select: 'Selecionar região',
+        labels: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA' },
+        location: { EU: 'Europa', ES: 'Espanha, União Europeia', PT: 'Portugal, União Europeia' }
+    }
+};
+
+function updateLanguageChrome() {
+    document.querySelectorAll('.lang-current-label').forEach(label => {
+        label.textContent = currentLang.toUpperCase();
+    });
+
+    document.querySelectorAll('.lang-switcher-trigger').forEach(trigger => {
+        const flag = trigger.querySelector('img.flag-icon, img');
+        const presentation = LANGUAGE_FLAGS[currentLang];
+        if (!flag || !presentation) return;
+        flag.src = presentation.src;
+        flag.alt = presentation.alt;
+    });
+
+    document.querySelectorAll('.lang-switcher-menu [data-lang], .admin-lang-switch [data-lang]').forEach(option => {
+        const optionLanguage = option.dataset.lang;
+        const active = optionLanguage === currentLang;
+        option.classList.toggle('active', active);
+        option.setAttribute('aria-pressed', String(active));
+        if (active) option.setAttribute('aria-current', 'true');
+        else option.removeAttribute('aria-current');
+
+        const flag = option.querySelector('img.flag-icon, img');
+        const presentation = LANGUAGE_FLAGS[optionLanguage];
+        if (flag && presentation) {
+            flag.src = presentation.src;
+            flag.alt = presentation.alt;
+        }
+    });
+}
+
+function updateRegionChrome() {
+    const copy = REGION_COPY[currentLang] || REGION_COPY.en;
+    document.querySelectorAll('.region-switcher-dropdown').forEach(dropdown => {
+        const trigger = dropdown.querySelector('.region-switcher-trigger');
+        const tag = dropdown.querySelector('.region-tag');
+        if (trigger) trigger.setAttribute('aria-label', copy.select);
+        if (tag) tag.textContent = copy.labels[currentRegion];
+
+        dropdown.querySelectorAll('.region-item').forEach(item => {
+            const region = (item.dataset.region || '').toUpperCase();
+            const label = copy.labels[region];
+            if (!label) return;
+            const active = region === currentRegion;
+            item.classList.toggle('active', active);
+            item.replaceChildren();
+            if (active) {
+                const indicator = document.createElement('span');
+                indicator.className = 'region-indicator';
+                indicator.setAttribute('aria-hidden', 'true');
+                indicator.textContent = '●';
+                item.append(indicator, document.createTextNode(' '));
+                item.setAttribute('aria-current', 'true');
+            } else {
+                item.removeAttribute('aria-current');
+            }
+            item.append(document.createTextNode(label));
+        });
+    });
+
+    const footerLocation = copy.location[currentRegion];
+    if (footerLocation) {
+        document.querySelectorAll('[data-i18n="footerLocation"]').forEach(element => {
+            element.textContent = footerLocation;
+        });
+    }
+}
+
 window.changeLanguage = function(newLang, { updateUrl = true } = {}) {
     if (!supportedLanguages.has(newLang)) return;
     currentLang = newLang;
-    localStorage.setItem('elysium_lang', newLang);
-    locale = LANGUAGE_LOCALES[currentLang];
+    persistLanguage(newLang);
+    locale = localeForLanguage(currentLang);
     t = COPY[currentLang];
-    document.documentElement.lang = currentLang;
+    document.documentElement.lang = locale;
     document.title = t.accountTitle;
 
     document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -331,16 +501,11 @@ window.changeLanguage = function(newLang, { updateUrl = true } = {}) {
         if (value) element.setAttribute('aria-label', value);
     });
 
-    document.querySelectorAll('.lang-select').forEach(btn => {
-        btn.setAttribute('aria-pressed', String(btn.dataset.lang === currentLang));
-    });
-
-    document.querySelectorAll('.lang-current-label').forEach(label => {
-        label.textContent = currentLang.toUpperCase();
-    });
+    updateLanguageChrome();
+    updateRegionChrome();
     updateLocalizedLinks();
 
-    if (updateUrl && /(?:^|\/)profiles\/?$/.test(window.location.pathname)) {
+    if (updateUrl && !isNationalDomain && /(?:^|\/)profiles\/?$/.test(window.location.pathname)) {
         const url = new URL(window.location.href);
         url.pathname = '/profiles';
         if (currentLang === 'en') url.searchParams.delete('lang');

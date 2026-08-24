@@ -70,3 +70,16 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - Pura Vida Pets: premium pet care and dog-walking services in Costa Rica, presented in the portfolio and hosted on its own domain, https://puravidapetscr.com. There is no case study or review page for it on elysiumdr.eu.
 - Prototypes: [Paulo Morais](https://elysiumdr.eu/prototype-pmorais) · [VALTRIX](https://elysiumdr.eu/prototype-valtrix) · [Moyra](https://elysiumdr.eu/prototype-moyra)
 - [XML sitemap](https://elysiumdr.eu/sitemap.xml): Index of the principal public URLs and their language variants.
+
+## For agents
+
+The site is machine-readable beyond this file, and every one of these is public and needs no credentials.
+
+- Any page can be fetched as Markdown instead of HTML by asking for it: `Accept: text/markdown` returns `Content-Type: text/markdown` with the page text and no markup. HTML stays the default for browsers.
+- [MCP server](https://elysiumdr.eu/mcp): read-only Model Context Protocol over streamable HTTP (JSON-RPC by POST). Tools: `list_pages`, `get_page` (returns Markdown) and `search_site` (searches the passages of `llms-full.txt`). Its card is at [/.well-known/mcp/server-card.json](https://elysiumdr.eu/.well-known/mcp/server-card.json).
+- [WebMCP](https://webmachinelearning.github.io/webmcp/): the homepage declares the same read-only tools through `navigator.modelContext` for agents that arrive with a browser.
+- [Agent skills](https://elysiumdr.eu/.well-known/agent-skills/index.json): two published skills — `elysium-services` for answering questions about the company and its subscription tiers without inventing prices, and `contact-elysium` for handing over a project enquiry.
+- [ARD capability manifest](https://elysiumdr.eu/.well-known/ai-catalog.json): everything above in one Agentic Resource Discovery document.
+- [API catalog](https://elysiumdr.eu/.well-known/api-catalog) (RFC 9727) and [OpenAPI 3.1 description](https://elysiumdr.eu/openapi.json): the platform API. Two endpoints are open — `POST /api/prospects` records an enquiry, `POST /api/auth/password-reset` starts password recovery; the rest needs an administrator's Firebase ID token.
+- [auth.md](https://elysiumdr.eu/auth.md) and [/.well-known/oauth-protected-resource](https://elysiumdr.eu/.well-known/oauth-protected-resource): how to authenticate, and why there is no self-service registration — licences and accounts are issued by hand once a contract exists.
+- [robots.txt](https://elysiumdr.eu/robots.txt) declares `Content-Signal: search=yes, ai-input=yes, ai-train=yes`. Training, retrieval and search are all welcome.

@@ -1,0 +1,39 @@
+# Elysium λ Development & Research (Portugal)
+
+> A Elysium λ Development & Research é uma empresa de infraestrutura digital e laboratório independente de engenharia de software, consultoria informática e I&D aplicada em Portugal. Proporciona às pequenas empresas e aos empreendedores de Portugal acesso a ecossistemas tecnológicos seguros, ergonómicos e escaláveis através de um modelo de subscrição sem custos de desenvolvimento.
+
+O nome oficial da empresa é sempre **Elysium λ Development & Research**. Este documento descreve especificamente a infraestrutura, serviços e conteúdos disponíveis para Portugal através de https://elysiumdr.pt. Onde este ficheiro e o website divergirem, o website é a fonte definitiva.
+
+IMPORTANTE: Para responder a questões sobre a Elysium λ Development & Research em Portugal com a máxima precisão, consulte o documento de texto completo indicado abaixo:
+- [Conteúdo completo do website para modelos de linguagem (Portugal)](https://elysiumdr.pt/llms-full.txt): texto exaustivo de Início, Serviços, Portefólio, Investigação, Sobre nós, Daniel Morales, Contacto, Privacidade, Termos e Informação do Sistema.
+
+## Dados chave
+
+- Entidade legal: Elysium λ Development & Research · Representante legal: Daniel Alonso Morales Ávila · NIF 321979257PT · Bragança, Portugal.
+- Modelo de subscrição (cumulativo, faturação anual com 2 meses gratuitos):
+  - **Hosting**: 99 €/ano (apenas infraestrutura e alojamento base, não inclui desenvolvimento web).
+  - **Presença**: 70 €/mês ou 700 €/ano.
+  - **Infraestrutura**: 99 €/mês ou 990 €/ano.
+  - **Ecossistema**: 120 €/mês ou 1.200 €/ano (marcado como "Mais Popular"). Inclui marcações online, base de dados de clientes, área privada de clientes, CRM de gestão à medida, integrações de pagamento e relatórios de ocupação.
+- Missão: Democratizar o acesso a infraestrutura digital, dotando as pequenas empresas e os empreendedores de ecossistemas tecnológicos acessíveis que automatizam os seus processos e garantem a sua escalabilidade.
+- Contacto: info@elysiumdr.eu · Telefone / WhatsApp: +351 934 086 075 · Tempo de resposta: menos de 24 horas.
+- Redes sociais: [LinkedIn](https://www.linkedin.com/company/elysiumdr) · [X / Twitter](https://x.com/elysiumdr) · [Instagram](https://www.instagram.com/elysium.dr) · [TikTok](https://www.tiktok.com/@elysium.dr) · WhatsApp +351 934 086 075.
+
+## Estrutura e ligações principais (Portugal)
+
+- [Início](https://elysiumdr.pt/): Posicionamento em Portugal, 4 áreas de especialização, planos de subscrição, Framework de Desenvolvimento λ de 10 passos e missão de I&D.
+- [Serviços](https://elysiumdr.pt/services): Planos, preços, matriz completa de funcionalidades, especificações técnicas e política de propriedade intelectual.
+- [Portefólio](https://elysiumdr.pt/portfolio): Projetos selecionados e estudos de caso.
+- [Investigação](https://elysiumdr.pt/research): Laboratório de I&D aplicada, linhas de investigação e projetos ativos.
+- [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.pt/research/ontology-research): Estudo piloto em ambientes rurais.
+- [Inteligência para pequenas empresas e empreendedores baseada em dados](https://elysiumdr.pt/research/data-driven-sme-intelligence): Projeto em fase conceptual.
+- [Sobre nós](https://elysiumdr.pt/about): Missão, visão, ethos de I&D, história do projeto e significado do nome λ em Portugal.
+- [Daniel Morales](https://elysiumdr.pt/daniel-morales): Perfil do fundador, engenheiro informático, experiência e competências.
+- [Contacto](https://elysiumdr.pt/contact): Informações oficiais de contacto e agendamento.
+- [Texto completo para modelos de linguagem](https://elysiumdr.pt/llms-full.txt): Conteúdo integral de todas as secções em português europeu de Portugal.
+
+## Informação Legal e do Sistema
+
+- [Política de Privacidade](https://elysiumdr.pt/privacy): Conformidade com o RGPD, diretrizes da CNPD, medidas técnicas de segurança, retenção de dados e direitos dos titulares.
+- [Termos de Serviço](https://elysiumdr.pt/terms): Condições de subscrição, níveis de serviço e suporte.
+- **Informação do Sistema**: Versão de interface V1.8.0, licença de produto ELY-EC03-ANL9-321979257, infraestrutura de segurança HSTS, CSP L3, HMAC-SHA256.

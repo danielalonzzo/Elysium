@@ -1,0 +1,143 @@
+================================================================================
+ELYSIUM λ DEVELOPMENT & RESEARCH — CONTEÚDO COMPLETO PARA MODELOS DE IA (PORTUGAL)
+https://elysiumdr.pt | info@elysiumdr.eu
+Última verificação com o website: 21 de agosto de 2026
+Versão da interface no momento da verificação: V1.8.0
+Idioma: Português (Português Europeu de Portugal)
+================================================================================
+
+Este ficheiro contém uma representação textual expandida, estruturada e exaustiva do conteúdo público disponível em elysiumdr.pt para processamento por sistemas de inteligência artificial e modelos de linguagem (LLMs). É disponibilizado ao abrigo do padrão llms.txt para permitir respostas rigorosas, verdadeiras e atualizadas sobre a Elysium λ Development & Research no mercado português. O website publicado constitui a fonte primária: em caso de discrepância entre este ficheiro e o website em direto, prevalece sempre o website.
+
+O nome oficial da organização é invariavelmente "Elysium λ Development & Research".
+
+================================================================================
+SECÇÃO 1 — PÁGINA INICIAL (INÍCIO)
+================================================================================
+URL: https://elysiumdr.pt/
+
+Título: Elysium λ Development & Research
+Hero: Infraestrutura Digital para pequenas empresas e startups de Portugal: Sem Custos de Desenvolvimento
+
+Descrição Geral:
+Infraestrutura digital por subscrição para pequenas empresas e empreendedores em Portugal: sistemas cloud, CRM à medida, cibersegurança e I&D aplicada, sem custos de desenvolvimento.
+
+PERFIL DA ORGANIZAÇÃO:
+A Elysium λ Development & Research é uma empresa de infraestrutura digital e um laboratório independente de engenharia de software, consultoria informática e I&D aplicada estabelecido em Portugal. A sua atividade foca-se em capacitar as pequenas empresas e os empreendedores de Portugal com ecossistemas tecnológicos modernos, ergonómicos, seguros e escaláveis.
+
+MODELO OPERACIONAL (SEM CUSTOS DE DESENVOLVIMENTO):
+A infraestrutura digital está totalmente incluída numa subscrição mensal. A Elysium assume integralmente o investimento inicial em desenvolvimento e engenharia de software, permitindo que a plataforma web, a infraestrutura na nuvem, o sistema de gestão interno (CRM) e os protocolos de segurança de cada cliente evoluam de forma contínua com as necessidades operacionais da empresa.
+
+ÁREAS DE ESPECIALIZAÇÃO (COMPETÊNCIAS NUCLEARES):
+
+1. Conceção de interfaces ergonómicas adaptadas ao comportamento dos portugueses:
+   - Plataformas otimizadas que respondem instantaneamente.
+   - Transformação de fluxos de trabalho complexos (marcação de consultas, processos de registo e formulários longos) em etapas intuitivas, reduzindo a fadiga cognitiva e minimizando erros humanos.
+   - Acessibilidade em qualquer dispositivo: interfaces legíveis e plenamente funcionais em telemóvel, tablet e computador.
+
+2. Desenvolvimento de infraestrutura digital na nuvem e bases de dados:
+   - Tecnologia cloud de alta disponibilidade que se ajusta automaticamente ao volume de visitas.
+   - Sincronização imediata de dados entre todos os membros autorizados da equipa.
+   - Integração com o ecossistema existente (gateways de pagamento, calendários corporativos, serviços externos).
+
+3. Programação de infraestruturas de gestão (CRM) à medida:
+   - Criação de software de raiz adaptado exatamente às regras de negócio, gestão financeira e faturação do projeto.
+   - Automatização de processos diários repetitivos para libertar tempo de trabalho manual.
+   - Controlo total num único painel: centralização e atualização contínua dos dados essenciais para a equipa autorizada.
+
+4. Implementação dos mais elevados padrões de cibersegurança e governação em Portugal:
+   - Aplicação de padrões rigorosos de segurança e encriptação na proteção de dados.
+   - Controlo de acesso estrito e validação de níveis de autorização.
+   - Conformidade estrita com o Regulamento Geral sobre a Proteção de Dados (RGPD) e as diretrizes da Comissão Nacional de Proteção de Dados (CNPD).
+
+OPÇÕES DE SUBSCRIÇÃO (PLANOS DISPONÍVEIS EM PORTUGAL):
+- Plano Presença: 70 €/mês ou 700 €/ano (faturação anual com 2 meses gratuitos). Inclui identidade digital, design ergonómico, alojamento de alta velocidade, SEO e manutenção base.
+- Plano Infraestrutura: 99 €/mês ou 990 €/ano. Acrescenta base de dados na nuvem, sincronização multi-utilizador e painéis operacionais.
+- Plano Ecossistema: 120 €/mês ou 1.200 €/ano (marcado como "Mais Popular"). Disponibiliza o ecossistema integral: marcações online, base de dados de clientes, área de cliente privada, CRM administrativo à medida, gestão de pagamentos e relatórios operacionais.
+- Hosting Independente: 99 €/ano (faturação anual). Alojamento e manutenção base para plataformas já existentes; não inclui desenvolvimento web.
+
+TECNOLOGIAS E FERRAMENTAS UTILIZADAS:
+Antigravity, GitHub, HTML5, CSS3, JavaScript, Cloudflare Workers, IONOS, Python, Firebase, Git, NPM, Node.js, cPanel.
+
+FRAMEWORK DE DESENVOLVIMENTO λ — METODOLOGIA CIENTÍFICA EM 10 ETAPAS:
+1. Ambiente Operacional Atual: Análise aprofundada dos fluxos de dados, processos diários e contexto do setor.
+2. Estado da Arte e Limitações: Levantamento da infraestrutura técnica existente.
+3. Variáveis Críticas: Identificação de estrangulamentos manuais e vulnerabilidades operacionais.
+4. Definição do Problema: Formulação exata da ineficiência que a nova infraestrutura deve resolver.
+5. Impacto: Definição de metas de redução de riscos, fiabilidade e retenção de contactos.
+6. Arquitetura: Desenho do ecossistema tecnológico (SaaS, CRM à medida ou reestruturação de plataforma).
+7. Seleção de Tecnologias: Escolha de protocolos de segurança, bases de dados e serviços cloud.
+8. Design, Desenvolvimento e Base de Dados: Engenharia e implementação do ecossistema.
+9. Controlo de Qualidade e Auditoria: Testes de desempenho, verificação de acessos e auditoria de conformidade RGPD.
+10. Entrega e Formação: Lançamento em produção, sincronização final de dados e formação à equipa do cliente.
+
+INVESTIGAÇÃO E DESENVOLVIMENTO (I&D):
+A Elysium λ Development & Research opera como um laboratório independente de engenharia, investigação e consultoria informática em Portugal. O seu propósito é democratizar o acesso a infraestruturas digitais de alto nível, permitindo às pequenas empresas e aos empreendedores escalar as suas operações através de um ecossistema tecnológico. Não constrói simples interfaces; combina pensamento científico, design ergonómico e experimentação contínua para entregar software que resolve ineficiências estruturais.
+
+DECLARAÇÃO DE MISSÃO:
+"Democratizar o acesso a infraestrutura digital, dotando as pequenas empresas e os empreendedores de ecossistemas tecnológicos acessíveis que automatizam os seus processos e garantem a sua escalabilidade."
+
+EQUIPA E CONTACTO EM PORTUGAL:
+- Fundador e Engenheiro Principal: Daniel Alonso Morales Ávila, Engenheiro Informático.
+- Correio eletrónico oficial: info@elysiumdr.eu
+- Telefone / WhatsApp: +351 934 086 075
+- Tempo de resposta: Menos de 24 horas úteis.
+
+================================================================================
+SECÇÃO 2 — PÁGINA SOBRE NÓS (ABOUT)
+================================================================================
+URL: https://elysiumdr.pt/about
+
+Título: Sobre Nós — Elysium λ Development & Research
+Ethos: Development & Research
+
+MISSÃO:
+Democratizar o acesso a infraestrutura digital, dotando as pequenas empresas e os empreendedores de ecossistemas tecnológicos acessíveis que automatizam os seus processos e garantem a sua escalabilidade. A nossa missão é proporcionar aos negócios portugueses a oportunidade de ter uma infraestrutura que evolui com as suas operações.
+
+VISÃO:
+Ser o Elysium λ Institute of Development & Research, um instituto dedicado ao estudo, desenvolvimento e aplicação de Infraestruturas Digitais, bem como à formação de novas gerações de cientistas e desenvolvedores. A nossa visão é contribuir ativamente para a construção de um Portugal digital e inovador que avança rumo à modernidade.
+
+ETHOS DE I&D:
+"O nosso trabalho é guiado pela convicção de que a infraestrutura digital deve ser acessível, transparente e centrada em I&D."
+
+HISTÓRIA E SIGNIFICADO DA ELYSIUM λ:
+A empresa foi fundada com um propósito inequívoco: trabalhar de mãos dadas com as pequenas empresas e empreendedores em Portugal para impulsionar a sua presença digital e assegurar o acesso a infraestruturas que viabilizem o crescimento do negócio. As pequenas empresas representam a espinha dorsal da economia portuguesa; contudo, muitas permanecem excluídas da transformação digital por barreiras de custo e complexidade. A Elysium elimina essas barreiras através de I&D aplicado.
+
+- **Elysium** provém do grego antigo Ἠλύσιον: o espaço destinado às almas nobres que cultivaram a justiça e a harmonia. Inspira-se igualmente no poema 'An die Freude' (Ode à Alegria) de Friedrich Schiller e na Nona Sinfonia de Beethoven.
+- O símbolo **λ (lambda)** é a 11.ª letra do alfabeto grego e traduz a abstração de conceitos em sistemas computacionais funcionais.
+- A **Elysium λ** simboliza a aspiração de contribuir ativamente para um Portugal inovador, tecnológico e competitivo.
+
+ONDE ESTAMOS:
+A Elysium λ Development & Research é uma empresa estabelecida em Portugal, sediada em Bragança, servindo pequenas empresas e empreendedores em todo o país com tecnologia de ponta e investigação acessível.
+
+================================================================================
+SECÇÃO 3 — SERVIÇOS E PROPRIEDADE INTELECTUAL
+================================================================================
+URL: https://elysiumdr.pt/services
+
+POLÍTICA DE PROPRIEDADE INTELECTUAL E DADOS:
+- O cliente retém integralmente e em qualquer momento a titularidade dos seus dados operacionais, ficheiros de clientes, conteúdos, logótipos e identidade de marca.
+- O código-fonte, módulos proprietários e arquitetura de software são licenciados em regime de utilização exclusiva durante o período da subscrição.
+- Em caso de cessação do serviço, é garantida a exportação completa e estruturada de todos os dados do cliente em formatos abertos e interoperáveis.
+
+================================================================================
+SECÇÃO 4 — CASOS DE ESTUDO E PORTEFÓLIO
+================================================================================
+URL: https://elysiumdr.pt/portfolio
+
+Projetos de referência:
+1. Paulo Morais (https://pmorais.pt): Plataforma integral de osteopatia e treino especializado com agendamentos automáticos, fichas de utente, área privada e painel de gestão.
+2. VALTRIX Engineering (https://elysiumdr.eu/VALTRIX%20Engineering/): Ecossistema digital para engenharia industrial e melhoria contínua de processos.
+3. Moyra (https://moyracr.com): Plataforma para atelier gastronómico com pedidos e catálogo digital.
+4. Pura Vida Pets (https://puravidapetscr.com): Plataforma especializada em serviços de bem-estar animal.
+
+================================================================================
+SECÇÃO 5 — SEGURANÇA, PRIVACIDADE E ESPECIFICAÇÕES TÉCNICAS
+================================================================================
+URL: https://elysiumdr.pt/privacy | https://elysiumdr.pt/terms
+
+ESPECIFICAÇÕES DO SISTEMA:
+- Versão da Interface: V1.8.0
+- Licença de Produto: ELY-EC03-ANL9-321979257
+- Diretiva de Privacidade: Diretiva ePrivacy · Gestão de Consentimento de Cookies v1.0
+- Infraestrutura de Segurança: Encriptação HSTS estrita, Content Security Policy L3 (CSP L3), autenticação HMAC-SHA256, Cloudflare Edge Network.
+- Enquadramento Legal: Conformidade rigorosa com o Regulamento Geral sobre a Proteção de Dados (RGPD UE 2016/679) e a legislação nacional aplicável em Portugal (CNPD).

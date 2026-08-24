@@ -1785,14 +1785,73 @@ const AGENDA_COPY = {
 };
 
 const supportedAdminLanguages = new Set(['en', 'es', 'pt']);
-const requestedAdminLanguage = new URLSearchParams(window.location.search).get('lang');
-const adminPathLanguage = window.location.pathname.split('/').filter(Boolean)[0];
-const storedAdminLanguage = localStorage.getItem('elysium_lang');
-let currentLang = supportedAdminLanguages.has(requestedAdminLanguage)
+const adminLanguageParams = new URLSearchParams(window.location.search);
+const requestedAdminLanguage = adminLanguageParams.get('lang');
+const adminHostname = window.location.hostname.toLowerCase();
+const localAdminNationalLanguage = ['localhost', '127.0.0.1', '::1'].includes(adminHostname)
+    && supportedAdminLanguages.has(adminLanguageParams.get('national'))
+    && adminLanguageParams.get('national') !== 'en'
+    ? adminLanguageParams.get('national')
+    : null;
+const nativeAdminLanguage = adminHostname === 'elysiumdr.es' || adminHostname === 'www.elysiumdr.es'
+    ? 'es'
+    : adminHostname === 'elysiumdr.pt' || adminHostname === 'www.elysiumdr.pt'
+        ? 'pt'
+        : localAdminNationalLanguage;
+const isNationalAdmin = Boolean(nativeAdminLanguage);
+const adminPathLanguage = !isNationalAdmin
+    ? window.location.pathname.split('/').filter(Boolean)[0]
+    : null;
+const ADMIN_LANGUAGE_STORAGE_KEY = 'elysium_lang_pref';
+const ADMIN_LEGACY_LANGUAGE_STORAGE_KEY = 'elysium_lang';
+const ADMIN_QUERY_OVERRIDE_KEY = `elysium_admin_lang_query_override:${window.location.pathname}${window.location.search}:${requestedAdminLanguage || ''}`;
+
+function readStoredAdminLanguage() {
+    try {
+        const sharedLanguage = localStorage.getItem(ADMIN_LANGUAGE_STORAGE_KEY);
+        if (supportedAdminLanguages.has(sharedLanguage)) return sharedLanguage;
+        const legacyLanguage = localStorage.getItem(ADMIN_LEGACY_LANGUAGE_STORAGE_KEY);
+        if (supportedAdminLanguages.has(legacyLanguage)) {
+            localStorage.setItem(ADMIN_LANGUAGE_STORAGE_KEY, legacyLanguage);
+            return legacyLanguage;
+        }
+    } catch {
+        // Storage can be unavailable in strict/private browsing modes.
+    }
+    return null;
+}
+
+function isAdminQueryLanguageSuperseded() {
+    if (!isNationalAdmin || !supportedAdminLanguages.has(requestedAdminLanguage)) return false;
+    try {
+        const replacement = sessionStorage.getItem(ADMIN_QUERY_OVERRIDE_KEY);
+        return supportedAdminLanguages.has(replacement) && replacement !== requestedAdminLanguage;
+    } catch {
+        return false;
+    }
+}
+
+function persistAdminLanguage(language) {
+    try {
+        localStorage.setItem(ADMIN_LANGUAGE_STORAGE_KEY, language);
+        localStorage.setItem(ADMIN_LEGACY_LANGUAGE_STORAGE_KEY, language);
+        if (isNationalAdmin && supportedAdminLanguages.has(requestedAdminLanguage)) {
+            if (language === requestedAdminLanguage) sessionStorage.removeItem(ADMIN_QUERY_OVERRIDE_KEY);
+            else sessionStorage.setItem(ADMIN_QUERY_OVERRIDE_KEY, language);
+        }
+    } catch {
+        // The current dashboard still changes language without persistence.
+    }
+}
+
+const storedAdminLanguage = readStoredAdminLanguage();
+let currentLang = supportedAdminLanguages.has(requestedAdminLanguage) && !isAdminQueryLanguageSuperseded()
     ? requestedAdminLanguage
     : supportedAdminLanguages.has(adminPathLanguage)
         ? adminPathLanguage
-        : supportedAdminLanguages.has(storedAdminLanguage) ? storedAdminLanguage : 'en';
+        : supportedAdminLanguages.has(storedAdminLanguage)
+            ? storedAdminLanguage
+            : nativeAdminLanguage || 'en';
 
 function agendaCopy() {
     return AGENDA_COPY[currentLang] || AGENDA_COPY.en;
@@ -2841,8 +2900,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const lang = e.currentTarget.dataset.lang;
             currentLang = lang;
-            localStorage.setItem('elysium_lang', lang);
-            localStorage.setItem('langOverride', 'true');
+            persistAdminLanguage(lang);
+            try { localStorage.setItem('langOverride', 'true'); } catch {}
             applyTranslations();
 
             // Reload current section views to apply translations to dynamic content
@@ -2935,9 +2994,13 @@ function navigateTo(target, { push = true } = {}) {
 function applyTranslations() {
     const t = translations[currentLang];
 
+    document.documentElement.lang = currentLang === 'es'
+        ? (isNationalAdmin ? 'es-ES' : 'es-CR')
+        : currentLang === 'pt' ? 'pt-PT' : 'en-GB';
+
     // Brand links back to the localized index
     document.querySelectorAll('.portal-brand').forEach(link => {
-        link.href = currentLang === 'en' ? './' : `${currentLang}/`;
+        link.href = isNationalAdmin || currentLang === 'en' ? '/' : `/${currentLang}/`;
     });
 
     // Segmented language switch in the sidebar footer

@@ -74,6 +74,13 @@
     </style>
 
     <meta name="robots" content="noindex, nofollow">
+
+    <link rel="canonical" href="https://elysiumdr.eu/pt/thank-you">
+    <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/thank-you">
+    <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.eu/es/thank-you">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.eu/pt/thank-you">
+    <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/thank-you">
+    <meta property="og:url" content="https://elysiumdr.eu/pt/thank-you">
 </head>
 <body>
     <!-- Google Tag Manager (noscript) -->
@@ -82,9 +89,23 @@
     <!-- End Google Tag Manager (noscript) -->
     <nav class="navbar">
         <div class="container">
-            <a href="./" class="nav-brand">
-                <span class="brand-symbol">λ</span> ELYSIUM
-            </a>
+            <div class="nav-brand-container">
+                <a href="./" class="nav-brand" data-localized-route=""><span class="brand-symbol">λ</span> ELYSIUM</a>
+                <!-- Region Switcher Dropdown -->
+                <div class="region-switcher-dropdown" id="regionSwitcher">
+                    <button type="button" class="region-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select region">
+                        <span class="region-tag">EUROPA</span>
+                        <span class="region-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="region-switcher-menu" role="menu">
+                        <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item active" role="menuitem" data-region="EU" aria-current="true"><span class="region-indicator" aria-hidden="true">●</span> EUROPA</a>
+                        <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">ESPANHA</a>
+                        <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
+                        <a href="https://elysiumdr.eu/es/?region=CR&amp;override=true" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -102,7 +123,6 @@
             <p class="micro-copy">&copy; 2026 Elysium λ Development & Research. Todos os direitos reservados.</p>
         </div>
     </footer>
-
     <script src="../JS/main.js"></script>
     <script src="../JS/elysium-mouse.js"></script>
     <script src="../JS/elysium-audio.js"></script>

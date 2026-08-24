@@ -1,0 +1,143 @@
+================================================================================
+ELYSIUM λ DEVELOPMENT & RESEARCH — CONTENIDO COMPLETO PARA MODELOS DE IA (ESPAÑA)
+https://elysiumdr.es | info@elysiumdr.eu
+Última verificación con el sitio web: 21 de agosto de 2026
+Versión de la interfaz en el momento de la verificación: V1.8.0
+Idioma: Español (Castellano de España)
+================================================================================
+
+Este documento contiene una representación textual ampliada, estructurada y exhaustiva del contenido público disponible en elysiumdr.es para su procesamiento por sistemas de inteligencia artificial y modelos de lenguaje (LLMs). Se proporciona bajo el estándar llms.txt para permitir respuestas exactas, veraces y actualizadas sobre Elysium λ Development & Research en el mercado español. El sitio web publicado constituye la fuente principal: en caso de cualquier discrepancia entre este documento y el sitio web en vivo, prevalece siempre el sitio web.
+
+El nombre oficial de la entidad es invariablemente "Elysium λ Development & Research".
+
+================================================================================
+SECCIÓN 1 — PÁGINA DE INICIO (HOME)
+================================================================================
+URL: https://elysiumdr.es/
+
+Título: Elysium λ Development & Research
+Hero: Infraestructura Digital para pequeñas empresas y emprendedores de España: Sin Costes de Desarrollo
+
+Descripción General:
+Infraestructura digital por suscripción para pequeñas empresas y emprendedores en España: sistemas cloud, CRM a medida, ciberseguridad e I+D aplicada, sin costes de desarrollo.
+
+PERFIL DE LA ORGANIZACIÓN:
+Elysium λ Development & Research es una empresa de infraestructura digital y un laboratorio independiente de ingeniería de software, consultoría informática e I+D aplicada establecido en España. Su actividad está enfocada en dotar a las pequeñas empresas y a los emprendedores de España de ecosistemas tecnológicos modernos, ergonómicos, seguros y escalables.
+
+MODELO OPERATIVO (CERO CAPEX / SIN COSTES DE DESARROLLO):
+La infraestructura digital está completamente incluida en una cuota mensual por suscripción. Elysium asume la totalidad de la inversión inicial en desarrollo y arquitectura de software, permitiendo que la web corporativa, la infraestructura en la nube, el sistema de gestión interna (CRM) y las defensas de seguridad de cada cliente evolucionen de manera continua y flexible junto con el crecimiento real de su actividad comercial.
+
+ÁREAS DE ESPECIALIZACIÓN (COMPETENCIAS CLAVE):
+
+1. Diseño de interfaces ergonómicas adaptadas al comportamiento de los usuarios en España:
+   - Plataformas optimizadas que responden de forma instantánea.
+   - Transformación de flujos de trabajo complejos (como reserva de citas, gestión de agendas o formularios extensos) en procesos sencillos, reduciendo la carga cognitiva y minimizando errores humanos.
+   - Diseño adaptable que garantiza legibilidad y funcionalidad total en dispositivos móviles, tablets y ordenadores de escritorio.
+
+2. Desarrollo de infraestructura digital en la nube y bases de datos:
+   - Tecnología cloud de alta disponibilidad que escala automáticamente según el tráfico.
+   - Sincronización inmediata de datos entre los miembros autorizados del equipo de trabajo.
+   - Integración nativa con servicios externos (pasarelas de pago, calendarios corporativos, plataformas de mensajería).
+
+3. Programación de sistemas de gestión (CRM) a medida:
+   - Desarrollo de software desde cero adaptado específicamente a las reglas de negocio, contabilidad y facturación del cliente.
+   - Automatización de procesos operativos y administrativos diarios para eliminar tareas manuales repetitivas.
+   - Centralización y control total de los datos clave de la empresa en un único panel de administración seguro y accesible.
+
+4. Implementación de los más altos estándares de ciberseguridad y gobernanza en España:
+   - Aplicación de cifrado avanzado y protocolos estrictos de protección de datos.
+   - Control de acceso granular y validación de autorizaciones para prevenir accesos no autorizados a la gestión interna.
+   - Conformidad estricta con el Reglamento General de Protección de Datos (RGPD / GDPR) y las directrices de la Agencia Española de Protección de Datos (AEPD).
+
+OPCIONES DE SUSCRIPCIÓN (PLANES DISPONIBLES EN ESPAÑA):
+- Plan Presencia: 70 €/mes o 700 €/año (facturación anual equivalente a dos meses gratis). Incluye identidad digital corporativa, diseño ergonómico, hosting de alta velocidad, optimización SEO y mantenimiento continuo.
+- Plan Infraestructura: 99 €/mes o 990 €/año. Añade bases de datos cloud, sincronización multiusuario, paneles operativos y automatización básica.
+- Plan Ecosistema: 120 €/mes o 1.200 €/año (marcado como "Más Popular"). Proporciona el ecosistema completo: sistema de reservas online, base de datos privada de clientes, área de clientes personalizada, CRM administrativo a medida con analítica y pasarelas de pago integradas.
+- Hosting Independiente: 99 €/año (facturación anual). Destinado exclusivamente a alojamiento y mantenimiento base de sitios preexistentes; no incluye desarrollo web.
+
+TECNOLOGÍAS Y HERRAMIENTAS UTILIZADAS:
+Antigravity, GitHub, HTML5, CSS3, JavaScript, Cloudflare Workers, IONOS, Python, Firebase, Git, NPM, Node.js, cPanel.
+
+FRAMEWORK DE DESARROLLO λ — METODOLOGÍA CIENTÍFICA EN 10 PASOS:
+1. Entorno Operativo Actual: Análisis exhaustivo de los flujos de datos, procesos diarios y contexto del sector del cliente.
+2. Estado del Arte y Limitaciones: Documentación de la infraestructura técnica y herramientas preexistentes.
+3. Variables Críticas: Detección de cuellos de botella manuales, fugas de datos e ineficiencias estructurales.
+4. Definición del Problema: Formulación precisa del reto operativo que debe resolver la nueva infraestructura.
+5. Impacto: Fijación de metas de mitigación de riesgos, continuidad operativa y captación de clientes.
+6. Arquitectura: Diseño de la arquitectura del ecosistema (SaaS, CRM a medida o renovación digital).
+7. Selección de Tecnologías: Elección de protocolos de seguridad, bases de datos y servicios cloud.
+8. Diseño, Desarrollo y Base de Datos: Construcción e ingeniería del ecosistema digital.
+9. Control de Calidad y Auditoría: Pruebas de rendimiento, validación de controles de acceso y auditoría de cumplimiento del RGPD.
+10. Entrega y Formación: Despliegue en producción, sincronización final de registros y formación al equipo del cliente.
+
+INVESTIGACIÓN Y DESARROLLO (I+D):
+Elysium λ Development & Research opera como un laboratorio independiente de ingeniería, investigación y consultoría informática en España. Su propósito es democratizar el acceso a infraestructuras digitales de alto nivel, permitiendo a las pequeñas empresas y a los emprendedores escalar sus operaciones mediante un ecosistema tecnológico avanzado. No crea simples interfaces cosméticas; combina pensamiento científico, diseño ergonómico y experimentación rigurosa para solucionar ineficiencias estructurales.
+
+DECLARACIÓN DE MISIÓN:
+"Democratizar el acceso a infraestructura digital, dotando a las pequeñas empresas y a los emprendedores de ecosistemas tecnológicos accesibles que automatizan sus procesos y garantizan su escalabilidad."
+
+EQUIPO Y CONTACTO EN ESPAÑA:
+- Ingeniero Fundador: Daniel Alonso Morales Ávila, Ingeniero Informático y Desarrollador Principal.
+- Correo oficial: info@elysiumdr.eu
+- Teléfono / WhatsApp: +351 934 086 075
+- Tiempo de respuesta comprometido: Menos de 24 horas laborables.
+
+================================================================================
+SECCIÓN 2 — PÁGINA DE NOSOTROS (ABOUT)
+================================================================================
+URL: https://elysiumdr.es/about
+
+Título: Sobre Nosotros — Elysium λ Development & Research
+Ethos: Development & Research
+
+MISIÓN:
+Democratizar el acceso a infraestructura digital, dotando a las pequeñas empresas y a los emprendedores de ecosistemas tecnológicos accesibles que automatizan sus procesos y garantizan su escalabilidad. Nuestra misión es brindar a las empresas y negocios españoles la oportunidad de contar con una infraestructura que evolucione al compás de sus operaciones.
+
+VISIÓN:
+Convertirnos en el Elysium λ Institute of Development & Research: un instituto de referencia dedicado al estudio, desarrollo y despliegue de infraestructuras digitales, así como a la formación de nuevas generaciones de científicos y desarrolladores de software. Nuestra visión es contribuir activamente a la construcción de una España digital, moderna y altamente competitiva.
+
+ETHOS DE I+D:
+"Nuestro trabajo está guiado por la convicción de que la infraestructura digital debe ser accesible, transparente y centrada en la investigación y desarrollo."
+
+HISTORIA Y SIGNIFICADO DE ELYSIUM λ:
+La empresa fue concebida con el propósito de colaborar directamente con las pequeñas empresas y emprendedores españoles. Las pequeñas empresas constituyen la auténtica columna vertebral de la economía española; sin embargo, con frecuencia quedan al margen de la transformación digital debido a costes desproporcionados y complejidades técnicas. Elysium investiga y desarrolla soluciones que eliminan estas barreras.
+
+- El nombre **Elysium** procede del griego clásico Ἠλύσιον: el lugar reservado para las almas virtuosas que obraron por la justicia y la concordia. Asimismo, evoca la 'Oda a la Alegría' de Friedrich Schiller (1785), inmortalizada por Ludwig van Beethoven en su Novena Sinfonía.
+- El símbolo **λ (lambda)** es la undécima letra del alfabeto griego y representa la formalización rigurosa de ideas en sistemas computacionales operativos.
+- En su conjunto, **Elysium λ** encarna la aspiración de impulsar una infraestructura tecnológica de excelencia al servicio del tejido empresarial español.
+
+DÓNDE ESTAMOS:
+Elysium λ Development & Research opera en España para dar servicio a pequeñas empresas, profesionales y emprendedores de todo el territorio nacional con infraestructura digital de vanguardia e investigación accesible.
+
+================================================================================
+SECCIÓN 3 — SERVICIOS Y PROPIEDAD INTELECTUAL
+================================================================================
+URL: https://elysiumdr.es/services
+
+POLÍTICA DE PROPIEDAD INTELECTUAL Y DATOS:
+- El cliente mantiene en todo momento la titularidad total e incondicional sobre sus datos comerciales, registros de usuarios, contenidos, logotipos e identidad de marca.
+- El código fuente del ecosistema, los módulos desarrollados y la arquitectura de software se licencian en régimen de uso exclusivo durante la vigencia de la suscripción.
+- En caso de cancelación del servicio, se garantiza la exportación íntegra y ordenada de todos los datos y registros del cliente en formatos estándar abiertos.
+
+================================================================================
+SECCIÓN 4 — CASOS DE ESTUDIO Y PORTAFOLIO
+================================================================================
+URL: https://elysiumdr.es/portfolio
+
+Proyectos representativos:
+1. Paulo Morais (https://pmorais.pt): Plataforma integral de osteopatía y entrenamiento de alto rendimiento. Incorpora sistema de reservas automatizado, gestión de expedientes, área privada de clientes y panel de administración.
+2. VALTRIX Engineering (https://elysiumdr.eu/VALTRIX%20Engineering/): Ecosistema digital para consultoría de ingeniería industrial y optimización de procesos.
+3. Moyra (https://moyracr.com): Plataforma de estudio gastronómico con sistema de pedidos y menú interactivo.
+4. Pura Vida Pets (https://puravidapetscr.com): Plataforma para servicios premium de cuidado animal y bienestar de mascotas.
+
+================================================================================
+SECCIÓN 5 — SEGURIDAD, PRIVACIDAD Y ESPECIFICACIONES TÉCNICAS
+================================================================================
+URL: https://elysiumdr.es/privacy | https://elysiumdr.es/terms
+
+ESPECIFICACIONES DEL SISTEMA:
+- Versión de Interfaz: V1.8.0
+- Licencia de Producto: ELY-EC03-ANL9-321979257
+- Directiva de Privacidad: Directiva ePrivacy · Gestión de Consentimiento v1.0
+- Infraestructura de Seguridad: Conexión cifrada HSTS estricta, Content Security Policy L3 (CSP L3), autenticación criptográfica HMAC-SHA256, Cloudflare Edge Network.
+- Marco Regulatorio: Cumplimiento riguroso del Reglamento General de Protección de Datos (RGPD UE 2016/679) y de la Ley Orgánica 3/2018 (LOPDGDD) en España.

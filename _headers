@@ -92,6 +92,18 @@
 /JS/home.v20260809.min.js
   Cache-Control: public, max-age=31536000, immutable
 
+/JS/home.v20260824.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# El motor de traducción nacional y el controlador compartido conservan
+# nombres estables en las páginas interiores; deben revalidarse en cada visita
+# para no emparejar HTML nuevo con reglas antiguas de idioma/región.
+/JS/elysium-i18n.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/JS/main.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 # Authentication and portal assets change together. Keep their cache policy
 # explicit so a member never receives a new dashboard shell with stale logic.
 /JS/profiles.js
@@ -112,6 +124,13 @@
 /JS/elysium-domain.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
+# Las herramientas WebMCP que declara la portada. No lleva nombre versionado
+# porque no forma pareja con ninguna hoja ni con ningún otro script: se puede
+# cambiar sola. Una hora de caché basta para que un cambio en la definición de
+# una herramienta llegue el mismo día.
+/JS/webmcp.js
+  Cache-Control: public, max-age=3600
+
 /CSS/customer-portal.css
   Cache-Control: no-cache, max-age=0, must-revalidate
 
@@ -121,8 +140,23 @@
 /Images/Optimized/*
   Cache-Control: public, max-age=31536000, immutable
 
+# ── Descubrimiento para agentes ──────────────────────────────────────────────
+#
+# El encabezado `Link` (RFC 8288) es lo primero que puede leer un cliente
+# automático: llega con la respuesta, así que no tiene que adivinar rutas ni
+# pedir `/.well-known/` a ciegas. Van en una sola línea separados por comas,
+# que es el formato del propio RFC — y además evita depender de cómo une
+# Cloudflare las cabeceras repetidas.
+#
+# `Content-Signal` declara para qué puede usarse el contenido. Aquí es que sí a
+# las tres cosas, igual que dice `robots.txt`: el sitio se ofrece a propósito a
+# los modelos de lenguaje, y para eso existen /llms.txt y /llms-full.txt. Se
+# repite como cabecera porque `robots.txt` solo cubre lo que se rastrea desde
+# ahí; la cabecera acompaña a cada recurso, se llegue como se llegue.
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Link: </.well-known/api-catalog>; rel="api-catalog", </openapi.json>; rel="service-desc"; type="application/openapi+json", </auth.md>; rel="service-doc"; type="text/markdown", </.well-known/ai-catalog.json>; rel="describedby"; type="application/json", </.well-known/agent-skills/index.json>; rel="describedby"; type="application/json", </llms.txt>; rel="alternate"; type="text/plain", </sitemap.xml>; rel="sitemap"; type="application/xml", </terms>; rel="license", </privacy>; rel="privacy-policy"
+  Content-Signal: search=yes, ai-input=yes, ai-train=yes
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
