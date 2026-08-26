@@ -8,7 +8,7 @@
     --portal-sidebar-width: 17rem;
     --portal-sidebar-compact-width: 5.5rem;
     --portal-header-height: 4.75rem;
-    --portal-mobile-nav-height: 4.5rem;
+    --portal-mobile-nav-height: 4.2rem;
     --portal-content-width: 92rem;
     --portal-gutter: clamp(1rem, 2.5vw, 2.5rem);
     --portal-surface: rgba(8, 18, 39, 0.76);
@@ -449,7 +449,8 @@
 }
 
 .customer-portal .portal-support-link,
-.customer-portal .portal-sidebar-footer .sidebar-logout-btn {
+.customer-portal .portal-sidebar-footer .sidebar-logout-btn,
+.customer-portal .portal-sidebar-footer .sidebar-home-btn {
     appearance: none;
     display: flex;
     width: 100%;
@@ -470,7 +471,8 @@
     transition: color var(--transition-fast, 0.2s ease), border-color var(--transition-fast, 0.2s ease), background var(--transition-fast, 0.2s ease);
 }
 
-.customer-portal .portal-support-link:hover {
+.customer-portal .portal-support-link:hover,
+.customer-portal .portal-sidebar-footer .sidebar-home-btn:hover {
     border-color: rgba(41, 151, 255, 0.2);
     color: #cce5ff;
     background: rgba(41, 151, 255, 0.08);
@@ -482,7 +484,7 @@
     background: rgba(255, 118, 118, 0.07);
 }
 
-.customer-portal :where(.portal-support-link, .portal-sidebar-footer .sidebar-logout-btn) svg {
+.customer-portal :where(.portal-support-link, .portal-sidebar-footer .sidebar-logout-btn, .portal-sidebar-footer .sidebar-home-btn) svg {
     width: 1.05rem;
     height: 1.05rem;
 }
@@ -3152,12 +3154,13 @@
     }
 
     .customer-portal .portal-support-link,
-    .customer-portal .portal-sidebar-footer .sidebar-logout-btn {
+    .customer-portal .portal-sidebar-footer .sidebar-logout-btn,
+    .customer-portal .portal-sidebar-footer .sidebar-home-btn {
         justify-content: center;
         padding-inline: 0;
     }
 
-    .customer-portal :where(.portal-support-link, .portal-sidebar-footer .sidebar-logout-btn) > span {
+    .customer-portal :where(.portal-support-link, .portal-sidebar-footer .sidebar-logout-btn, .portal-sidebar-footer .sidebar-home-btn) > span {
         display: none;
     }
 
@@ -3295,11 +3298,11 @@
         width: 100%;
         height: var(--portal-mobile-nav-height);
         flex-direction: row;
-        align-items: stretch;
+        align-items: center;
         gap: 0.15rem;
         overflow-x: auto;
         overflow-y: hidden;
-        padding: 0.35rem max(0.35rem, env(safe-area-inset-right, 0px)) 0.4rem max(0.35rem, env(safe-area-inset-left, 0px));
+        padding: 0.25rem max(0.35rem, env(safe-area-inset-right, 0px)) 0.25rem max(0.35rem, env(safe-area-inset-left, 0px));
         scrollbar-width: none;
     }
 
@@ -3335,13 +3338,15 @@
     .customer-portal .portal-sidebar .portal-nav-item,
     .customer-portal .portal-mobile-nav .portal-nav-item {
         width: auto;
-        min-width: 4.35rem;
-        min-height: 3.65rem;
+        min-width: 4.1rem;
+        min-height: 3.25rem;
+        height: 3.25rem;
         flex: 1 0 auto;
         flex-direction: column;
         justify-content: center;
-        gap: 0.25rem;
-        padding: 0.35rem 0.45rem;
+        align-items: center;
+        gap: 0.18rem;
+        padding: 0.2rem 0.35rem 0.25rem;
         border-radius: 0.75rem;
         text-align: center;
     }
@@ -3350,6 +3355,7 @@
         width: 100%;
         min-width: 0;
         min-height: 2.85rem;
+        height: auto;
         flex: 0 0 auto;
         flex-direction: row;
         justify-content: flex-start;
@@ -3390,8 +3396,8 @@
     .customer-portal .portal-mobile-nav .portal-nav-item > span:not(.portal-nav-badge) {
         width: 100%;
         flex: 0 0 auto;
-        font-size: 0.59rem;
-        line-height: 1.1;
+        font-size: 0.62rem;
+        line-height: 1.15;
     }
 
     .customer-portal .portal-sidebar.is-open .portal-nav-item > span:not(.portal-nav-badge) {

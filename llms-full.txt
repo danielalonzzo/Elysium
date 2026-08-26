@@ -1,8 +1,8 @@
 ================================================================================
 ELYSIUM λ DEVELOPMENT & RESEARCH — FULL SITE CONTENT FOR AI MODELS
 https://elysiumdr.eu | info@elysiumdr.eu
-Last verified against the website: 21 August 2026
-Interface version at time of verification: V1.8.0
+Last verified against the website: 26 August 2026
+Interface version at time of verification: elysiumOS 1.8.1
 Languages: English · Español · Português
 ================================================================================
 
@@ -242,25 +242,37 @@ page for it on elysiumdr.eu.
 --- RESEARCH PAGE ---
 URL: https://elysiumdr.eu/research
 
-Title: Research — Elysium λ Development & Research
+Title: Notebooks — Elysium λ Development & Research
 Description: Applied research at Elysium λ in human-computer interaction, data
 science and digital infrastructure for startups and micro-businesses, with active
 ontology and data-intelligence projects.
 
-APPLIED RESEARCH LINES:
-Elysium λ Development & Research explores Human-Computer Interaction (HCI),
-Data Science, and Digital Infrastructures through three current lines:
+The page is headed "Notebooks / DEVELOPMENT & RESEARCH". The section keeps
+the name Research in navigation and at the URL /research.
 
-1. Intuitive Interfaces
-   Management systems designed to reduce users' mental load.
+RESEARCH NOTEBOOKS:
+The section is organised as notebooks. Each notebook follows one research line
+and gathers its studies, field notes and technical publications, from the early
+questions to published work. Opening a notebook lists its publications as
+cards; opening a publication shows the full reading view, which offers a
+Download PDF button. There are three notebooks:
 
-2. Data Processing
-   Database architectures investigated and applied to build accurate CRMs.
+1. Artificial Intelligence Research — 2 publications
+   URL: https://elysiumdr.eu/research?notebook=investigacion-inteligencia-artificial
+   Responsible AI, knowledge representation and data-driven systems designed
+   for practical and social value.
 
-3. Security and High Availability
-   Cloud infrastructures developed with high-level encryption standards.
+2. Applied Linguistics — no publications yet
+   URL: https://elysiumdr.eu/research?notebook=linguistica-aplicada
+   Language, communication and multilingual digital experiences observed
+   through an applied research lens.
 
-ACTIVE RESEARCH PROJECTS:
+3. Computer Science News — no publications yet
+   URL: https://elysiumdr.eu/research?notebook=novedades-informatica
+   Notes on emerging software, computing research and the infrastructure
+   shaping contemporary digital products.
+
+PUBLICATIONS IN THE "ARTIFICIAL INTELLIGENCE RESEARCH" NOTEBOOK:
 
 1. Ontology for digital inclusion and service access in rural environments
    Author: Daniel A. Morales Ávila | Year: 2026 | Status: Pilot Study
@@ -615,7 +627,7 @@ URL: footer modal, available on every page (version-modal.js)
 
 SYSTEM INFORMATION:
 Software Specifications:
-- Interface Version: V1.8.0
+- Interface Version: elysiumOS 1.8.1
 - Product Licence: ELY-EC03-ANL9-321979257
 
 Security & Compliance:
@@ -835,23 +847,34 @@ Cuatro proyectos, los mismos que en la versión inglesa:
 --- PÁGINA DE INVESTIGACIÓN ---
 URL: https://elysiumdr.eu/es/research
 
-Título: Investigación — Elysium λ Development & Research
+Título: Notebooks — Elysium λ Development & Research
 
-LÍNEAS DE INVESTIGACIÓN APLICADA:
-Elysium λ Development & Research explora la Interacción Humano-Computadora
-(HCI), la Ciencia de Datos y las Infraestructuras Digitales mediante tres líneas:
+La página se titula «Notebooks / DEVELOPMENT & RESEARCH». La sección conserva
+el nombre Investigación en la navegación y la URL /es/research.
 
-1. Interfaces Intuitivas
-   Sistemas de gestión diseñados para reducir la carga mental de los usuarios.
+CUADERNOS DE INVESTIGACIÓN:
+La sección está organizada en cuadernos. Cada cuaderno acompaña una línea de
+investigación y reúne sus estudios, notas de campo y publicaciones técnicas,
+desde las primeras preguntas hasta el trabajo publicado. Al abrir un cuaderno se
+listan sus publicaciones en tarjetas; al abrir una publicación se muestra la
+lectura completa, con un botón para descargarla en PDF. Hay tres cuadernos:
 
-2. Procesamiento de Datos
-   Investigación y aplicación de arquitecturas de bases de datos para construir
-   CRM precisos.
+1. Investigación en Inteligencia Artificial — 2 publicaciones
+   URL: https://elysiumdr.eu/es/research?notebook=investigacion-inteligencia-artificial
+   IA responsable, representación del conocimiento y sistemas basados en datos
+   para generar valor práctico y social.
 
-3. Seguridad y Alta Disponibilidad
-   Infraestructuras en la nube con estándares de cifrado de alto nivel.
+2. Lingüística Aplicada — todavía sin publicaciones
+   URL: https://elysiumdr.eu/es/research?notebook=linguistica-aplicada
+   Lenguaje, comunicación y experiencias digitales multilingües observadas desde
+   una perspectiva aplicada.
 
-PROYECTOS DE INVESTIGACIÓN ACTIVOS:
+3. Novedades en la Informática — todavía sin publicaciones
+   URL: https://elysiumdr.eu/es/research?notebook=novedades-informatica
+   Notas sobre software emergente, investigación informática e infraestructura
+   para productos digitales contemporáneos.
+
+PUBLICACIONES DEL CUADERNO «INVESTIGACIÓN EN INTELIGENCIA ARTIFICIAL»:
 
 1. Ontología para la inclusión digital y el acceso a servicios en entornos
    rurales
@@ -1206,23 +1229,34 @@ Quatro projetos, os mesmos das outras versões:
 --- PÁGINA DE INVESTIGAÇÃO ---
 URL: https://elysiumdr.eu/pt/research
 
-Título: Investigação — Elysium λ Development & Research
+Título: Notebooks — Elysium λ Development & Research
 
-LINHAS DE INVESTIGAÇÃO APLICADA:
-A Elysium λ Development & Research explora a Interação Humano-Computador (HCI),
-a Ciência de Dados e as Infraestruturas Digitais através de três linhas:
+A página intitula-se «Notebooks / DEVELOPMENT & RESEARCH». A secção mantém o
+nome Investigação na navegação e o URL /pt/research.
 
-1. Interfaces Intuitivas
-   Sistemas de gestão desenhados para reduzir a carga mental dos utilizadores.
+CADERNOS DE INVESTIGAÇÃO:
+A secção está organizada em cadernos. Cada caderno acompanha uma linha de
+investigação e reúne os seus estudos, notas de campo e publicações técnicas,
+desde as primeiras perguntas até ao trabalho publicado. Ao abrir um caderno são
+listadas as suas publicações em cartões; ao abrir uma publicação é apresentada a
+leitura completa, com um botão para a descarregar em PDF. Existem três cadernos:
 
-2. Processamento de Dados
-   Investigação e aplicação de arquiteturas de bases de dados para construir
-   CRMs precisos.
+1. Investigação em Inteligência Artificial — 2 publicações
+   URL: https://elysiumdr.eu/pt/research?notebook=investigacion-inteligencia-artificial
+   IA responsável, representação do conhecimento e sistemas baseados em dados
+   para criar valor prático e social.
 
-3. Segurança e Alta Disponibilidade
-   Infraestruturas cloud com padrões de cifragem de alto nível.
+2. Linguística Aplicada — ainda sem publicações
+   URL: https://elysiumdr.eu/pt/research?notebook=linguistica-aplicada
+   Linguagem, comunicação e experiências digitais multilingues observadas a
+   partir de uma perspetiva aplicada.
 
-PROJETOS DE INVESTIGAÇÃO ATIVOS:
+3. Novidades em Informática — ainda sem publicações
+   URL: https://elysiumdr.eu/pt/research?notebook=novedades-informatica
+   Notas sobre software emergente, investigação em informática e infraestrutura
+   para produtos digitais contemporâneos.
+
+PUBLICAÇÕES DO CADERNO «INVESTIGAÇÃO EM INTELIGÊNCIA ARTIFICIAL»:
 
 1. Ontologia para a inclusão digital e o acesso a serviços em ambientes rurais
    Autor: Daniel A. Morales Ávila | Ano: 2026 | Estado: Estudo Piloto

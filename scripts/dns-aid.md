@@ -70,12 +70,18 @@ Seis cosas que hay que respetar al copiarlos:
 
 Lo aplica **`scripts/publish-dns-aid.sh`**, que es la forma de no copiar tres
 veces el mismo valor a mano. Lee las zonas, actualiza el registro si ya existe
-en vez de añadir un segundo al mismo RRset, y comprueba el resultado por DoH:
+en vez de añadir un segundo al mismo RRset, y comprueba por DoH tanto el RDATA
+exacto como la cadena DNSSEC (`AD=true`):
 
 ```bash
 CF_DNS_TOKEN=… ./scripts/publish-dns-aid.sh     # crea o corrige los tres
 ./scripts/publish-dns-aid.sh --check            # solo comprueba, sin token
 ```
+
+La comprobación devuelve error mientras falte cualquiera de los tres registros,
+si un registro tiene otro destino o parámetros, o mientras la zona no forme una
+cadena DNSSEC autenticada hasta su DS en el registrador. Que Cloudflare ya
+muestre la zona como firmada no basta si el padre aún no publica el DS.
 
 El token sale de Cloudflare → *My Profile* → *API Tokens* → *Create Token* →
 **Edit zone DNS**, con las tres zonas en *Zone Resources*. El de `wrangler` no
@@ -112,7 +118,9 @@ que es justo lo que DNS-AID pide evitar.
 Son tres pasos y el segundo no es de Cloudflare:
 
 1. En cada zona de Cloudflare: **DNS → Settings → DNSSEC → Enable**. Cloudflare
-   da entonces un registro DS distinto para cada dominio.
+   da entonces un registro DS distinto para cada dominio. También puede
+   activarse con `PATCH /zones/{zone_id}/dnssec`; el script de publicación no lo
+   hace porque el paso siguiente sigue siendo externo a Cloudflare.
 2. Dar de alta cada DS **en el registrador del dominio correspondiente**. Hasta
    que `.eu`, `.es` y `.pt` publiquen su DS en la zona padre, la firma no forma
    una cadena de confianza.

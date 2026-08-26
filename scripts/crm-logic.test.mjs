@@ -142,6 +142,8 @@ test('crmPayload acota a las 30 claves que admiten las reglas', () => {
 // Las vistas construyen HTML con plantillas; un literal mal cerrado o un
 // `esc()` olvidado no lo detecta `node --check`, sólo el navegador.
 
+const { ADMIN_COPY } = await import(join(ROOT, 'JS', 'admin-i18n.js'));
+
 const VIEWS = [
     'calendarLocale', 'calendarChip', 'renderMonthView', 'renderWeekView',
     'renderDayView', 'calendarMeetings', 'calendarPeriodLabel'
@@ -149,6 +151,8 @@ const VIEWS = [
 
 const viewPreamble = `
 const currentLang = 'es';
+const ADMIN_COPY = ${JSON.stringify(ADMIN_COPY)};
+const ui = () => ADMIN_COPY[currentLang] || ADMIN_COPY.en;
 const esc = str => String(str ?? '').replace(/[&<>"']/g, ch => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
 ));

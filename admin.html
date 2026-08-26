@@ -24,8 +24,9 @@
     <link rel="stylesheet" href="CSS/pages.css">
     <!-- The admin CRM shares the customer portal's design system: the shell,
          cards, tables, buttons and chips all come from this stylesheet. -->
-    <link rel="stylesheet" href="CSS/customer-portal.css?v=2026080606">
-    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026081806">
+    <link rel="stylesheet" href="CSS/customer-portal.css?v=2026082609">
+    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026082612">
+    <link rel="stylesheet" href="CSS/admin-research.css?v=2026082601">
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
@@ -49,28 +50,42 @@
     <div class="customer-portal is-admin" id="admin-portal">
 
     <header class="portal-mobile-header">
-        <a class="portal-brand" href="./" aria-label="Elysium"><span>λ</span> ELYSIUM</a>
+        <a class="portal-brand" href="./" aria-label="Elysium" translate="no"><span>λ</span> ELYSIUM</a>
         <button type="button" class="portal-mobile-menu" id="admin-menu-toggle" aria-expanded="false" aria-controls="portal-sidebar">
-            <span aria-hidden="true">☰</span><span class="portal-sr-only">Menu</span>
+            <span aria-hidden="true">☰</span><span class="portal-sr-only" data-i18n="shell.menu">Menu</span>
         </button>
     </header>
 
     <aside class="portal-sidebar" id="portal-sidebar">
 
-        <!-- Admin Identity Header -->
-        <a class="portal-brand" href="./" aria-label="Elysium"><span>λ</span> ELYSIUM</a>
+        <!-- Admin Identity Header
+             Sin marca propia: el λ de la tarjeta y el del encabezado móvil ya
+             identifican el producto, y aquí robaba la primera línea a la
+             identidad de quien ha entrado. -->
 
-        <div class="portal-user-card">
-            <div class="sidebar-admin-avatar" aria-hidden="true">λ</div>
-            <div>
-                <strong id="sidebar-admin-name">Elysium Team</strong>
-                <span id="sidebar-admin-role">Commercial workspace</span>
+        <!-- La tarjeta es el disparador del perfil: el nombre se muestra aquí,
+             así que aquí es donde se espera poder cambiarlo. -->
+        <button type="button" class="portal-user-card" id="admin-profile-trigger" aria-haspopup="dialog">
+            <span class="portal-sr-only" id="admin-profile-trigger-label" data-i18n-dynamic="admin.js:applyTranslations">Edit profile</span>
+            <div class="sidebar-avatar-container">
+                <div class="sidebar-admin-avatar" aria-hidden="true">λ</div>
+                <span class="sidebar-user-status" data-i18n-title="shell.statusActive" title="Active" aria-hidden="true"></span>
             </div>
-        </div>
+            <div class="portal-user-card-details">
+                <strong id="sidebar-admin-name" data-i18n-dynamic="admin.js:renderAdminIdentity">Elysium Team</strong>
+                <span id="sidebar-admin-role" data-i18n-dynamic="admin.js:renderAdminIdentity">Commercial workspace</span>
+            </div>
+            <span class="portal-user-card-edit" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                </svg>
+            </span>
+        </button>
 
         <!-- Navigation -->
-        <nav class="portal-nav" aria-label="Admin CRM">
-            <div class="portal-nav-label">CRM</div>
+        <nav class="portal-nav" data-i18n-aria-label="shell.navAria" aria-label="Admin CRM">
+            <div class="portal-nav-label" data-i18n="shell.groupCrm">CRM</div>
 
             <button type="button" class="portal-nav-item active" data-target="overview" id="nav-overview" aria-current="page">
                 <!-- Overview icon -->
@@ -78,7 +93,7 @@
                     <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
                     <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
                 </svg>
-                <span class="portal-nav-text">Dashboard</span>
+                <span class="portal-nav-text" data-i18n="nav.overview">Dashboard</span>
             </button>
 
             <button type="button" class="portal-nav-item" data-target="pipeline" id="nav-pipeline">
@@ -86,7 +101,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
                 </svg>
-                <span class="portal-nav-text">Pipeline</span>
+                <span class="portal-nav-text" data-i18n="nav.pipeline">Pipeline</span>
                 <span class="portal-nav-badge" id="sidebar-pipeline-count">0</span>
             </button>
 
@@ -98,7 +113,7 @@
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
-                <span class="portal-nav-text">Contacts</span>
+                <span class="portal-nav-text" data-i18n="nav.contacts">Contacts</span>
                 <span class="portal-nav-badge" id="sidebar-clients-count">0</span>
             </button>
 
@@ -108,18 +123,18 @@
                     <path d="M16 3v4M8 3v4M3 10h18"/>
                     <path d="m9 16 2 2 4-5"/>
                 </svg>
-                <span class="portal-nav-text">Agenda</span>
+                <span class="portal-nav-text" data-i18n="nav.agenda">Agenda</span>
                 <span class="portal-nav-badge" id="sidebar-agenda-count">0</span>
             </button>
 
-            <div class="portal-nav-label portal-nav-label-secondary">Operations</div>
+            <div class="portal-nav-label portal-nav-label-secondary" data-i18n="shell.groupOperations">Operations</div>
 
             <button type="button" class="portal-nav-item" data-target="mail" id="nav-mail">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
                     <polyline points="22,6 12,13 2,6"/>
                 </svg>
-                <span class="portal-nav-text">Mail</span>
+                <span class="portal-nav-text" data-i18n="nav.mail">Mail</span>
             </button>
 
             <button type="button" class="portal-nav-item" data-target="reports" id="nav-reports">
@@ -127,7 +142,7 @@
                     <path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/>
                     <path d="M2 21h20"/>
                 </svg>
-                <span class="portal-nav-text">Reports</span>
+                <span class="portal-nav-text" data-i18n="nav.reports">Reports</span>
             </button>
 
             <button type="button" class="portal-nav-item" data-target="licenses" id="nav-licenses">
@@ -136,10 +151,10 @@
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
-                <span class="portal-nav-text">Licenses</span>
+                <span class="portal-nav-text" data-i18n="nav.licenses">Licenses</span>
             </button>
 
-            <div class="portal-nav-label portal-nav-label-secondary">Delivery</div>
+            <div class="portal-nav-label portal-nav-label-secondary" data-i18n="shell.groupDelivery">Delivery</div>
 
             <button type="button" class="portal-nav-item" data-target="prototypes" id="nav-prototypes">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -147,16 +162,25 @@
                     <polyline points="2 17 12 22 22 17"/>
                     <polyline points="2 12 12 17 22 12"/>
                 </svg>
-                <span class="portal-nav-text">Prototypes</span>
+                <span class="portal-nav-text" data-i18n="nav.prototypes">Prototypes</span>
+            </button>
+
+            <button type="button" class="portal-nav-item" data-target="research" id="nav-research">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>
+                    <path d="M8 7h8M8 11h6"/>
+                </svg>
+                <span class="portal-nav-text" data-i18n="nav.research">Research</span>
             </button>
         </nav>
 
         <!-- Sidebar Footer -->
         <div class="portal-sidebar-footer">
-            <div class="admin-lang-switch" role="group" aria-label="Language">
-                <button type="button" class="lang-select" data-lang="en" aria-pressed="true">EN</button>
-                <button type="button" class="lang-select" data-lang="es" aria-pressed="false">ES</button>
-                <button type="button" class="lang-select" data-lang="pt" aria-pressed="false">PT</button>
+            <div class="admin-lang-switch" role="group" data-i18n-aria-label="shell.languageAria" aria-label="Language">
+                <button type="button" class="lang-select" data-lang="en" aria-pressed="true" translate="no">EN</button>
+                <button type="button" class="lang-select" data-lang="es" aria-pressed="false" translate="no">ES</button>
+                <button type="button" class="lang-select" data-lang="pt" aria-pressed="false" translate="no">PT</button>
             </div>
             <button type="button" id="logoutBtn" class="sidebar-logout-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -164,8 +188,15 @@
                     <polyline points="16 17 21 12 16 7"/>
                     <line x1="21" y1="12" x2="9" y2="12"/>
                 </svg>
-                <span>Logout</span>
+                <span data-i18n-dynamic="admin.js:applyTranslations">Logout</span>
             </button>
+            <a href="./" id="homeBtn" class="sidebar-home-btn" data-i18n-dynamic="admin.js:applyTranslations">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span>Back to Home</span>
+            </a>
         </div>
     </aside>
 
@@ -176,45 +207,45 @@
 
         <div class="crm-command-bar">
             <div class="crm-command-context">
-                <span class="crm-command-product">Elysium OS</span>
+                <span class="crm-command-product" translate="no">elysiumOS</span>
                 <span aria-hidden="true">/</span>
-                <strong id="crm-command-section">Dashboard</strong>
+                <strong id="crm-command-section" data-i18n-dynamic="admin.js:navigateTo">Dashboard</strong>
             </div>
             <button type="button" class="crm-command-search" id="crm-global-search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                <span>Search relationships</span><kbd>⌘ K</kbd>
+                <span data-i18n="shell.search">Search relationships</span><kbd translate="no">⌘ K</kbd>
             </button>
-            <div class="crm-command-status" id="crm-platform-status"><i></i><span>Connecting workspace…</span></div>
+            <div class="crm-command-status" id="crm-platform-status"><i></i><span data-i18n-dynamic="admin.js:updatePlatformStatus">Connecting workspace…</span></div>
         </div>
 
         <!-- ─── OVERVIEW ──────────────────────────────────────── -->
         <section id="overview" class="portal-section active">
             <div class="portal-header crm-dashboard-header">
                 <div>
-                    <span class="crm-section-eyebrow">Commercial command center</span>
-                    <h1 id="overview-title">Dashboard</h1>
-                    <p class="color-text-secondary" id="overview-subtitle">Welcome back, Super Admin.</p>
+                    <span class="crm-section-eyebrow" data-i18n="overview.eyebrow">Commercial command center</span>
+                    <h1 id="overview-title" data-i18n="overview.title">Dashboard</h1>
+                    <p class="color-text-secondary" id="overview-subtitle" data-i18n="overview.subtitle">Welcome back, Super Admin.</p>
                 </div>
                 <div class="crm-dashboard-actions">
                     <div class="dashboard-date" id="dashboard-date"></div>
-                    <button type="button" class="btn btn-secondary" id="dashboard-new-contact">New contact</button>
-                    <button type="button" class="btn btn-primary" id="dashboard-new-opportunity">New opportunity</button>
+                    <button type="button" class="btn btn-secondary" id="dashboard-new-contact" data-i18n="overview.newContact">New contact</button>
+                    <button type="button" class="btn btn-primary" id="dashboard-new-opportunity" data-i18n="overview.newOpportunity">New opportunity</button>
                 </div>
             </div>
 
             <!-- Resumen del día. Va antes que los KPI: es lo accionable ahora,
                  mientras que los indicadores describen el trimestre. -->
             <div class="crm-section-heading">
-                <div><span>Today</span><h2 id="briefing-title">Daily briefing</h2></div>
-                <button type="button" class="crm-text-action" data-target-nav="agenda">Open agenda →</button>
+                <div><span data-i18n="overview.todayEyebrow">Today</span><h2 id="briefing-title" data-i18n="overview.briefingTitle">Daily briefing</h2></div>
+                <button type="button" class="crm-text-action" data-target-nav="agenda" data-i18n="overview.openAgenda">Open agenda →</button>
             </div>
             <div class="crm-briefing-grid" id="crm-daily-briefing">
                 <div class="loader-container"><div class="premium-loader"></div></div>
             </div>
 
             <div class="crm-section-heading">
-                <div><span>Revenue system</span><h2>Commercial overview</h2></div>
-                <button type="button" class="crm-text-action" data-target-nav="reports">Open reports →</button>
+                <div><span data-i18n="overview.revenueEyebrow">Revenue system</span><h2 data-i18n="overview.commercialOverview">Commercial overview</h2></div>
+                <button type="button" class="crm-text-action" data-target-nav="reports" data-i18n="overview.openReports">Open reports →</button>
             </div>
             <div class="portal-alert is-warning" id="stats-truncation-warning" hidden></div>
             <div class="kpi-grid" id="stats-overview">
@@ -222,7 +253,7 @@
             </div>
 
             <div class="crm-section-heading crm-section-heading-secondary">
-                <div><span>Existing operation</span><h2>Delivery &amp; subscriptions</h2></div>
+                <div><span data-i18n="overview.operationEyebrow">Existing operation</span><h2 data-i18n="overview.deliveryTitle">Delivery &amp; subscriptions</h2></div>
             </div>
             <div class="kpi-grid crm-operational-kpis" id="stats-operations">
                 <!-- Existing partner, project and license KPIs injected by JS -->
@@ -231,15 +262,15 @@
             <div class="overview-chart-grid">
                 <div class="portal-card overview-panel">
                     <div class="overview-panel-header">
-                        <h3 class="overview-panel-title">Global revenue · 12 months</h3>
+                        <h3 class="overview-panel-title" data-i18n="overview.globalRevenue">Global revenue · 12 months</h3>
                     </div>
                     <div class="overview-chart-canvas"><canvas id="globalRevenueChart"></canvas></div>
                 </div>
 
                 <div class="portal-card overview-panel">
                     <div class="overview-panel-header">
-                        <h3 class="overview-panel-title">Commercial performance · this week</h3>
-                        <span class="overview-panel-link" data-target-nav="reports">View report →</span>
+                        <h3 class="overview-panel-title" data-i18n="overview.weekPerformance">Commercial performance · this week</h3>
+                        <span class="overview-panel-link" data-target-nav="reports" data-i18n="overview.viewReport">View report →</span>
                     </div>
                     <div class="overview-chart-canvas"><canvas id="commercialPerformanceChart"></canvas></div>
                 </div>
@@ -255,9 +286,9 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
                                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            Recent Activity
+                            <span data-i18n="overview.recentActivity">Recent Activity</span>
                         </h3>
-                        <span class="overview-panel-link" data-target-nav="clients">View all →</span>
+                        <span class="overview-panel-link" data-target-nav="clients" data-i18n="overview.viewAll">View all →</span>
                     </div>
                     <div id="activity-feed-container">
                         <div class="loader-container"><div class="premium-loader"></div></div>
@@ -271,9 +302,9 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
                                 <path d="M2 7h4v10H2zM10 3h4v18h-4zM18 11h4v6h-4z"/>
                             </svg>
-                            Pipeline Snapshot
+                            <span data-i18n="overview.pipelineSnapshot">Pipeline Snapshot</span>
                         </h3>
-                        <span class="overview-panel-link" data-target-nav="pipeline">View full →</span>
+                        <span class="overview-panel-link" data-target-nav="pipeline" data-i18n="overview.viewFull">View full →</span>
                     </div>
                     <div id="pipeline-snapshot-container">
                         <div class="loader-container"><div class="premium-loader"></div></div>
@@ -289,15 +320,15 @@
         <section id="pipeline" class="portal-section">
             <div class="portal-header">
                 <div>
-                    <h1>Pipeline</h1>
-                    <p class="color-text-secondary">Commercial opportunities and active delivery in one workflow.</p>
+                    <h1 data-i18n="pipeline.title">Pipeline</h1>
+                    <p class="color-text-secondary" data-i18n="pipeline.desc">Commercial opportunities and active delivery in one workflow.</p>
                 </div>
                 <div class="crm-header-actions">
-                    <div class="crm-view-switch" role="group" aria-label="Pipeline view">
-                        <button type="button" class="is-active" data-pipeline-mode="commercial">Opportunities</button>
-                        <button type="button" data-pipeline-mode="delivery">Projects</button>
+                    <div class="crm-view-switch" role="group" data-i18n-aria-label="pipeline.viewAria" aria-label="Pipeline view">
+                        <button type="button" class="is-active" data-pipeline-mode="commercial" data-i18n="pipeline.opportunities">Opportunities</button>
+                        <button type="button" data-pipeline-mode="delivery" data-i18n="pipeline.projects">Projects</button>
                     </div>
-                    <button type="button" class="btn btn-primary" id="create-opportunity-btn">New opportunity</button>
+                    <button type="button" class="btn btn-primary" id="create-opportunity-btn" data-i18n="pipeline.newOpportunity">New opportunity</button>
                 </div>
             </div>
             <!-- Segmentación del tablero. `urgency` se deriva de
@@ -306,37 +337,38 @@
                  un campo «priority» nuevo sería rechazado al escribir. -->
             <div class="crm-toolbar" id="pipeline-filters">
                 <label class="crm-filter-field">
-                    <span>Owner</span>
+                    <span data-i18n="pipeline.filterOwner">Owner</span>
                     <select id="pipeline-filter-owner" class="form-control">
-                        <option value="">Everyone</option>
+                        <option value="" data-i18n-dynamic="admin.js:renderPipelineOwnerOptions">Everyone</option>
                     </select>
                 </label>
                 <label class="crm-filter-field">
-                    <span>Created</span>
+                    <span data-i18n="pipeline.filterCreated">Created</span>
                     <select id="pipeline-filter-created" class="form-control">
-                        <option value="">Any time</option>
-                        <option value="7">Last 7 days</option>
-                        <option value="30">Last 30 days</option>
-                        <option value="90">Last 90 days</option>
+                        <option value="" data-i18n="pipeline.filterAnyTime">Any time</option>
+                        <option value="7" data-i18n="pipeline.last7">Last 7 days</option>
+                        <option value="30" data-i18n="pipeline.last30">Last 30 days</option>
+                        <option value="90" data-i18n="pipeline.last90">Last 90 days</option>
                     </select>
                 </label>
                 <label class="crm-filter-field">
-                    <span>Urgency</span>
+                    <span data-i18n="pipeline.filterUrgency">Urgency</span>
                     <select id="pipeline-filter-urgency" class="form-control">
-                        <option value="">All</option>
-                        <option value="overdue">Overdue</option>
-                        <option value="week">Closing this week</option>
-                        <option value="month">Closing this month</option>
-                        <option value="undated">No close date</option>
+                        <option value="" data-i18n="pipeline.filterAll">All</option>
+                        <option value="overdue" data-i18n="pipeline.filterOverdue">Overdue</option>
+                        <option value="week" data-i18n="pipeline.closingWeek">Closing this week</option>
+                        <option value="month" data-i18n="pipeline.closingMonth">Closing this month</option>
+                        <option value="undated" data-i18n="pipeline.undated">No close date</option>
                     </select>
                 </label>
                 <label class="crm-filter-field crm-filter-field-grow">
-                    <span>Search</span>
+                    <span data-i18n="pipeline.filterSearch">Search</span>
                     <input type="search" id="pipeline-filter-search" class="form-control"
+                           data-i18n-placeholder="pipeline.searchPlaceholder"
                            placeholder="Opportunity, contact or company…" autocomplete="off">
                 </label>
-                <button type="button" class="btn btn-secondary" id="pipeline-filter-reset">Reset</button>
-                <span class="crm-results-count" id="pipeline-filter-count"></span>
+                <button type="button" class="btn btn-secondary" id="pipeline-filter-reset" data-i18n="pipeline.reset">Reset</button>
+                <span class="crm-results-count" id="pipeline-filter-count" data-i18n-dynamic="admin.js:loadCommercialPipeline"></span>
             </div>
             <div class="pipeline-board" id="pipeline-board">
                 <div class="loader-container"><div class="premium-loader"></div></div>
@@ -347,10 +379,10 @@
         <section id="clients" class="portal-section">
             <div class="portal-header">
                 <div>
-                    <h1>Contacts</h1>
-                    <p class="color-text-secondary">Leads, inquiries, prospects and clients in one directory.</p>
+                    <h1 data-i18n="contacts.title">Contacts</h1>
+                    <p class="color-text-secondary" data-i18n="contacts.desc">Leads, inquiries, prospects and clients in one directory.</p>
                 </div>
-                <button type="button" class="btn btn-primary" id="create-contact-btn">New contact</button>
+                <button type="button" class="btn btn-primary" id="create-contact-btn" data-i18n="contacts.newContact">New contact</button>
             </div>
 
             <!-- CRM Toolbar: Search + Sort + Filters -->
@@ -359,32 +391,32 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                     </svg>
-                    <input type="search" id="crm-search" class="crm-search-bar" placeholder="Search by name, company or email…" autocomplete="off">
+                    <input type="search" id="crm-search" class="crm-search-bar" data-i18n-placeholder="contacts.searchPlaceholder" placeholder="Search by name, company or email…" autocomplete="off">
                 </div>
-                <button id="crm-sort-btn" class="crm-sort-toggle" title="Toggle sort order">
+                <button id="crm-sort-btn" class="crm-sort-toggle" data-i18n-title="contacts.sortTitle" title="Toggle sort order">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 6h18M7 12h10M11 18h2"/>
                     </svg>
-                    <span id="crm-sort-label">A → Z</span>
+                    <span id="crm-sort-label" data-i18n-dynamic="admin.js:loadClients">A → Z</span>
                 </button>
                 <!-- Unified lifecycle filters -->
                 <div class="crm-filter-pills" id="crm-filter-pills">
-                    <button class="crm-pill active" data-filter="all">All</button>
-                    <button class="crm-pill" data-filter="lead">Leads</button>
-                    <button class="crm-pill" data-filter="prospect">Prospects</button>
-                    <button class="crm-pill" data-filter="client">Clients</button>
-                    <button class="crm-pill" data-filter="inactive">Inactive</button>
+                    <button class="crm-pill active" data-filter="all" data-i18n="contacts.pillAll">All</button>
+                    <button class="crm-pill" data-filter="lead" data-i18n="contacts.pillLeads">Leads</button>
+                    <button class="crm-pill" data-filter="prospect" data-i18n="contacts.pillProspects">Prospects</button>
+                    <button class="crm-pill" data-filter="client" data-i18n="contacts.pillClients">Clients</button>
+                    <button class="crm-pill" data-filter="inactive" data-i18n="contacts.pillInactive">Inactive</button>
                 </div>
-                <span class="crm-results-count" id="crm-results-count"></span>
+                <span class="crm-results-count" id="crm-results-count" data-i18n-dynamic="admin.js:renderClientGrid"></span>
             </div>
 
             <div class="crm-contact-directory" id="clients-list">
                 <div class="loader-container"><div class="premium-loader"></div></div>
             </div>
-            <nav class="crm-pagination" id="crm-pagination" aria-label="Contacts pagination" hidden>
-                <button type="button" class="btn btn-secondary" id="crm-page-prev">Previous</button>
-                <span id="crm-page-status" aria-live="polite"></span>
-                <button type="button" class="btn btn-secondary" id="crm-page-next">Next</button>
+            <nav class="crm-pagination" id="crm-pagination" data-i18n-aria-label="contacts.paginationAria" aria-label="Contacts pagination" hidden>
+                <button type="button" class="btn btn-secondary" id="crm-page-prev" data-i18n="contacts.previous">Previous</button>
+                <span id="crm-page-status" aria-live="polite" data-i18n-dynamic="admin.js:renderClientGrid"></span>
+                <button type="button" class="btn btn-secondary" id="crm-page-next" data-i18n="contacts.next">Next</button>
             </nav>
         </section>
 
@@ -393,8 +425,8 @@
         <section id="agenda" class="portal-section">
             <div class="portal-header agenda-header">
                 <div>
-                    <h1 id="agenda-title">Agenda</h1>
-                    <p class="color-text-secondary" id="agenda-desc">Schedule and monitor client meetings across time zones.</p>
+                    <h1 id="agenda-title" data-i18n-dynamic="admin.js:applyAgendaTranslations">Agenda</h1>
+                    <p class="color-text-secondary" id="agenda-desc" data-i18n-dynamic="admin.js:applyAgendaTranslations">Schedule and monitor client meetings across time zones.</p>
                 </div>
             </div>
 
@@ -402,54 +434,54 @@
                 <article class="agenda-panel agenda-create-panel">
                     <div class="agenda-panel-heading">
                         <div>
-                            <span class="agenda-eyebrow" id="agenda-form-eyebrow">New activity</span>
-                            <h2 id="agenda-form-title">Schedule a meeting or call</h2>
+                            <span class="agenda-eyebrow" id="agenda-form-eyebrow" data-i18n-dynamic="admin.js:applyAgendaTranslations">New activity</span>
+                            <h2 id="agenda-form-title" data-i18n-dynamic="admin.js:applyAgendaTranslations">Schedule a meeting or call</h2>
                         </div>
-                        <span class="agenda-timezone-chip">PT · Europe/Lisbon</span>
+                        <span class="agenda-timezone-chip" translate="no">PT · Europe/Lisbon</span>
                     </div>
 
                     <form id="meeting-form" class="meeting-form" novalidate>
                         <div class="meeting-form-grid">
                             <label class="meeting-field meeting-field-wide">
-                                <span id="meeting-client-label">Client</span>
+                                <span id="meeting-client-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Client</span>
                                 <select id="meeting-client" name="clientId" required>
-                                    <option value="">Select a client…</option>
+                                    <option value="" data-i18n-dynamic="admin.js:renderAgendaClientOptions">Select a client…</option>
                                 </select>
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-type-label">Activity type</span>
+                                <span id="meeting-type-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Activity type</span>
                                 <select id="meeting-type" name="type" required>
-                                    <option value="meeting">Meeting</option>
-                                    <option value="call">Call</option>
+                                    <option value="meeting" data-i18n="agenda.typeMeeting">Meeting</option>
+                                    <option value="call" data-i18n="agenda.typeCall">Call</option>
                                 </select>
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-assignee-label">Assigned to</span>
+                                <span id="meeting-assignee-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Assigned to</span>
                                 <select id="meeting-assignee" name="assigneeId" required>
-                                    <option value="">Current administrator</option>
+                                    <option value="" data-i18n-dynamic="admin.js:renderAssigneeOptions">Current administrator</option>
                                 </select>
                             </label>
 
                             <label class="meeting-field meeting-field-wide">
-                                <span id="meeting-title-label">Meeting title</span>
-                                <input id="meeting-title" name="title" type="text" maxlength="120" autocomplete="off" required placeholder="Project review">
+                                <span id="meeting-title-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Meeting title</span>
+                                <input id="meeting-title" name="title" type="text" maxlength="120" autocomplete="off" required data-i18n-dynamic="admin.js:applyAgendaTranslations" placeholder="Project review">
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-date-label">Date</span>
+                                <span id="meeting-date-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Date</span>
                                 <input id="meeting-date" name="date" type="date" required>
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-time-label">Time</span>
+                                <span id="meeting-time-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Time</span>
                                 <input id="meeting-time" name="time" type="time" step="300" required>
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-duration-label">Duration</span>
-                                <select id="meeting-duration" name="durationMinutes" required>
+                                <span id="meeting-duration-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Duration</span>
+                                <select id="meeting-duration" name="durationMinutes" required translate="no">
                                     <option value="15">15 min</option>
                                     <option value="30">30 min</option>
                                     <option value="45">45 min</option>
@@ -460,38 +492,38 @@
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-admin-zone-label">Admin time zone (IANA)</span>
+                                <span id="meeting-admin-zone-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Admin time zone (IANA)</span>
                                 <input id="meeting-admin-zone" name="adminTimeZone" type="text" list="iana-timezones" maxlength="80" value="Europe/Lisbon" required spellcheck="false" autocomplete="off">
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-client-zone-label">Client time zone (IANA)</span>
-                                <input id="meeting-client-zone" name="clientTimeZone" type="text" list="iana-timezones" maxlength="80" required spellcheck="false" autocomplete="off" placeholder="America/Costa_Rica">
+                                <span id="meeting-client-zone-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Client time zone (IANA)</span>
+                                <input id="meeting-client-zone" name="clientTimeZone" type="text" list="iana-timezones" maxlength="80" required spellcheck="false" autocomplete="off" translate="no" placeholder="America/Costa_Rica">
                             </label>
 
                             <label class="meeting-field">
-                                <span id="meeting-client-region-label">Client region / country</span>
-                                <input id="meeting-client-region" name="clientRegion" type="text" maxlength="100" required autocomplete="off" placeholder="Costa Rica">
+                                <span id="meeting-client-region-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Client region / country</span>
+                                <input id="meeting-client-region" name="clientRegion" type="text" maxlength="100" required autocomplete="off" data-i18n-dynamic="admin.js:applyAgendaTranslations" placeholder="Costa Rica">
                             </label>
 
                             <label class="meeting-field meeting-field-wide" id="meeting-link-field">
-                                <span id="meeting-link-label">HTTPS meeting link</span>
-                                <input id="meeting-link" name="meetingUrl" type="url" inputmode="url" maxlength="2048" autocomplete="off" placeholder="https://meet.google.com/…">
+                                <span id="meeting-link-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">HTTPS meeting link</span>
+                                <input id="meeting-link" name="meetingUrl" type="url" inputmode="url" maxlength="2048" autocomplete="off" translate="no" placeholder="https://meet.google.com/…">
                             </label>
 
                             <label class="meeting-field meeting-field-wide">
-                                <span id="meeting-notes-label">Notes for the client</span>
-                                <textarea id="meeting-notes" name="notes" maxlength="2000" rows="4" placeholder="These notes are included in the confirmation email."></textarea>
+                                <span id="meeting-notes-label" data-i18n-dynamic="admin.js:applyAgendaTranslations">Notes for the client</span>
+                                <textarea id="meeting-notes" name="notes" maxlength="2000" rows="4" data-i18n-dynamic="admin.js:applyAgendaTranslations" placeholder="These notes are included in the confirmation email."></textarea>
                             </label>
                         </div>
 
                         <datalist id="iana-timezones"></datalist>
 
                         <div class="meeting-form-footer">
-                            <p id="meeting-form-message" class="meeting-form-message" aria-live="polite"></p>
+                            <p id="meeting-form-message" class="meeting-form-message" aria-live="polite" data-i18n-dynamic="admin.js:setAgendaMessage"></p>
                             <div class="meeting-form-actions">
-                                <button id="meeting-edit-cancel" class="btn btn-secondary" type="button" hidden>Discard changes</button>
-                                <button id="meeting-create-btn" class="btn btn-primary" type="submit">Create activity</button>
+                                <button id="meeting-edit-cancel" class="btn btn-secondary" type="button" hidden data-i18n="agenda.discardChanges">Discard changes</button>
+                                <button id="meeting-create-btn" class="btn btn-primary" type="submit" data-i18n-dynamic="admin.js:applyAgendaTranslations">Create activity</button>
                             </div>
                         </div>
                     </form>
@@ -500,33 +532,33 @@
                 <article class="agenda-panel agenda-list-panel">
                     <div class="agenda-panel-heading agenda-list-heading">
                         <div>
-                            <span class="agenda-eyebrow" id="agenda-list-eyebrow">Client calendar</span>
-                            <h2 id="agenda-list-title">Meetings</h2>
+                            <span class="agenda-eyebrow" id="agenda-list-eyebrow" data-i18n-dynamic="admin.js:applyAgendaTranslations">Client calendar</span>
+                            <h2 id="agenda-list-title" data-i18n-dynamic="admin.js:applyAgendaTranslations">Meetings</h2>
                         </div>
-                        <button id="agenda-refresh" class="agenda-refresh" type="button" aria-label="Refresh meetings">Refresh</button>
+                        <button id="agenda-refresh" class="agenda-refresh" type="button" data-i18n-dynamic="admin.js:applyAgendaTranslations" aria-label="Refresh meetings">Refresh</button>
                     </div>
 
-                    <div class="agenda-view-switch" role="group" aria-label="Calendar view">
-                        <button type="button" class="agenda-view is-active" data-agenda-view="list">List</button>
-                        <button type="button" class="agenda-view" data-agenda-view="month">Month</button>
-                        <button type="button" class="agenda-view" data-agenda-view="week">Week</button>
-                        <button type="button" class="agenda-view" data-agenda-view="day">Day</button>
+                    <div class="agenda-view-switch" role="group" data-i18n-aria-label="agenda.calendarAria" aria-label="Calendar view">
+                        <button type="button" class="agenda-view is-active" data-agenda-view="list" data-i18n="agenda.viewList">List</button>
+                        <button type="button" class="agenda-view" data-agenda-view="month" data-i18n="agenda.viewMonth">Month</button>
+                        <button type="button" class="agenda-view" data-agenda-view="week" data-i18n="agenda.viewWeek">Week</button>
+                        <button type="button" class="agenda-view" data-agenda-view="day" data-i18n="agenda.viewDay">Day</button>
                     </div>
 
-                    <div class="agenda-filters" role="group" aria-label="Meeting status filter" id="agenda-status-filters">
-                        <button type="button" class="agenda-filter is-active" data-agenda-filter="upcoming">Upcoming</button>
-                        <button type="button" class="agenda-filter" data-agenda-filter="past">Past</button>
-                        <button type="button" class="agenda-filter" data-agenda-filter="cancelled">Cancelled</button>
-                        <button type="button" class="agenda-filter" data-agenda-filter="all">All</button>
+                    <div class="agenda-filters" role="group" data-i18n-aria-label="agenda.statusAria" aria-label="Meeting status filter" id="agenda-status-filters">
+                        <button type="button" class="agenda-filter is-active" data-agenda-filter="upcoming" data-i18n-dynamic="admin.js:applyAgendaTranslations">Upcoming</button>
+                        <button type="button" class="agenda-filter" data-agenda-filter="past" data-i18n-dynamic="admin.js:applyAgendaTranslations">Past</button>
+                        <button type="button" class="agenda-filter" data-agenda-filter="cancelled" data-i18n-dynamic="admin.js:applyAgendaTranslations">Cancelled</button>
+                        <button type="button" class="agenda-filter" data-agenda-filter="all" data-i18n-dynamic="admin.js:applyAgendaTranslations">All</button>
                     </div>
 
                     <!-- Barra de navegación temporal: sólo tiene sentido en las
                          vistas de calendario, la lista se gobierna por estado. -->
                     <div class="agenda-calendar-nav" id="agenda-calendar-nav" hidden>
-                        <button type="button" class="agenda-refresh" id="agenda-cal-prev" aria-label="Previous period">←</button>
-                        <strong id="agenda-cal-label" aria-live="polite"></strong>
-                        <button type="button" class="agenda-refresh" id="agenda-cal-next" aria-label="Next period">→</button>
-                        <button type="button" class="agenda-refresh" id="agenda-cal-today">Today</button>
+                        <button type="button" class="agenda-refresh" id="agenda-cal-prev" data-i18n-aria-label="agenda.prevPeriod" aria-label="Previous period">←</button>
+                        <strong id="agenda-cal-label" aria-live="polite" data-i18n-dynamic="admin.js:renderAgendaCalendar"></strong>
+                        <button type="button" class="agenda-refresh" id="agenda-cal-next" data-i18n-aria-label="agenda.nextPeriod" aria-label="Next period">→</button>
+                        <button type="button" class="agenda-refresh" id="agenda-cal-today" data-i18n="agenda.today">Today</button>
                     </div>
 
                     <div id="agenda-meeting-list" class="agenda-meeting-list" aria-live="polite">
@@ -541,8 +573,8 @@
         <section id="mail" class="portal-section">
             <div class="portal-header">
                 <div>
-                    <h1 id="mail-title">Mail</h1>
-                    <p class="color-text-secondary" id="mail-desc">Compose and send email from the Elysium mailboxes.</p>
+                    <h1 id="mail-title" data-i18n-dynamic="admin.js:applyTranslations">Mail</h1>
+                    <p class="color-text-secondary" id="mail-desc" data-i18n-dynamic="admin.js:applyTranslations">Compose and send email from the Elysium mailboxes.</p>
                 </div>
             </div>
 
@@ -550,37 +582,37 @@
                 <article class="agenda-panel mail-compose-panel">
                     <div class="agenda-panel-heading mail-panel-heading">
                         <div>
-                            <span class="agenda-eyebrow" id="mail-compose-eyebrow">New message</span>
-                            <h2 id="mail-compose-title">Compose</h2>
+                            <span class="agenda-eyebrow" id="mail-compose-eyebrow" data-i18n-dynamic="admin.js:applyTranslations">New message</span>
+                            <h2 id="mail-compose-title" data-i18n-dynamic="admin.js:applyTranslations">Compose</h2>
                         </div>
-                        <span class="mail-secure-chip"><span aria-hidden="true"></span><span id="mail-secure-label">Secure SMTP</span></span>
+                        <span class="mail-secure-chip"><span aria-hidden="true"></span><span id="mail-secure-label" data-i18n-dynamic="admin.js:applyTranslations">Secure SMTP</span></span>
                     </div>
 
                     <form id="mail-compose-form" class="mail-compose-form" novalidate>
                         <div class="meeting-form-grid mail-fields-grid">
                             <label class="meeting-field">
-                                <span id="mail-label-from">From</span>
+                                <span id="mail-label-from" data-i18n-dynamic="admin.js:applyTranslations">From</span>
                                 <select id="mail-sender" name="sender" required>
-                                    <option value="">Loading mailboxes…</option>
+                                    <option value="" data-i18n-dynamic="admin.js:loadMailSenders">Loading mailboxes…</option>
                                 </select>
-                                <small id="mail-sender-hint" class="mail-hint" aria-live="polite"></small>
+                                <small id="mail-sender-hint" class="mail-hint" aria-live="polite" data-i18n-dynamic="admin.js:loadMailSenders"></small>
                             </label>
 
                             <label class="meeting-field">
-                                <span id="mail-label-reply">Reply-To (optional)</span>
-                                <input id="mail-reply-to" name="replyTo" type="email" autocomplete="email" placeholder="reply@elysiumdr.eu">
+                                <span id="mail-label-reply" data-i18n-dynamic="admin.js:applyTranslations">Reply-To (optional)</span>
+                                <input id="mail-reply-to" name="replyTo" type="email" autocomplete="email" translate="no" placeholder="reply@elysiumdr.eu">
                             </label>
 
                             <label class="meeting-field meeting-field-wide">
-                                <span id="mail-label-to">To</span>
-                                <input id="mail-recipient" name="recipient" type="text" required autocomplete="off" list="mail-client-emails" placeholder="client@example.com">
+                                <span id="mail-label-to" data-i18n-dynamic="admin.js:applyTranslations">To</span>
+                                <input id="mail-recipient" name="recipient" type="text" required autocomplete="off" list="mail-client-emails" translate="no" placeholder="client@example.com">
                                 <datalist id="mail-client-emails"></datalist>
-                                <small class="mail-hint" id="mail-to-hint">Separate several recipients with commas.</small>
+                                <small class="mail-hint" id="mail-to-hint" data-i18n-dynamic="admin.js:applyTranslations">Separate several recipients with commas.</small>
                             </label>
 
                             <label class="meeting-field meeting-field-wide">
-                                <span id="mail-label-subject">Subject</span>
-                                <input id="mail-subject" name="subject" type="text" maxlength="250" autocomplete="off" required placeholder="A clear subject for this message">
+                                <span id="mail-label-subject" data-i18n-dynamic="admin.js:applyTranslations">Subject</span>
+                                <input id="mail-subject" name="subject" type="text" maxlength="250" autocomplete="off" required data-i18n-dynamic="admin.js:applyTranslations" placeholder="A clear subject for this message">
                             </label>
                         </div>
 
@@ -591,17 +623,17 @@
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3.75h7.6L19 8.15v12.1H7z"/><path d="M14.5 3.75v4.5H19M9.7 12h6.6M9.7 15.2h6.6"/></svg>
                                     </span>
                                     <div>
-                                        <strong id="mail-label-body">HTML template</strong>
-                                        <p id="mail-body-hint">Upload the finished email; its preview appears beside the form.</p>
+                                        <strong id="mail-label-body" data-i18n-dynamic="admin.js:applyTranslations">HTML template</strong>
+                                        <p id="mail-body-hint" data-i18n-dynamic="admin.js:applyTranslations">Upload the finished email; its preview appears beside the form.</p>
                                     </div>
                                 </div>
                                 <input id="mail-template" name="template" type="file" accept=".html,.htm,text/html" required hidden>
                                 <button class="mail-asset-action" id="mail-template-trigger" type="button">
-                                    <span id="mail-import-text">Choose .html</span>
+                                    <span id="mail-import-text" data-i18n-dynamic="admin.js:applyTranslations">Choose .html</span>
                                 </button>
                                 <div id="mail-template-summary" class="mail-selected-file" hidden>
                                     <span class="mail-selected-file-name" id="mail-file-name"></span>
-                                    <button type="button" id="mail-remove-template-btn" aria-label="Remove HTML template">×</button>
+                                    <button type="button" id="mail-remove-template-btn" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Remove HTML template">×</button>
                                 </div>
                             </section>
 
@@ -611,22 +643,22 @@
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m8.2 12.5 5.9-5.9a3 3 0 0 1 4.2 4.2l-7.2 7.3a4.5 4.5 0 0 1-6.4-6.4l7.4-7.4"/><path d="m10.3 10.4-4 4a2.1 2.1 0 0 0 3 3l6.8-6.8"/></svg>
                                     </span>
                                     <div>
-                                        <strong id="mail-label-attachments">Attachments</strong>
-                                        <p id="mail-attachments-hint">Up to 10 files, 8 MB each and 12 MB total.</p>
+                                        <strong id="mail-label-attachments" data-i18n-dynamic="admin.js:applyTranslations">Attachments</strong>
+                                        <p id="mail-attachments-hint" data-i18n-dynamic="admin.js:applyTranslations">Up to 10 files, 8 MB each and 12 MB total.</p>
                                     </div>
                                 </div>
                                 <input id="mail-attachments" name="attachments" type="file" multiple hidden>
                                 <button class="mail-asset-action" id="mail-attachment-trigger" type="button">
-                                    <span id="mail-attachment-action">Add files</span>
+                                    <span id="mail-attachment-action" data-i18n-dynamic="admin.js:applyTranslations">Add files</span>
                                 </button>
                                 <ul id="mail-attachment-list" class="mail-attachment-list" aria-live="polite"></ul>
                             </section>
                         </div>
 
                         <div class="meeting-form-footer mail-compose-footer">
-                            <p id="mail-form-message" class="meeting-form-message" aria-live="polite"></p>
+                            <p id="mail-form-message" class="meeting-form-message" aria-live="polite" data-i18n-dynamic="admin.js:setMailMessage"></p>
                             <button id="mail-send-btn" class="btn btn-primary mail-send-button" type="submit">
-                                <span id="mail-send-text">Send</span>
+                                <span id="mail-send-text" data-i18n-dynamic="admin.js:applyTranslations">Send</span>
                                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.3 3.1A59.8 59.8 0 0 1 21.5 12 59.8 59.8 0 0 1 3.3 20.9L6 12Zm0 0h7.5"/></svg>
                             </button>
                         </div>
@@ -636,26 +668,26 @@
                 <article class="agenda-panel mail-preview-panel">
                     <div class="agenda-panel-heading mail-panel-heading">
                         <div>
-                            <span class="agenda-eyebrow" id="mail-preview-eyebrow">Recipient view</span>
-                            <h2 id="mail-preview-title">Email preview</h2>
+                            <span class="agenda-eyebrow" id="mail-preview-eyebrow" data-i18n-dynamic="admin.js:applyTranslations">Recipient view</span>
+                            <h2 id="mail-preview-title" data-i18n-dynamic="admin.js:applyTranslations">Email preview</h2>
                         </div>
                         <div class="mail-preview-tools">
                             <!-- `allow-same-origin` sin `allow-scripts`: hace falta
                                  para poder editar el documento desde aquí, y sin
                                  scripts ninguna plantilla importada se ejecuta. -->
-                            <button type="button" id="mail-edit-toggle" class="mail-edit-toggle" aria-pressed="false" hidden>Edit text</button>
-                            <span id="mail-preview-badge" class="mail-preview-badge">No template</span>
+                            <button type="button" id="mail-edit-toggle" class="mail-edit-toggle" aria-pressed="false" hidden data-i18n-dynamic="admin.js:syncMailEditAvailability">Edit text</button>
+                            <span id="mail-preview-badge" class="mail-preview-badge" data-i18n-dynamic="admin.js:applyTranslations">No template</span>
                         </div>
                     </div>
                     <div class="mail-preview-stage" id="mail-live-preview-container">
                         <div class="mail-preview-empty" id="mail-preview-empty">
                             <span aria-hidden="true">λ</span>
-                            <strong id="mail-preview-empty-title">Your message will appear here</strong>
-                            <p id="mail-preview-empty-copy">Choose an HTML template to inspect it before sending.</p>
+                            <strong id="mail-preview-empty-title" data-i18n-dynamic="admin.js:applyTranslations">Your message will appear here</strong>
+                            <p id="mail-preview-empty-copy" data-i18n-dynamic="admin.js:applyTranslations">Choose an HTML template to inspect it before sending.</p>
                         </div>
-                        <iframe id="mail-live-preview-frame" title="Email preview" sandbox="allow-same-origin" hidden></iframe>
+                        <iframe id="mail-live-preview-frame" data-i18n-dynamic="admin.js:applyTranslations" title="Email preview" sandbox="allow-same-origin" hidden></iframe>
                     </div>
-                    <p class="mail-edit-hint" id="mail-edit-hint" hidden>Click any text in the preview to correct it. The changes go out with the message.</p>
+                    <p class="mail-edit-hint" id="mail-edit-hint" hidden data-i18n-dynamic="admin.js:applyTranslations">Click any text in the preview to correct it. The changes go out with the message.</p>
                 </article>
             </div>
 
@@ -664,18 +696,18 @@
                     <div class="mail-confirm-mark" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5h16v11H4z"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>
                     </div>
-                    <span class="agenda-eyebrow" id="mail-confirm-eyebrow">Final check</span>
-                    <h2 id="mail-confirm-title">Send this email?</h2>
-                    <p id="mail-confirm-copy">Review the real delivery details before continuing.</p>
+                    <span class="agenda-eyebrow" id="mail-confirm-eyebrow" data-i18n-dynamic="admin.js:applyTranslations">Final check</span>
+                    <h2 id="mail-confirm-title" data-i18n-dynamic="admin.js:applyTranslations">Send this email?</h2>
+                    <p id="mail-confirm-copy" data-i18n-dynamic="admin.js:applyTranslations">Review the real delivery details before continuing.</p>
                     <dl class="mail-confirm-summary">
-                        <div><dt id="mail-confirm-from-label">From</dt><dd id="mail-confirm-from"></dd></div>
-                        <div><dt id="mail-confirm-to-label">To</dt><dd id="mail-confirm-to"></dd></div>
-                        <div><dt id="mail-confirm-subject-label">Subject</dt><dd id="mail-confirm-subject"></dd></div>
-                        <div><dt id="mail-confirm-files-label">Attachments</dt><dd id="mail-confirm-files"></dd></div>
+                        <div><dt id="mail-confirm-from-label" data-i18n-dynamic="admin.js:applyTranslations">From</dt><dd id="mail-confirm-from"></dd></div>
+                        <div><dt id="mail-confirm-to-label" data-i18n-dynamic="admin.js:applyTranslations">To</dt><dd id="mail-confirm-to"></dd></div>
+                        <div><dt id="mail-confirm-subject-label" data-i18n-dynamic="admin.js:applyTranslations">Subject</dt><dd id="mail-confirm-subject"></dd></div>
+                        <div><dt id="mail-confirm-files-label" data-i18n-dynamic="admin.js:applyTranslations">Attachments</dt><dd id="mail-confirm-files"></dd></div>
                     </dl>
                     <div class="mail-confirm-actions">
-                        <button class="btn btn-secondary" id="mail-confirm-cancel" type="button">Cancel</button>
-                        <button class="btn btn-primary" id="mail-confirm-send" type="button">Send email</button>
+                        <button class="btn btn-secondary" id="mail-confirm-cancel" data-i18n-dynamic="admin.js:applyTranslations" type="button">Cancel</button>
+                        <button class="btn btn-primary" id="mail-confirm-send" data-i18n-dynamic="admin.js:applyTranslations" type="button">Send email</button>
                     </div>
                 </article>
             </div>
@@ -684,8 +716,8 @@
         <section id="licenses" class="portal-section">
             <div class="portal-header">
                 <div>
-                    <h1>Licenses</h1>
-                    <p class="color-text-secondary">Licenses assigned by active subscriptions, whether paid online or recorded manually.</p>
+                    <h1 data-i18n-dynamic="admin.js:applyTranslations">Licenses</h1>
+                    <p class="color-text-secondary" data-i18n-dynamic="admin.js:applyTranslations">Licenses assigned by active subscriptions, whether paid online or recorded manually.</p>
                 </div>
             </div>
             <div id="licenses-summary" class="licenses-summary" aria-live="polite"></div>
@@ -693,12 +725,12 @@
                 <table class="portal-table">
                     <thead>
                         <tr>
-                            <th id="th-lic-code">Code</th>
-                            <th id="th-lic-client">Client</th>
-                            <th id="th-lic-plan">Plan</th>
-                            <th id="th-lic-origin">Origin</th>
-                            <th id="th-lic-status">Status</th>
-                            <th id="th-lic-renewal">Next renewal</th>
+                            <th id="th-lic-code" data-i18n-dynamic="admin.js:applyTranslations">Code</th>
+                            <th id="th-lic-client" data-i18n-dynamic="admin.js:applyTranslations">Client</th>
+                            <th id="th-lic-plan" data-i18n-dynamic="admin.js:applyTranslations">Plan</th>
+                            <th id="th-lic-origin" data-i18n-dynamic="admin.js:applyTranslations">Origin</th>
+                            <th id="th-lic-status" data-i18n-dynamic="admin.js:applyTranslations">Status</th>
+                            <th id="th-lic-renewal" data-i18n-dynamic="admin.js:applyTranslations">Next renewal</th>
                         </tr>
                     </thead>
                     <tbody id="licenses-list">
@@ -714,27 +746,27 @@
         <section id="reports" class="portal-section">
             <div class="portal-header">
                 <div>
-                    <h1 id="reports-title">Reports</h1>
-                    <p class="color-text-secondary" id="reports-desc">Commercial and operational metrics from the same source of truth.</p>
+                    <h1 id="reports-title" data-i18n="reports.title">Reports</h1>
+                    <p class="color-text-secondary" id="reports-desc" data-i18n="reports.desc">Commercial and operational metrics from the same source of truth.</p>
                 </div>
-                <button type="button" class="btn btn-primary" id="reports-export-btn">Export CSV</button>
+                <button type="button" class="btn btn-primary" id="reports-export-btn" data-i18n="reports.export">Export CSV</button>
             </div>
-            <div class="reports-period-bar" role="group" aria-label="Reporting period">
-                <button type="button" data-report-days="7">7 days</button>
-                <button type="button" class="is-active" data-report-days="30">30 days</button>
-                <button type="button" data-report-days="90">90 days</button>
+            <div class="reports-period-bar" role="group" data-i18n-aria-label="reports.periodAria" aria-label="Reporting period">
+                <button type="button" data-report-days="7" data-i18n="reports.days7">7 days</button>
+                <button type="button" class="is-active" data-report-days="30" data-i18n="reports.days30">30 days</button>
+                <button type="button" data-report-days="90" data-i18n="reports.days90">90 days</button>
             </div>
             <div class="kpi-grid reports-kpi-grid" id="reports-kpis"></div>
             <div class="portal-table-wrap">
                 <table class="portal-table">
                     <thead>
                         <tr>
-                            <th>Owner</th>
-                            <th>Contacts</th>
-                            <th>Open opportunities</th>
-                            <th>Won</th>
-                            <th>Pipeline value</th>
-                            <th>Conversion</th>
+                            <th data-i18n="reports.colOwner">Owner</th>
+                            <th data-i18n="reports.colContacts">Contacts</th>
+                            <th data-i18n="reports.colOpen">Open opportunities</th>
+                            <th data-i18n="reports.colWon">Won</th>
+                            <th data-i18n="reports.colValue">Pipeline value</th>
+                            <th data-i18n="reports.colConversion">Conversion</th>
                         </tr>
                     </thead>
                     <tbody id="reports-list">
@@ -750,10 +782,10 @@
         <section id="prototypes" class="portal-section">
             <div class="portal-header" style="margin-bottom: 1.5rem;">
                 <div>
-                    <h1 id="prototypes-title">Prototypes</h1>
-                    <p class="color-text-secondary" id="prototypes-desc">Exclusive internal concepts, client prototypes and interactive demos.</p>
+                    <h1 id="prototypes-title" data-i18n="prototypes.title">Prototypes</h1>
+                    <p class="color-text-secondary" id="prototypes-desc" data-i18n="prototypes.desc">Exclusive internal concepts, client prototypes and interactive demos.</p>
                 </div>
-                <span class="portal-status">Admin only access</span>
+                <span class="portal-status" data-i18n="prototypes.adminOnly">Admin only access</span>
             </div>
 
             <!-- iOS Filter Capsule (Identical to Portfolio) -->
@@ -763,16 +795,16 @@
                         <svg class="ios-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z"/>
                         </svg>
-                        <input type="text" class="ios-search-input" id="prototype-search" placeholder="Search prototypes...">
+                        <input type="text" class="ios-search-input" id="prototype-search" data-i18n-placeholder="prototypes.searchPlaceholder" placeholder="Search prototypes…">
                     </div>
                     <div class="ios-divider"></div>
                     <div class="ios-segmented-control" id="ios-segmented-control-proto">
                         <div class="ios-segment-slider" id="ios-segment-slider-proto"></div>
-                        <button class="ios-segment active" data-filter="all">All</button>
-                        <button class="ios-segment" data-filter="health">Health</button>
-                        <button class="ios-segment" data-filter="tech">Tech</button>
-                        <button class="ios-segment" data-filter="food">Food</button>
-                        <button class="ios-segment" data-filter="retail">Retail</button>
+                        <button class="ios-segment active" data-filter="all" data-i18n="prototypes.filterAll">All</button>
+                        <button class="ios-segment" data-filter="health" data-i18n="prototypes.filterHealth">Health</button>
+                        <button class="ios-segment" data-filter="tech" data-i18n="prototypes.filterTech">Tech</button>
+                        <button class="ios-segment" data-filter="food" data-i18n="prototypes.filterFood">Food</button>
+                        <button class="ios-segment" data-filter="retail" data-i18n="prototypes.filterRetail">Retail</button>
                     </div>
                 </div>
             </div>
@@ -786,18 +818,18 @@
                     <a href="ONCORE/index-en" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="ONCORE/index-en" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="Images/Portfolio/oncore.png" alt="ONCORE preview" loading="lazy">
+                            <img class="mobile-preview" src="Images/Portfolio/oncore.png" data-i18n-alt="prototypes.oncoreAlt" alt="ONCORE preview" loading="lazy">
                         </div>
                         <div class="project-overlay">
-                            <span>Ver Prototipo ONCORE</span>
+                            <span data-i18n="prototypes.oncoreOverlay">View the ONCORE prototype</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>ONCORE <span class="project-location">PORTUGAL</span></h3>
-                        <p>Cancer Recovery & Performance Center. Premium clinical and physical recovery for survivors.</p>
+                        <h3 translate="no">ONCORE <span class="project-location">PORTUGAL</span></h3>
+                        <p data-i18n="prototypes.oncoreDesc">Cancer Recovery &amp; Performance Center. Premium clinical and physical recovery for survivors.</p>
                         <div class="project-tags">
-                            <a href="ONCORE/index-en" target="_blank">Prototipo Live</a>
-                            <span>Prototipo Admin</span>
+                            <a href="ONCORE/index-en" target="_blank" data-i18n="prototypes.tagLive">Live prototype</a>
+                            <span data-i18n="prototypes.tagAdmin">Admin prototype</span>
                         </div>
                     </div>
                 </div>
@@ -807,19 +839,19 @@
                     <a href="/selva-y-sal" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="/selva-y-sal" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="Images/Portfolio/selva-y-sal.jpg" alt="Selva y Sal Preview" loading="lazy">
+                            <img class="mobile-preview" src="Images/Portfolio/selva-y-sal.jpg" data-i18n-alt="prototypes.selvaAlt" alt="Selva y Sal preview" loading="lazy">
                         </div>
                         <div class="project-overlay">
-                            <span>Ver Demo Selva y Sal (v1.0.0 Beta)</span>
+                            <span data-i18n="prototypes.selvaOverlay">View the Selva y Sal demo (v1.0.0 Beta)</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>Selva y Sal <span class="project-location">DEMO · COSTA RICA</span></h3>
-                        <p>Demo de e-commerce con marca ficticia: estética Liquid Glass, catálogo interactivo, narrativa inmersiva con escena 3D y checkout optimizado.</p>
+                        <h3 translate="no">Selva y Sal <span class="project-location">DEMO · COSTA RICA</span></h3>
+                        <p data-i18n="prototypes.selvaDesc">E-commerce demo with a fictional brand: Liquid Glass aesthetics, interactive catalogue, immersive 3D narrative and an optimised checkout.</p>
                         <div class="project-tags">
-                            <a href="/selva-y-sal" target="_blank">Ver Demo</a>
-                            <span>Liquid Glass</span>
-                            <span>v1.0.0 Beta</span>
+                            <a href="/selva-y-sal" target="_blank" data-i18n="prototypes.selvaDemo">View demo</a>
+                            <span translate="no">Liquid Glass</span>
+                            <span translate="no">v1.0.0 Beta</span>
                         </div>
                     </div>
                 </div>
@@ -831,18 +863,18 @@
                     <a href="Dr-Johnny-Piedra/" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="Dr-Johnny-Piedra/" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="Images/Portfolio/dr-johnny.png" alt="Dr. Johnny Piedra preview" loading="lazy">
+                            <img class="mobile-preview" src="Images/Portfolio/dr-johnny.png" data-i18n-alt="prototypes.johnnyAlt" alt="Dr. Johnny Piedra preview" loading="lazy">
                         </div>
                         <div class="project-overlay">
-                            <span>Visitar Dr. Johnny Piedra</span>
+                            <span data-i18n="prototypes.johnnyOverlay">Visit Dr. Johnny Piedra</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>Dr. Johnny Piedra <span class="project-location">COSTA RICA</span></h3>
-                        <p>Urología Avanzada y Cirugía Mínimamente Invasiva. Atención médica especializada en Costa Rica.</p>
+                        <h3 translate="no">Dr. Johnny Piedra <span class="project-location">COSTA RICA</span></h3>
+                        <p data-i18n="prototypes.johnnyDesc">Advanced urology and minimally invasive surgery. Specialist medical care in Costa Rica.</p>
                         <div class="project-tags">
-                            <a href="Dr-Johnny-Piedra/" target="_blank">Prototipo Live</a>
-                            <span>Prototipo Admin</span>
+                            <a href="Dr-Johnny-Piedra/" target="_blank" data-i18n="prototypes.tagLive">Live prototype</a>
+                            <span data-i18n="prototypes.tagAdmin">Admin prototype</span>
                         </div>
                     </div>
                 </div>
@@ -857,15 +889,15 @@
                             <iframe src="/Demo-arbol/" loading="lazy"></iframe>
                         </div>
                         <div class="project-overlay">
-                            <span>Ver Demo-arbol</span>
+                            <span data-i18n="prototypes.arbolOverlay">View Demo-arbol</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>Demo-arbol</h3>
-                        <p>Demo sin contenido: scroll cinemático en 3D, tienda, cabecera y dock listos para recibir la marca de un cliente.</p>
+                        <h3 translate="no">Demo-arbol</h3>
+                        <p data-i18n="prototypes.arbolDesc">Content-free demo: cinematic 3D scroll, store, header and dock ready to take on a client brand.</p>
                         <div class="project-tags">
-                            <a href="/Demo-arbol/" target="_blank">Prototipo Live</a>
-                            <span>Prototipo Admin</span>
+                            <a href="/Demo-arbol/" target="_blank" data-i18n="prototypes.tagLive">Live prototype</a>
+                            <span data-i18n="prototypes.tagAdmin">Admin prototype</span>
                         </div>
                     </div>
                 </div>
@@ -876,6 +908,46 @@
              Full page for one partner. Not in the sidebar: it is
              reached from a partner card, the pipeline or a deep link.
         ─────────────────────────────────────────────────────── -->
+        <section id="research" class="portal-section" aria-labelledby="research-title">
+            <div class="portal-header research-admin-header">
+                <div>
+                    <span class="crm-section-eyebrow" translate="no">Development &amp; Research</span>
+                    <h1 id="research-title" data-i18n="nav.research">Research</h1>
+                    <p class="color-text-secondary" id="research-description" data-i18n-dynamic="admin-research.js:applyCopy">Manage public notebooks and their research publications.</p>
+                </div>
+                <div class="research-header-actions">
+                    <span class="portal-status" id="research-sync-status" data-i18n-dynamic="admin-research.js:applyCopy">Firestore sync</span>
+                    <button type="button" class="btn btn-primary" id="research-new-notebook" data-i18n-dynamic="admin-research.js:applyCopy">+ New notebook</button>
+                </div>
+            </div>
+            <div class="portal-alert is-error" id="research-alert" role="alert" aria-live="polite" hidden></div>
+            <div id="research-notebooks-view">
+                <div class="research-view-heading">
+                    <div><span id="research-notebook-count" data-i18n-dynamic="admin-research.js:applyCopy">0 notebooks</span><h2 id="research-library-title" data-i18n-dynamic="admin-research.js:applyCopy">Notebook library</h2></div>
+                </div>
+                <div class="research-notebook-grid" id="research-notebook-grid" aria-live="polite">
+                    <div class="loader-container"><div class="premium-loader"></div></div>
+                </div>
+            </div>
+            <div id="research-notebook-detail" hidden>
+                <button type="button" class="research-back-button" id="research-back-notebooks"><span aria-hidden="true">←</span> <span id="research-back-label" data-i18n-dynamic="admin-research.js:applyCopy">All notebooks</span></button>
+                <div class="research-detail-hero">
+                    <div class="research-detail-cover" id="research-detail-cover" aria-hidden="true"></div>
+                    <div class="research-detail-copy">
+                        <span class="crm-section-eyebrow" id="research-detail-eyebrow" data-i18n-dynamic="admin-research.js:applyCopy">Notebook</span>
+                        <h2 id="research-detail-title" data-i18n-dynamic="admin-research.js:applyCopy"></h2>
+                        <p id="research-detail-description" data-i18n-dynamic="admin-research.js:applyCopy"></p>
+                        <div class="research-detail-meta" id="research-detail-meta" data-i18n-dynamic="admin-research.js:applyCopy"></div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="research-new-article" data-i18n-dynamic="admin-research.js:applyCopy">+ New publication</button>
+                </div>
+                <div class="research-view-heading research-publications-heading">
+                    <div><span id="research-article-count" data-i18n-dynamic="admin-research.js:applyCopy">0 publications</span><h2 id="research-publications-title" data-i18n-dynamic="admin-research.js:applyCopy">Publications</h2></div>
+                </div>
+                <div class="research-article-list" id="research-article-list" aria-live="polite"></div>
+            </div>
+        </section>
+
         <section id="client-profile" class="portal-section">
             <div id="detail-content">
                 <!-- Content injected by JS -->
@@ -887,7 +959,7 @@
     <!-- Contact 360º drawer -->
     <div class="crm-drawer-backdrop" id="contact-drawer-backdrop" hidden>
         <aside class="crm-drawer" id="contact-drawer" role="dialog" aria-modal="true" aria-labelledby="contact-drawer-title">
-            <div id="contact-drawer-content"></div>
+            <div id="contact-drawer-content" data-i18n-dynamic="admin.js:renderContactDrawer"></div>
         </aside>
     </div>
 
@@ -895,19 +967,19 @@
     <dialog class="crm-dialog" id="contact-dialog" aria-labelledby="contact-dialog-title">
         <form method="dialog" class="crm-dialog-card" id="contact-form">
             <div class="crm-dialog-header">
-                <div><span class="agenda-eyebrow">Relationship</span><h2 id="contact-dialog-title">New contact</h2></div>
-                <button type="button" class="crm-dialog-close" data-close-dialog="contact-dialog" aria-label="Close">×</button>
+                <div><span class="agenda-eyebrow" data-i18n="dialogs.contactEyebrow">Relationship</span><h2 id="contact-dialog-title" data-i18n="dialogs.contactTitle">New contact</h2></div>
+                <button type="button" class="crm-dialog-close" data-close-dialog="contact-dialog" data-i18n-aria-label="dialogs.close" aria-label="Close">×</button>
             </div>
             <div class="meeting-form-grid">
-                <label class="meeting-field"><span>First name</span><input id="contact-first-name" maxlength="100" required autocomplete="given-name"></label>
-                <label class="meeting-field"><span>Last name</span><input id="contact-last-name" maxlength="100" autocomplete="family-name"></label>
-                <label class="meeting-field"><span>Email</span><input id="contact-email" type="email" maxlength="254" autocomplete="email"></label>
-                <label class="meeting-field"><span>Phone</span><input id="contact-phone" type="tel" maxlength="40" autocomplete="tel"></label>
-                <label class="meeting-field"><span>Company</span><input id="contact-company" maxlength="160" autocomplete="organization"></label>
-                <label class="meeting-field"><span>Role</span><input id="contact-job-title" maxlength="120" autocomplete="organization-title"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.firstName">First name</span><input id="contact-first-name" maxlength="100" required autocomplete="given-name"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.lastName">Last name</span><input id="contact-last-name" maxlength="100" autocomplete="family-name"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.email">Email</span><input id="contact-email" type="email" maxlength="254" autocomplete="email"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.phone">Phone</span><input id="contact-phone" type="tel" maxlength="40" autocomplete="tel"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.company">Company</span><input id="contact-company" maxlength="160" autocomplete="organization"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.role">Role</span><input id="contact-job-title" maxlength="120" autocomplete="organization-title"></label>
             </div>
-            <p class="meeting-form-message" id="contact-form-message" aria-live="polite"></p>
-            <div class="crm-dialog-footer"><button type="button" class="btn btn-secondary" data-close-dialog="contact-dialog">Cancel</button><button type="submit" class="btn btn-primary" id="contact-save-btn">Save contact</button></div>
+            <p class="meeting-form-message" id="contact-form-message" aria-live="polite" data-i18n-dynamic="admin.js:createContact"></p>
+            <div class="crm-dialog-footer"><button type="button" class="btn btn-secondary" data-close-dialog="contact-dialog" data-i18n="dialogs.cancel">Cancel</button><button type="submit" class="btn btn-primary" id="contact-save-btn" data-i18n-dynamic="admin.js:createContact">Save contact</button></div>
         </form>
     </dialog>
 
@@ -915,19 +987,162 @@
     <dialog class="crm-dialog" id="opportunity-dialog" aria-labelledby="opportunity-dialog-title">
         <form method="dialog" class="crm-dialog-card" id="opportunity-form">
             <div class="crm-dialog-header">
-                <div><span class="agenda-eyebrow">Pipeline</span><h2 id="opportunity-dialog-title">New opportunity</h2></div>
-                <button type="button" class="crm-dialog-close" data-close-dialog="opportunity-dialog" aria-label="Close">×</button>
+                <div><span class="agenda-eyebrow" data-i18n="dialogs.opportunityEyebrow">Pipeline</span><h2 id="opportunity-dialog-title" data-i18n="dialogs.opportunityTitle">New opportunity</h2></div>
+                <button type="button" class="crm-dialog-close" data-close-dialog="opportunity-dialog" data-i18n-aria-label="dialogs.close" aria-label="Close">×</button>
             </div>
             <div class="meeting-form-grid">
-                <label class="meeting-field meeting-field-wide"><span>Contact</span><select id="opportunity-contact" required><option value="">Select a contact…</option></select></label>
-                <label class="meeting-field meeting-field-wide"><span>Opportunity</span><input id="opportunity-title" maxlength="180" required placeholder="Commercial proposal"></label>
-                <label class="meeting-field"><span>Value (€)</span><input id="opportunity-value" type="number" min="0" step="0.01" required></label>
-                <label class="meeting-field"><span>Stage</span><select id="opportunity-stage" required><option value="new">New</option><option value="contacted">Contacted</option><option value="negotiation">Negotiation</option><option value="won">Won</option><option value="lost">Lost</option></select></label>
-                <label class="meeting-field"><span>Expected close</span><input id="opportunity-close-date" type="date"></label>
-                <label class="meeting-field"><span>Tags</span><input id="opportunity-tags" maxlength="400" placeholder="priority, web"></label>
+                <label class="meeting-field meeting-field-wide"><span data-i18n="dialogs.opportunityContact">Contact</span><select id="opportunity-contact" required><option value="" data-i18n-dynamic="admin.js:renderOpportunityContactOptions">Select a contact…</option></select></label>
+                <label class="meeting-field meeting-field-wide"><span data-i18n="dialogs.opportunityName">Opportunity</span><input id="opportunity-title" maxlength="180" required data-i18n-placeholder="dialogs.opportunityPlaceholder" placeholder="Commercial proposal"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.opportunityValue">Value (€)</span><input id="opportunity-value" type="number" min="0" step="0.01" required></label>
+                <label class="meeting-field"><span data-i18n="dialogs.opportunityStage">Stage</span><select id="opportunity-stage" required><option value="new" data-i18n="pipeline.stages.new">New</option><option value="contacted" data-i18n="pipeline.stages.contacted">Contacted</option><option value="negotiation" data-i18n="pipeline.stages.negotiation">Negotiation</option><option value="won" data-i18n="pipeline.stages.won">Won</option><option value="lost" data-i18n="pipeline.stages.lost">Lost</option></select></label>
+                <label class="meeting-field"><span data-i18n="dialogs.expectedClose">Expected close</span><input id="opportunity-close-date" type="date"></label>
+                <label class="meeting-field"><span data-i18n="dialogs.tags">Tags</span><input id="opportunity-tags" maxlength="400" data-i18n-placeholder="dialogs.tagsPlaceholder" placeholder="priority, web"></label>
             </div>
-            <p class="meeting-form-message" id="opportunity-form-message" aria-live="polite"></p>
-            <div class="crm-dialog-footer"><button type="button" class="btn btn-secondary" data-close-dialog="opportunity-dialog">Cancel</button><button type="submit" class="btn btn-primary" id="opportunity-save-btn">Create opportunity</button></div>
+            <p class="meeting-form-message" id="opportunity-form-message" aria-live="polite" data-i18n-dynamic="admin.js:createOpportunity"></p>
+            <div class="crm-dialog-footer"><button type="button" class="btn btn-secondary" data-close-dialog="opportunity-dialog" data-i18n="dialogs.cancel">Cancel</button><button type="submit" class="btn btn-primary" id="opportunity-save-btn" data-i18n-dynamic="admin.js:createOpportunity">Create opportunity</button></div>
+        </form>
+    </dialog>
+
+    <!-- Cuenta del administrador.
+         El nombre que se ve en la barra lateral, en el selector de responsable
+         y como autor de una publicación sale del perfil de Firebase Auth. Sin
+         este formulario había que ir al portal de cliente a cambiarlo, y esa
+         visita crea un documento en `members/` para una cuenta que no es
+         cliente. -->
+    <dialog class="crm-dialog" id="admin-profile-dialog" aria-labelledby="admin-profile-dialog-title">
+        <form method="dialog" class="crm-dialog-card" id="admin-profile-form">
+            <div class="crm-dialog-header">
+                <div>
+                    <span class="agenda-eyebrow" id="admin-profile-eyebrow" data-i18n-dynamic="admin.js:applyTranslations">Your account</span>
+                    <h2 id="admin-profile-dialog-title" data-i18n-dynamic="admin.js:applyTranslations">Edit profile</h2>
+                </div>
+                <button type="button" class="crm-dialog-close" data-close-dialog="admin-profile-dialog" data-i18n-aria-label="dialogs.close" aria-label="Close">×</button>
+            </div>
+            <div class="admin-profile-photo">
+                <span class="admin-profile-preview" id="admin-profile-preview" aria-hidden="true">λ</span>
+                <div class="admin-profile-photo-copy">
+                    <strong id="admin-profile-photo-label" data-i18n-dynamic="admin.js:applyTranslations">Profile photo</strong>
+                    <small id="admin-profile-photo-hint" data-i18n-dynamic="admin.js:applyTranslations">JPG, PNG or WebP · max. 2 MB</small>
+                    <div class="admin-profile-photo-actions">
+                        <label class="crm-text-action" for="admin-profile-photo">
+                            <span id="admin-profile-photo-choose" data-i18n-dynamic="admin.js:applyTranslations">Choose photo</span>
+                            <input id="admin-profile-photo" type="file"
+                                accept="image/jpeg,image/png,image/webp" class="portal-sr-only">
+                        </label>
+                        <button type="button" class="crm-text-action" id="admin-profile-photo-remove" data-i18n-dynamic="admin.js:applyTranslations" hidden>Remove</button>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-profile-upload" id="admin-profile-upload" hidden>
+                <div><span id="admin-profile-upload-bar"></span></div>
+                <small id="admin-profile-upload-label" data-i18n-dynamic="admin.js:uploadAvatar">Uploading 0%</small>
+            </div>
+            <div class="meeting-form-grid">
+                <label class="meeting-field meeting-field-wide">
+                    <span id="admin-profile-name-label" data-i18n-dynamic="admin.js:applyTranslations">Display name</span>
+                    <input id="admin-profile-name" maxlength="120" required autocomplete="name"
+                        translate="no" placeholder="Daniel A. Morales Ávila">
+                </label>
+                <label class="meeting-field meeting-field-wide">
+                    <span id="admin-profile-email-label" data-i18n-dynamic="admin.js:applyTranslations">Email</span>
+                    <input id="admin-profile-email" type="email" readonly tabindex="-1">
+                </label>
+            </div>
+            <p class="admin-profile-hint" id="admin-profile-hint" data-i18n-dynamic="admin.js:applyTranslations">This name signs your research
+                publications and identifies you in the assignee list. Your email is your sign-in
+                and cannot be changed here.</p>
+            <p class="meeting-form-message" id="admin-profile-message" role="status" aria-live="polite" data-i18n-dynamic="admin.js:setProfileMessage"></p>
+            <div class="crm-dialog-footer">
+                <button type="button" class="btn btn-secondary" data-close-dialog="admin-profile-dialog" id="admin-profile-cancel" data-i18n-dynamic="admin.js:applyTranslations">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="admin-profile-save" data-i18n-dynamic="admin.js:applyTranslations">Save profile</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Research notebook creation -->
+    <dialog class="crm-dialog research-dialog" id="research-notebook-dialog" aria-labelledby="research-notebook-dialog-title">
+        <form method="dialog" class="crm-dialog-card research-dialog-card" id="research-notebook-form">
+            <div class="crm-dialog-header">
+                <div><span class="agenda-eyebrow" id="research-notebook-dialog-eyebrow" data-i18n-dynamic="admin-research.js:applyCopy">Research library</span><h2 id="research-notebook-dialog-title" data-i18n-dynamic="admin-research.js:applyCopy">New notebook</h2></div>
+                <button type="button" class="crm-dialog-close" data-research-close="research-notebook-dialog" data-i18n-aria-label="dialogs.close" aria-label="Close">×</button>
+            </div>
+            <div class="research-form-grid">
+                <label class="meeting-field research-field-wide">
+                    <span id="research-notebook-title-label" data-i18n-dynamic="admin-research.js:applyCopy">Title</span>
+                    <input id="research-notebook-title" maxlength="160" required autocomplete="off" data-i18n-dynamic="admin-research.js:applyCopy" placeholder="Investigación en Inteligencia Artificial">
+                </label>
+                <label class="meeting-field research-field-wide">
+                    <span id="research-notebook-description-label" data-i18n-dynamic="admin-research.js:applyCopy">Description</span>
+                    <textarea id="research-notebook-description-input" maxlength="1200" rows="4" required data-i18n-dynamic="admin-research.js:applyCopy" placeholder="Scope and purpose of this notebook"></textarea>
+                </label>
+                <label class="meeting-field">
+                    <span id="research-notebook-slug-label" data-i18n-dynamic="admin-research.js:applyCopy">Public slug</span>
+                    <input id="research-notebook-slug" maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" autocomplete="off" translate="no" placeholder="inteligencia-artificial">
+                </label>
+                <label class="meeting-field">
+                    <span id="research-notebook-locale-label" data-i18n-dynamic="admin-research.js:applyCopy">Language</span>
+                    <select id="research-notebook-locale" translate="no"><option value="es">Español</option><option value="en">English</option><option value="pt">Português</option></select>
+                </label>
+                <label class="meeting-field research-field-wide">
+                    <span id="research-notebook-cover-url-label" data-i18n-dynamic="admin-research.js:applyCopy">Cover URL (optional)</span>
+                    <input id="research-notebook-cover-url" type="url" maxlength="2000" inputmode="url" translate="no" placeholder="https://…">
+                </label>
+                <div class="meeting-field research-field-wide">
+                    <span id="research-notebook-cover-file-label" data-i18n-dynamic="admin-research.js:applyCopy">Or upload a cover</span>
+                    <label class="research-cover-picker" for="research-notebook-cover-file">
+                        <input id="research-notebook-cover-file" type="file" accept="image/jpeg,image/png,image/webp" class="portal-sr-only">
+                        <span class="research-cover-preview" id="research-cover-preview" aria-hidden="true">↑</span>
+                        <span><strong id="research-cover-picker-title" data-i18n-dynamic="admin-research.js:applyCopy">Choose image</strong><small id="research-cover-picker-copy" data-i18n-dynamic="admin-research.js:applyCopy">JPG, PNG or WebP · max. 5 MB</small></span>
+                    </label>
+                    <div class="research-upload-progress" id="research-cover-upload-progress" hidden><div><span id="research-cover-upload-bar"></span></div><small id="research-cover-upload-label" data-i18n-dynamic="admin-research.js:applyCopy">Uploading 0%</small></div>
+                </div>
+            </div>
+            <p class="meeting-form-message" id="research-notebook-message" role="status" aria-live="polite" data-i18n-dynamic="admin-research.js:setNotebookMessage"></p>
+            <div class="crm-dialog-footer">
+                <button type="button" class="btn btn-secondary" data-research-close="research-notebook-dialog" id="research-notebook-cancel" data-i18n-dynamic="admin-research.js:applyCopy">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="research-notebook-save" data-i18n-dynamic="admin-research.js:applyCopy">Create notebook</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Rich research publication editor -->
+    <dialog class="crm-dialog research-editor-dialog" id="research-article-dialog" aria-labelledby="research-article-dialog-title">
+        <form method="dialog" class="crm-dialog-card research-editor-card" id="research-article-form">
+            <div class="crm-dialog-header research-editor-header">
+                <div><span class="agenda-eyebrow" id="research-editor-notebook-name" data-i18n-dynamic="admin-research.js:applyCopy">Notebook</span><h2 id="research-article-dialog-title" data-i18n-dynamic="admin-research.js:applyCopy">New publication</h2></div>
+                <button type="button" class="crm-dialog-close" data-research-close="research-article-dialog" data-i18n-aria-label="dialogs.close" aria-label="Close">×</button>
+            </div>
+            <div class="research-article-fields">
+                <label class="meeting-field research-field-wide"><span id="research-article-title-label" data-i18n-dynamic="admin-research.js:applyCopy">Title</span><input id="research-article-title" maxlength="220" required autocomplete="off" data-i18n-dynamic="admin-research.js:applyCopy" placeholder="Publication title"></label>
+                <label class="meeting-field"><span id="research-article-slug-label" data-i18n-dynamic="admin-research.js:applyCopy">Public slug</span><input id="research-article-slug" maxlength="120" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" autocomplete="off" data-i18n-dynamic="admin-research.js:applyCopy" placeholder="publication-title"></label>
+                <label class="meeting-field"><span id="research-article-cover-label" data-i18n-dynamic="admin-research.js:applyCopy">Card cover URL (optional)</span><input id="research-article-cover-url" type="url" maxlength="2000" inputmode="url" translate="no" placeholder="https://…"></label>
+                <label class="meeting-field"><span id="research-article-author-label" data-i18n-dynamic="admin-research.js:applyCopy">Author</span><input id="research-article-author" maxlength="180" required autocomplete="name" translate="no" placeholder="Elysium λ Development &amp; Research"></label>
+                <label class="meeting-field research-field-wide"><span id="research-article-excerpt-label" data-i18n-dynamic="admin-research.js:applyCopy">Excerpt</span><textarea id="research-article-excerpt" maxlength="600" rows="3" required data-i18n-dynamic="admin-research.js:applyCopy" placeholder="A concise summary for the public card"></textarea></label>
+            </div>
+            <div class="research-editor-shell">
+                <div class="research-editor-toolbar" id="research-editor-toolbar" role="toolbar" data-i18n-dynamic="admin-research.js:applyCopy" aria-label="Text formatting">
+                    <label class="portal-sr-only" id="research-editor-block-label" data-i18n-dynamic="admin-research.js:applyCopy" for="research-editor-block">Text style</label>
+                    <select id="research-editor-block" data-i18n-dynamic="admin-research.js:applyCopy" title="Text style" aria-label="Text style"><option value="p" data-i18n-dynamic="admin-research.js:applyCopy">Paragraph</option><option value="h2" data-i18n-dynamic="admin-research.js:applyCopy">Heading 2</option><option value="h3" data-i18n-dynamic="admin-research.js:applyCopy">Heading 3</option><option value="h4" data-i18n-dynamic="admin-research.js:applyCopy">Heading 4</option></select>
+                    <span class="research-toolbar-divider" aria-hidden="true"></span>
+                    <button type="button" data-editor-command="bold" data-i18n-dynamic="admin-research.js:applyCopy" title="Bold" aria-label="Bold"><strong translate="no">B</strong></button>
+                    <button type="button" data-editor-command="italic" data-i18n-dynamic="admin-research.js:applyCopy" title="Italic" aria-label="Italic"><em translate="no">I</em></button>
+                    <button type="button" data-editor-command="insertUnorderedList" data-i18n-dynamic="admin-research.js:applyCopy" title="Bulleted list" aria-label="Bulleted list">• List</button>
+                    <button type="button" data-editor-command="insertOrderedList" data-i18n-dynamic="admin-research.js:applyCopy" title="Numbered list" aria-label="Numbered list">1. List</button>
+                    <button type="button" data-editor-block-command="blockquote" data-i18n-dynamic="admin-research.js:applyCopy" title="Quote" aria-label="Quote">“ Quote</button>
+                    <button type="button" data-editor-block-command="pre" data-i18n-dynamic="admin-research.js:applyCopy" title="Code block" aria-label="Code block">&lt;/&gt; Code</button>
+                    <button type="button" id="research-editor-inline-code" data-i18n-dynamic="admin-research.js:applyCopy" title="Inline code" aria-label="Inline code" translate="no">`code`</button>
+                    <span class="research-toolbar-divider" aria-hidden="true"></span>
+                    <button type="button" data-editor-command="undo" data-i18n-dynamic="admin-research.js:applyCopy" title="Undo" aria-label="Undo">↶</button>
+                    <button type="button" data-editor-command="redo" data-i18n-dynamic="admin-research.js:applyCopy" title="Redo" aria-label="Redo">↷</button>
+                </div>
+                <div id="research-article-editor" class="research-article-editor" contenteditable="true" role="textbox" aria-multiline="true" data-i18n-dynamic="admin-research.js:applyCopy" aria-label="Publication content" data-placeholder="Start writing your research…"></div>
+                <div class="research-editor-exports"><span id="research-editor-word-count" data-i18n-dynamic="admin-research.js:applyCopy">0 words</span><div><button type="button" class="crm-text-action" id="research-copy-html" data-i18n-dynamic="admin-research.js:applyCopy">Copy HTML</button><button type="button" class="crm-text-action" id="research-copy-markdown" data-i18n-dynamic="admin-research.js:applyCopy">Copy Markdown</button></div></div>
+            </div>
+            <p class="meeting-form-message" id="research-article-message" role="status" aria-live="polite" data-i18n-dynamic="admin-research.js:setArticleMessage"></p>
+            <div class="crm-dialog-footer research-editor-footer">
+                <button type="button" class="btn btn-secondary" data-research-close="research-article-dialog" id="research-article-cancel" data-i18n-dynamic="admin-research.js:applyCopy">Cancel</button>
+                <div><button type="submit" class="btn btn-secondary" value="draft" id="research-article-draft" data-i18n-dynamic="admin-research.js:applyCopy">Save draft</button><button type="submit" class="btn btn-primary" value="published" id="research-article-publish" data-i18n-dynamic="admin-research.js:applyCopy">Publish</button></div>
+            </div>
         </form>
     </dialog>
 
@@ -939,7 +1154,8 @@
          Served under /api on this same origin; set window.ELYSIUM_API_URL
          instead if it ever moves to its own host (and add it to connect-src). -->
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
-    <script type="module" src="JS/admin.js?v=2026081805"></script>
+    <script type="module" src="JS/admin.js?v=2026082611"></script>
+    <script type="module" src="JS/admin-research.js?v=2026082601"></script>
     <script defer src="JS/version-modal.js"></script>
 </body>
 </html>

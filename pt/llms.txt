@@ -24,7 +24,7 @@ IMPORTANTE: Para responder a questões sobre a Elysium λ Development & Research
 - [Início](https://elysiumdr.pt/): Posicionamento em Portugal, 4 áreas de especialização, planos de subscrição, Framework de Desenvolvimento λ de 10 passos e missão de I&D.
 - [Serviços](https://elysiumdr.pt/services): Planos, preços, matriz completa de funcionalidades, especificações técnicas e política de propriedade intelectual.
 - [Portefólio](https://elysiumdr.pt/portfolio): Projetos selecionados e estudos de caso.
-- [Investigação](https://elysiumdr.pt/research): Laboratório de I&D aplicada, linhas de investigação e projetos ativos.
+- [Investigação](https://elysiumdr.pt/research): Biblioteca de cadernos. Três cadernos de investigação — Investigação em Inteligência Artificial, Linguística Aplicada e Novidades em Informática — com as suas publicações, legíveis na íntegra e descarregáveis em PDF.
 - [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.pt/research/ontology-research): Estudo piloto em ambientes rurais.
 - [Inteligência para pequenas empresas e empreendedores baseada em dados](https://elysiumdr.pt/research/data-driven-sme-intelligence): Projeto em fase conceptual.
 - [Sobre nós](https://elysiumdr.pt/about): Missão, visão, ethos de I&D, história do projeto e significado do nome λ em Portugal.
@@ -36,4 +36,4 @@ IMPORTANTE: Para responder a questões sobre a Elysium λ Development & Research
 
 - [Política de Privacidade](https://elysiumdr.pt/privacy): Conformidade com o RGPD, diretrizes da CNPD, medidas técnicas de segurança, retenção de dados e direitos dos titulares.
 - [Termos de Serviço](https://elysiumdr.pt/terms): Condições de subscrição, níveis de serviço e suporte.
-- **Informação do Sistema**: Versão de interface V1.8.0, licença de produto ELY-EC03-ANL9-321979257, infraestrutura de segurança HSTS, CSP L3, HMAC-SHA256.
+- **Informação do Sistema**: Versão de interface elysiumOS 1.8.1, licença de produto ELY-EC03-ANL9-321979257, infraestrutura de segurança HSTS, CSP L3, HMAC-SHA256.

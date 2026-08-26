@@ -1,0 +1,615 @@
+/* ========================================================================== 
+   Elysium Research CMS — isolated extension of the admin portal design system
+   ========================================================================== */
+
+.customer-portal.is-admin .research-admin-header {
+    align-items: center;
+}
+
+.customer-portal.is-admin .research-header-actions,
+.customer-portal.is-admin .research-detail-meta,
+.customer-portal.is-admin .research-editor-footer > div {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.customer-portal.is-admin #research-sync-status::before {
+    content: '';
+    display: inline-block;
+    width: 0.42rem;
+    height: 0.42rem;
+    margin-right: 0.42rem;
+    border-radius: 50%;
+    background: #38d9ae;
+    box-shadow: 0 0 0 0.2rem rgba(56, 217, 174, 0.12);
+}
+
+.customer-portal.is-admin #research-sync-status.is-syncing::before {
+    background: #f7b955;
+    box-shadow: 0 0 0 0.2rem rgba(247, 185, 85, 0.12);
+}
+
+.customer-portal.is-admin #research-sync-status.is-error::before {
+    background: #f16e75;
+    box-shadow: 0 0 0 0.2rem rgba(241, 110, 117, 0.12);
+}
+
+.customer-portal.is-admin #research-alert {
+    margin-bottom: 1.25rem;
+}
+
+.customer-portal.is-admin .research-view-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 1rem;
+}
+
+.customer-portal.is-admin .research-view-heading span {
+    color: var(--crm-muted);
+    font-size: 0.68rem;
+    font-weight: 720;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .research-view-heading h2 {
+    margin: 0.2rem 0 0;
+    color: var(--crm-text);
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    letter-spacing: -0.025em;
+}
+
+.customer-portal.is-admin .research-notebook-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.customer-portal.is-admin .research-notebook-card {
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--crm-line);
+    border-radius: 1rem;
+    background: var(--crm-panel);
+    box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.18);
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.customer-portal.is-admin .research-notebook-card:hover {
+    transform: translateY(-0.22rem);
+    border-color: rgba(82, 151, 255, 0.4);
+    box-shadow: 0 1.5rem 3.6rem rgba(0, 0, 0, 0.28);
+}
+
+.customer-portal.is-admin .research-notebook-open {
+    display: grid;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    color: inherit;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .research-notebook-cover,
+.customer-portal.is-admin .research-detail-cover {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 20% 10%, rgba(64, 143, 255, 0.42), transparent 38%),
+        radial-gradient(circle at 80% 80%, rgba(56, 217, 174, 0.18), transparent 36%),
+        linear-gradient(145deg, #121d30, #09101b);
+}
+
+.customer-portal.is-admin .research-notebook-cover {
+    aspect-ratio: 16 / 9;
+    border-bottom: 1px solid var(--crm-line);
+}
+
+.customer-portal.is-admin .research-notebook-cover img,
+.customer-portal.is-admin .research-detail-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.customer-portal.is-admin .research-cover-monogram {
+    position: absolute;
+    inset: auto 1rem 0.8rem auto;
+    color: rgba(255, 255, 255, 0.2);
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    line-height: 1;
+}
+
+.customer-portal.is-admin .research-notebook-body {
+    display: grid;
+    gap: 0.72rem;
+    padding: 1rem 1.05rem 1.15rem;
+}
+
+.customer-portal.is-admin .research-notebook-topline,
+.customer-portal.is-admin .research-article-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .research-locale {
+    color: var(--crm-muted);
+    font-size: 0.67rem;
+    font-weight: 720;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .research-status {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.24rem 0.48rem;
+    border: 1px solid rgba(247, 185, 85, 0.25);
+    border-radius: 999px;
+    color: #e9be76;
+    background: rgba(247, 185, 85, 0.08);
+    font-size: 0.62rem;
+    font-weight: 720;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .research-status.is-published {
+    border-color: rgba(56, 217, 174, 0.25);
+    color: #77e8c8;
+    background: rgba(56, 217, 174, 0.08);
+}
+
+.customer-portal.is-admin .research-status.is-archived {
+    border-color: var(--crm-line-strong);
+    color: var(--crm-muted);
+    background: rgba(148, 163, 184, 0.07);
+}
+
+.customer-portal.is-admin .research-notebook-body h3 {
+    margin: 0;
+    color: var(--crm-text);
+    font-size: 1.02rem;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.customer-portal.is-admin .research-notebook-body p {
+    display: -webkit-box;
+    min-height: 3.3em;
+    margin: 0;
+    overflow: hidden;
+    color: var(--crm-muted);
+    font-size: 0.78rem;
+    line-height: 1.65;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.customer-portal.is-admin .research-notebook-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.72rem;
+    border-top: 1px solid var(--crm-line);
+    color: #a7b4c7;
+    font-size: 0.7rem;
+}
+
+.customer-portal.is-admin .research-notebook-footer strong {
+    color: #a9caff;
+    font-size: 0.7rem;
+}
+
+.customer-portal.is-admin #research-notebook-detail[hidden],
+.customer-portal.is-admin #research-notebooks-view[hidden] {
+    display: none !important;
+}
+
+.customer-portal.is-admin .research-back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 1rem;
+    padding: 0.35rem 0;
+    border: 0;
+    color: #9dc2ff;
+    background: transparent;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .research-detail-hero {
+    display: grid;
+    grid-template-columns: minmax(10rem, 15rem) minmax(0, 1fr) auto;
+    gap: clamp(1rem, 3vw, 1.6rem);
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(47, 125, 246, 0.08), transparent 55%), var(--crm-panel);
+}
+
+.customer-portal.is-admin .research-detail-cover {
+    aspect-ratio: 16 / 10;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.72rem;
+}
+
+.customer-portal.is-admin .research-detail-copy h2 {
+    margin: 0.22rem 0 0.45rem;
+    color: var(--crm-text);
+    font-size: clamp(1.35rem, 3vw, 2rem);
+    letter-spacing: -0.035em;
+}
+
+.customer-portal.is-admin .research-detail-copy > p {
+    max-width: 56rem;
+    margin: 0 0 0.8rem;
+    color: var(--crm-muted);
+    font-size: 0.8rem;
+    line-height: 1.65;
+}
+
+.customer-portal.is-admin .research-detail-meta span {
+    color: #9ba9bd;
+    font-size: 0.68rem;
+}
+
+.customer-portal.is-admin .research-publications-heading {
+    margin-top: 1.8rem;
+}
+
+.customer-portal.is-admin .research-article-list {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.customer-portal.is-admin .research-article-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.82rem;
+    background: var(--crm-panel);
+}
+
+.customer-portal.is-admin .research-article-row h3 {
+    margin: 0.3rem 0 0.25rem;
+    color: var(--crm-text);
+    font-size: 0.94rem;
+}
+
+.customer-portal.is-admin .research-article-row p {
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.74rem;
+    line-height: 1.55;
+}
+
+.customer-portal.is-admin .research-article-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .research-empty-state {
+    grid-column: 1 / -1;
+    padding: clamp(2rem, 7vw, 4rem) 1.5rem;
+    border: 1px dashed var(--crm-line-strong);
+    border-radius: 1rem;
+    color: var(--crm-muted);
+    background: rgba(255, 255, 255, 0.015);
+    text-align: center;
+}
+
+.customer-portal.is-admin .research-empty-state strong {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--crm-text);
+    font-size: 1rem;
+}
+
+/* Dialogs and editor ---------------------------------------------------- */
+
+.customer-portal.is-admin .research-dialog {
+    width: min(94vw, 47rem);
+}
+
+.customer-portal.is-admin .research-dialog-card,
+.customer-portal.is-admin .research-editor-card {
+    background:
+        radial-gradient(circle at 100% 0, rgba(47, 125, 246, 0.13), transparent 34%),
+        #071022;
+}
+
+.customer-portal.is-admin .research-form-grid,
+.customer-portal.is-admin .research-article-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.customer-portal.is-admin .research-field-wide {
+    grid-column: 1 / -1;
+}
+
+.customer-portal.is-admin .research-form-grid textarea,
+.customer-portal.is-admin .research-article-fields textarea {
+    resize: vertical;
+}
+
+.customer-portal.is-admin .research-cover-picker {
+    display: grid;
+    grid-template-columns: 4.4rem minmax(0, 1fr);
+    gap: 0.8rem;
+    align-items: center;
+    min-height: 5.2rem;
+    padding: 0.55rem;
+    border: 1px dashed rgba(126, 159, 213, 0.32);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.025);
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .research-cover-picker:hover {
+    border-color: rgba(82, 151, 255, 0.55);
+}
+
+.customer-portal.is-admin .research-cover-preview {
+    display: grid;
+    width: 4.4rem;
+    height: 4rem;
+    overflow: hidden;
+    place-items: center;
+    border-radius: 0.58rem;
+    color: #93baff;
+    background: var(--crm-blue-soft);
+    background-position: center;
+    background-size: cover;
+    font-size: 1.3rem;
+}
+
+.customer-portal.is-admin .research-cover-picker strong,
+.customer-portal.is-admin .research-cover-picker small {
+    display: block;
+}
+
+.customer-portal.is-admin .research-cover-picker strong {
+    color: var(--crm-text);
+    font-size: 0.78rem;
+}
+
+.customer-portal.is-admin .research-cover-picker small {
+    margin-top: 0.2rem;
+    color: var(--crm-muted);
+    font-size: 0.68rem;
+}
+
+.customer-portal.is-admin .research-upload-progress {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.65rem;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.customer-portal.is-admin .research-upload-progress[hidden] { display: none; }
+
+.customer-portal.is-admin .research-upload-progress > div {
+    height: 0.32rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.customer-portal.is-admin .research-upload-progress > div span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--crm-blue);
+    transition: width 180ms ease;
+}
+
+.customer-portal.is-admin .research-upload-progress small {
+    color: var(--crm-muted);
+    font-size: 0.65rem;
+}
+
+.customer-portal.is-admin .research-editor-dialog {
+    width: min(96vw, 72rem);
+    max-height: 94vh;
+}
+
+.customer-portal.is-admin .research-editor-card {
+    gap: 1rem;
+}
+
+.customer-portal.is-admin .research-editor-shell {
+    overflow: hidden;
+    border: 1px solid rgba(126, 159, 213, 0.25);
+    border-radius: 0.85rem;
+    background: #f9fafc;
+}
+
+.customer-portal.is-admin .research-editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    align-items: center;
+    padding: 0.55rem;
+    border-bottom: 1px solid #dce2eb;
+    background: #eef2f7;
+}
+
+.customer-portal.is-admin .research-editor-toolbar button,
+.customer-portal.is-admin .research-editor-toolbar select {
+    min-height: 2rem;
+    padding: 0.3rem 0.52rem;
+    border: 1px solid #d3dae5;
+    border-radius: 0.4rem;
+    color: #273447;
+    background: #fff;
+    font: inherit;
+    font-size: 0.7rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .research-editor-toolbar button:hover,
+.customer-portal.is-admin .research-editor-toolbar button:focus-visible,
+.customer-portal.is-admin .research-editor-toolbar select:focus-visible {
+    border-color: #5890e8;
+    outline: 2px solid rgba(47, 125, 246, 0.15);
+}
+
+.customer-portal.is-admin .research-toolbar-divider {
+    width: 1px;
+    height: 1.6rem;
+    margin: 0 0.1rem;
+    background: #ced6e2;
+}
+
+.customer-portal.is-admin .research-article-editor {
+    min-height: 24rem;
+    max-height: 48vh;
+    padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 7vw, 5rem);
+    overflow-y: auto;
+    color: #172033;
+    background: #fff;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-size: 0.92rem;
+    line-height: 1.78;
+    outline: 0;
+}
+
+.customer-portal.is-admin .research-article-editor:empty::before {
+    content: attr(data-placeholder);
+    color: #99a4b3;
+    pointer-events: none;
+}
+
+.customer-portal.is-admin .research-article-editor :where(h2, h3, h4) {
+    margin: 1.5em 0 0.45em;
+    color: #0c1525;
+    line-height: 1.25;
+}
+
+.customer-portal.is-admin .research-article-editor blockquote {
+    margin: 1.2rem 0;
+    padding: 0.2rem 0 0.2rem 1rem;
+    border-left: 3px solid #3f7edc;
+    color: #516176;
+}
+
+.customer-portal.is-admin .research-article-editor pre {
+    overflow-x: auto;
+    padding: 1rem;
+    border-radius: 0.55rem;
+    color: #dce9ff;
+    background: #101827;
+    font: 0.82rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+    white-space: pre-wrap;
+}
+
+.customer-portal.is-admin .research-article-editor code:not(pre code) {
+    padding: 0.12rem 0.3rem;
+    border-radius: 0.25rem;
+    color: #9b3150;
+    background: #f5e9ee;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.customer-portal.is-admin .research-editor-exports {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.48rem 0.7rem;
+    border-top: 1px solid #dce2eb;
+    color: #6b778a;
+    background: #eef2f7;
+    font-size: 0.65rem;
+}
+
+.customer-portal.is-admin .research-editor-exports > div {
+    display: flex;
+    gap: 0.7rem;
+}
+
+.customer-portal.is-admin .research-editor-exports .crm-text-action {
+    color: #255eae;
+}
+
+@media (max-width: 70rem) {
+    .customer-portal.is-admin .research-notebook-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .customer-portal.is-admin .research-detail-hero {
+        grid-template-columns: 11rem minmax(0, 1fr);
+    }
+
+    .customer-portal.is-admin .research-detail-hero > .btn {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+}
+
+@media (max-width: 42rem) {
+    .customer-portal.is-admin .research-header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .customer-portal.is-admin .research-notebook-grid,
+    .customer-portal.is-admin .research-form-grid,
+    .customer-portal.is-admin .research-article-fields,
+    .customer-portal.is-admin .research-detail-hero,
+    .customer-portal.is-admin .research-article-row {
+        grid-template-columns: 1fr;
+    }
+
+    .customer-portal.is-admin .research-field-wide,
+    .customer-portal.is-admin .research-detail-hero > .btn {
+        grid-column: auto;
+    }
+
+    .customer-portal.is-admin .research-detail-cover {
+        max-height: 12rem;
+    }
+
+    .customer-portal.is-admin .research-article-actions {
+        justify-content: space-between;
+    }
+
+    .customer-portal.is-admin .research-editor-footer,
+    .customer-portal.is-admin .research-editor-exports {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .customer-portal.is-admin .research-editor-footer > div {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .customer-portal.is-admin .research-article-editor {
+        min-height: 19rem;
+        padding: 1.2rem;
+    }
+}

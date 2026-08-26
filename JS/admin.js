@@ -1,5 +1,5 @@
 import { auth, db, storage } from './firebase-config.js';
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { 
     collection,
     getDocs,
@@ -38,6 +38,7 @@ import {
     formatRevenue,
     CURRENCY_SYMBOLS
 } from './elysium-domain.js';
+import { ADMIN_COPY, applyStaticCopy } from './admin-i18n.js';
 
 const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
 
@@ -153,16 +154,26 @@ async function isAdminUser(user) {
     return String(user.email || '').toLowerCase() === SUPER_ADMIN_EMAIL;
 }
 
+// `label` es el nombre canónico: es el que se escribe en `planLabel` dentro de
+// Firestore y el que lee el portal del cliente. Lo que se enseña en pantalla
+// sale de `copyKey`, para que el idioma del administrador no acabe grabado en
+// la suscripción de nadie.
 const SUBSCRIPTION_PLANS = {
-    hosting:                  { code: 'H0ST', label: 'Hosting' },
-    domain_hosting:           { code: 'H0ST', label: 'Hosting' },
-    basic:                    { code: 'EC01', label: 'Presence' },
-    basic_maintenance:        { code: 'EC01', label: 'Presence' },
-    preferential:             { code: 'EC02', label: 'Infrastructure' },
-    preferential_maintenance: { code: 'EC02', label: 'Infrastructure' },
-    advanced:                 { code: 'EC03', label: 'Ecosystem' },
-    advanced_maintenance:     { code: 'EC03', label: 'Ecosystem' }
+    hosting:                  { code: 'H0ST', label: 'Hosting',        copyKey: 'planHosting' },
+    domain_hosting:           { code: 'H0ST', label: 'Hosting',        copyKey: 'planHosting' },
+    basic:                    { code: 'EC01', label: 'Presence',       copyKey: 'planPresence' },
+    basic_maintenance:        { code: 'EC01', label: 'Presence',       copyKey: 'planPresence' },
+    preferential:             { code: 'EC02', label: 'Infrastructure', copyKey: 'planInfrastructure' },
+    preferential_maintenance: { code: 'EC02', label: 'Infrastructure', copyKey: 'planInfrastructure' },
+    advanced:                 { code: 'EC03', label: 'Ecosystem',      copyKey: 'planEcosystem' },
+    advanced_maintenance:     { code: 'EC03', label: 'Ecosystem',      copyKey: 'planEcosystem' }
 };
+
+/** Nombre del plan en el idioma activo, con lo guardado como respaldo. */
+function planLabel(planType, stored = '') {
+    const plan = SUBSCRIPTION_PLANS[planType];
+    return (plan && ui().detail[plan.copyKey]) || stored || plan?.label || planType || '—';
+}
 
 /**
  * Las licencias codifican el acuerdo comercial:
@@ -282,9 +293,10 @@ function contactLifecycle(contact) {
 }
 
 function contactSourceLabel(contact) {
-    if (contact._sourceCollection === 'members') return 'Client portal';
-    if (contact._sourceCollection === 'prospects') return 'Project request';
-    if (contact.submittedAt || contact.recordType === 'inquiry') return 'Website inquiry';
+    const copy = ui().contacts;
+    if (contact._sourceCollection === 'members') return copy.sourceClientPortal;
+    if (contact._sourceCollection === 'prospects') return copy.sourceProjectRequest;
+    if (contact.submittedAt || contact.recordType === 'inquiry') return copy.sourceWebsiteInquiry;
     return 'CRM';
 }
 
@@ -292,7 +304,7 @@ function normalizeContactRecord(snapshot, sourceCollection) {
     const data = snapshot.data();
     const name = data.displayName || data.fullName || data.name
         || [data.firstName, data.lastName].filter(Boolean).join(' ')
-        || data.email || 'Unnamed contact';
+        || data.email || ui().contacts.unnamedContact;
     const company = data.companyName || data.company || '';
     const createdAt = data.createdAt || data.submittedAt || data.lastUpdated || null;
     const normalized = {
@@ -377,7 +389,7 @@ function reportContactTruncation() {
     if (!warning) return;
     if (_membersUnavailable) {
         warning.hidden = false;
-        warning.textContent = 'Partner records could not be read. The figures below cover contacts and opportunities only.';
+        warning.textContent = ui().overview.truncationWarning;
         return;
     }
     if (!_contactsTruncated) {
@@ -385,11 +397,11 @@ function reportContactTruncation() {
         return;
     }
     warning.hidden = false;
-    warning.textContent = `Showing the first ${CONTACTS_PAGE_LIMIT} partner records. The totals below are calculated on that page only.`;
+    warning.textContent = ui().overview.truncatedFirst(CONTACTS_PAGE_LIMIT);
     getCountFromServer(collection(db, 'members'))
         .then(snapshot => {
             const total = snapshot.data().count;
-            warning.textContent = `Showing ${CONTACTS_PAGE_LIMIT} of ${total} partner records. The totals below are calculated on that page only.`;
+            warning.textContent = ui().overview.truncatedOf(CONTACTS_PAGE_LIMIT, total);
         })
         .catch(error => logger.warn('The exact member count could not be read.', error));
 }
@@ -471,7 +483,7 @@ function renderAssigneeOptions() {
     if (!select) return;
     const selected = select.value || auth.currentUser?.uid || '';
     select.innerHTML = _crmUsers.map(user => (
-        `<option value="${esc(user.id)}">${esc(user.displayName || user.email || 'Elysium team')}</option>`
+        `<option value="${esc(user.id)}">${esc(user.displayName || user.email || ui().contacts.ownerTeam)}</option>`
     )).join('');
     if (_crmUsers.some(user => user.id === selected)) select.value = selected;
     else if (auth.currentUser) select.value = auth.currentUser.uid;
@@ -851,7 +863,7 @@ function renderPaymentHistory(payments, t) {
     return payments.map(payment => {
         const symbol = CURRENCY_SYMBOLS[payment.currency] || '€';
         const invoiceUrl = safeUrl(payment.invoiceUrl);
-        const heading = payment.title || SUBSCRIPTION_PLANS[payment.planType]?.label || payment.planLabel || payment.planType || '—';
+        const heading = payment.title || planLabel(payment.planType, payment.planLabel || payment.planType);
         const paidOn = formatAdminDate(payment.paymentDate) || '—';
         return `
             <div class="payment-row">
@@ -867,7 +879,7 @@ function renderPaymentHistory(payments, t) {
                     ${invoiceUrl ? `<a href="${esc(invoiceUrl)}" target="_blank" rel="noopener" class="report-btn" title="${esc(t.view_invoice)}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     </a>` : ''}
-                    <button type="button" class="report-btn btn-delete btn-delete-payment" data-id="${esc(payment.id)}" title="Delete Payment">
+                    <button type="button" class="report-btn btn-delete btn-delete-payment" data-id="${esc(payment.id)}" title="${esc(ui().detail.deletePayment)}">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     </button>
                 </div>
@@ -939,13 +951,13 @@ function platformApiConfigured() {
  */
 async function platformRequest(path, { method = 'POST', body = null, headers = {}, timeoutMs = ADMIN_API_TIMEOUT_MS } = {}) {
     if (!platformApiConfigured()) {
-        const error = new Error('The platform service is not configured.');
+        const error = new Error(ui().platform.notConfigured);
         error.code = 'api_not_configured';
         throw error;
     }
     const user = auth.currentUser;
     if (!user) {
-        const error = new Error('Not signed in.');
+        const error = new Error(ui().platform.notSignedIn);
         error.code = 'unauthenticated';
         throw error;
     }
@@ -968,7 +980,7 @@ async function platformRequest(path, { method = 'POST', body = null, headers = {
         return payload;
     } catch (error) {
         if (error.name === 'AbortError') {
-            const timeout = new Error('The platform service did not answer in time.');
+            const timeout = new Error(ui().platform.timeout);
             timeout.code = 'api_timeout';
             throw timeout;
         }
@@ -1005,19 +1017,18 @@ async function loadPlatformCapabilities() {
             files: { ..._platformCapabilities.files, ...(capabilities.files || {}) }
         };
         const fullyReady = _platformCapabilities.files.upload && _platformCapabilities.files.download;
-        updatePlatformStatus(fullyReady ? 'ready' : 'partial', fullyReady
-            ? 'All systems operational'
-            : 'Core connected · Cloudflare files pending');
+        updatePlatformStatus(fullyReady ? 'ready' : 'partial',
+            fullyReady ? ui().platform.ready : ui().platform.partial);
     } catch (error) {
         if (error.code === '404') {
-            updatePlatformStatus('partial', 'Core connected · update pending');
+            updatePlatformStatus('partial', ui().platform.updatePending);
             return _platformCapabilities;
         }
         _platformCapabilities = {
             meetings: { create: false, update: false, cancel: false, notifications: false },
             files: { provider: 'cloudflare-r2', upload: false, download: false }
         };
-        updatePlatformStatus('offline', 'Platform service unavailable');
+        updatePlatformStatus('offline', ui().platform.offline);
         logger.warn('Platform capabilities could not be loaded.', error);
     }
     return _platformCapabilities;
@@ -1067,7 +1078,31 @@ const translations = {
         nav_overview: "Dashboard",
         nav_licenses: "Licenses",
         logout: "Logout",
+        back_to_home: "Back to Home",
+        delete_contact: "Delete contact",
+        delete_contact_confirm: "Are you sure you want to delete this contact? This action cannot be undone and will remove the contact from the CRM.",
+        delete_contact_error: "Could not delete contact: ",
         welcome: "Welcome back, Super Admin.",
+        profile: {
+            eyebrow: "Your account",
+            title: "Edit profile",
+            nameLabel: "Display name",
+            emailLabel: "Email",
+            hint: "This name signs your research publications and identifies you in the assignee list. Your email is your sign-in and cannot be changed here.",
+            cancel: "Cancel",
+            save: "Save profile",
+            saving: "Saving…",
+            saved: "Profile updated.",
+            nameRequired: "Enter a name of at least two characters.",
+            saveError: "The profile could not be saved. Try again.",
+            photoLabel: "Profile photo",
+            photoHint: "JPG, PNG or WebP · max. 2 MB",
+            photoChoose: "Choose photo",
+            photoRemove: "Remove",
+            photoType: "Choose a JPG, PNG or WebP image.",
+            photoSize: "The photo must be 2 MB or smaller.",
+            uploading: "Uploading"
+        },
         licenses_title: "Licenses",
         licenses_desc: "Licenses assigned by active subscriptions, whether paid online or recorded manually.",
         table_code: "Code",
@@ -1280,7 +1315,31 @@ const translations = {
         nav_overview: "Tablero",
         nav_licenses: "Licencias",
         logout: "Cerrar Sesión",
+        back_to_home: "Volver al Inicio",
+        delete_contact: "Eliminar contacto",
+        delete_contact_confirm: "¿Estás seguro de que deseas eliminar este contacto? Esta acción no se puede deshacer y eliminará el contacto del CRM.",
+        delete_contact_error: "No se pudo eliminar el contacto: ",
         welcome: "Bienvenido de nuevo, Súper Admin.",
+        profile: {
+            eyebrow: "Tu cuenta",
+            title: "Editar perfil",
+            nameLabel: "Nombre para mostrar",
+            emailLabel: "Correo",
+            hint: "Este nombre firma tus publicaciones de Research y te identifica en el selector de responsable. El correo es tu acceso y no se cambia desde aquí.",
+            cancel: "Cancelar",
+            save: "Guardar perfil",
+            saving: "Guardando…",
+            saved: "Perfil actualizado.",
+            nameRequired: "Escribe un nombre de al menos dos caracteres.",
+            saveError: "No se pudo guardar el perfil. Inténtalo de nuevo.",
+            photoLabel: "Foto de perfil",
+            photoHint: "JPG, PNG o WebP · máx. 2 MB",
+            photoChoose: "Elegir foto",
+            photoRemove: "Quitar",
+            photoType: "Elige una imagen JPG, PNG o WebP.",
+            photoSize: "La foto debe pesar 2 MB o menos.",
+            uploading: "Subiendo"
+        },
         licenses_title: "Licencias",
         licenses_desc: "Licencias asignadas por suscripciones, tanto por pago web como por registro manual.",
         table_code: "Código",
@@ -1494,7 +1553,31 @@ const translations = {
         nav_overview: "Painel",
         nav_licenses: "Licenças",
         logout: "Sair",
+        back_to_home: "Voltar ao Início",
+        delete_contact: "Eliminar contacto",
+        delete_contact_confirm: "Tem a certeza de que deseja eliminar este contacto? Esta ação não pode ser desfeita e removerá o contacto do CRM.",
+        delete_contact_error: "Não foi possível eliminar o contacto: ",
         welcome: "Bem-vindo de volta, Super Admin.",
+        profile: {
+            eyebrow: "A sua conta",
+            title: "Editar perfil",
+            nameLabel: "Nome a apresentar",
+            emailLabel: "Correio",
+            hint: "Este nome assina as suas publicações de Research e identifica-o no seletor de responsável. O correio é o seu acesso e não se altera aqui.",
+            cancel: "Cancelar",
+            save: "Guardar perfil",
+            saving: "A guardar…",
+            saved: "Perfil atualizado.",
+            nameRequired: "Escreva um nome com pelo menos dois caracteres.",
+            saveError: "Não foi possível guardar o perfil. Tente novamente.",
+            photoLabel: "Fotografia de perfil",
+            photoHint: "JPG, PNG ou WebP · máx. 2 MB",
+            photoChoose: "Escolher fotografia",
+            photoRemove: "Remover",
+            photoType: "Escolha uma imagem JPG, PNG ou WebP.",
+            photoSize: "A fotografia deve ter no máximo 2 MB.",
+            uploading: "A carregar"
+        },
         licenses_title: "Licenças",
         licenses_desc: "Licenças atribuídas por subscrições, por pagamento online ou registo manual.",
         table_code: "Código",
@@ -1709,6 +1792,7 @@ const AGENDA_COPY = {
     en: {
         nav: 'Agenda', title: 'Agenda', description: 'Schedule and monitor client meetings and calls across time zones.',
         formEyebrow: 'New activity', formTitle: 'Schedule a meeting or call', listEyebrow: 'Client calendar', listTitle: 'Activities',
+        activityType: 'Activity type', assignedTo: 'Assigned to',
         client: 'Client', clientPlaceholder: 'Select a client…', meetingTitle: 'Meeting title', titlePlaceholder: 'Project review',
         date: 'Date', time: 'Time', duration: 'Duration', adminZone: 'Admin time zone (IANA)', clientZone: 'Client time zone (IANA)', clientRegion: 'Client region / country', regionPlaceholder: 'Costa Rica',
         link: 'HTTPS meeting link', notes: 'Notes for the client', notesPlaceholder: 'These notes are included in the confirmation email.',
@@ -1720,6 +1804,7 @@ const AGENDA_COPY = {
         apiMissing: 'The Elysium platform service is not reachable, so no confirmation email can be sent. Deploy elysium-billing at /api and try again.',
         apiTimeout: 'The platform service did not answer. The meeting may not have been saved — reload the agenda before trying again.',
         emailMissing: 'SMTP email delivery is not configured on the service (SMTP_HOST, SMTP_USER, SMTP_PASSWORD and MEETING_FROM_EMAIL).',
+        emailNotSent: 'The confirmation email could not be sent — let the client know yourself.',
         clientNoEmail: 'This client has no email address on file, so nothing can be sent to them.',
         duplicate: 'A different meeting was already booked with this identifier. Change the time or the duration.',
         cancel: 'Cancel', cancelling: 'Cancelling…', cancelConfirm: 'Cancel this meeting?',
@@ -1734,6 +1819,7 @@ const AGENDA_COPY = {
     es: {
         nav: 'Agenda', title: 'Agenda', description: 'Programa y supervisa reuniones y llamadas con clientes entre zonas horarias.',
         formEyebrow: 'Nueva actividad', formTitle: 'Programar reunión o llamada', listEyebrow: 'Calendario de clientes', listTitle: 'Actividades',
+        activityType: 'Tipo de actividad', assignedTo: 'Responsable',
         client: 'Cliente', clientPlaceholder: 'Selecciona un cliente…', meetingTitle: 'Título de la reunión', titlePlaceholder: 'Revisión del proyecto',
         date: 'Fecha', time: 'Hora', duration: 'Duración', adminZone: 'Zona del admin (IANA)', clientZone: 'Zona del cliente (IANA)', clientRegion: 'Región o país del cliente', regionPlaceholder: 'Costa Rica',
         link: 'Enlace HTTPS de la reunión', notes: 'Notas para el cliente', notesPlaceholder: 'Estas notas se incluirán en el correo de confirmación.',
@@ -1749,6 +1835,7 @@ const AGENDA_COPY = {
         clientNoEmail: 'Este cliente no tiene correo registrado, así que no se le puede enviar nada.',
         duplicate: 'Ya había otra reunión con este identificador. Cambia la hora o la duración.',
         cancel: 'Cancelar', cancelling: 'Cancelando…', cancelConfirm: '¿Cancelar esta reunión?',
+        cancelledOk: 'Reunión cancelada. Avisa al cliente.',
         join: 'Abrir reunión', portugalTime: 'Hora Portugal', clientTime: 'Hora cliente', durationShort: 'min',
         downloadIcs: 'Archivo de calendario', notifyClient: 'Escribir al cliente',
         mailSubject: 'Reunión', mailCancelledSubject: 'Reunión cancelada',
@@ -1759,6 +1846,7 @@ const AGENDA_COPY = {
     pt: {
         nav: 'Agenda', title: 'Agenda', description: 'Agende e acompanhe reuniões e chamadas com clientes entre fusos horários.',
         formEyebrow: 'Nova atividade', formTitle: 'Agendar reunião ou chamada', listEyebrow: 'Calendário de clientes', listTitle: 'Atividades',
+        activityType: 'Tipo de atividade', assignedTo: 'Responsável',
         client: 'Cliente', clientPlaceholder: 'Selecione um cliente…', meetingTitle: 'Título da reunião', titlePlaceholder: 'Revisão do projeto',
         date: 'Data', time: 'Hora', duration: 'Duração', adminZone: 'Fuso do admin (IANA)', clientZone: 'Fuso do cliente (IANA)', clientRegion: 'Região ou país do cliente', regionPlaceholder: 'Costa Rica',
         link: 'Link HTTPS da reunião', notes: 'Notas para o cliente', notesPlaceholder: 'Estas notas serão incluídas no email de confirmação.',
@@ -1855,6 +1943,15 @@ let currentLang = supportedAdminLanguages.has(requestedAdminLanguage) && !isAdmi
 
 function agendaCopy() {
     return AGENDA_COPY[currentLang] || AGENDA_COPY.en;
+}
+
+/**
+ * Copias del idioma activo para todo lo que pinta este módulo. `translations`
+ * y `AGENDA_COPY` siguen siendo los diccionarios de la ficha de cliente y de la
+ * agenda; `ADMIN_COPY` cubre el resto del panel y los rótulos de `admin.html`.
+ */
+function ui() {
+    return ADMIN_COPY[currentLang] || ADMIN_COPY.en;
 }
 
 function isIanaTimeZone(value) {
@@ -2161,7 +2258,7 @@ function renderAgendaMeetings() {
                     <div class="meeting-card-footer">
                         ${link ? `<a class="meeting-join-link" href="${esc(link)}" target="_blank" rel="noopener noreferrer">${esc(c.join)}</a>` : '<span></span>'}
                         <div class="meeting-card-actions">
-                            ${canEdit ? `<button type="button" class="meeting-action-btn" data-meeting-edit="${esc(meeting.id)}"${busy}>Edit</button>` : ''}
+                            ${canEdit ? `<button type="button" class="meeting-action-btn" data-meeting-edit="${esc(meeting.id)}"${busy}>${esc(ui().agenda.edit)}</button>` : ''}
                             <button type="button" class="meeting-action-btn" data-meeting-ics="${esc(meeting.id)}">${esc(c.downloadIcs)}</button>
                             ${meeting.clientEmail ? `<a class="meeting-action-btn" href="${esc(meetingMailtoUrl(meeting, status === 'cancelled'))}">${esc(c.notifyClient)}</a>` : ''}
                             ${canCancel ? `<button type="button" class="meeting-cancel-btn" data-meeting-id="${esc(meeting.id)}"${busy}>${esc(c.cancel)}</button>` : ''}
@@ -2256,7 +2353,7 @@ function calendarChip(meeting, clashing, { withTime = true } = {}) {
     const clash = clashing.has(meeting.id);
     return `<button type="button" class="agenda-cal-chip is-${esc(meeting.type || 'meeting')}${clash ? ' is-clash' : ''}"
         data-calendar-meeting="${esc(meeting.id)}"
-        title="${esc(`${time} · ${meeting.title || ''} · ${meeting.clientName || ''}${clash ? ' — overlaps another activity' : ''}`)}">
+        title="${esc(`${time} · ${meeting.title || ''} · ${meeting.clientName || ''}${clash ? ` — ${ui().agenda.overlaps}` : ''}`)}">
         ${withTime ? `<span class="agenda-cal-chip-time">${esc(time)}</span>` : ''}
         <span class="agenda-cal-chip-title">${esc(meeting.title || (meeting.type === 'call' ? 'Call' : 'Meeting'))}</span>
     </button>`;
@@ -2384,7 +2481,14 @@ function renderAgendaCalendar() {
     container.querySelectorAll('[data-calendar-meeting]').forEach(chip => {
         chip.addEventListener('click', () => {
             const meeting = _agendaMeetings.find(item => item.id === chip.dataset.calendarMeeting);
-            if (meeting?.contactId) openContactDrawer(meeting.contactId);
+            if (meeting?.contactId) {
+                const contact = findUnifiedContactById(meeting.contactId);
+                if (contact) {
+                    showClientDetail(contact.id, contact);
+                } else {
+                    openClientFromDeepLink(meeting.contactId);
+                }
+            }
         });
     });
 }
@@ -2465,8 +2569,8 @@ async function loadAgenda() {
             logger.error('Backend meetings API unavailable; falling back to direct query:', apiError);
             const snap = await getDocs(query(collection(db, 'meetings'), orderBy('startAt', 'desc'), limit(250)));
             rawMeetings = snap.docs.map(item => ({ id: item.id, ...item.data() }));
-            notice = 'Platform service unreachable — showing a direct read of the last 250 activities.';
-            updatePlatformStatus('partial', 'Agenda in fallback mode');
+            notice = ui().agenda.fallbackNotice;
+            updatePlatformStatus('partial', ui().agenda.fallbackTitle);
         }
 
         if (loadVersion !== _agendaLoadVersion) return;
@@ -2522,7 +2626,7 @@ function startEditingMeeting(meetingId) {
     document.getElementById('meeting-time').value = `${String(local.hour).padStart(2, '0')}:${String(local.minute).padStart(2, '0')}`;
     document.getElementById('meeting-edit-cancel').hidden = false;
     document.getElementById('meeting-create-btn').textContent = 'Save changes';
-    setAgendaMessage('Editing this activity. Saving updates the invitation and notifies the contact.', 'warning');
+    setAgendaMessage(ui().agenda.editingNotice, 'warning');
     document.querySelector('.agenda-create-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -2534,7 +2638,7 @@ async function createAgendaMeeting(event) {
     // Segunda línea de defensa: el botón ya está deshabilitado mientras se
     // comprueba, pero el formulario también se envía con Intro.
     if (capabilitiesPending()) {
-        setAgendaMessage('Checking what the platform service allows — one moment.', 'warning');
+        setAgendaMessage(ui().agenda.checkingCapabilities, 'warning');
         return;
     }
     if ((_editingMeetingId && !_platformCapabilities.meetings.update)
@@ -2622,8 +2726,8 @@ async function createAgendaMeeting(event) {
         _agendaMeetings = [created, ..._agendaMeetings.filter(meeting => meeting.id !== created.id)];
         renderAgendaMeetings();
         setAgendaMessage(...(result.emailStatus === 'sent'
-            ? [editingId ? 'Activity updated and notification sent.' : c.createdOk, 'success']
-            : [`${editingId ? 'Activity updated.' : c.createdOk} ${agendaEmailWarning(result.emailStatus, c)}`, 'warning']));
+            ? [editingId ? ui().agenda.updatedAndNotified : c.createdOk, 'success']
+            : [`${editingId ? ui().agenda.updated : c.createdOk} ${agendaEmailWarning(result.emailStatus, c)}`, 'warning']));
         resetMeetingForm({ keepMessage: true });
     } catch (error) {
         logger.error('Meeting creation failed:', error);
@@ -2697,8 +2801,8 @@ function applyAgendaTranslations() {
         'meeting-duration-label': c.duration, 'meeting-admin-zone-label': c.adminZone,
         'meeting-client-zone-label': c.clientZone, 'meeting-client-region-label': c.clientRegion,
         'meeting-link-label': c.link,
-        'meeting-type-label': currentLang === 'es' ? 'Tipo de actividad' : currentLang === 'pt' ? 'Tipo de atividade' : 'Activity type',
-        'meeting-assignee-label': currentLang === 'es' ? 'Responsable' : currentLang === 'pt' ? 'Responsável' : 'Assigned to',
+        'meeting-type-label': c.activityType,
+        'meeting-assignee-label': c.assignedTo,
         'meeting-notes-label': c.notes,
         'agenda-refresh': c.refresh
     };
@@ -2707,11 +2811,7 @@ function applyAgendaTranslations() {
         if (el) el.textContent = value;
     });
     const submitButton = document.getElementById('meeting-create-btn');
-    if (submitButton) submitButton.textContent = _editingMeetingId
-        ? (currentLang === 'es' ? 'Guardar cambios' : currentLang === 'pt' ? 'Guardar alterações' : 'Save changes')
-        : c.create;
-    const nav = document.querySelector('[data-target="agenda"] .portal-nav-text');
-    if (nav) nav.textContent = c.nav;
+    if (submitButton) submitButton.textContent = _editingMeetingId ? ui().agenda.saveChanges : c.create;
     const title = document.getElementById('meeting-title');
     const notes = document.getElementById('meeting-notes');
     const region = document.getElementById('meeting-client-region');
@@ -2842,11 +2942,306 @@ function initUnifiedCrmControls() {
     });
 }
 
+// ── Cuenta del administrador ────────────────────────────────────────────────
+// El nombre que se ve en la barra lateral es el `displayName` de Firebase Auth,
+// y de ahí lo toman también el selector de responsable y la firma de una
+// publicación de Research. No había forma de cambiarlo desde el CRM: el único
+// formulario que escribía ese campo estaba en el portal de cliente, y entrar
+// ahí con una cuenta administradora le crea un documento en `members/`, que es
+// justo la colección de la que salen los contactos del propio CRM.
+
+function profileCopy() {
+    return (translations[currentLang] || translations.en).profile || translations.en.profile;
+}
+
+/** Pinta la identidad de la barra lateral. La llaman el arranque y el guardado. */
+function renderAdminIdentity(user) {
+    const displayName = String(user?.displayName || '').trim()
+        || user?.email?.split('@')[0]
+        || 'Elysium Team';
+    const sidebarName = document.getElementById('sidebar-admin-name');
+    const sidebarRole = document.getElementById('sidebar-admin-role');
+    if (sidebarName) sidebarName.textContent = displayName;
+    if (sidebarRole) sidebarRole.textContent = user?.email || 'Administrator';
+    paintAvatar(document.querySelector('.portal-user-card .sidebar-admin-avatar'), user?.photoURL, 'λ');
+}
+
+/**
+ * Pinta un marco de avatar con la foto si la hay y con su respaldo si no.
+ * La URL se escribe como `src`, nunca como HTML: viene de Storage, pero también
+ * podría venir de un `users/{uid}` escrito por otro administrador.
+ */
+function paintAvatar(frame, photoUrl, fallbackText) {
+    if (!frame) return;
+    const url = safeAvatarUrl(photoUrl);
+    frame.replaceChildren();
+    frame.classList.toggle('has-photo', Boolean(url));
+    if (!url) {
+        frame.textContent = fallbackText;
+        return;
+    }
+    const image = document.createElement('img');
+    image.src = url;
+    image.alt = '';
+    image.loading = 'lazy';
+    // Si la foto ya no existe en Storage, el marco vuelve a su inicial en vez
+    // de quedarse en blanco.
+    image.addEventListener('error', () => {
+        frame.replaceChildren();
+        frame.classList.remove('has-photo');
+        frame.textContent = fallbackText;
+    }, { once: true });
+    frame.append(image);
+}
+
+function safeAvatarUrl(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    try {
+        const url = new URL(raw, window.location.origin);
+        return url.protocol === 'https:' || url.protocol === 'blob:' ? url.href : '';
+    } catch {
+        return '';
+    }
+}
+
+function setProfileMessage(text = '', kind = '') {
+    const message = document.getElementById('admin-profile-message');
+    if (!message) return;
+    message.textContent = text;
+    message.className = `meeting-form-message${kind ? ` is-${kind}` : ''}`;
+}
+
+// La foto elegida no se sube al elegirla: se guarda aquí y viaja con el resto
+// del formulario. Cancelar no deja un archivo huérfano en Storage.
+const AVATAR_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+let _pendingAvatarFile = null;
+let _pendingAvatarPreview = '';
+let _removeAvatar = false;
+
+function releaseAvatarPreview() {
+    if (_pendingAvatarPreview) URL.revokeObjectURL(_pendingAvatarPreview);
+    _pendingAvatarPreview = '';
+}
+
+function resetAvatarDraft() {
+    releaseAvatarPreview();
+    _pendingAvatarFile = null;
+    _removeAvatar = false;
+    const picker = document.getElementById('admin-profile-photo');
+    if (picker) picker.value = '';
+    const progress = document.getElementById('admin-profile-upload');
+    if (progress) progress.hidden = true;
+}
+
+/** El botón de quitar sólo aparece si hay algo que quitar. */
+function renderAvatarDraft() {
+    const user = auth.currentUser;
+    const current = _removeAvatar ? '' : (_pendingAvatarPreview || user?.photoURL || '');
+    const initial = (user?.displayName || user?.email || 'λ').trim().charAt(0).toUpperCase() || 'λ';
+    paintAvatar(document.getElementById('admin-profile-preview'), current, initial);
+    const remove = document.getElementById('admin-profile-photo-remove');
+    if (remove) remove.hidden = !current;
+}
+
+function chooseAvatar(file) {
+    if (!file) return;
+    const copy = profileCopy();
+    if (!AVATAR_TYPES.has(file.type)) {
+        setProfileMessage(copy.photoType, 'error');
+        document.getElementById('admin-profile-photo').value = '';
+        return;
+    }
+    if (!file.size || file.size > MAX_AVATAR_BYTES) {
+        setProfileMessage(copy.photoSize, 'error');
+        document.getElementById('admin-profile-photo').value = '';
+        return;
+    }
+    releaseAvatarPreview();
+    _pendingAvatarFile = file;
+    _pendingAvatarPreview = URL.createObjectURL(file);
+    _removeAvatar = false;
+    setProfileMessage('');
+    renderAvatarDraft();
+}
+
+function uploadAvatar(uid, file) {
+    const safeName = file.name.replace(/[^A-Za-z0-9._-]/g, '_').slice(-190) || 'avatar';
+    const path = `crm/avatars/${uid}/${Date.now()}_${safeName}`;
+    const progress = document.getElementById('admin-profile-upload');
+    const bar = document.getElementById('admin-profile-upload-bar');
+    const label = document.getElementById('admin-profile-upload-label');
+    const copy = profileCopy();
+    if (progress) progress.hidden = false;
+
+    return new Promise((resolve, reject) => {
+        const task = uploadBytesResumable(ref(storage, path), file, { contentType: file.type });
+        task.on('state_changed', snapshot => {
+            const percentage = snapshot.totalBytes
+                ? Math.round(snapshot.bytesTransferred / snapshot.totalBytes * 100)
+                : 0;
+            if (bar) bar.style.width = `${percentage}%`;
+            if (label) label.textContent = `${copy.uploading} ${percentage}%`;
+        }, error => {
+            if (progress) progress.hidden = true;
+            reject(error);
+        }, async () => {
+            try {
+                resolve({ url: await getDownloadURL(task.snapshot.ref), path });
+            } catch (error) {
+                reject(error);
+            } finally {
+                if (progress) progress.hidden = true;
+            }
+        });
+    });
+}
+
+/**
+ * Retira el objeto anterior de Storage. Nunca hace fallar el guardado: la foto
+ * nueva ya está publicada y un archivo suelto es preferible a un perfil a medio
+ * escribir. Sólo se borra lo que se subió por aquí.
+ */
+async function discardAvatarObject(path) {
+    if (!path || !path.startsWith('crm/avatars/')) return;
+    try {
+        await deleteObject(ref(storage, path));
+    } catch (error) {
+        logger.warn('Previous avatar not removed from Storage.', error);
+    }
+}
+
+function openProfileDialog() {
+    const user = auth.currentUser;
+    const dialog = document.getElementById('admin-profile-dialog');
+    if (!user || !dialog) return;
+    const name = document.getElementById('admin-profile-name');
+    // El campo arranca con el nombre real, no con el respaldo que muestra la
+    // barra lateral: guardar sin tocar nada no debe convertir en definitivo un
+    // nombre derivado del correo.
+    name.value = user.displayName || '';
+    document.getElementById('admin-profile-email').value = user.email || '';
+    resetAvatarDraft();
+    renderAvatarDraft();
+    setProfileMessage('');
+    dialog.showModal();
+    name.focus();
+    name.select();
+}
+
+/**
+ * La ruta de Storage sale de la propia URL de descarga. Firestore no la guarda
+ * aparte: `firestore.rules` cierra `users/{uid}` a `displayName`, `avatarUrl`,
+ * `locale`, `timeZone` y la auditoría, y no conviene abrirlo por comodidad.
+ */
+function storagePathFromUrl(value) {
+    try {
+        const url = new URL(String(value || ''));
+        if (!url.hostname.endsWith('firebasestorage.googleapis.com')) return '';
+        const encoded = url.pathname.split('/o/')[1];
+        return encoded ? decodeURIComponent(encoded) : '';
+    } catch {
+        return '';
+    }
+}
+
+async function saveAdminProfile(event) {
+    event.preventDefault();
+    const user = auth.currentUser;
+    if (!user) return;
+    const copy = profileCopy();
+    const input = document.getElementById('admin-profile-name');
+    const name = input.value.replace(/\s+/g, ' ').trim();
+    if (name.length < 2) {
+        setProfileMessage(copy.nameRequired, 'error');
+        input.focus();
+        return;
+    }
+
+    const previousPhoto = user.photoURL || '';
+    const photoChanges = Boolean(_pendingAvatarFile) || (_removeAvatar && previousPhoto);
+    if (name === (user.displayName || '') && !photoChanges) {
+        document.getElementById('admin-profile-dialog')?.close();
+        return;
+    }
+
+    const button = document.getElementById('admin-profile-save');
+    const label = button.textContent;
+    button.disabled = true;
+    button.textContent = copy.saving;
+    setProfileMessage('');
+    try {
+        // La foto se sube antes de tocar el perfil: si Storage falla, no queda
+        // un `photoURL` apuntando a nada.
+        let photoURL = previousPhoto;
+        if (_pendingAvatarFile) {
+            ({ url: photoURL } = await uploadAvatar(user.uid, _pendingAvatarFile));
+        } else if (_removeAvatar) {
+            photoURL = '';
+        }
+
+        await updateProfile(user, { displayName: name, photoURL });
+
+        // La ficha de equipo (`users/{uid}`) sólo se puede **actualizar** desde
+        // el cliente: `firestore.rules` reserva su creación al backend, que es
+        // quien provisiona empleados y sincroniza claims. Si todavía no existe,
+        // no es un fallo — `loadCrmUsers()` sintetiza la entrada desde Auth, así
+        // que el nombre nuevo llega igual al selector de responsable.
+        try {
+            const teamRecord = doc(db, 'users', user.uid);
+            if ((await getDoc(teamRecord)).exists()) {
+                await fsUpdateDoc(teamRecord, {
+                    displayName: name,
+                    avatarUrl: photoURL,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: user.uid
+                });
+            }
+        } catch (error) {
+            logger.warn('CRM team record not updated; the Auth profile is saved.', error);
+        }
+
+        // Ya con el perfil escrito: retirar el retrato viejo no puede deshacer
+        // nada de lo anterior si falla.
+        if (photoChanges && previousPhoto !== photoURL) {
+            await discardAvatarObject(storagePathFromUrl(previousPhoto));
+        }
+
+        resetAvatarDraft();
+        renderAdminIdentity(user);
+        loadCrmUsers().catch(error => logger.warn('Assignee list refresh failed:', error));
+        setProfileMessage(copy.saved, 'success');
+        setTimeout(() => document.getElementById('admin-profile-dialog')?.close(), 900);
+    } catch (error) {
+        logger.error('Profile save failed:', error);
+        setProfileMessage(copy.saveError, 'error');
+    } finally {
+        button.disabled = false;
+        button.textContent = label;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initAgendaControls();
     initAgendaCalendarControls();
     initPipelineFilters();
     initUnifiedCrmControls();
+    document.getElementById('admin-profile-trigger')?.addEventListener('click', openProfileDialog);
+    document.getElementById('admin-profile-form')?.addEventListener('submit', saveAdminProfile);
+    document.getElementById('admin-profile-photo')?.addEventListener('change', event => {
+        chooseAvatar(event.target.files?.[0]);
+    });
+    document.getElementById('admin-profile-photo-remove')?.addEventListener('click', () => {
+        releaseAvatarPreview();
+        _pendingAvatarFile = null;
+        _removeAvatar = true;
+        document.getElementById('admin-profile-photo').value = '';
+        setProfileMessage('');
+        renderAvatarDraft();
+    });
+    // Cerrar con Esc o con el botón descarta el borrador y libera la vista previa.
+    document.getElementById('admin-profile-dialog')?.addEventListener('close', resetAvatarDraft);
 
     // El `#elysium-preloader` no se toca: `CSS/components.css` lo deja
     // `visibility:hidden` de serie y solo se muestra con `.is-leaving` en las
@@ -2863,17 +3258,13 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'profiles';
             return;
         }
-        const displayName = user.displayName || user.email?.split('@')[0] || 'Elysium Team';
-        const sidebarName = document.getElementById('sidebar-admin-name');
-        const sidebarRole = document.getElementById('sidebar-admin-role');
-        if (sidebarName) sidebarName.textContent = displayName;
-        if (sidebarRole) sidebarRole.textContent = user.email || 'Administrator';
+        renderAdminIdentity(user);
 
         // El panel se pinta con lo que ya tiene. Ninguna de las dos cargas
         // puede retrasar la primera pantalla: la sonda de capacidades va contra
         // Cloud Run a través del Worker y, en arranque en frío, dejaba el CRM
         // en blanco hasta agotar su espera.
-        updatePlatformStatus('unknown', 'Checking platform…');
+        updatePlatformStatus('unknown', ui().platform.checking);
         launchDashboard();
         refreshCapabilityDependentViews();
 
@@ -2963,7 +3354,7 @@ function navigateTo(target, { push = true } = {}) {
 
     localStorage.setItem('elysium_admin_tab', target);
     const sectionLabel = document.querySelector(`[data-target="${target}"] .portal-nav-text`)?.textContent
-        || (target === 'client-profile' ? 'Contact profile' : target);
+        || (target === 'client-profile' ? ui().shell.contactProfile : target);
     const commandSection = document.getElementById('crm-command-section');
     if (commandSection) commandSection.textContent = sectionLabel;
 
@@ -2998,6 +3389,10 @@ function applyTranslations() {
         ? (isNationalAdmin ? 'es-ES' : 'es-CR')
         : currentLang === 'pt' ? 'pt-PT' : 'en-GB';
 
+    // Todo lo que `admin.html` declara con `data-i18n`. Lo que sigue debajo es
+    // sólo lo que no se puede declarar: textos que dependen del estado.
+    applyStaticCopy(currentLang);
+
     // Brand links back to the localized index
     document.querySelectorAll('.portal-brand').forEach(link => {
         link.href = isNationalAdmin || currentLang === 'en' ? '/' : `/${currentLang}/`;
@@ -3008,19 +3403,32 @@ function applyTranslations() {
         button.setAttribute('aria-pressed', String(button.dataset.lang === currentLang));
     });
 
-    // Update sidebar nav labels (each item has an SVG, a label and maybe a badge)
-    const navOverview  = document.querySelector('[data-target="overview"] .portal-nav-text');
-    const navPipeline  = document.querySelector('[data-target="pipeline"] .portal-nav-text');
-    const navClients   = document.querySelector('[data-target="clients"] .portal-nav-text');
-    const navLicenses  = document.querySelector('[data-target="licenses"] .portal-nav-text');
-    if (navOverview) navOverview.textContent = t.nav_overview;
-    if (navPipeline) navPipeline.textContent = 'Pipeline';
-    if (navClients)  navClients.textContent  = currentLang === 'es' ? 'Contactos' : currentLang === 'pt' ? 'Contactos' : 'Contacts';
-    if (navLicenses) navLicenses.textContent = t.nav_licenses;
-    const navMail = document.querySelector('[data-target="mail"] .portal-nav-text');
-    if (navMail) navMail.textContent = t.nav_mail || "Mail";
-    const navReports = document.querySelector('[data-target="reports"] .portal-nav-text');
-    if (navReports) navReports.textContent = currentLang === 'es' ? 'Reportes' : currentLang === 'pt' ? 'Relatórios' : 'Reports';
+    // La miga de pan repite el rótulo del menú, que acaba de cambiar de idioma.
+    const activeNavLabel = document.querySelector('.portal-nav-item.active .portal-nav-text')?.textContent;
+    const commandSection = document.getElementById('crm-command-section');
+    if (commandSection && activeNavLabel) commandSection.textContent = activeNavLabel;
+
+    // Diálogo de perfil. Igual que la sección de correo: por id, uno a uno,
+    // porque el diálogo no se vuelve a pintar al cambiar de idioma.
+    const profile = t.profile || translations.en.profile;
+    const profileLabels = {
+        'admin-profile-eyebrow': profile.eyebrow,
+        'admin-profile-dialog-title': profile.title,
+        'admin-profile-name-label': profile.nameLabel,
+        'admin-profile-email-label': profile.emailLabel,
+        'admin-profile-hint': profile.hint,
+        'admin-profile-cancel': profile.cancel,
+        'admin-profile-save': profile.save,
+        'admin-profile-trigger-label': profile.title,
+        'admin-profile-photo-label': profile.photoLabel,
+        'admin-profile-photo-hint': profile.photoHint,
+        'admin-profile-photo-choose': profile.photoChoose,
+        'admin-profile-photo-remove': profile.photoRemove
+    };
+    for (const [id, value] of Object.entries(profileLabels)) {
+        const element = document.getElementById(id);
+        if (element) element.textContent = value;
+    }
 
     // Sección de correo: los textos estáticos van por id, uno a uno, porque la
     // sección no se vuelve a pintar entera al cambiar de idioma.
@@ -3082,20 +3490,14 @@ function applyTranslations() {
     const logoutSpan = document.querySelector('#logoutBtn span');
     if (logoutSpan) logoutSpan.textContent = t.logout;
 
-    // Update section headers (static parts)
-    const ovH1 = document.querySelector('#overview h1');
-    const ovP  = document.querySelector('#overview p.color-text-secondary');
-    if (ovH1) ovH1.textContent = currentLang === 'en' ? 'Dashboard' : (currentLang === 'es' ? 'Tablero' : 'Painel');
-    if (ovP)  ovP.textContent  = t.welcome;
-    
-    const cliH1 = document.querySelector('#clients h1');
-    const cliP  = document.querySelector('#clients p.color-text-secondary');
-    if (cliH1) cliH1.textContent = currentLang === 'es' ? 'Contactos' : currentLang === 'pt' ? 'Contactos' : 'Contacts';
-    if (cliP)  cliP.textContent  = currentLang === 'es'
-        ? 'Leads, consultas, prospectos y clientes en un único directorio.'
-        : currentLang === 'pt' ? 'Leads, consultas, prospetos e clientes num único diretório.'
-            : 'Leads, inquiries, prospects and clients in one directory.';
-    
+    // Home button has SVG + span and localized href
+    const homeBtn = document.getElementById('homeBtn');
+    if (homeBtn) {
+        const homeSpan = homeBtn.querySelector('span');
+        if (homeSpan) homeSpan.textContent = t.back_to_home || (currentLang === 'es' ? 'Volver al Inicio' : currentLang === 'pt' ? 'Voltar ao Início' : 'Back to Home');
+        homeBtn.href = currentLang === 'es' ? './es/' : (currentLang === 'pt' ? './pt/' : './');
+    }
+
     const licH1 = document.querySelector('#licenses h1');
     const licP  = document.querySelector('#licenses p.color-text-secondary');
     if (licH1) licH1.textContent = t.licenses_title;
@@ -3170,12 +3572,21 @@ async function openClientFromDeepLink(userId, options = {}) {
         }
         const memberSnap = await getDoc(doc(db, 'members', userId));
         if (memberSnap.exists()) {
-            showClientDetail(userId, { id: userId, ...memberSnap.data() }, null, null, options);
+            showClientDetail(userId, { id: userId, ...memberSnap.data(), _sourceCollection: 'members' }, null, null, options);
             return;
         }
         const prospectSnap = await getDoc(doc(db, 'prospects', userId));
         if (prospectSnap.exists()) {
-            showClientDetail(userId, { id: userId, ...prospectSnap.data(), role: 'prospect' }, null, null, options);
+            showClientDetail(userId, { id: userId, ...prospectSnap.data(), role: 'prospect', _sourceCollection: 'prospects' }, null, null, options);
+            return;
+        }
+        const contactSnap = await getDoc(doc(db, 'contacts', userId));
+        if (contactSnap.exists()) {
+            const cData = contactSnap.data();
+            const name = cData.displayName || cData.fullName || cData.name
+                || [cData.firstName, cData.lastName].filter(Boolean).join(' ')
+                || cData.email || 'Contact';
+            showClientDetail(userId, { id: userId, name, displayName: name, ...cData, _sourceCollection: 'contacts' }, null, null, options);
         }
     } catch (error) {
         logger.error('Could not open the requested client:', error);
@@ -3218,24 +3629,85 @@ async function loadStats() {
         const licenseHealth      = totalLicenses > 0 ? Math.round((activeLicenses / totalLicenses) * 100) : 0;
         const totalContacts      = _allClients.length;
         const openOpportunities  = _opportunities.filter(item => !['won', 'lost'].includes(item.stage));
-        const wonOpportunities   = _opportunities.filter(item => item.stage === 'won');
-        const lostOpportunities  = _opportunities.filter(item => item.stage === 'lost');
-        const closedTotal        = wonOpportunities.length + lostOpportunities.length;
-        const conversionRate     = closedTotal ? Math.round(wonOpportunities.length / closedTotal * 100) : 0;
 
-        // Las oportunidades pueden estar en EUR, USD o CRC. Sumarlas en un solo
-        // número y rotularlo «€» daba una cifra que no existe; se agregan por
-        // divisa con el mismo helper que usa la facturación del portal.
-        const pipelineTotals   = revenueByCurrency(openOpportunities);
-        const projectedTotals  = revenueByCurrency(openOpportunities.map(item => ({
-            currency: item.currency || 'EUR',
-            amount: (Number(item.amount) || 0) * (Number(item.probability) || 0) / 100
-        })));
-        // Sólo para las barras de progreso, que son un ratio adimensional y por
-        // tanto sí admiten un total mezclado.
-        const sumTotals        = totals => Object.values(totals).reduce((sum, value) => sum + value, 0);
-        const pipelineWeight   = sumTotals(pipelineTotals);
-        const projectedWeight  = sumTotals(projectedTotals);
+        // ── MRR & Recurring Revenue from active members and payment ledger ─────
+        const mrrTotals = {};
+        const subscriberSet = new Set();
+
+        partnerDocs.forEach(member => {
+            const sub = member.subscription;
+            const fin = member.financials;
+            const isSubActive = sub && subscriptionStatus(sub) === 'active';
+            let monthlyAmount = 0;
+            let currency = fin?.currency || sub?.currency || member.preferredCurrency || 'EUR';
+
+            if (fin && Number(fin.maintenanceFee) > 0) {
+                monthlyAmount = Number(fin.maintenanceFee);
+                currency = fin.currency || currency;
+            } else if (isSubActive && Number(sub?.amount) > 0) {
+                monthlyAmount = (sub.billingCycle === 'annual' || sub.contractUnit === 'years')
+                    ? Number(sub.amount) / 12
+                    : Number(sub.amount);
+                currency = sub.currency || currency;
+            }
+
+            if (monthlyAmount > 0) {
+                mrrTotals[currency] = (mrrTotals[currency] || 0) + monthlyAmount;
+                subscriberSet.add(member.id);
+            }
+        });
+
+        let recentPayments = [];
+        try {
+            const sinceDate = new Date();
+            sinceDate.setMonth(sinceDate.getMonth() - 11);
+            sinceDate.setDate(1);
+            sinceDate.setHours(0, 0, 0, 0);
+            const paySnap = await getDocs(query(
+                collection(db, 'subscription_payments'),
+                where('paymentDate', '>=', sinceDate)
+            ));
+            recentPayments = paySnap.docs.map(item => ({ id: item.id, ...item.data() }));
+
+            // For subscribed partners without explicit maintenance fee on the user doc,
+            // query their most recent recorded payment to extract their monthly recurring fee.
+            partnerDocs.forEach(member => {
+                if (subscriberSet.has(member.id)) return;
+                const sub = member.subscription;
+                const isSubActive = sub && subscriptionStatus(sub) === 'active';
+                if (!isSubActive) return;
+
+                const memberPayments = recentPayments
+                    .filter(p => p.userId === member.id && Number(p.amount) > 0)
+                    .sort((a, b) => (adminTimestampMillis(b.paymentDate) || 0) - (adminTimestampMillis(a.paymentDate) || 0));
+
+                if (memberPayments.length > 0) {
+                    const latest = memberPayments[0];
+                    const unit = latest.contractUnit || (latest.billingCycle === 'annual' ? 'years' : 'months');
+                    const length = Number(latest.contractLength) || 1;
+                    const totalMonths = unit === 'years' ? length * 12 : length;
+                    const monthlyAmount = Number(latest.amount) / Math.max(1, totalMonths);
+                    const currency = latest.currency || member.preferredCurrency || 'EUR';
+                    mrrTotals[currency] = (mrrTotals[currency] || 0) + monthlyAmount;
+                    subscriberSet.add(member.id);
+                }
+            });
+        } catch (payError) {
+            logger.warn('Payment ledger for MRR check unavailable:', payError);
+        }
+
+        // Proyección anualizada (ARR): MRR x 12
+        const arrTotals = {};
+        Object.entries(mrrTotals).forEach(([cur, val]) => {
+            arrTotals[cur] = Math.round(val * 12);
+        });
+
+        // Leads y Prospectos de demos
+        const leadsAndProspects = _allClients.filter(c => ['lead', 'prospect'].includes(c.lifecycle) || c._sourceCollection === 'prospects');
+        const clientContactsCount = _allClients.filter(c => c.lifecycle === 'client').length;
+        const totalProspectsCount = leadsAndProspects.length;
+        const totalTracked = clientContactsCount + totalProspectsCount;
+        const demoConversionRate = totalTracked > 0 ? Math.round((clientContactsCount / totalTracked) * 100) : 0;
 
         // Leads nuevos del periodo: contactos entrados en la ventana activa del
         // panel, que es la misma que gobierna el módulo de informes.
@@ -3269,84 +3741,80 @@ async function loadStats() {
                 <div class="kpi-progress-label"><span>${esc(sub)}</span><span>${esc(progressLabel)}</span></div>
             </div>`;
 
+        const kpi = ui().kpi;
         statsContainer.className = 'kpi-grid';
         statsContainer.innerHTML =
             kpiCard({
-                id: 'contacts', value: totalContacts, label: 'Total contacts',
-                sub: `${_allClients.filter(item => item.lifecycle === 'lead').length} leads`, progressLabel: `${_allClients.filter(item => item.lifecycle === 'client').length} clients`,
-                colorClass: 'kpi-blue', trendClass: 'trend-neutral', trend: 'Unified',
+                id: 'contacts', value: totalContacts, label: kpi.contactsLabel,
+                sub: kpi.contactsSub(totalProspectsCount),
+                progressLabel: kpi.contactsProgress(clientContactsCount),
+                colorClass: 'kpi-blue', trendClass: 'trend-neutral', trend: kpi.contactsTrend,
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>`
             }) +
             kpiCard({
-                id: 'pipeline-value', value: formatRevenue(pipelineTotals), label: 'Commercial pipeline',
-                sub: `${openOpportunities.length} open`, progressLabel: `${wonOpportunities.length} won`,
-                colorClass: 'kpi-gold', trendClass: 'trend-neutral', trend: 'Opportunities',
-                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg>`
+                id: 'mrr-value', value: formatRevenue(mrrTotals), label: kpi.mrrLabel,
+                sub: kpi.mrrSub(activeLicenses), progressLabel: kpi.mrrProgress(licenseHealth),
+                colorClass: 'kpi-gold', trendClass: 'trend-up', trend: kpi.mrrTrend,
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8M12 6v12"/></svg>`
             }) +
             kpiCard({
-                id: 'leads', value: newLeads.length, label: `New leads · ${_reportDays}d`,
-                sub: `${newLeadsWon} became clients`,
-                progressLabel: `${newLeads.length ? Math.round((newLeadsWon / newLeads.length) * 100) : 0}% converted`,
+                id: 'leads', value: newLeads.length, label: kpi.leadsLabel(_reportDays),
+                sub: kpi.leadsSub(newLeadsWon),
+                progressLabel: kpi.leadsProgress(newLeads.length ? Math.round((newLeadsWon / newLeads.length) * 100) : 0),
                 colorClass: 'kpi-blue', trendClass: newLeads.length ? 'trend-up' : 'trend-neutral',
-                trend: newLeads.length ? `+${newLeads.length}` : 'No new leads',
-                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>`
+                trend: newLeads.length ? `+${newLeads.length}` : kpi.leadsNone,
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>`
             }) +
             kpiCard({
-                id: 'conversion', value: `${conversionRate}%`, label: 'Conversion rate',
-                sub: `${wonOpportunities.length} won`, progressLabel: `${closedTotal} closed`,
-                colorClass: 'kpi-green', trendClass: conversionRate >= 40 ? 'trend-up' : 'trend-neutral', trend: closedTotal ? 'Real data' : 'No closed deals',
+                id: 'conversion', value: `${demoConversionRate}%`, label: kpi.conversionLabel,
+                sub: kpi.conversionSub(clientContactsCount), progressLabel: kpi.conversionProgress(totalProspectsCount),
+                colorClass: 'kpi-green', trendClass: demoConversionRate >= 40 ? 'trend-up' : 'trend-neutral',
+                trend: totalTracked ? kpi.conversionTrend : kpi.conversionNone,
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>`
             }) +
             kpiCard({
-                id: 'projection', value: formatRevenue(projectedTotals), label: 'Projected revenue',
-                sub: 'Probability weighted', progressLabel: 'Current pipeline',
-                colorClass: 'kpi-green', trendClass: 'trend-neutral', trend: 'Forecast',
-                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M16 8h-6a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H8M12 6v12"/></svg>`
+                id: 'projection', value: formatRevenue(arrTotals), label: kpi.projectionLabel,
+                sub: kpi.projectionSub, progressLabel: kpi.projectionProgress,
+                colorClass: 'kpi-green', trendClass: 'trend-neutral', trend: kpi.projectionTrend,
+                iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg>`
             });
 
         if (operationsContainer) operationsContainer.innerHTML =
             kpiCard({
-                id: 'partners', value: totalPartners, label: 'Total Partners',
-                sub: `${completedOB} onboarded`, progressLabel: `${onboardingRate}%`,
-                colorClass: 'kpi-blue', trendClass: 'trend-neutral', trend: 'Partners',
+                id: 'partners', value: totalPartners, label: kpi.partnersLabel,
+                sub: kpi.partnersSub(completedOB), progressLabel: `${onboardingRate}%`,
+                colorClass: 'kpi-blue', trendClass: 'trend-neutral', trend: kpi.partnersTrend,
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
             }) +
             kpiCard({
-                id: 'rate', value: `${onboardingRate}%`, label: 'Onboarding Rate',
-                sub: `${completedOB} of ${totalPartners}`, progressLabel: `${completedOB} done`,
-                colorClass: 'kpi-green', trendClass: onboardingRate >= 80 ? 'trend-up' : 'trend-neutral', trend: onboardingRate >= 80 ? '↑ High' : '→ Mid',
+                id: 'rate', value: `${onboardingRate}%`, label: kpi.rateLabel,
+                sub: kpi.rateSub(completedOB, totalPartners), progressLabel: kpi.rateProgress(completedOB),
+                colorClass: 'kpi-green', trendClass: onboardingRate >= 80 ? 'trend-up' : 'trend-neutral',
+                trend: onboardingRate >= 80 ? kpi.rateHigh : kpi.rateMid,
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
             }) +
             kpiCard({
-                id: 'active', value: activeProjects, label: 'Active Projects',
-                sub: `${Math.max(0, totalProjects - activeProjects)} awaiting`, progressLabel: `${totalProjects > 0 ? Math.round((activeProjects/totalProjects)*100) : 0}%`,
-                colorClass: 'kpi-gold', trendClass: 'trend-neutral', trend: 'Projects',
+                id: 'active', value: activeProjects, label: kpi.activeLabel,
+                sub: kpi.activeSub(Math.max(0, totalProjects - activeProjects)), progressLabel: `${totalProjects > 0 ? Math.round((activeProjects/totalProjects)*100) : 0}%`,
+                colorClass: 'kpi-gold', trendClass: 'trend-neutral', trend: kpi.activeTrend,
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`
             }) +
             kpiCard({
-                id: 'licenses', value: activeLicenses, label: 'Active Subscription Licenses',
-                sub: `${totalLicenses} assigned`, progressLabel: `${licenseHealth}% healthy`,
+                id: 'licenses', value: activeLicenses, label: kpi.licensesLabel,
+                sub: kpi.licensesSub(totalLicenses), progressLabel: kpi.licensesProgress(licenseHealth),
                 colorClass: licenseHealth >= 80 ? 'kpi-green' : 'kpi-blue',
                 trendClass: 'trend-neutral',
-                trend: totalLicenses ? `${licenseHealth}% active` : 'No subscriptions',
+                trend: totalLicenses ? kpi.licensesTrend(licenseHealth) : kpi.licensesNone,
                 iconSvg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
             });
 
-        // Animate progress bars after render. Cada barra mide una razón
-        // distinta: si dos tarjetas comparten la fórmula, una de las dos está
-        // rotulando algo que no muestra.
-        const clientContactsCount = _allClients.filter(item => item.lifecycle === 'client').length;
-        const wonWeight = sumTotals(revenueByCurrency(wonOpportunities));
+        // Animate progress bars after render.
         animateProgress(document.getElementById('kpi-fill-contacts'), totalContacts ? Math.min(100, Math.round((clientContactsCount / totalContacts) * 100)) : 0);
-        // Cartera: cuánto del valor total generado ya está ganado.
-        animateProgress(document.getElementById('kpi-fill-pipeline-value'),
-            wonWeight + pipelineWeight ? Math.min(100, Math.round((wonWeight / (wonWeight + pipelineWeight)) * 100)) : 0);
+        animateProgress(document.getElementById('kpi-fill-mrr-value'), licenseHealth || (totalPartners ? Math.round((activeLicenses / totalPartners) * 100) : 0));
         animateProgress(document.getElementById('kpi-fill-leads'),
             newLeads.length ? Math.min(100, Math.round((newLeadsWon / newLeads.length) * 100)) : 0);
-        animateProgress(document.getElementById('kpi-fill-conversion'), conversionRate);
-        // Previsión: probabilidad media ponderada de la cartera abierta.
-        animateProgress(document.getElementById('kpi-fill-projection'),
-            pipelineWeight ? Math.min(100, Math.round((projectedWeight / pipelineWeight) * 100)) : 0);
+        animateProgress(document.getElementById('kpi-fill-conversion'), demoConversionRate);
+        animateProgress(document.getElementById('kpi-fill-projection'), licenseHealth || 100);
         animateProgress(document.getElementById('kpi-fill-partners'), onboardingRate);
         animateProgress(document.getElementById('kpi-fill-rate'),     onboardingRate);
         animateProgress(document.getElementById('kpi-fill-active'),   totalProjects > 0 ? (activeProjects / totalProjects) * 100 : 0);
@@ -3360,7 +3828,7 @@ async function loadStats() {
         // Load supplementary panels
         loadRecentActivity();
         loadPipelineSnapshot();
-        renderGlobalRevenueChart().catch(error => logger.warn('Global revenue chart failed:', error));
+        renderGlobalRevenueChart(recentPayments).catch(error => logger.warn('Global revenue chart failed:', error));
         renderCommercialPerformanceChart().catch(error => logger.warn('Commercial performance chart failed:', error));
 
     } catch (error) {
@@ -3386,30 +3854,67 @@ const FEED_ICONS = {
 /** Humanize a pipeline stage key: 'first_contact' → 'first contact' */
 const stageName = s => String(s || '—').replace(/_/g, ' ');
 
-// How each activity type renders (dot class, icon, timeline label, subtitle builder)
+// Cómo se pinta cada tipo de evento. Sólo el punto y el icono: el rótulo y el
+// subtítulo salen de `ADMIN_COPY.feed`, que sí cambia con el idioma. Estaban
+// aquí en inglés, así que la actividad reciente y la cronología de la ficha se
+// quedaban en inglés incluso con el panel en español.
 const ACTIVITY_PRESENTATION = {
-    member_registered:     { dot: 'feed-dot-join',    icon: 'user',    label: 'Account created',        sub: () => 'Joined as partner' },
-    onboarding_completed:  { dot: 'feed-dot-onboard', icon: 'check',   label: 'Onboarding submitted',   sub: () => 'Onboarding completed' },
-    stage_changed:         { dot: 'feed-dot-project', icon: 'check',   label: 'Pipeline stage updated', sub: p => `Stage: ${stageName(p.fromStage)} → ${stageName(p.toStage)}` },
-    project_url_set:       { dot: 'feed-dot-project', icon: 'monitor', label: 'Project published',      sub: () => 'Project URL assigned' },
-    financials_updated:    { dot: 'feed-dot-project', icon: 'file',    label: 'Financial terms updated', sub: () => 'Financials updated' },
-    report_added:          { dot: 'feed-dot-project', icon: 'file',    label: 'Report delivered',       sub: p => p.title ? `Report added · ${p.title}` : 'Report added' },
-    report_removed:        { dot: 'feed-dot-suspend', icon: 'file',    label: 'Report removed',         sub: p => p.title ? `Report removed · ${p.title}` : 'Report removed' },
-    meeting_scheduled:     { dot: 'feed-dot-project', icon: 'check',   label: 'Meeting scheduled',      sub: p => p.title ? `Meeting · ${p.title}` : 'Meeting scheduled' },
-    meeting_created:       { dot: 'feed-dot-project', icon: 'check',   label: 'Activity scheduled',     sub: p => p.title ? `${p.type === 'call' ? 'Call' : 'Meeting'} · ${p.title}` : 'Activity scheduled' },
-    meeting_updated:       { dot: 'feed-dot-project', icon: 'check',   label: 'Activity updated',       sub: p => p.title ? `${p.type === 'call' ? 'Call' : 'Meeting'} · ${p.title}` : 'Activity updated' },
-    meeting_cancelled:     { dot: 'feed-dot-suspend', icon: 'slash',   label: 'Meeting cancelled',      sub: p => p.title ? `Cancelled · ${p.title}` : 'Meeting cancelled' },
-    note_added:            { dot: 'feed-dot-project', icon: 'file',    label: 'Internal note',          sub: p => p.note || 'Internal note added' },
-    subscription_assigned: { dot: 'feed-dot-onboard', icon: 'file',    label: 'Subscription activated', sub: p => `Subscription assigned${p.planType ? ' · ' + p.planType : ''}` },
-    subscription_updated:  { dot: 'feed-dot-project', icon: 'file',    label: 'Subscription updated',   sub: p => `Status: ${p.status || 'updated'}` },
-    subscription_payment_received: { dot: 'feed-dot-onboard', icon: 'check', label: 'Subscription payment received', sub: p => `License renewed${p.planType ? ' · ' + p.planType : ''}` },
-    subscription_payment_failed: { dot: 'feed-dot-suspend', icon: 'slash', label: 'Subscription payment failed', sub: () => 'Payment requires attention' },
-    subscription_canceled: { dot: 'feed-dot-suspend', icon: 'slash', label: 'Subscription canceled', sub: () => 'License access canceled' },
-    prospect_promoted:     { dot: 'feed-dot-join',    icon: 'user',    label: 'Prospect converted',     sub: p => p.prospectName ? `Prospect converted · ${p.prospectName}` : 'Prospect converted to project' },
-    notes_updated:         { dot: 'feed-dot-project', icon: 'file',    label: 'Internal note updated',  sub: () => 'Internal notes updated' },
-    account_suspended:     { dot: 'feed-dot-suspend', icon: 'slash',   label: 'Account suspended',      sub: () => 'Account suspended' },
-    account_reactivated:   { dot: 'feed-dot-onboard', icon: 'check',   label: 'Account reactivated',    sub: () => 'Account reactivated' }
+    member_registered:     { dot: 'feed-dot-join',    icon: 'user' },
+    onboarding_completed:  { dot: 'feed-dot-onboard', icon: 'check' },
+    stage_changed:         { dot: 'feed-dot-project', icon: 'check' },
+    project_url_set:       { dot: 'feed-dot-project', icon: 'monitor' },
+    financials_updated:    { dot: 'feed-dot-project', icon: 'file' },
+    report_added:          { dot: 'feed-dot-project', icon: 'file' },
+    report_removed:        { dot: 'feed-dot-suspend', icon: 'file' },
+    meeting_scheduled:     { dot: 'feed-dot-project', icon: 'check' },
+    meeting_created:       { dot: 'feed-dot-project', icon: 'check' },
+    meeting_updated:       { dot: 'feed-dot-project', icon: 'check' },
+    meeting_cancelled:     { dot: 'feed-dot-suspend', icon: 'slash' },
+    note_added:            { dot: 'feed-dot-project', icon: 'file' },
+    subscription_assigned: { dot: 'feed-dot-onboard', icon: 'file' },
+    subscription_updated:  { dot: 'feed-dot-project', icon: 'file' },
+    subscription_payment_received: { dot: 'feed-dot-onboard', icon: 'check' },
+    subscription_payment_failed:   { dot: 'feed-dot-suspend', icon: 'slash' },
+    subscription_canceled: { dot: 'feed-dot-suspend', icon: 'slash' },
+    prospect_promoted:     { dot: 'feed-dot-join',    icon: 'user' },
+    notes_updated:         { dot: 'feed-dot-project', icon: 'file' },
+    account_suspended:     { dot: 'feed-dot-suspend', icon: 'slash' },
+    account_reactivated:   { dot: 'feed-dot-onboard', icon: 'check' }
 };
+
+/** Punto e icono del evento, con un aspecto neutro para los tipos futuros. */
+function activityPresentation(type) {
+    return ACTIVITY_PRESENTATION[type] || { dot: 'feed-dot-project', icon: 'file' };
+}
+
+/** Rótulo del evento en el idioma activo; si no se conoce, el tipo en crudo. */
+function activityLabel(type, fallback = '') {
+    return ui().feed.labels[type] || fallback || String(type || '').replaceAll('_', ' ');
+}
+
+/**
+ * Subtítulo del evento. Los que llevan datos dentro —la etapa, el título del
+ * documento, el plan— se componen aquí con las piezas del diccionario en vez de
+ * interpolarse en inglés dentro de la tabla.
+ */
+function activitySubtitle(type, payload = {}, fallback = '') {
+    const subs = ui().feed.subs;
+    const kind = payload.type === 'call' ? ui().briefing.call : ui().briefing.meeting;
+    switch (type) {
+        case 'stage_changed':   return subs.stageFlow(stageName(payload.fromStage), stageName(payload.toStage));
+        case 'report_added':    return subs.reportAdded(payload.title);
+        case 'report_removed':  return subs.reportRemoved(payload.title);
+        case 'meeting_scheduled': return subs.meetingScheduled(payload.title);
+        case 'meeting_created': return subs.activityScheduled(kind, payload.title);
+        case 'meeting_updated': return subs.activityUpdated(kind, payload.title);
+        case 'meeting_cancelled': return subs.meetingCancelled(payload.title);
+        case 'subscription_assigned': return subs.subscriptionAssigned(payload.planType);
+        case 'subscription_updated':  return subs.subscriptionStatus(payload.status || subs.subscriptionUpdatedFallback);
+        case 'subscription_payment_received': return subs.licenseRenewed(payload.planType);
+        case 'prospect_promoted': return subs.prospectConverted(payload.prospectName);
+        default: return subs[type] || fallback || String(type || '').replaceAll('_', ' ');
+    }
+}
 
 async function loadRecentActivity() {
     const container = document.getElementById('activity-feed-container');
@@ -3425,17 +3930,14 @@ async function loadRecentActivity() {
             logger.warn('Activity log unavailable, falling back to derived feed:', err);
         }
 
+        const feed = ui().feed;
         const events = logged.map(a => {
-            const pres = ACTIVITY_PRESENTATION[a.type] || {
-                dot: 'feed-dot-project',
-                icon: 'file',
-                sub: () => a.summary || a.body || String(a.type || 'Activity').replaceAll('_', ' ')
-            };
+            const pres = activityPresentation(a.type);
             const contactId = a.contactId || a.memberId || a.entityId || a.payload?.contactId || null;
             return {
                 ts: a.occurredAt || a.createdAt,
-                title: a.contactName || a.memberName || a.summary || 'Elysium CRM',
-                sub: pres.sub(a.payload || {}),
+                title: a.contactName || a.memberName || a.summary || feed.fallbackTitle,
+                sub: activitySubtitle(a.type, a.payload || {}, a.summary || a.body || ''),
                 dotClass: pres.dot,
                 icon: FEED_ICONS[pres.icon],
                 contactId
@@ -3453,24 +3955,24 @@ async function loadRecentActivity() {
             if (c.createdAt && !loggedJoin.has(c.id)) {
                 events.push({
                     ts: c.createdAt,
-                    title: c.name || 'Unknown',
-                    sub: `Joined as partner${c.company ? ' · ' + c.company : ''}`,
+                    title: c.name || feed.unknown,
+                    sub: feed.joinedAsPartner(c.company),
                     dotClass: 'feed-dot-join', icon: FEED_ICONS.user, contactId: c.id
                 });
             }
             if (c.projectUrl && !loggedUrl.has(c.id)) {
                 events.push({
                     ts: c.createdAt, // proxy date — no real timestamp pre-ledger
-                    title: c.name || 'Unknown',
-                    sub: 'Project URL assigned',
+                    title: c.name || feed.unknown,
+                    sub: feed.subs.project_url_set,
                     dotClass: 'feed-dot-project', icon: FEED_ICONS.monitor, contactId: c.id
                 });
             }
             if (c.isDeactivated && !loggedSuspend.has(c.id)) {
                 events.push({
                     ts: c.createdAt, // proxy date — no real timestamp pre-ledger
-                    title: c.name || 'Unknown',
-                    sub: 'Account suspended',
+                    title: c.name || feed.unknown,
+                    sub: feed.subs.account_suspended,
                     dotClass: 'feed-dot-suspend', icon: FEED_ICONS.slash, contactId: c.id
                 });
             }
@@ -3481,7 +3983,7 @@ async function loadRecentActivity() {
         const top = events.slice(0, 7);
 
         if (top.length === 0) {
-            container.innerHTML = `<p style="font-size:0.82rem;opacity:0.4;text-align:center;padding:1rem 0;">No recent activity.</p>`;
+            container.innerHTML = `<p style="font-size:0.82rem;opacity:0.4;text-align:center;padding:1rem 0;">${esc(ui().overview.noRecentActivity)}</p>`;
             return;
         }
 
@@ -3495,12 +3997,15 @@ async function loadRecentActivity() {
                 <div class="feed-item-time">${timeAgo(ev.ts)}</div>
             </div>`).join('')}</div>`;
 
-        // El feed comparte la misma ficha 360 que Contactos, independientemente
-        // de si el evento nació en members, prospects o contacts.
+        // El feed abre directamente el perfil completo del contacto
         container.querySelectorAll('.feed-item').forEach(item => {
             item.addEventListener('click', () => {
                 const contact = findUnifiedContactById(item.dataset.contactId);
-                if (contact) openContactDrawer(contact.id);
+                if (contact) {
+                    showClientDetail(contact.id, contact);
+                } else if (item.dataset.contactId) {
+                    openClientFromDeepLink(item.dataset.contactId);
+                }
             });
         });
 
@@ -3539,7 +4044,7 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
     } catch (err) {
         if (!isCurrent()) return;
         logger.warn('Client timeline unavailable:', err);
-        container.innerHTML = `<p class="timeline-empty">Activity log unavailable.</p>`;
+        container.innerHTML = `<p class="timeline-empty">${esc(ui().feed.timelineUnavailable)}</p>`;
         return;
     }
 
@@ -3549,11 +4054,9 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
 
     const arrowSvg = `<svg class="tl-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
 
+    const feed = ui().feed;
     const items = acts.map(a => {
-        const pres = ACTIVITY_PRESENTATION[a.type] || {
-            dot: 'feed-dot-project', icon: 'file', label: a.summary || a.type,
-            sub: () => a.body || String(a.type || 'Activity').replaceAll('_', ' ')
-        };
+        const pres = activityPresentation(a.type);
         const p = a.payload || {};
         const occurredAt = a.occurredAt || a.createdAt;
         const detail = a.type === 'stage_changed'
@@ -3561,19 +4064,19 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
                    <span class="tl-stage-pill">${esc(stageName(p.fromStage))}</span>${arrowSvg}
                    <span class="tl-stage-pill tl-stage-pill-active">${esc(stageName(p.toStage))}</span>
                </span>`
-            : `<span class="tl-desc">${esc(pres.sub(p))}</span>`;
+            : `<span class="tl-desc">${esc(activitySubtitle(a.type, p, a.body || ''))}</span>`;
 
         return `
             <div class="tl-item">
                 <div class="tl-node ${pres.dot}">${FEED_ICONS[pres.icon]}</div>
                 <div class="tl-card">
                     <div class="tl-card-head">
-                        <span class="tl-label">${esc(pres.label || a.type)}</span>
+                        <span class="tl-label">${esc(activityLabel(a.type, a.summary))}</span>
                         <span class="tl-time">${timeAgo(occurredAt)}</span>
                     </div>
                     ${detail}
                     <div class="tl-meta">
-                        <span class="tl-actor ${a.actorRole === 'admin' ? 'tl-actor-admin' : 'tl-actor-member'}">${a.actorRole === 'admin' ? 'Admin' : 'Client'}</span>
+                        <span class="tl-actor ${a.actorRole === 'admin' ? 'tl-actor-admin' : 'tl-actor-member'}">${esc(a.actorRole === 'admin' ? feed.actorAdmin : feed.actorClient)}</span>
                         <span class="tl-date">${esc(fmtFull(occurredAt))}</span>
                     </div>
                 </div>
@@ -3587,12 +4090,12 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
                 <div class="tl-node feed-dot-join">${FEED_ICONS.user}</div>
                 <div class="tl-card">
                     <div class="tl-card-head">
-                        <span class="tl-label">${member.role === 'prospect' ? 'Request received' : 'Account created'}</span>
+                        <span class="tl-label">${esc(member.role === 'prospect' ? feed.requestReceived : feed.accountCreated)}</span>
                         <span class="tl-time">${timeAgo(member.createdAt)}</span>
                     </div>
-                    <span class="tl-desc">${esc(member.company ? 'Member · ' + member.company : 'Member since')}</span>
+                    <span class="tl-desc">${esc(member.company ? feed.memberOf(member.company) : feed.memberSince)}</span>
                     <div class="tl-meta">
-                        <span class="tl-actor tl-actor-member">Client</span>
+                        <span class="tl-actor tl-actor-member">${esc(feed.actorClient)}</span>
                         <span class="tl-date">${esc(fmtFull(member.createdAt))}</span>
                     </div>
                 </div>
@@ -3601,7 +4104,7 @@ async function loadClientTimeline(userId, member, renderVersion = _detailRenderV
 
     if (!isCurrent()) return;
     container.innerHTML = items.length === 0
-        ? `<p class="timeline-empty">No recorded activity yet. New events will appear here as they happen.</p>`
+        ? `<p class="timeline-empty">${esc(feed.timelineEmpty)}</p>`
         : `<div class="tl">${items.join('')}</div>`;
 }
 
@@ -3615,7 +4118,7 @@ function loadPipelineSnapshot() {
     });
     const total = Math.max(1, _opportunities.length);
     const rows = Object.entries(OPPORTUNITY_STAGES).map(([key, value]) => ({
-        key, label: value.label, cls: `stage-${key}`
+        key, label: ui().pipeline.stages[key] || value.label, cls: `stage-${key}`
     }));
 
     container.innerHTML = `<div class="pipeline-snapshot">${rows.map((r, i) => `
@@ -3723,7 +4226,7 @@ function briefingCard({ id, count, label, hint, tone, items, targetNav }) {
                 <h3>${esc(label)}</h3>
             </header>
             ${list}
-            ${targetNav ? `<button type="button" class="crm-text-action" data-target-nav="${esc(targetNav)}">Open →</button>` : ''}
+            ${targetNav ? `<button type="button" class="crm-text-action" data-target-nav="${esc(targetNav)}">${esc(ui().briefing.open)}</button>` : ''}
         </article>`;
 }
 
@@ -3796,37 +4299,40 @@ function renderDailyBriefing() {
     const timeOf = meeting => new Date(meetingStartMillis(meeting))
         .toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
+    const brief = ui().briefing;
+    const activityName = meeting => meeting.title || (meeting.type === 'call' ? brief.call : brief.meeting);
+
     container.innerHTML = [
         briefingCard({
-            id: 'today', count: todayMeetings.length, label: "Today's activities", tone: 'blue',
-            hint: 'Nothing scheduled for today.', targetNav: 'agenda',
+            id: 'today', count: todayMeetings.length, label: brief.todayLabel, tone: 'blue',
+            hint: brief.todayHint, targetNav: 'agenda',
             items: todayMeetings.slice(0, 4).map(meeting => ({
-                title: meeting.title || (meeting.type === 'call' ? 'Call' : 'Meeting'),
-                meta: `${timeOf(meeting)} · ${meeting.clientName || meeting.clientEmail || 'Contact'}`
+                title: activityName(meeting),
+                meta: `${timeOf(meeting)} · ${meeting.clientName || meeting.clientEmail || brief.contact}`
             }))
         }),
         briefingCard({
-            id: 'week', count: upcomingWeek.length, label: 'Next 7 days', tone: 'neutral',
-            hint: 'No activities booked this week.', targetNav: 'agenda',
+            id: 'week', count: upcomingWeek.length, label: brief.weekLabel, tone: 'neutral',
+            hint: brief.weekHint, targetNav: 'agenda',
             items: upcomingWeek.slice(0, 4).map(meeting => ({
-                title: meeting.title || (meeting.type === 'call' ? 'Call' : 'Meeting'),
-                meta: `${formatAdminDate(new Date(meetingStartMillis(meeting)))} · ${meeting.clientName || 'Contact'}`
+                title: activityName(meeting),
+                meta: `${formatAdminDate(new Date(meetingStartMillis(meeting)))} · ${meeting.clientName || brief.contact}`
             }))
         }),
         briefingCard({
-            id: 'overdue', count: overdue.length, label: 'Overdue opportunities', tone: 'danger',
-            hint: 'No opportunity is past its close date.', targetNav: 'pipeline',
+            id: 'overdue', count: overdue.length, label: brief.overdueLabel, tone: 'danger',
+            hint: brief.overdueHint, targetNav: 'pipeline',
             items: overdue.slice(0, 4).map(opportunity => ({
                 title: opportunity.title,
-                meta: `${formatOpportunityValue(opportunity)} · due ${formatAdminDate(opportunity.expectedCloseAt)}`
+                meta: `${formatOpportunityValue(opportunity)} · ${brief.dueOn(formatAdminDate(opportunity.expectedCloseAt))}`
             }))
         }),
         briefingCard({
-            id: 'stale', count: stale.length, label: `Leads idle ${BRIEFING_STALE_DAYS}+ days`, tone: 'warning',
-            hint: 'Every lead has been touched recently.', targetNav: 'clients',
+            id: 'stale', count: stale.length, label: brief.staleLabel(BRIEFING_STALE_DAYS), tone: 'warning',
+            hint: brief.staleHint, targetNav: 'clients',
             items: stale.slice(0, 4).map(contact => ({
                 title: contact.name,
-                meta: `${contact.company || 'No company'} · ${timeAgo(contact.updatedAt || contact.createdAt) || 'never'}`
+                meta: `${contact.company || brief.noCompany} · ${timeAgo(contact.updatedAt || contact.createdAt) || brief.never}`
             }))
         })
     ].join('');
@@ -3845,7 +4351,8 @@ function renderDailyBriefing() {
  */
 function ownerLabel(ownerId) {
     const owner = _crmUsers.find(user => user.id === ownerId);
-    return owner?.displayName || owner?.email || (ownerId ? 'Elysium team' : 'Unassigned');
+    return owner?.displayName || owner?.email
+        || (ownerId ? ui().contacts.ownerTeam : ui().contacts.ownerUnassigned);
 }
 
 const PIPELINE_URGENCY_LABEL = {
@@ -3897,7 +4404,7 @@ function renderPipelineOwnerOptions() {
     // plantilla entera: un desplegable con agentes sin oportunidades sugiere
     // filtros que siempre devuelven un tablero vacío.
     const owners = [...new Set(_opportunities.map(item => item.ownerId).filter(Boolean))];
-    select.innerHTML = '<option value="">Everyone</option>'
+    select.innerHTML = `<option value="">${esc(ui().pipeline.filterEveryone)}</option>`
         + owners.map(id => `<option value="${esc(id)}">${esc(ownerLabel(id))}</option>`).join('');
     select.value = owners.includes(previous) ? previous : '';
 }
@@ -3939,7 +4446,7 @@ async function moveOpportunity(opportunityId, stageId) {
     } catch (error) {
         opportunity.stage = previousStage;
         loadCommercialPipeline({ useCache: true });
-        alert(`The opportunity could not be moved: ${error.message}`);
+        alert(ui().pipeline.moveFailed(error.message));
     }
 }
 
@@ -3957,8 +4464,8 @@ async function loadCommercialPipeline({ useCache = false } = {}) {
         const countLabel = document.getElementById('pipeline-filter-count');
         if (countLabel) {
             countLabel.textContent = visible.length === _opportunities.length
-                ? `${_opportunities.length} opportunities`
-                : `${visible.length} of ${_opportunities.length} opportunities`;
+                ? ui().pipeline.countAll(_opportunities.length)
+                : ui().pipeline.countFiltered(visible.length, _opportunities.length);
         }
 
         const grouped = Object.fromEntries(Object.keys(OPPORTUNITY_STAGES).map(stage => [stage, []]));
@@ -3980,17 +4487,17 @@ async function loadCommercialPipeline({ useCache = false } = {}) {
             return `
             <div class="pipeline-column ${stage.cls}" data-opportunity-stage="${stageId}">
                 <div class="pipeline-col-header">
-                    <div class="pipeline-col-title"><div class="pipeline-col-dot"></div><span>${esc(stage.label)}</span></div>
+                    <div class="pipeline-col-title"><div class="pipeline-col-dot"></div><span>${esc(ui().pipeline.stages[stageId] || stage.label)}</span></div>
                     <span class="pipeline-col-count">${grouped[stageId].length}</span>
                 </div>
                 <div class="pipeline-col-total">
                     <strong>${esc(formatRevenue(stageTotals))}</strong>
-                    <span>${esc(formatRevenue(weighted))} weighted · ${stage.probability}%</span>
+                    <span>${esc(ui().pipeline.weighted(formatRevenue(weighted)))} · ${stage.probability}%</span>
                 </div>
                 <div class="pipeline-col-cards" data-opportunity-drop="${stageId}">
                     ${grouped[stageId].length ? grouped[stageId].map(opportunity => {
                         const contact = findUnifiedContactById(opportunity.contactId);
-                        const name = opportunity.contactName || contact?.name || 'Unnamed contact';
+                        const name = opportunity.contactName || contact?.name || ui().pipeline.unnamedContact;
                         const tags = Array.isArray(opportunity.tags) ? opportunity.tags.slice(0, 2) : [];
                         const urgency = opportunityUrgency(opportunity);
                         const closeDate = crmDate(opportunity.expectedCloseAt);
@@ -3998,18 +4505,26 @@ async function loadCommercialPipeline({ useCache = false } = {}) {
                             <div class="pipeline-card-avatar">${esc(initials(name))}</div>
                             <div class="pipeline-card-body"><div class="pipeline-card-name">${esc(opportunity.title)}</div><div class="pipeline-card-company">${esc(name)}${opportunity.company ? ` · ${esc(opportunity.company)}` : ''}</div></div>
                             <div class="pipeline-card-meta"><span>${esc(ownerLabel(opportunity.ownerId))}</span><strong class="pipeline-card-value">${esc(formatOpportunityValue(opportunity))}</strong></div>
-                            ${closeDate ? `<div class="pipeline-card-due is-${urgency}">${esc(PIPELINE_URGENCY_LABEL[urgency] || '')} · ${esc(formatAdminDate(opportunity.expectedCloseAt))}</div>` : ''}
+                            ${closeDate ? `<div class="pipeline-card-due is-${urgency}">${esc(ui().pipeline.urgency[urgency] || '')} · ${esc(formatAdminDate(opportunity.expectedCloseAt))}</div>` : ''}
                             ${tags.length ? `<div class="pipeline-card-tags">${tags.map(tag => `<span class="pipeline-tag">${esc(tag)}</span>`).join('')}</div>` : ''}
                         </article>`;
-                    }).join('') : '<div class="pipeline-col-empty">No opportunities here</div>'}
+                    }).join('') : `<div class="pipeline-col-empty">${esc(ui().pipeline.emptyOpportunities)}</div>`}
                 </div>
             </div>`;
         }).join('');
 
         board.querySelectorAll('[data-opportunity-id]').forEach(card => {
-            card.addEventListener('click', () => openContactDrawer(card.dataset.contactId));
+            const openCardContact = () => {
+                const contact = findUnifiedContactById(card.dataset.contactId);
+                if (contact) {
+                    showClientDetail(contact.id, contact);
+                } else if (card.dataset.contactId) {
+                    openClientFromDeepLink(card.dataset.contactId);
+                }
+            };
+            card.addEventListener('click', openCardContact);
             card.addEventListener('keydown', event => {
-                if (event.key === 'Enter') openContactDrawer(card.dataset.contactId);
+                if (event.key === 'Enter') openCardContact();
             });
             card.addEventListener('dragstart', event => {
                 card.classList.add('is-dragging');
@@ -4035,7 +4550,7 @@ async function loadCommercialPipeline({ useCache = false } = {}) {
         if (badge) badge.textContent = _opportunities.filter(item => !['won', 'lost'].includes(item.stage)).length;
     } catch (error) {
         logger.error('Commercial pipeline failed:', error);
-        board.innerHTML = `<div class="portal-state portal-error"><div class="portal-state-title">Pipeline unavailable</div><div class="portal-state-description">${esc(error.message)}</div></div>`;
+        board.innerHTML = `<div class="portal-state portal-error"><div class="portal-state-title">${esc(ui().pipeline.unavailable)}</div><div class="portal-state-description">${esc(error.message)}</div></div>`;
     }
 }
 
@@ -4052,7 +4567,7 @@ async function loadDeliveryPipeline() {
 
     const t = translations[currentLang];
     const stages = {
-        prospect:      { label: 'Prospect',                                 cls: 'stage-prospect',      clients: [] },
+        prospect:      { label: ui().pipeline.stageProspect,                cls: 'stage-prospect',      clients: [] },
         first_contact: { label: t.stage_contact || 'First Contact',         cls: 'stage-first_contact', clients: [] },
         prototyping:   { label: t.stage_proto || 'Prototyping',             cls: 'stage-prototyping',   clients: [] },
         development:   { label: t.stage_dev || 'Development',               cls: 'stage-development',   clients: [] },
@@ -4093,11 +4608,11 @@ async function loadDeliveryPipeline() {
             </div>
             <div class="pipeline-col-cards">
                 ${col.clients.length === 0
-                    ? '<div class="pipeline-col-empty">No projects here</div>'
+                    ? `<div class="pipeline-col-empty">${esc(ui().pipeline.emptyProjects)}</div>`
                     : col.clients.map(item => {
                         const c = item.client;
                         const p = item.project;
-                        const cardName = p ? p.name : (c.name || 'Unnamed');
+                        const cardName = p ? p.name : (c.name || ui().pipeline.unnamed);
                         const cardCompany = c.company || c.email || '';
                         return `
                         <div class="pipeline-card" data-partner-id="${c.id}" data-project-id="${p ? p.id : ''}">
@@ -4185,7 +4700,7 @@ async function loadClients() {
                 _sortAZ = !_sortAZ;
                 _clientPage = 1;
                 const label = document.getElementById('crm-sort-label');
-                if (label) label.textContent = _sortAZ ? 'A → Z' : 'Newest';
+                if (label) label.textContent = _sortAZ ? ui().contacts.sortAZ : ui().contacts.sortNewest;
                 freshBtn.classList.toggle('is-active', !_sortAZ);
                 renderClientGrid(currentContactSearchResults(), t);
             });
@@ -4231,7 +4746,8 @@ function renderClientGrid(clients, t) {
             - (crmDate(a.updatedAt || a.createdAt)?.getTime() || 0);
     });
 
-    if (countEl) countEl.textContent = `${sorted.length} contact${sorted.length !== 1 ? 's' : ''}`;
+    const copy = ui().contacts;
+    if (countEl) countEl.textContent = copy.count(sorted.length);
 
     const totalPages = Math.max(1, Math.ceil(sorted.length / CLIENT_PAGE_SIZE));
     _clientPage = Math.min(Math.max(1, _clientPage), totalPages);
@@ -4243,26 +4759,26 @@ function renderClientGrid(clients, t) {
     if (pagination) pagination.hidden = sorted.length <= CLIENT_PAGE_SIZE;
     if (previous) previous.disabled = _clientPage <= 1;
     if (next) next.disabled = _clientPage >= totalPages;
-    if (status) status.textContent = `Page ${_clientPage} of ${totalPages}`;
+    if (status) status.textContent = copy.pageStatus(_clientPage, totalPages);
 
     if (sorted.length === 0) {
         if (pagination) pagination.hidden = true;
         clientsList.innerHTML = `<p style="grid-column:1/-1;text-align:center;opacity:0.4;padding:3rem 0;">
-            No contacts found${_activeFilter !== 'all' ? ' in this lifecycle' : ''}.
+            ${esc(_activeFilter === 'all' ? copy.empty : copy.emptyFiltered)}
         </p>`;
         return;
     }
 
-    const stageLabels = { lead: 'Lead', prospect: 'Prospect', client: 'Client', inactive: 'Inactive' };
+    const stageLabels = copy.lifecycle;
     const stageChip = { lead: 'is-warning', prospect: 'is-neutral', client: 'is-success', inactive: 'is-neutral' };
     clientsList.innerHTML = `
-        <div class="crm-directory-table" role="table" aria-label="Unified contacts">
+        <div class="crm-directory-table" role="table" aria-label="${esc(copy.tableAria)}">
             <div class="crm-directory-row crm-directory-head" role="row">
-                <span role="columnheader">Relationship</span>
-                <span role="columnheader">Company & source</span>
-                <span role="columnheader">Lifecycle</span>
-                <span role="columnheader">Owner</span>
-                <span role="columnheader">Last activity</span>
+                <span role="columnheader">${esc(copy.colRelationship)}</span>
+                <span role="columnheader">${esc(copy.colCompany)}</span>
+                <span role="columnheader">${esc(copy.colLifecycle)}</span>
+                <span role="columnheader">${esc(copy.colOwner)}</span>
+                <span role="columnheader">${esc(copy.colActivity)}</span>
                 <span aria-hidden="true"></span>
             </div>
             ${pageItems.map(data => {
@@ -4272,18 +4788,29 @@ function renderClientGrid(clients, t) {
                     <div class="crm-directory-row${stage === 'inactive' ? ' is-suspended' : ''}" role="row" tabindex="0" data-contact-row="${esc(data.id)}">
                         <div class="crm-directory-person" role="cell">
                             <div class="client-card-avatar">${esc(initials(data.name))}</div>
-                            <div><strong>${esc(data.name || t.unnamed_client)}</strong><span>${esc(data.email || data.phone || '—')}</span></div>
+                            <div class="crm-directory-person-meta">
+                                <strong>${esc(data.name || t.unnamed_client)}</strong>
+                                <span>${esc(data.email || data.phone || '—')}</span>
+                            </div>
                         </div>
                         <div class="crm-directory-company" role="cell"><strong>${esc(data.company || t.no_company)}</strong><span>${esc(data.sourceLabel || contactSourceLabel(data))}</span></div>
                         <div role="cell"><span class="portal-status ${stageChip[stage] || 'is-neutral'}">${stageLabels[stage] || stage}</span></div>
                         <div class="crm-directory-owner" role="cell"><span class="crm-owner-dot"></span>${esc(ownerLabel(data.ownerId))}</div>
-                        <div class="crm-directory-activity" role="cell"><strong>${esc(timeAgo(recent) || 'No activity')}</strong>${(data.tags || []).length ? `<span>${data.tags.slice(0, 2).map(esc).join(' · ')}</span>` : '<span>No tags</span>'}</div>
+                        <div class="crm-directory-activity" role="cell"><strong>${esc(timeAgo(recent) || copy.noActivity)}</strong>${(data.tags || []).length ? `<span>${data.tags.slice(0, 2).map(esc).join(' · ')}</span>` : `<span>${esc(copy.noTags)}</span>`}</div>
                         <div class="crm-directory-chevron" aria-hidden="true">›</div>
                     </div>`;
             }).join('')}
         </div>`;
     clientsList.querySelectorAll('[data-contact-row]').forEach(row => {
-        const open = () => openContactDrawer(row.dataset.contactRow);
+        const open = () => {
+            const contactId = row.dataset.contactRow;
+            const contact = findUnifiedContactById(contactId);
+            if (contact) {
+                showClientDetail(contact.id, contact);
+            } else {
+                openClientFromDeepLink(contactId);
+            }
+        };
         row.addEventListener('click', open);
         row.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -4365,6 +4892,7 @@ async function openContactDrawer(contactId) {
 function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
     const content = document.getElementById('contact-drawer-content');
     if (!content) return;
+    const t = translations[currentLang] || translations.en;
     const operational = ['members', 'prospects'].includes(contact._sourceCollection);
     const sourceRecords = (contact._linkedRecords || []).map(record => contactSourceLabel({
         ...record.data, _sourceCollection: record.sourceCollection
@@ -4378,60 +4906,69 @@ function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
     const uploadLabelAttrs = filesPending
         ? ' aria-disabled="true" aria-busy="true"'
         : ' for="contact-file-input"';
+    const d = ui().drawer;
+    const lifecycleNames = ui().contacts.lifecycle;
     content.innerHTML = `
         <section class="crm-drawer-section">
             <div class="crm-drawer-header">
-                <span class="agenda-eyebrow">Contact 360º</span>
-                <button class="crm-drawer-close" type="button" data-close-contact aria-label="Close">×</button>
+                <span class="agenda-eyebrow">${esc(d.title)}</span>
+                <button class="crm-drawer-close" type="button" data-close-contact aria-label="${esc(d.close)}">×</button>
             </div>
             <div class="crm-drawer-identity">
                 <div class="crm-drawer-avatar">${esc(initials(contact.name))}</div>
                 <div><h2 id="contact-drawer-title">${esc(contact.name)}</h2><p class="crm-drawer-subtitle">${esc(contact.jobTitle || contact.company || contact.sourceLabel)}</p></div>
             </div>
-            <div class="crm-drawer-actions" style="margin-top:1rem;justify-content:flex-start;">
-                ${contact.email ? `<a class="btn btn-secondary" href="mailto:${esc(contact.email)}">Email</a>` : ''}
-                ${contact.phone ? `<a class="btn btn-secondary" href="tel:${esc(contact.phone)}">Call</a>` : ''}
-                ${operational ? '<button type="button" class="btn btn-primary" data-open-operational>Open full profile</button>' : ''}
+            <div class="crm-drawer-actions" style="margin-top:1rem;justify-content:flex-start;flex-wrap:wrap;gap:0.5rem;">
+                ${contact.email ? `<a class="btn btn-secondary" href="mailto:${esc(contact.email)}">${esc(d.email)}</a>` : ''}
+                ${contact.phone ? `<a class="btn btn-secondary" href="tel:${esc(contact.phone)}">${esc(d.call)}</a>` : ''}
+                ${operational ? `<button type="button" class="btn btn-primary" data-open-operational>${esc(d.openProfile)}</button>` : ''}
+                <button type="button" class="btn btn-secondary" data-delete-contact style="margin-left:auto;color:#ff6b6b;border-color:rgba(255,59,48,0.3);display:inline-flex;align-items:center;gap:0.35rem;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span>${esc(t.delete_contact || 'Delete contact')}</span>
+                </button>
             </div>
         </section>
         <section class="crm-drawer-section">
             <div class="crm-detail-grid">
-                <div class="crm-detail-item"><span>Email</span><a href="mailto:${esc(contact.email)}">${esc(contact.email || '—')}</a></div>
-                <div class="crm-detail-item"><span>Phone</span><a href="tel:${esc(contact.phone)}">${esc(contact.phone || '—')}</a></div>
-                <div class="crm-detail-item"><span>Company</span><strong>${esc(contact.company || '—')}</strong></div>
-                <div class="crm-detail-item"><span>Lifecycle</span><strong>${esc(contact.lifecycle || 'lead')}</strong></div>
-                <div class="crm-detail-item"><span>Source</span><strong>${esc(uniqueSources.join(' · ') || contact.sourceLabel)}</strong></div>
-                <div class="crm-detail-item"><span>Created</span><strong>${esc(formatAdminDate(contact.createdAt))}</strong></div>
+                <div class="crm-detail-item"><span>${esc(d.email)}</span><a href="mailto:${esc(contact.email)}">${esc(contact.email || '—')}</a></div>
+                <div class="crm-detail-item"><span>${esc(d.phone)}</span><a href="tel:${esc(contact.phone)}">${esc(contact.phone || '—')}</a></div>
+                <div class="crm-detail-item"><span>${esc(d.company)}</span><strong>${esc(contact.company || '—')}</strong></div>
+                <div class="crm-detail-item"><span>${esc(d.lifecycle)}</span><strong>${esc(lifecycleNames[contact.lifecycle] || lifecycleNames.lead)}</strong></div>
+                <div class="crm-detail-item"><span>${esc(d.source)}</span><strong>${esc(uniqueSources.join(' · ') || contact.sourceLabel)}</strong></div>
+                <div class="crm-detail-item"><span>${esc(d.created)}</span><strong>${esc(formatAdminDate(contact.createdAt))}</strong></div>
             </div>
-            ${contact.service ? `<div style="margin-top:1rem"><span class="crm-drawer-label">Service of interest</span><strong>${esc(contact.service)}</strong></div>` : ''}
-            ${contact.message ? `<div style="margin-top:1rem"><span class="crm-drawer-label">Original inquiry</span><p class="crm-inquiry-message">${esc(contact.message)}</p></div>` : ''}
+            ${contact.service ? `<div style="margin-top:1rem"><span class="crm-drawer-label">${esc(d.serviceInterest)}</span><strong>${esc(contact.service)}</strong></div>` : ''}
+            ${contact.message ? `<div style="margin-top:1rem"><span class="crm-drawer-label">${esc(d.originalInquiry)}</span><p class="crm-inquiry-message">${esc(contact.message)}</p></div>` : ''}
         </section>
         <section class="crm-drawer-section">
-            <span class="crm-drawer-label">Tags</span>
-            <div class="crm-tag-list">${(contact.tags || []).map(tag => `<span class="crm-tag">${esc(tag)}<button type="button" data-remove-contact-tag="${esc(tag)}" aria-label="Remove ${esc(tag)}">×</button></span>`).join('') || '<span class="crm-drawer-muted">No tags yet.</span>'}</div>
-            <form class="crm-inline-form" id="contact-tag-form"><input class="form-control" id="contact-tag-input" maxlength="40" placeholder="New tag"><button class="btn btn-secondary" type="submit">Add</button></form>
+            <span class="crm-drawer-label">${esc(d.tags)}</span>
+            <div class="crm-tag-list">${(contact.tags || []).map(tag => `<span class="crm-tag">${esc(tag)}<button type="button" data-remove-contact-tag="${esc(tag)}" aria-label="${esc(d.removeTag(tag))}">×</button></span>`).join('') || `<span class="crm-drawer-muted">${esc(d.noTagsYet)}</span>`}</div>
+            <form class="crm-inline-form" id="contact-tag-form"><input class="form-control" id="contact-tag-input" maxlength="40" placeholder="${esc(d.newTag)}"><button class="btn btn-secondary" type="submit">${esc(d.add)}</button></form>
         </section>
         <section class="crm-drawer-section">
-            <span class="crm-drawer-label">Internal note</span>
-            <textarea class="crm-note-input" id="contact-note-input" maxlength="5000" placeholder="Visible only to the Elysium team"></textarea>
-            <div class="crm-drawer-actions" style="margin-top:.75rem"><span class="crm-drawer-muted" id="contact-note-message"></span><button class="btn btn-primary" type="button" id="contact-note-save">Save note</button></div>
+            <span class="crm-drawer-label">${esc(d.internalNote)}</span>
+            <textarea class="crm-note-input" id="contact-note-input" maxlength="5000" placeholder="${esc(d.notePlaceholder)}"></textarea>
+            <div class="crm-drawer-actions" style="margin-top:.75rem"><span class="crm-drawer-muted" id="contact-note-message"></span><button class="btn btn-primary" type="button" id="contact-note-save">${esc(d.saveNote)}</button></div>
             <div class="crm-activity-list" style="margin-top:1rem">${activities.length ? activities.map(activity => `
-                <article class="crm-activity-item"><strong>${esc(activity.summary || activity.type || 'Activity')}</strong>${activity.body || activity.payload?.note ? `<p>${esc(activity.body || activity.payload?.note)}</p>` : ''}<p>${esc(activity.actorEmail || activity.memberName || 'Elysium team')} · ${esc(formatAdminDate(activity.occurredAt || activity.createdAt))}</p></article>
-            `).join('') : '<span class="crm-drawer-muted">No activity yet.</span>'}</div>
+                <article class="crm-activity-item"><strong>${esc(activityLabel(activity.type, activity.summary))}</strong>${activity.body || activity.payload?.note ? `<p>${esc(activity.body || activity.payload?.note)}</p>` : ''}<p>${esc(activity.actorEmail || activity.memberName || ui().contacts.ownerTeam)} · ${esc(formatAdminDate(activity.occurredAt || activity.createdAt))}</p></article>
+            `).join('') : `<span class="crm-drawer-muted">${esc(d.noActivityYet)}</span>`}</div>
         </section>
         <section class="crm-drawer-section">
-            <div class="crm-drawer-actions"><span class="crm-drawer-label" style="margin:0">Cloudflare files</span>${canUploadFiles ? `<label class="btn btn-secondary"${uploadLabelAttrs}>Upload file</label>` : ''}</div>
-            ${canUploadFiles ? '<input id="contact-file-input" type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">' : '<div class="portal-alert is-warning crm-file-capability">Private file storage needs its Cloudflare R2 credentials before uploads can be enabled.</div>'}
+            <div class="crm-drawer-actions"><span class="crm-drawer-label" style="margin:0">${esc(d.files)}</span>${canUploadFiles ? `<label class="btn btn-secondary"${uploadLabelAttrs}>${esc(d.uploadFile)}</label>` : ''}</div>
+            ${canUploadFiles ? '<input id="contact-file-input" type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">' : `<div class="portal-alert is-warning crm-file-capability">${esc(d.filesDisabled)}</div>`}
             <div id="contact-file-progress" class="crm-upload-progress" hidden><span style="width:0"></span></div>
             <div class="crm-file-list" style="margin-top:1rem">${files.length ? files.map(file => `
-                <article class="crm-file-item"><div class="crm-drawer-actions"><div><strong>${esc(file.originalName || file.originalFilename || 'File')}</strong><p>${Math.max(1, Math.round((file.size || file.bytes || 0) / 1024))} KB · ${esc(formatAdminDate(file.createdAt))}</p></div>${canDownloadFiles ? `<button class="btn btn-secondary" type="button" data-download-file="${esc(file.id)}"${filesPending ? ' disabled aria-busy="true"' : ''}>Download</button>` : ''}</div></article>
-            `).join('') : '<span class="crm-drawer-muted">No files attached.</span>'}</div>
+                <article class="crm-file-item"><div class="crm-drawer-actions"><div><strong>${esc(file.originalName || file.originalFilename || 'File')}</strong><p>${Math.max(1, Math.round((file.size || file.bytes || 0) / 1024))} KB · ${esc(formatAdminDate(file.createdAt))}</p></div>${canDownloadFiles ? `<button class="btn btn-secondary" type="button" data-download-file="${esc(file.id)}"${filesPending ? ' disabled aria-busy="true"' : ''}>${esc(d.download)}</button>` : ''}</div></article>
+            `).join('') : `<span class="crm-drawer-muted">${esc(d.noFiles)}</span>`}</div>
         </section>`;
 
     content.querySelector('[data-close-contact]')?.addEventListener('click', closeContactDrawer);
     content.querySelector('[data-open-operational]')?.addEventListener('click', () => {
         closeContactDrawer();
         showClientDetail(contact.id, contact);
+    });
+    content.querySelector('[data-delete-contact]')?.addEventListener('click', () => {
+        deleteUnifiedContact(contact.id);
     });
     content.querySelector('#contact-tag-form')?.addEventListener('submit', async event => {
         event.preventDefault();
@@ -4455,7 +4992,7 @@ function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
 async function updateUnifiedContactTags(contact, tags) {
     const safeTags = [...new Set(tags.map(tag => String(tag).trim()).filter(Boolean))];
     if (safeTags.length > 20 || safeTags.some(tag => tag.length > 40 || /[<>|\u0000-\u001f]/.test(tag))) {
-        throw new Error('Tags must be unique, contain 1–40 safe characters and never exceed 20 items.');
+        throw new Error(ui().drawer.tagsInvalid);
     }
     const records = contact._linkedRecords?.length
         ? contact._linkedRecords
@@ -4493,7 +5030,7 @@ async function addContactNote(contact) {
             opportunityId: null,
             meetingId: null,
             type: 'note_added',
-            summary: 'Internal note',
+            summary: ui().drawer.internalNote,
             body,
             payload: {},
             actorUid: auth.currentUser.uid,
@@ -4524,8 +5061,8 @@ function uploadToR2Url({ uploadUrl, requiredHeaders, file, onProgress }) {
         });
         request.addEventListener('load', () => request.status >= 200 && request.status < 300
             ? resolve(true)
-            : reject(new Error('Cloudflare R2 rejected the upload.')));
-        request.addEventListener('error', () => reject(new Error('The upload was interrupted.')));
+            : reject(new Error(ui().drawer.uploadRejected)));
+        request.addEventListener('error', () => reject(new Error(ui().drawer.uploadInterrupted)));
         request.send(file);
     });
 }
@@ -4537,7 +5074,7 @@ async function uploadContactFile(contact, event) {
     const purpose = file.type.startsWith('image/') ? 'contact_image' : 'contact_attachment';
     const policy = CRM_FILE_POLICIES[purpose];
     if (!policy.types.includes(file.type) || file.size <= 0 || file.size > policy.maxBytes) {
-        alert('This file type or size is not allowed.');
+        alert(ui().drawer.fileNotAllowed);
         return;
     }
     const progress = document.getElementById('contact-file-progress');
@@ -4566,7 +5103,7 @@ async function uploadContactFile(contact, event) {
 async function downloadCrmFile(fileId) {
     const result = await platformRequest(`/api/files/${encodeURIComponent(fileId)}/download-url`, { body: {} });
     const url = safeHttpsUrl(result.url || result.downloadUrl);
-    if (!url) throw new Error('A secure download URL could not be created.');
+    if (!url) throw new Error(ui().drawer.downloadFailed);
     window.open(url, '_blank', 'noopener,noreferrer');
 }
 
@@ -4578,13 +5115,13 @@ async function createContact(event) {
     const phone = document.getElementById('contact-phone').value.trim();
     const message = document.getElementById('contact-form-message');
     if (!firstName || (!email && !phone)) {
-        message.textContent = 'Enter a first name and at least an email or phone.';
+        message.textContent = ui().dialogs.contactRequired;
         message.className = 'meeting-form-message is-error';
         return;
     }
     const button = document.getElementById('contact-save-btn');
     button.disabled = true;
-    button.textContent = 'Saving…';
+    button.textContent = ui().dialogs.savingContact;
     try {
         const displayName = [firstName, lastName].filter(Boolean).join(' ');
         const companyName = document.getElementById('contact-company').value.trim();
@@ -4620,7 +5157,12 @@ async function createContact(event) {
         document.getElementById('contact-dialog').close();
         event.currentTarget.reset();
         await loadClients();
-        openContactDrawer(reference.id);
+        const created = findUnifiedContactById(reference.id);
+        if (created) {
+            showClientDetail(created.id, created);
+        } else {
+            openClientFromDeepLink(reference.id);
+        }
     } catch (error) {
         message.textContent = error.message;
         message.className = 'meeting-form-message is-error';
@@ -4630,10 +5172,73 @@ async function createContact(event) {
     }
 }
 
+async function deleteUnifiedContact(contactId) {
+    const contact = findUnifiedContactById(contactId) || _allClients.find(c => c.id === contactId);
+    if (!contact) {
+        alert('Contact not found.');
+        return;
+    }
+    const t = translations[currentLang] || translations.en;
+    const confirmMsg = (t.delete_contact_confirm || 'Are you sure you want to delete this contact? This action cannot be undone and will remove the contact from the CRM.') + (contact.name ? `\n\n${contact.name}` : '');
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+        const records = contact._linkedRecords?.length
+            ? contact._linkedRecords
+            : [{ id: contact.id, sourceCollection: contact._sourceCollection || 'contacts', data: contact }];
+
+        const deletedIds = new Set([
+            contact.id,
+            ...records.map(r => r.id)
+        ]);
+
+        // Delete from Firestore across all linked collections
+        await Promise.all(records.map(record => {
+            const collectionName = record.sourceCollection || contact._sourceCollection || 'contacts';
+            return deleteDoc(doc(db, collectionName, record.id));
+        }));
+
+        // Invalidate contact cache
+        invalidateContactCache();
+
+        // Update in-memory state
+        _allClients = _allClients.filter(c => !deletedIds.has(c.id) && !(c._linkedRecords || []).some(r => deletedIds.has(r.id)));
+        _memberRecords = _memberRecords.filter(m => !deletedIds.has(m.id));
+
+        // Close drawer if open
+        closeContactDrawer();
+
+        // If client profile view was active for this client, navigate back to contacts
+        const profileSection = document.getElementById('client-profile');
+        if (profileSection && profileSection.classList.contains('active')) {
+            navigateTo('clients');
+        }
+
+        // 1. Update sidebar contact count
+        const sidebarCount = document.getElementById('sidebar-clients-count');
+        if (sidebarCount) sidebarCount.textContent = _allClients.length;
+
+        // 2. Re-render contact directory table
+        renderClientGrid(currentContactSearchResults(), t);
+
+        // 3. Update dropdown options in forms
+        renderOpportunityContactOptions();
+        renderAgendaClientOptions();
+
+        // 4. Update overview/dashboard stats
+        loadStats().catch(err => logger.warn('Dashboard stats refresh after delete:', err));
+
+        logger.log(`Contact ${contact.id} (${contact.name || ''}) deleted successfully.`);
+    } catch (error) {
+        logger.error('Failed to delete contact:', error);
+        alert((t.delete_contact_error || 'Could not delete contact: ') + error.message);
+    }
+}
+
 function renderOpportunityContactOptions() {
     const select = document.getElementById('opportunity-contact');
     if (!select) return;
-    select.innerHTML = '<option value="">Select a contact…</option>' + _allClients
+    select.innerHTML = `<option value="">${esc(ui().dialogs.selectContact)}</option>` + _allClients
         .filter(contact => contact.lifecycle !== 'inactive')
         .map(contact => `<option value="${esc(contactSelectionValue(contact))}">${esc(contact.name)}${contact.company ? ` · ${esc(contact.company)}` : ''}</option>`)
         .join('');
@@ -4655,20 +5260,20 @@ async function createOpportunity(event) {
     const stage = OPPORTUNITY_STAGES[stageId];
     const message = document.getElementById('opportunity-form-message');
     if (!contact || !title || !Number.isFinite(value) || value < 0 || !stage) {
-        message.textContent = 'Review the contact, title, value and stage.';
+        message.textContent = ui().dialogs.opportunityRequired;
         message.className = 'meeting-form-message is-error';
         return;
     }
     const tags = [...new Set(document.getElementById('opportunity-tags').value
         .split(',').map(tag => tag.trim()).filter(Boolean))];
     if (tags.length > 20 || tags.some(tag => tag.length > 40 || /[<>|\u0000-\u001f]/.test(tag))) {
-        message.textContent = 'Use at most 20 tags of 40 safe characters.';
+        message.textContent = ui().dialogs.opportunityTags;
         message.className = 'meeting-form-message is-error';
         return;
     }
     const button = document.getElementById('opportunity-save-btn');
     button.disabled = true;
-    button.textContent = 'Creating…';
+    button.textContent = ui().dialogs.creatingOpportunity;
     try {
         const closeDate = document.getElementById('opportunity-close-date').value;
         await addDoc(collection(db, 'opportunities'), {
@@ -4703,7 +5308,7 @@ async function createOpportunity(event) {
         message.className = 'meeting-form-message is-error';
     } finally {
         button.disabled = false;
-        button.textContent = 'Create opportunity';
+        button.textContent = ui().dialogs.createOpportunity;
     }
 }
 
@@ -4724,7 +5329,7 @@ async function loadLicenses() {
             // renewal migrates them to the new structure.
             const sub = member.subscription || (member.licenseCode ? {
                 planType: 'legacy',
-                planLabel: 'Legacy license',
+                planLabel: ui().licenses.legacy,
                 billingCycle: '—',
                 licenseCode: member.licenseCode,
                 status: 'active',
@@ -4770,7 +5375,13 @@ async function loadLicenses() {
                 [counts.attention, copy.attention, `license-metric-gold${counts.attention ? '' : ' is-clear'}`],
             ].map(([value, label, cls]) => `
                 <div class="license-metric ${cls}">
-                    <strong>${value}</strong><span>${esc(label)}</span>
+                    <div class="license-metric-top">
+                        <span class="license-metric-dot"></span>
+                        <span class="license-metric-label">${esc(label)}</span>
+                    </div>
+                    <div class="license-metric-body">
+                        <strong class="license-metric-value">${value}</strong>
+                    </div>
                 </div>`).join('');
         }
 
@@ -4792,7 +5403,7 @@ async function loadLicenses() {
             tr.innerHTML = `
                 <td data-label="${esc(t.table_code)}" class="license-code-cell">${esc(data.licenseCode)}</td>
                 <td data-label="${esc(t.table_client)}"><strong>${esc(data.userName)}</strong><small>${esc(data.userEmail)}</small></td>
-                <td data-label="${esc(t.table_plan)}"><strong>${esc(SUBSCRIPTION_PLANS[data.planType]?.label || data.planLabel || data.planType || '—')}</strong><small>${esc(cycle)}</small></td>
+                <td data-label="${esc(t.table_plan)}"><strong>${esc(planLabel(data.planType, data.planLabel || data.planType))}</strong><small>${esc(cycle)}</small></td>
                 <td data-label="${esc(t.table_origin)}"><span class="license-source license-source-manual">${esc(source)}</span></td>
                 <td data-label="${esc(t.table_status)}"><span class="portal-status status-${esc(status)}">${esc(displayStatus)}</span></td>
                 <td data-label="${esc(t.table_renewal)}">${esc(renewal)}</td>
@@ -4882,7 +5493,7 @@ async function showClientDetail(userId, memberData, selectedProjectId = null, se
         logger.error("Error showing client detail:", error);
         detailContent.innerHTML = `
             <div class="portal-state portal-error">
-                <div class="portal-state-title">Error loading client detail.</div>
+                <div class="portal-state-title">${esc(ui().detail.loadError)}</div>
                 <div class="portal-state-description">${esc(error.message)}</div>
             </div>`;
     }
@@ -5260,6 +5871,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     const t = translations[currentLang];
     const L = V2_LABELS[currentLang] || V2_LABELS.en;
     const historyCopy = agendaCopy();
+    const D = ui().detail;
     const allSubmissions = Array.isArray(submissions) ? submissions : [];
     const allPayments = Array.isArray(payments) ? payments : [];
     const isSuspended = member.isDeactivated === true;
@@ -5303,7 +5915,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         // carry undefined values straight into the first write of this project.
         currentProject = stripUndefined({
             id: LEGACY_PROJECT_ID,
-            name: member.company || member.name || 'Proyecto 1',
+            name: member.company || member.name || D.defaultProjectName,
             projectUrl: member.projectUrl,
             projectStage: member.projectStage,
             financials: member.financials,
@@ -5356,8 +5968,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
 
     // ── Build suspend button label
     const suspendBtnLabel = isSuspended
-        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Reactivate Account`
-        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Suspend Account`;
+        ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> ${esc(D.reactivateAccount)}`
+        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> ${esc(D.suspendAccount)}`;
 
     // ── Profile header ────────────────────────────────────────────────────
     const subscription = member.subscription || null;
@@ -5436,6 +6048,10 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <button type="button" id="btn-suspend-toggle" class="portal-button ${isSuspended ? 'is-accent' : 'is-danger'}">
                     ${suspendBtnLabel}
                 </button>
+                <button type="button" id="btn-delete-profile-client" class="portal-button is-danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    ${esc(t.delete_contact || 'Delete contact')}
+                </button>
             </div>
         </header>
 
@@ -5506,7 +6122,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         <div class="detail-section" style="background: rgba(41, 151, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(41, 151, 255, 0.2);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
                 <h3 style="color: var(--color-accent); margin:0;">${t.project_link_title}</h3>
-                <button id="btn-edit-project" class="report-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                <button id="btn-edit-project" class="report-btn" title="${esc(D.edit)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
             </div>
             
             <div id="project-link-view">
@@ -5514,16 +6130,16 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             </div>
 
             <div id="project-link-edit" style="display: none; gap: 1rem;">
-                <input type="url" id="project-url-input" class="form-control" placeholder="https://..." value="${esc(currentProject.projectUrl || '')}" style="flex: 1;">
+                <input type="url" id="project-url-input" class="form-control" placeholder="${esc(D.projectUrlPlaceholder)}" value="${esc(currentProject.projectUrl || '')}" style="flex: 1;">
                 <button id="btn-save-project" class="btn btn-primary">${t.save_link}</button>
             </div>
             <p id="project-save-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none;">${t.saved}</p>
         </div>
         ${member.role === 'prospect' ? `
         <div class="detail-section" style="background: rgba(255, 171, 0, 0.05); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(255, 171, 0, 0.2);">
-            <h3 style="color: #ffab00; margin-top:0; margin-bottom: 1rem;">Prospect Details</h3>
+            <h3 style="color: #ffab00; margin-top:0; margin-bottom: 1rem;">${esc(D.prospectDetails)}</h3>
             <div style="margin-bottom: 1.5rem;">
-                <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">Project Description</label>
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">${esc(D.projectDescription)}</label>
                 <p style="margin:0; line-height: 1.5;">${f(currentProject.projectDescription)}</p>
             </div>
             
@@ -5536,27 +6152,27 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 return `
             <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 240px;">
-                    <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">Registered client to merge into</label>
+                    <label style="display:block; font-size:0.8rem; text-transform:uppercase; color:var(--color-text-secondary); margin-bottom:0.5rem;">${esc(D.mergeInto)}</label>
                     <select id="prospect-link-target" class="form-control">
-                        <option value="">Select a client…</option>
+                        <option value="">${esc(D.selectClient)}</option>
                         ${options.map(client => `<option value="${esc(client.id)}" ${matchByEmail?.id === client.id ? 'selected' : ''}>${esc(client.name || client.company || client.email)}${client.email ? ` · ${esc(client.email)}` : ''}</option>`).join('')}
                     </select>
                 </div>
-                <button id="btn-link-prospect" class="btn btn-primary" style="background: #ffab00; color: #000; border-color: #ffab00;">Unificar en un solo perfil</button>
+                <button id="btn-link-prospect" class="btn btn-primary" style="background: #ffab00; color: #000; border-color: #ffab00;">${esc(D.mergeAction)}</button>
             </div>
-            ${matchByEmail ? `<p style="margin-top:0.5rem; font-size:0.85rem; color:#00c875;">Same email as a registered client: ${esc(matchByEmail.name || matchByEmail.company || matchByEmail.email)}.</p>` : ''}
-            <p id="prospect-link-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none; color: #00c875;">Linked successfully!</p>`;
+            ${matchByEmail ? `<p style="margin-top:0.5rem; font-size:0.85rem; color:#00c875;">${esc(D.sameEmail(matchByEmail.name || matchByEmail.company || matchByEmail.email))}</p>` : ''}
+            <p id="prospect-link-msg" style="margin-top: 0.5rem; font-size: 0.9rem; display: none; color: #00c875;">${esc(D.linkedOk)}</p>`;
             })()}
         </div>
         ` : ''}
         ${currentProject.prospectInquiry ? `
         <div class="detail-section" style="background: rgba(255, 171, 0, 0.05); padding: 1.25rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem; border: 1px solid rgba(255, 171, 0, 0.2);">
-            <h3 style="color: #ffab00; margin-top:0; margin-bottom: 0.75rem;">Original enquiry</h3>
+            <h3 style="color: #ffab00; margin-top:0; margin-bottom: 0.75rem;">${esc(D.originalEnquiry)}</h3>
             <div class="info-grid">
-                <div class="info-item"><label>Name</label><span>${f(currentProject.prospectInquiry.name)}</span></div>
-                <div class="info-item"><label>Company</label><span>${f(currentProject.prospectInquiry.company)}</span></div>
-                <div class="info-item"><label>Email</label><span>${f(currentProject.prospectInquiry.email)}</span></div>
-                <div class="info-item"><label>Received</label><span>${esc(formatAdminDate(currentProject.prospectInquiry.receivedAt) || '—')}</span></div>
+                <div class="info-item"><label>${esc(D.name)}</label><span>${f(currentProject.prospectInquiry.name)}</span></div>
+                <div class="info-item"><label>${esc(D.company)}</label><span>${f(currentProject.prospectInquiry.company)}</span></div>
+                <div class="info-item"><label>${esc(D.email)}</label><span>${f(currentProject.prospectInquiry.email)}</span></div>
+                <div class="info-item"><label>${esc(D.received)}</label><span>${esc(formatAdminDate(currentProject.prospectInquiry.receivedAt) || '—')}</span></div>
             </div>
             ${currentProject.prospectInquiry.description ? `<p style="margin:1rem 0 0; line-height:1.5;">${f(currentProject.prospectInquiry.description)}</p>` : ''}
         </div>
@@ -5564,12 +6180,12 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         <!-- ── Project Pipeline & Revenue ── -->
         <div class="detail-section" style="margin-bottom: 2rem;">
             <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
-                <h3 style="color: var(--color-accent); margin:0;">Activity & Notes (Pipeline & Revenue)</h3>
+                <h3 style="color: var(--color-accent); margin:0;">${esc(D.activityAndNotes)}</h3>
             </div>
             
             <!-- Pipeline / Stepper -->
             <div class="project-pipeline-container" style="margin-bottom: 2rem;">
-                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Current Stage (Click to update)</label>
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">${esc(D.currentStage)}</label>
                 <div class="pipeline-stepper" id="pipeline-stepper-ui">
                     ${['prospect', 'first_contact', 'prototyping', 'development', 'delivery', 'maintenance'].map((stage, idx, arr) => {
                         const defaultStage = member.role === 'prospect' ? 'prospect' : 'first_contact';
@@ -5599,7 +6215,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
 
             <!-- Global Revenue Chart -->
             <div class="client-revenue-container">
-                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">Income Overview</label>
+                <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:1rem; font-weight:600;">${esc(D.incomeOverview)}</label>
                 <div style="height: 200px; width: 100%; position: relative;">
                     <canvas id="clientRevenueChart"></canvas>
                 </div>
@@ -5610,8 +6226,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         <!-- ── Financials & Reports ── -->
         <div class="detail-section" style="margin-bottom: 2rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 1rem;">
-                <h3 style="color: var(--color-accent); margin:0;">Financials & Billing</h3>
-                <button id="btn-edit-fin" class="report-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
+                <h3 style="color: var(--color-accent); margin:0;">${esc(D.financialsBilling)}</h3>
+                <button id="btn-edit-fin" class="report-btn" title="${esc(D.edit)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
             </div>
             
             <div id="fin-view-mode">
@@ -5619,7 +6235,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.project_cost}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${esc(fin.projectCost)}</div></div>
                     <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.monthly_fee}</div><div style="font-size:1.2rem; font-weight:700;">${curSym}${esc(fin.maintenanceFee)}</div></div>
                     <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${t.discount}</div><div style="font-size:1.2rem; font-weight:700;">${esc(fin.discount || '-')}</div></div>
-                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">Status</div><div style="font-size:1rem; font-weight:500; color:var(--color-accent);">${esc(t['status_' + (fin.status === 'active_maintenance' ? 'active' : fin.status === 'free_tier' ? 'free' : fin.status === 'development' ? 'dev' : 'prospect')] || fin.status)}</div></div>
+                    <div><div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase;">${esc(D.status)}</div><div style="font-size:1rem; font-weight:500; color:var(--color-accent);">${esc(t['status_' + (fin.status === 'active_maintenance' ? 'active' : fin.status === 'free_tier' ? 'free' : fin.status === 'development' ? 'dev' : 'prospect')] || fin.status)}</div></div>
                 </div>
             </div>
 
@@ -5637,15 +6253,15 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     </div>
                     <div class="fin-card">
                         <label>${t.discount}</label>
-                        <input type="text" id="fin-discount" value="${esc(fin.discount || '')}" placeholder="e.g. 40%">
+                        <input type="text" id="fin-discount" value="${esc(fin.discount || '')}" placeholder="${esc(D.discountPlaceholder)}">
                     </div>
                 </div>
                 
                 <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
                     <select id="fin-currency" class="form-control" style="max-width: 120px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">
-                        <option value="EUR" ${(!fin.currency || fin.currency === 'EUR') ? 'selected' : ''}>EUR (€)</option>
+                        <option value="EUR" ${(!fin.currency || fin.currency === 'EUR') ? 'selected' : ''}>${esc(D.currencyEur)}</option>
                         <option value="USD" ${fin.currency === 'USD' ? 'selected' : ''}>USD ($)</option>
-                        <option value="CRC" ${fin.currency === 'CRC' ? 'selected' : ''}>CRC (₡)</option>
+                        <option value="CRC" ${fin.currency === 'CRC' ? 'selected' : ''}>${esc(D.currencyCrc)}</option>
                     </select>
                     <select id="fin-status" class="form-control" style="max-width: 200px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">
                         <option value="prospect" ${fin.status === 'prospect' ? 'selected' : ''}>${t.status_prospect}</option>
@@ -5662,10 +6278,10 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         <!-- ── SUBSCRIPTION MANAGEMENT (Admin) ── -->
         <div class="detail-section" style="margin-bottom: 2rem; border: 1px solid rgba(41,151,255,0.25); border-radius: var(--radius-md); padding: 1.5rem; background: rgba(41,151,255,0.04);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--glass-border); padding-bottom:0.75rem;">
-                <h3 style="color:var(--color-accent); margin:0;">Subscription Management</h3>
+                <h3 style="color:var(--color-accent); margin:0;">${esc(D.subscriptionManagement)}</h3>
                 ${(() => {
                     const sub = member.subscription;
-                    if (!sub || !sub.planType) return '<span style="font-size:0.8rem;color:var(--color-text-secondary);">No active subscription</span>';
+                    if (!sub || !sub.planType) return `<span style="font-size:0.8rem;color:var(--color-text-secondary);">${esc(D.noSubscription)}</span>`;
                     const status = subscriptionStatus(sub);
                     const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444', canceled: '#ff4444', cancelled: '#ff4444' };
                     const color = statusColors[status] || '#888';
@@ -5677,38 +6293,41 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 const sub = member.subscription;
                 if (sub && sub.planType) {
                     const status = subscriptionStatus(sub);
-                    const statusLabels = { active: 'Active', pending_payment: 'Payment Pending', suspended: 'Suspended', canceled: 'Canceled', cancelled: 'Canceled' };
+                    const statusLabels = {
+                        active: D.statusActive, pending_payment: D.statusPaymentPending,
+                        suspended: D.statusSuspended, canceled: D.statusCanceled, cancelled: D.statusCanceled
+                    };
                     const statusColors = { active: '#00c875', pending_payment: '#ffaa00', suspended: '#ff4444', canceled: '#ff4444', cancelled: '#ff4444' };
                     const col = statusColors[status] || '#888';
-                    const sourceLabel = sub.source === 'legacy' ? 'Legacy' : 'Manual / External';
+                    const sourceLabel = sub.source === 'legacy' ? ui().licenses.legacy : D.originManual;
                     return `
                     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem;">
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Plan</div>
-                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);">${esc(SUBSCRIPTION_PLANS[sub.planType]?.label || sub.planLabel || sub.planType)}</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">${esc(D.plan)}</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--color-accent);">${esc(planLabel(sub.planType, sub.planLabel || sub.planType))}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Status</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">${esc(D.status)}</div>
                             <div style="font-size:0.9rem;font-weight:700;color:${col};">${esc(statusLabels[status] || status)}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Origin</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">${esc(D.origin)}</div>
                             <div style="font-size:0.9rem;font-weight:700;color:var(--color-platinum);">${sourceLabel}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Contract</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">${esc(D.contract)}</div>
                             <div style="font-size:0.9rem;font-weight:700;color:var(--color-platinum);">${esc(sub.contractPeriodCode || (sub.billingCycle === 'annual' ? 'ANL1' : 'M3N1'))}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Business ID</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">${esc(D.businessId)}</div>
                             <div style="font-size:0.9rem;font-weight:700;color:var(--color-platinum);font-family:monospace;">${esc(sub.businessId || member.businessId || '—')}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">License Code</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">${esc(D.licenseCode)}</div>
                             <div style="font-size:0.8rem;font-weight:700;color:var(--color-accent);font-family:monospace;letter-spacing:0.05em;">${esc(sub.licenseCode || '—')}</div>
                         </div>
                         <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;padding:1rem;">
-                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">Next Billing</div>
+                            <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.3rem;">${esc(D.nextBilling)}</div>
                             <div style="font-size:0.9rem;color:var(--color-platinum);">${sub.nextBillingDate ? fmtDate(sub.nextBillingDate) : '—'}</div>
                         </div>
                     </div>
@@ -5718,17 +6337,17 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                          below, which regenerates the deterministic code. -->
                     <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--glass-border);">
                         <div style="flex:1;min-width:150px;">
-                            <label style="display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Status</label>
+                            <label style="display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.status)}</label>
                             <select id="sub-edit-status" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                                 ${['active', 'pending_payment', 'suspended', 'canceled'].map(value =>
                                     `<option value="${value}" ${status === value ? 'selected' : ''}>${esc(statusLabels[value] || value)}</option>`).join('')}
                             </select>
                         </div>
                         <div style="flex:1;min-width:150px;">
-                            <label style="display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Next billing date</label>
+                            <label style="display:block;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.nextBillingDate)}</label>
                             <input type="date" id="sub-edit-next-billing" class="form-control" value="${esc(adminDateInputValue(sub.nextBillingDate))}" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                         </div>
-                        <button id="btn-save-subscription" class="btn btn-outline">Save changes</button>
+                        <button id="btn-save-subscription" class="btn btn-outline">${esc(D.saveChanges)}</button>
                         <span id="sub-edit-msg" style="display:none;color:#00c875;font-size:0.85rem;align-self:center;"></span>
                     </div>`;
                 }
@@ -5738,27 +6357,27 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             <!-- Manual Assignment Form -->
             <div id="sub-assign-form">
                 <h4 style="margin-bottom:1rem;font-size:0.9rem;color:var(--color-platinum);">
-                    ${member.subscription ? 'Register External Payment / Update Subscription' : 'Activate Subscription from External Payment'}
+                    ${esc(member.subscription ? `${D.registerExternalPayment} / ${D.updateSubscription}` : D.activateFromExternal)}
                 </h4>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1rem;">
                     <div>
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Plan</label>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.plan)}</label>
                         <select id="sub-plan-select" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
-                            <option value="hosting"      ${member.subscription?.planType === 'hosting'      ? 'selected' : ''}>Hosting</option>
-                            <option value="basic"        ${member.subscription?.planType === 'basic'        ? 'selected' : ''}>Presence</option>
-                            <option value="preferential" ${member.subscription?.planType === 'preferential' ? 'selected' : ''}>Infrastructure</option>
-                            <option value="advanced"     ${member.subscription?.planType === 'advanced'     ? 'selected' : ''}>Ecosystem</option>
+                            <option value="hosting"      ${member.subscription?.planType === 'hosting'      ? 'selected' : ''}>${esc(D.planHosting)}</option>
+                            <option value="basic"        ${member.subscription?.planType === 'basic'        ? 'selected' : ''}>${esc(D.planPresence)}</option>
+                            <option value="preferential" ${member.subscription?.planType === 'preferential' ? 'selected' : ''}>${esc(D.planInfrastructure)}</option>
+                            <option value="advanced"     ${member.subscription?.planType === 'advanced'     ? 'selected' : ''}>${esc(D.planEcosystem)}</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Contract Unit</label>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.contractUnit)}</label>
                         <select id="sub-contract-unit" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
-                            <option value="months" ${existingContractUnit === 'months' ? 'selected' : ''}>Months (M3N)</option>
-                            <option value="years"  ${existingContractUnit === 'years'  ? 'selected' : ''}>Years (ANL)</option>
+                            <option value="months" ${existingContractUnit === 'months' ? 'selected' : ''}>${esc(D.unitMonths)}</option>
+                            <option value="years"  ${existingContractUnit === 'years'  ? 'selected' : ''}>${esc(D.unitYears)}</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Contract Length</label>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.contractLength)}</label>
                         <select id="sub-contract-length" class="form-control" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                             ${Array.from({ length: 9 }, (_, index) => {
                                 const length = index + 1;
@@ -5767,15 +6386,15 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                         </select>
                     </div>
                     <div>
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Business Identification</label>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.businessIdentification)}</label>
                         <input type="text" inputmode="numeric" autocomplete="off" id="sub-business-id" class="form-control" value="${esc(existingBusinessId)}" placeholder="321979257" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                     </div>
                     <div>
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Payment Date</label>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.paymentDate)}</label>
                         <input type="date" id="sub-start-date" class="form-control" value="${new Date().toISOString().split('T')[0]}" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                     </div>
                     <div>
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Amount Paid</label>
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.amountPaid)}</label>
                         <div style="display:flex;gap:0.25rem;">
                             <input type="number" id="sub-amount" class="form-control" placeholder="70" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                             <select id="sub-currency" style="width:60px;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);padding:0.65rem 0.25rem;border-radius:var(--radius-sm);color:var(--color-text-primary);font-size:0.85rem;" ${member.preferredCurrency ? 'disabled' : ''}>
@@ -5790,19 +6409,19 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                         </div>
                     </div>
                     <div style="margin-top: 1rem;">
-                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Payment Title</label>
-                        <input type="text" id="sub-title" class="form-control" placeholder="e.g. September Hosting" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
+                        <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.paymentTitle)}</label>
+                        <input type="text" id="sub-title" class="form-control" placeholder="${esc(D.paymentTitlePlaceholder)}" style="background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);">
                     </div>
                 </div>
                 <div id="sub-license-preview" style="margin:-0.25rem 0 1rem;font:600 0.78rem/1.4 monospace;color:var(--color-accent);"></div>
                 <div style="margin-bottom:1rem;">
-                    <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">Invoice PDF (Required)</label>
+                    <label style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--color-text-secondary);margin-bottom:0.4rem;">${esc(D.invoicePdf)}</label>
                     ${fileDropzone('sub-invoice-file', 'sub-invoice-label', t.choose_file)}
                     ${uploadProgress('sub-invoice')}
                 </div>
                 <div style="display:flex;gap:1rem;align-items:center;">
                     <button id="btn-assign-subscription" class="btn btn-primary">
-                        ${member.subscription ? 'Register External Payment' : 'Activate Subscription'}
+                        ${esc(member.subscription ? D.registerExternalPayment : D.activateSubscription)}
                     </button>
                     <span id="sub-assign-msg" style="display:none;color:#00c875;font-size:0.875rem;"></span>
                 </div>
@@ -5847,10 +6466,10 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                             ${Number.isFinite(parseFloat(r.amount)) ? `<button type="button" class="report-btn btn-move-receipt" data-index="${i}" title="${esc(t.move_receipt_one)}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                             </button>` : ''}
-                            ${safeUrl(r.url) ? `<a href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener" class="report-btn" title="View/Download">
+                            ${safeUrl(r.url) ? `<a href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener" class="report-btn" title="${esc(D.viewDownload)}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                             </a>` : ''}
-                            <button class="report-btn btn-delete btn-delete-report" data-index="${i}" title="Delete">
+                            <button class="report-btn btn-delete btn-delete-report" data-index="${i}" title="${esc(D.delete)}">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                             </button>
                         </div>
@@ -5862,7 +6481,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 <h4>${t.upload_new}</h4>
                 <div class="report-inputs-grid">
                     <input type="text" id="report-title-input" placeholder="${t.title_placeholder}">
-                    <input type="date" id="report-date-input" title="Date">
+                    <input type="date" id="report-date-input" title="${esc(D.date)}">
                     <div style="display:flex; gap:0.25rem;">
                         <input type="number" id="report-amount-input" placeholder="${t.amount_placeholder}" style="flex:1;">
                         <select id="report-currency-input" style="width: 60px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); padding: 0.65rem 0.25rem; border-radius: var(--radius-sm); color: var(--color-text-primary); font-size: 0.85rem;">
@@ -6195,17 +6814,17 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         activity: `
         <!-- ── Client Timeline (Vista 360) ─────────────────────── -->
         <div class="detail-section" style="margin-bottom: 2.5rem;">
-            <h3>Activity Timeline</h3>
+            <h3>${esc(D.activityTimeline)}</h3>
             <div id="client-timeline-container">
-                <p class="timeline-empty">Loading activity…</p>
+                <p class="timeline-empty">${esc(D.loadingActivity)}</p>
             </div>
         </div>
         <!-- ── Admin Notes ─────────────────────────────────────── -->
         <div class="admin-notes-section">
-            <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:0.6rem; font-weight:600; opacity:0.7;">Internal Notes (admin only)</label>
-            <textarea id="admin-notes-input" class="admin-notes-area" placeholder="Add private notes about this partner…">${esc(member.adminNotes || '')}</textarea>
+            <label style="display:block; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--color-text-secondary); margin-bottom:0.6rem; font-weight:600; opacity:0.7;">${esc(D.internalNotes)}</label>
+            <textarea id="admin-notes-input" class="admin-notes-area" placeholder="${esc(D.internalNotesPlaceholder)}">${esc(member.adminNotes || '')}</textarea>
             <div class="admin-notes-actions">
-                <button id="btn-save-notes" class="btn btn-primary" style="min-width:120px;">Save Note</button>
+                <button id="btn-save-notes" class="btn btn-primary" style="min-width:120px;">${esc(D.saveNote)}</button>
                 <span id="notes-save-msg" class="admin-notes-save-msg"></span>
             </div>
         </div>
@@ -6271,7 +6890,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
 
     const updateCurrentProjectFields = async (updates) => {
         const nextProjects = projectsWithCurrentFields(updates);
-        await updateDoc(doc(db, 'members', userId), { projects: nextProjects });
+        await updateDoc(doc(db, member._sourceCollection || 'members', userId), { projects: nextProjects });
         applyProjectFieldsLocally(nextProjects, updates);
     };
 
@@ -6310,7 +6929,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 const { id, data } = receiptToPayment(report, userId, member);
                 batch.set(doc(db, 'subscription_payments', id), data);
             });
-            batch.update(doc(db, 'members', userId), { projects: nextProjects });
+            batch.update(doc(db, member._sourceCollection || 'members', userId), { projects: nextProjects });
             await batch.commit();
             applyProjectFieldsLocally(nextProjects, { reports: reports.filter((_, i) => !moved.has(i)) });
 
@@ -6392,15 +7011,15 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 msgEl.style.display = 'block';
             };
 
-            if (!targetId) return fail('Select the registered client to merge into.');
+            if (!targetId) return fail(D.mergePickClient);
 
             btnLinkProspect.disabled = true;
-            btnLinkProspect.textContent = 'Unificando…';
+            btnLinkProspect.textContent = D.merging;
 
             try {
                 const targetRef = doc(db, 'members', targetId);
                 const targetSnap = await getDoc(targetRef);
-                if (!targetSnap.exists()) throw new Error('That client no longer exists.');
+                if (!targetSnap.exists()) throw new Error(D.mergeMissingClient);
                 const targetMemberData = targetSnap.data();
 
                 const targetProjects = Array.isArray(targetMemberData.projects)
@@ -6410,7 +7029,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 if (!targetProjects.length && (targetMemberData.projectUrl || targetMemberData.onboardingCompleted)) {
                     targetProjects.push(stripUndefined({
                         id: LEGACY_PROJECT_ID,
-                        name: targetMemberData.company || targetMemberData.name || 'Proyecto 1',
+                        name: targetMemberData.company || targetMemberData.name || D.defaultProjectName,
                         projectUrl: targetMemberData.projectUrl || null,
                         projectStage: targetMemberData.projectStage || 'first_contact',
                         financials: targetMemberData.financials || null,
@@ -6424,7 +7043,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 if (!targetProjects.some(project => project.id === newProjectId)) {
                     targetProjects.push(stripUndefined({
                         id: newProjectId,
-                        name: member.company || member.name || 'New Project',
+                        name: member.company || member.name || D.newProject,
                         projectStage: 'prospect',
                         onboardingCompleted: false,
                         projectDescription: member.projectDescription || '',
@@ -6451,7 +7070,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 });
                 await deleteDoc(doc(db, 'prospects', userId));
 
-                msgEl.textContent = 'Merged. The enquiry is now a project on that client.';
+                msgEl.textContent = D.mergeDone;
                 msgEl.style.color = '#00c875';
                 msgEl.style.display = 'block';
 
@@ -6469,7 +7088,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             } catch (err) {
                 fail(err.message);
                 btnLinkProspect.disabled = false;
-                btnLinkProspect.textContent = 'Unificar en un solo perfil';
+                btnLinkProspect.textContent = D.mergeAction;
             }
         });
     }
@@ -6493,7 +7112,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         const rawUrl = document.getElementById('project-url-input').value.trim();
         const url = safeUrl(rawUrl);
         if (rawUrl && !url) {
-            msgLabel.textContent = 'Please enter a valid HTTP(S) URL.';
+            msgLabel.textContent = D.invalidUrl;
             msgLabel.style.color = '#f44336';
             msgLabel.style.display = 'block';
             return;
@@ -6553,7 +7172,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             };
             
             btnSaveFin.disabled = true;
-            btnSaveFin.textContent = 'Saving...';
+            btnSaveFin.textContent = D.saving;
             try {
                 await updateCurrentProjectFields({ financials: newFin });
                 logActivity(userId, member.name, 'financials_updated', { projectId: currentProject.id || null });
@@ -6570,7 +7189,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     }
                 }, 500);
             } catch (err) {
-                alert('Error saving financials: ' + err.message);
+                alert(D.financialsError(err.message));
             }
             btnSaveFin.disabled = false;
             btnSaveFin.textContent = t.save_financials;
@@ -6622,7 +7241,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     const existingLicense = licenseRef ? await transaction.get(licenseRef) : null;
                     if (existingLicense?.exists() && existingLicense.data().userId
                         && existingLicense.data().userId !== userId) {
-                        throw new Error('This license identifier belongs to another account.');
+                        throw new Error(D.licenseTaken);
                     }
 
                     transaction.update(memberRef, { subscription });
@@ -6669,7 +7288,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         const manualLicense = buildManualLicense(subPlanSelect.value, subContractUnit.value, subContractLength.value, businessId);
         subLicensePreview.textContent = businessId
             ? `License: ${manualLicense.licenseCode}`
-            : 'License: enter the business identification number';
+            : D.licenseNeedsBusinessId;
     };
     const syncAllowedContractUnit = () => {
         if (!subPlanSelect || !subContractUnit) return;
@@ -6700,13 +7319,13 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             const invoiceFile = invoiceInp?.files[0] || null;
             const msgEl      = document.getElementById('sub-assign-msg');
 
-            if (!startDate) return alert('Please set a payment date.');
-            if (!invoiceFile) return alert('Please upload the Invoice PDF.');
+            if (!startDate) return alert(D.needPaymentDate);
+            if (!invoiceFile) return alert(D.needInvoice);
             if (!Number.isInteger(contractLength) || contractLength < 1 || contractLength > 9) {
-                return alert('Contract length must be between 1 and 9.');
+                return alert(D.contractRange);
             }
             if (!/^\d{5,20}$/.test(businessId)) {
-                return alert('Please enter a valid business identification number (digits only).');
+                return alert(D.invalidBusinessId);
             }
 
             btnAssignSub.disabled = true;
@@ -6730,7 +7349,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 const existingLicenseBeforeUpload = await getDoc(licenseRef);
                 if (existingLicenseBeforeUpload.exists()
                     && existingLicenseBeforeUpload.data().userId !== userId) {
-                    throw new Error('This license identifier is already assigned to another account. Check the business ID.');
+                    throw new Error(D.licenseTakenBusiness);
                 }
 
                 // Compute next billing date
@@ -6783,7 +7402,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                         ? await transaction.get(previousLicenseRef)
                         : null;
                     if (existingLicense.exists() && existingLicense.data().userId !== userId) {
-                        throw new Error('This license identifier is already assigned to another account. Check the business ID.');
+                        throw new Error(D.licenseTakenBusiness);
                     }
 
                     transaction.update(memberRef, { subscription, licenseCode, businessId });
@@ -6883,7 +7502,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 msgEl.style.color = '#ff7676';
             }
             btnAssignSub.disabled = false;
-            btnAssignSub.textContent = member.subscription ? 'Register External Payment' : 'Activate Subscription';
+            btnAssignSub.textContent = member.subscription ? D.registerExternalPayment : D.activateSubscription;
         });
     }
 
@@ -6935,7 +7554,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     // Delete Report listeners
     document.querySelectorAll('.btn-delete-payment').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Are you sure you want to delete this payment record?')) return;
+            if (!confirm(D.confirmDeletePayment)) return;
             const paymentId = btn.dataset.id;
             try {
                 await deleteDoc(doc(db, 'subscription_payments', paymentId));
@@ -6946,7 +7565,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
                 }
             } catch (err) {
-                alert('Error deleting payment: ' + err.message);
+                alert(D.deletePaymentError(err.message));
             }
         });
     });
@@ -6954,7 +7573,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
     // Delete Report listeners
     document.querySelectorAll('.btn-delete-report').forEach(btn => {
         btn.addEventListener('click', async () => {
-            if (!confirm('Are you sure you want to remove this report?')) return;
+            if (!confirm(D.confirmDeleteReport)) return;
             const idx = parseInt(btn.dataset.index);
             const reportToDelete = currentProject.reports[idx];
             const newReports = [...currentProject.reports];
@@ -6974,7 +7593,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     renderDetail(member, allSubmissions, userId, currentProject.id, selectedSubmission?.id || null, allPayments);
                 }
             } catch (err) {
-                alert('Error deleting report: ' + err.message);
+                alert(D.deleteReportError(err.message));
             }
         });
     });
@@ -7006,7 +7625,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     }
                 }, 100);
             } catch (err) {
-                alert('Error updating stage: ' + err.message);
+                alert(D.stageError(err.message));
             }
         });
     });
@@ -7022,14 +7641,14 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             notesBtn.textContent = 'Saving…';
 
             try {
-                await updateDoc(doc(db, 'members', userId), { adminNotes: notes });
+                await updateDoc(doc(db, member._sourceCollection || 'members', userId), { adminNotes: notes });
                 logActivity(userId, member.name, 'notes_updated', {});
                 member.adminNotes = notes;
                 // Update in-memory cache
                 const idx = _allClients.findIndex(c => c.id === userId);
                 if (idx !== -1) _allClients[idx].adminNotes = notes;
 
-                notesMsgEl.textContent = '✓ Saved';
+                notesMsgEl.textContent = D.saved;
                 notesMsgEl.style.color = '#00c875';
                 notesMsgEl.classList.add('is-visible');
                 logger.log(`Admin notes saved for ${member.name}`);
@@ -7041,7 +7660,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             }
 
             notesBtn.disabled = false;
-            notesBtn.textContent = 'Save Note';
+            notesBtn.textContent = D.saveNote;
             setTimeout(() => notesMsgEl.classList.remove('is-visible'), 3000);
         });
     }
@@ -7059,40 +7678,40 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             const modalHtml = `
                 <dialog id="edit-client-modal" class="premium-service-modal" style="max-width: 500px; padding: 0;">
                     <div class="premium-modal-content">
-                        <button type="button" class="premium-modal-close" id="close-edit-modal">&times;</button>
-                        <h2 style="margin-bottom: 1.5rem; color: var(--color-text-primary); font-family: var(--font-heading);">Edit Client Info</h2>
+                        <button type="button" class="premium-modal-close" id="close-edit-modal" aria-label="${esc(ui().dialogs.close)}">&times;</button>
+                        <h2 style="margin-bottom: 1.5rem; color: var(--color-text-primary); font-family: var(--font-heading);">${esc(D.editClientInfo)}</h2>
                         <form id="edit-client-form" style="display: flex; flex-direction: column; gap: 1rem;">
                             <div>
-                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Name</label>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">${esc(D.name)}</label>
                                 <input type="text" id="edit-client-name" value="${esc(member.name || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;" required>
                             </div>
                             <div>
-                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Company</label>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">${esc(D.company)}</label>
                                 <input type="text" id="edit-client-company" value="${esc(member.company || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
                             </div>
                             <div>
-                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Email</label>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">${esc(D.email)}</label>
                                 <input type="email" id="edit-client-email" value="${esc(member.email || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
                             </div>
                             <div>
-                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Country</label>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">${esc(D.country)}</label>
                                 <input type="text" id="edit-client-country" value="${esc(member.country || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
                             </div>
                             <div>
-                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Phone</label>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">${esc(D.phone)}</label>
                                 <input type="text" id="edit-client-phone" value="${esc(member.phone || '')}" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
                             </div>
                             <div>
-                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">Preferred Currency</label>
+                                <label style="display:block; margin-bottom: 0.5rem; color: var(--color-text-secondary); font-size: 0.9rem;">${esc(D.preferredCurrency)}</label>
                                 <select id="edit-client-currency" class="portal-input" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: white;">
-                                    <option value="" ${!member.preferredCurrency ? 'selected' : ''}>None (Auto)</option>
-                                    <option value="EUR" ${member.preferredCurrency === 'EUR' ? 'selected' : ''}>EUR (€)</option>
+                                    <option value="" ${!member.preferredCurrency ? 'selected' : ''}>${esc(D.currencyNone)}</option>
+                                    <option value="EUR" ${member.preferredCurrency === 'EUR' ? 'selected' : ''}>${esc(D.currencyEur)}</option>
                                     <option value="USD" ${member.preferredCurrency === 'USD' ? 'selected' : ''}>USD ($)</option>
-                                    <option value="CRC" ${member.preferredCurrency === 'CRC' ? 'selected' : ''}>CRC (₡)</option>
+                                    <option value="CRC" ${member.preferredCurrency === 'CRC' ? 'selected' : ''}>${esc(D.currencyCrc)}</option>
                                 </select>
                             </div>
                             <div style="margin-top: 1rem;">
-                                <button type="submit" class="btn btn-primary" style="width: 100%;" id="save-edit-btn">Save Changes</button>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;" id="save-edit-btn">${esc(D.saveChanges)}</button>
                             </div>
                         </form>
                     </div>
@@ -7119,7 +7738,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 saveBtn.disabled = true;
-                saveBtn.textContent = 'Saving...';
+                saveBtn.textContent = D.saving;
                 
                 const updates = {
                     name: document.getElementById('edit-client-name').value.trim(),
@@ -7131,7 +7750,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 };
                 
                 try {
-                    await updateDoc(doc(db, 'members', userId), updates);
+                    await updateDoc(doc(db, member._sourceCollection || 'members', userId), updates);
                     Object.assign(member, updates);
                     
                     const idx = _allClients.findIndex(c => c.id === userId);
@@ -7155,9 +7774,9 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                     closeModal();
                 } catch (error) {
                     logger.error('Edit client:', error);
-                    alert('Error updating client: ' + error.message);
+                    alert(D.clientError(error.message));
                     saveBtn.disabled = false;
-                    saveBtn.textContent = 'Save Changes';
+                    saveBtn.textContent = D.saveChanges;
                 }
             });
         });
@@ -7173,7 +7792,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             suspendBtn.textContent = `${action}…`;
 
             try {
-                await updateDoc(doc(db, 'members', userId), { isDeactivated: newState });
+                await updateDoc(doc(db, member._sourceCollection || 'members', userId), { isDeactivated: newState });
                 logActivity(userId, member.name, newState ? 'account_suspended' : 'account_reactivated', {});
                 member.isDeactivated = newState;
 
@@ -7202,8 +7821,8 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             } catch (error) {
                 logger.error('Suspend toggle:', error);
                 suspendBtn.disabled = false;
-                suspendBtn.textContent = member.isDeactivated ? 'Reactivate Account' : 'Suspend Account';
-                alert('Error updating account status: ' + error.message);
+                suspendBtn.textContent = member.isDeactivated ? D.reactivateAccount : D.suspendAccount;
+                alert(D.accountStatusError(error.message));
             }
         });
     }
@@ -7217,6 +7836,14 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
                 .catch(error => logger.error('PDF generation failed:', error));
         });
     }
+
+    // Delete Client / Contact
+    const deleteProfileBtn = document.getElementById('btn-delete-profile-client');
+    if (deleteProfileBtn) {
+        deleteProfileBtn.addEventListener('click', () => {
+            deleteUnifiedContact(userId);
+        });
+    }
 }
 
 async function generateClientPDF(member, onboarding, t) {
@@ -7224,7 +7851,7 @@ async function generateClientPDF(member, onboarding, t) {
         await ensureHtml2Pdf();
     } catch (error) {
         logger.error('The PDF library could not be loaded:', error);
-        alert('The PDF generator could not be loaded. Check the connection and try again.');
+        alert(ui().detail.pdfLoaderFailed);
         return;
     }
 
@@ -7311,7 +7938,7 @@ async function generateClientPDF(member, onboarding, t) {
 
     html2pdf().set(opt).from(container).save().catch(error => {
         logger.error("PDF generation failed:", error);
-        alert("Failed to create PDF. Please try again.");
+        alert(ui().detail.pdfFailed);
     });
 }
 
@@ -7356,7 +7983,7 @@ async function renderCommercialPerformanceChart() {
         data: {
             labels,
             datasets: [
-                { label: 'New leads', data: leads, borderColor: '#2997ff', backgroundColor: 'rgba(41,151,255,.14)', fill: true, tension: .35, pointRadius: 3 },
+                { label: ui().overview.performanceNewLeads, data: leads, borderColor: '#2997ff', backgroundColor: 'rgba(41,151,255,.14)', fill: true, tension: .35, pointRadius: 3 },
                 { label: 'Won', data: conversions, borderColor: '#00c875', backgroundColor: 'rgba(0,200,117,.08)', fill: true, tension: .35, pointRadius: 3 }
             ]
         },
@@ -7379,7 +8006,7 @@ async function renderCommercialPerformanceChart() {
  * portada del CRM ignoraba todo lo registrado como pago: sólo veía documentos
  * pago manual: sólo veía documentos subidos que casualmente llevaban importe.
  */
-async function renderGlobalRevenueChart() {
+async function renderGlobalRevenueChart(preloadedPayments = null) {
     const canvas = document.getElementById('globalRevenueChart');
     if (!canvas) return;
 
@@ -7398,13 +8025,14 @@ async function renderGlobalRevenueChart() {
     }
 
     try {
-        // Rango sobre un solo campo: índice automático, sin desplegar nada.
-        const snap = await getDocs(query(
-            collection(db, 'subscription_payments'),
-            where('paymentDate', '>=', since)
-        ));
-        snap.docs.forEach(item => {
-            const payment = item.data();
+        const paymentsList = Array.isArray(preloadedPayments) && preloadedPayments.length
+            ? preloadedPayments
+            : (await getDocs(query(
+                collection(db, 'subscription_payments'),
+                where('paymentDate', '>=', since)
+            ))).docs.map(item => item.data());
+
+        paymentsList.forEach(payment => {
             const amount = parseFloat(payment.amount);
             if (!Number.isFinite(amount)) return;
             const millis = adminTimestampMillis(payment.paymentDate);
@@ -7496,7 +8124,7 @@ async function renderGlobalRevenueChart() {
                     position: 'left',
                     beginAtZero: true,
                     stacked: true,
-                    title: { display: true, text: 'Total Revenue (EUR Eq.)', color: 'rgba(255, 255, 255, 0.5)' }
+                    title: { display: true, text: ui().overview.revenueChartTotal, color: 'rgba(255, 255, 255, 0.5)' }
                 }
             }
         }
@@ -7610,11 +8238,11 @@ async function loadReports() {
         const lost = _opportunities.filter(opportunity => opportunity.stage === 'lost' && inPeriod(opportunity.closedAt || opportunity.updatedAt));
         const open = _opportunities.filter(opportunity => !['won', 'lost'].includes(opportunity.stage));
         const owners = new Map(_crmUsers.map(user => [user.id, {
-            id: user.id, name: user.displayName || user.email || 'Elysium team',
+            id: user.id, name: user.displayName || user.email || ui().reports.team,
             contacts: 0, open: 0, won: 0, lost: 0, value: 0, totals: {}
         }]));
         const unassigned = {
-            id: 'unassigned', name: 'Unassigned / legacy',
+            id: 'unassigned', name: ui().reports.unassigned,
             contacts: 0, open: 0, won: 0, lost: 0, value: 0, totals: {}
         };
         const ownerRow = ownerId => owners.get(ownerId) || unassigned;
@@ -7648,17 +8276,27 @@ async function loadReports() {
         // colones con euros y rotular el resultado con un símbolo €.
         const wonValue = formatRevenue(revenueByCurrency(won));
         const pipelineValue = formatRevenue(revenueByCurrency(open));
-        const metric = (value, label, accent) => `<div class="license-metric ${accent}"><strong>${esc(value)}</strong><span>${esc(label)}</span></div>`;
+        const reportCopy = ui().reports;
+        const metric = (value, label, accent) => `
+            <div class="license-metric ${accent}">
+                <div class="license-metric-top">
+                    <span class="license-metric-dot"></span>
+                    <span class="license-metric-label">${esc(label)}</span>
+                </div>
+                <div class="license-metric-body">
+                    <strong class="license-metric-value">${esc(value)}</strong>
+                </div>
+            </div>`;
         kpis.innerHTML = [
-            metric(periodContacts.length, `New contacts · ${_reportDays} days`, 'license-metric-blue'),
-            metric(periodOpportunities.length, 'New opportunities', 'license-metric-gold'),
-            metric(pipelineValue, 'Open pipeline', 'license-metric-blue'),
-            metric(wonValue, 'Won revenue', 'license-metric-green'),
-            metric(`${conversion}%`, 'Conversion', conversion ? 'license-metric-green' : 'license-metric-gold is-clear')
+            metric(periodContacts.length, reportCopy.newContacts(_reportDays), 'license-metric-blue'),
+            metric(periodOpportunities.length, reportCopy.newOpportunities, 'license-metric-gold'),
+            metric(pipelineValue, reportCopy.openPipeline, 'license-metric-blue'),
+            metric(wonValue, reportCopy.wonRevenue, 'license-metric-green'),
+            metric(`${conversion}%`, reportCopy.conversion, conversion ? 'license-metric-green' : 'license-metric-gold is-clear')
         ].join('');
         table.innerHTML = _reportRows.length ? _reportRows.map(row => `
-            <tr><td data-label="Owner"><strong>${esc(row.name)}</strong></td><td data-label="Contacts">${row.contacts}</td><td data-label="Open opportunities">${row.open}</td><td data-label="Won">${row.won}</td><td data-label="Pipeline value">${esc(row.valueLabel)}</td><td data-label="Conversion">${row.conversion}%</td></tr>
-        `).join('') : '<tr><td colspan="6" class="license-empty">No metrics in this period.</td></tr>';
+            <tr><td data-label="${esc(reportCopy.colOwner)}"><strong>${esc(row.name)}</strong></td><td data-label="${esc(reportCopy.colContacts)}">${row.contacts}</td><td data-label="${esc(reportCopy.colOpen)}">${row.open}</td><td data-label="${esc(reportCopy.colWon)}">${row.won}</td><td data-label="${esc(reportCopy.colValue)}">${esc(row.valueLabel)}</td><td data-label="${esc(reportCopy.colConversion)}">${row.conversion}%</td></tr>
+        `).join('') : `<tr><td colspan="6" class="license-empty">${esc(reportCopy.empty)}</td></tr>`;
     } catch (error) {
         logger.error('Reports failed:', error);
         kpis.innerHTML = '';

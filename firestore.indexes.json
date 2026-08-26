@@ -44,6 +44,16 @@
       "collectionGroup": "activities",
       "fieldPath": "payload",
       "indexes": []
+    },
+    {
+      "collectionGroup": "articles",
+      "fieldPath": "contentHtml",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "articles",
+      "fieldPath": "contentMarkdown",
+      "indexes": []
     }
   ]
 }

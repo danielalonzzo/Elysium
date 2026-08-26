@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Investigação aplicada da Elysium λ em interação humano-computador, ciência de dados e infraestrutura digital para startups e microempresas, com projetos ativos de ontologia e inteligência de dados.">
-    <title>Investigação — Elysium λ Development & Research</title>
+    <title>Notebooks — Elysium λ Development & Research</title>
 
     <!-- AI / LLM Discoverability -->
     <meta name="robots" content="index, follow">
@@ -31,7 +31,7 @@
     <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://elysiumdr.eu/pt/research">
-    <meta property="og:title" content="Investigação — Elysium λ Development & Research">
+    <meta property="og:title" content="Notebooks — Elysium λ Development & Research">
     <meta property="og:description" content="Investigação aplicada da Elysium λ em interação humano-computador, ciência de dados e infraestrutura digital para startups e microempresas, com projetos ativos de ontologia e inteligência de dados.">
     <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
     <meta property="og:image:width" content="512">
@@ -42,7 +42,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@elysiumdr">
-    <meta name="twitter:title" content="Investigação — Elysium λ Development & Research">
+    <meta name="twitter:title" content="Notebooks — Elysium λ Development & Research">
     <meta name="twitter:description" content="Investigação aplicada da Elysium λ em interação humano-computador, ciência de dados e infraestrutura digital para startups e microempresas, com projetos ativos de ontologia e inteligência de dados.">
     <meta name="twitter:image" content="https://elysiumdr.eu/Images/favicon-512.png">
 
@@ -54,7 +54,7 @@
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "name": "Investigação — Elysium λ Development & Research",
+      "name": "Notebooks — Elysium λ Development & Research",
       "url": "https://elysiumdr.eu/pt/research",
       "description": "Investigação aplicada em interação humano-computador, ciência de dados e infraestrutura digital para startups e microempresas.",
       "inLanguage": "pt-PT",
@@ -69,14 +69,20 @@
           {
             "@type": "ListItem",
             "position": 1,
-            "name": "Ontologia para a inclusão digital e acesso a serviços em ambientes rurais",
-            "url": "https://elysiumdr.eu/pt/research/ontology-research"
+            "name": "Investigação em Inteligência Artificial",
+            "url": "https://elysiumdr.eu/pt/research?notebook=investigacion-inteligencia-artificial"
           },
           {
             "@type": "ListItem",
             "position": 2,
-            "name": "Inteligência para pequenas empresas e startups baseada em dados",
-            "url": "https://elysiumdr.eu/pt/research/data-driven-sme-intelligence"
+            "name": "Linguística Aplicada",
+            "url": "https://elysiumdr.eu/pt/research?notebook=linguistica-aplicada"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Novidades em Informática",
+            "url": "https://elysiumdr.eu/pt/research?notebook=novedades-informatica"
           }
         ]
       }
@@ -91,6 +97,7 @@
     <link rel="stylesheet" href="../CSS/base.css">
     <link rel="stylesheet" href="../CSS/components.css">
     <link rel="stylesheet" href="../CSS/pages.css">
+    <link rel="stylesheet" href="../CSS/research.css">
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
@@ -148,76 +155,139 @@
             <div class="mobile-toggle">☰</div>
         </div>
     </nav>
-    <header class="page-header">
+    <header class="page-header notebooks-page-header">
         <div class="parallax-lambda">λ</div>
         <div class="container animate-on-scroll">
-            <h1 style="font-size: 3rem;">Investigação</h1>
+            <h1>Notebooks</h1>
             <p class="hero-subtitle">DEVELOPMENT & RESEARCH</p>
         </div>
     </header>
-    <section class="section">
-        <div class="container">
-            <div class="section-header animate-on-scroll">
-                <h2>Linhas de Investigação Aplicada</h2>
-                <p>Explorando a Interação Humano-Computador (HCI), a Ciência de Dados e as Infraestruturas Digitais.</p>
-            </div>
-            <div class="card-grid animate-on-scroll">
-                <div class="card">
-                    <div class="card-icon">🧠</div>
-                    <h3>Interfaces Intuitivas</h3>
-                    <p>Desenhamos sistemas de gestão focados em reduzir a carga mental dos utilizadores.</p>
-                </div>
-                <div class="card">
-                    <div class="card-icon">📊</div>
-                    <h3>Processamento de Dados</h3>
-                    <p>Investigamos e aplicamos arquiteturas de bases de dados que nos permitem construir CRMs precisos.</p>
-                </div>
-                <div class="card">
-                    <div class="card-icon">🌐</div>
-                    <h3>Segurança e Alta Disponibilidade</h3>
-                    <p>Desenvolvemos infraestruturas na nuvem e aplicamos padrões de criptografia de alto nível.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="section" style="background: var(--color-bg-secondary);">
-        <div class="container">
-            <div class="section-header animate-on-scroll">
-                <h2>Projetos de investigação ativos</h2>
-            </div>
-            <div class="research-list animate-on-scroll delay-1">
-                <a href="research/ontology-research" class="research-item research-item-link">
-                    <div style="flex: 1; min-width: 0; padding-right: 2rem;">
-                        <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem; line-height: 1.4;">Ontologia para a
-                            inclusão
-                            digital e acesso a serviços em ambientes rurais</h4>
-                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Como pode uma abordagem baseada em ontologias
-                            e um recomendador (regras + ML) melhorar a localização e priorização de recursos de inclusão
-                            digital/serviços essenciais num contexto rural, minimizando riscos éticos (viés, exclusão,
-                            opacidade) e maximizando a utilidade social?</p>
-                    </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
-                        <div class="research-meta">Estudo Piloto</div>
-                        <span style="font-size:0.8rem; opacity:0.5; white-space:nowrap;">Ler artigo →</span>
-                    </div>
-                </a>
-                <a href="research/data-driven-sme-intelligence" class="research-item research-item-link">
+    <main id="research-content">
+        <section class="section notebooks-section research-view" data-research-view="notebooks"
+            aria-labelledby="notebooks-heading">
+            <div class="container">
+                <div class="notebooks-intro animate-on-scroll">
                     <div>
-                        <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Inteligência para pequenas empresas e startups baseada em dados
-                        </h4>
-                        <p style="font-size: 0.9rem;">Estudando como a aprendizagem automática pode ajudar as pequenas e
-                            médias empresas a extrair insights acionáveis de dados digitais para apoiar a tomada de
-                            decisões estratégicas.</p>
+                        <p class="notebooks-eyebrow">Biblioteca de investigação</p>
+                        <h2 id="notebooks-heading">Conhecimento em desenvolvimento, organizado.</h2>
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
-                        <div class="research-meta">Fase de conceito</div>
-                        <span style="font-size:0.8rem; opacity:0.5; white-space:nowrap;">Ler artigo →</span>
-                    </div>
-                </a>
+                    <p>Explore cadernos em evolução que reúnem estudos, notas de campo e publicações técnicas.
+                        Cada caderno acompanha uma linha de investigação desde as primeiras perguntas até ao trabalho
+                        publicado.</p>
+                </div>
 
+                <div class="notebook-grid animate-on-scroll delay-1" data-notebooks-grid>
+                    <a href="research?notebook=investigacion-inteligencia-artificial" class="notebook-card"
+                        data-notebook-slug="investigacion-inteligencia-artificial"
+                        aria-label="Abrir caderno: Investigação em Inteligência Artificial">
+                        <div class="notebook-card-top">
+                            <span class="notebook-index" aria-hidden="true">01</span>
+                            <span class="notebook-status">Caderno de investigação</span>
+                        </div>
+                        <div class="notebook-card-body">
+                            <h3>Investigação em Inteligência Artificial</h3>
+                            <p class="notebook-card-description">IA responsável, representação do conhecimento e
+                                sistemas baseados em dados para criar valor prático e social.</p>
+                            <div class="notebook-card-footer">
+                                <span>2 publicações</span>
+                                <span class="notebook-card-arrow" aria-hidden="true">→</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="research?notebook=linguistica-aplicada" class="notebook-card"
+                        data-notebook-slug="linguistica-aplicada" aria-label="Abrir caderno: Linguística Aplicada">
+                        <div class="notebook-card-top">
+                            <span class="notebook-index" aria-hidden="true">02</span>
+                            <span class="notebook-status">Caderno de investigação</span>
+                        </div>
+                        <div class="notebook-card-body">
+                            <h3>Linguística Aplicada</h3>
+                            <p class="notebook-card-description">Linguagem, comunicação e experiências digitais
+                                multilingues observadas a partir de uma perspetiva aplicada.</p>
+                            <div class="notebook-card-footer">
+                                <span>0 publicações</span>
+                                <span class="notebook-card-arrow" aria-hidden="true">→</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="research?notebook=novedades-informatica" class="notebook-card"
+                        data-notebook-slug="novedades-informatica" aria-label="Abrir caderno: Novidades em Informática">
+                        <div class="notebook-card-top">
+                            <span class="notebook-index" aria-hidden="true">03</span>
+                            <span class="notebook-status">Caderno de investigação</span>
+                        </div>
+                        <div class="notebook-card-body">
+                            <h3>Novidades em Informática</h3>
+                            <p class="notebook-card-description">Notas sobre software emergente, investigação em
+                                informática e infraestrutura para produtos digitais contemporâneos.</p>
+                            <div class="notebook-card-footer">
+                                <span>0 publicações</span>
+                                <span class="notebook-card-arrow" aria-hidden="true">→</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <p class="research-status" data-research-status role="status" aria-live="polite" hidden></p>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <section class="section notebook-publications-section research-view" data-research-view="notebook" hidden
+            aria-labelledby="notebook-detail-title">
+            <div class="container">
+                <nav class="notebook-breadcrumb" aria-label="Navegação estrutural">
+                    <a href="research">← Voltar aos cadernos</a>
+                    <span class="notebook-breadcrumb-separator" aria-hidden="true">/</span>
+                    <span data-notebook-breadcrumb>Caderno</span>
+                </nav>
+                <header class="notebook-detail-header">
+                    <div>
+                        <p class="notebook-kicker">Caderno de investigação</p>
+                        <h2 class="notebook-detail-title" id="notebook-detail-title" data-notebook-title>Caderno</h2>
+                    </div>
+                    <p class="notebook-detail-description" data-notebook-description></p>
+                </header>
+                <div class="publications-heading">
+                    <h3>Publicações</h3>
+                    <p class="publications-count" data-publications-count>2 publicações</p>
+                </div>
+                <div class="publication-grid" data-publications-grid>
+                    <a href="research/ontology-research" class="publication-card" data-static-publication
+                        data-notebook-slug="investigacion-inteligencia-artificial">
+                        <div>
+                            <p class="publication-kicker">Estudo piloto</p>
+                            <h4>Ontologia para a inclusão digital e acesso a serviços em ambientes rurais</h4>
+                            <p class="publication-excerpt">Um protótipo baseado em ontologias e um recomendador
+                                transparente para priorizar recursos de inclusão digital em contextos rurais.</p>
+                        </div>
+                        <div class="publication-card-footer">
+                            <span>Daniel A. Morales · 2026</span>
+                            <span class="publication-card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+                    <a href="research/data-driven-sme-intelligence" class="publication-card" data-static-publication
+                        data-notebook-slug="investigacion-inteligencia-artificial">
+                        <div>
+                            <p class="publication-kicker">Fase de conceito</p>
+                            <h4>Inteligência para pequenas empresas e startups baseada em dados</h4>
+                            <p class="publication-excerpt">Como transformar dados digitais de pequenas empresas em
+                                conhecimento operacional útil e compreensível através de aprendizagem automática.</p>
+                        </div>
+                        <div class="publication-card-footer">
+                            <span>Daniel A. Morales · 2026</span>
+                            <span class="publication-card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="research-empty-state" data-publications-empty hidden>
+                    <span class="research-empty-symbol" aria-hidden="true">λ</span>
+                    <h3>Ainda não existem publicações</h3>
+                    <p>Os trabalhos publicados neste caderno aparecerão aqui.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="research-view" data-research-view="article" data-dynamic-reader hidden></section>
+    </main>
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -276,6 +346,7 @@
     <script src="../JS/elysium-mouse.js"></script>
     <script src="../JS/elysium-audio.js"></script>
     <script src="../JS/version-modal.js"></script>
+    <script src="../JS/research.js" type="module"></script>
 </body>
 
 </html>

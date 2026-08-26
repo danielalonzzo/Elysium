@@ -13,6 +13,67 @@ service firebase.storage {
         );
     }
 
+    function isResearchAdmin() {
+      return isSuperAdmin()
+        || (
+          request.auth != null
+          && request.auth.token.email_verified == true
+          && request.auth.token.crmRole == 'admin'
+          && (
+            request.auth.token.email.lower().matches('^[^@]+@elysiumdr[.]eu$')
+            || (
+              request.auth.token.crmAccess == true
+              && request.auth.token.crmTenantId == 'elysiumdr-eu'
+            )
+          )
+        );
+    }
+
+    function isCrmTeamIdentity() {
+      return isSuperAdmin()
+        || (
+          request.auth != null
+          && request.auth.token.email_verified == true
+          && (
+            request.auth.token.email.lower().matches('^[^@]+@elysiumdr[.]eu$')
+            || (
+              request.auth.token.crmAccess == true
+              && request.auth.token.crmTenantId == 'elysiumdr-eu'
+            )
+          )
+        );
+    }
+
+    function isAvatarImage(fileName) {
+      return fileName.matches('^[A-Za-z0-9._-]{1,240}$')
+        && request.resource.size > 0
+        && request.resource.size <= 2 * 1024 * 1024
+        && request.resource.contentType.matches('^image/(jpeg|png|webp)$');
+    }
+
+    function isResearchImage(fileName) {
+      return fileName.matches('^[A-Za-z0-9._-]{1,240}$')
+        && request.resource.size > 0
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('^image/(jpeg|png|webp)$');
+    }
+
+    function publicResearchNotebook(notebookId) {
+      let notebook = firestore.get(
+        /databases/(default)/documents/research_notebooks/$(notebookId)
+      ).data;
+      return notebook.status == 'published' && notebook.visibility == 'public';
+    }
+
+    function publicResearchArticle(notebookId, articleId) {
+      let article = firestore.get(
+        /databases/(default)/documents/research_notebooks/$(notebookId)/articles/$(articleId)
+      ).data;
+      return publicResearchNotebook(notebookId)
+        && article.status == 'published'
+        && article.visibility == 'public';
+    }
+
     function subscriptionAllowsAccess(member) {
       let subscription = member.subscription;
       return subscription != null
@@ -67,6 +128,33 @@ service firebase.storage {
     match /members/{userId}/{allPaths=**} {
       allow read: if isSuperAdmin() || memberHasLicensedAccess(userId);
       allow write: if isSuperAdmin();
+    }
+
+    // ── Public Research covers ──
+    // La ruta de Storage replica la relación 1:N de Firestore. Un archivo de
+    // borrador no se vuelve público sólo por conocer su nombre.
+    match /research/notebooks/{notebookId}/cover/{fileName} {
+      allow read: if isResearchAdmin() || publicResearchNotebook(notebookId);
+      allow create, update: if isResearchAdmin() && isResearchImage(fileName);
+      allow delete: if isResearchAdmin();
+    }
+
+    match /research/notebooks/{notebookId}/articles/{articleId}/cover/{fileName} {
+      allow read: if isResearchAdmin() || publicResearchArticle(notebookId, articleId);
+      allow create, update: if isResearchAdmin() && isResearchImage(fileName);
+      allow delete: if isResearchAdmin();
+    }
+
+    // ── CRM team avatars ──
+    // El nombre y la foto de un administrador salen de su perfil de Auth y de
+    // `users/{uid}`. Aquí sólo se escribe bajo el propio uid: nadie cambia el
+    // retrato de otro.
+    match /crm/avatars/{userId}/{fileName} {
+      allow read: if isCrmTeamIdentity();
+      allow create, update: if isCrmTeamIdentity()
+        && request.auth.uid == userId
+        && isAvatarImage(fileName);
+      allow delete: if isCrmTeamIdentity() && request.auth.uid == userId;
     }
 
     // ── Everything else: admin only ──────────────────────────────────────────

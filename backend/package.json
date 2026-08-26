@@ -6,8 +6,8 @@
   "main": "platform-server.js",
   "scripts": {
     "start": "node platform-server.js",
-    "check": "node --check platform-server.js && node --check platform-server.test.js && node --check r2-file-routes.js && node --check r2-file-routes.test.js",
-    "test": "node --test platform-server.test.js r2-file-routes.test.js"
+    "check": "node --check platform-server.js && node --check platform-server.test.js && node --check r2-file-routes.js && node --check r2-file-routes.test.js && node --check research-routes.js && node --check research-routes.test.js && node --check research-contract.test.js",
+    "test": "node --test platform-server.test.js r2-file-routes.test.js research-routes.test.js research-contract.test.js"
   },
   "engines": {
     "node": ">=22"

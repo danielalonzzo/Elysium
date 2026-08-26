@@ -2218,7 +2218,8 @@ a.profile-intro-badge:hover {
     border-top: 1px solid var(--glass-border);
 }
 
-.sidebar-logout-btn {
+.sidebar-logout-btn,
+.sidebar-home-btn {
     display: flex;
     align-items: center;
     gap: 0.65rem;
@@ -2232,6 +2233,7 @@ a.profile-intro-badge:hover {
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
+    text-decoration: none;
     transition: all 0.25s ease;
 }
 
@@ -2239,6 +2241,12 @@ a.profile-intro-badge:hover {
     border-color: rgba(255, 59, 48, 0.4);
     color: #ff6b6b;
     background: rgba(255, 59, 48, 0.05);
+}
+
+.sidebar-home-btn:hover {
+    border-color: rgba(41, 151, 255, 0.4);
+    color: #8ac2ff;
+    background: rgba(41, 151, 255, 0.08);
 }
 
 /* ── MAIN AREA ────────────────────────────────────────────────────────── */
@@ -3245,9 +3253,9 @@ a.profile-intro-badge:hover {
 
 .licenses-summary {
     display: grid;
-    grid-template-columns: repeat(4, minmax(140px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 
 .license-metric {
@@ -3255,25 +3263,63 @@ a.profile-intro-badge:hover {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    padding: 1.1rem 1.25rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 14px;
-    background: var(--glass-bg);
+    justify-content: space-between;
+    min-height: 5.5rem;
+    padding: 1.15rem 1.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.015) 100%),
+        rgba(7, 16, 34, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.license-metric::before {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
+.license-metric:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.license-metric-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.license-metric-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
     background: var(--metric-color, #2997ff);
+    box-shadow: 0 0 8px var(--metric-color, #2997ff);
+    flex-shrink: 0;
 }
 
-.license-metric strong { font-size: 1.65rem; color: var(--color-text-primary); }
-.license-metric span { font-size: 0.75rem; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
-.license-metric-green { --metric-color: #00c875; }
-.license-metric-gold { --metric-color: #ffaa00; }
+.license-metric strong,
+.license-metric .license-metric-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 750;
+    color: #ffffff;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+}
+
+.license-metric span,
+.license-metric .license-metric-label {
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.license-metric-green { --metric-color: #10b981; }
+.license-metric-gold { --metric-color: #f59e0b; }
 .license-metric-purple { --metric-color: #a78bfa; }
 
 .license-row { cursor: pointer; }
@@ -3696,8 +3742,10 @@ a.profile-intro-badge:hover {
     .nav-item svg { width: 20px; height: 20px; }
     .nav-item { justify-content: center; padding: 0.8rem; gap: 0; }
     .sidebar-badge { display: none; }
-    .sidebar-logout-btn span { display: none; }
-    .sidebar-logout-btn { justify-content: center; padding: 0.7rem; }
+    .sidebar-logout-btn span,
+    .sidebar-home-btn span { display: none; }
+    .sidebar-logout-btn,
+    .sidebar-home-btn { justify-content: center; padding: 0.7rem; }
 }
 
 @media (max-width: 768px) {
@@ -3759,7 +3807,8 @@ a.profile-intro-badge:hover {
         border-left: 1px solid rgba(255,255,255,0.08);
     }
 
-    .sidebar-logout-btn {
+    .sidebar-logout-btn,
+    .sidebar-home-btn {
         flex-direction: column;
         padding: 0.4rem;
         gap: 0.2rem;
@@ -3767,7 +3816,8 @@ a.profile-intro-badge:hover {
         background: transparent;
     }
 
-    .sidebar-logout-btn span {
+    .sidebar-logout-btn span,
+    .sidebar-home-btn span {
         display: block;
         font-size: 0.6rem;
     }

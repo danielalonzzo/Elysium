@@ -64,9 +64,12 @@
     function getBuildDate() {
         var d = new Date(document.lastModified);
         if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            var yyyy = d.getFullYear();
+            var mm   = String(d.getMonth() + 1).padStart(2, '0');
+            var dd   = String(d.getDate()).padStart(2, '0');
+            return dd + '-' + mm + '-' + yyyy;
         }
-        return '2026-08';
+        return '26-08-2026';
     }
 
     // ── Estilos ───────────────────────────────────────────────────────────────

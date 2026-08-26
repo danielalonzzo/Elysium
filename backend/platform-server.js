@@ -16,6 +16,7 @@ const { applicationDefault, getApps, initializeApp } = require('firebase-admin/a
 const { FieldValue, Timestamp, getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
 const { createR2FileRouter, r2Configuration } = require('./r2-file-routes');
+const { createResearchRouter } = require('./research-routes');
 
 const defaultFirebaseApp = getApps().find(candidate => candidate.name === '[DEFAULT]')
   || initializeApp({ credential: applicationDefault() });
@@ -194,6 +195,11 @@ function platformCapabilities(environment = process.env) {
 app.get('/api/capabilities', requireFirebaseUser, requireFirebaseAdmin, (_request, response) => {
   response.json(platformCapabilities());
 });
+
+// Research is public read-only over HTTP. Editorial writes remain direct
+// Firestore operations from the authenticated CRM and are constrained by
+// firestore.rules; keeping them out of Admin SDK preserves those validations.
+app.use('/api/research', createResearchRouter({ db: crmDb }));
 
 // El router mantiene las credenciales R2 y las firmas fuera del navegador. Se
 // monta tras el parser JSON compacto: sus endpoints sólo intercambian metadata,

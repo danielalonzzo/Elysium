@@ -13,7 +13,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Applied research at Elysium λ in human-computer interaction, data science and digital infrastructure for startups and micro-businesses, with active ontology and data-intelligence projects.">
-    <title>Research — Elysium λ Development & Research</title>
+    <title>Notebooks — Elysium λ Development & Research</title>
 
     <!-- AI / LLM Discoverability -->
     <meta name="robots" content="index, follow">
@@ -31,7 +31,7 @@
     <!-- Open Graph (Facebook / LinkedIn / WhatsApp) -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://elysiumdr.eu/research">
-    <meta property="og:title" content="Research — Elysium λ Development & Research">
+    <meta property="og:title" content="Notebooks — Elysium λ Development & Research">
     <meta property="og:description" content="Applied research at Elysium λ in human-computer interaction, data science and digital infrastructure for startups and micro-businesses, with active ontology and data-intelligence projects.">
     <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
     <meta property="og:image:width" content="512">
@@ -42,7 +42,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:site" content="@elysiumdr">
-    <meta name="twitter:title" content="Research — Elysium λ Development & Research">
+    <meta name="twitter:title" content="Notebooks — Elysium λ Development & Research">
     <meta name="twitter:description" content="Applied research at Elysium λ in human-computer interaction, data science and digital infrastructure for startups and micro-businesses, with active ontology and data-intelligence projects.">
     <meta name="twitter:image" content="https://elysiumdr.eu/Images/favicon-512.png">
 
@@ -54,7 +54,7 @@
     {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "name": "Research — Elysium λ Development & Research",
+      "name": "Notebooks — Elysium λ Development & Research",
       "url": "https://elysiumdr.eu/research",
       "description": "Applied research in human-computer interaction, data science and digital infrastructure for startups and micro-businesses.",
       "inLanguage": "en-GB",
@@ -69,14 +69,20 @@
           {
             "@type": "ListItem",
             "position": 1,
-            "name": "Ontology for digital inclusion and service access in rural environments",
-            "url": "https://elysiumdr.eu/research/ontology-research"
+            "name": "Artificial Intelligence Research",
+            "url": "https://elysiumdr.eu/research?notebook=investigacion-inteligencia-artificial"
           },
           {
             "@type": "ListItem",
             "position": 2,
-            "name": "Data-Driven Small Business and Startup Intelligence",
-            "url": "https://elysiumdr.eu/research/data-driven-sme-intelligence"
+            "name": "Applied Linguistics",
+            "url": "https://elysiumdr.eu/research?notebook=linguistica-aplicada"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Computer Science News",
+            "url": "https://elysiumdr.eu/research?notebook=novedades-informatica"
           }
         ]
       }
@@ -95,6 +101,7 @@
     <link rel="stylesheet" href="CSS/base.css">
     <link rel="stylesheet" href="CSS/components.css">
     <link rel="stylesheet" href="CSS/pages.css">
+    <link rel="stylesheet" href="CSS/research.css">
 
     <!-- Favicon -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -164,79 +171,139 @@
     </nav>
 
     <!-- Header -->
-    <header class="page-header">
+    <header class="page-header notebooks-page-header">
         <div class="parallax-lambda">λ</div>
         <div class="container animate-on-scroll">
-            <h1 style="font-size: 3rem;">Research</h1>
+            <h1>Notebooks</h1>
             <p class="hero-subtitle">DEVELOPMENT & RESEARCH</p>
         </div>
     </header>
 
-    <!-- Methodology -->
-    <section class="section">
-        <div class="container">
-            <div class="section-header animate-on-scroll">
-                <h2>Applied Research Lines</h2>
-                <p>Exploring Human-Computer Interaction (HCI), Data Science, and Digital Infrastructures.</p>
-            </div>
-
-            <div class="card-grid animate-on-scroll">
-                <div class="card">
-                    <div class="card-icon">🧠</div>
-                    <h3>Intuitive Interfaces</h3>
-                    <p>We design management systems focused on reducing the mental load of users.</p>
-                </div>
-                <div class="card">
-                    <div class="card-icon">📊</div>
-                    <h3>Data Processing</h3>
-                    <p>We investigate and apply database architectures that allow us to build accurate CRMs.</p>
-                </div>
-                <div class="card">
-                    <div class="card-icon">🌐</div>
-                    <h3>Security and High Availability</h3>
-                    <p>We develop cloud infrastructures and apply high-level encryption standards.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects / Publications Placeholder -->
-    <section class="section" style="background: var(--color-bg-secondary);">
-        <div class="container">
-            <div class="section-header animate-on-scroll">
-                <h2>Active Research Projects</h2>
-            </div>
-
-            <div class="research-list animate-on-scroll delay-1">
-                <a href="research/ontology-research" class="research-item research-item-link">
-                    <div style="flex: 1; min-width: 0; padding-right: 2rem;">
-                        <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem; line-height: 1.4;">Ontology for digital
-                            inclusion and service access in rural environments</h4>
-                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">How can an ontology-based approach and a
-                            recommender (rules + ML) improve the localization and prioritization of digital inclusion
-                            resources/essential services in a rural context, minimizing ethical risks (bias, exclusion,
-                            opacity) and maximizing social utility?</p>
-                    </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
-                        <div class="research-meta">Pilot Study</div>
-                        <span style="font-size:0.8rem; opacity:0.5; white-space:nowrap;">Read paper →</span>
-                    </div>
-                </a>
-                <a href="research/data-driven-sme-intelligence" class="research-item research-item-link">
+    <main id="research-content">
+        <section class="section notebooks-section research-view" data-research-view="notebooks"
+            aria-labelledby="notebooks-heading">
+            <div class="container">
+                <div class="notebooks-intro animate-on-scroll">
                     <div>
-                        <h4 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Data-Driven Small Business and Startup Intelligence</h4>
-                        <p style="font-size: 0.9rem;">Studying how machine learning can help micro and small businesses, entrepreneurs, and startups
-                            enterprises extract actionable insights from digital data to support strategic
-                            decision-making.</p>
+                        <p class="notebooks-eyebrow">Research library</p>
+                        <h2 id="notebooks-heading">Working knowledge, organised.</h2>
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
-                        <div class="research-meta">Concept Phase</div>
-                        <span style="font-size:0.8rem; opacity:0.5; white-space:nowrap;">Read paper →</span>
-                    </div>
-                </a>
+                    <p>Browse evolving notebooks that bring together our studies, field notes and technical
+                        publications. Each notebook follows one research line from early questions to published work.</p>
+                </div>
+
+                <div class="notebook-grid animate-on-scroll delay-1" data-notebooks-grid>
+                    <a href="research?notebook=investigacion-inteligencia-artificial" class="notebook-card"
+                        data-notebook-slug="investigacion-inteligencia-artificial"
+                        aria-label="Open notebook: Artificial Intelligence Research">
+                        <div class="notebook-card-top">
+                            <span class="notebook-index" aria-hidden="true">01</span>
+                            <span class="notebook-status">Research notebook</span>
+                        </div>
+                        <div class="notebook-card-body">
+                            <h3>Artificial Intelligence Research</h3>
+                            <p class="notebook-card-description">Responsible AI, knowledge representation and
+                                data-driven systems designed for practical and social value.</p>
+                            <div class="notebook-card-footer">
+                                <span>2 publications</span>
+                                <span class="notebook-card-arrow" aria-hidden="true">→</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="research?notebook=linguistica-aplicada" class="notebook-card"
+                        data-notebook-slug="linguistica-aplicada" aria-label="Open notebook: Applied Linguistics">
+                        <div class="notebook-card-top">
+                            <span class="notebook-index" aria-hidden="true">02</span>
+                            <span class="notebook-status">Research notebook</span>
+                        </div>
+                        <div class="notebook-card-body">
+                            <h3>Applied Linguistics</h3>
+                            <p class="notebook-card-description">Language, communication and multilingual digital
+                                experiences observed through an applied research lens.</p>
+                            <div class="notebook-card-footer">
+                                <span>0 publications</span>
+                                <span class="notebook-card-arrow" aria-hidden="true">→</span>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="research?notebook=novedades-informatica" class="notebook-card"
+                        data-notebook-slug="novedades-informatica" aria-label="Open notebook: Computer Science News">
+                        <div class="notebook-card-top">
+                            <span class="notebook-index" aria-hidden="true">03</span>
+                            <span class="notebook-status">Research notebook</span>
+                        </div>
+                        <div class="notebook-card-body">
+                            <h3>Computer Science News</h3>
+                            <p class="notebook-card-description">Notes on emerging software, computing research and
+                                the infrastructure shaping contemporary digital products.</p>
+                            <div class="notebook-card-footer">
+                                <span>0 publications</span>
+                                <span class="notebook-card-arrow" aria-hidden="true">→</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <p class="research-status" data-research-status role="status" aria-live="polite" hidden></p>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <section class="section notebook-publications-section research-view" data-research-view="notebook" hidden
+            aria-labelledby="notebook-detail-title">
+            <div class="container">
+                <nav class="notebook-breadcrumb" aria-label="Breadcrumb">
+                    <a href="research">← Back to notebooks</a>
+                    <span class="notebook-breadcrumb-separator" aria-hidden="true">/</span>
+                    <span data-notebook-breadcrumb>Notebook</span>
+                </nav>
+                <header class="notebook-detail-header">
+                    <div>
+                        <p class="notebook-kicker">Research notebook</p>
+                        <h2 class="notebook-detail-title" id="notebook-detail-title" data-notebook-title>Notebook</h2>
+                    </div>
+                    <p class="notebook-detail-description" data-notebook-description></p>
+                </header>
+                <div class="publications-heading">
+                    <h3>Publications</h3>
+                    <p class="publications-count" data-publications-count>2 publications</p>
+                </div>
+                <div class="publication-grid" data-publications-grid>
+                    <a href="research/ontology-research" class="publication-card" data-static-publication
+                        data-notebook-slug="investigacion-inteligencia-artificial">
+                        <div>
+                            <p class="publication-kicker">Pilot study</p>
+                            <h4>Ontology for digital inclusion and service access in rural environments</h4>
+                            <p class="publication-excerpt">An ontology-based prototype and transparent recommender
+                                for prioritising digital inclusion resources in rural contexts.</p>
+                        </div>
+                        <div class="publication-card-footer">
+                            <span>Daniel A. Morales · 2026</span>
+                            <span class="publication-card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+                    <a href="research/data-driven-sme-intelligence" class="publication-card" data-static-publication
+                        data-notebook-slug="investigacion-inteligencia-artificial">
+                        <div>
+                            <p class="publication-kicker">Concept phase</p>
+                            <h4>Data-Driven Small Business and Startup Intelligence</h4>
+                            <p class="publication-excerpt">How machine learning can turn small-business digital data
+                                into useful, understandable operational insight.</p>
+                        </div>
+                        <div class="publication-card-footer">
+                            <span>Daniel A. Morales · 2026</span>
+                            <span class="publication-card-arrow" aria-hidden="true">→</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="research-empty-state" data-publications-empty hidden>
+                    <span class="research-empty-symbol" aria-hidden="true">λ</span>
+                    <h3>No publications yet</h3>
+                    <p>Published work from this notebook will appear here.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="research-view" data-research-view="article" data-dynamic-reader hidden></section>
+    </main>
 
     <!-- Footer -->
     <footer>
@@ -292,6 +359,7 @@
     <script src="JS/elysium-mouse.js"></script>
     <script src="JS/elysium-audio.js"></script>
     <script src="JS/version-modal.js"></script>
+    <script src="JS/research.js" type="module"></script>
 </body>
 
 </html>

@@ -10,7 +10,7 @@
     "public": ".",
     "cleanUrls": true,
     "ignore": [
-      "firebase.json",
+      "firebase*.json",
       ".git/**",
       ".firebase/**",
       "**/.*",
@@ -25,7 +25,7 @@
       "Selva y Sal/**",
       "CLAUDE.md",
       "**/CLAUDE.md",
-      "**/firebase.json",
+      "**/firebase*.json",
       "**/_fuentes/**",
       "**/_comercial/**",
       "**/package.json",

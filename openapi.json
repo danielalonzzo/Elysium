@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Elysium platform API",
-    "version": "1.0.0",
-    "summary": "The service behind elysiumdr.eu: public enquiries and password recovery, plus the authenticated CRM surface (meetings, mail, files).",
-    "description": "Two endpoints are open to anyone: `POST /api/prospects` records a project enquiry and `POST /api/auth/password-reset` starts password recovery. Everything else needs a Firebase ID token from an account with the administrator claim; those accounts are created by hand, there is no self-service registration. See https://elysiumdr.eu/auth.md.\n\nThe API is reached through the site's own origin (`https://elysiumdr.eu/api/...`, and likewise on `elysiumdr.es` and `elysiumdr.pt`); a Cloudflare Worker forwards it to the platform service, which is why no CORS preflight is needed from the site itself.",
+    "version": "1.1.0",
+    "summary": "The service behind elysiumdr.eu: public Research and enquiries, password recovery, plus the authenticated CRM surface (meetings, mail, files).",
+    "description": "Public callers can read published Research notebooks and articles through `GET /api/research/...`, record a project enquiry through `POST /api/prospects`, and start password recovery through `POST /api/auth/password-reset`. Endpoints tagged `crm` need a Firebase ID token from an account with the administrator claim; those accounts are created by hand, there is no self-service registration. See https://elysiumdr.eu/auth.md.\n\nThe API is reached through the site's own origin (`https://elysiumdr.eu/api/...`, and likewise on `elysiumdr.es` and `elysiumdr.pt`); a Cloudflare Worker forwards it to the platform service, which is why no CORS preflight is needed from the site itself.",
     "contact": {
       "name": "Elysium λ Development & Research",
       "email": "info@elysiumdr.eu",
@@ -22,6 +22,7 @@
   ],
   "tags": [
     { "name": "public", "description": "No credentials required." },
+    { "name": "research", "description": "Published, public Research notebooks and articles. No credentials required." },
     { "name": "crm", "description": "Administrator-only. Requires a Firebase ID token with the admin claim." },
     { "name": "status", "description": "Liveness." }
   ],
@@ -63,6 +64,59 @@
             "description": "Honeypot. It is invisible in the browser form and must be left empty; a filled value is answered with 202 and silently discarded."
           }
         }
+      },
+      "ResearchNotebook": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "schemaVersion", "slug", "title", "description", "coverUrl", "coverPath", "coverAlt", "locale", "order", "publishedAt", "updatedAt"],
+        "properties": {
+          "id": { "type": "string", "description": "Firestore document id; opaque to callers." },
+          "schemaVersion": { "type": "integer", "const": 1 },
+          "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 120 },
+          "title": { "type": "string", "maxLength": 180 },
+          "description": { "type": "string", "maxLength": 2000 },
+          "coverUrl": { "type": "string", "maxLength": 2048 },
+          "coverPath": { "type": "string", "maxLength": 512, "description": "Firebase Storage object path, or an empty string for an external/no cover." },
+          "coverAlt": { "type": "string", "maxLength": 240 },
+          "locale": { "type": "string", "enum": ["en", "es", "pt"] },
+          "order": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+          "publishedAt": { "type": ["string", "null"], "format": "date-time" },
+          "updatedAt": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "ResearchArticleCard": {
+        "type": "object",
+        "required": ["id", "schemaVersion", "notebookId", "slug", "title", "author", "excerpt", "coverUrl", "coverPath", "coverAlt", "locale", "order", "publishedAt", "updatedAt"],
+        "properties": {
+          "id": { "type": "string", "description": "Firestore document id; opaque to callers." },
+          "schemaVersion": { "type": "integer", "const": 1 },
+          "notebookId": { "type": "string" },
+          "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 120 },
+          "title": { "type": "string", "maxLength": 220 },
+          "author": { "type": "string", "maxLength": 180 },
+          "excerpt": { "type": "string", "maxLength": 600 },
+          "coverUrl": { "type": "string", "maxLength": 2048 },
+          "coverPath": { "type": "string", "maxLength": 512 },
+          "coverAlt": { "type": "string", "maxLength": 240 },
+          "locale": { "type": "string", "enum": ["en", "es", "pt"] },
+          "order": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+          "publishedAt": { "type": ["string", "null"], "format": "date-time" },
+          "updatedAt": { "type": ["string", "null"], "format": "date-time" }
+        }
+      },
+      "ResearchArticle": {
+        "unevaluatedProperties": false,
+        "allOf": [
+          { "$ref": "#/components/schemas/ResearchArticleCard" },
+          {
+            "type": "object",
+            "required": ["contentHtml", "contentMarkdown"],
+            "properties": {
+              "contentHtml": { "type": "string", "description": "Sanitized editorial HTML. Consumers that inject HTML must still use an allow-list sanitizer such as DOMPurify." },
+              "contentMarkdown": { "type": "string", "description": "Clean Markdown export of the same editor document." }
+            }
+          }
+        ]
       }
     }
   },
@@ -118,6 +172,131 @@
           "403": { "description": "The `Origin` header is not allowed (`code: origin_not_allowed`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
           "429": { "description": "Rate limited (`code: prospect_rate_limited`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
           "503": { "description": "The enquiry could not be stored (`code: prospect_unavailable`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/research/notebooks": {
+      "get": {
+        "tags": ["research"],
+        "summary": "List published Research notebooks",
+        "description": "Returns only notebooks whose Firestore state is `published` and whose visibility is `public`. Results are ordered by the editorial `order` field and then by title.",
+        "operationId": "listResearchNotebooks",
+        "security": [],
+        "parameters": [
+          { "name": "locale", "in": "query", "schema": { "type": "string", "enum": ["en", "es", "pt"], "default": "en" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published notebooks for the locale.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["items", "count", "locale"],
+                  "properties": {
+                    "items": { "type": "array", "items": { "$ref": "#/components/schemas/ResearchNotebook" } },
+                    "count": { "type": "integer", "minimum": 0 },
+                    "locale": { "type": "string", "enum": ["en", "es", "pt"] }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid locale (`code: research_locale_invalid`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "503": { "description": "Firestore is unavailable (`code: research_unavailable`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/research/notebooks/{notebookSlug}": {
+      "get": {
+        "tags": ["research"],
+        "summary": "Get one published Research notebook",
+        "operationId": "getResearchNotebook",
+        "security": [],
+        "parameters": [
+          { "name": "notebookSlug", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 120 } },
+          { "name": "locale", "in": "query", "schema": { "type": "string", "enum": ["en", "es", "pt"], "default": "en" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The public notebook.",
+            "content": { "application/json": { "schema": { "type": "object", "required": ["notebook"], "properties": { "notebook": { "$ref": "#/components/schemas/ResearchNotebook" } } } } }
+          },
+          "400": { "description": "Invalid locale or slug.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "No public published notebook has this slug and locale (`code: research_notebook_not_found`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": { "description": "The slug is duplicated for the locale (`code: research_slug_conflict`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "503": { "description": "Firestore is unavailable.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/research/notebooks/{notebookSlug}/articles": {
+      "get": {
+        "tags": ["research"],
+        "summary": "List article cards in a published notebook",
+        "description": "Article bodies are intentionally omitted from this list response. Only articles and parent notebooks that are both `published` and `public` are returned.",
+        "operationId": "listResearchArticles",
+        "security": [],
+        "parameters": [
+          { "name": "notebookSlug", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 120 } },
+          { "name": "locale", "in": "query", "schema": { "type": "string", "enum": ["en", "es", "pt"], "default": "en" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The notebook and its public article cards.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["notebook", "items", "count", "locale"],
+                  "properties": {
+                    "notebook": { "$ref": "#/components/schemas/ResearchNotebook" },
+                    "items": { "type": "array", "items": { "$ref": "#/components/schemas/ResearchArticleCard" } },
+                    "count": { "type": "integer", "minimum": 0 },
+                    "locale": { "type": "string", "enum": ["en", "es", "pt"] }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid locale or slug.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Notebook not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": { "description": "The notebook slug is duplicated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "503": { "description": "Firestore is unavailable.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/research/notebooks/{notebookSlug}/articles/{articleSlug}": {
+      "get": {
+        "tags": ["research"],
+        "summary": "Read one published Research article",
+        "description": "Returns both the clean HTML and Markdown exports. HTML consumers must apply an allow-list sanitizer before inserting editor output into the DOM.",
+        "operationId": "getResearchArticle",
+        "security": [],
+        "parameters": [
+          { "name": "notebookSlug", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 120 } },
+          { "name": "articleSlug", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "maxLength": 120 } },
+          { "name": "locale", "in": "query", "schema": { "type": "string", "enum": ["en", "es", "pt"], "default": "en" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The notebook context and full article.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["notebook", "article"],
+                  "properties": {
+                    "notebook": { "$ref": "#/components/schemas/ResearchNotebook" },
+                    "article": { "$ref": "#/components/schemas/ResearchArticle" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid locale or slug.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "404": { "description": "Notebook or article not found.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "409": { "description": "A requested slug is duplicated.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "503": { "description": "Firestore is unavailable.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
       }
     },

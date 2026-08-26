@@ -17,6 +17,10 @@
 #   CF_DNS_TOKEN=… ./scripts/publish-dns-aid.sh          # crea o corrige
 #   ./scripts/publish-dns-aid.sh --check                 # solo comprueba, sin token
 #
+# `--check` es deliberadamente estricto: no basta con que exista un TYPE64.
+# Comprueba el RDATA exacto y exige AD=true, que demuestra que el resolutor ha
+# validado la cadena DNSSEC hasta la zona padre.
+#
 set -euo pipefail
 
 ZONES=(elysiumdr.eu elysiumdr.es elysiumdr.pt)
@@ -47,23 +51,93 @@ CHECK_ONLY=0
 # quien comprueba desde fuera (el escáner de isitagentready usa
 # `cloudflare-dns.com`). Y se pregunta por `type=64`: el `dig` de algunos macOS
 # todavía no reconoce el mnemónico `SVCB`, pero el número es el mismo.
+validate_doh_answer() {
+  local name="$1" zone="$2" body="$3"
+  printf '%s' "$body" | python3 -c '
+import json
+import shlex
+import sys
+
+owner = sys.argv[1].rstrip(".").lower()
+target = sys.argv[2].rstrip(".").lower()
+
+try:
+    document = json.load(sys.stdin)
+except (json.JSONDecodeError, UnicodeDecodeError) as error:
+    print(f"respuesta DoH no es JSON válido: {error}")
+    raise SystemExit
+
+status = document.get("Status")
+if status != 0:
+    print(f"sin respuesta (Status={status!s})")
+    raise SystemExit
+
+answers = [
+    answer for answer in document.get("Answer", [])
+    if answer.get("type") == 64
+    and str(answer.get("name", "")).rstrip(".").lower() == owner
+]
+if not answers:
+    print("sin respuesta SVCB para el propietario exacto")
+    raise SystemExit
+
+aliases = {"key0": "mandatory", "key1": "alpn", "key3": "port"}
+expected_keys = {"mandatory", "alpn", "port"}
+found = False
+actual = []
+for answer in answers:
+    rdata = str(answer.get("data", ""))
+    actual.append(rdata)
+    try:
+        fields = shlex.split(rdata)
+    except ValueError:
+        continue
+    if len(fields) < 2 or fields[0] != "1" or fields[1].rstrip(".").lower() != target:
+        continue
+
+    params = {}
+    malformed = False
+    for field in fields[2:]:
+        if "=" not in field:
+            malformed = True
+            break
+        key, value = field.split("=", 1)
+        params[aliases.get(key.lower(), key.lower())] = value
+    if malformed or set(params) != expected_keys:
+        continue
+
+    mandatory = {
+        aliases.get(key.strip().lower(), key.strip().lower())
+        for key in params["mandatory"].split(",")
+    }
+    if mandatory == {"alpn", "port"} and params["alpn"] == "h2" and params["port"] == "443":
+        found = True
+        break
+
+if not found:
+    print("RDATA inesperado: " + " | ".join(actual))
+    raise SystemExit
+
+if document.get("AD") is not True:
+    print("registro correcto, pero DNSSEC no está autenticado (AD=false)")
+    raise SystemExit
+
+print("ok")
+' "$name" "$zone"
+}
+
 verify() {
   local ok=0
   for zone in "${ZONES[@]}"; do
     local name="_index._agents.${zone}"
-    local body status
+    local body validation
     body=$(curl -sS -H 'accept: application/dns-json' \
-      "https://cloudflare-dns.com/dns-query?name=${name}&type=64")
-    status=$(printf '%s' "$body" | sed -n 's/.*"Status":\([0-9]*\).*/\1/p')
-    if [[ "$status" == "0" ]] && printf '%s' "$body" | grep -q '"Answer"'; then
-      local ad
-      ad=$(printf '%s' "$body" | sed -n 's/.*"AD":\(true\|false\).*/\1/p')
-      printf '  ✓ %-28s SVCB publicado (AD=%s)\n' "$name" "$ad"
-      # AD=false no es un fallo del registro: es la zona sin firmar. DNSSEC se
-      # habilita a mano y necesita al registrador, así que se avisa y no se rompe.
-      [[ "$ad" == "true" ]] || printf '    ⚠ zona sin cadena DNSSEC validada; ver «DNSSEC» en scripts/dns-aid.md\n'
+      "https://cloudflare-dns.com/dns-query?name=${name}&type=64&do=1")
+    validation=$(validate_doh_answer "$name" "$zone" "$body")
+    if [[ "$validation" == "ok" ]]; then
+      printf '  ✓ %-28s RDATA correcto y DNSSEC autenticado (AD=true)\n' "$name"
     else
-      printf '  ✗ %-28s sin respuesta (Status=%s)\n' "$name" "${status:-?}"
+      printf '  ✗ %-28s %s\n' "$name" "$validation"
       ok=1
     fi
   done
@@ -135,6 +209,6 @@ echo "un NXDOMAIN anterior sigue en caché:"
 echo
 verify || true
 echo
-echo "Falta DNSSEC en las tres zonas — no se puede hacer por API de DNS: se"
-echo "habilita en DNS → Settings → DNSSEC y el DS hay que darlo de alta en el"
+echo "Este script no activa DNSSEC: se habilita en DNS → Settings → DNSSEC"
+echo "(o con la API de DNSSEC de Cloudflare) y el DS hay que darlo de alta en el"
 echo "registrador de cada dominio. Los pasos están en scripts/dns-aid.md."

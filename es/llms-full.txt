@@ -1,8 +1,8 @@
 ================================================================================
 ELYSIUM λ DEVELOPMENT & RESEARCH — CONTENIDO COMPLETO PARA MODELOS DE IA (ESPAÑA)
 https://elysiumdr.es | info@elysiumdr.eu
-Última verificación con el sitio web: 21 de agosto de 2026
-Versión de la interfaz en el momento de la verificación: V1.8.0
+Última verificación con el sitio web: 26 de agosto de 2026
+Versión de la interfaz en el momento de la verificación: elysiumOS 1.8.1
 Idioma: Español (Castellano de España)
 ================================================================================
 
@@ -136,7 +136,7 @@ SECCIÓN 5 — SEGURIDAD, PRIVACIDAD Y ESPECIFICACIONES TÉCNICAS
 URL: https://elysiumdr.es/privacy | https://elysiumdr.es/terms
 
 ESPECIFICACIONES DEL SISTEMA:
-- Versión de Interfaz: V1.8.0
+- Versión de Interfaz: elysiumOS 1.8.1
 - Licencia de Producto: ELY-EC03-ANL9-321979257
 - Directiva de Privacidad: Directiva ePrivacy · Gestión de Consentimiento v1.0
 - Infraestructura de Seguridad: Conexión cifrada HSTS estricta, Content Security Policy L3 (CSP L3), autenticación criptográfica HMAC-SHA256, Cloudflare Edge Network.

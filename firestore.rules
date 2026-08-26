@@ -284,6 +284,162 @@ service cloud.firestore {
         && data.createdAt == request.time;
     }
 
+    // ── Research editorial ───────────────────────────────────────────────────
+    // Los cuadernos son los padres reales de sus artículos. No se usa una
+    // colección plana con notebookId como única relación: así una lectura de
+    // artículo también puede comprobar que el cuaderno continúa publicado.
+    function researchCanManage() {
+      return isSuperAdmin() || crmIsTenantAdmin('elysiumdr-eu');
+    }
+
+    function researchIsDocumentId(value) {
+      return value is string && value.matches('^[A-Za-z0-9_-]{1,128}$');
+    }
+
+    function researchIsSlug(value) {
+      return value is string
+        && value.size() > 0
+        && value.size() <= 120
+        && value.matches('^[a-z0-9]+(-[a-z0-9]+)*$');
+    }
+
+    function researchIsAssetUrl(value) {
+      return value is string
+        && value.size() <= 2048
+        && (value.size() == 0 || value.matches('^(https://[^\\s]+|/[^\\s]*)$'));
+    }
+
+    function researchIsNotebookCoverPath(value, notebookId) {
+      return value is string
+        && value.size() <= 512
+        && (
+          value.size() == 0
+          || (
+            researchIsDocumentId(notebookId)
+            && value.matches(
+              '^research/notebooks/' + notebookId + '/cover/[^/]{1,240}$'
+            )
+          )
+        );
+    }
+
+    function researchIsArticleCoverPath(value, notebookId, articleId) {
+      return value is string
+        && value.size() <= 512
+        && (
+          value.size() == 0
+          || (
+            researchIsDocumentId(notebookId)
+            && researchIsDocumentId(articleId)
+            && value.matches(
+              '^research/notebooks/' + notebookId + '/articles/' + articleId + '/cover/[^/]{1,240}$'
+            )
+          )
+        );
+    }
+
+    function researchHasValidPublicationState(data) {
+      return data.status in ['draft', 'published', 'archived']
+        && data.visibility in ['public', 'unlisted']
+        && data.locale in ['en', 'es', 'pt']
+        && (
+          (data.status == 'draft' && data.publishedAt == null)
+          || (data.status == 'published' && data.publishedAt is timestamp)
+          || (
+            data.status == 'archived'
+            && (data.publishedAt == null || data.publishedAt is timestamp)
+          )
+        );
+    }
+
+    function researchHasCreateAudit(data) {
+      return data.createdAt == request.time
+        && data.updatedAt == request.time
+        && data.createdBy == request.auth.uid
+        && data.updatedBy == request.auth.uid
+        && (data.status != 'published' || data.publishedAt == request.time);
+    }
+
+    function researchHasUpdateAudit() {
+      return request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedAt == request.time
+        && request.resource.data.updatedBy == request.auth.uid
+        // `publishedAt` marca la primera publicación del ciclo actual. Editar
+        // un artículo publicado no debe falsear esa fecha.
+        && (
+          request.resource.data.status != 'published'
+          || (
+            resource.data.status == 'published'
+            && request.resource.data.publishedAt == resource.data.publishedAt
+          )
+          || (
+            resource.data.status != 'published'
+            && request.resource.data.publishedAt == request.time
+          )
+        );
+    }
+
+    function researchIsValidNotebook(data, notebookId) {
+      return researchIsDocumentId(notebookId)
+        && data.keys().hasOnly([
+          'schemaVersion', 'slug', 'title', 'description', 'coverUrl',
+          'coverPath', 'coverAlt', 'status', 'visibility', 'locale', 'order',
+          'publishedAt', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'
+        ])
+        && data.keys().hasAll([
+          'schemaVersion', 'slug', 'title', 'description', 'coverUrl',
+          'coverPath', 'coverAlt', 'status', 'visibility', 'locale', 'order',
+          'publishedAt', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy'
+        ])
+        && data.schemaVersion == 1
+        && researchIsSlug(data.slug)
+        && crmIsRequiredText(data.title, 180)
+        && crmIsShortText(data.description, 2000)
+        && researchIsAssetUrl(data.coverUrl)
+        && researchIsNotebookCoverPath(data.coverPath, notebookId)
+        && crmIsShortText(data.coverAlt, 240)
+        && data.order is int && data.order >= 0 && data.order <= 1000000
+        && researchHasValidPublicationState(data);
+    }
+
+    function researchIsValidArticle(data, notebookId, articleId) {
+      return researchIsDocumentId(notebookId)
+        && researchIsDocumentId(articleId)
+        && data.keys().hasOnly([
+          'schemaVersion', 'notebookId', 'slug', 'title', 'author', 'excerpt',
+          'contentHtml', 'contentMarkdown', 'coverUrl', 'coverPath', 'coverAlt',
+          'status', 'visibility', 'locale', 'order', 'publishedAt', 'createdAt',
+          'createdBy', 'updatedAt', 'updatedBy'
+        ])
+        && data.keys().hasAll([
+          'schemaVersion', 'notebookId', 'slug', 'title', 'author', 'excerpt',
+          'contentHtml', 'contentMarkdown', 'coverUrl', 'coverPath', 'coverAlt',
+          'status', 'visibility', 'locale', 'order', 'publishedAt', 'createdAt',
+          'createdBy', 'updatedAt', 'updatedBy'
+        ])
+        && data.schemaVersion == 1
+        && data.notebookId == notebookId
+        && researchIsSlug(data.slug)
+        && crmIsRequiredText(data.title, 220)
+        && crmIsRequiredText(data.author, 180)
+        && crmIsShortText(data.excerpt, 600)
+        && data.contentHtml is string
+        && data.contentMarkdown is string
+        // Los dos formatos comparten el límite para conservar margen frente al
+        // máximo de 1 MiB por documento de Firestore.
+        && data.contentHtml.size() + data.contentMarkdown.size() <= 750000
+        && (
+          data.status != 'published'
+          || (data.contentHtml.size() > 0 && data.contentMarkdown.size() > 0)
+        )
+        && researchIsAssetUrl(data.coverUrl)
+        && researchIsArticleCoverPath(data.coverPath, notebookId, articleId)
+        && crmIsShortText(data.coverAlt, 240)
+        && data.order is int && data.order >= 0 && data.order <= 1000000
+        && researchHasValidPublicationState(data);
+    }
+
     // Los seis valores del <select> de los tres `contact.html`.
     //
     // OJO al llamarla: `service` es palabra reservada del lenguaje de reglas —
@@ -526,6 +682,64 @@ service cloud.firestore {
     // Alias defensivo para el nombre usado por la primera documentación.
     match /upload_intents/{intentId} {
       allow read, write: if false;
+    }
+
+    // ── Research notebooks (1:N) ──
+    // Las lecturas públicas son deliberadamente document-aware. Por ello el
+    // frontend debe incluir `status == published` y `visibility == public` en
+    // las queries: Rules no filtra resultados; rechaza la consulta completa si
+    // ésta podría devolver un borrador.
+    match /research_notebooks/{notebookId} {
+      allow read: if researchCanManage()
+        || (
+          resource.data.status == 'published'
+          && resource.data.visibility == 'public'
+        );
+
+      allow create: if researchCanManage()
+        && researchIsValidNotebook(request.resource.data, notebookId)
+        && researchHasCreateAudit(request.resource.data);
+
+      allow update: if researchCanManage()
+        && researchIsValidNotebook(request.resource.data, notebookId)
+        && request.resource.data.slug == resource.data.slug
+        && request.resource.data.locale == resource.data.locale
+        && researchHasUpdateAudit();
+
+      // Borrar el padre no borra subcolecciones en Firestore. El CRM debe
+      // archivar o eliminar primero los artículos.
+      allow delete: if researchCanManage();
+
+      match /articles/{articleId} {
+        allow read: if researchCanManage()
+          || (
+            resource.data.status == 'published'
+            && resource.data.visibility == 'public'
+            && resource.data.locale
+              == get(/databases/$(database)/documents/research_notebooks/$(notebookId)).data.locale
+            && get(/databases/$(database)/documents/research_notebooks/$(notebookId)).data.status
+              == 'published'
+            && get(/databases/$(database)/documents/research_notebooks/$(notebookId)).data.visibility
+              == 'public'
+          );
+
+        allow create: if researchCanManage()
+          && researchIsValidArticle(request.resource.data, notebookId, articleId)
+          && request.resource.data.locale
+            == getAfter(/databases/$(database)/documents/research_notebooks/$(notebookId)).data.locale
+          && researchHasCreateAudit(request.resource.data);
+
+        allow update: if researchCanManage()
+          && researchIsValidArticle(request.resource.data, notebookId, articleId)
+          && request.resource.data.notebookId == resource.data.notebookId
+          && request.resource.data.slug == resource.data.slug
+          && request.resource.data.locale == resource.data.locale
+          && request.resource.data.locale
+            == getAfter(/databases/$(database)/documents/research_notebooks/$(notebookId)).data.locale
+          && researchHasUpdateAudit();
+
+        allow delete: if researchCanManage();
+      }
     }
 
     // ── Activities (append-only audit log) ────────────────────────────────────

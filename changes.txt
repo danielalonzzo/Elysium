@@ -281,3 +281,42 @@
 - Actualización de versión del footer y sistema a V1.8.0 en version-modal.js, ONCORE, Prototipos y compilación de Demo-arbol.
 - Despliegue global a producción (GitHub main, Cloudflare Workers, Firebase y Backend).
 
+=== CHAT ID: 900d9b1e-542d-4643-8bca-1f91ee4bc43f - Actualización de versión de footer y sistema a elysiumOS 1.8.1 ===
+- Actualización de título del modal a "elysiumOS" (en lugar de ELYSIUM).
+- Actualización de versión en JS/version-modal.js a "elysiumOS 1.8.1", con alineación por debajo/baseline (`align-items: baseline` y `vertical-align: baseline`) con estilo `.ely-ver-sub` para que ".8.1" se apoye sobre la misma línea base que "1" a una escala más sutil y encapsulado en contenedor propio para evitar separaciones por el flex-gap del modal.
+- Actualización de fecha de compilación (Build) en getBuildDate() a formato exacto DD-MM-AAAA (ej. 26-08-2026).
+- Actualización de documentación llms.txt y llms-full.txt (raíz, España y Portugal) a elysiumOS 1.8.1.
+- Actualización de meta tags de versión a v1.8.1-build.1 en páginas de ONCORE.
+
+=== CHAT ID: c8f95095-0aa1-4a12-ab52-55e4f258b4ea - Refactor de Research en Notebooks y su gestor en el CRM ===
+- Frontend público: research.html (raíz, es/, pt/ y las dos bases nacionales) pasa a titularse "Notebooks / DEVELOPMENT & RESEARCH" y sirve tres vistas en un mismo documento por ?notebook= y ?article=: grilla de cuadernos, grilla de publicaciones y lectura completa.
+- Cuadernos iniciales: Investigación en Inteligencia Artificial, Lingüística Aplicada y Novedades en la Informática, escritos en el HTML y sustituidos por los de Firestore cuando responden.
+- Nuevos JS/research.js y CSS/research.css: consulta pública (API HTTP -> Firestore -> HTML servido), saneado del HTML del editor antes de innerHTML y botón de descarga en PDF.
+- Las diez páginas de lectura escritas a mano (research/, es/, pt/ y _national/) dejan de repetir el layout en un <style> propio y pasan a CSS/research.css y JS/research.js: -1.481 líneas de CSS duplicado, cabecera con barra de herramientas y botón "Descargar en PDF" localizado en EN/ES/PT.
+- Impresión: el PDF lo genera el navegador sobre el mismo HTML semántico. Se completó @media print con el color de los h1-h4 del editor y de los rótulos de sección, break-after en encabezados y orphans/widows en párrafos y listas.
+- CRM: nueva sección "Research" en el bloque DELIVERY, justo después de Prototypes, con gestor de cuadernos (+ Nuevo Cuaderno), lista de publicaciones (+ Nueva Publicación) y el Elysium Editor enriquecido (títulos, listas, citas, código, exportación a HTML y Markdown) con Guardar borrador y Publicar.
+- Datos 1:N en Firestore: research_notebooks/{id}/articles/{id}, con firestore.rules, storage.rules e índices, cuatro rutas públicas de solo lectura en backend/platform-server.js y su contrato en openapi.json y backend/RESEARCH.md.
+- Capa legible por máquina: llms-full.txt (raíz, en sus tres idiomas) deja de describir "tres líneas de investigación aplicada" y pasa a describir la biblioteca de cuadernos, sus tres cuadernos y las publicaciones que contiene; el índice de llms.txt se actualizó en las cinco ediciones (raíz, /es, /pt, España y Portugal).
+- Despliegue: las tres listas de exclusión pasan de "firebase.json" al glob "firebase*.json" para que firebase.research-emulator.json y cualquier config futura de emuladores no se sirvan en la raíz.
+
+=== CHAT ID: c8f95095-0aa1-4a12-ab52-55e4f258b4ea - Edición de perfil en el CRM ===
+- Origen: la barra lateral mostraba "Usuario Test". No estaba en el código: es el displayName de la cuenta de Firebase Auth, y el CRM no tenía forma de cambiarlo. Los dos únicos formularios que escribían ese campo estaban en el portal de cliente (JS/profiles.js), y entrar ahí con una cuenta administradora le crea un documento en members/, que es una de las colecciones de las que el propio CRM saca sus contactos.
+- Nuevo diálogo #admin-profile-dialog en admin.html: nombre para mostrar (editable) y correo (solo lectura, porque es la credencial de acceso). Se abre desde la tarjeta de identidad de la barra lateral, que pasa de <div> a <button> con un lápiz que aparece al pasar por encima.
+- El guardado escribe siempre el displayName de Auth y, además, la ficha de equipo users/{uid} cuando existe. firestore.rules sólo permite *actualizar* ese documento (su creación está reservada al backend, que provisiona empleados y sincroniza claims), así que si no existe no se trata como error: loadCrmUsers() ya sintetiza la entrada desde Auth y el nombre llega igual al selector de responsable.
+- El nombre corregido se propaga a los tres sitios que lo usaban: barra lateral, selector de responsable y firma de autor en el editor de publicaciones de Research.
+- Detalle de maquetación: el lápiz va como primer hijo y posicionado en absoluto. Colocado como tercer hijo al final rompía tres reglas de customer-portal.css que seleccionan el bloque de texto con `> div:last-child` — el correo perdía su min-width:0 y se salía de la columna, perdía su tamaño reducido y dejaba de ocultarse con la barra plegada.
+- Traducciones en EN/ES/PT y versiones de caché de admin.js y admin-portal.css actualizadas.
+- Foto de perfil: el diálogo permite subir un retrato (JPG, PNG o WebP, máx. 2 MB) y quitarlo. Se guarda en el photoURL de Auth y en users/{uid}.avatarUrl, y se muestra recortada en la tarjeta de la barra lateral; sin foto, el marco vuelve a la λ. La imagen elegida no se sube hasta pulsar Guardar, así que cancelar no deja archivos huérfanos en Storage, y al reemplazarla se retira el objeto anterior.
+- Nueva ruta en storage.rules: crm/avatars/{userId}/{fileName}, escribible sólo por el propio miembro del CRM sobre su uid, con el mismo criterio de pertenencia al tenant que usa firestore.rules para users/{uid}. REQUIERE DESPLIEGUE: firebase deploy --only storage.
+- La barra lateral del CRM pierde su cabecera "λ ELYSIUM": la tarjeta de identidad pasa a ser lo primero. El λ sigue en el avatar de la tarjeta y en el encabezado móvil.
+- El rótulo del breadcrumb pasa de "Elysium OS" a "elysiumOS", alineado con el nombre que ya usa el modal de versión.
+=== CHAT ID: baac0680-6839-44d5-9ae9-42dd5edd0333 - Rediseño Ejecutivo y Elegante de la Tarjeta de Perfil en el CRM ===
+- Rediseño integral de la tarjeta de perfil (.portal-user-card / #admin-profile-trigger) en la barra lateral de Elysium CRM (admin.html y CSS/admin-portal.css):
+  * Contenedor de cristal ahumado multicapa (Obsidian Glassmorphism) con `backdrop-filter: blur(20px)`, sutil borde superior con destello de luz perimetral (`::before`), reflejos internos especulares y sombras suaves en elevación.
+  * Avatar de perfil circular con bisel de lujo degradado (acabado metálico platino / zafiro sutil), marco de alta fidelidad para la fotografía con recorte perfecto `object-fit: cover` e integración fluida.
+  * Respaldo refinado con la identidad λ en gradiente zafiro nocturno para cuando no haya foto cargada.
+  * Indicador beacon de estado activo en vivo (.sidebar-user-status) integrado en la esquina inferior derecha del avatar con resplandor esmeralda suave.
+  * Tipografía depurada: jerarquía nítida para el nombre (#sidebar-admin-name) con sombra de texto sutil y formato estilizado para el rol/correo (#sidebar-admin-role).
+  * Botón de edición (.portal-user-card-edit) rediseñado como una micro-acción de cristal esmerilado que se ilumina con un halo azul cian y micro-elevación al interactuar.
+  * Sincronización del marco circular de alta gama en la vista previa del diálogo de edición de perfil (#admin-profile-preview).
+  * Corrección de sintaxis CSS y actualización del cache buster a CSS/admin-portal.css?v=2026082612.

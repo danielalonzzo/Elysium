@@ -14,7 +14,7 @@ backend/**
 Prototipos/**
 Selva y Sal/**
 _fuentes/**
-**/firebase.json
+**/firebase*.json
 **/_fuentes/
 **/_comercial/
 **/node_modules/
@@ -49,7 +49,7 @@ firebase-debug.log
 firestore.rules
 storage.rules
 firestore.indexes.json
-firebase.json
+firebase*.json
 wrangler.jsonc
 .cloudflareignore
 .assetsignore

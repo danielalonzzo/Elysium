@@ -28,7 +28,7 @@ Selva y Sal/
 _fuentes/
 CLAUDE.md
 **/CLAUDE.md
-**/firebase.json
+**/firebase*.json
 # Red de seguridad a cualquier profundidad: si alguna vez una carpeta de proyecto
 # acaba dentro de una publicada, sus documentos internos no deben servirse.
 **/_fuentes/
@@ -38,7 +38,7 @@ CLAUDE.md
 firestore.rules
 storage.rules
 firestore.indexes.json
-firebase.json
+firebase*.json
 wrangler.jsonc
 .cloudflareignore
 .assetsignore

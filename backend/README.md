@@ -1,7 +1,6 @@
 # elysium-platform
 
-Servicio de confianza de Elysium. Hace cinco cosas que un navegador no puede hacer
-por sí solo:
+Servicio de confianza de Elysium. Hace seis cosas:
 
 1. **Agenda de reuniones.** Crea y cancela reuniones, y envía por SMTP desde el
    buzón de la empresa la confirmación al cliente, el aviso al administrador y la
@@ -18,6 +17,10 @@ por sí solo:
 5. **Archivos privados del CRM.** Autoriza subidas directas a Cloudflare R2,
    comprueba la cuarentena y emite enlaces de descarga breves sin revelar las
    credenciales ni convertir el bucket en público.
+6. **Research público.** Proyecta cuadernos y artículos publicados desde
+   Firestore mediante GET de solo lectura, sin descargar cuerpos en las listas
+   ni exponer los UID de auditoría. El esquema 1:N, Rules, Storage, API y PDF se
+   documentan juntos en [`RESEARCH.md`](RESEARCH.md).
 
 Aquí **no se cobra**. Las suscripciones y sus licencias las asigna el
 administrador desde el CRM y viven en Firestore (`members.subscription`,

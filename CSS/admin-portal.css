@@ -23,7 +23,6 @@
     --crm-blue-soft: rgba(47, 125, 246, 0.14);
     --crm-mint: #38d9ae;
     min-height: 100dvh;
-    background:
 }
 
 /* The portal switches views with `hidden`; the CRM has always used `.active`
@@ -724,60 +723,120 @@
 
 /* Licenses --------------------------------------------------------------- */
 
-/* Las tres cifras iban en píldoras redondas que no ordenaban su contenido: el
-   número y la etiqueta se apilaban dentro del óvalo y quedaban descentrados.
-   Ahora son tarjetas de igual altura, con una franja de color que identifica
-   cada estado y el número alineado sobre su etiqueta. */
 .customer-portal.is-admin .licenses-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-    gap: 0.75rem;
-    max-width: 34rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    max-width: 48rem;
+    margin-bottom: 1.75rem;
+}
+
+@media (max-width: 768px) {
+    .customer-portal.is-admin .licenses-summary {
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 0.75rem;
+    }
 }
 
 .customer-portal.is-admin .license-metric {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
-    padding: 0.95rem 1.1rem 0.95rem 1.25rem;
+    justify-content: space-between;
+    min-height: 5.5rem;
+    padding: 1.15rem 1.35rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg, 16px);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.015) 100%),
+        rgba(7, 16, 34, 0.72);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     overflow: hidden;
-    border: 1px solid var(--portal-border);
-    border-radius: var(--radius-lg, 14px);
-    background: rgba(255, 255, 255, 0.028);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.25s ease,
+                box-shadow 0.25s ease;
 }
 
+.customer-portal.is-admin .license-metric:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--license-metric-accent, #2997ff) 40%, rgba(255, 255, 255, 0.15));
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35),
+                0 0 20px color-mix(in srgb, var(--license-metric-accent, #2997ff) 15%, transparent),
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Sutil línea de brillo superior estilo cristal */
 .customer-portal.is-admin .license-metric::before {
     position: absolute;
-    inset: 0 auto 0 0;
-    width: 3px;
-    background: var(--license-metric-accent, #2997ff);
+    inset: 0 0 auto 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--license-metric-accent, #2997ff) 60%, white) 30%, transparent 100%);
     content: "";
+    opacity: 0.6;
+    pointer-events: none;
 }
 
-.customer-portal.is-admin .license-metric strong {
-    color: var(--color-text-primary, #e1e1e5);
-    font-size: 1.65rem;
-    font-weight: 700;
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
+.customer-portal.is-admin .license-metric::after {
+    display: none;
 }
 
+.customer-portal.is-admin .license-metric-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.customer-portal.is-admin .license-metric-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--license-metric-accent, #2997ff);
+    box-shadow: 0 0 8px var(--license-metric-accent, #2997ff);
+    flex-shrink: 0;
+}
+
+.customer-portal.is-admin .license-metric-label,
 .customer-portal.is-admin .license-metric span {
-    color: var(--color-text-secondary, #a0a5b5);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.07em;
+    color: var(--color-text-secondary, #94a3b8);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+    line-height: 1;
+}
+
+.customer-portal.is-admin .license-metric-value,
+.customer-portal.is-admin .license-metric strong {
+    display: block;
+    color: #ffffff;
+    font-size: clamp(1.85rem, 2.8vw, 2.25rem);
+    font-weight: 750;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 .customer-portal.is-admin .license-metric-blue { --license-metric-accent: #2997ff; }
-.customer-portal.is-admin .license-metric-green { --license-metric-accent: #34d399; }
-.customer-portal.is-admin .license-metric-gold { --license-metric-accent: #f5b544; }
+.customer-portal.is-admin .license-metric-green { --license-metric-accent: #10b981; }
+.customer-portal.is-admin .license-metric-gold { --license-metric-accent: #f59e0b; }
 
-/* Sin nada que atender, el ámbar sugiere un aviso que no existe. */
-.customer-portal.is-admin .license-metric-gold.is-clear { --license-metric-accent: #46536b; }
+/* Sin nada que atender: punto y resplandor apagado neutro */
+.customer-portal.is-admin .license-metric-gold.is-clear {
+    --license-metric-accent: #64748b;
+}
+.customer-portal.is-admin .license-metric-gold.is-clear .license-metric-dot {
+    box-shadow: none;
+    opacity: 0.6;
+}
+.customer-portal.is-admin .license-metric-gold.is-clear .license-metric-value,
+.customer-portal.is-admin .license-metric-gold.is-clear strong {
+    color: var(--color-text-primary, #e1e1e5);
+}
 
 .customer-portal.is-admin .license-code-cell {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
@@ -3071,86 +3130,253 @@
 /* El ancho lo fija `--portal-sidebar-width`, que es lo que dimensiona la
    columna de la rejilla en `customer-portal.css`. Declararlo aparte con
    `width` dejaba la columna (17rem) y el sidebar (16.5rem) descuadrados. */
-.customer-portal.is-admin .portal-sidebar {
-    padding: 1.25rem 0.9rem 1rem;
-    border-right: 1px solid var(--crm-line);
-    background: rgba(5, 9, 16, 0.96);
-    box-shadow: 1.5rem 0 4rem rgba(0, 0, 0, 0.18);
+@media (min-width: 48.01rem) {
+    .customer-portal.is-admin .portal-sidebar {
+        padding: 1.25rem 0.9rem 1rem;
+        border-right: 1px solid var(--crm-line);
+        background: rgba(5, 9, 16, 0.96);
+        box-shadow: 1.5rem 0 4rem rgba(0, 0, 0, 0.18);
+    }
+
+    .customer-portal.is-admin .portal-sidebar > .portal-brand {
+        margin: 0 0.35rem 1.1rem;
+        padding: 0.2rem 0.1rem;
+        letter-spacing: 0.16em;
+    }
+
+    .customer-portal.is-admin .portal-user-card {
+        margin: 1rem 0.2rem 1.4rem;
+        padding: 0.8rem;
+        border: 1px solid var(--crm-line);
+        border-radius: 0.9rem;
+        background: linear-gradient(145deg, rgba(47, 125, 246, 0.09), rgba(255, 255, 255, 0.025));
+    }
+
+    .customer-portal.is-admin .portal-nav {
+        padding: 0 0.1rem;
+    }
+
+    .customer-portal.is-admin .portal-nav-label {
+        margin: 0.2rem 0.7rem 0.55rem;
+        color: #526075;
+        font-size: 0.61rem;
+        font-weight: 750;
+        letter-spacing: 0.18em;
+    }
+
+    .customer-portal.is-admin .portal-nav-label-secondary {
+        margin-top: 1.25rem;
+    }
+
+    .customer-portal.is-admin .portal-nav-item {
+        min-height: 2.75rem;
+        margin: 0.12rem 0;
+        padding: 0.68rem 0.78rem;
+        border: 1px solid transparent;
+        border-radius: 0.72rem;
+        color: #8f9bad;
+        font-size: 0.79rem;
+        font-weight: 570;
+    }
+
+    .customer-portal.is-admin .portal-nav-item:hover {
+        border-color: rgba(148, 163, 184, 0.09);
+        color: #e4ebf6;
+        background: rgba(255, 255, 255, 0.035);
+    }
+
+    .customer-portal.is-admin .portal-nav-item.active {
+        border-color: rgba(47, 125, 246, 0.28);
+        color: #fff;
+        background: linear-gradient(90deg, rgba(47, 125, 246, 0.2), rgba(47, 125, 246, 0.07));
+        box-shadow: inset 2px 0 #3f8cff;
+    }
 }
 
-.customer-portal.is-admin .portal-sidebar > .portal-brand {
-    margin: 0 0.35rem 1.1rem;
-    padding: 0.2rem 0.1rem;
-    letter-spacing: 0.16em;
-}
+@media (max-width: 48rem) {
+    .customer-portal.is-admin .portal-sidebar {
+        position: fixed;
+        inset: auto 0 0;
+        z-index: 50;
+        display: block;
+        width: 100%;
+        height: calc(var(--portal-mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+        overflow: visible;
+        padding: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        border: 0;
+        border-top: 1px solid var(--portal-border-strong);
+        background: rgba(3, 9, 23, 0.94);
+        box-shadow: 0 -14px 40px rgba(0, 4, 18, 0.34);
+        backdrop-filter: blur(26px) saturate(155%);
+        -webkit-backdrop-filter: blur(26px) saturate(155%);
+    }
 
-.customer-portal.is-admin .portal-user-card {
-    margin: 1rem 0.2rem 1.4rem;
-    padding: 0.8rem;
-    border: 1px solid var(--crm-line);
-    border-radius: 0.9rem;
-    background: linear-gradient(145deg, rgba(47, 125, 246, 0.09), rgba(255, 255, 255, 0.025));
-}
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) > :not(.portal-nav),
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-user-card,
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-sidebar-footer,
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-nav-label {
+        display: none !important;
+    }
 
-.customer-portal.is-admin .portal-user-card strong {
-    max-width: 10rem;
-    overflow: hidden;
-    color: var(--crm-text);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+    .customer-portal.is-admin .portal-sidebar.is-open {
+        display: flex !important;
+        height: min(44rem, calc(100dvh - var(--portal-header-height) - 0.75rem)) !important;
+        flex-direction: column !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        overflow: hidden !important;
+        border-top-left-radius: 1.25rem;
+        border-top-right-radius: 1.25rem;
+        box-shadow: 0 -18px 48px rgba(0, 4, 18, 0.65);
+    }
 
-.customer-portal.is-admin .portal-user-card span {
-    max-width: 10rem;
-    overflow: hidden;
-    color: var(--crm-muted);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-user-card {
+        display: flex !important;
+        flex: 0 0 auto;
+        margin: 1rem 0.75rem 0.65rem;
+        width: calc(100% - 1.5rem);
+    }
 
-.customer-portal.is-admin .sidebar-admin-avatar {
-    background: linear-gradient(145deg, #3c8cff, #214fcc);
-    box-shadow: 0 0.65rem 1.6rem rgba(35, 100, 230, 0.3);
-}
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-user-card-details,
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-user-card > div:last-child {
+        display: flex !important;
+        flex-direction: column;
+    }
 
-.customer-portal.is-admin .portal-nav {
-    padding: 0 0.1rem;
-}
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-user-card-edit {
+        display: flex !important;
+    }
 
-.customer-portal.is-admin .portal-nav-label {
-    margin: 0.2rem 0.7rem 0.55rem;
-    color: #526075;
-    font-size: 0.61rem;
-    font-weight: 750;
-    letter-spacing: 0.18em;
-}
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-nav {
+        height: auto !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.3rem !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        padding: 0.55rem 0.75rem 1rem !important;
+    }
 
-.customer-portal.is-admin .portal-nav-label-secondary {
-    margin-top: 1.25rem;
-}
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-nav-label {
+        display: block !important;
+        padding: 0.5rem 0.75rem 0.25rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-text-tertiary, #60677a);
+    }
 
-.customer-portal.is-admin .portal-nav-item {
-    min-height: 2.75rem;
-    margin: 0.12rem 0;
-    padding: 0.68rem 0.78rem;
-    border: 1px solid transparent;
-    border-radius: 0.72rem;
-    color: #8f9bad;
-    font-size: 0.79rem;
-    font-weight: 570;
-}
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-nav-item {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 2.85rem !important;
+        height: auto !important;
+        flex: 0 0 auto !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        gap: 0.78rem !important;
+        padding: 0.68rem 0.78rem !important;
+        text-align: left !important;
+        border-radius: 0.75rem !important;
+    }
 
-.customer-portal.is-admin .portal-nav-item:hover {
-    border-color: rgba(148, 163, 184, 0.09);
-    color: #e4ebf6;
-    background: rgba(255, 255, 255, 0.035);
-}
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-nav-item svg {
+        width: 1.15rem !important;
+        height: 1.15rem !important;
+        margin: 0 !important;
+    }
 
-.customer-portal.is-admin .portal-nav-item.active {
-    border-color: rgba(47, 125, 246, 0.28);
-    color: #fff;
-    background: linear-gradient(90deg, rgba(47, 125, 246, 0.2), rgba(47, 125, 246, 0.07));
-    box-shadow: inset 2px 0 #3f8cff;
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-nav-text,
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-nav-item > span:not(.portal-nav-badge) {
+        font-size: 0.85rem !important;
+        text-align: left !important;
+        width: auto !important;
+        line-height: normal !important;
+    }
+
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-sidebar-footer {
+        display: grid !important;
+        flex: 0 0 auto;
+        gap: 0.45rem;
+        padding: 0.85rem;
+        border-top: 1px solid var(--portal-border);
+    }
+
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-sidebar-footer .sidebar-logout-btn,
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-sidebar-footer .sidebar-home-btn {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        width: 100% !important;
+        min-height: 2.65rem !important;
+        padding: 0.62rem 0.75rem !important;
+        border: 1px solid transparent;
+        border-radius: 0.78rem;
+        font-size: 0.78rem !important;
+        font-weight: 610;
+    }
+
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-sidebar-footer .sidebar-logout-btn > span,
+    .customer-portal.is-admin .portal-sidebar.is-open .portal-sidebar-footer .sidebar-home-btn > span {
+        display: inline !important;
+        font-size: 0.78rem !important;
+    }
+
+    .customer-portal.is-admin .portal-sidebar .portal-nav,
+    .customer-portal.is-admin .portal-mobile-nav {
+        display: flex;
+        width: 100%;
+        height: var(--portal-mobile-nav-height);
+        flex-direction: row;
+        align-items: center;
+        gap: 0.15rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0.25rem max(0.35rem, env(safe-area-inset-right, 0px)) 0.25rem max(0.35rem, env(safe-area-inset-left, 0px));
+        scrollbar-width: none;
+    }
+
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-nav-item,
+    .customer-portal.is-admin .portal-mobile-nav .portal-nav-item {
+        min-width: 4.1rem;
+        min-height: 3.25rem;
+        height: 3.25rem;
+        margin: 0;
+        padding: 0.2rem 0.35rem 0.25rem;
+        font-size: 0.62rem;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 0.18rem;
+        box-shadow: none;
+    }
+
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-nav-item svg,
+    .customer-portal.is-admin .portal-mobile-nav .portal-nav-item svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin: 0;
+    }
+
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-nav-item.active,
+    .customer-portal.is-admin .portal-mobile-nav .portal-nav-item.active {
+        border-color: rgba(47, 125, 246, 0.28);
+        background: rgba(47, 125, 246, 0.15);
+        box-shadow: none;
+    }
+
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-nav-text,
+    .customer-portal.is-admin .portal-mobile-nav .portal-nav-text,
+    .customer-portal.is-admin .portal-sidebar:not(.is-open) .portal-nav-item > span:not(.portal-nav-badge),
+    .customer-portal.is-admin .portal-mobile-nav .portal-nav-item > span:not(.portal-nav-badge) {
+        font-size: 0.62rem;
+        line-height: 1.1;
+        width: 100%;
+        text-align: center;
+    }
 }
 
 .customer-portal.is-admin .portal-nav-item svg { opacity: 0.82; }
@@ -3333,7 +3559,11 @@
     cursor: pointer;
 }
 
-.customer-portal.is-admin #stats-overview,
+.customer-portal.is-admin #stats-overview {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
 .customer-portal.is-admin #stats-operations {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0.8rem;
@@ -3366,6 +3596,10 @@
     font-size: clamp(1.9rem, 2.6vw, 2.75rem);
     font-weight: 640;
     letter-spacing: -0.055em;
+}
+
+.customer-portal.is-admin #stats-overview .kpi-value {
+    font-size: clamp(1.55rem, 2.1vw, 2.45rem);
 }
 
 .customer-portal.is-admin .overview-panel,
@@ -3426,30 +3660,45 @@
 }
 
 .customer-portal.is-admin .crm-directory-person {
+    display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.85rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .crm-directory-person-meta,
+.customer-portal.is-admin .crm-directory-person > div:not(.client-card-avatar) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .customer-portal.is-admin .crm-directory-person strong,
 .customer-portal.is-admin .crm-directory-company strong,
 .customer-portal.is-admin .crm-directory-activity strong {
+    display: block;
     overflow: hidden;
     color: #e5ebf4;
-    font-size: 0.78rem;
-    font-weight: 610;
+    font-size: 0.84rem;
+    font-weight: 620;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: 1.25;
 }
 
 .customer-portal.is-admin .crm-directory-person span,
 .customer-portal.is-admin .crm-directory-company span,
 .customer-portal.is-admin .crm-directory-activity span {
+    display: block;
     overflow: hidden;
     color: #708096;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     text-overflow: ellipsis;
     white-space: nowrap;
+    line-height: 1.25;
 }
 
 .customer-portal.is-admin .crm-directory-owner {
@@ -3457,7 +3706,7 @@
     align-items: center;
     gap: 0.45rem;
     color: #8f9caf;
-    font-size: 0.7rem;
+    font-size: 0.74rem;
 }
 
 .customer-portal.is-admin .crm-owner-dot {
@@ -3872,4 +4121,343 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* ── Cuenta del administrador ────────────────────────────────────────────────
+   Tarjeta de perfil ejecutiva de Daniel Morales / Admin:
+   Diseño de lujo con efecto de cristal ahumado (obsidian glassmorphism),
+   halo perimetral sutil, avatar circular con bisel metálico/zafiro multicapa,
+   indicador de actividad en vivo (glowing status beacon), tipografía nítida
+   y micro-interacciones suaves. */
+.customer-portal.is-admin .portal-sidebar > .portal-user-card:first-child {
+    margin: 1.25rem 0.75rem 0.9rem;
+}
+
+.customer-portal.is-admin .portal-user-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    width: calc(100% - 1.5rem);
+    padding: 0.75rem 0.85rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.015) 50%, rgba(47, 125, 246, 0.035) 100%), rgba(8, 14, 27, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+                inset 0 0 20px rgba(47, 125, 246, 0.02),
+                0 6px 20px -4px rgba(0, 4, 18, 0.5);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+
+.customer-portal.is-admin .portal-user-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), rgba(47, 125, 246, 0.35), transparent);
+    pointer-events: none;
+    opacity: 0.7;
+    transition: opacity 0.25s ease;
+}
+
+.customer-portal.is-admin .portal-user-card:hover,
+.customer-portal.is-admin .portal-user-card:focus-visible {
+    border-color: rgba(66, 153, 225, 0.35);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(47, 125, 246, 0.08) 100%), rgba(12, 20, 38, 0.88);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
+                0 10px 28px -4px rgba(0, 10, 32, 0.6),
+                0 0 16px rgba(47, 125, 246, 0.14);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.customer-portal.is-admin .portal-user-card:hover::before,
+.customer-portal.is-admin .portal-user-card:focus-visible::before {
+    opacity: 1;
+}
+
+/* ── Avatar y Bezel de Lujo ── */
+.customer-portal.is-admin .sidebar-avatar-container {
+    position: relative;
+    flex: 0 0 auto;
+    width: 2.75rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+}
+
+.customer-portal.is-admin .portal-user-card .sidebar-admin-avatar {
+    position: relative;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    padding: 2px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.3) 0%, rgba(47, 125, 246, 0.55) 45%, rgba(255, 255, 255, 0.08) 100%);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4), 0 0 10px rgba(47, 125, 246, 0.2);
+    border: none;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.customer-portal.is-admin .portal-user-card:hover .sidebar-admin-avatar {
+    transform: scale(1.03);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5), 0 0 14px rgba(47, 125, 246, 0.35);
+}
+
+.customer-portal.is-admin .portal-user-card .sidebar-admin-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    background: #080e18;
+}
+
+.customer-portal.is-admin .portal-user-card .sidebar-admin-avatar:not(.has-photo) {
+    background: linear-gradient(145deg, #1e3a8a, #0b1222);
+    color: #e2eeff;
+    font-size: 1.1rem;
+    font-weight: 750;
+    font-family: var(--font-display, serif);
+    text-shadow: 0 0 10px rgba(47, 125, 246, 0.8);
+    border: 1px solid rgba(47, 125, 246, 0.4);
+}
+
+.customer-portal.is-admin .portal-user-card .sidebar-admin-avatar.has-photo {
+    background: #080e18;
+}
+
+/* Indicador de estado activo en vivo (Live Active Beacon) */
+.customer-portal.is-admin .sidebar-user-status {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 0.62rem;
+    height: 0.62rem;
+    border-radius: 50%;
+    background: #38d9ae;
+    border: 2px solid #080f1d;
+    box-shadow: 0 0 7px #38d9ae;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* ── Información de Usuario y Tipografía ── */
+.customer-portal.is-admin .portal-user-card-details,
+.customer-portal.is-admin .portal-user-card > div:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 0.2rem;
+    padding-right: 1.2rem;
+}
+
+.customer-portal.is-admin .portal-user-card strong,
+.customer-portal.is-admin #sidebar-admin-name {
+    font-size: 0.86rem;
+    font-weight: 650;
+    color: #ffffff;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.customer-portal.is-admin #sidebar-admin-role {
+    display: block;
+    color: #8b9cb1;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ── Botón de Edición Elegante ── */
+.customer-portal.is-admin .portal-user-card-edit {
+    position: absolute;
+    top: 50%;
+    right: 0.65rem;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #7d8f9f;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.customer-portal.is-admin .portal-user-card-edit svg {
+    width: 0.8rem;
+    height: 0.8rem;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.customer-portal.is-admin .portal-user-card:hover .portal-user-card-edit,
+.customer-portal.is-admin .portal-user-card:focus-visible .portal-user-card-edit {
+    opacity: 1;
+    color: #dbeafe;
+    background: rgba(47, 125, 246, 0.22);
+    border-color: rgba(47, 125, 246, 0.45);
+    box-shadow: 0 0 10px rgba(47, 125, 246, 0.25);
+    transform: translateY(-50%) scale(1.06);
+}
+
+@media (hover: none) {
+    .customer-portal.is-admin .portal-user-card-edit { opacity: 1; }
+}
+
+.customer-portal.is-admin #admin-profile-email {
+    color: var(--crm-muted);
+    cursor: default;
+}
+
+.customer-portal.is-admin .admin-profile-hint {
+    margin: 0.9rem 0 0;
+    color: var(--crm-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 74.99rem) and (min-width: 48.01rem) {
+    .customer-portal.is-admin .portal-user-card {
+        justify-content: center;
+        padding: 0.6rem;
+        margin-inline: 0.5rem;
+        width: calc(100% - 1rem);
+    }
+    .customer-portal.is-admin .portal-user-card-edit {
+        display: none;
+    }
+    .customer-portal.is-admin .portal-user-card-details,
+    .customer-portal.is-admin .portal-user-card > div:last-child {
+        display: none;
+    }
+}
+
+/* ── Foto de perfil en el diálogo ────────────────────────────────────────── */
+
+.customer-portal.is-admin .admin-profile-photo {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 1.1rem;
+}
+
+.customer-portal.is-admin .admin-profile-preview {
+    display: grid;
+    overflow: hidden;
+    width: 4.5rem;
+    height: 4.5rem;
+    place-items: center;
+    padding: 2px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 750;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.35) 0%, rgba(47, 125, 246, 0.6) 50%, rgba(255, 255, 255, 0.1) 100%);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45), 0 0 14px rgba(47, 125, 246, 0.25);
+    border: none;
+}
+
+.customer-portal.is-admin .admin-profile-preview img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #0d131d;
+}
+
+.customer-portal.is-admin .admin-profile-preview.has-photo {
+    background: #0d131d;
+}
+
+.customer-portal.is-admin .admin-profile-preview:not(.has-photo) {
+    background: linear-gradient(145deg, #1e3a8a, #0b1222);
+    border: 1px solid rgba(47, 125, 246, 0.4);
+}
+
+.customer-portal.is-admin .admin-profile-photo-copy {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .admin-profile-photo-copy small {
+    color: var(--crm-muted);
+    font-size: 0.72rem;
+}
+
+.customer-portal.is-admin .admin-profile-photo-actions {
+    display: flex;
+    gap: 0.9rem;
+    align-items: center;
+    margin-top: 0.35rem;
+}
+
+/* El input real está oculto; su <label> es el control visible. */
+.customer-portal.is-admin .admin-profile-photo-actions label {
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .admin-profile-photo-actions
+    label:focus-within span {
+    outline: 2px solid #6f9ff3;
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
+.customer-portal.is-admin #admin-profile-photo-remove {
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin #admin-profile-photo-remove:hover {
+    color: #f16e75;
+}
+
+.customer-portal.is-admin .admin-profile-upload {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.customer-portal.is-admin .admin-profile-upload > div {
+    overflow: hidden;
+    height: 0.3rem;
+    border-radius: 999px;
+    background: var(--crm-line);
+}
+
+.customer-portal.is-admin .admin-profile-upload span {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--crm-blue);
+    transition: width 0.2s ease;
+}
+
+.customer-portal.is-admin .admin-profile-upload small {
+    color: var(--crm-muted);
+    font-size: 0.72rem;
 }

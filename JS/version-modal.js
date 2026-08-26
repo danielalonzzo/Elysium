@@ -1,7 +1,7 @@
 /**
  * ══════════════════════════════════════════════════════════════════════════════
  *  Elysium λ — System Info Modal
- *  version-modal.js  |  v1.8.0
+ *  version-modal.js  |  elysiumOS 1.8.1
  *
  *  Design: Matches pmorais.pt reference — clean light modal, row-divider
  *  layout, amber accent links, sectioned with small-caps labels.
@@ -15,7 +15,8 @@
     'use strict';
 
     // ── Configuration ─────────────────────────────────────────────────────────
-    var APP_VERSION       = 'V1.8.0';
+    var APP_VERSION       = 'elysiumOS 1.8.1';
+    var APP_VERSION_HTML  = 'elysiumOS 1<span class="ely-ver-sub">.8.1</span>';
     var MODAL_ID          = 'elysium-system-info-modal';
     var VERSION_TAG_CLASS = 'elysium-version-tag';
     var ACCENT            = '#2997ff';   // Elysium brand electric blue
@@ -175,9 +176,12 @@
     function getBuildDate() {
         var d = new Date(document.lastModified);
         if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            var yyyy = d.getFullYear();
+            var mm   = String(d.getMonth() + 1).padStart(2, '0');
+            var dd   = String(d.getDate()).padStart(2, '0');
+            return dd + '-' + mm + '-' + yyyy;
         }
-        return '2026-07';
+        return '26-08-2026';
     }
 
     // ── Resolve links from the site root ─────────────────────────────────────
@@ -199,17 +203,23 @@
         var css = [
             /* Version tag in footer */
             '.' + VERSION_TAG_CLASS + '{',
-            '  display:inline-flex; align-items:center; justify-content:center;',
+            '  display:inline-flex; align-items:baseline; justify-content:center;',
             '  margin-top:12px; padding:4px 10px;',
             '  font-size:.65rem; font-family:"SF Mono","Fira Code","Courier New",monospace;',
             '  color:#A0A5B5; background:rgba(255, 255, 255, 0.03);',
             '  border:1px solid rgba(255, 255, 255, 0.06); border-radius:9999px;',
             '  cursor:pointer; text-decoration:none;',
             '  transition:all .2s ease; letter-spacing:.05em;',
+            '  line-height:1.4;',
             '}',
             '.' + VERSION_TAG_CLASS + ':hover{',
             '  background:rgba(41, 151, 255, 0.1); color:#E1E1E5;',
             '  border-color:rgba(41, 151, 255, 0.3);',
+            '}',
+            '.' + VERSION_TAG_CLASS + ' .ely-ver-sub, .ely-row-value .ely-ver-sub{',
+            '  display:inline;',
+            '  vertical-align:baseline;',
+            '  font-size:.78em; opacity:.85; letter-spacing:0;',
             '}',
 
             /* Backdrop */
@@ -418,7 +428,7 @@
             // Header
             + '<div class="ely-sysinfo-head">'
             +   '<div class="ely-brand-symbol">\u03bb</div>'
-            +   '<h2>ELYSIUM</h2>'
+            +   '<h2>elysiumOS</h2>'
             +   '<div class="ely-subtitle">' + t.subtitle + '</div>'
             + '</div>'
 
@@ -431,8 +441,8 @@
             +   '<div class="ely-row">'
             +     '<span class="ely-row-label">' + t.labelVersion + '</span>'
             +     '<span class="ely-row-value">'
-            +       APP_VERSION
-            +       '&nbsp;<button class="ely-update-btn" id="ely-update-btn">' + t.btnUpdate + '</button>'
+            +       '<span>' + APP_VERSION_HTML + '</span>'
+            +       '<button class="ely-update-btn" id="ely-update-btn">' + t.btnUpdate + '</button>'
             +     '</span>'
             +   '</div>'
             +   row(t.labelBuild, build)
@@ -817,7 +827,7 @@
 
         var tag = document.createElement('span');
         tag.className = VERSION_TAG_CLASS;
-        tag.textContent = APP_VERSION.toLowerCase();
+        tag.innerHTML = APP_VERSION_HTML;
         tag.title = locale === 'pt' ? 'Ver informa\u00e7\u00e3o do sistema'
                   : locale === 'es' ? 'Ver informaci\u00f3n del sistema'
                   : 'View system information';
