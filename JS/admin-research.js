@@ -460,6 +460,52 @@ async function loadResearch({ force = false, preserveNotebookId = '' } = {}) {
     return _loadPromise;
 }
 
+/**
+ * Barra de herramientas del editor. Sus botones son símbolos —«B», «↶», «</>»—,
+ * así que lo único que dice qué hacen es el `title` y el nombre accesible: en
+ * inglés, un lector de pantalla en español leía «Bold» sobre una «B».
+ */
+function applyEditorCopy(text) {
+    const toolbar = document.getElementById('research-editor-toolbar');
+    if (toolbar) toolbar.setAttribute('aria-label', text.toolbarAria);
+
+    const block = document.getElementById('research-editor-block');
+    if (block) {
+        block.title = text.textStyle;
+        block.setAttribute('aria-label', text.textStyle);
+        const blockNames = { p: text.blockParagraph, h2: text.blockH2, h3: text.blockH3, h4: text.blockH4 };
+        for (const option of block.options) {
+            if (blockNames[option.value]) option.textContent = blockNames[option.value];
+        }
+    }
+
+    // [selector, ayuda emergente, texto del botón (si lo lleva)]
+    const buttons = [
+        ['[data-editor-command="bold"]', text.bold, null],
+        ['[data-editor-command="italic"]', text.italic, null],
+        ['[data-editor-command="insertUnorderedList"]', text.bulletList, text.bulletListShort],
+        ['[data-editor-command="insertOrderedList"]', text.numberedList, text.numberedListShort],
+        ['[data-editor-block-command="blockquote"]', text.quote, text.quoteShort],
+        ['[data-editor-block-command="pre"]', text.codeBlock, text.codeBlockShort],
+        ['#research-editor-inline-code', text.inlineCode, null],
+        ['[data-editor-command="undo"]', text.undo, null],
+        ['[data-editor-command="redo"]', text.redo, null]
+    ];
+    for (const [selector, tooltip, label] of buttons) {
+        const button = document.querySelector(`#research-editor-toolbar ${selector}`);
+        if (!button) continue;
+        button.title = tooltip;
+        button.setAttribute('aria-label', tooltip);
+        if (label) button.textContent = label;
+    }
+
+    const editor = document.getElementById('research-article-editor');
+    if (editor) {
+        editor.setAttribute('aria-label', text.editorAria);
+        editor.dataset.placeholder = text.editorPlaceholder;
+    }
+}
+
 function applyCopy() {
     const text = copy();
     const values = {
@@ -490,12 +536,30 @@ function applyCopy() {
         'research-article-draft': text.saveDraft,
         'research-article-publish': text.publish,
         'research-copy-html': text.copyHtml,
-        'research-copy-markdown': text.copyMarkdown
+        'research-copy-markdown': text.copyMarkdown,
+        'research-notebook-dialog-eyebrow': text.dialogEyebrow,
+        'research-editor-block-label': text.textStyle
     };
     for (const [id, value] of Object.entries(values)) {
         const element = document.getElementById(id);
         if (element) element.textContent = value;
     }
+
+    // Los ejemplos de los campos. Van aparte porque son `placeholder`, no
+    // texto: se quedaban en inglés aunque su etiqueta ya cambiara de idioma.
+    const placeholders = {
+        'research-notebook-title': text.notebookTitlePlaceholder,
+        'research-notebook-description-input': text.notebookDescriptionPlaceholder,
+        'research-article-title': text.articleTitlePlaceholder,
+        'research-article-slug': text.articleSlugPlaceholder,
+        'research-article-excerpt': text.articleExcerptPlaceholder
+    };
+    for (const [id, value] of Object.entries(placeholders)) {
+        const element = document.getElementById(id);
+        if (element) element.placeholder = value;
+    }
+
+    applyEditorCopy(text);
     setSyncState('ready');
     renderNotebooks();
     if (_activeNotebook) openNotebook(_activeNotebook.id);
@@ -1062,9 +1126,12 @@ function bindResearchUi() {
     document.getElementById('nav-research').addEventListener('click', () => {
         queueMicrotask(() => loadResearch({ force: Date.now() - _lastLoadedAt >= RESEARCH_REFRESH_MS }));
     });
-    document.querySelectorAll('.admin-lang-switch .lang-select').forEach(button => {
-        button.addEventListener('click', () => queueMicrotask(applyCopy));
-    });
+    // `admin.js` avisa cada vez que fija el idioma, y no sólo al pulsar el
+    // conmutador: el idioma real se decide al arrancar (por dominio nacional,
+    // por `?lang=` o por lo guardado) y llega **después** de este módulo. Con
+    // sólo el clic, Research abría siempre en el inglés del `<html lang="en">`
+    // aunque el resto del panel estuviera en español.
+    document.addEventListener('elysium:language', () => queueMicrotask(applyCopy));
     bindEditor();
 }
 

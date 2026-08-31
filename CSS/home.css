@@ -1,6 +1,137 @@
 /* Home-only styles. Keeping these rules out of pages.css avoids shipping the
    admin, profile, case-study, and form styles to the landing page. */
 
+/* The landing pages render these controls above the fold. Keep their minimal
+   component styles in the home bundle so components.css is not required on
+   the critical rendering path. */
+.nav-brand-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.region-switcher-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.region-switcher-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.55rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm, 4px);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-family: var(--font-heading, inherit);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.region-switcher-trigger:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-platinum, #fff);
+    box-shadow: inset 0 0 0 1px rgba(41, 151, 255, 0.4),
+        0 0 10px rgba(41, 151, 255, 0.15);
+}
+
+.region-switcher-trigger .region-arrow {
+    font-size: 0.5rem;
+    opacity: 0.7;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.region-switcher-dropdown.is-open .region-switcher-trigger .region-arrow {
+    transform: rotate(180deg);
+}
+
+.region-switcher-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    min-width: 8.5rem;
+    padding: 0.4rem 0;
+    background: rgba(8, 14, 28, 0.95);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm, 6px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(41, 151, 255, 0.08);
+    z-index: 1002;
+    display: none;
+}
+
+.region-switcher-dropdown.is-open .region-switcher-menu {
+    display: block;
+}
+
+.region-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary, #a0a5b5);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+}
+
+.region-item:hover {
+    background: rgba(41, 151, 255, 0.1);
+    color: #fff;
+}
+
+.region-item.active {
+    color: var(--color-accent, #2997ff);
+    font-weight: 700;
+}
+
+.region-indicator {
+    font-size: 0.6rem;
+    color: var(--color-accent, #2997ff);
+}
+
+.lang-switcher-menu .lang-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    background: transparent;
+    border: 0;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s, color 0.15s;
+}
+
+.lang-switcher-menu .lang-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-primary);
+}
+
+.flag-icon {
+    width: 1.2em;
+    height: auto;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 .timeline-section {
     padding-top: calc(var(--header-height) + 60px);
     padding-bottom: 6rem;
@@ -106,9 +237,22 @@
     height: 16px;
     border-radius: 50%;
     background: var(--color-bg-primary);
-    border: 3px solid rgba(255, 255, 255, 0.3);
+    border: 0;
+    box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.3);
     z-index: 2;
-    transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+}
+
+.timeline-section .timeline-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--color-accent);
+    box-shadow: inset 0 0 0 3px #fff, 0 0 15px var(--color-accent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    will-change: opacity;
 }
 
 .timeline-section .timeline-item.left .timeline-dot {
@@ -119,10 +263,8 @@
     left: -8px;
 }
 
-.timeline-section .timeline-item.is-visible .timeline-dot {
-    background: var(--color-accent);
-    border-color: #fff;
-    box-shadow: 0 0 15px var(--color-accent);
+.timeline-section .timeline-item.is-visible .timeline-dot::after {
+    opacity: 1;
 }
 
 .timeline-section .timeline-content {
@@ -139,13 +281,29 @@
     border-radius: 20px;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+    transition: transform 0.4s ease;
+}
+
+.timeline-section .timeline-content::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.222222);
+    border-radius: inherit;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    will-change: opacity;
 }
 
 .timeline-section .timeline-content:hover {
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.timeline-section .timeline-content:hover::before {
+    opacity: 1;
 }
 
 .timeline-section .step-number {
@@ -201,12 +359,28 @@
 
 .developer-card-link {
     display: block;
+    position: relative;
+    isolation: isolate;
     text-decoration: none;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease,
-        background-color 0.4s ease, border-color 0.4s ease;
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.developer-card-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.176471);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    will-change: opacity;
 }
 
 .developer-card-link .developer-card-content {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -293,8 +467,11 @@
 .developer-card-link:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-    border-color: rgba(255, 255, 255, 0.3);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+}
+
+.developer-card-link:hover::after {
+    opacity: 1;
 }
 
 .developer-card-link:hover .developer-link-indicator .arrow {

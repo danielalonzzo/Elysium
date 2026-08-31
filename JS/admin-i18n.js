@@ -43,7 +43,7 @@ export const ADMIN_COPY = {
             mail: 'Mail',
             reports: 'Reports',
             licenses: 'Licenses',
-            prototypes: 'Prototypes',
+            prototypes: 'Secrets Prototypes',
             research: 'Research'
         },
         platform: {
@@ -230,6 +230,7 @@ export const ADMIN_COPY = {
             ownerTeam: 'Elysium team',
             ownerUnassigned: 'Unassigned',
             unnamedContact: 'Unnamed contact',
+            notFound: 'Contact not found.',
             sourceClientPortal: 'Client portal',
             sourceProjectRequest: 'Project request',
             sourceWebsiteInquiry: 'Website inquiry',
@@ -382,10 +383,10 @@ export const ADMIN_COPY = {
             team: 'Elysium team'
         },
         prototypes: {
-            title: 'Prototypes',
+            title: 'Secrets Prototypes',
             desc: 'Exclusive internal concepts, client prototypes and interactive demos.',
             adminOnly: 'Admin only access',
-            searchPlaceholder: 'Search prototypes…',
+            searchPlaceholder: 'Search secrets prototypes…',
             filterAll: 'All',
             filterHealth: 'Health',
             filterTech: 'Tech',
@@ -561,7 +562,7 @@ export const ADMIN_COPY = {
             mail: 'Correo',
             reports: 'Reportes',
             licenses: 'Licencias',
-            prototypes: 'Prototipos',
+            prototypes: 'Prototipos Secretos',
             research: 'Research'
         },
         platform: {
@@ -748,6 +749,7 @@ export const ADMIN_COPY = {
             ownerTeam: 'Equipo Elysium',
             ownerUnassigned: 'Sin asignar',
             unnamedContact: 'Contacto sin nombre',
+            notFound: 'No se encuentra ese contacto.',
             sourceClientPortal: 'Portal de cliente',
             sourceProjectRequest: 'Solicitud de proyecto',
             sourceWebsiteInquiry: 'Consulta desde la web',
@@ -900,10 +902,10 @@ export const ADMIN_COPY = {
             team: 'Equipo Elysium'
         },
         prototypes: {
-            title: 'Prototipos',
+            title: 'Prototipos Secretos',
             desc: 'Conceptos internos exclusivos, prototipos de cliente y demos interactivas.',
             adminOnly: 'Acceso solo para administradores',
-            searchPlaceholder: 'Buscar prototipos…',
+            searchPlaceholder: 'Buscar prototipos secretos…',
             filterAll: 'Todos',
             filterHealth: 'Salud',
             filterTech: 'Tecnología',
@@ -1079,7 +1081,7 @@ export const ADMIN_COPY = {
             mail: 'Correio',
             reports: 'Relatórios',
             licenses: 'Licenças',
-            prototypes: 'Protótipos',
+            prototypes: 'Protótipos Secretos',
             research: 'Research'
         },
         platform: {
@@ -1266,6 +1268,7 @@ export const ADMIN_COPY = {
             ownerTeam: 'Equipa Elysium',
             ownerUnassigned: 'Sem atribuição',
             unnamedContact: 'Contacto sem nome',
+            notFound: 'Não se encontra esse contacto.',
             sourceClientPortal: 'Portal do cliente',
             sourceProjectRequest: 'Pedido de projeto',
             sourceWebsiteInquiry: 'Consulta pelo site',
@@ -1418,10 +1421,10 @@ export const ADMIN_COPY = {
             team: 'Equipa Elysium'
         },
         prototypes: {
-            title: 'Protótipos',
+            title: 'Protótipos Secretos',
             desc: 'Conceitos internos exclusivos, protótipos de cliente e demos interativas.',
             adminOnly: 'Acesso só para administradores',
-            searchPlaceholder: 'Pesquisar protótipos…',
+            searchPlaceholder: 'Pesquisar protótipos secretos…',
             filterAll: 'Todos',
             filterHealth: 'Saúde',
             filterTech: 'Tecnologia',

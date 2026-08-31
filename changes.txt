@@ -320,3 +320,11 @@
   * Botón de edición (.portal-user-card-edit) rediseñado como una micro-acción de cristal esmerilado que se ilumina con un halo azul cian y micro-elevación al interactuar.
   * Sincronización del marco circular de alta gama en la vista previa del diálogo de edición de perfil (#admin-profile-preview).
   * Corrección de sintaxis CSS y actualización del cache buster a CSS/admin-portal.css?v=2026082612.
+
+=== CHAT ID: 7911353a-6941-47ce-b49b-39b67247b3ab - Actualización de versión de footer y sistema a elysiumOS 1.8.2 y despliegue a producción ===
+- Actualización de versión en JS/version-modal.js a "elysiumOS 1.8.2" y `elysiumOS 1<span class="ely-ver-sub">.8.2</span>`.
+- Actualización de documentación de modelos de lenguaje llms.txt y llms-full.txt (raíz, España y Portugal, incluyendo _national/) a elysiumOS 1.8.2.
+- Actualización de meta tags de versión a v1.8.2-build.1 en páginas de ONCORE (raíz y /en).
+- Actualización de versión en Prototipos (Demo-arbol y Selva y Sal) a V1.8.2.
+- Recompilación y sincronización estática de Demo-arbol/ mediante scripts/publish-demo-arbol.sh.
+- Despliegue integral a producción: Backend en Cloud Run (elysium-billing), Firebase (Firestore rules & indexes, Storage rules), GitHub (main) y Cloudflare Workers Static Assets.

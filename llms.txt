@@ -59,7 +59,7 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 
 - [Privacy policy](https://elysiumdr.eu/privacy) · [Política de Privacidad](https://elysiumdr.eu/es/privacy) · [Política de Privacidade](https://elysiumdr.eu/pt/privacy): Thirteen sections covering data collected, health data under Art. 9 GDPR, legal bases, retention and automated purging, rights, processors, international transfers, technical security measures, inherited Google Cloud certifications, cookies, and supervisory authorities (CNPD and PRODHAB).
 - [Terms and conditions](https://elysiumdr.eu/terms) · [Términos de Servicio](https://elysiumdr.eu/es/terms) · [Termos de Serviço](https://elysiumdr.eu/pt/terms): Eleven sections. The right of withdrawal is localised per market: the English and Portuguese versions apply Directive 2011/83/EU with 14 days (the Portuguese one also citing Decreto-Lei n.º 24/2014); the Spanish version applies Costa Rica's Law No. 7472 with 8 working days.
-- **System Information**: interface version elysiumOS 1.8.1, product licence, security infrastructure and software attributions, available in the footer modal on every page and in `llms-full.txt`.
+- **System Information**: interface version elysiumOS 1.8.2, product licence, security infrastructure and software attributions, available in the footer modal on every page and in `llms-full.txt`.
 
 ## Case studies & technical
 

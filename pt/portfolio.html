@@ -55,7 +55,7 @@
         href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="../CSS/base.css">
-    <link rel="stylesheet" href="../CSS/components.css">
+    <link rel="stylesheet" href="../CSS/components.css?v=20260826">
     <link rel="stylesheet" href="../CSS/pages.css">
 
     <!-- Favicon -->
@@ -161,17 +161,15 @@
                     <div class="ios-segmented-control" id="ios-segmented-control">
                         <div class="ios-segment-slider" id="ios-segment-slider"></div>
                         <button class="ios-segment active" data-filter="all">Todos</button>
-                        <button class="ios-segment" data-filter="health">Saúde</button>
-                        <button class="ios-segment" data-filter="tech">Tech</button>
-                        <button class="ios-segment" data-filter="food">Gastro</button>
-                        <button class="ios-segment" data-filter="retail">Loja</button>
+                        <button class="ios-segment" data-filter="live">Projetos ao vivo</button>
+                        <button class="ios-segment" data-filter="prototype">Protótipos</button>
                     </div>
                 </div>
             </div>
 
             <div class="project-grid-preview" id="portfolio-grid">
                 <!-- Project: pmorais.pt -->
-                <div class="project-card animate-on-scroll" data-category="health">
+                <div class="project-card animate-on-scroll" data-category="live">
                     <a href="https://pmorais.pt" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="https://pmorais.pt" loading="lazy"></iframe>
@@ -193,10 +191,31 @@
                     </div>
                 </div>
 
-                
+                <!-- Project: Pura Vida Pets -->
+                <div class="project-card animate-on-scroll delay-1" data-category="live">
+                    <a href="https://puravidapetscr.com" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                        <div class="project-image browser-mockup">
+                            <iframe src="https://puravidapetscr.com" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="../Images/Portfolio/puravidapetscr.jpg" alt="Pré-visualização Pura Vida Pets"
+                                loading="lazy">
+                        </div>
+                        <div class="project-overlay">
+                            <span>Visitar Pura Vida Pets</span>
+                        </div>
+                    </a>
+                    <div class="project-info">
+                        <h3>Pura Vida Pets <span class="project-location">COSTA RICA</span></h3>
+                        <p>Aventuras únicas para animais de estimação. Cuidados e passeios premium.</p>
+                        <div class="project-tags">
+                            <span>História</span>
+                            <a href="https://puravidapetscr.com" target="_blank">Website</a>
+                            <span>Resenha</span>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Project: VALTRIX -->
-                <div class="project-card animate-on-scroll" data-category="tech">
+                <div class="project-card animate-on-scroll" data-category="live">
                     <a href="../VALTRIX%20Engineering/" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="../VALTRIX%20Engineering/" loading="lazy"></iframe>
@@ -219,8 +238,7 @@
                 </div>
 
                 <!-- Project: Moyra -->
-                <!-- Project: Moyra -->
-                <div class="project-card animate-on-scroll delay-1" data-category="food">
+                <div class="project-card animate-on-scroll delay-1" data-category="live">
                     <a href="https://moyracr.com" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
                             <iframe src="https://moyracr.com" loading="lazy"></iframe>
@@ -242,34 +260,49 @@
                     </div>
                 </div>
 
-                
-
-                <!-- Project: Pura Vida Pets -->
-                <div class="project-card animate-on-scroll delay-1" data-category="health">
-                    <a href="https://puravidapetscr.com" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                <!-- Project: Selva y Sal -->
+                <div class="project-card animate-on-scroll delay-2" data-category="prototype">
+                    <a href="/selva-y-sal" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
                         <div class="project-image browser-mockup">
-                            <iframe src="https://puravidapetscr.com" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="../Images/Portfolio/puravidapetscr.jpg" alt="Pré-visualização Pura Vida Pets"
-                                loading="lazy">
+                            <iframe src="/selva-y-sal" loading="lazy"></iframe>
+                            <img class="mobile-preview" src="../Images/Portfolio/selva-y-sal.jpg" alt="Pré-visualização de Selva y Sal" loading="lazy">
                         </div>
                         <div class="project-overlay">
-                            <span>Visitar Pura Vida Pets</span>
+                            <span>Ver demo da Selva y Sal</span>
                         </div>
                     </a>
                     <div class="project-info">
-                        <h3>Pura Vida Pets <span class="project-location">COSTA RICA</span></h3>
-                        <p>Aventuras únicas para animais de estimação. Cuidados e passeios premium.</p>
+                        <h3>Selva y Sal <span class="project-location">DEMO · COSTA RICA</span></h3>
+                        <p>Demo de e-commerce com marca fictícia: estética Liquid Glass, catálogo interativo, narrativa imersiva com cena 3D e checkout otimizado.</p>
                         <div class="project-tags">
                             <span>História</span>
-                            <a href="https://puravidapetscr.com" target="_blank">Website</a>
+                            <a href="/selva-y-sal" target="_blank">Protótipo</a>
                             <span>Resenha</span>
                         </div>
                     </div>
                 </div>
 
-                
+                <!-- Project: Demo-arbol -->
+                <div class="project-card animate-on-scroll delay-2" data-category="prototype">
+                    <a href="/Demo-arbol/" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
+                        <div class="project-image browser-mockup">
+                            <iframe src="/Demo-arbol/" loading="lazy"></iframe>
+                        </div>
+                        <div class="project-overlay">
+                            <span>Ver Demo-arbol</span>
+                        </div>
+                    </a>
+                    <div class="project-info">
+                        <h3>Demo-arbol <span class="project-location">DEMO</span></h3>
+                        <p>Demo de demonstração livre: scroll 3D cinematográfico, loja, cabeçalho e dock prontos a adaptar à marca de um cliente.</p>
+                        <div class="project-tags">
+                            <span>História</span>
+                            <a href="/Demo-arbol/" target="_blank">Protótipo</a>
+                            <span>Resenha</span>
+                        </div>
+                    </div>
+                </div>
 
-                
             </div>
         </div>
     </section>

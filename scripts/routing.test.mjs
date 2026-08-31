@@ -640,7 +640,40 @@ test('/api/ no lo toca la localización: llega al backend desde cualquier domini
     }
 });
 
-// ── www ──────────────────────────────────────────────────────────────────────
+// ── Desafío OAuth de la API ─────────────────────────────────────────────────────
+
+test('los 401 de /api anuncian los metadatos OAuth del host público', async t => {
+    t.mock.method(globalThis, 'fetch', async () => new Response('Authentication required.', {
+        status: 401
+    }));
+
+    for (const host of ['elysiumdr.eu', 'elysiumdr.es', 'elysiumdr.pt']) {
+        const response = await worker.fetch(new Request(`https://${host}/api/capabilities`), env);
+        assert.equal(response.status, 401, host);
+        assert.equal(
+            response.headers.get('WWW-Authenticate'),
+            `Bearer resource_metadata="https://${host}/.well-known/oauth-protected-resource/api"`,
+            host
+        );
+    }
+});
+
+test('el proxy conserva el WWW-Authenticate que ya trae el upstream', async t => {
+    const upstreamChallenge = 'Bearer realm="elysium", error="invalid_token"';
+    t.mock.method(globalThis, 'fetch', async () => new Response('Invalid token.', {
+        status: 401,
+        headers: { 'WWW-Authenticate': upstreamChallenge }
+    }));
+
+    const response = await worker.fetch(
+        new Request('https://elysiumdr.eu/api/capabilities'),
+        env
+    );
+    assert.equal(response.status, 401);
+    assert.equal(response.headers.get('WWW-Authenticate'), upstreamChallenge);
+});
+
+// ── www ────────────────────────────────────────────────────────────────────────────
 
 test('www — los tres dominios redirigen a su propio ápice', async () => {
     for (const [from, to] of [

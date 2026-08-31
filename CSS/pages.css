@@ -1056,7 +1056,7 @@ a.profile-intro-badge:hover {
     width: 46px;
     height: 46px;
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.05);
+    background: #ffffff;
     border: 1px solid var(--glass-border);
     display: grid;
     place-items: center;
@@ -1071,6 +1071,7 @@ a.profile-intro-badge:hover {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    display: block;
 }
 
 .profile-entry-heading {

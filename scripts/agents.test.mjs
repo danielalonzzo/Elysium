@@ -81,7 +81,17 @@ test('el catálogo de APIs se sirve sin extensión y como linkset', async () => 
     assert.equal(response.headers.get('Access-Control-Allow-Origin'), '*');
     const body = await response.json();
     assert.ok(Array.isArray(body.linkset) && body.linkset.length > 0);
-    assert.equal(body.linkset[0].anchor, 'https://elysiumdr.eu/api');
+    const [api] = body.linkset;
+    assert.equal(api.anchor, 'https://elysiumdr.eu/api');
+    assert.equal(
+        api['service-meta'][0].href,
+        'https://elysiumdr.eu/.well-known/oauth-protected-resource/api'
+    );
+
+    const metadataResponse = await call(api['service-meta'][0].href);
+    assert.equal(metadataResponse.status, 200);
+    const metadata = await metadataResponse.json();
+    assert.equal(metadata.resource, api.anchor);
 });
 
 test('el manifiesto ARD lleva CORS abierto, como exige la especificación', async () => {
@@ -93,6 +103,21 @@ test('el manifiesto ARD lleva CORS abierto, como exige la especificación', asyn
     assert.ok(body.entries.every(entry => ('url' in entry) !== ('data' in entry)));
     assert.ok(body.entries.every(entry => entry.representativeQueries.length >= 2
         && entry.representativeQueries.length <= 5));
+    const authentication = body.entries.find(
+        entry => entry.identifier === 'urn:air:elysiumdr.eu:auth:protected-resource'
+    );
+    assert.equal(
+        authentication?.url,
+        'https://elysiumdr.eu/.well-known/oauth-protected-resource/api'
+    );
+});
+
+test('OpenAPI enlaza la documentación de autenticación de forma estructurada', async () => {
+    const response = await call('https://elysiumdr.eu/openapi.json');
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('Content-Type'), 'application/openapi+json');
+    const body = await response.json();
+    assert.equal(body.externalDocs?.url, 'https://elysiumdr.eu/auth.md');
 });
 
 /**
@@ -163,8 +188,12 @@ test('auth.md se anuncia como Auth.md en su encabezado', async () => {
     const response = await call('https://elysiumdr.eu/auth.md');
     assert.equal(response.status, 200);
     assert.match(response.headers.get('Content-Type'), /^text\/markdown/);
-    const heading = (await response.text()).split('\n').find(line => line.startsWith('# '));
+    const text = await response.text();
+    const heading = text.split('\n').find(line => line.startsWith('# '));
     assert.match(heading, /auth\.md/i);
+    assert.ok(text.includes(
+        'https://elysiumdr.eu/.well-known/oauth-protected-resource/api'
+    ));
 });
 
 test('los SKILL.md se sirven como Markdown, y su digest coincide con el índice', async () => {

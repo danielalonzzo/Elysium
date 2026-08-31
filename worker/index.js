@@ -1071,6 +1071,14 @@ export default {
             // Una respuesta de API nunca debe quedarse en caché por delante.
             const headers = new Headers(response.headers);
             if (!headers.has('Cache-Control')) headers.set('Cache-Control', 'no-store');
+            // RFC 9728 permite que el recurso anuncie sus metadatos desde el
+            // desafío Bearer. El backend no conoce necesariamente el host
+            // público que usó el cliente, pero el Worker sí; conserva cualquier
+            // desafío más específico que ya haya enviado el upstream.
+            if (response.status === 401 && !headers.has('WWW-Authenticate')) {
+                const resourceMetadata = `${publicOrigin(url)}${PROTECTED_RESOURCE_METADATA_PATH}/api`;
+                headers.set('WWW-Authenticate', `Bearer resource_metadata="${resourceMetadata}"`);
+            }
             return new Response(response.body, {
                 status: response.status,
                 statusText: response.statusText,

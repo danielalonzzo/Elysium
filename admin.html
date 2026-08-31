@@ -20,7 +20,7 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="CSS/base.css">
-    <link rel="stylesheet" href="CSS/components.css">
+    <link rel="stylesheet" href="CSS/components.css?v=20260826">
     <link rel="stylesheet" href="CSS/pages.css">
     <!-- The admin CRM shares the customer portal's design system: the shell,
          cards, tables, buttons and chips all come from this stylesheet. -->
@@ -162,7 +162,7 @@
                     <polyline points="2 17 12 22 22 17"/>
                     <polyline points="2 12 12 17 22 12"/>
                 </svg>
-                <span class="portal-nav-text" data-i18n="nav.prototypes">Prototypes</span>
+                <span class="portal-nav-text" data-i18n="nav.prototypes">Secrets Prototypes</span>
             </button>
 
             <button type="button" class="portal-nav-item" data-target="research" id="nav-research">
@@ -782,7 +782,7 @@
         <section id="prototypes" class="portal-section">
             <div class="portal-header" style="margin-bottom: 1.5rem;">
                 <div>
-                    <h1 id="prototypes-title" data-i18n="prototypes.title">Prototypes</h1>
+                    <h1 id="prototypes-title" data-i18n="prototypes.title">Secrets Prototypes</h1>
                     <p class="color-text-secondary" id="prototypes-desc" data-i18n="prototypes.desc">Exclusive internal concepts, client prototypes and interactive demos.</p>
                 </div>
                 <span class="portal-status" data-i18n="prototypes.adminOnly">Admin only access</span>
@@ -834,30 +834,6 @@
                     </div>
                 </div>
 
-                <!-- Project: Selva y Sal (marca ficticia de demostración) -->
-                <div class="project-card" data-category="retail">
-                    <a href="/selva-y-sal" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
-                        <div class="project-image browser-mockup">
-                            <iframe src="/selva-y-sal" loading="lazy"></iframe>
-                            <img class="mobile-preview" src="Images/Portfolio/selva-y-sal.jpg" data-i18n-alt="prototypes.selvaAlt" alt="Selva y Sal preview" loading="lazy">
-                        </div>
-                        <div class="project-overlay">
-                            <span data-i18n="prototypes.selvaOverlay">View the Selva y Sal demo (v1.0.0 Beta)</span>
-                        </div>
-                    </a>
-                    <div class="project-info">
-                        <h3 translate="no">Selva y Sal <span class="project-location">DEMO · COSTA RICA</span></h3>
-                        <p data-i18n="prototypes.selvaDesc">E-commerce demo with a fictional brand: Liquid Glass aesthetics, interactive catalogue, immersive 3D narrative and an optimised checkout.</p>
-                        <div class="project-tags">
-                            <a href="/selva-y-sal" target="_blank" data-i18n="prototypes.selvaDemo">View demo</a>
-                            <span translate="no">Liquid Glass</span>
-                            <span translate="no">v1.0.0 Beta</span>
-                        </div>
-                    </div>
-                </div>
-
-                
-
                 <!-- Project: Dr. Johnny Piedra -->
                 <div class="project-card" data-category="health">
                     <a href="Dr-Johnny-Piedra/" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
@@ -874,29 +850,6 @@
                         <p data-i18n="prototypes.johnnyDesc">Advanced urology and minimally invasive surgery. Specialist medical care in Costa Rica.</p>
                         <div class="project-tags">
                             <a href="Dr-Johnny-Piedra/" target="_blank" data-i18n="prototypes.tagLive">Live prototype</a>
-                            <span data-i18n="prototypes.tagAdmin">Admin prototype</span>
-                        </div>
-                    </div>
-                </div>
-
-
-                
-
-                <!-- Project: Demo-arbol -->
-                <div class="project-card" data-category="retail">
-                    <a href="/Demo-arbol/" target="_blank" class="project-image-wrapper" style="display: block; text-decoration: none; color: inherit;">
-                        <div class="project-image browser-mockup">
-                            <iframe src="/Demo-arbol/" loading="lazy"></iframe>
-                        </div>
-                        <div class="project-overlay">
-                            <span data-i18n="prototypes.arbolOverlay">View Demo-arbol</span>
-                        </div>
-                    </a>
-                    <div class="project-info">
-                        <h3 translate="no">Demo-arbol</h3>
-                        <p data-i18n="prototypes.arbolDesc">Content-free demo: cinematic 3D scroll, store, header and dock ready to take on a client brand.</p>
-                        <div class="project-tags">
-                            <a href="/Demo-arbol/" target="_blank" data-i18n="prototypes.tagLive">Live prototype</a>
                             <span data-i18n="prototypes.tagAdmin">Admin prototype</span>
                         </div>
                     </div>
@@ -1154,8 +1107,8 @@
          Served under /api on this same origin; set window.ELYSIUM_API_URL
          instead if it ever moves to its own host (and add it to connect-src). -->
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
-    <script type="module" src="JS/admin.js?v=2026082611"></script>
-    <script type="module" src="JS/admin-research.js?v=2026082601"></script>
+    <script type="module" src="JS/admin.js?v=2026082612"></script>
+    <script type="module" src="JS/admin-research.js?v=2026082602"></script>
     <script defer src="JS/version-modal.js"></script>
 </body>
 </html>

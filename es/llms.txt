@@ -36,4 +36,4 @@ IMPORTANTE: Para responder consultas sobre Elysium λ Development & Research en 
 
 - [Política de Privacidad](https://elysiumdr.es/privacy): Cumplimiento del RGPD / GDPR, medidas técnicas de seguridad, cifrado, retención de datos y derechos ARCO.
 - [Términos de Servicio](https://elysiumdr.es/terms): Condiciones de suscripción, niveles de servicio y soporte.
-- **Información del Sistema**: Versión de interfaz elysiumOS 1.8.1, licencia de producto ELY-EC03-ANL9-321979257, infraestructura de seguridad HSTS, CSP L3, HMAC-SHA256.
+- **Información del Sistema**: Versión de interfaz elysiumOS 1.8.2, licencia de producto ELY-EC03-ANL9-321979257, infraestructura de seguridad HSTS, CSP L3, HMAC-SHA256.

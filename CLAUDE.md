@@ -82,9 +82,10 @@ Cuatro cosas que hay que saber antes de tocarlo:
 2. **El índice de skills no se escribe a mano.** Publica un `sha256` de cada
    `SKILL.md` que se queda obsoleto al editar una coma, sin que nada avise:
    `node scripts/build-agent-skills-index.mjs` (con `--check` para CI).
-3. **El manifiesto ARD se anuncia por tres sitios a la vez:** el propio
-   `/.well-known/ai-catalog.json`, un `<link rel="ai-catalog">` en las portadas
-   y la línea `Agentmap:` de `robots.txt`. Si cambia de sitio, cambian los tres.
+3. **El manifiesto ARD se anuncia por dos vías activas:** el propio
+   `/.well-known/ai-catalog.json` y un `<link rel="ai-catalog">` en las portadas.
+   `robots.txt` conserva `Agentmap:` solo como comentario porque no es una
+   directiva RFC 9309 y los validadores estrictos la rechazan.
    Y sus entradas se identifican con `identifier`, no con `id`: publicado como
    `id`, el manifiesto entero se da por inválido desde la primera entrada sin
    que nada falle ni se vea.
@@ -213,3 +214,12 @@ Es la causa principal de la confusión al entrar:
   mientras viva aquí. `Selva y Sal/` y `Demo-arbol/` traían uno de antes; se
   retiró y su historial quedó guardado como `.bundle` en `λ/_git-backup/`, fuera
   del repositorio.
+- **En el CRM, todo texto declara quién lo traduce.** `admin.html` se sirve una
+  sola vez y cambia de idioma en el navegador, así que un rótulo nuevo se ve
+  perfecto —en inglés— aunque nadie lo haya traducido: no falla nada. Por eso
+  cada texto visible lleva `data-i18n="clave"` (lo escribe `applyStaticCopy()`
+  desde `JS/admin-i18n.js`), `data-i18n-dynamic="quién"` (lo escribe el JS al
+  pintar su vista) o `translate="no"` (marcas, siglas, ejemplos). Lo vigila
+  `scripts/admin-i18n.test.mjs`, que además compara las claves de los cuatro
+  diccionarios en EN/ES/PT y avisa si una traducción se quedó copiada del
+  inglés.

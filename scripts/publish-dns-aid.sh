@@ -19,7 +19,9 @@
 #
 # `--check` es deliberadamente estricto: no basta con que exista un TYPE64.
 # Comprueba el RDATA exacto y exige AD=true, que demuestra que el resolutor ha
-# validado la cadena DNSSEC hasta la zona padre.
+# validado la cadena DNSSEC hasta la zona padre. Los SVCB, DNSKEY y RRSIG ya
+# están publicados; mientras IONOS no publique los DS, este chequeo termina con
+# error por AD=false. El script no contacta al registrador ni cambia registros DS.
 #
 set -euo pipefail
 
@@ -209,6 +211,6 @@ echo "un NXDOMAIN anterior sigue en caché:"
 echo
 verify || true
 echo
-echo "Este script no activa DNSSEC: se habilita en DNS → Settings → DNSSEC"
-echo "(o con la API de DNSSEC de Cloudflare) y el DS hay que darlo de alta en el"
-echo "registrador de cada dominio. Los pasos están en scripts/dns-aid.md."
+echo "DNSSEC ya está activado en Cloudflare y los RRSIG están publicados. Falta"
+echo "dar de alta manualmente en IONOS el DS de cada dominio. Este script no"
+echo "contacta al registrador ni cambia registros DS; ver scripts/dns-aid.md."

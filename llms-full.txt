@@ -2,7 +2,7 @@
 ELYSIUM λ DEVELOPMENT & RESEARCH — FULL SITE CONTENT FOR AI MODELS
 https://elysiumdr.eu | info@elysiumdr.eu
 Last verified against the website: 26 August 2026
-Interface version at time of verification: elysiumOS 1.8.1
+Interface version at time of verification: elysiumOS 1.8.2
 Languages: English · Español · Português
 ================================================================================
 
@@ -390,7 +390,7 @@ URL: https://elysiumdr.eu/daniel-morales
 
 Title: Daniel Morales — Full-Stack & Cloud Developer | Elysium λ
 Full name: Daniel Alonso Morales Ávila
-Role as shown on the profile: Freelance Full-Stack Web Developer
+Role as shown on the profile: Full-Stack Web Developer
 Role in the page metadata: Full-Stack & Cloud Developer
 Role on the homepage and About page: Founder & Computer Science Engineer
 Nationality: Costa Rican | Residence and work permit: Portugal
@@ -411,7 +411,7 @@ user.
 
 WORK EXPERIENCE:
 
-1. Freelance Full-Stack Web Developer — Elysium λ Development & Research
+1. Full-Stack Web Developer — Elysium λ Development & Research
    Sep 2025 – Present | Portugal | Remote | Self-employed
    - Full-Stack architecture & development: autonomous design and implementation
      of web applications using React, Next.js 16, Vite and JavaScript (ES6+),
@@ -442,7 +442,7 @@ WORK EXPERIENCE:
 
 3. Digital Literacy Project (University Community Service Programme) —
    Fundación SIFAIS
-   Jan 2023 – Jul 2023 | Heredia, Costa Rica | On-site | Traineeship contract
+   Feb 2023 – Jul 2023 | Heredia, Costa Rica | On-site | Traineeship contract
    - Led a community digital literacy and inclusion programme in Guararí.
    - Trained over 50 young participants in digital tools (Microsoft 365, Canva)
      and introduced them to Artificial Intelligence.
@@ -450,39 +450,45 @@ WORK EXPERIENCE:
 
 EDUCATION & TRAINING (in the order shown on the page):
 
-1. Universidade Aberta de Portugal — Bachelor's Degree in Applied Languages for
-   European Studies and Geopolitics
+1. The Open European University campus at Universidade Aberta de Portugal — Bachelor's
+   Degree in Applied Languages, European Studies and Globalisation
    Sep 2026 – Aug 2029 | Distance learning, Portugal | EQF level 6
+   Documented: Official Direct Access Admission and Placement List (academic
+   year 2026-27, candidate #5300, page 6).
    Status: course in progress; degree certificate pending.
 
-2. Universidad Latinoamericana de Ciencia y Tecnología (ULACIT) — Bachelor's
+2. Universidade de Bragança e do Norte Interior (IPB) — Erasmus+ in Computer
+   Science Engineering · Web application development & Portuguese culture
+   Sep 2023 – Apr 2024 | Bragança, Portugal | EQF level 6
+   Documented: Acceptance letter for the student incoming mobility programme
+   2023/2024, issued by the International Relations Office of the Instituto
+   Politécnico de Bragança on 26 May 2023.
+
+3. Universidad Latinoamericana de Ciencia y Tecnología (ULACIT) — Bachelor's
    Degree in Computer Science Engineering
    Jan 2020 – Dec 2026 | San José, Costa Rica | EQF level 6 | Grade 73.91/100
    Documented: Certification of completion of the study plan, issued by the
    ULACIT Registry Department on 20 February 2026.
    Status: degree certificate pending — graduation paperwork in progress.
 
-3. Instituto Politécnico de Bragança — Erasmus+ exchange programme, web
-   application development and Portuguese language and culture
-   Sep 2023 – May 2024 | Bragança, Portugal | EQF level 6
-   Status: mobility certificate not yet uploaded.
-
 4. Universidad Nacional de Costa Rica (UNA) — Bachelor's Degree in Business
    Administration and Management
    Jan 2019 – Dec 2021 | Heredia, Costa Rica | EQF level 6
-   Status: INCOMPLETE; diploma level obtained. Document not yet uploaded.
+   Documented: Admission result and eligibility certificate (score 611.73/900)
+   issued by the Universidad Nacional Admission System.
+   Status: INCOMPLETE; foundational coursework completed.
 
 5. Centro Educativo Santa Inés — Costa Rican Upper Secondary Education Diploma
    Feb 2014 – Dec 2018 | Heredia, Costa Rica | Grade 87/100
-   Documented: official diploma issued by the Ministry of Public Education of
-   Costa Rica.
+   Documented: official diploma and academic transcript with national exam
+   grades (GPA 83.7/100) issued by the Ministry of Public Education of Costa Rica.
 
 6. Instituto de Enseñanza General Básica San Francisco de Asís — Primary education
    Feb 2008 – Dec 2013 | Heredia, Costa Rica | Grade 85/100
 
 LICENCES & CERTIFICATIONS:
 - Google Data Analytics Professional Certificate — Google / Coursera.
-  Issued October 2025, no expiry. Credential ID ZI89ORJ94EUY.
+  Issued 26 October 2025, no expiry. Credential ID ZI89ORJ94EUY.
   Eight-course programme covering data collection, cleaning, processing, analysis
   and visualisation, with spreadsheets, SQL, R, Google BigQuery and Tableau.
 - TOEIC® Listening and Reading Test — ETS, TOEIC Program.
@@ -627,7 +633,7 @@ URL: footer modal, available on every page (version-modal.js)
 
 SYSTEM INFORMATION:
 Software Specifications:
-- Interface Version: elysiumOS 1.8.1
+- Interface Version: elysiumOS 1.8.2
 - Product Licence: ELY-EC03-ANL9-321979257
 
 Security & Compliance:
@@ -978,8 +984,8 @@ idiomas y competencias— es el mismo que figura en la versión inglesa de esta
 página. Ver "DANIEL MORALES PAGE" en la Parte 1. Puntos que conviene no
 tergiversar: el título de Ingeniería Informática de ULACIT está en trámite (lo
 acreditado es la certificación de plan de estudios completo, de 20 de febrero de
-2026); la licenciatura de Administración de Empresas de la UNA está incompleta,
-con nivel de diplomado obtenido; y los niveles de idiomas son autoevaluados según
+2026); la carrera de Administración de Empresas de la UNA está incompleta
+(acreditado el comprobante de admisión y promedio); y los niveles de idiomas son autoevaluados según
 el MCER, con producción e interacción oral en B1 tanto en inglés como en
 portugués.
 
@@ -1356,9 +1362,9 @@ O conteúdo integral da ficha — experiência, formação, certificações, idi
 competências — é o mesmo da versão inglesa desta página. Ver "DANIEL MORALES
 PAGE" na Parte 1. Pontos a não deturpar: o grau em Engenharia Informática da
 ULACIT está em processo de emissão (o que está documentado é a certificação de
-conclusão do plano de estudos, de 20 de fevereiro de 2026); a licenciatura em
-Administração de Empresas da UNA está incompleta, com nível de diploma obtido; e
-os níveis de idiomas são autoavaliados segundo o QECR, com produção e interação
+conclusão do plano de estudos, de 20 de fevereiro de 2026); o curso de
+Administração de Empresas da UNA está incompleto (documentado o comprovativo de
+admissão e média); e os níveis de idiomas são autoavaliados segundo o QECR, com produção e interação
 oral em B1 tanto em inglês como em português.
 
 --- CONTACTO ---

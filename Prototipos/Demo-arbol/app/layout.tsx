@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   description: "",
   robots: { index: false, follow: false, nocache: true },
-  other: { "app-version": "V1.8.0" },
+  other: { "app-version": "V1.8.2" },
 };
 
 export const viewport: Viewport = {
@@ -36,7 +36,6 @@ import { SiteHeader } from "./components/site/SiteHeader";
 import { SiteFooter } from "./components/site/SiteFooter";
 import { MagicBottom } from "./components/site/MagicBottom";
 import { BrowserChrome } from "./components/site/BrowserChrome";
-import ElysiumPrototypePopup from "./components/site/ElysiumPrototypePopup";
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -61,7 +60,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {children}
         <SiteFooter />
         <MagicBottom />
-        <ElysiumPrototypePopup />
         <Script src="/js/site-features.js?v=1.0.1" strategy="afterInteractive" />
         <Script src="/elysium-core/elysium-system-info.js" strategy="afterInteractive" />
       </body>

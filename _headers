@@ -95,6 +95,20 @@
 /JS/home.v20260824.min.js
   Cache-Control: public, max-age=31536000, immutable
 
+/CSS/home.v20260826.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/CSS/home-critical.v20260826.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/JS/home.v20260826.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# components.css is requested with a versioned query string by every interior
+# page, so it can share the immutable policy used by the dated home bundles.
+/CSS/components.css
+  Cache-Control: public, max-age=31536000, immutable
+
 # El motor de traducción nacional y el controlador compartido conservan
 # nombres estables en las páginas interiores; deben revalidarse en cada visita
 # para no emparejar HTML nuevo con reglas antiguas de idioma/región.
@@ -124,12 +138,11 @@
 /JS/elysium-domain.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
-# Las herramientas WebMCP que declara la portada. No lleva nombre versionado
-# porque no forma pareja con ninguna hoja ni con ningún otro script: se puede
-# cambiar sola. Una hora de caché basta para que un cambio en la definición de
-# una herramienta llegue el mismo día.
+# Las herramientas WebMCP que declara la portada cambian con el despliegue del
+# HTML, que se revalida siempre. Cuando cambie este fichero, se debe versionar
+# también su URL en las cinco portadas.
 /JS/webmcp.js
-  Cache-Control: public, max-age=3600
+  Cache-Control: public, max-age=31536000, immutable
 
 /CSS/customer-portal.css
   Cache-Control: no-cache, max-age=0, must-revalidate

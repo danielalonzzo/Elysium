@@ -2,7 +2,7 @@
 
 This file describes, for automated clients, how to reach the API behind
 <https://elysiumdr.eu>. It is the human- and agent-readable companion to
-[`/.well-known/oauth-protected-resource`](https://elysiumdr.eu/.well-known/oauth-protected-resource)
+[`/.well-known/oauth-protected-resource/api`](https://elysiumdr.eu/.well-known/oauth-protected-resource/api)
 and [`/openapi.json`](https://elysiumdr.eu/openapi.json).
 
 ## What is open, and what is not

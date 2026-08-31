@@ -15,6 +15,10 @@
       "url": "https://elysiumdr.eu/terms"
     }
   },
+  "externalDocs": {
+    "description": "Authentication and access model for automated clients",
+    "url": "https://elysiumdr.eu/auth.md"
+  },
   "servers": [
     { "url": "https://elysiumdr.eu", "description": "European site and canonical origin" },
     { "url": "https://elysiumdr.es", "description": "Spanish national domain" },

@@ -73,7 +73,7 @@
       "displayName": "API authentication metadata",
       "description": "RFC 9728 protected-resource metadata. The authenticated API accepts Firebase Authentication ID tokens issued by https://securetoken.google.com/elysiumdr-eu; there is no self-service registration.",
       "type": "application/json",
-      "url": "https://elysiumdr.eu/.well-known/oauth-protected-resource",
+      "url": "https://elysiumdr.eu/.well-known/oauth-protected-resource/api",
       "representativeQueries": [
         "How does an agent authenticate against the Elysium API?",
         "Can an agent register an account with Elysium?"

@@ -184,6 +184,69 @@ function readVisibleCopy(source) {
 
 const found = readVisibleCopy(html);
 
+/**
+ * Términos que se escriben igual en los tres idiomas.
+ *
+ * Todo lo demás que coincida palabra por palabra con el inglés es una copia sin
+ * traducir: es la forma en que se cuela un texto en otro idioma sin que falte
+ * ninguna clave y sin que nada falle. Añadir aquí una entrada es afirmar que la
+ * palabra es la misma en español y en portugués —marcas, siglas, códigos de
+ * divisa, préstamos ya asentados—, no que traducirla dé pereza.
+ */
+const SHARED_TERMS = {
+    ADMIN_COPY: new Set([
+        'shell.menu', 'shell.groupCrm',                         // siglas y préstamo
+        'nav.pipeline', 'nav.agenda', 'nav.research',            // nombres de sección
+        'pipeline.title', 'dialogs.opportunityEyebrow',
+        'contacts.sortAZ',                                       // «A → Z»
+        'contacts.pillLeads', 'contacts.lifecycle.lead',         // «lead» es préstamo
+        'drawer.email', 'dialogs.email', 'detail.email',         // «email» en pt
+        'feed.fallbackTitle', 'feed.actorAdmin',                 // marca y abreviatura
+        'detail.projectUrlPlaceholder',                          // un URL de ejemplo
+        'detail.currencyEur', 'detail.currencyCrc',              // códigos ISO
+        'detail.plan', 'detail.planHosting'                      // nombre de plan
+    ]),
+    translations: new Set([
+        'table_plan', 'no', 'tab_onboarding'
+    ]),
+    AGENDA_COPY: new Set([
+        'nav', 'title',                                          // «Agenda»
+        'regionPlaceholder',                                     // un país de ejemplo
+        'durationShort'                                          // «min»
+    ]),
+    V2_LABELS: new Set([
+        'email', 'sector', 'acc_hosting', 'acc_google', 'acc_meta', 'none'
+    ]),
+    COPY: new Set()
+};
+
+/** Aplana a pares `ruta → valor`, dejando fuera lo que no sea texto. */
+function flattenValues(value, prefix = '', into = new Map()) {
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+        for (const [key, child] of Object.entries(value)) {
+            flattenValues(child, prefix ? `${prefix}.${key}` : key, into);
+        }
+    } else if (typeof value === 'string') {
+        into.set(prefix, value);
+    }
+    return into;
+}
+
+/** Señala las traducciones que se quedaron copiadas del inglés. */
+function untranslated(name, dictionary) {
+    const shared = SHARED_TERMS[name] || new Set();
+    const english = flattenValues(dictionary.en);
+    const leftovers = [];
+    for (const lang of ['es', 'pt']) {
+        const target = flattenValues(dictionary[lang]);
+        for (const [key, value] of english) {
+            if (shared.has(key)) continue;
+            if (target.get(key) === value) leftovers.push(`${lang}: ${key} = «${value}»`);
+        }
+    }
+    return leftovers.sort();
+}
+
 /* ── Pruebas ─────────────────────────────────────────────────────────────── */
 
 test('ADMIN_COPY declara las mismas claves en los tres idiomas', () => {
@@ -214,6 +277,44 @@ test('ningún texto visible de admin.html se queda sin traductor', () => {
 test('ningún atributo visible de admin.html se queda sin traductor', () => {
     const orphans = found.attributes.map(item => `<${item.element} ${item.attribute}="${item.value}">`);
     assert.deepEqual(orphans, [], 'atributos sin enlace de traducción');
+});
+
+test('cada ui().clave que usa admin.js existe en los tres idiomas', () => {
+    // `ui().detail.saveChanges` es una cadena dentro de una plantilla: una
+    // errata no la detecta `node --check`, sale «undefined» en pantalla —o
+    // rompe la vista si la clave era una función. Se resuelven todas aquí.
+    const paths = new Set();
+    for (const hit of adminSource.matchAll(/\bui\(\)\.([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*)/g)) {
+        paths.add(hit[1]);
+    }
+    // Y los atajos del tipo `const D = ui().detail;`, que es como se usa dentro
+    // de las vistas largas.
+    for (const [, alias, namespace] of adminSource.matchAll(/const\s+(\w+)\s*=\s*ui\(\)\.(\w+);/g)) {
+        const member = new RegExp(`\\b${alias}\\.([A-Za-z0-9_]+(?:\\.[A-Za-z0-9_]+)*)`, 'g');
+        for (const hit of adminSource.matchAll(member)) paths.add(`${namespace}.${hit[1]}`);
+    }
+    assert.ok(paths.size > 100, `Se esperaban muchas claves ui(), se encontraron ${paths.size}`);
+
+    const missing = new Set();
+    for (const path of paths) {
+        for (const lang of LANGUAGES) {
+            if (copyValue(lang, path) === undefined) missing.add(`${lang}: ${path}`);
+        }
+    }
+    assert.deepEqual([...missing].sort(), [], 'claves ui() que el diccionario no resuelve');
+});
+
+test('ninguna traducción se quedó copiada del inglés', () => {
+    const dictionaries = {
+        ADMIN_COPY,
+        translations: extractObject(adminSource, 'translations'),
+        AGENDA_COPY: extractObject(adminSource, 'AGENDA_COPY'),
+        V2_LABELS: extractObject(adminSource, 'V2_LABELS'),
+        COPY: extractObject(researchSource, 'COPY')
+    };
+    const leftovers = Object.entries(dictionaries)
+        .flatMap(([name, dictionary]) => untranslated(name, dictionary).map(item => `${name} — ${item}`));
+    assert.deepEqual(leftovers, [], 'valores idénticos al inglés que no están en SHARED_TERMS');
 });
 
 test('cada clave data-i18n de admin.html existe en los tres idiomas', () => {

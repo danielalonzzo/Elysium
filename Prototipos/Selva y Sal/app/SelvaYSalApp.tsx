@@ -21,7 +21,6 @@ import { AboutPremium } from "./components/redesign/AboutPremium";
 import { AboutCinematicVisual } from "./components/redesign/AboutCinematicVisual";
 import { AboutContent } from "./components/redesign/AboutContent";
 import { RedesignHome } from "./components/redesign/RedesignHome";
-import { DevelopmentCurtain } from "./components/redesign/DevelopmentCurtain";
 import { ShopRedesign } from "./components/redesign/ShopRedesign";
 import { LanguageProvider, useLanguage } from "./components/LanguageContext";
 import { isAnyDockAnimationActive, subscribeDockAnimations } from "./utils/dockVisibility";
@@ -943,14 +942,6 @@ export function SelvaYSalApp({ initialPath, initialProductPage = 1 }: { initialP
   const count = cart.reduce((sum, line) => sum + line.quantity, 0);
   const subtotal = cart.reduce((sum, line) => sum + numericPrice(line.product.price) * line.quantity, 0);
 
-  const isDevCurtain =
-    path === "/checkout/" ||
-    path === "/mayoreo/" ||
-    ["/solicitud-catalogo/", "/inscripcion-mayoreo/", "/catalogos-mayoreo/", "/catalogos-detalle/", "/expoferia/", "/oferta-de-empleo/", "/envio-internacional/"].includes(path) ||
-    path === "/expediciones/" || path.startsWith("/expediciones/") ||
-    path === "/nosotros/" || path.startsWith("/nosotros/") ||
-    path === "/blog/" || path.startsWith("/blog/") || path.startsWith("/category/") || path.startsWith("/author/") || path.startsWith("/tag/") || post;
-
   return (
     <LanguageProvider>
       <div className={`site-shell${expo ? " expo-shell" : ""}${path === "/" ? " home-shell" : ""}`} data-rg-theme={theme}>
@@ -958,7 +949,6 @@ export function SelvaYSalApp({ initialPath, initialProductPage = 1 }: { initialP
         <Header path={path} dark={darkHeader} count={count} subtotal={subtotal} onCart={openMiniCart} />
         <main id="content" tabIndex={-1}>
           {page}
-          {isDevCurtain && <DevelopmentCurtain />}
         </main>
         <Footer expo={expo} />
         <ContactDock path={path} theme={theme} onToggleTheme={toggleTheme} />

@@ -25,6 +25,12 @@ un resolutor puede autenticar, si la zona está firmada.
 
 ## Los registros
 
+**Estado operativo (26 de agosto de 2026):** los tres SVCB de abajo ya están
+publicados. Cloudflare también firma las tres zonas y entrega DNSKEY/RRSIG. La
+cadena sigue incompleta porque IONOS todavía no ha publicado los DS en las zonas
+padre; hasta entonces un resolutor validante devuelve `AD=false` aunque vea el
+SVCB y su RRSIG.
+
 Uno por cada dominio público. Los tres son puntos de entrada de la misma
 organización y los tres pueden ser el resultado de una visita a `.eu`: el
 reparto geográfico manda España a `.es` y Portugal a `.pt`. Publicar solo el
@@ -66,7 +72,7 @@ Seis cosas que hay que respetar al copiarlos:
 6. **Sin proxy (nube gris).** Un registro SVCB bajo `_agents` es de solo DNS;
    Cloudflare no lo puede pasar por el proxy.
 
-## Cómo se ponen
+## Cómo se mantienen
 
 Lo aplica **`scripts/publish-dns-aid.sh`**, que es la forma de no copiar tres
 veces el mismo valor a mano. Lee las zonas, actualiza el registro si ya existe
@@ -110,22 +116,19 @@ no duplicar un RRset que ya exista.
 
 ## DNSSEC
 
-**Ahora mismo ninguna de las tres zonas está firmada** — las consultas DS de
-`.eu`, `.es` y `.pt` no devuelven nada. Sin firma, un resolutor validante no
-puede distinguir estos registros de unos inventados por quien esté en medio,
-que es justo lo que DNS-AID pide evitar.
+Cloudflare DNSSEC **ya está activado** en las tres zonas: DNSKEY y RRSIG están
+publicados. Falta el paso externo a Cloudflare:
 
-Son tres pasos y el segundo no es de Cloudflare:
+1. Copiar de Cloudflare el DS específico de cada zona.
+2. Dar de alta cada DS **manualmente en IONOS**, el registrador de
+   `elysiumdr.eu`, `elysiumdr.es` y `elysiumdr.pt`. Hasta que las zonas padre
+   publiquen esos DS, no existe una cadena de confianza y `AD` permanece en
+   `false`.
+3. Esperar la propagación y comprobar DS, DNSKEY, RRSIG y finalmente `AD=true`.
 
-1. En cada zona de Cloudflare: **DNS → Settings → DNSSEC → Enable**. Cloudflare
-   da entonces un registro DS distinto para cada dominio. También puede
-   activarse con `PATCH /zones/{zone_id}/dnssec`; el script de publicación no lo
-   hace porque el paso siguiente sigue siendo externo a Cloudflare.
-2. Dar de alta cada DS **en el registrador del dominio correspondiente**. Hasta
-   que `.eu`, `.es` y `.pt` publiquen su DS en la zona padre, la firma no forma
-   una cadena de confianza.
-3. Esperar a que aparezcan DS, DNSKEY y RRSIG antes de validar. Ver un RRSIG sin
-   la bandera `AD` no demuestra una cadena autenticada.
+No se debe contactar a IONOS ni enviar o cambiar registros DS automáticamente.
+Ese paso queda en manos del titular, que debe cotejar en el panel de Cloudflare
+el DS de cada dominio antes de guardarlo en el registrador.
 
 ## Comprobar
 
@@ -151,7 +154,9 @@ curl -s -H 'accept: application/dns-json' \
   'https://cloudflare-dns.com/dns-query?name=_index._agents.elysiumdr.eu&type=64'
 ```
 
-La respuesta final debe tener `Status: 0`, `AD: true` y un `Answer` de tipo 64.
-Después se comprueban por separado los tres dominios con el escáner público;
-el caché negativo de un NXDOMAIN anterior puede tardar hasta el TTL del SOA en
+En el estado intermedio actual la respuesta debe tener `Status: 0`, un `Answer`
+de tipo 64 y RRSIG, pero `AD=false` por la ausencia del DS en IONOS. El estado
+final, después de publicar y propagar los DS, debe ser `AD=true`. Entonces se
+comprueban por separado los tres dominios con el escáner público; el caché
+negativo de un NXDOMAIN anterior puede tardar hasta el TTL del SOA en
 desaparecer.

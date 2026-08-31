@@ -18,7 +18,7 @@
       ],
       "service-meta": [
         {
-          "href": "https://elysiumdr.eu/.well-known/oauth-protected-resource",
+          "href": "https://elysiumdr.eu/.well-known/oauth-protected-resource/api",
           "type": "application/json",
           "title": "OAuth 2.0 Protected Resource Metadata (RFC 9728)"
         }

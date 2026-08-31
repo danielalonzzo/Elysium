@@ -293,10 +293,10 @@ function contactLifecycle(contact) {
 }
 
 function contactSourceLabel(contact) {
-    const copy = ui().contacts;
-    if (contact._sourceCollection === 'members') return copy.sourceClientPortal;
-    if (contact._sourceCollection === 'prospects') return copy.sourceProjectRequest;
-    if (contact.submittedAt || contact.recordType === 'inquiry') return copy.sourceWebsiteInquiry;
+    const sourceCopy = ui().contacts;
+    if (contact._sourceCollection === 'members') return sourceCopy.sourceClientPortal;
+    if (contact._sourceCollection === 'prospects') return sourceCopy.sourceProjectRequest;
+    if (contact.submittedAt || contact.recordType === 'inquiry') return sourceCopy.sourceWebsiteInquiry;
     return 'CRM';
 }
 
@@ -1075,14 +1075,11 @@ function setInlineAlert(elementId, message, kind = 'is-error') {
 
 const translations = {
     en: {
-        nav_overview: "Dashboard",
-        nav_licenses: "Licenses",
         logout: "Logout",
         back_to_home: "Back to Home",
         delete_contact: "Delete contact",
         delete_contact_confirm: "Are you sure you want to delete this contact? This action cannot be undone and will remove the contact from the CRM.",
         delete_contact_error: "Could not delete contact: ",
-        welcome: "Welcome back, Super Admin.",
         profile: {
             eyebrow: "Your account",
             title: "Edit profile",
@@ -1263,7 +1260,6 @@ const translations = {
         stage_dev: "Development",
         stage_delivery: "Delivery & Publication",
         stage_maint: "Maintenance",
-        nav_mail: "Mail",
         mail: {
             title: "Mail",
             desc: "Compose and send email from the Elysium mailboxes.",
@@ -1312,14 +1308,11 @@ const translations = {
         },
     },
     es: {
-        nav_overview: "Tablero",
-        nav_licenses: "Licencias",
         logout: "Cerrar Sesión",
         back_to_home: "Volver al Inicio",
         delete_contact: "Eliminar contacto",
         delete_contact_confirm: "¿Estás seguro de que deseas eliminar este contacto? Esta acción no se puede deshacer y eliminará el contacto del CRM.",
         delete_contact_error: "No se pudo eliminar el contacto: ",
-        welcome: "Bienvenido de nuevo, Súper Admin.",
         profile: {
             eyebrow: "Tu cuenta",
             title: "Editar perfil",
@@ -1501,7 +1494,6 @@ const translations = {
         stage_dev: "Desarrollo",
         stage_delivery: "Entrega y publicación",
         stage_maint: "Mantenimiento",
-        nav_mail: "Correo",
         mail: {
             title: "Correo",
             desc: "Redacta y envía correo desde los buzones de Elysium.",
@@ -1550,14 +1542,11 @@ const translations = {
         },
     },
     pt: {
-        nav_overview: "Painel",
-        nav_licenses: "Licenças",
         logout: "Sair",
         back_to_home: "Voltar ao Início",
         delete_contact: "Eliminar contacto",
         delete_contact_confirm: "Tem a certeza de que deseja eliminar este contacto? Esta ação não pode ser desfeita e removerá o contacto do CRM.",
         delete_contact_error: "Não foi possível eliminar o contacto: ",
-        welcome: "Bem-vindo de volta, Super Admin.",
         profile: {
             eyebrow: "A sua conta",
             title: "Editar perfil",
@@ -1581,7 +1570,7 @@ const translations = {
         licenses_title: "Licenças",
         licenses_desc: "Licenças atribuídas por subscrições, por pagamento online ou registo manual.",
         table_code: "Código",
-        table_status: "Status",
+        table_status: "Estado",
         table_client: "Cliente",
         table_plan: "Plano",
         table_origin: "Origem",
@@ -1738,7 +1727,6 @@ const translations = {
         stage_dev: "Desenvolvimento",
         stage_delivery: "Entrega e publicação",
         stage_maint: "Manutenção",
-        nav_mail: "Correio",
         mail: {
             title: "Correio",
             desc: "Redija e envie correio a partir das caixas da Elysium.",
@@ -2625,7 +2613,7 @@ function startEditingMeeting(meetingId) {
     document.getElementById('meeting-date').value = `${local.year}-${String(local.month).padStart(2, '0')}-${String(local.day).padStart(2, '0')}`;
     document.getElementById('meeting-time').value = `${String(local.hour).padStart(2, '0')}:${String(local.minute).padStart(2, '0')}`;
     document.getElementById('meeting-edit-cancel').hidden = false;
-    document.getElementById('meeting-create-btn').textContent = 'Save changes';
+    document.getElementById('meeting-create-btn').textContent = ui().agenda.saveChanges;
     setAgendaMessage(ui().agenda.editingNotice, 'warning');
     document.querySelector('.agenda-create-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -3392,6 +3380,10 @@ function applyTranslations() {
     // Todo lo que `admin.html` declara con `data-i18n`. Lo que sigue debajo es
     // sólo lo que no se puede declarar: textos que dependen del estado.
     applyStaticCopy(currentLang);
+
+    // `admin-research.js` pinta su sección con su propio diccionario y lee el
+    // idioma de `<html lang>`, que se acaba de fijar arriba.
+    document.dispatchEvent(new CustomEvent('elysium:language', { detail: { language: currentLang } }));
 
     // Brand links back to the localized index
     document.querySelectorAll('.portal-brand').forEach(link => {
@@ -4355,13 +4347,6 @@ function ownerLabel(ownerId) {
         || (ownerId ? ui().contacts.ownerTeam : ui().contacts.ownerUnassigned);
 }
 
-const PIPELINE_URGENCY_LABEL = {
-    overdue: 'Overdue',
-    week: 'This week',
-    month: 'This month',
-    later: 'Scheduled',
-    undated: 'No date'
-};
 
 /** Ventana de cierre de una oportunidad, derivada de `expectedCloseAt`. */
 function opportunityUrgency(opportunity) {
@@ -4746,8 +4731,8 @@ function renderClientGrid(clients, t) {
             - (crmDate(a.updatedAt || a.createdAt)?.getTime() || 0);
     });
 
-    const copy = ui().contacts;
-    if (countEl) countEl.textContent = copy.count(sorted.length);
+    const contactCopy = ui().contacts;
+    if (countEl) countEl.textContent = contactCopy.count(sorted.length);
 
     const totalPages = Math.max(1, Math.ceil(sorted.length / CLIENT_PAGE_SIZE));
     _clientPage = Math.min(Math.max(1, _clientPage), totalPages);
@@ -4759,26 +4744,26 @@ function renderClientGrid(clients, t) {
     if (pagination) pagination.hidden = sorted.length <= CLIENT_PAGE_SIZE;
     if (previous) previous.disabled = _clientPage <= 1;
     if (next) next.disabled = _clientPage >= totalPages;
-    if (status) status.textContent = copy.pageStatus(_clientPage, totalPages);
+    if (status) status.textContent = contactCopy.pageStatus(_clientPage, totalPages);
 
     if (sorted.length === 0) {
         if (pagination) pagination.hidden = true;
         clientsList.innerHTML = `<p style="grid-column:1/-1;text-align:center;opacity:0.4;padding:3rem 0;">
-            ${esc(_activeFilter === 'all' ? copy.empty : copy.emptyFiltered)}
+            ${esc(_activeFilter === 'all' ? contactCopy.empty : contactCopy.emptyFiltered)}
         </p>`;
         return;
     }
 
-    const stageLabels = copy.lifecycle;
+    const stageLabels = contactCopy.lifecycle;
     const stageChip = { lead: 'is-warning', prospect: 'is-neutral', client: 'is-success', inactive: 'is-neutral' };
     clientsList.innerHTML = `
-        <div class="crm-directory-table" role="table" aria-label="${esc(copy.tableAria)}">
+        <div class="crm-directory-table" role="table" aria-label="${esc(contactCopy.tableAria)}">
             <div class="crm-directory-row crm-directory-head" role="row">
-                <span role="columnheader">${esc(copy.colRelationship)}</span>
-                <span role="columnheader">${esc(copy.colCompany)}</span>
-                <span role="columnheader">${esc(copy.colLifecycle)}</span>
-                <span role="columnheader">${esc(copy.colOwner)}</span>
-                <span role="columnheader">${esc(copy.colActivity)}</span>
+                <span role="columnheader">${esc(contactCopy.colRelationship)}</span>
+                <span role="columnheader">${esc(contactCopy.colCompany)}</span>
+                <span role="columnheader">${esc(contactCopy.colLifecycle)}</span>
+                <span role="columnheader">${esc(contactCopy.colOwner)}</span>
+                <span role="columnheader">${esc(contactCopy.colActivity)}</span>
                 <span aria-hidden="true"></span>
             </div>
             ${pageItems.map(data => {
@@ -4796,7 +4781,7 @@ function renderClientGrid(clients, t) {
                         <div class="crm-directory-company" role="cell"><strong>${esc(data.company || t.no_company)}</strong><span>${esc(data.sourceLabel || contactSourceLabel(data))}</span></div>
                         <div role="cell"><span class="portal-status ${stageChip[stage] || 'is-neutral'}">${stageLabels[stage] || stage}</span></div>
                         <div class="crm-directory-owner" role="cell"><span class="crm-owner-dot"></span>${esc(ownerLabel(data.ownerId))}</div>
-                        <div class="crm-directory-activity" role="cell"><strong>${esc(timeAgo(recent) || copy.noActivity)}</strong>${(data.tags || []).length ? `<span>${data.tags.slice(0, 2).map(esc).join(' · ')}</span>` : `<span>${esc(copy.noTags)}</span>`}</div>
+                        <div class="crm-directory-activity" role="cell"><strong>${esc(timeAgo(recent) || contactCopy.noActivity)}</strong>${(data.tags || []).length ? `<span>${data.tags.slice(0, 2).map(esc).join(' · ')}</span>` : `<span>${esc(contactCopy.noTags)}</span>`}</div>
                         <div class="crm-directory-chevron" aria-hidden="true">›</div>
                     </div>`;
             }).join('')}
@@ -4906,22 +4891,22 @@ function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
     const uploadLabelAttrs = filesPending
         ? ' aria-disabled="true" aria-busy="true"'
         : ' for="contact-file-input"';
-    const d = ui().drawer;
+    const drawerCopy = ui().drawer;
     const lifecycleNames = ui().contacts.lifecycle;
     content.innerHTML = `
         <section class="crm-drawer-section">
             <div class="crm-drawer-header">
-                <span class="agenda-eyebrow">${esc(d.title)}</span>
-                <button class="crm-drawer-close" type="button" data-close-contact aria-label="${esc(d.close)}">×</button>
+                <span class="agenda-eyebrow">${esc(drawerCopy.title)}</span>
+                <button class="crm-drawer-close" type="button" data-close-contact aria-label="${esc(drawerCopy.close)}">×</button>
             </div>
             <div class="crm-drawer-identity">
                 <div class="crm-drawer-avatar">${esc(initials(contact.name))}</div>
                 <div><h2 id="contact-drawer-title">${esc(contact.name)}</h2><p class="crm-drawer-subtitle">${esc(contact.jobTitle || contact.company || contact.sourceLabel)}</p></div>
             </div>
             <div class="crm-drawer-actions" style="margin-top:1rem;justify-content:flex-start;flex-wrap:wrap;gap:0.5rem;">
-                ${contact.email ? `<a class="btn btn-secondary" href="mailto:${esc(contact.email)}">${esc(d.email)}</a>` : ''}
-                ${contact.phone ? `<a class="btn btn-secondary" href="tel:${esc(contact.phone)}">${esc(d.call)}</a>` : ''}
-                ${operational ? `<button type="button" class="btn btn-primary" data-open-operational>${esc(d.openProfile)}</button>` : ''}
+                ${contact.email ? `<a class="btn btn-secondary" href="mailto:${esc(contact.email)}">${esc(drawerCopy.email)}</a>` : ''}
+                ${contact.phone ? `<a class="btn btn-secondary" href="tel:${esc(contact.phone)}">${esc(drawerCopy.call)}</a>` : ''}
+                ${operational ? `<button type="button" class="btn btn-primary" data-open-operational>${esc(drawerCopy.openProfile)}</button>` : ''}
                 <button type="button" class="btn btn-secondary" data-delete-contact style="margin-left:auto;color:#ff6b6b;border-color:rgba(255,59,48,0.3);display:inline-flex;align-items:center;gap:0.35rem;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                     <span>${esc(t.delete_contact || 'Delete contact')}</span>
@@ -4930,36 +4915,36 @@ function renderContactDrawer(contact, { activities = [], files = [] } = {}) {
         </section>
         <section class="crm-drawer-section">
             <div class="crm-detail-grid">
-                <div class="crm-detail-item"><span>${esc(d.email)}</span><a href="mailto:${esc(contact.email)}">${esc(contact.email || '—')}</a></div>
-                <div class="crm-detail-item"><span>${esc(d.phone)}</span><a href="tel:${esc(contact.phone)}">${esc(contact.phone || '—')}</a></div>
-                <div class="crm-detail-item"><span>${esc(d.company)}</span><strong>${esc(contact.company || '—')}</strong></div>
-                <div class="crm-detail-item"><span>${esc(d.lifecycle)}</span><strong>${esc(lifecycleNames[contact.lifecycle] || lifecycleNames.lead)}</strong></div>
-                <div class="crm-detail-item"><span>${esc(d.source)}</span><strong>${esc(uniqueSources.join(' · ') || contact.sourceLabel)}</strong></div>
-                <div class="crm-detail-item"><span>${esc(d.created)}</span><strong>${esc(formatAdminDate(contact.createdAt))}</strong></div>
+                <div class="crm-detail-item"><span>${esc(drawerCopy.email)}</span><a href="mailto:${esc(contact.email)}">${esc(contact.email || '—')}</a></div>
+                <div class="crm-detail-item"><span>${esc(drawerCopy.phone)}</span><a href="tel:${esc(contact.phone)}">${esc(contact.phone || '—')}</a></div>
+                <div class="crm-detail-item"><span>${esc(drawerCopy.company)}</span><strong>${esc(contact.company || '—')}</strong></div>
+                <div class="crm-detail-item"><span>${esc(drawerCopy.lifecycle)}</span><strong>${esc(lifecycleNames[contact.lifecycle] || lifecycleNames.lead)}</strong></div>
+                <div class="crm-detail-item"><span>${esc(drawerCopy.source)}</span><strong>${esc(uniqueSources.join(' · ') || contact.sourceLabel)}</strong></div>
+                <div class="crm-detail-item"><span>${esc(drawerCopy.created)}</span><strong>${esc(formatAdminDate(contact.createdAt))}</strong></div>
             </div>
-            ${contact.service ? `<div style="margin-top:1rem"><span class="crm-drawer-label">${esc(d.serviceInterest)}</span><strong>${esc(contact.service)}</strong></div>` : ''}
-            ${contact.message ? `<div style="margin-top:1rem"><span class="crm-drawer-label">${esc(d.originalInquiry)}</span><p class="crm-inquiry-message">${esc(contact.message)}</p></div>` : ''}
+            ${contact.service ? `<div style="margin-top:1rem"><span class="crm-drawer-label">${esc(drawerCopy.serviceInterest)}</span><strong>${esc(contact.service)}</strong></div>` : ''}
+            ${contact.message ? `<div style="margin-top:1rem"><span class="crm-drawer-label">${esc(drawerCopy.originalInquiry)}</span><p class="crm-inquiry-message">${esc(contact.message)}</p></div>` : ''}
         </section>
         <section class="crm-drawer-section">
-            <span class="crm-drawer-label">${esc(d.tags)}</span>
-            <div class="crm-tag-list">${(contact.tags || []).map(tag => `<span class="crm-tag">${esc(tag)}<button type="button" data-remove-contact-tag="${esc(tag)}" aria-label="${esc(d.removeTag(tag))}">×</button></span>`).join('') || `<span class="crm-drawer-muted">${esc(d.noTagsYet)}</span>`}</div>
-            <form class="crm-inline-form" id="contact-tag-form"><input class="form-control" id="contact-tag-input" maxlength="40" placeholder="${esc(d.newTag)}"><button class="btn btn-secondary" type="submit">${esc(d.add)}</button></form>
+            <span class="crm-drawer-label">${esc(drawerCopy.tags)}</span>
+            <div class="crm-tag-list">${(contact.tags || []).map(tag => `<span class="crm-tag">${esc(tag)}<button type="button" data-remove-contact-tag="${esc(tag)}" aria-label="${esc(drawerCopy.removeTag(tag))}">×</button></span>`).join('') || `<span class="crm-drawer-muted">${esc(drawerCopy.noTagsYet)}</span>`}</div>
+            <form class="crm-inline-form" id="contact-tag-form"><input class="form-control" id="contact-tag-input" maxlength="40" placeholder="${esc(drawerCopy.newTag)}"><button class="btn btn-secondary" type="submit">${esc(drawerCopy.add)}</button></form>
         </section>
         <section class="crm-drawer-section">
-            <span class="crm-drawer-label">${esc(d.internalNote)}</span>
-            <textarea class="crm-note-input" id="contact-note-input" maxlength="5000" placeholder="${esc(d.notePlaceholder)}"></textarea>
-            <div class="crm-drawer-actions" style="margin-top:.75rem"><span class="crm-drawer-muted" id="contact-note-message"></span><button class="btn btn-primary" type="button" id="contact-note-save">${esc(d.saveNote)}</button></div>
+            <span class="crm-drawer-label">${esc(drawerCopy.internalNote)}</span>
+            <textarea class="crm-note-input" id="contact-note-input" maxlength="5000" placeholder="${esc(drawerCopy.notePlaceholder)}"></textarea>
+            <div class="crm-drawer-actions" style="margin-top:.75rem"><span class="crm-drawer-muted" id="contact-note-message"></span><button class="btn btn-primary" type="button" id="contact-note-save">${esc(drawerCopy.saveNote)}</button></div>
             <div class="crm-activity-list" style="margin-top:1rem">${activities.length ? activities.map(activity => `
                 <article class="crm-activity-item"><strong>${esc(activityLabel(activity.type, activity.summary))}</strong>${activity.body || activity.payload?.note ? `<p>${esc(activity.body || activity.payload?.note)}</p>` : ''}<p>${esc(activity.actorEmail || activity.memberName || ui().contacts.ownerTeam)} · ${esc(formatAdminDate(activity.occurredAt || activity.createdAt))}</p></article>
-            `).join('') : `<span class="crm-drawer-muted">${esc(d.noActivityYet)}</span>`}</div>
+            `).join('') : `<span class="crm-drawer-muted">${esc(drawerCopy.noActivityYet)}</span>`}</div>
         </section>
         <section class="crm-drawer-section">
-            <div class="crm-drawer-actions"><span class="crm-drawer-label" style="margin:0">${esc(d.files)}</span>${canUploadFiles ? `<label class="btn btn-secondary"${uploadLabelAttrs}>${esc(d.uploadFile)}</label>` : ''}</div>
-            ${canUploadFiles ? '<input id="contact-file-input" type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">' : `<div class="portal-alert is-warning crm-file-capability">${esc(d.filesDisabled)}</div>`}
+            <div class="crm-drawer-actions"><span class="crm-drawer-label" style="margin:0">${esc(drawerCopy.files)}</span>${canUploadFiles ? `<label class="btn btn-secondary"${uploadLabelAttrs}>${esc(drawerCopy.uploadFile)}</label>` : ''}</div>
+            ${canUploadFiles ? '<input id="contact-file-input" type="file" hidden accept="image/jpeg,image/png,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">' : `<div class="portal-alert is-warning crm-file-capability">${esc(drawerCopy.filesDisabled)}</div>`}
             <div id="contact-file-progress" class="crm-upload-progress" hidden><span style="width:0"></span></div>
             <div class="crm-file-list" style="margin-top:1rem">${files.length ? files.map(file => `
-                <article class="crm-file-item"><div class="crm-drawer-actions"><div><strong>${esc(file.originalName || file.originalFilename || 'File')}</strong><p>${Math.max(1, Math.round((file.size || file.bytes || 0) / 1024))} KB · ${esc(formatAdminDate(file.createdAt))}</p></div>${canDownloadFiles ? `<button class="btn btn-secondary" type="button" data-download-file="${esc(file.id)}"${filesPending ? ' disabled aria-busy="true"' : ''}>${esc(d.download)}</button>` : ''}</div></article>
-            `).join('') : `<span class="crm-drawer-muted">${esc(d.noFiles)}</span>`}</div>
+                <article class="crm-file-item"><div class="crm-drawer-actions"><div><strong>${esc(file.originalName || file.originalFilename || 'File')}</strong><p>${Math.max(1, Math.round((file.size || file.bytes || 0) / 1024))} KB · ${esc(formatAdminDate(file.createdAt))}</p></div>${canDownloadFiles ? `<button class="btn btn-secondary" type="button" data-download-file="${esc(file.id)}"${filesPending ? ' disabled aria-busy="true"' : ''}>${esc(drawerCopy.download)}</button>` : ''}</div></article>
+            `).join('') : `<span class="crm-drawer-muted">${esc(drawerCopy.noFiles)}</span>`}</div>
         </section>`;
 
     content.querySelector('[data-close-contact]')?.addEventListener('click', closeContactDrawer);
@@ -5019,7 +5004,7 @@ async function addContactNote(contact) {
     const body = crmText(input?.value.trim() || '', 5000);
     if (!body) return;
     button.disabled = true;
-    if (message) message.textContent = 'Saving…';
+    if (message) message.textContent = ui().drawer.savingNote;
     try {
         await addDoc(collection(db, 'activities'), {
             schemaVersion: 1,
@@ -5168,14 +5153,14 @@ async function createContact(event) {
         message.className = 'meeting-form-message is-error';
     } finally {
         button.disabled = false;
-        button.textContent = 'Save contact';
+        button.textContent = ui().dialogs.saveContact;
     }
 }
 
 async function deleteUnifiedContact(contactId) {
     const contact = findUnifiedContactById(contactId) || _allClients.find(c => c.id === contactId);
     if (!contact) {
-        alert('Contact not found.');
+        alert(ui().contacts.notFound);
         return;
     }
     const t = translations[currentLang] || translations.en;
@@ -7215,7 +7200,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
 
             btnSaveSubscription.disabled = true;
             const originalLabel = btnSaveSubscription.textContent;
-            btnSaveSubscription.textContent = 'Saving…';
+            btnSaveSubscription.textContent = D.saving;
             try {
                 const subscription = {
                     ...member.subscription,
@@ -7329,7 +7314,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
             }
 
             btnAssignSub.disabled = true;
-            btnAssignSub.textContent = 'Saving…';
+            btnAssignSub.textContent = D.saving;
 
             try {
                 const d = new Date(startDate + 'T12:00:00');
@@ -7638,7 +7623,7 @@ function renderDetail(member, submissions, userId, selectedProjectId = null, sel
         notesBtn.addEventListener('click', async () => {
             const notes = document.getElementById('admin-notes-input')?.value || '';
             notesBtn.disabled = true;
-            notesBtn.textContent = 'Saving…';
+            notesBtn.textContent = D.saving;
 
             try {
                 await updateDoc(doc(db, member._sourceCollection || 'members', userId), { adminNotes: notes });
