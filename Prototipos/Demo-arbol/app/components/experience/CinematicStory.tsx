@@ -82,16 +82,25 @@ function StaticHero() {
     <div className="hdc-static-hero">
       <div className="hdc-static-aura" aria-hidden="true" />
       <div className="hdc-static-copy">
-        <p className="hdc-scene-kicker"><span>I</span></p>
-        <h1 className="hdc-scene-title" />
-        <p className="hdc-scene-desc" />
+        {/* Mismo texto que la escena I de `NarrativeOverlay`: esto es lo que
+            pinta el servidor y lo que ve quien llega sin WebGL o con
+            reduced-motion, así que las dos versiones tienen que decir lo mismo. */}
+        <p className="hdc-scene-kicker"><span>I</span>Raíz y Piedra</p>
+        <h1 className="hdc-scene-title">Todo empieza a la sombra</h1>
+        <p className="hdc-scene-desc">
+          Bajo un guanacaste se contaban las cosas antes de que hubiera dónde
+          escribirlas. De esa costumbre sale lo que hacemos: juegos y objetos
+          para que la memoria de este país se pase de mano en mano.
+        </p>
         <div className="hdc-commerce">
           <span className="hdc-price-tag">{PRICES.game}</span>
           <div className="hdc-cta-row">
             <a className="hdc-btn hdc-btn--solid" href={linkTo(CONTACT.whatsapp)} target="_blank" rel="noopener noreferrer">
               <IconWhatsApp className="hdc-btn-ico" />
+              Pedir el juego
             </a>
             <a className="hdc-btn hdc-btn--ghost" href="#juego">
+              Ver el juego
               <IconArrowUpRight className="hdc-btn-ico" />
             </a>
           </div>

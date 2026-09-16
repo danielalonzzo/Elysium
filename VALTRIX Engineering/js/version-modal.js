@@ -373,9 +373,9 @@
             + '<div class="vtx-group">'
             +   row('Firma', 'VALTRIX Engineering')
             +   linkRow('Responsable técnica', 'valeria-vargas.html', 'Valeria Vargas', false)
-            +   linkRow('Correo', 'mailto:valeria.vargas@valtrix.com', 'valeria.vargas@valtrix.com', false)
+            +   linkRow('Correo', 'mailto:info@valtrix.com', 'info@valtrix.com', false)
             +   linkRow('WhatsApp', 'https://wa.me/50684880406', '+506 8488-0406', true)
-            +   row('Cobertura', 'Costa Rica · visita incluida en la GAM')
+            +   row('Cobertura', 'Toda Costa Rica')
             + '</div>'
 
             // ── Atribuciones ──

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { CONTACT, PRICES, SHOTS, linkTo } from "../../data/content";
+import { BRAND, CONTACT, PRICES, SHOTS, linkTo } from "../../data/content";
 import { IconArrowUpRight, IconInstagram, IconWhatsApp, IconYouTube } from "../site/Icons";
 
 if (typeof window !== "undefined") {
@@ -263,8 +263,13 @@ function SplitScreenNarrative() {
     return () => ctx.revert();
   }, [reducedMotion]);
 
-  /** Cifras destacadas del primer panel. Vacías hasta que haya producto. */
-  const features: Array<{ k: string; v: string }> = [];
+  /** Cifras destacadas del primer panel. Las `v` son el `key` de la lista. */
+  const features: Array<{ k: string; v: string }> = [
+    { k: "80", v: "cartas ilustradas" },
+    { k: "2–6", v: "jugadores" },
+    { k: "11+", v: "años" },
+    { k: "15", v: "minutos por partida" },
+  ];
 
   return (
     <section ref={containerRef} className="hdc-split-screen" id="narrativa">
@@ -310,8 +315,12 @@ function SplitScreenNarrative() {
           <p className="hdc-narrative-index">
             <span>01</span>
           </p>
-          <h2 className="hdc-narrative-title" />
-          <p className="hdc-narrative-copy" />
+          <h2 className="hdc-narrative-title">El juego de mesa</h2>
+          <p className="hdc-narrative-copy">
+            Ochenta cartas, cuatro eras y una regla sola: colocar cada hecho
+            donde le toca en la línea del tiempo. No hace falta saberse las
+            fechas —de eso va— y la partida cabe en un café.
+          </p>
           <ul className="hdc-narrative-facts">
             {features.map((f) => (
               <li key={f.v}>
@@ -331,8 +340,12 @@ function SplitScreenNarrative() {
           <p className="hdc-narrative-index">
             <span>02</span>
           </p>
-          <h2 className="hdc-narrative-title" />
-          <p className="hdc-narrative-copy" />
+          <h2 className="hdc-narrative-title">Objetos con historia</h2>
+          <p className="hdc-narrative-copy">
+            Lo que sale del juego: camisetas, bolsos, gorras y láminas con los
+            motivos que ilustran las cartas. Todo se imprime y se cose aquí, en
+            tiradas cortas, y se agota sin reponerse.
+          </p>
           <div className="hdc-narrative-actions">
             <span className="hdc-narrative-price">{PRICES.tee}</span>
             <WhatsAppCTA />
@@ -344,8 +357,12 @@ function SplitScreenNarrative() {
           <p className="hdc-narrative-index">
             <span>03</span>
           </p>
-          <h2 className="hdc-narrative-title" />
-          <p className="hdc-narrative-copy" />
+          <h2 className="hdc-narrative-title">El podcast</h2>
+          <p className="hdc-narrative-copy">
+            Cada semana desarmamos una carta: de dónde salió el dato, qué se
+            quedó fuera y quién lo contó primero. Media hora, sin guion
+            solemne.
+          </p>
           <div className="hdc-narrative-actions">
             <a
               className="hdc-btn hdc-btn--ghost"
@@ -402,8 +419,24 @@ function BentoGrid() {
       <div className="hdc-bento-cell hdc-bento-cell--large hdc-bento-cell--flush" id="nosotros">
         <AutoScrollCredits>
           <div className="hdc-credits-wrapper">
-            <h4 className="hdc-credits-section-title" />
-            <p className="hdc-credits-text" />
+            <h4 className="hdc-credits-section-title">— La casa —</h4>
+            <p className="hdc-credits-text">
+              {BRAND.foundedNote} Empezamos imprimiendo cincuenta barajas para
+              regalar en una feria del centro. Se acabaron el primer día y
+              alguien preguntó dónde comprarlas.
+            </p>
+            <h4 className="hdc-credits-section-title">— El oficio —</h4>
+            <p className="hdc-credits-text">
+              Investigamos, ilustramos y editamos aquí mismo. Cada carta pasa
+              por una historiadora antes de ir a imprenta, porque un dato mal
+              contado en un juego se queda pegado mucho más que en un libro.
+            </p>
+            <h4 className="hdc-credits-section-title">— El taller —</h4>
+            <p className="hdc-credits-text">
+              Los textiles se estampan en un taller de San José y los papeles
+              se serigrafían a mano. Tiradas cortas, sin reposición: preferimos
+              que se agote a que sobre.
+            </p>
           </div>
         </AutoScrollCredits>
       </div>
@@ -420,8 +453,8 @@ function BentoGrid() {
            <div className="hdc-vinyl-label" />
         </div>
         <div className="hdc-bento-content">
-          <h3 className="hdc-bento-title" />
-          <p className="hdc-bento-copy" />
+          <h3 className="hdc-bento-title">En Spotify</h3>
+          <p className="hdc-bento-copy">Episodios nuevos cada semana.</p>
           <IconArrowUpRight className="hdc-bento-arrow" />
         </div>
       </a>
@@ -439,7 +472,7 @@ function BentoGrid() {
           <div className="hdc-bento-icon-circle hdc-bento-icon-circle--ig">
             <IconInstagram className="hdc-bento-icon-lg" />
           </div>
-          <h3 className="hdc-bento-title hdc-bento-title--sm" />
+          <h3 className="hdc-bento-title hdc-bento-title--sm">Síguenos en<br />Instagram</h3>
         </div>
       </a>
 
@@ -456,8 +489,8 @@ function BentoGrid() {
       >
         <div className="hdc-video-overlay"></div>
         <div className="hdc-bento-content">
-          <p className="hdc-narrative-index"><span>—</span></p>
-          <h2 className="hdc-bento-title hdc-bento-title--wide" />
+          <p className="hdc-narrative-index"><span>—</span>Únete</p>
+          <h2 className="hdc-bento-title hdc-bento-title--wide">Sé parte del Círculo de la Raíz</h2>
           <p className="hdc-bento-copy">{PRICES.membership}</p>
           <div className="hdc-bento-cta hdc-bento-cta--yt">
             <IconYouTube className="hdc-btn-ico" />

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" width="1000" height="1200" role="img">
+
+  <rect width="1000" height="1200" fill="#F0E7D8"/>
+  <path d="M350 180 L300 150 C250 165 200 200 165 250 L250 340 L286 304 L286 1050 C286 1066 296 1076 312 1076 L688 1076 C704 1076 714 1066 714 1050 L714 304 L750 340 L835 250 C800 200 750 165 700 150 L650 180 C620 206 578 220 500 220 C422 220 380 206 350 180 Z" fill="#E8DCC6"/>
+  <path d="M350 180 L300 150 C250 165 200 200 165 250 L250 340 L286 304 L286 1050 C286 1066 296 1076 312 1076 L688 1076 C704 1076 714 1066 714 1050 L714 304 L750 340 L835 250 C800 200 750 165 700 150 L650 180 C620 206 578 220 500 220 C422 220 380 206 350 180 Z" fill="none" stroke="#A75D39" stroke-width="3" opacity="0.5"/>
+  <path d="M350 180 C380 206 422 220 500 220 C578 220 620 206 650 180" fill="none" stroke="#A75D39" stroke-width="9" opacity="0.75"/>
+  <g transform="translate(500 566) scale(0.58) translate(-300 -182)" fill="#A75D39" opacity="1"><path d="M264 196 H336 L348 302 H252 Z M252 302 C228 312 208 324 194 342 H406 C392 324 372 312 348 302 Z"/><ellipse cx="300" cy="96" rx="148" ry="62"/><ellipse cx="176" cy="122" rx="132" ry="58"/><ellipse cx="424" cy="122" rx="132" ry="58"/><ellipse cx="240" cy="158" rx="128" ry="56"/><ellipse cx="360" cy="158" rx="128" ry="56"/><ellipse cx="92" cy="162" rx="100" ry="48"/><ellipse cx="508" cy="162" rx="100" ry="48"/><ellipse cx="40" cy="178" rx="66" ry="40"/><ellipse cx="560" cy="178" rx="66" ry="40"/><ellipse cx="300" cy="182" rx="168" ry="52"/></g>
+  <text x="500" y="800" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-weight="700" fill="#A75D39" letter-spacing="3">GUANACASTE</text>
+       <text x="500" y="838" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="19" fill="#A75D39" opacity="0.75" letter-spacing="3">ENTEROLOBIUM CYCLOCARPUM</text>
+</svg>

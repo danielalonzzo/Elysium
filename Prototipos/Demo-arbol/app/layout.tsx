@@ -12,16 +12,19 @@ import "./globals.css";
  */
 
 /*
- * Sin `icons`: la demo no lleva logotipo. Al declarar uno, el sitio pasa a
- * pedirlo con el `basePath` puesto; sin nada declarado el navegador solo
- * intenta `/favicon.ico` y se queda sin icono, que es lo buscado.
+ * El icono se declara como ruta absoluta escrita a mano (`/images/…`), que es
+ * justo el patrón que `scripts/publish-demo-arbol.sh` reescribe con `perl`
+ * para anteponerle el `basePath`. Así funciona igual en `npm run dev` —donde
+ * todo cuelga de la raíz— y publicado bajo `/Demo-arbol/`.
  */
 export const metadata: Metadata = {
   title: {
-    default: "",
-    template: "%s",
+    default: "Raíz y Piedra · Juegos y objetos de la memoria costarricense",
+    template: "%s · Raíz y Piedra",
   },
-  description: "",
+  description:
+    "Casa editora de juegos y objetos de memoria en San José, Costa Rica. Del guanacaste a las esferas del Diquís: 80 cartas y una línea del tiempo.",
+  icons: { icon: [{ url: "/images/favicon.svg", type: "image/svg+xml" }] },
   robots: { index: false, follow: false, nocache: true },
   other: { "app-version": "V1.8.2" },
 };
@@ -60,6 +63,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {children}
         <SiteFooter />
         <MagicBottom />
+        {/* El aviso de entrada de cinco pasos queda desmontado a propósito: la
+            demo se enseña en directo y un modal bloqueante estorba. El
+            componente sigue en `components/site/ElysiumPrototypePopup.tsx` por
+            si hay que reponerlo. La declaración de marca ficticia que llevaba
+            dentro NO se pierde: vive ahora en el pie, visible siempre. */}
         <Script src="/js/site-features.js?v=1.0.1" strategy="afterInteractive" />
         <Script src="/elysium-core/elysium-system-info.js" strategy="afterInteractive" />
       </body>

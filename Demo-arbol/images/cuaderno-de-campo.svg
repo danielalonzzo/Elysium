@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1100" width="900" height="1100" role="img">
+
+  <rect width="900" height="1100" fill="#F0E7D8"/>
+  <rect x="190" y="120" width="520" height="860" rx="8" fill="#8A8578"/>
+  <rect x="190" y="120" width="34" height="860" rx="8" fill="#6F6B60"/>
+  <circle cx="207" cy="186" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="278" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="370" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="462" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="554" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="646" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="738" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="830" r="9" fill="#F0E7D8" opacity="0.55"/><circle cx="207" cy="922" r="9" fill="#F0E7D8" opacity="0.55"/>
+  <rect x="272" y="196" width="382" height="298" fill="none" stroke="#FDFAF3" stroke-width="3" opacity="0.65"/>
+  
+  <circle cx="463" cy="345" r="79" fill="none" stroke="#FDFAF3" stroke-width="7.109999999999999"/>
+  <circle cx="463" cy="345" r="67.94" fill="#6F6B60" opacity="0.25"/>
+  <g transform="translate(463 351.32) scale(0.19486666666666666) translate(-300 -182)" fill="#FDFAF3" opacity="1"><path d="M264 196 H336 L348 302 H252 Z M252 302 C228 312 208 324 194 342 H406 C392 324 372 312 348 302 Z"/><ellipse cx="300" cy="96" rx="148" ry="62"/><ellipse cx="176" cy="122" rx="132" ry="58"/><ellipse cx="424" cy="122" rx="132" ry="58"/><ellipse cx="240" cy="158" rx="128" ry="56"/><ellipse cx="360" cy="158" rx="128" ry="56"/><ellipse cx="92" cy="162" rx="100" ry="48"/><ellipse cx="508" cy="162" rx="100" ry="48"/><ellipse cx="40" cy="178" rx="66" ry="40"/><ellipse cx="560" cy="178" rx="66" ry="40"/><ellipse cx="300" cy="182" rx="168" ry="52"/></g>
+  <text x="463" y="586" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="44" font-weight="700" fill="#FDFAF3" letter-spacing="2">CUADERNO</text>
+  <text x="463" y="632" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="44" font-weight="700" fill="#FDFAF3" letter-spacing="2">DE CAMPO</text>
+  <path d="M312.20000000000005 702 V680.68 H339.34400000000005 V693.16 H326.52600000000007 V687.44 M349.90000000000003 702 V680.68 H377.04400000000004 V693.16 H364.22600000000006 V687.44 M387.6 702 V680.68 H414.744 V693.16 H401.92600000000004 V687.44 M425.30000000000007 702 V680.68 H452.4440000000001 V693.16 H439.6260000000001 V687.44 M463 702 V680.68 H490.144 V693.16 H477.326 V687.44 M500.70000000000005 702 V680.68 H527.844 V693.16 H515.0260000000001 V687.44 M538.4000000000001 702 V680.68 H565.5440000000001 V693.16 H552.7260000000001 V687.44 M576.1 702 V680.68 H603.244 V693.16 H590.426 V687.44 " fill="none" stroke="#FDFAF3" stroke-width="3.4" stroke-linecap="square"/>
+  <text x="463" y="774" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="19" fill="#FDFAF3" opacity="0.78" letter-spacing="3">8.9436° N · 83.4939° O</text>
+  <text x="463" y="812" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="17" fill="#FDFAF3" opacity="0.6" letter-spacing="3">96 PÁGINAS · COSIDO</text>
+</svg>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useLayoutEffect, useMemo, useRef, type MutableRefObject } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, type MutableRefObject } from "react";
 import * as THREE from "three";
+import { ATLAS_COLS, ATLAS_ROWS, makeCardAtlas } from "./cardAtlas";
 import { clamp01, lerp, seededUnit, smoothRange } from "./storyMath";
 import type { ExperienceMotion, QualitySettings } from "./types";
 
@@ -13,10 +14,11 @@ import type { ExperienceMotion, QualitySettings } from "./types";
  * real) y se ordenan en una línea del tiempo helicoidal y flotante. Cada carta
  * emerge de forma escalonada por índice → lectura cronológica.
  *
- * ── ASSET HOOK ──────────────────────────────────────────────────────────────
- * Para el arte real: sustituir la cara instanciada por un atlas de texturas con
- * las 80 ilustraciones (o 80 planos con su textura) manteniendo el helicoide y
- * el escalonado de aparición.
+ * El arte sale de un atlas de 4×4 dibujado en un `<canvas>` (`cardAtlas.ts`),
+ * no de un archivo: la escena entera es procedimental y así sigue sin depender
+ * de ningún asset en disco. Cada instancia recibe su casilla en el atributo
+ * `aTile` y el desplazamiento de UV se inyecta en el vértice, que es lo único
+ * que permite variar la textura entre instancias de un `InstancedMesh`.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
@@ -49,6 +51,57 @@ export function TimelineCards({ motion, settings, staticMotion }: CardsProps) {
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const count = settings.cardCount;
 
+  const atlas = useMemo(() => makeCardAtlas(), []);
+
+  /*
+   * Material propio en vez de `<meshStandardMaterial>` como hijo: `onBeforeCompile`
+   * tiene que estar puesto antes de la primera compilación del shader.
+   *
+   * El desplazamiento se aplica sobre las varyings de UV ya calculadas por
+   * `uv_vertex`, con sus propios `#ifdef`: así vale igual para el mapa de color
+   * y para el emisivo, y no se rompe si three deja de declarar alguno.
+   */
+  const material = useMemo(() => {
+    const mat = new THREE.MeshStandardMaterial({
+      roughness: 0.62,
+      metalness: 0,
+      emissive: new THREE.Color("#efe7d6"),
+      // Con ilustración, el emisivo plano de antes (0.26) lavaba el dibujo. Se
+      // baja y se modula con el propio atlas: las cartas siguen leyéndose en el
+      // vacío oscuro del Acto 4 sin comerse el arte.
+      emissiveIntensity: atlas ? 0.12 : 0.26,
+    });
+    if (atlas) {
+      mat.map = atlas;
+      mat.emissiveMap = atlas;
+      const su = 1 / ATLAS_COLS;
+      const sv = 1 / ATLAS_ROWS;
+      mat.onBeforeCompile = (shader) => {
+        shader.vertexShader = shader.vertexShader
+          .replace("#include <common>", "attribute vec2 aTile;\n#include <common>")
+          .replace(
+            "#include <uv_vertex>",
+            `#include <uv_vertex>
+            #ifdef USE_MAP
+              vMapUv = vMapUv * vec2( ${su.toFixed(6)}, ${sv.toFixed(6)} ) + aTile;
+            #endif
+            #ifdef USE_EMISSIVEMAP
+              vEmissiveMapUv = vEmissiveMapUv * vec2( ${su.toFixed(6)}, ${sv.toFixed(6)} ) + aTile;
+            #endif`
+          );
+      };
+    }
+    return mat;
+  }, [atlas]);
+
+  useEffect(
+    () => () => {
+      material.dispose();
+      atlas?.dispose();
+    },
+    [material, atlas]
+  );
+
   // Destino helicoidal de cada carta (línea del tiempo) y su punto de origen
   // agrupado junto a la esfera.
   const layout = useMemo(() => {
@@ -67,12 +120,22 @@ export function TimelineCards({ motion, settings, staticMotion }: CardsProps) {
   }, [count]);
 
   useLayoutEffect(() => {
-    if (!mesh.current) return;
+    const mesh_ = mesh.current;
+    if (!mesh_) return;
+    // `aTile` es la esquina de la casilla del atlas, ya en coordenadas UV.
+    const tiles = new Float32Array(count * 2);
+    const total = ATLAS_COLS * ATLAS_ROWS;
     for (let i = 0; i < count; i += 1) {
+      const tile = i % total;
+      tiles[i * 2] = (tile % ATLAS_COLS) / ATLAS_COLS;
+      tiles[i * 2 + 1] = Math.floor(tile / ATLAS_COLS) / ATLAS_ROWS;
+      // El tinte por instancia se conserva: multiplica al atlas y devuelve la
+      // variación de pergamino carta a carta.
       _parchment.copy(PARCH_A).lerp(PARCH_B, seededUnit(i, 41));
-      mesh.current.setColorAt(i, _parchment);
+      mesh_.setColorAt(i, _parchment);
     }
-    if (mesh.current.instanceColor) mesh.current.instanceColor.needsUpdate = true;
+    mesh_.geometry.setAttribute("aTile", new THREE.InstancedBufferAttribute(tiles, 2));
+    if (mesh_.instanceColor) mesh_.instanceColor.needsUpdate = true;
   }, [count]);
 
   useFrame(() => {
@@ -102,14 +165,11 @@ export function TimelineCards({ motion, settings, staticMotion }: CardsProps) {
 
   return (
     <group ref={group} position={[CENTER.x, CENTER.y, CENTER.z]} visible={false}>
-      <instancedMesh ref={mesh} args={[undefined, undefined, count]}>
+      {/* Sin `vertexColors`: el color por instancia viaja en `instanceColor`, que
+          three multiplica por su cuenta. Activar `vertexColors` sin atributo
+          `color` en la geometría multiplicaría por negro y apagaría el pergamino. */}
+      <instancedMesh ref={mesh} args={[undefined, undefined, count]} material={material}>
         <boxGeometry args={[CARD.w, CARD.h, CARD.d]} />
-        {/* Emisivo cálido tenue: las cartas leen como pergamino incluso en el
-            espacio oscuro, sin depender solo de la luz de escena.
-            Sin `vertexColors`: el color por instancia viaja en `instanceColor`, que
-            three multiplica por su cuenta. Activar `vertexColors` sin atributo
-            `color` en la geometría multiplicaría por negro y apagaría el pergamino. */}
-        <meshStandardMaterial roughness={0.62} metalness={0} emissive="#efe7d6" emissiveIntensity={0.26} />
       </instancedMesh>
     </group>
   );

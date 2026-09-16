@@ -24,7 +24,7 @@
         "jobTitle": "Ingeniera Industrial",
         "image": "https://elysiumdr.eu/VALTRIX%20Engineering/Images/avatar/AVATAR-VALTRIX-VALERIA-VXe-TITANIO-1024.png",
         "url": "https://elysiumdr.eu/VALTRIX%20Engineering/valeria-vargas",
-        "email": "valeria.vargas@valtrix.com",
+        "email": "info@valtrix.com",
         "telephone": "+50684880406",
         "worksFor": {
             "@type": "Organization",
@@ -62,9 +62,8 @@
             Si se le añade un aro, salen dos.
          2. Las entradas desplegables son <details>/<summary> nativos. No dependen
             de JS, así que la página se imprime e indexa entera.
-         3. Los huecos «is-pending» están puestos a propósito: cuando llegue un
-            título o un certificado, se copia el PDF y se cambia ese único bloque
-            por uno con «href» + «profile-credential-action».
+         3. Los títulos y certificados NO se publican: Valeria no quiere exponer
+            esos documentos. Se enseñan a quien los pida al contratar.
          ========================================================================== -->
     <style>
         /* Tokens locales: solo viven dentro del perfil. */
@@ -461,8 +460,8 @@
             margin: 0;
         }
 
-        /* Dos columnas y no tres: a tres, «valeria.vargas@valtrix.com» se parte
-           a mitad de palabra. */
+        /* Dos columnas y no tres: a tres, las etiquetas largas se parten a
+           mitad de palabra. */
         @media (min-width: 560px) {
             .profile-identity-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -801,133 +800,17 @@
             }
         }
 
-        /* ------------------------------------------------------ Credenciales */
+        /* ------------------------------------------------ Entradas sin detalle */
 
-        .profile-credentials {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-            margin-top: 1.1rem;
+        /* Formación y certificaciones no tienen nada que desplegar: los títulos
+           no se publican, se enseñan a quien los pida al contratar. Son <div>,
+           no <details>, así que no deben parecer pulsables. */
+        div.profile-entry > .profile-entry-head {
+            cursor: default;
         }
 
-        .profile-credential {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.7rem 0.9rem;
-            border: 1px solid var(--color-border);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.45);
-        }
-
-        .profile-credential-icon {
-            flex-shrink: 0;
-            width: 32px;
-            height: 40px;
-            border-radius: 4px;
-            display: grid;
-            place-items: center;
-            background: var(--pf-accent-soft);
-            border: 1px solid var(--pf-accent-line);
-            color: var(--color-accent);
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.03em;
-        }
-
-        .profile-credential-text {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .profile-credential-name {
-            display: block;
-            font-size: 0.87rem;
-            font-weight: 700;
+        div.profile-entry > .profile-entry-head:hover .profile-entry-title {
             color: var(--color-primary);
-            line-height: 1.35;
-        }
-
-        .profile-credential-note {
-            display: block;
-            font-size: 0.77rem;
-            color: var(--pf-muted);
-            line-height: 1.4;
-            margin-top: 0.12rem;
-        }
-
-        .profile-credential-action {
-            flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.35rem 0.85rem;
-            border-radius: 50px;
-            border: 1px solid var(--pf-accent-line);
-            color: var(--color-accent);
-            font-size: 0.76rem;
-            font-weight: 700;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: all var(--transition-fast);
-        }
-
-        .profile-credential-action:hover {
-            background: var(--color-accent);
-            color: var(--btn-text);
-            border-color: var(--color-accent);
-        }
-
-        /* Hueco reservado: la entrada existe, el documento todavía no. */
-        .profile-credential.is-pending {
-            border-style: dashed;
-            background: transparent;
-        }
-
-        .profile-credential.is-pending .profile-credential-icon {
-            background: rgba(255, 255, 255, 0.35);
-            border-style: dashed;
-            border-color: var(--color-border);
-            color: var(--pf-muted);
-        }
-
-        .profile-credential.is-pending .profile-credential-name {
-            color: var(--color-text-secondary);
-            font-weight: 600;
-        }
-
-        .profile-credential-status {
-            flex-shrink: 0;
-            padding: 0.3rem 0.75rem;
-            border-radius: 50px;
-            background: rgba(6, 10, 19, 0.05);
-            border: 1px solid var(--color-border);
-            color: var(--pf-muted);
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
-
-        /* En móvil el botón no cabe al lado del texto: baja a su propia fila. */
-        @media (max-width: 559px) {
-            .profile-credential {
-                display: grid;
-                grid-template-columns: 32px minmax(0, 1fr);
-                column-gap: 0.8rem;
-                row-gap: 0.7rem;
-                align-items: start;
-            }
-
-            .profile-credential-icon { grid-area: 1 / 1; }
-            .profile-credential-text { grid-area: 1 / 2; }
-
-            .profile-credential-action,
-            .profile-credential-status {
-                grid-area: 2 / 2;
-                justify-self: start;
-            }
         }
 
         /* ------------------------------------------------------- Competencias */
@@ -1285,7 +1168,7 @@
                             Ingeniera Industrial &amp; Fundadora
                         </p>
                         <p class="profile-intro-location">
-                            <span>Costa Rica · Gran Área Metropolitana y remoto</span>
+                            <span>Toda Costa Rica</span>
                             <span aria-hidden="true">·</span>
                             <a href="contacto.html">Datos de contacto</a>
                         </p>
@@ -1293,13 +1176,13 @@
                         <div class="profile-intro-actions">
                             <a href="contacto.html" class="btn-profile-primary">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                                Agende una visita, sin costo
+                                Agende su cita sin costo
                             </a>
                             <a href="https://wa.me/50684880406" target="_blank" rel="noopener noreferrer" class="btn-profile-secondary">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                                 WhatsApp
                             </a>
-                            <a href="mailto:valeria.vargas@valtrix.com" class="btn-profile-secondary">
+                            <a href="mailto:info@valtrix.com" class="btn-profile-secondary">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                                 Correo
                             </a>
@@ -1322,11 +1205,7 @@
                                 </div>
                                 <div class="profile-identity-item" data-icon="⧗">
                                     <dt class="profile-identity-label">Trayectoria</dt>
-                                    <dd class="profile-identity-value"><span data-anios>9</span> años en manufactura e infraestructura</dd>
-                                </div>
-                                <div class="profile-identity-item" data-icon="@">
-                                    <dt class="profile-identity-label">Correo</dt>
-                                    <dd class="profile-identity-value"><a href="mailto:valeria.vargas@valtrix.com">valeria.vargas@valtrix.com</a></dd>
+                                    <dd class="profile-identity-value"><span data-anios>9</span> años en diferentes áreas de la industria y la ingeniería</dd>
                                 </div>
                                 <div class="profile-identity-item" data-icon="✆">
                                     <dt class="profile-identity-label">WhatsApp</dt>
@@ -1344,10 +1223,11 @@
                             <h2 class="profile-card-title">Sobre mí</h2>
                         </div>
                         <div class="profile-text-body">
-                            <p>Ingeniera industrial con <strong><span data-anios>9</span> años</strong> entre industria electrónica, médica, construcción e infraestructura, y auditora certificada en la Norma Internacional de Calidad <strong>ISO 9001:2015</strong>. Mi trabajo ha sido siempre el mismo: entrar a una operación, entender cómo funciona de verdad y dejarla ordenada, medida y documentada.</p>
-                            <p>Fundé VALTRIX Engineering para llevar ese mismo rigor a los negocios que nunca van a tener un ingeniero industrial en planilla: talleres, consultorios, distribuidoras, sodas y microfábricas de tres a veinte personas. Son negocios que funcionan, que venden, y que operan a ciegas porque su información vive repartida entre varias hojas de Excel y una libreta. Ordenar eso no requiere un sistema corporativo: requiere criterio y una semana de trabajo bien hecho. Cada trabajo lo atiendo personalmente.</p>
+                            <p>Ingeniera Industrial con <strong><span data-anios>9</span> años de experiencia</strong> en las industrias electrónica, médica, construcción e infraestructura, además de auditora certificada en la norma internacional <strong>ISO 9001:2015</strong>. A lo largo de mi carrera he trabajado optimizando operaciones, estandarizando procesos y transformando información dispersa en sistemas claros, medibles y documentados.</p>
+                            <p>Fundé VALTRIX Engineering para llevar ese mismo enfoque a pequeñas y medianas empresas que necesitan orden y control, pero que no cuentan con un ingeniero industrial dentro de su estructura. Trabajamos con talleres, consultorios, distribuidoras, sodas y microfábricas que operan día a día sin visibilidad real de sus procesos porque la información se encuentra repartida entre hojas de cálculo, formularios y registros manuales.</p>
+                            <p>Nuestro propósito es simple: convertir datos dispersos en información útil para tomar mejores decisiones. En muchos casos, esto no requiere un sistema corporativo complejo, sino criterio técnico, metodologías probadas y una implementación práctica. Cada proyecto es atendido personalmente, garantizando un acompañamiento directo, soluciones a la medida y resultados concretos en poco tiempo.</p>
                             <blockquote class="profile-quote">
-                                “Sé por qué un procedimiento se incumple en la práctica, no solo por qué debería cumplirse en el papel. Atiendo personalmente cada intervención.”
+                                “La experiencia me ha enseñado que los procesos no fallan en el papel, fallan en la operación. Por eso diseño soluciones que las personas realmente pueden ejecutar. Cada intervención es atendida personalmente.”
                                 <footer>Valeria Vargas Ávila — Fundadora</footer>
                             </blockquote>
                         </div>
@@ -1491,89 +1371,47 @@
                 </section>
 
                 <!-- Formación académica.
-                     Los huecos «is-pending» están puestos a propósito: cuando
-                     llegue un título, se copia el PDF a «Titulos/» y se cambia
-                     ese único bloque por uno con «href» +
-                     «profile-credential-action». No hace falta tocar nada más. -->
+                     Sin documentos adjuntos a propósito: los títulos no se
+                     publican, se enseñan a quien los pida al contratar. -->
                 <section class="profile-card">
                     <div class="profile-card-padding">
                         <div class="profile-card-header">
                             <h2 class="profile-card-title">Formación académica</h2>
-                            <p class="profile-card-note">Pulse cualquier entrada para desplegarla</p>
                         </div>
                         <div class="profile-feed-list">
 
-                            <details class="profile-entry" open>
-                                <summary class="profile-entry-head">
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
                                     <span class="profile-entry-logo" aria-hidden="true">F</span>
                                     <span class="profile-entry-heading">
                                         <span class="profile-entry-title">Licenciatura en Ingeniería Industrial</span>
                                         <span class="profile-entry-subtitle">Universidad Fidélitas</span>
                                         <span class="profile-entry-meta">2026</span>
                                     </span>
-                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
-                                </summary>
-                                <div class="profile-entry-body">
-                                    <div class="profile-credentials">
-                                        <div class="profile-credential is-pending">
-                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
-                                            <span class="profile-credential-text">
-                                                <span class="profile-credential-name">Título de Licenciatura en Ingeniería Industrial</span>
-                                                <span class="profile-credential-note">Documento no publicado</span>
-                                            </span>
-                                            <span class="profile-credential-status">Pendiente</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </details>
+                            </div>
 
-                            <details class="profile-entry">
-                                <summary class="profile-entry-head">
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
                                     <span class="profile-entry-logo" aria-hidden="true">F</span>
                                     <span class="profile-entry-heading">
                                         <span class="profile-entry-title">Bachillerato en Ingeniería Industrial</span>
                                         <span class="profile-entry-subtitle">Universidad Fidélitas</span>
                                         <span class="profile-entry-meta">2023</span>
                                     </span>
-                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
-                                </summary>
-                                <div class="profile-entry-body">
-                                    <div class="profile-credentials">
-                                        <div class="profile-credential is-pending">
-                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
-                                            <span class="profile-credential-text">
-                                                <span class="profile-credential-name">Título de Bachillerato en Ingeniería Industrial</span>
-                                                <span class="profile-credential-note">Documento no publicado</span>
-                                            </span>
-                                            <span class="profile-credential-status">Pendiente</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </details>
+                            </div>
 
-                            <details class="profile-entry">
-                                <summary class="profile-entry-head">
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
                                     <span class="profile-entry-logo" aria-hidden="true">F</span>
                                     <span class="profile-entry-heading">
                                         <span class="profile-entry-title">Ingeniería en Cadena de Suministros y Logística</span>
                                         <span class="profile-entry-subtitle">Universidad Fidélitas</span>
                                         <span class="profile-entry-meta">75 % de la malla curricular</span>
                                     </span>
-                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
-                                </summary>
-                                <div class="profile-entry-body">
-                                    <div class="profile-credentials">
-                                        <div class="profile-credential is-pending">
-                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
-                                            <span class="profile-credential-text">
-                                                <span class="profile-credential-name">Ingeniería en Cadena de Suministros y Logística</span>
-                                                <span class="profile-credential-note">Malla curricular completada al 75 %</span>
-                                            </span>
-                                            <span class="profile-credential-status">En curso</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </details>
+                            </div>
 
                         </div>
                     </div>
@@ -1584,57 +1422,30 @@
                     <div class="profile-card-padding">
                         <div class="profile-card-header">
                             <h2 class="profile-card-title">Certificaciones</h2>
-                            <p class="profile-card-note">Pulse cualquier entrada para desplegarla</p>
                         </div>
                         <div class="profile-feed-list">
 
-                            <details class="profile-entry" open>
-                                <summary class="profile-entry-head">
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
                                     <span class="profile-entry-logo" aria-hidden="true">◎</span>
                                     <span class="profile-entry-heading">
                                         <span class="profile-entry-title">Auditor en la Norma Internacional de Calidad 9001-2015</span>
                                         <span class="profile-entry-subtitle">SHERPA Consultores</span>
                                         <span class="profile-entry-meta">2023</span>
                                     </span>
-                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
-                                </summary>
-                                <div class="profile-entry-body">
-                                    <div class="profile-credentials">
-                                        <div class="profile-credential is-pending">
-                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
-                                            <span class="profile-credential-text">
-                                                <span class="profile-credential-name">Certificado de auditor ISO 9001:2015</span>
-                                                <span class="profile-credential-note">Documento no publicado</span>
-                                            </span>
-                                            <span class="profile-credential-status">Pendiente</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </details>
+                            </div>
 
-                            <details class="profile-entry">
-                                <summary class="profile-entry-head">
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
                                     <span class="profile-entry-logo" aria-hidden="true">▦</span>
                                     <span class="profile-entry-heading">
                                         <span class="profile-entry-title">Power BI</span>
                                         <span class="profile-entry-subtitle">UTN — Universidad Técnica Nacional</span>
                                         <span class="profile-entry-meta">2023</span>
                                     </span>
-                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
-                                </summary>
-                                <div class="profile-entry-body">
-                                    <div class="profile-credentials">
-                                        <div class="profile-credential is-pending">
-                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
-                                            <span class="profile-credential-text">
-                                                <span class="profile-credential-name">Certificado de Power BI</span>
-                                                <span class="profile-credential-note">Documento no publicado</span>
-                                            </span>
-                                            <span class="profile-credential-status">Pendiente</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </details>
+                            </div>
 
                         </div>
                     </div>
@@ -1648,109 +1459,96 @@
                         </div>
                         <div class="profile-feed-list">
 
-                            <details class="profile-entry" open>
-                                <summary class="profile-entry-head">
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
                                     <span class="profile-entry-logo" aria-hidden="true">▤</span>
                                     <span class="profile-entry-heading">
                                         <span class="profile-entry-title">Excel Intermedio</span>
                                         <span class="profile-entry-subtitle">Universidad Fidélitas</span>
                                         <span class="profile-entry-meta">2022</span>
                                     </span>
-                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
-                                </summary>
-                                <div class="profile-entry-body">
-                                    <div class="profile-credentials">
-                                        <div class="profile-credential is-pending">
-                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
-                                            <span class="profile-credential-text">
-                                                <span class="profile-credential-name">Certificado de Excel Intermedio</span>
-                                                <span class="profile-credential-note">Documento no publicado</span>
-                                            </span>
-                                            <span class="profile-credential-status">Pendiente</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </details>
+                            </div>
 
-                            <details class="profile-entry">
-                                <summary class="profile-entry-head">
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
                                     <span class="profile-entry-logo" aria-hidden="true">EN</span>
                                     <span class="profile-entry-heading">
                                         <span class="profile-entry-title">Inglés Ejecutivo</span>
                                         <span class="profile-entry-subtitle">Academia Líder</span>
                                         <span class="profile-entry-meta">Nivel A2</span>
                                     </span>
-                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
-                                </summary>
-                                <div class="profile-entry-body">
-                                    <div class="profile-credentials">
-                                        <div class="profile-credential is-pending">
-                                            <span class="profile-credential-icon" aria-hidden="true">—</span>
-                                            <span class="profile-credential-text">
-                                                <span class="profile-credential-name">Certificado de Inglés Ejecutivo — nivel A2</span>
-                                                <span class="profile-credential-note">Documento no publicado</span>
-                                            </span>
-                                            <span class="profile-credential-status">Pendiente</span>
-                                        </div>
-                                    </div>
                                 </div>
-                            </details>
+                            </div>
 
                         </div>
                     </div>
                 </section>
 
-                <!-- Competencias: agrupa lo que ya aparece en la experiencia, para
-                     poder leerlo de un vistazo sin desplegar cada entrada. -->
+                <!-- Competencias -->
                 <section class="profile-card">
                     <div class="profile-card-padding">
                         <div class="profile-card-header">
                             <h2 class="profile-card-title">Competencias</h2>
-                            <p class="profile-card-note">Resumen de la experiencia listada arriba</p>
                         </div>
                         <div class="profile-skill-groups">
                             <div>
-                                <h3 class="profile-skill-group-title">Calidad y normativa</h3>
-                                <div class="profile-skills-grid">
-                                    <span class="profile-skill-chip">ISO 9001:2015</span>
-                                    <span class="profile-skill-chip">Auditoría interna</span>
-                                    <span class="profile-skill-chip">Documentos controlados</span>
-                                    <span class="profile-skill-chip">Cumplimiento regulatorio</span>
-                                    <span class="profile-skill-chip">Mejora continua</span>
-                                    <span class="profile-skill-chip">Trazabilidad</span>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="profile-skill-group-title">Datos e indicadores</h3>
-                                <div class="profile-skills-grid">
-                                    <span class="profile-skill-chip">Power BI</span>
-                                    <span class="profile-skill-chip">Excel</span>
-                                    <span class="profile-skill-chip">Minitab</span>
-                                    <span class="profile-skill-chip">SAP</span>
-                                    <span class="profile-skill-chip">Indicadores de desempeño</span>
-                                    <span class="profile-skill-chip">Gráficas de control</span>
-                                    <span class="profile-skill-chip">Levantamiento de datos</span>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="profile-skill-group-title">Procesos y operación</h3>
-                                <div class="profile-skills-grid">
-                                    <span class="profile-skill-chip">Diagramas de flujo</span>
-                                    <span class="profile-skill-chip">Estandarización</span>
-                                    <span class="profile-skill-chip">Ayudas visuales</span>
-                                    <span class="profile-skill-chip">Control de calibración</span>
-                                    <span class="profile-skill-chip">Metrología</span>
-                                    <span class="profile-skill-chip">Control de inventarios</span>
-                                </div>
-                            </div>
-                            <div>
                                 <h3 class="profile-skill-group-title">Gestión de proyectos</h3>
                                 <div class="profile-skills-grid">
-                                    <span class="profile-skill-chip">Cronograma, costos y alcance</span>
-                                    <span class="profile-skill-chip">Reportes ejecutivos</span>
-                                    <span class="profile-skill-chip">Equipos multidisciplinarios</span>
-                                    <span class="profile-skill-chip">Supervisión de campo</span>
-                                    <span class="profile-skill-chip">Documentación contractual</span>
+                                    <span class="profile-skill-chip">Gestión de riesgos</span>
+                                    <span class="profile-skill-chip">Control presupuestario</span>
+                                    <span class="profile-skill-chip">Gestión de interesados (stakeholders)</span>
+                                    <span class="profile-skill-chip">Planificación estratégica</span>
+                                    <span class="profile-skill-chip">Seguimiento de hitos</span>
+                                    <span class="profile-skill-chip">Gestión documental</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Mejora continua y procesos</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Lean Management</span>
+                                    <span class="profile-skill-chip">BPM (Business Process Management)</span>
+                                    <span class="profile-skill-chip">Optimización de procesos</span>
+                                    <span class="profile-skill-chip">Análisis de causa raíz</span>
+                                    <span class="profile-skill-chip">Mapeo de procesos</span>
+                                    <span class="profile-skill-chip">Gestión del cambio</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Datos y análisis</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Análisis de datos</span>
+                                    <span class="profile-skill-chip">Dashboards ejecutivos</span>
+                                    <span class="profile-skill-chip">KPIs</span>
+                                    <span class="profile-skill-chip">Automatización de reportes</span>
+                                    <span class="profile-skill-chip">Inteligencia de negocio (Business Intelligence)</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Calidad</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Acciones correctivas y preventivas (CAPA)</span>
+                                    <span class="profile-skill-chip">Gestión de no conformidades</span>
+                                    <span class="profile-skill-chip">Sistemas de gestión</span>
+                                    <span class="profile-skill-chip">Auditorías de cumplimiento</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Herramientas colaborativas</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Smartsheet</span>
+                                    <span class="profile-skill-chip">Microsoft Project</span>
+                                    <span class="profile-skill-chip">SharePoint</span>
+                                    <span class="profile-skill-chip">OneDrive</span>
+                                    <span class="profile-skill-chip">Microsoft 365</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Liderazgo</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Liderazgo y coordinación de equipos multidisciplinarios</span>
+                                    <span class="profile-skill-chip">Comunicación ejecutiva</span>
+                                    <span class="profile-skill-chip">Gestión y supervisión de proyectos en campo</span>
                                 </div>
                             </div>
                         </div>
@@ -1777,7 +1575,7 @@
                         </div>
                         <div class="profile-authority-item">
                             <span class="profile-authority-value"><span data-anios>9</span> años</span>
-                            <span class="profile-authority-label">Manufactura e infraestructura industrial</span>
+                            <span class="profile-authority-label">Diferentes áreas de la industria y la ingeniería</span>
                         </div>
                     </div>
                 </div>
@@ -1789,7 +1587,7 @@
                             <span class="profile-fact-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                             </span>
-                            <span><a href="mailto:valeria.vargas@valtrix.com">valeria.vargas@valtrix.com</a></span>
+                            <span><a href="mailto:info@valtrix.com">info@valtrix.com</a></span>
                         </div>
                         <div class="profile-fact-item">
                             <span class="profile-fact-icon" aria-hidden="true">
@@ -1801,10 +1599,10 @@
                             <span class="profile-fact-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                             </span>
-                            <span>Toda Costa Rica, casi todo remoto. La visita al local va incluida dentro de la GAM.</span>
+                            <span>Toda Costa Rica</span>
                         </div>
                     </div>
-                    <a class="profile-widget-cta" href="contacto.html">Agende una visita, sin costo</a>
+                    <a class="profile-widget-cta" href="contacto.html">Agende su cita sin costo</a>
                 </div>
 
                 <div class="profile-widget">
@@ -1878,7 +1676,7 @@
             </div>
             <div class="fab-option-item">
                 <span class="fab-label">Email</span>
-                <a href="mailto:valeria.vargas@valtrix.com" class="fab-option-btn email-btn" aria-label="Email">
+                <a href="mailto:info@valtrix.com" class="fab-option-btn email-btn" aria-label="Email">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                 </a>
             </div>

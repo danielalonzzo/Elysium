@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" width="1000" height="500" role="img">
+
+  <rect width="1000" height="500" fill="#F0E7D8"/>
+  <path d="M250 316 C250 168 356 92 500 92 C644 92 750 168 750 316 Z" fill="#6E6C66"/>
+  <path d="M500 92 V316" stroke="#14120F" stroke-width="2" opacity="0.16"/>
+  <path d="M366 104 C330 160 316 236 316 316" fill="none" stroke="#14120F" stroke-width="2" opacity="0.14"/>
+  <path d="M634 104 C670 160 684 236 684 316" fill="none" stroke="#14120F" stroke-width="2" opacity="0.14"/>
+  <circle cx="500" cy="96" r="12" fill="#2E150B"/>
+  <rect x="250" y="304" width="500" height="26" fill="#2E150B"/>
+  <path d="M744 306 C862 302 934 326 952 354 C930 382 846 396 740 392 Z" fill="#6E6C66"/>
+  <path d="M744 306 C862 302 934 326 952 354" fill="none" stroke="#14120F" stroke-width="2" opacity="0.2"/>
+  
+  <defs>
+    <radialGradient id="sphcap2" cx="36%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#A8ADA4"/>
+      <stop offset="52%" stop-color="#8B8D88"/>
+      <stop offset="100%" stop-color="#53565A"/>
+    </radialGradient>
+  </defs>
+  <circle cx="500" cy="216" r="62" fill="url(#sphcap2)"/>
+  <path d="M455.36 247 A 62 62 0 0 0 544.64 247" fill="none" stroke="#2C5525" stroke-width="6.2" opacity="0.34"/>
+  <ellipse cx="481.4" cy="192.44" rx="18.599999999999998" ry="12.4" fill="#FDFAF3" opacity="0.2"/>
+</svg>

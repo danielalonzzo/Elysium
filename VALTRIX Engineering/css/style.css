@@ -356,6 +356,35 @@ img {
   display: none;
 }
 
+/* Página actual. El HTML ya marca el enlace con aria-current="page"; sin este
+   estilo el visitante no sabía en cuál de las cinco secciones estaba. Solo
+   color y subrayado, sin cambiar el peso: una letra más gruesa ensancha el
+   enlace y hace saltar el menú al cambiar de página. */
+.nav-link[aria-current="page"],
+.nav-btn[aria-current="page"] {
+  position: relative;
+}
+
+.nav-link[aria-current="page"] {
+  color: var(--color-accent);
+}
+
+.nav-link[aria-current="page"]::after,
+.nav-btn[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+.nav-link[aria-current="page"]:hover {
+  opacity: 1;
+}
+
 /* Hamburger Menu */
 .hamburger {
   display: none;

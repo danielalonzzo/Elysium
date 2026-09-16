@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img">
+
+  <rect width="900" height="900" fill="#F0E7D8"/>
+  <path d="M300 306 C300 184 362 138 450 138 C538 138 600 184 600 306" fill="none" stroke="#D9CDB4" stroke-width="20" stroke-linecap="round"/>
+  <path d="M180 300 H720 V782 C720 796 709 806 696 806 H204 C191 806 180 796 180 782 Z" fill="#E4D9C0"/>
+  <path d="M180 300 H720" stroke="#A75D39" stroke-width="4" opacity="0.4"/>
+  
+  
+  <g transform="translate(450 540) scale(0.86) translate(-450 -566)">
+    <circle cx="356" cy="470" r="26" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="356" cy="470" r="6.24" fill="#53565A"/><circle cx="430" cy="470" r="34" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="430" cy="470" r="8.16" fill="#53565A"/><circle cx="512" cy="470" r="22" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="512" cy="470" r="5.279999999999999" fill="#53565A"/><circle cx="584" cy="470" r="30" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="584" cy="470" r="7.199999999999999" fill="#53565A"/><circle cx="392" cy="566" r="30" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="392" cy="566" r="7.199999999999999" fill="#53565A"/><circle cx="472" cy="566" r="24" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="472" cy="566" r="5.76" fill="#53565A"/><circle cx="548" cy="566" r="32" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="548" cy="566" r="7.68" fill="#53565A"/><circle cx="356" cy="656" r="22" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="356" cy="656" r="5.279999999999999" fill="#53565A"/><circle cx="438" cy="656" r="30" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="438" cy="656" r="7.199999999999999" fill="#53565A"/><circle cx="520" cy="656" r="26" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="520" cy="656" r="6.24" fill="#53565A"/><circle cx="594" cy="656" r="20" fill="none" stroke="#53565A" stroke-width="4"/><circle cx="594" cy="656" r="4.8" fill="#53565A"/>
+    <path d="M330 470 H620 M330 566 H620 M330 656 H620" stroke="#53565A" stroke-width="2" opacity="0.42" stroke-dasharray="10 10"/>
+  </g>
+  <text x="450" y="712" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#53565A" letter-spacing="2">FINCA 6</text>
+  <text x="450" y="744" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="17" fill="#53565A" opacity="0.75" letter-spacing="3">8.9436° N · 83.4939° O</text>
+</svg>

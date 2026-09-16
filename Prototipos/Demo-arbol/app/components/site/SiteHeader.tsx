@@ -98,7 +98,7 @@ export function SiteHeader() {
             aria-label="WhatsApp"
           >
             <IconWhatsApp className="nav-cta-ico" />
-            <span />
+            <span>Escríbenos</span>
           </a>
           <button className="menu-toggle" type="button" aria-expanded="false" aria-controls="navMenu" aria-label="Abrir menú">
             <span />

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1200" width="1000" height="1200" role="img">
+
+  <rect width="1000" height="1200" fill="#F0E7D8"/>
+  <path d="M350 180 L300 150 C250 165 200 200 165 250 L250 340 L286 304 L286 1050 C286 1066 296 1076 312 1076 L688 1076 C704 1076 714 1066 714 1050 L714 304 L750 340 L835 250 C800 200 750 165 700 150 L650 180 C620 206 578 220 500 220 C422 220 380 206 350 180 Z" fill="#B9B7B1"/>
+  <path d="M350 180 L300 150 C250 165 200 200 165 250 L250 340 L286 304 L286 1050 C286 1066 296 1076 312 1076 L688 1076 C704 1076 714 1066 714 1050 L714 304 L750 340 L835 250 C800 200 750 165 700 150 L650 180 C620 206 578 220 500 220 C422 220 380 206 350 180 Z" fill="none" stroke="#53565A" stroke-width="3" opacity="0.5"/>
+  <path d="M350 180 C380 206 422 220 500 220 C578 220 620 206 650 180" fill="none" stroke="#53565A" stroke-width="9" opacity="0.75"/>
+  
+  <defs>
+    <radialGradient id="sphtee2" cx="36%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#A8ADA4"/>
+      <stop offset="52%" stop-color="#8B8D88"/>
+      <stop offset="100%" stop-color="#53565A"/>
+    </radialGradient>
+  </defs>
+  <circle cx="500" cy="560" r="168" fill="url(#sphtee2)"/>
+  <path d="M379.04 644 A 168 168 0 0 0 620.96 644" fill="none" stroke="#2C5525" stroke-width="16.8" opacity="0.34"/>
+  <ellipse cx="449.6" cy="496.15999999999997" rx="50.4" ry="33.6" fill="#FDFAF3" opacity="0.2"/>
+  <text x="500" y="812" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="40" font-weight="700" fill="#2E150B" letter-spacing="3">DIQUÍS</text>
+       <text x="500" y="850" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="19" fill="#2E150B" opacity="0.7" letter-spacing="3">PATRIMONIO MUNDIAL · 2014</text>
+</svg>

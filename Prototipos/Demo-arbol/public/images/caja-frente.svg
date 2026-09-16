@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img">
+
+  <rect width="1200" height="1200" fill="#F0E7D8"/>
+  <g transform="translate(0 18)">
+    <rect x="196" y="118" width="812" height="1000" rx="10" fill="#14120F"/>
+    <rect x="196" y="118" width="58" height="1000" rx="10" fill="#2E150B"/>
+    <path d="M254 118 V1118" stroke="#A75D39" stroke-width="3" opacity="0.55"/>
+    <rect x="292" y="168" width="676" height="900" fill="none" stroke="#A75D39" stroke-width="4"/>
+    <path d="M334.20000000000005 230 V202.12 H369.696 V218.44 H352.934 V210.96 M383.50000000000006 230 V202.12 H418.99600000000004 V218.44 H402.23400000000004 V210.96 M432.80000000000007 230 V202.12 H468.29600000000005 V218.44 H451.53400000000005 V210.96 M482.1 230 V202.12 H517.596 V218.44 H500.834 V210.96 M531.4000000000001 230 V202.12 H566.8960000000001 V218.44 H550.1340000000001 V210.96 M580.7 230 V202.12 H616.196 V218.44 H599.4340000000001 V210.96 M630 230 V202.12 H665.496 V218.44 H648.734 V210.96 M679.3 230 V202.12 H714.7959999999999 V218.44 H698.034 V210.96 M728.6 230 V202.12 H764.096 V218.44 H747.3340000000001 V210.96 M777.9000000000001 230 V202.12 H813.3960000000001 V218.44 H796.6340000000001 V210.96 M827.2 230 V202.12 H862.696 V218.44 H845.9340000000001 V210.96 M876.5 230 V202.12 H911.996 V218.44 H895.234 V210.96 " fill="none" stroke="#E0B65C" stroke-width="5.44" stroke-linecap="square"/>
+    <path d="M334.20000000000005 1040 V1012.12 H369.696 V1028.44 H352.934 V1020.96 M383.50000000000006 1040 V1012.12 H418.99600000000004 V1028.44 H402.23400000000004 V1020.96 M432.80000000000007 1040 V1012.12 H468.29600000000005 V1028.44 H451.53400000000005 V1020.96 M482.1 1040 V1012.12 H517.596 V1028.44 H500.834 V1020.96 M531.4000000000001 1040 V1012.12 H566.8960000000001 V1028.44 H550.1340000000001 V1020.96 M580.7 1040 V1012.12 H616.196 V1028.44 H599.4340000000001 V1020.96 M630 1040 V1012.12 H665.496 V1028.44 H648.734 V1020.96 M679.3 1040 V1012.12 H714.7959999999999 V1028.44 H698.034 V1020.96 M728.6 1040 V1012.12 H764.096 V1028.44 H747.3340000000001 V1020.96 M777.9000000000001 1040 V1012.12 H813.3960000000001 V1028.44 H796.6340000000001 V1020.96 M827.2 1040 V1012.12 H862.696 V1028.44 H845.9340000000001 V1020.96 M876.5 1040 V1012.12 H911.996 V1028.44 H895.234 V1020.96 " fill="none" stroke="#E0B65C" stroke-width="5.44" stroke-linecap="square"/>
+    <g transform="translate(630 330) scale(0.44) translate(-300 -182)" fill="#D4805A" opacity="1"><path d="M264 196 H336 L348 302 H252 Z M252 302 C228 312 208 324 194 342 H406 C392 324 372 312 348 302 Z"/><ellipse cx="300" cy="96" rx="148" ry="62"/><ellipse cx="176" cy="122" rx="132" ry="58"/><ellipse cx="424" cy="122" rx="132" ry="58"/><ellipse cx="240" cy="158" rx="128" ry="56"/><ellipse cx="360" cy="158" rx="128" ry="56"/><ellipse cx="92" cy="162" rx="100" ry="48"/><ellipse cx="508" cy="162" rx="100" ry="48"/><ellipse cx="40" cy="178" rx="66" ry="40"/><ellipse cx="560" cy="178" rx="66" ry="40"/><ellipse cx="300" cy="182" rx="168" ry="52"/></g>
+    
+  <defs>
+    <radialGradient id="sphbox" cx="36%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#A8ADA4"/>
+      <stop offset="52%" stop-color="#8B8D88"/>
+      <stop offset="100%" stop-color="#53565A"/>
+    </radialGradient>
+  </defs>
+  <circle cx="630" cy="610" r="172" fill="url(#sphbox)"/>
+  <path d="M506.16 696 A 172 172 0 0 0 753.84 696" fill="none" stroke="#2C5525" stroke-width="17.2" opacity="0.34"/>
+  <ellipse cx="578.4" cy="544.64" rx="51.6" ry="34.4" fill="#FDFAF3" opacity="0.2"/>
+    <text x="630" y="856" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="74" font-weight="700" fill="#FDFAF3" letter-spacing="3">RAÍZ Y PIEDRA</text>
+    <text x="630" y="906" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#D4805A" letter-spacing="5">JUEGOS Y OBJETOS DE LA MEMORIA</text>
+    <text x="630" y="972" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#8B8D88" letter-spacing="4">80 CARTAS · 2–6 JUGADORES · 15 MIN</text>
+  </g>
+</svg>

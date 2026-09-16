@@ -169,9 +169,12 @@ Lo que no se puede servir tal cual. **Está excluido de las tres listas de
 despliegue**, porque si no se serviría en `elysiumdr.eu/Prototipos/`:
 
 - `Demo-arbol/` — aplicación Next 16. Es la demo de primer contacto del
-  portafolio y **está vacía de contenido a propósito**: se enseña para mostrar
-  la arquitectura, no un proyecto. Tiene su propio `CLAUDE.md`; léelo antes de
-  tocarla. Se publica con el script, en la raíz.
+  portafolio: se enseña para mostrar la arquitectura, no un proyecto. Nació como
+  el sitio de un cliente que no cerró y se vació entera; **hoy va vestida con una
+  marca ficticia, «Raíz y Piedra»**, igual que `Selva y Sal/` y por el mismo
+  motivo: poder enseñarla llena a cualquier cliente sin usar el material de
+  ninguno. La marca no existe y el aviso de entrada lo declara. Tiene su propio
+  `CLAUDE.md`; léelo antes de tocarla. Se publica con el script, en la raíz.
 - `Selva y Sal/` — aplicación Next que se despliega como **Worker propio** en
   `selva-y-sal.danielalonzzo.workers.dev`. Elysium solo guarda la redirección
   (`/selva-y-sal` → el Worker, en `_redirects`), así que no tiene carpeta

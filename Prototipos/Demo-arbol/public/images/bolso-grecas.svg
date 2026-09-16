@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img">
+
+  <rect width="900" height="900" fill="#F0E7D8"/>
+  <path d="M300 306 C300 184 362 138 450 138 C538 138 600 184 600 306" fill="none" stroke="#D9CDB4" stroke-width="20" stroke-linecap="round"/>
+  <path d="M180 300 H720 V782 C720 796 709 806 696 806 H204 C191 806 180 796 180 782 Z" fill="#E4D9C0"/>
+  <path d="M180 300 H720" stroke="#A75D39" stroke-width="4" opacity="0.4"/>
+  
+  <rect x="266" y="392" width="368" height="320" fill="none" stroke="#A75D39" stroke-width="4"/>
+  <path d="M307.9 440 V417.04 H337.13199999999995 V430.48 H323.328 V424.32 M348.5 440 V417.04 H377.73199999999997 V430.48 H363.928 V424.32 M389.09999999999997 440 V417.04 H418.332 V430.48 H404.52799999999996 V424.32 M429.7 440 V417.04 H458.932 V430.48 H445.128 V424.32 M470.29999999999995 440 V417.04 H499.5319999999999 V430.48 H485.72799999999995 V424.32 M510.9 440 V417.04 H540.132 V430.48 H526.328 V424.32 M551.5 440 V417.04 H580.732 V430.48 H566.928 V424.32 " fill="none" stroke="#A75D39" stroke-width="4" stroke-linecap="square"/>
+  
+  <circle cx="450" cy="542" r="59" fill="none" stroke="#A75D39" stroke-width="5.31"/>
+  <circle cx="450" cy="542" r="50.74" fill="#FDFAF3" opacity="0.25"/>
+  <g transform="translate(450 546.72) scale(0.14553333333333332) translate(-300 -182)" fill="#A75D39" opacity="1"><path d="M264 196 H336 L348 302 H252 Z M252 302 C228 312 208 324 194 342 H406 C392 324 372 312 348 302 Z"/><ellipse cx="300" cy="96" rx="148" ry="62"/><ellipse cx="176" cy="122" rx="132" ry="58"/><ellipse cx="424" cy="122" rx="132" ry="58"/><ellipse cx="240" cy="158" rx="128" ry="56"/><ellipse cx="360" cy="158" rx="128" ry="56"/><ellipse cx="92" cy="162" rx="100" ry="48"/><ellipse cx="508" cy="162" rx="100" ry="48"/><ellipse cx="40" cy="178" rx="66" ry="40"/><ellipse cx="560" cy="178" rx="66" ry="40"/><ellipse cx="300" cy="182" rx="168" ry="52"/></g>
+  <text x="450" y="646" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="700" fill="#A75D39" letter-spacing="2">RAÍZ Y PIEDRA</text>
+  <path d="M307.9 696 V673.04 H337.13199999999995 V686.48 H323.328 V680.32 M348.5 696 V673.04 H377.73199999999997 V686.48 H363.928 V680.32 M389.09999999999997 696 V673.04 H418.332 V686.48 H404.52799999999996 V680.32 M429.7 696 V673.04 H458.932 V686.48 H445.128 V680.32 M470.29999999999995 696 V673.04 H499.5319999999999 V686.48 H485.72799999999995 V680.32 M510.9 696 V673.04 H540.132 V686.48 H526.328 V680.32 M551.5 696 V673.04 H580.732 V686.48 H566.928 V680.32 " fill="none" stroke="#A75D39" stroke-width="4" stroke-linecap="square"/>
+</svg>

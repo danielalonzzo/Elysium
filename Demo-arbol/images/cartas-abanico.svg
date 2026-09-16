@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900" role="img">
+
+  <rect width="1400" height="900" fill="#F0E7D8"/>
+  
+  <g transform="translate(360 470) rotate(-15)">
+    <rect x="-186" y="-300" width="372" height="600" rx="18" fill="#14120F" opacity="0.28" transform="translate(8 12)"/>
+    <rect x="-186" y="-300" width="372" height="600" rx="18" fill="#FDFAF3"/>
+    <rect x="-162" y="-276" width="324" height="552" fill="none" stroke="#A75D39" stroke-width="3"/>
+    <path d="M-139.2 -238 V-257.68 H-114.14399999999999 V-246.16 H-125.97599999999998 V-251.44 M-104.39999999999999 -238 V-257.68 H-79.344 V-246.16 H-91.17599999999999 V-251.44 M-69.6 -238 V-257.68 H-44.544 V-246.16 H-56.376 V-251.44 M-34.8 -238 V-257.68 H-9.744 V-246.16 H-21.576 V-251.44 M0 -238 V-257.68 H25.055999999999997 V-246.16 H13.223999999999998 V-251.44 M34.80000000000001 -238 V-257.68 H59.85600000000001 V-246.16 H48.02400000000001 V-251.44 M69.6 -238 V-257.68 H94.65599999999999 V-246.16 H82.824 V-251.44 M104.39999999999998 -238 V-257.68 H129.45599999999996 V-246.16 H117.62399999999998 V-251.44 " fill="none" stroke="#D4805A" stroke-width="3.4" stroke-linecap="square"/>
+    <g transform="translate(0 -20)"><g transform="translate(0 40) scale(0.4) translate(-300 -182)" fill="#2C5525" opacity="1"><path d="M264 196 H336 L348 302 H252 Z M252 302 C228 312 208 324 194 342 H406 C392 324 372 312 348 302 Z"/><ellipse cx="300" cy="96" rx="148" ry="62"/><ellipse cx="176" cy="122" rx="132" ry="58"/><ellipse cx="424" cy="122" rx="132" ry="58"/><ellipse cx="240" cy="158" rx="128" ry="56"/><ellipse cx="360" cy="158" rx="128" ry="56"/><ellipse cx="92" cy="162" rx="100" ry="48"/><ellipse cx="508" cy="162" rx="100" ry="48"/><ellipse cx="40" cy="178" rx="66" ry="40"/><ellipse cx="560" cy="178" rx="66" ry="40"/><ellipse cx="300" cy="182" rx="168" ry="52"/></g></g>
+    <text x="0" y="196" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#2E150B" letter-spacing="1">LA RAÍZ</text>
+    <text x="0" y="240" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#A75D39" letter-spacing="8">ERA I</text>
+    <path d="M-139.2 274 V254.32 H-114.14399999999999 V265.84 H-125.97599999999998 V260.56 M-104.39999999999999 274 V254.32 H-79.344 V265.84 H-91.17599999999999 V260.56 M-69.6 274 V254.32 H-44.544 V265.84 H-56.376 V260.56 M-34.8 274 V254.32 H-9.744 V265.84 H-21.576 V260.56 M0 274 V254.32 H25.055999999999997 V265.84 H13.223999999999998 V260.56 M34.80000000000001 274 V254.32 H59.85600000000001 V265.84 H48.02400000000001 V260.56 M69.6 274 V254.32 H94.65599999999999 V265.84 H82.824 V260.56 M104.39999999999998 274 V254.32 H129.45599999999996 V265.84 H117.62399999999998 V260.56 " fill="none" stroke="#D4805A" stroke-width="3.4" stroke-linecap="square"/>
+  </g>
+  <g transform="translate(700 470) rotate(0)">
+    <rect x="-186" y="-300" width="372" height="600" rx="18" fill="#14120F" opacity="0.28" transform="translate(8 12)"/>
+    <rect x="-186" y="-300" width="372" height="600" rx="18" fill="#FDFAF3"/>
+    <rect x="-162" y="-276" width="324" height="552" fill="none" stroke="#A75D39" stroke-width="3"/>
+    <path d="M-139.2 -238 V-257.68 H-114.14399999999999 V-246.16 H-125.97599999999998 V-251.44 M-104.39999999999999 -238 V-257.68 H-79.344 V-246.16 H-91.17599999999999 V-251.44 M-69.6 -238 V-257.68 H-44.544 V-246.16 H-56.376 V-251.44 M-34.8 -238 V-257.68 H-9.744 V-246.16 H-21.576 V-251.44 M0 -238 V-257.68 H25.055999999999997 V-246.16 H13.223999999999998 V-251.44 M34.80000000000001 -238 V-257.68 H59.85600000000001 V-246.16 H48.02400000000001 V-251.44 M69.6 -238 V-257.68 H94.65599999999999 V-246.16 H82.824 V-251.44 M104.39999999999998 -238 V-257.68 H129.45599999999996 V-246.16 H117.62399999999998 V-251.44 " fill="none" stroke="#D4805A" stroke-width="3.4" stroke-linecap="square"/>
+    <g transform="translate(0 -20)">
+  <defs>
+    <radialGradient id="sphc1" cx="36%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#A8ADA4"/>
+      <stop offset="52%" stop-color="#8B8D88"/>
+      <stop offset="100%" stop-color="#53565A"/>
+    </radialGradient>
+  </defs>
+  <circle cx="0" cy="20" r="92" fill="url(#sphc1)"/>
+  <path d="M-66.24 66 A 92 92 0 0 0 66.24 66" fill="none" stroke="#2C5525" stroke-width="9.200000000000001" opacity="0.34"/>
+  <ellipse cx="-27.599999999999998" cy="-14.96" rx="27.599999999999998" ry="18.400000000000002" fill="#FDFAF3" opacity="0.2"/></g>
+    <text x="0" y="196" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#2E150B" letter-spacing="1">LA PIEDRA</text>
+    <text x="0" y="240" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#A75D39" letter-spacing="8">ERA II</text>
+    <path d="M-139.2 274 V254.32 H-114.14399999999999 V265.84 H-125.97599999999998 V260.56 M-104.39999999999999 274 V254.32 H-79.344 V265.84 H-91.17599999999999 V260.56 M-69.6 274 V254.32 H-44.544 V265.84 H-56.376 V260.56 M-34.8 274 V254.32 H-9.744 V265.84 H-21.576 V260.56 M0 274 V254.32 H25.055999999999997 V265.84 H13.223999999999998 V260.56 M34.80000000000001 274 V254.32 H59.85600000000001 V265.84 H48.02400000000001 V260.56 M69.6 274 V254.32 H94.65599999999999 V265.84 H82.824 V260.56 M104.39999999999998 274 V254.32 H129.45599999999996 V265.84 H117.62399999999998 V260.56 " fill="none" stroke="#D4805A" stroke-width="3.4" stroke-linecap="square"/>
+  </g>
+  <g transform="translate(1040 470) rotate(15)">
+    <rect x="-186" y="-300" width="372" height="600" rx="18" fill="#14120F" opacity="0.28" transform="translate(8 12)"/>
+    <rect x="-186" y="-300" width="372" height="600" rx="18" fill="#FDFAF3"/>
+    <rect x="-162" y="-276" width="324" height="552" fill="none" stroke="#A75D39" stroke-width="3"/>
+    <path d="M-139.2 -238 V-257.68 H-114.14399999999999 V-246.16 H-125.97599999999998 V-251.44 M-104.39999999999999 -238 V-257.68 H-79.344 V-246.16 H-91.17599999999999 V-251.44 M-69.6 -238 V-257.68 H-44.544 V-246.16 H-56.376 V-251.44 M-34.8 -238 V-257.68 H-9.744 V-246.16 H-21.576 V-251.44 M0 -238 V-257.68 H25.055999999999997 V-246.16 H13.223999999999998 V-251.44 M34.80000000000001 -238 V-257.68 H59.85600000000001 V-246.16 H48.02400000000001 V-251.44 M69.6 -238 V-257.68 H94.65599999999999 V-246.16 H82.824 V-251.44 M104.39999999999998 -238 V-257.68 H129.45599999999996 V-246.16 H117.62399999999998 V-251.44 " fill="none" stroke="#D4805A" stroke-width="3.4" stroke-linecap="square"/>
+    <g transform="translate(0 -20)"><circle cx="0" cy="20" r="88" fill="none" stroke="#A75D39" stroke-width="10"/>
+               <circle cx="0" cy="20" r="46" fill="#E0B65C"/>
+               <path d="M106 20 L138 20" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/><path d="M74.95331880577405 94.95331880577403 L97.58073580374356 117.58073580374355" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/><path d="M6.490628035480972e-15 126 L8.450062914116738e-15 158" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/><path d="M-74.95331880577403 94.95331880577405 L-97.58073580374355 117.58073580374356" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/><path d="M-106 20.000000000000014 L-138 20.000000000000018" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/><path d="M-74.95331880577406 -54.95331880577403 L-97.58073580374358 -77.58073580374355" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/><path d="M-1.9471884106442914e-14 -86 L-2.535018874235021e-14 -118" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/><path d="M74.95331880577402 -54.95331880577406 L97.58073580374354 -77.58073580374358" stroke="#A75D39" stroke-width="9" stroke-linecap="round"/></g>
+    <text x="0" y="196" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#2E150B" letter-spacing="1">EL AMANECER</text>
+    <text x="0" y="240" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#A75D39" letter-spacing="8">ERA III</text>
+    <path d="M-139.2 274 V254.32 H-114.14399999999999 V265.84 H-125.97599999999998 V260.56 M-104.39999999999999 274 V254.32 H-79.344 V265.84 H-91.17599999999999 V260.56 M-69.6 274 V254.32 H-44.544 V265.84 H-56.376 V260.56 M-34.8 274 V254.32 H-9.744 V265.84 H-21.576 V260.56 M0 274 V254.32 H25.055999999999997 V265.84 H13.223999999999998 V260.56 M34.80000000000001 274 V254.32 H59.85600000000001 V265.84 H48.02400000000001 V260.56 M69.6 274 V254.32 H94.65599999999999 V265.84 H82.824 V260.56 M104.39999999999998 274 V254.32 H129.45599999999996 V265.84 H117.62399999999998 V260.56 " fill="none" stroke="#D4805A" stroke-width="3.4" stroke-linecap="square"/>
+  </g>
+</svg>

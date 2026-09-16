@@ -13,15 +13,22 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-grid">
         <div className="footer-brand">
-          {/* Sin logotipo: la marca es solo el rótulo, vacío hasta que haya uno. */}
           <a href="#top" className="footer-logo" aria-label="Inicio">
             <span>{BRAND.name}</span>
           </a>
-          <p className="footer-tagline" />
+          <p className="footer-tagline">
+            Juegos y objetos de la memoria costarricense.
+          </p>
+          {/* Sin el aviso de entrada, esta es la única declaración de que la
+              marca no existe. No se quita. */}
+          <p className="footer-tagline footer-tagline--disclaimer">
+            Marca ficticia creada por Elysium λ para esta demostración. No existe
+            como empresa y ninguno de sus productos, precios o contactos es real.
+          </p>
         </div>
 
         <div className="footer-col">
-          <h4 />
+          <h4>Explorar</h4>
           <ul>
             {NAV.map((item) => (
               <li key={item.href}>
@@ -40,18 +47,18 @@ export function SiteFooter() {
         </div>
 
         <div className="footer-col">
-          <h4 />
+          <h4>Escúchanos</h4>
           <ul>
-            <li><a href={linkTo(CONTACT.youtube)} target="_blank" rel="noopener noreferrer" /></li>
-            <li><a href={linkTo(CONTACT.spotify)} target="_blank" rel="noopener noreferrer" /></li>
-            <li><a href={linkTo(CONTACT.instagram)} target="_blank" rel="noopener noreferrer" /></li>
+            <li><a href={linkTo(CONTACT.youtube)} target="_blank" rel="noopener noreferrer">YouTube</a></li>
+            <li><a href={linkTo(CONTACT.spotify)} target="_blank" rel="noopener noreferrer">Spotify</a></li>
+            <li><a href={linkTo(CONTACT.instagram)} target="_blank" rel="noopener noreferrer">Instagram</a></li>
           </ul>
         </div>
 
         <div className="footer-col" id="contacto">
-          <h4 />
+          <h4>Contacto</h4>
           <ul>
-            <li><a href={linkTo(CONTACT.whatsapp)} target="_blank" rel="noopener noreferrer" /></li>
+            <li><a href={linkTo(CONTACT.whatsapp)} target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
             {/* Sin dirección no hay `mailto:`: quedaría un enlace que abre el
                 cliente de correo con el destinatario vacío. */}
             <li><a href={linkTo(CONTACT.email && `mailto:${CONTACT.email}`)}>{CONTACT.email}</a></li>
@@ -63,7 +70,9 @@ export function SiteFooter() {
       <div className="footer-bottom">
         <div className="footer-bottom-inner">
           {/* La etiqueta de versión de Elysium se inyecta aquí como primer hijo. */}
-          <span className="footer-legal">{BRAND.name}</span>
+          <span className="footer-legal">
+            © {new Date().getFullYear()} {BRAND.name}. Todos los derechos reservados.
+          </span>
           <p className="footer-credit">
             Desarrollado por{" "}
             <a href="https://elysiumdr.eu" target="_blank" rel="noopener noreferrer">Elysium λ Development &amp; Research</a>

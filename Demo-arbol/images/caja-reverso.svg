@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" width="900" height="1200" role="img">
+
+  <rect width="900" height="1200" fill="#F0E7D8"/>
+  <rect x="70" y="70" width="760" height="1060" rx="10" fill="#14120F"/>
+  <rect x="106" y="106" width="688" height="988" fill="none" stroke="#A75D39" stroke-width="3"/>
+  <path d="M145.5 160 V137.04 H174.732 V150.48 H160.928 V144.32 M186.1 160 V137.04 H215.332 V150.48 H201.528 V144.32 M226.7 160 V137.04 H255.932 V150.48 H242.128 V144.32 M267.3 160 V137.04 H296.53200000000004 V150.48 H282.728 V144.32 M307.9 160 V137.04 H337.13199999999995 V150.48 H323.328 V144.32 M348.5 160 V137.04 H377.73199999999997 V150.48 H363.928 V144.32 M389.1 160 V137.04 H418.332 V150.48 H404.528 V144.32 M429.7 160 V137.04 H458.932 V150.48 H445.128 V144.32 M470.3 160 V137.04 H499.53200000000004 V150.48 H485.728 V144.32 M510.90000000000003 160 V137.04 H540.1320000000001 V150.48 H526.3280000000001 V144.32 M551.5 160 V137.04 H580.732 V150.48 H566.928 V144.32 M592.1 160 V137.04 H621.332 V150.48 H607.528 V144.32 M632.7 160 V137.04 H661.932 V150.48 H648.128 V144.32 M673.3000000000001 160 V137.04 H702.532 V150.48 H688.7280000000001 V144.32 M713.9 160 V137.04 H743.132 V150.48 H729.328 V144.32 " fill="none" stroke="#E0B65C" stroke-width="3.6" stroke-linecap="square"/>
+  <text x="450" y="242" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="700" fill="#FDFAF3" letter-spacing="1">Cuatro eras</text>
+  <text x="450" y="288" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#8B8D88" letter-spacing="4">UNA LÍNEA DEL TIEMPO</text>
+  
+  <g>
+    <circle cx="182" cy="372" r="40" fill="none" stroke="#D4805A" stroke-width="3"/>
+    <text x="182" y="385" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#D4805A">I</text>
+    <text x="252" y="366" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#FDFAF3">La raíz</text>
+    <text x="252" y="402" font-family="'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#8B8D88">El origen bajo la copa</text>
+  </g>
+  <g>
+    <circle cx="182" cy="540" r="40" fill="none" stroke="#D4805A" stroke-width="3"/>
+    <text x="182" y="553" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#D4805A">II</text>
+    <text x="252" y="534" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#FDFAF3">La piedra</text>
+    <text x="252" y="570" font-family="'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#8B8D88">Los cacicazgos del Diquís</text>
+  </g>
+  <g>
+    <circle cx="182" cy="708" r="40" fill="none" stroke="#D4805A" stroke-width="3"/>
+    <text x="182" y="721" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#D4805A">III</text>
+    <text x="252" y="702" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#FDFAF3">El amanecer</text>
+    <text x="252" y="738" font-family="'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#8B8D88">La república</text>
+  </g>
+  <g>
+    <circle cx="182" cy="876" r="40" fill="none" stroke="#D4805A" stroke-width="3"/>
+    <text x="182" y="889" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="34" fill="#D4805A">IV</text>
+    <text x="252" y="870" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#FDFAF3">La revelación</text>
+    <text x="252" y="906" font-family="'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#8B8D88">El siglo que viene</text>
+  </g>
+  <path d="M145.5 1070 V1047.04 H174.732 V1060.48 H160.928 V1054.32 M186.1 1070 V1047.04 H215.332 V1060.48 H201.528 V1054.32 M226.7 1070 V1047.04 H255.932 V1060.48 H242.128 V1054.32 M267.3 1070 V1047.04 H296.53200000000004 V1060.48 H282.728 V1054.32 M307.9 1070 V1047.04 H337.13199999999995 V1060.48 H323.328 V1054.32 M348.5 1070 V1047.04 H377.73199999999997 V1060.48 H363.928 V1054.32 M389.1 1070 V1047.04 H418.332 V1060.48 H404.528 V1054.32 M429.7 1070 V1047.04 H458.932 V1060.48 H445.128 V1054.32 M470.3 1070 V1047.04 H499.53200000000004 V1060.48 H485.728 V1054.32 M510.90000000000003 1070 V1047.04 H540.1320000000001 V1060.48 H526.3280000000001 V1054.32 M551.5 1070 V1047.04 H580.732 V1060.48 H566.928 V1054.32 M592.1 1070 V1047.04 H621.332 V1060.48 H607.528 V1054.32 M632.7 1070 V1047.04 H661.932 V1060.48 H648.128 V1054.32 M673.3000000000001 1070 V1047.04 H702.532 V1060.48 H688.7280000000001 V1054.32 M713.9 1070 V1047.04 H743.132 V1060.48 H729.328 V1054.32 " fill="none" stroke="#E0B65C" stroke-width="3.6" stroke-linecap="square"/>
+</svg>

@@ -1,0 +1,5 @@
+:HL["/Demo-arbol/_next/static/chunks/16p94_xfe963o.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap","style"]
+:HL["/Demo-arbol/css/components/f22-system-settings.css","style"]
+:HL["/Demo-arbol/images/caja-coleccionista.svg","image"]
+0:{"tree":{"name":"","param":null,"prefetchHints":16,"slots":{"children":{"name":"tienda","param":null,"prefetchHints":0,"slots":{"children":{"name":"slug","param":{"type":"d","key":"caja-de-coleccionista","siblings":null},"prefetchHints":0,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":0,"slots":null}}}}}}},"staleTime":300,"buildId":"GTvvPDcCeHtIYGcnvpdr0"}

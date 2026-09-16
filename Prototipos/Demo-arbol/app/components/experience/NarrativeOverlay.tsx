@@ -35,9 +35,10 @@ const SCENES: Scene[] = [
   {
     id: "raiz",
     index: "I",
-    eyebrow: "",
-    title: "",
-    description: "",
+    eyebrow: "Raíz y Piedra",
+    title: "Todo empieza a la sombra",
+    description:
+      "Bajo un guanacaste se contaban las cosas antes de que hubiera dónde escribirlas. De esa costumbre sale lo que hacemos: juegos y objetos para que la memoria de este país se pase de mano en mano.",
     start: -0.08,
     end: 0.24,
     align: "start",
@@ -46,9 +47,10 @@ const SCENES: Scene[] = [
   {
     id: "esfera",
     index: "II",
-    eyebrow: "",
-    title: "",
-    description: "",
+    eyebrow: "El legado",
+    title: "Alguien la pulió sin dejar su nombre",
+    description:
+      "Las esferas del Diquís llevan más de mil años siendo perfectas y nadie sabe para qué. Nos gusta esa clase de herencia: la que no viene con instrucciones y hay que volver a contarla cada generación.",
     start: 0.49,
     end: 0.72,
     align: "start",
@@ -56,9 +58,10 @@ const SCENES: Scene[] = [
   {
     id: "revelacion",
     index: "III",
-    eyebrow: "",
-    title: "",
-    description: "",
+    eyebrow: "El juego de mesa",
+    title: "80 cartas. Una línea del tiempo.",
+    description:
+      "De 2 a 6 jugadores ordenan la historia de Costa Rica sin saber las fechas. Se discute, se apuesta y se aprende sin darse cuenta. Quince minutos por partida.",
     start: 0.8,
     end: 1.0,
     align: "center",
@@ -82,8 +85,14 @@ type Specimen = { id: string; name: string; note: React.ReactNode; start: number
 const SPECIMENS: Specimen[] = [
   {
     id: "arbol",
-    name: "",
-    note: "",
+    name: "Guanacaste",
+    note: (
+      <>
+        Enterolobium cyclocarpum
+        <br />
+        Árbol Nacional · 1959
+      </>
+    ),
     // Arranca en negativo para estar ya del todo visible en el primer fotograma,
     // sin esperar a que el visitante deslice.
     start: -0.06,
@@ -93,8 +102,14 @@ const SPECIMENS: Specimen[] = [
   },
   {
     id: "esfera",
-    name: "",
-    note: "",
+    name: "Esfera del Diquís",
+    note: (
+      <>
+        Gabro · 300–800 d. C.
+        <br />
+        Patrimonio Mundial · 2014
+      </>
+    ),
     start: 0.55,
     end: 0.75, // se retira al empezar la fragmentación
   },
@@ -113,11 +128,13 @@ function sceneOpacity(p: number, s: Scene) {
 }
 
 // Instante en que empieza la oscuridad etérea (cruce selva → vacío, justo antes
-// de la esfera). La lectura de coordenadas del recorrido pasa por el origen en
-// ese punto: al no haber emplazamiento real, se parte de 0 · 0.
+// de la esfera). La lectura de coordenadas del recorrido arranca en ese punto
+// sobre Finca 6 (delta del Diquís, Osa), el sitio arqueológico donde están las
+// esferas en su alineación original: es el emplazamiento que da sentido al
+// guiño de expedición.
 const DARK_ONSET = 0.45;
-const DARK_LAT_N = 0;
-const DARK_LON_O = 0;
+const DARK_LAT_N = 8.9436;
+const DARK_LON_O = 83.4939;
 
 export function NarrativeOverlay({ progress }: { progress: number }) {
   const [openSpecimen, setOpenSpecimen] = useState<string | null>(null);
@@ -168,8 +185,10 @@ export function NarrativeOverlay({ progress }: { progress: number }) {
                   <div className="hdc-cta-row">
                     <a className="hdc-btn hdc-btn--solid" href={linkTo(CONTACT.whatsapp)} target="_blank" rel="noopener noreferrer">
                       <IconWhatsApp className="hdc-btn-ico" />
+                      Pedir el juego
                     </a>
                     <Link className="hdc-btn hdc-btn--ghost" href="/tienda">
+                      Ver la tienda
                       <IconArrowUpRight className="hdc-btn-ico" />
                     </Link>
                   </div>

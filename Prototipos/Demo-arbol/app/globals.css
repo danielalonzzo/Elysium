@@ -1185,6 +1185,13 @@ body:has(#header.header-on-dark) .hdc-specimen {
   max-width: 34ch;
   color: var(--text-dim);
 }
+/* Declaración de marca ficticia. Va más apagada que el lema, pero legible: es
+   la única que queda desde que el aviso de entrada dejó de montarse. */
+.footer-tagline--disclaimer {
+  font-size: .82rem;
+  line-height: 1.55;
+  opacity: .72;
+}
 .footer-col h4 {
   margin: 0 0 12px;
   font-size: 0.78rem;

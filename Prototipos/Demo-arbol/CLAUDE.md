@@ -2,41 +2,75 @@
 
 Demo de primer contacto del portafolio de Elysium: la pieza que se enseña
 cuando hay que mostrar de qué es capaz el estudio antes de que exista un
-proyecto. **No tiene contenido a propósito.** Nació como el sitio de un cliente
-concreto; al no cerrarse el negocio se vació entera —textos, fotos, productos y
-logotipo— y se conservó lo único que importaba: la arquitectura.
+proyecto. Nació como el sitio de un cliente concreto; al no cerrarse el negocio
+se vació entera —textos, fotos, productos y logotipo— y se conservó lo único que
+importaba: la arquitectura.
+
+**Hoy va vestida con una marca ficticia, «Raíz y Piedra».** Es el mismo
+procedimiento que `Selva y Sal/`: una demo vacía no demuestra nada, así que se
+rellenó con una empresa inventada —una casa editora costarricense de juegos y
+objetos de memoria— para poder enseñarla llena a cualquier cliente sin usar el
+material de ninguno.
 
 Stack: Next 16 (App Router) · React 19 · React Three Fiber + three · GSAP ·
 Tailwind 4. Requiere Node ≥ 22.13.
 
 ---
 
-## Vacía por diseño
+## La marca es inventada
 
-Todos los textos son cadenas vacías y no hay ni una imagen. Eso es el estado
-correcto, no un trabajo a medias. Al vestir la demo para un cliente, **el orden
-es este**:
+«Raíz y Piedra» **no existe**. No es un cliente, no vende nada y ninguno de sus
+productos, precios o contactos es real. Tres cosas se derivan de eso y no se
+tocan sin pensarlo:
+
+1. **El aviso de entrada lo declara.** El paso 2 de `ElysiumPrototypePopup.tsx`
+   dice que la marca es ficticia y que cualquier parecido es casual. En el
+   prototipo original ese paso decía justo lo contrario —que la identidad era
+   propiedad del cliente—, así que al reutilizarlo hay que leerlo, no copiarlo.
+2. **Ningún enlace apunta a una cuenta real.** Todo cuelga del dominio ficticio
+   `raizypiedra.cr`, que no resuelve. Inventar un `instagram.com/<handle>` o un
+   número de WhatsApp plausible es peor que un enlace muerto: puede caer sobre
+   la cuenta o el teléfono de una persona real.
+3. **Lo inventado es la empresa, no el patrimonio.** El guanacaste y las esferas
+   del Diquís sí existen. Los datos que se publican sobre ellos —árbol nacional
+   desde 1959, gabro, Patrimonio Mundial en 2014, las coordenadas de Finca 6—
+   son ciertos y deben seguir siéndolo.
+
+El nombre bautiza los dos objetos que la escena 3D ya construía: la raíz del
+guanacaste y la piedra de la esfera.
+
+## Dónde vive el contenido
+
+Si hay que revestirla para otro cliente, **el orden es este**:
 
 1. `app/data/content.ts` — marca, contactos, precios, galerías (`SHOTS`) y
    navegación. Es la fuente única: cambiar aquí propaga a cabecera, pie, Magic
    Bottom, portada y secciones.
-2. `app/data/catalog.ts` — los productos de `/tienda`. Con la lista vacía la
-   rejilla, el buscador, los filtros y la paginación siguen montados y se
-   activan solos en cuanto haya productos.
+2. `app/data/catalog.ts` — los doce productos de `/tienda`, con su ficha técnica
+   (`specs`). La rejilla, el buscador, los filtros y la paginación se alimentan
+   solos de esa lista.
 3. `public/js/elysium-config.js` — marca y logotipo de los módulos Elysium
    (preloader F01, ventana de sistema F05/F06/F10, ajustes F22).
 4. Los rótulos que viven en el JSX: las escenas de `NarrativeOverlay.tsx`, los
-   tres actos de `Sections.tsx` y los pasos del aviso de entrada
-   (`ElysiumPrototypePopup.tsx`, donde va el aviso legal de titularidad).
+   tres actos y el bento de `Sections.tsx`, los rótulos de `Shop.tsx` —los chips
+   de categoría y el orden están ahí, no en los datos— y los pasos del aviso de
+   entrada.
 
-Dos detalles que evitan sorpresas:
+Cuatro detalles que evitan sorpresas:
 
 - **Un enlace sin dirección se pasa por `linkTo()`** (en `content.ts`), que
   devuelve `#`. Un `href=""` recarga la página actual, y un `mailto:` sin
   destinatario abre el cliente de correo en blanco.
-- **La CSP publicada va con `frame-src 'none'`.** La demo ya no incrusta ningún
+- **La CSP publicada va con `frame-src 'none'`.** La demo no incrusta ningún
   reproductor de terceros. Si se vuelve a empotrar Spotify o YouTube, hay que
   abrirles hueco en el bloque `/Demo-arbol/*` de `_headers`, en la raíz.
+- **El `StaticHero` de `CinematicStory.tsx` repite la escena I a mano.** Es la
+  portada sin WebGL y lo que pinta el servidor, así que si cambia el rótulo de
+  la escena I hay que cambiarlo en los dos sitios o dirán cosas distintas.
+- **Las láminas de `public/images/` son SVG dibujados, no fotos.** Con una marca
+  inventada, una foto falsa de un producto que no existe se lee como un montaje.
+  El sistema visual es común —greca, la esfera como módulo y la copa del
+  guanacaste— para que la colección se lea como una sola familia.
 
 ## Las dos carpetas
 
@@ -105,7 +139,8 @@ de dentro es su contenido**.
 ```
 app/
   layout.tsx, page.tsx, not-found.tsx, globals.css
-  tienda/page.tsx
+  tienda/page.tsx          La rejilla
+  tienda/[slug]/page.tsx   La ficha de producto (`generateStaticParams`)
   components/
     experience/   La pieza 3D: escena R3F, esfera de piedra, árbol, narrativa
                   cinemática y la matemática del scroll (storyMath.ts)
@@ -113,13 +148,21 @@ app/
     site/         Cabecera, pie, dock inferior, iconos, popup de prototipo
   data/           catalog.ts (productos) y content.ts (textos y redes)
   lib/            Utilidades de navegador (chrome, visibilidad del dock)
-public/           Lo único que Next sirve: css, js, elysium-core, robots.txt
+public/           Lo único que Next sirve: images, css, js, elysium-core,
+                  robots.txt
 ```
 
-La geometría 3D es **procedimental**: no hay ni un modelo ni una textura en
-disco. `guanacasteModel.ts` construye el árbol y `DiquisSphere.tsx` la esfera de
-piedra, los dos de forma determinista desde código. Por eso vaciar la demo de
-imágenes no le quita nada a la escena: sigue entera.
+La escena 3D es **procedimental de punta a punta: no hay ni un modelo ni una
+textura en disco.** `guanacasteModel.ts` construye el árbol, `DiquisSphere.tsx`
+la esfera de piedra y `cardAtlas.ts` dibuja en un `<canvas>` el atlas 4×4 con el
+arte de las 80 cartas del Acto 4. Por eso vaciar la demo de imágenes no le quita
+nada a la escena: sigue entera.
+
+El atlas es la única parte que toca el material de un `InstancedMesh`. Todas las
+instancias comparten geometría y UV, así que la casilla de cada carta viaja en
+un atributo instanciado (`aTile`) y el desplazamiento de UV se inyecta en el
+vértice con `onBeforeCompile`, sobre las varyings que ya calcula `uv_vertex`. Al
+poner mapa hubo que bajar el emisivo —el 0.26 plano de antes lavaba el dibujo—.
 
 ## Reglas que no se rompen
 

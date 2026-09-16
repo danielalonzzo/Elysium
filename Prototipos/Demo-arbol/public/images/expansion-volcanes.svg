@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img">
+
+  <rect width="1200" height="1200" fill="#F0E7D8"/>
+  <rect x="256" y="180" width="688" height="840" rx="10" fill="#2E150B"/>
+  <rect x="292" y="216" width="616" height="768" fill="none" stroke="#D4805A" stroke-width="4"/>
+  <path d="M339 274 V249.4 H370.32 V263.8 H355.53 V257.2 M382.5 274 V249.4 H413.82 V263.8 H399.03 V257.2 M426 274 V249.4 H457.32 V263.8 H442.53 V257.2 M469.5 274 V249.4 H500.82 V263.8 H486.03 V257.2 M513 274 V249.4 H544.32 V263.8 H529.53 V257.2 M556.5 274 V249.4 H587.82 V263.8 H573.03 V257.2 M600 274 V249.4 H631.32 V263.8 H616.53 V257.2 M643.5 274 V249.4 H674.82 V263.8 H660.03 V257.2 M687 274 V249.4 H718.32 V263.8 H703.53 V257.2 M730.5 274 V249.4 H761.82 V263.8 H747.03 V257.2 M774 274 V249.4 H805.32 V263.8 H790.53 V257.2 M817.5 274 V249.4 H848.82 V263.8 H834.03 V257.2 " fill="none" stroke="#E0B65C" stroke-width="4" stroke-linecap="square"/>
+  <g transform="translate(600 560)">
+    <path d="M-250 150 L-96 -84 C-88 -96 -72 -96 -64 -84 L90 150 Z" fill="#53565A"/>
+    <path d="M-96 -84 C-88 -96 -72 -96 -64 -84 L-30 -32 C-56 -18 -104 -18 -130 -32 Z" fill="#A75D39"/>
+    <path d="M-80 -104 C-96 -142 -62 -152 -80 -196" fill="none" stroke="#8B8D88" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+    <path d="M-10 150 L110 -34 C118 -46 132 -46 140 -34 L252 150 Z" fill="#8B8D88" opacity="0.75"/>
+    <path d="M-262 152 H262" stroke="#2C5525" stroke-width="12" stroke-linecap="round"/>
+  </g>
+  <text x="600" y="852" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="62" font-weight="700" fill="#FDFAF3" letter-spacing="2">VOLCANES</text>
+  <text x="600" y="898" text-anchor="middle" font-family="'Helvetica Neue', Arial, sans-serif" font-size="21" fill="#D4805A" letter-spacing="6">EXPANSIÓN · 20 CARTAS</text>
+  <path d="M339 956 V931.4 H370.32 V945.8 H355.53 V939.2 M382.5 956 V931.4 H413.82 V945.8 H399.03 V939.2 M426 956 V931.4 H457.32 V945.8 H442.53 V939.2 M469.5 956 V931.4 H500.82 V945.8 H486.03 V939.2 M513 956 V931.4 H544.32 V945.8 H529.53 V939.2 M556.5 956 V931.4 H587.82 V945.8 H573.03 V939.2 M600 956 V931.4 H631.32 V945.8 H616.53 V939.2 M643.5 956 V931.4 H674.82 V945.8 H660.03 V939.2 M687 956 V931.4 H718.32 V945.8 H703.53 V939.2 M730.5 956 V931.4 H761.82 V945.8 H747.03 V939.2 M774 956 V931.4 H805.32 V945.8 H790.53 V939.2 M817.5 956 V931.4 H848.82 V945.8 H834.03 V939.2 " fill="none" stroke="#E0B65C" stroke-width="4" stroke-linecap="square"/>
+</svg>
