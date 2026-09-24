@@ -4,16 +4,49 @@
  * Todo importe pasa por `money()`, que lo envuelve en `.amt`: así el «modo
  * discreto» los oculta todos con una sola regla CSS, sin que cada vista tenga
  * que acordarse.
+ *
+ * Los totales del modelo están en la moneda principal de la persona, así que
+ * `money()` y `formatMoney()` la usan cuando no se indica otra. La fija
+ * `app.model()` cada vez que se calcula el modelo; el núcleo, que comparte el
+ * backend con muchas personas a la vez, no tiene ese estado y la recibe
+ * siempre explícita.
  */
-import { formatMoney } from '../core/money.js';
+import { formatMoney as formatCore, CURRENCIES, CURRENCY_CODES, currencySymbol, BASE_CURRENCY } from '../core/money.js';
 import { raw, esc } from './dom.js';
+
+let displayCurrency = BASE_CURRENCY;
+
+export function setDisplayCurrency(code) {
+    if (CURRENCIES[code]) displayCurrency = code;
+}
+
+export function displayCurrencyCode() {
+    return displayCurrency;
+}
+
+export function formatMoney(minor, currency = displayCurrency, options = {}) {
+    return formatCore(minor, currency || displayCurrency, options);
+}
+
+export { currencySymbol };
+
+/** Opciones de moneda para un `<select>` («₡ Colones», «$ Dólares», «€ Euros»). */
+export function currencyOptions(selected) {
+    return raw(CURRENCY_CODES.map(code => `<option value="${code}"${code === selected ? ' selected' : ''}>${esc(CURRENCIES[code].label)}</option>`).join(''));
+}
+
+/** Siguiente moneda del ciclo ₡ → $ → € de los botones de moneda. */
+export function nextCurrency(code) {
+    const index = CURRENCY_CODES.indexOf(code);
+    return CURRENCY_CODES[(index + 1) % CURRENCY_CODES.length];
+}
 
 /**
  * @param {number} minor
  * @param {string} [currency]
  * @param {{sign?: boolean, compact?: boolean, tone?: 'auto'|'income'|'expense'|'none', decimals?: number, className?: string}} [options]
  */
-export function money(minor, currency = 'CRC', options = {}) {
+export function money(minor, currency = displayCurrency, options = {}) {
     const text = formatMoney(minor, currency, options);
     let tone = '';
     if (options.tone === 'auto') tone = minor > 0 ? ' is-pos' : minor < 0 ? ' is-neg' : '';

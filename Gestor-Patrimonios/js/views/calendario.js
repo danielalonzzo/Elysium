@@ -5,11 +5,11 @@
 import { app } from '../context.js';
 import { html } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money } from '../ui/format.js';
+import { money, formatMoney } from '../ui/format.js';
 import { catChip, emptyState } from '../ui/parts.js';
 import { occurrences, nextOccurrence, monthlyEquivalent, FREQUENCIES } from '../core/recurring.js';
 import { addMonths, startOfMonth, endOfMonth, parseISO, toISO, daysInMonth, weekday, addDays, formatDate, monthLabel, relativeDays, WEEKDAYS_SHORT } from '../core/dates.js';
-import { inBase, formatMoney } from '../core/money.js';
+import { inBase } from '../core/money.js';
 import { nextMonthlyDay } from '../core/alerts.js';
 import { postRecurring } from '../services.js';
 import { actionSheet, toast } from '../ui/overlay.js';
@@ -51,7 +51,7 @@ export default {
             <div class="grid grid-3 ${model.overdueRecurring.length ? 'section-gap' : ''}">
                 <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Ingresos fijos al mes</span><span class="kpi-icon is-ok">${icon('arrow-down-left', { size: 17 })}</span></div><div class="kpi-value">${money(fixedIncome)}</div><div class="kpi-sub">${incomeRules.length} reglas</div></article>
                 <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Gastos fijos al mes</span><span class="kpi-icon is-danger">${icon('arrow-up-right', { size: 17 })}</span></div><div class="kpi-value">${money(fixedExpense)}</div><div class="kpi-sub">${expenseRules.length} reglas</div></article>
-                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Queda después de lo fijo</span><span class="kpi-icon is-gold">${icon('piggy-bank', { size: 17 })}</span></div><div class="kpi-value">${money(fixedIncome - fixedExpense, 'CRC', { tone: fixedIncome - fixedExpense < 0 ? 'expense' : 'none' })}</div><div class="kpi-sub">para variables, metas y ahorro</div></article>
+                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Queda después de lo fijo</span><span class="kpi-icon is-gold">${icon('piggy-bank', { size: 17 })}</span></div><div class="kpi-value">${money(fixedIncome - fixedExpense, model.fx.base, { tone: fixedIncome - fixedExpense < 0 ? 'expense' : 'none' })}</div><div class="kpi-sub">para variables, metas y ahorro</div></article>
             </div>
 
             <article class="card section-gap">

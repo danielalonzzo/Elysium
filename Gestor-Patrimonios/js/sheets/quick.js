@@ -5,11 +5,11 @@
 import { app } from '../context.js';
 import { html, haptic } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money } from '../ui/format.js';
+import { money, formatMoney, currencySymbol, nextCurrency } from '../ui/format.js';
 import { openSheet, toast } from '../ui/overlay.js';
 import { txTitle } from '../ui/parts.js';
 import { quickAffordability } from '../core/loans.js';
-import { parseAmount, inBase, formatMoney } from '../core/money.js';
+import { parseAmount, inBase, currencyInfo } from '../core/money.js';
 import { formatDate, addDays } from '../core/dates.js';
 import { normalizeMerchant } from '../core/stats.js';
 import { updateAlertState } from '../services.js';
@@ -26,8 +26,8 @@ export function openAffordSheet({ price = null } = {}) {
         className: 'afford-sheet',
         content: html`
             <div class="amount-input">
-                <button type="button" class="currency-toggle" data-currency="CRC">₡</button>
-                <input name="price" inputmode="decimal" placeholder="Precio" aria-label="Precio" autofocus value="${price ? formatMoney(price, 'CRC', { symbol: false }) : ''}">
+                <button type="button" class="currency-toggle" aria-label="Moneda: ${currencyInfo(model.fx.base).name}. Cambiar" title="Cambiar moneda">${currencySymbol(model.fx.base)}</button>
+                <input name="price" inputmode="decimal" placeholder="Precio" aria-label="Precio" autofocus value="${price ? formatMoney(price, model.fx.base, { symbol: false }) : ''}">
             </div>
             <div class="field">
                 <span>¿De qué categoría? <small>opcional, para mirar su presupuesto</small></span>
@@ -36,7 +36,7 @@ export function openAffordSheet({ price = null } = {}) {
             <div class="afford-result" data-result aria-live="polite"></div>
             <p class="field-hint afford-basis">Se compara con lo que le queda este período, con su ahorro libre (sin tocar el fondo de emergencia) y con lo que ahorra al mes.</p>`,
         onMount(body) {
-            let currency = 'CRC';
+            let currency = model.fx.base;
             let categoryId = null;
             const input = body.querySelector('[name="price"]');
             const result = body.querySelector('[data-result]');
@@ -84,8 +84,9 @@ export function openAffordSheet({ price = null } = {}) {
             };
             input.addEventListener('input', evaluate);
             toggle.addEventListener('click', () => {
-                currency = currency === 'CRC' ? 'USD' : 'CRC';
-                toggle.textContent = currency === 'USD' ? '$' : '₡';
+                currency = nextCurrency(currency);
+                toggle.textContent = currencySymbol(currency);
+                toggle.setAttribute('aria-label', `Moneda: ${currencyInfo(currency).name}. Cambiar`);
                 evaluate();
             });
             body.querySelectorAll('[data-afford-cat]').forEach(chip => chip.addEventListener('click', () => {

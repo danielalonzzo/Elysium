@@ -505,6 +505,7 @@ function showShortcuts() {
  * Una vez al día, si la persona no fijó el tipo a mano, se actualiza desde
  * `api.exchangerate-api.com` (ya permitido en la CSP del sitio). Es la
  * referencia del mercado; el tipo de venta del banco puede variar unos colones.
+ * Se guardan colones por dólar y por euro: el colón es el pivote de la tabla.
  */
 async function refreshExchangeRate() {
     const model = app.model();
@@ -513,9 +514,13 @@ async function refreshExchangeRate() {
     const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD', { cache: 'no-store' });
     if (!response.ok) return;
     const data = await response.json();
-    const rate = Number(data?.rates?.CRC);
-    if (!(rate > 300 && rate < 1500)) return;
-    await app.store.saveProfile({ settings: { ...app.store.profile.settings, fxRate: Math.round(rate * 100) / 100, fxUpdatedAt: todayISO(), fxSource: 'auto' } });
+    const perDollar = Number(data?.rates?.CRC);
+    const eurosPerDollar = Number(data?.rates?.EUR);
+    if (!(perDollar > 300 && perDollar < 1500)) return;
+    const fxRates = { USD: Math.round(perDollar * 100) / 100 };
+    const perEuro = perDollar / eurosPerDollar;
+    if (perEuro > 300 && perEuro < 2000) fxRates.EUR = Math.round(perEuro * 100) / 100;
+    await app.store.saveProfile({ settings: { ...app.store.profile.settings, fxRates: { ...(settings.fxRates || {}), ...fxRates }, fxUpdatedAt: todayISO(), fxSource: 'auto' } });
 }
 
 /* ── Service worker ───────────────────────────────────────────────────────── */

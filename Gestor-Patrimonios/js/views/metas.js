@@ -8,12 +8,12 @@
 import { app } from '../context.js';
 import { html } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, pct } from '../ui/format.js';
+import { money, pct, formatMoney } from '../ui/format.js';
 import { rosette } from '../ui/guilloche.js';
 import { ring, areaChart } from '../ui/charts.js';
 import { progressBar, emptyState, goalIcon, stateIcon } from '../ui/parts.js';
 import { GOAL_KINDS, MILESTONES, accelerationScenarios, spendImpactDays } from '../core/goals.js';
-import { formatMoney, inBase, convertMinor } from '../core/money.js';
+import { inBase, convertMinor } from '../core/money.js';
 import { formatDate, monthLabel, formatMonths, lastPeriods } from '../core/dates.js';
 import { toast, confirmDialog, actionSheet } from '../ui/overlay.js';
 import { uploadReceipt } from '../services.js';
@@ -172,7 +172,7 @@ function detail(model, id) {
     const entry = model.goals.find(g => g.goal.id === id);
     if (!entry) return emptyState({ title: 'Esa meta ya no existe', body: 'Puede que la haya eliminado.', action: html`<a class="btn btn-ghost" href="#/metas">Volver a metas</a>`, iconName: 'target' });
     const { goal, progress, health, eta, planned, actual, required } = entry;
-    const currency = goal.currency || 'CRC';
+    const currency = goal.currency || model.fx.base;
     const pace = entry.pace;
     const done = progress.done || goal.status === 'done';
 
@@ -181,7 +181,7 @@ function detail(model, id) {
     const topWant = [...model.avgByCategory.entries()].filter(([idCat]) => wantCats.has(idCat)).sort((a, b) => b[1] - a[1])[0];
     const aguinaldoTx = model.txs.find(tx => tx.categoryId === 'aguinaldo');
     const aguinaldo = aguinaldoTx ? inBase(aguinaldoTx.amountMinor, aguinaldoTx.currency, model.fx) : model.avgIncome;
-    const toGoal = value => convertMinor(value, model.fx.base, currency, model.fx.rate);
+    const toGoal = value => convertMinor(value, model.fx.base, currency, model.fx);
     const scenarios = done ? [] : accelerationScenarios({
         remaining: progress.remaining,
         monthly: pace,

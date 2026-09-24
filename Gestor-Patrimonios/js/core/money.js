@@ -8,16 +8,61 @@
  */
 
 export const CURRENCIES = Object.freeze({
-    CRC: Object.freeze({ code: 'CRC', symbol: '₡', decimals: 0, name: 'Colones' }),
-    USD: Object.freeze({ code: 'USD', symbol: '$', decimals: 2, name: 'Dólares' })
+    CRC: Object.freeze({ code: 'CRC', symbol: '₡', decimals: 0, name: 'Colones', singular: 'colón', label: '₡ Colones' }),
+    USD: Object.freeze({ code: 'USD', symbol: '$', decimals: 2, name: 'Dólares', singular: 'dólar', label: '$ Dólares' }),
+    EUR: Object.freeze({ code: 'EUR', symbol: '€', decimals: 2, name: 'Euros', singular: 'euro', label: '€ Euros' })
 });
+export const CURRENCY_CODES = Object.freeze(Object.keys(CURRENCIES));
 
 export const BASE_CURRENCY = 'CRC';
-/** Tipo de cambio de reserva (₡ por $) mientras no haya uno guardado. */
+/** Tipo de cambio de reserva (₡ por $) del formato antiguo, de una sola cifra. */
 export const DEFAULT_FX_RATE = 505;
+/**
+ * Colones por unidad de cada moneda. El colón es el pivote de todas las
+ * conversiones: con él basta una cifra por moneda, sea cual sea la principal.
+ */
+export const DEFAULT_FX_RATES = Object.freeze({ CRC: 1, USD: DEFAULT_FX_RATE, EUR: 590 });
+
+export function isCurrency(code) {
+    return Object.prototype.hasOwnProperty.call(CURRENCIES, code);
+}
 
 export function currencyInfo(code) {
     return CURRENCIES[code] || CURRENCIES.CRC;
+}
+
+export function currencySymbol(code) {
+    return currencyInfo(code).symbol;
+}
+
+/**
+ * Tabla de tipos completa ({ CRC: 1, USD, EUR }). Acepta el formato antiguo
+ * —un número o un `fx` con `rate`: colones por dólar—, una tabla parcial o un
+ * objeto `fx` con su `rates`, y rellena lo que falte con los valores de reserva.
+ */
+export function normalizeRates(source) {
+    let table = source;
+    if (typeof source === 'number') table = { USD: source };
+    else if (source && typeof source === 'object' && source.rates) table = source.rates;
+    else if (source && typeof source === 'object' && Number(source.rate) > 0) table = { USD: Number(source.rate) };
+    const rates = { CRC: 1 };
+    for (const code of CURRENCY_CODES) {
+        if (code === 'CRC') continue;
+        const value = Number(table?.[code]);
+        rates[code] = value > 0 ? value : DEFAULT_FX_RATES[code];
+    }
+    return rates;
+}
+
+/**
+ * Moneda principal y tipos de un perfil. `fxRates` es el formato vigente;
+ * `fxRate` (₡ por $) el de antes de los euros, que se sigue leyendo.
+ */
+export function fxFromSettings(settings = {}) {
+    const base = isCurrency(settings.baseCurrency) ? settings.baseCurrency : BASE_CURRENCY;
+    const legacy = Number(settings.fxRate) > 0 ? { USD: Number(settings.fxRate) } : {};
+    const rates = normalizeRates({ ...legacy, ...(settings.fxRates || {}) });
+    return { base, rates };
 }
 
 /** Número en unidades (₡15000.5) → céntimos (1500050). */
@@ -33,22 +78,70 @@ export function fromMinor(minor) {
 }
 
 /**
- * Convierte un importe entre CRC y USD. `rate` son colones por dólar.
- * Se redondea al céntimo: la conversión es informativa, nunca contable.
+ * Convierte un importe entre dos monedas pasando por el colón. `rates` es la
+ * tabla, un objeto `fx` o, por compatibilidad, los colones por dólar.
+ * Se redondea al céntimo: la conversión es informativa, nunca contable. Una
+ * moneda desconocida (una factura en libras) se deja como está.
  */
-export function convertMinor(minor, from, to, rate = DEFAULT_FX_RATE) {
+export function convertMinor(minor, from, to, rates) {
     const amount = Number(minor) || 0;
-    if (!from || !to || from === to) return Math.round(amount);
-    const fx = Number(rate) > 0 ? Number(rate) : DEFAULT_FX_RATE;
-    if (from === 'USD' && to === 'CRC') return Math.round(amount * fx);
-    if (from === 'CRC' && to === 'USD') return Math.round(amount / fx);
-    return Math.round(amount);
+    if (!from || !to || from === to || !isCurrency(from) || !isCurrency(to)) return Math.round(amount);
+    const table = normalizeRates(rates);
+    return Math.round(amount * table[from] / table[to]);
 }
 
 /** Importe de un movimiento o saldo expresado en la moneda base. */
 export function inBase(minor, currency, fx) {
     const base = fx?.base || BASE_CURRENCY;
-    return convertMinor(minor, currency || base, base, fx?.rate);
+    return convertMinor(minor, currency || base, base, fx);
+}
+
+/**
+ * Cotización para mostrar entre una moneda y la principal, con la fuerte a la
+ * izquierda: «$1 = ₡505», «€1 = $1,17». `value` son unidades de la débil por
+ * una de la fuerte.
+ */
+export function quote(code, fx) {
+    const rates = normalizeRates(fx);
+    const base = fx?.base || BASE_CURRENCY;
+    const strong = rates[code] >= rates[base] ? code : base;
+    const weak = strong === code ? base : code;
+    return { code, strong, weak, value: rates[strong] / rates[weak] };
+}
+
+export function formatQuote({ strong, weak, value }) {
+    const decimals = value >= 100 ? 2 : 4;
+    const text = value.toFixed(decimals).replace(/0+$/, '').replace(/\.$/, '');
+    const [intPart, decPart] = text.split('.');
+    return `${currencySymbol(strong)}1 = ${currencySymbol(weak)}${groupDigits(intPart)}${decPart ? ',' + decPart : ''}`;
+}
+
+/**
+ * Tabla de tipos a partir de las cotizaciones escritas a mano, cada una en la
+ * orientación que mostró `quote()` con la tabla actual. Si la principal no es
+ * el colón, primero se fija su cotización frente a él y el resto se calcula
+ * sobre esa.
+ */
+export function ratesFromQuotes(base, values, current) {
+    const rates = normalizeRates(current);
+    const fx = { base, rates: { ...rates } };
+    const oriented = code => quote(code, fx);
+    const baseRate = () => rates[base];
+    const apply = code => {
+        const value = Number(values[code]);
+        if (!(value > 0)) return;
+        const { strong } = oriented(code);
+        if (code === 'CRC') {
+            rates[base] = strong === base ? value : 1 / value;
+        } else {
+            rates[code] = strong === code ? value * baseRate() : baseRate() / value;
+        }
+    };
+    if (base !== 'CRC') apply('CRC');
+    for (const code of CURRENCY_CODES) if (code !== base && code !== 'CRC') apply(code);
+    const rounded = normalizeRates(rates);
+    for (const code of CURRENCY_CODES) rounded[code] = Math.round(rounded[code] * 10000) / 10000;
+    return rounded;
 }
 
 function groupDigits(integerText) {
@@ -146,9 +239,9 @@ export function parseAmount(input) {
 /** Redondea hacia arriba a un múltiplo «bonito» (útil para sugerir presupuestos). */
 export function roundNice(minor, currency = BASE_CURRENCY) {
     const amount = Math.max(0, Number(minor) || 0);
-    const step = currency === 'USD'
-        ? (amount >= 100000 ? 5000 : 1000)            // $50 / $10
-        : (amount >= 10000000 ? 500000 : 100000);    // ₡5.000 / ₡1.000
+    const step = currency === 'CRC'
+        ? (amount >= 10000000 ? 500000 : 100000)     // ₡5.000 / ₡1.000
+        : (amount >= 100000 ? 5000 : 1000);          // $50 / $10 (o €)
     return Math.ceil(amount / step) * step;
 }
 

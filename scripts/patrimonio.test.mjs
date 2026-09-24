@@ -150,6 +150,55 @@ test('nextPayday mensual y quincenal', () => {
     assert.equal(recurring.nextPayday({ mode: 'monthly', day: 30 }, '2026-09-30').date, '2026-10-30');
 });
 
+/* ── Tres monedas ─────────────────────────────────────────────────────────── */
+
+test('convierte entre colones, dólares y euros con el colón de pivote', () => {
+    const fx = money.fxFromSettings({ baseCurrency: 'EUR', fxRates: { USD: 500, EUR: 600 } });
+    assert.deepEqual(fx, { base: 'EUR', rates: { CRC: 1, USD: 500, EUR: 600 } });
+    assert.equal(money.convertMinor(60000, 'CRC', 'EUR', fx), 100);      // ₡600 = €1
+    assert.equal(money.convertMinor(12000, 'EUR', 'USD', fx), 14400);    // €120 = $144
+    assert.equal(money.inBase(50000, 'USD', fx), 41667);                 // $500 ≈ €416,67
+    assert.equal(money.convertMinor(100, 'GBP', 'CRC', fx), 100, 'una moneda desconocida no se toca');
+    assert.equal(money.formatMoney(123456, 'EUR'), '€1.234,56');
+});
+
+test('lee el tipo de cambio antiguo (solo ₡ por $) de los perfiles ya creados', () => {
+    const fx = money.fxFromSettings({ fxRate: 510 });
+    assert.equal(fx.base, 'CRC');
+    assert.equal(fx.rates.USD, 510);
+    assert.equal(fx.rates.EUR, money.DEFAULT_FX_RATES.EUR);
+    assert.equal(money.convertMinor(100, 'USD', 'CRC', 510), 51000);
+    assert.equal(money.convertMinor(100, 'USD', 'CRC', { base: 'CRC', rate: 510 }), 51000);
+});
+
+test('las cotizaciones se muestran con la moneda fuerte a la izquierda y se pueden reescribir', () => {
+    const rates = { CRC: 1, USD: 500, EUR: 600 };
+    assert.equal(money.formatQuote(money.quote('USD', { base: 'CRC', rates })), '$1 = ₡500');
+    assert.equal(money.formatQuote(money.quote('CRC', { base: 'EUR', rates })), '€1 = ₡600');
+    assert.equal(money.formatQuote(money.quote('USD', { base: 'EUR', rates })), '€1 = $1,2');
+    // Con el dólar de principal, subir el colón mueve el dólar y deja el par euro-dólar como se escribió.
+    assert.deepEqual(money.ratesFromQuotes('USD', { CRC: 520, EUR: 1.25 }, rates), { CRC: 1, USD: 520, EUR: 650 });
+    assert.deepEqual(money.ratesFromQuotes('EUR', { USD: 1.2 }, rates), { CRC: 1, USD: 500, EUR: 600 });
+});
+
+test('los hitos de ahorro y el reto de 52 semanas hablan en la moneda principal', () => {
+    const base = { txs: [], today: '2026-09-23', totalSaved: 150000, challenges: [{ id: 'reto-52-semanas', startDate: '2026-09-23' }], contributions: [] };
+    const euros = game.computeGamification({ ...base, currency: 'EUR' });
+    const first = euros.badges.find(b => b.id === 'cien-mil');
+    assert.equal(first.name, 'Primeros €1.000');
+    assert.equal(first.unlocked, true);                                   // €1.500 ahorrados
+    assert.equal(euros.challenges[0].description, 'La semana 1 aparta €1, la 2 €2… y la 52 €52. Al final: €1.378.');
+    const colones = game.computeGamification({ ...base, currency: 'CRC' });
+    assert.equal(colones.badges.find(b => b.id === 'cien-mil').unlocked, false); // ₡1.500 no llega a ₡100.000
+    assert.equal(colones.badges.find(b => b.id === 'primer-millon').name, 'Primer millón');
+});
+
+test('los umbrales de las alertas se piensan en colones y se aplican en la principal', () => {
+    const { defaultLargeExpense, DEFAULT_LARGE_EXPENSE } = alerts;
+    assert.equal(defaultLargeExpense({ base: 'CRC', rates: money.DEFAULT_FX_RATES }), DEFAULT_LARGE_EXPENSE);
+    assert.equal(defaultLargeExpense({ base: 'EUR', rates: { CRC: 1, USD: 500, EUR: 600 } }), 17000); // ₡100.000 ≈ €166,67 → €170
+});
+
 /* ── Estadística y patrimonio ─────────────────────────────────────────────── */
 
 const TXS = [

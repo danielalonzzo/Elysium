@@ -9,7 +9,7 @@
  * `email` marca cómo viaja por correo: `immediate` (en cuanto se registra el
  * movimiento que la provoca) o `daily` (en el resumen de la mañana).
  */
-import { formatMoney } from './money.js';
+import { formatMoney, convertMinor, roundNice } from './money.js';
 import { addDays, diffDays, formatDate, parseISO, toISO, daysInMonth, addMonths } from './dates.js';
 
 export const ALERT_KINDS = Object.freeze({
@@ -44,6 +44,15 @@ export const DEFAULT_LARGE_EXPENSE = 10000000;
 const UNUSUAL_MIN_AVERAGE = 1000000;
 const UNUSUAL_MIN_DELTA = 500000;
 const UNUSUAL_THRESHOLD = 30;
+
+/**
+ * Los umbrales se piensan en colones y se aplican en la moneda principal: en
+ * euros, «₡100.000» es «€170», no «€100.000».
+ */
+export function defaultLargeExpense(fx) {
+    const base = fx?.base || 'CRC';
+    return base === 'CRC' ? DEFAULT_LARGE_EXPENSE : roundNice(convertMinor(DEFAULT_LARGE_EXPENSE, 'CRC', base, fx), base);
+}
 
 function whenText(daysUntil) {
     if (daysUntil <= 0) return 'vence hoy';
@@ -84,6 +93,8 @@ export function evaluateAlerts(ctx) {
     const isOn = kind => enabled[ALERT_KINDS[kind]?.group] !== false;
     const categoryName = id => (ctx.categories || []).find(c => c.id === id)?.name || 'Sin categoría';
     const base = fx?.base || 'CRC';
+    const unusualMinAverage = convertMinor(UNUSUAL_MIN_AVERAGE, 'CRC', base, fx);
+    const unusualMinDelta = convertMinor(UNUSUAL_MIN_DELTA, 'CRC', base, fx);
     const alerts = [];
     const push = alert => { if (isOn(alert.kind)) alerts.push({ date: today, ...alert }); };
     const flagged = new Set();
@@ -124,11 +135,11 @@ export function evaluateAlerts(ctx) {
     const pace = period.days ? elapsed / period.days : 1;
     if (pace >= 0.25 && ctx.averages && ctx.spentByCategory) {
         for (const [categoryId, average] of ctx.averages) {
-            if (flagged.has(categoryId) || average < UNUSUAL_MIN_AVERAGE) continue;
+            if (flagged.has(categoryId) || average < unusualMinAverage) continue;
             const spent = ctx.spentByCategory.get(categoryId) || 0;
             const expected = average * pace;
             const above = expected > 0 ? (spent / expected - 1) * 100 : 0;
-            if (above >= UNUSUAL_THRESHOLD && spent - expected >= UNUSUAL_MIN_DELTA) {
+            if (above >= UNUSUAL_THRESHOLD && spent - expected >= unusualMinDelta) {
                 push({
                     id: `unusual:${categoryId}:${period.key}`, kind: 'unusual', severity: 'warning', email: 'daily',
                     title: 'Gasto inusual detectado',
@@ -239,7 +250,7 @@ export function evaluateAlerts(ctx) {
     }
 
     // Gastos grandes de los últimos tres días.
-    const largeThreshold = Number(settings.largeExpenseMinor) > 0 ? Number(settings.largeExpenseMinor) : DEFAULT_LARGE_EXPENSE;
+    const largeThreshold = Number(settings.largeExpenseMinor) > 0 ? Number(settings.largeExpenseMinor) : defaultLargeExpense(fx);
     const since = addDays(today, -3);
     for (const tx of ctx.recentExpenses || []) {
         if (tx.type !== 'expense' || tx.adjustment || tx.date < since || tx.date > today) continue;

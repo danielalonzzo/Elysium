@@ -5,10 +5,10 @@
 import { app } from '../context.js';
 import { html } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, pct } from '../ui/format.js';
+import { money, pct, formatMoney, currencySymbol } from '../ui/format.js';
 import { progressBar, emptyState } from '../ui/parts.js';
 import { monthsToPayoff, payoffPlan, amortization, debtToIncome } from '../core/loans.js';
-import { inBase, parseAmount, formatMoney } from '../core/money.js';
+import { inBase, parseAmount } from '../core/money.js';
 import { addMonths, formatDate, formatMonths, monthLabel } from '../core/dates.js';
 import { nextMonthlyDay } from '../core/alerts.js';
 
@@ -46,7 +46,7 @@ export default {
                 <div class="stack">${debts.map(debt => debtCard(debt, model))}</div>
                 <article class="card">
                     <div class="card-head"><div><h2>Salir antes</h2><p>¿Y si paga un poco más cada mes?</p></div></div>
-                    <label class="field"><span>Pago extra mensual</span><div class="input-group"><span class="prefix">₡</span><input id="debt-extra" inputmode="decimal" value="${formatMoney(state.extra, 'CRC', { symbol: false })}"></div></label>
+                    <label class="field"><span>Pago extra mensual</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="debt-extra" inputmode="decimal" value="${formatMoney(state.extra, model.fx.base, { symbol: false })}"></div></label>
                     <div class="compare section-gap">
                         ${strategyCard('Avalancha', 'Primero la tasa más alta. Paga menos intereses.', avalanche, baseline, model)}
                         ${strategyCard('Bola de nieve', 'Primero el saldo más pequeño. Ve resultados antes.', snowball, baseline, model)}

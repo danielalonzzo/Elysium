@@ -93,7 +93,7 @@ export default {
                 </div>
                 ${state.table ? html`<div class="table-wrap"><table class="table">
                     <thead><tr><th>Mes</th><th class="is-num">Ingresos</th><th class="is-num">Gastos</th><th class="is-num">Ahorro</th><th class="is-num">Tasa</th></tr></thead>
-                    <tbody>${[...series].reverse().map(p => html`<tr><td style="text-transform:capitalize">${monthLabel(p.key, { long: true })}</td><td class="is-num">${money(p.income)}</td><td class="is-num">${money(p.expense)}</td><td class="is-num">${money(p.net, 'CRC', { tone: 'auto' })}</td><td class="is-num">${pct(p.savingsRate)}</td></tr>`)}</tbody>
+                    <tbody>${[...series].reverse().map(p => html`<tr><td style="text-transform:capitalize">${monthLabel(p.key, { long: true })}</td><td class="is-num">${money(p.income)}</td><td class="is-num">${money(p.expense)}</td><td class="is-num">${money(p.net, model.fx.base, { tone: 'auto' })}</td><td class="is-num">${pct(p.savingsRate)}</td></tr>`)}</tbody>
                 </table></div>` : html`<div class="chart" data-chart="evolution"></div>`}
             </article>
 

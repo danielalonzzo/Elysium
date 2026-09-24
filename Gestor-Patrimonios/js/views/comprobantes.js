@@ -12,7 +12,7 @@ import { money, num } from '../ui/format.js';
 import { emptyState, txTitle } from '../ui/parts.js';
 import { parseFactura, directionFor } from '../core/factura-cr.js';
 import { formatDate, monthLabel } from '../core/dates.js';
-import { inBase } from '../core/money.js';
+import { inBase, isCurrency } from '../core/money.js';
 import { normalizeMerchant } from '../core/stats.js';
 import { matchCategory } from '../core/categories.js';
 import { uploadReceipt } from '../services.js';
@@ -186,7 +186,7 @@ async function createFromInbox(model, id) {
     openTransactionSheet({
         type: kind,
         preset: {
-            type: kind, amountMinor: p.totalMinor, currency: p.currency === 'USD' ? 'USD' : 'CRC', date: p.date || model.today,
+            type: kind, amountMinor: p.totalMinor, currency: isCurrency(p.currency) ? p.currency : 'CRC', date: p.date || model.today,
             merchant: p.merchant, method: p.method, categoryId, accountId: account?.id, receipt, inboxId: id,
             factura: { label: p.label, consecutivo: p.consecutivo, clave: p.clave, taxMinor: p.taxMinor, documentType: p.documentType, issuer: { id: p.issuerId }, lines: [] }
         }

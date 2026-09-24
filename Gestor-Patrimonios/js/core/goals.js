@@ -103,7 +103,7 @@ export function accelerationScenarios({ remaining, monthly, today, currency = 'C
         }
     };
 
-    const step = currency === 'USD' ? 5000 : 2500000; // $50 / ₡25.000
+    const step = currency === 'CRC' ? 2500000 : 5000; // ₡25.000 / $50 o €50
     add('extra', 'Aportar un poco más', `+${formatMoney(step, currency)} al mes`, monthly + step);
 
     if (topCategory?.averageMinor > 0) {

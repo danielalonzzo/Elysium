@@ -37,7 +37,7 @@ export default {
                         <p class="spend-value" style="margin-top:6px">${money(budgetTotals.spent)} <small class="faint" style="font-size:1rem;letter-spacing:0">de ${money(budgetTotals.limit)}</small></p>
                     </div>
                     <div class="kpi-row">
-                        <div class="kv"><small>Queda</small><b>${money(budgetTotals.limit - budgetTotals.spent, 'CRC', { tone: budgetTotals.limit - budgetTotals.spent < 0 ? 'expense' : 'none' })}</b></div>
+                        <div class="kv"><small>Queda</small><b>${money(budgetTotals.limit - budgetTotals.spent, model.fx.base, { tone: budgetTotals.limit - budgetTotals.spent < 0 ? 'expense' : 'none' })}</b></div>
                         <div class="kv"><small>Por día</small><b>${money(Math.max(0, spendable.perDay))}</b></div>
                         <div class="kv"><small>Días restantes</small><b>${model.daysLeft}</b></div>
                     </div>

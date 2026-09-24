@@ -120,7 +120,8 @@ test('suspender corta el acceso sin borrar nada', async () => {
 test('los movimientos se validan: entero, moneda, fecha y textos sin marcado', async () => {
     assert.equal(await write('patrimonio/ana/transactions/bad1', { ...TX, amountMinor: 12.5 }, ANA), 403);
     assert.equal(await write('patrimonio/ana/transactions/bad2', { ...TX, amountMinor: -500 }, ANA), 403);
-    assert.equal(await write('patrimonio/ana/transactions/bad3', { ...TX, currency: 'EUR' }, ANA), 403);
+    assert.equal(await write('patrimonio/ana/transactions/bad3', { ...TX, currency: 'GBP' }, ANA), 403);
+    assert.equal(await write('patrimonio/ana/transactions/euros', { ...TX, currency: 'EUR' }, ANA), 200, 'colones, dólares y euros');
     assert.equal(await write('patrimonio/ana/transactions/bad4', { ...TX, date: '23/09/2026' }, ANA), 403);
     assert.equal(await write('patrimonio/ana/transactions/bad5', { ...TX, merchant: '<script>' }, ANA), 403);
     assert.equal(await write('patrimonio/ana/transactions/bad6', { ...TX, type: 'regalo' }, ANA), 403);

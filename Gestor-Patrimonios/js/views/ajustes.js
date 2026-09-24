@@ -5,14 +5,14 @@
 import { app } from '../context.js';
 import { html, downloadText, readFileText } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money } from '../ui/format.js';
+import { money, formatMoney, currencySymbol, currencyOptions } from '../ui/format.js';
 import { catChip } from '../ui/parts.js';
 import { toast, confirmDialog, openSheet } from '../ui/overlay.js';
 import { getTheme, setTheme, isPrivate, setPrivate } from '../ui/theme.js';
 import { lockConfig, setPin, removePin, setLockMinutes } from '../ui/lock.js';
-import { ALERT_GROUPS } from '../core/alerts.js';
+import { ALERT_GROUPS, defaultLargeExpense } from '../core/alerts.js';
 import { NATURES } from '../core/budgets.js';
-import { parseAmount, formatMoney } from '../core/money.js';
+import { parseAmount, CURRENCY_CODES, currencyInfo, quote, ratesFromQuotes, isCurrency, convertMinor, roundNice } from '../core/money.js';
 import { formatDate } from '../core/dates.js';
 import { parseCSV, guessMapping, rowsToTransactions, toCSV } from '../core/csv.js';
 import { matchCategory } from '../core/categories.js';
@@ -32,6 +32,55 @@ async function saveSettings(patch, message = 'Guardado') {
     const current = app.store.profile?.settings || {};
     await app.store.saveProfile({ settings: { ...current, ...patch } });
     if (message) toast(message, { tone: 'success' });
+}
+
+/** Importe para un campo: sin «,00» cuando es redondo. */
+function wholeAmount(minor, currency) {
+    return formatMoney(minor, currency, { symbol: false, decimals: minor % 100 ? 2 : 0 });
+}
+
+/** Cotización como se escribe: «505», «1,1569». */
+function quoteValue(value) {
+    const text = value.toFixed(value >= 100 ? 2 : 4).replace(/0+$/, '').replace(/\.$/, '');
+    return text.replace('.', ',');
+}
+
+/**
+ * Lee una cotización escrita a mano. La coma es decimal; el punto, según
+ * encaje: «1.17» es uno coma diecisiete y «1.505» mil quinientos cinco si el
+ * tipo actual ronda eso. Fuera de un tercio a tres veces el actual, se rechaza.
+ */
+function parseQuote(text, current) {
+    const clean = String(text).trim().replace(/[^\d.,]/g, '');
+    const candidates = clean.includes(',')
+        ? [clean.replace(/\./g, '').replace(',', '.')]
+        : [clean, clean.replace(/\./g, '')];
+    return candidates.map(Number).find(value => value > current / 3 && value < current * 3) || null;
+}
+
+function dayOptions(max, selected) {
+    return Array.from({ length: max }, (_, i) => html`<option value="${i + 1}" ${Number(selected) === i + 1 ? 'selected' : ''}>Día ${i + 1}</option>`);
+}
+
+/**
+ * Cambiar la moneda principal no toca cuentas ni movimientos (cada uno tiene
+ * la suya); sí convierte los importes de los ajustes, que están en la
+ * principal: el ingreso esperado y el umbral de «gasto grande».
+ */
+async function changeBaseCurrency(model, code) {
+    if (!isCurrency(code) || code === model.fx.base) return;
+    const s = app.store.profile?.settings || {};
+    const next = { base: code, rates: model.fx.rates };
+    const convert = value => (Number(value) > 0 ? roundNice(convertMinor(value, model.fx.base, code, model.fx), code) : value);
+    // El umbral por defecto vuelve a ser el redondo de la nueva moneda, no una conversión con picos.
+    const large = !s.largeExpenseMinor || Number(s.largeExpenseMinor) === defaultLargeExpense(model.fx)
+        ? defaultLargeExpense(next)
+        : convert(s.largeExpenseMinor);
+    await saveSettings({
+        baseCurrency: code,
+        expectedIncomeMinor: convert(s.expectedIncomeMinor),
+        largeExpenseMinor: large
+    }, `Moneda principal: ${currencyInfo(code).name.toLowerCase()}`);
 }
 
 export default {
@@ -69,18 +118,22 @@ export default {
                 <section class="card settings-section" id="ajuste-dinero">
                     <div class="card-head"><div><h2>Dinero</h2><p>Moneda, tipo de cambio y ciclo de pago</p></div></div>
                     <div class="form-grid">
-                        <label class="field"><span>Moneda principal</span><select disabled><option>₡ Colones (CRC)</option></select><small class="field-hint">Las cuentas en dólares se convierten con el tipo de cambio.</small></label>
-                        <div class="field"><span>Tipo de cambio (₡ por $1) <small>${s.fxUpdatedAt ? `${s.fxSource === 'manual' ? 'manual' : 'automático'} · ${formatDate(s.fxUpdatedAt, 'short')}` : ''}</small></span>
-                            <div class="row"><input id="set-fx" class="input" inputmode="decimal" value="${String(s.fxRate).replace('.', ',')}" style="flex:1">
-                            <button type="button" class="btn btn-ghost btn-sm" data-fx-auto ${app.mode === 'demo' ? 'disabled' : ''}>${icon('refresh', { size: 15 })}Automático</button></div>
-                            <small class="field-hint">Escribirlo lo fija a mano; «Automático» lo actualiza a diario con la referencia del mercado.</small></div>
+                        <label class="field is-wide"><span>Moneda principal</span><select id="set-base" data-base-currency>${currencyOptions(model.fx.base)}</select><small class="field-hint">Los totales, presupuestos y reportes se muestran en ella. Cada cuenta y cada movimiento conservan su propia moneda.</small></label>
+                        <div class="field is-wide"><span>Tipo de cambio <small>${s.fxUpdatedAt ? `${s.fxSource === 'manual' ? 'fijado a mano' : 'automático'} · ${formatDate(s.fxUpdatedAt, 'short')}` : s.fxSource === 'manual' ? 'fijado a mano' : 'automático'}</small></span>
+                            <div class="fx-grid">${CURRENCY_CODES.filter(code => code !== model.fx.base).map(code => {
+                                const q = quote(code, model.fx);
+                                return html`<label class="fx-quote"><span class="fx-pair">${currencySymbol(q.strong)}1 en ${currencyInfo(q.weak).name.toLowerCase()}</span>
+                                    <span class="input-group"><span class="prefix">${currencySymbol(q.weak)}</span><input class="input" inputmode="decimal" data-fx-quote="${code}" value="${quoteValue(q.value)}" aria-label="${currencyInfo(q.strong).singular} en ${currencyInfo(q.weak).name.toLowerCase()}"></span></label>`;
+                            })}</div>
+                            <div class="row-between fx-foot"><small class="field-hint">Escribir un tipo lo fija a mano; «Automático» lo actualiza a diario con la referencia del mercado.</small>
+                            <button type="button" class="btn btn-ghost btn-sm" data-fx-auto ${app.mode === 'demo' || s.fxSource !== 'manual' ? 'disabled' : ''}>${icon('refresh', { size: 15 })}Automático</button></div></div>
                         <label class="field"><span>Le pagan</span><select id="set-payday-mode" data-payday-mode>
                             <option value="monthly" ${s.payday?.mode !== 'semimonthly' ? 'selected' : ''}>Una vez al mes</option>
                             <option value="semimonthly" ${s.payday?.mode === 'semimonthly' ? 'selected' : ''}>Quincenal (15 y fin de mes)</option></select></label>
-                        <label class="field" ${s.payday?.mode === 'semimonthly' ? 'hidden' : ''}><span>Día de pago</span><input id="set-payday-day" type="number" min="1" max="31" value="${s.payday?.day || 30}" data-payday-day></label>
-                        <label class="field"><span>El mes empieza el día <small>para presupuestos y reportes</small></span><input id="set-start-day" type="number" min="1" max="28" value="${s.periodStartDay || 1}" data-setting-number="periodStartDay"></label>
+                        <label class="field" ${s.payday?.mode === 'semimonthly' ? 'hidden' : ''}><span>Día de pago</span><select id="set-payday-day" data-payday-day>${dayOptions(31, s.payday?.day || 30)}</select></label>
+                        <label class="field"><span>El mes empieza el día <small>para presupuestos y reportes</small></span><select id="set-start-day" data-setting-number="periodStartDay">${dayOptions(28, s.periodStartDay || 1)}</select></label>
                         <label class="field"><span>Fondo de emergencia ideal</span><select data-setting-select="emergencyMonths">${[3, 4, 6, 9, 12].map(n => html`<option value="${n}" ${Number(s.emergencyMonths || 6) === n ? 'selected' : ''}>${n} meses de gastos</option>`)}</select></label>
-                        <label class="field"><span>Avisar de gastos desde</span><div class="input-group"><span class="prefix">₡</span><input id="set-large" inputmode="decimal" value="${formatMoney(s.largeExpenseMinor || 10000000, 'CRC', { symbol: false })}" data-setting-money="largeExpenseMinor"></div></label>
+                        <label class="field"><span>Avisar de gastos desde</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="set-large" inputmode="decimal" value="${wholeAmount(s.largeExpenseMinor || defaultLargeExpense(model.fx), model.fx.base)}" data-setting-money="largeExpenseMinor"></div></label>
                     </div>
                 </section>
 
@@ -138,11 +191,18 @@ export default {
             const el = event.target;
             if (el.matches('[data-profile="displayName"]')) return app.store.saveProfile({ displayName: el.value.trim().slice(0, 60) }).then(() => toast('Nombre guardado', { tone: 'success' }));
             if (el.matches('[data-setting="taxId"]')) return saveSettings({ taxId: el.value.replace(/[^\d-]/g, '').slice(0, 20) });
-            if (el.matches('#set-fx')) {
-                const rate = Number(String(el.value).replace(',', '.'));
-                if (!(rate > 100 && rate < 2000)) return toast('Ese tipo de cambio no parece válido.', { tone: 'error' });
-                return saveSettings({ fxRate: rate, fxSource: 'manual', fxUpdatedAt: model.today }, 'Tipo de cambio fijado');
+            if (el.matches('[data-fx-quote]')) {
+                const code = el.dataset.fxQuote;
+                const current = quote(code, model.fx).value;
+                const value = parseQuote(el.value, current);
+                if (!value) {
+                    el.value = quoteValue(current);
+                    return toast('Ese tipo de cambio no parece válido.', { tone: 'error' });
+                }
+                const fxRates = ratesFromQuotes(model.fx.base, { [code]: value }, model.fx.rates);
+                return saveSettings({ fxRates, fxSource: 'manual', fxUpdatedAt: model.today }, 'Tipo de cambio fijado');
             }
+            if (el.matches('[data-base-currency]')) return changeBaseCurrency(model, el.value);
             if (el.matches('[data-payday-mode]')) return saveSettings({ payday: { ...s.payday, mode: el.value } });
             if (el.matches('[data-payday-day]')) return saveSettings({ payday: { ...s.payday, mode: 'monthly', day: Math.min(31, Math.max(1, Number(el.value) || 30)) } });
             if (el.matches('[data-setting-number]')) return saveSettings({ [el.dataset.settingNumber]: Math.min(28, Math.max(1, Number(el.value) || 1)) });
@@ -320,7 +380,7 @@ function importSheet(model) {
                 const ops = items.map(item => ({
                     op: 'set', name: 'transactions',
                     data: {
-                        type: item.type, amountMinor: item.amountMinor, currency: account?.currency || 'CRC', date: item.date, accountId,
+                        type: item.type, amountMinor: item.amountMinor, currency: account?.currency || model.fx.base, date: item.date, accountId,
                         merchant: item.merchant,
                         categoryId: matchCategory(item.categoryLabel || item.merchant, model.categories, item.type) || (item.type === 'income' ? 'otros-ingresos' : 'otros-gastos'),
                         tags: ['importado'], createdDate: model.today, imported: true

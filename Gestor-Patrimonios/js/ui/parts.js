@@ -7,6 +7,7 @@ import { icon } from './icons.js';
 import { money, txAmount, METHODS } from './format.js';
 import { rosette } from './guilloche.js';
 import { formatDate } from '../core/dates.js';
+import { inBase } from '../core/money.js';
 import { GOAL_KINDS } from '../core/goals.js';
 
 export function catChip(category, { size = '' } = {}) {
@@ -50,7 +51,7 @@ export function txRow(tx, model, { showDate = false } = {}) {
                 ${tx.receipt ? html`<span class="flag is-receipt">${icon('receipt', { size: 11 })}</span>` : ''}
             </span>
         </span>
-        <span class="tx-amount">${txAmount(tx)}${tx.currency && tx.currency !== model.fx.base ? html`<small>${money(Math.round(tx.amountMinor * model.fx.rate), model.fx.base)}</small>` : ''}</span>
+        <span class="tx-amount">${txAmount(tx)}${tx.currency && tx.currency !== model.fx.base ? html`<small>${money(inBase(tx.amountMinor, tx.currency, model.fx), model.fx.base)}</small>` : ''}</span>
     </button>`;
 }
 

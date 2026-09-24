@@ -353,9 +353,6 @@ details.more > .form { padding: 14px; }
 .onboarding-card > p, .onboarding-lead { color: var(--text-2); margin: 10px 0 24px; font-size: 1rem; }
 .onboarding-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 28px; }
 .onboarding-actions .btn-primary, .onboarding-actions .btn-gold { min-width: 160px; }
-.account-quick { display: grid; grid-template-columns: 40px minmax(0, 1fr) 160px; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: var(--surface-sunken); border: 1px solid var(--line); }
-.account-quick + .account-quick { margin-top: 8px; }
-@media (max-width: 560px) { .account-quick { grid-template-columns: 40px minmax(0, 1fr); } .account-quick .input-group { grid-column: 1 / -1; } }
 
 /* ── Impresión (informe mensual) ──────────────────────────────────────────── */
 

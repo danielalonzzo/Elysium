@@ -8,7 +8,7 @@ import { icon } from '../ui/icons.js';
 import { num } from '../ui/format.js';
 import { rosette, medallion } from '../ui/guilloche.js';
 import { progressBar } from '../ui/parts.js';
-import { LEVELS, CHALLENGES, TIER_LABELS, POINTS } from '../core/gamification.js';
+import { LEVELS, CHALLENGES, TIER_LABELS, POINTS, describeChallenge } from '../core/gamification.js';
 import { formatDate } from '../core/dates.js';
 import { toast, confirmDialog } from '../ui/overlay.js';
 
@@ -66,7 +66,7 @@ export default {
                     <div class="card-head"><div><h2>Disponibles</h2></div></div>
                     ${available.length ? available.map(challenge => html`<div class="challenge">
                         <span class="cat-chip tone-gold">${icon(challenge.icon, { size: 20 })}</span>
-                        <div><h3>${challenge.name}</h3><p>${challenge.description}</p></div>
+                        <div><h3>${challenge.name}</h3><p>${describeChallenge(challenge, model.fx.base)}</p></div>
                         <button type="button" class="btn btn-sm btn-gold" data-accept="${challenge.id}">+${challenge.points}</button>
                     </div>`) : html`<p class="muted">Ya aceptó todos los retos.</p>`}
                 </article>

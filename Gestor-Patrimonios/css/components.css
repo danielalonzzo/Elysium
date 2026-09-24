@@ -492,6 +492,11 @@ a.card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
     background: var(--surface-solid);
 }
 .field input::placeholder, .field textarea::placeholder { color: var(--text-3); }
+/* Los campos dibujan su propio anillo de foco; el contorno global lo duplicaría. */
+.input:focus-visible, .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: none; }
+/* Sin flechas nativas en los campos numéricos: Safari las pinta aunque el campo tenga estilo propio. */
+input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .field.has-error input, .field.has-error select { border-color: var(--danger); box-shadow: 0 0 0 4px var(--danger-soft); }
 .field-error { color: var(--danger); font-size: 0.76rem; }
 .input-group { position: relative; display: flex; align-items: center; }
@@ -499,6 +504,121 @@ a.card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
 .input-group .prefix { position: absolute; left: 13px; color: var(--text-3); font-weight: 600; pointer-events: none; }
 .input-group .suffix { position: absolute; right: 13px; color: var(--text-3); font-size: 0.82rem; pointer-events: none; }
 .input-group input.has-suffix { padding-right: 44px !important; }
+
+/*
+ * Importe con su moneda: un solo control con el símbolo (o un selector de
+ * moneda) pegado al número. El anillo de foco lo lleva el conjunto.
+ */
+.money-field {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--line-strong);
+    background: var(--surface-sunken);
+    transition: border-color 0.18s, box-shadow 0.18s, background 0.18s, opacity 0.2s;
+}
+.money-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); background: var(--surface-solid); }
+.money-field input,
+.field .money-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]) {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    height: 100%;
+    padding: 0 13px 0 6px;
+    border: 0;
+    border-radius: 0 12px 12px 0;
+    background: transparent;
+    box-shadow: none;
+    color: var(--text);
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+}
+.money-field input:focus, .field .money-field input:focus { border: 0; box-shadow: none; background: transparent; }
+.money-field input::placeholder { color: var(--text-3); }
+.money-symbol { display: grid; place-items: center; padding-left: 13px; color: var(--text-3); font-weight: 600; }
+.money-currency {
+    flex: none;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 100%;
+    margin: 0;
+    padding: 0 26px 0 13px;
+    border: 0;
+    border-right: 1px solid var(--line);
+    border-radius: 12px 0 0 12px;
+    background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23889' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center;
+    color: var(--text);
+    font-weight: 650;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+.money-currency + input, .field .money-field .money-currency + input:not([type="checkbox"]) { padding-left: 12px; }
+.money-currency:focus-visible { outline: none; background-color: var(--accent-soft); }
+.money-currency option { background: var(--surface-solid); color: var(--text); }
+.money-field :disabled { cursor: not-allowed; }
+
+/* Casilla propia: la nativa de Safari no respeta el tema. */
+.check-box {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border-radius: 6px;
+    border: 1.5px solid var(--line-strong);
+    background: var(--surface-solid);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+.check-box:checked {
+    border-color: var(--accent);
+    background: var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 14px no-repeat;
+}
+.check-box:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+/* Fila de «marcar y escribir un importe» (primer uso). */
+.quick-list { display: flex; flex-direction: column; gap: 8px; }
+.quick-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(176px, 216px);
+    align-items: center;
+    gap: 14px;
+    padding: 10px 10px 10px 14px;
+    border-radius: 16px;
+    background: var(--surface-sunken);
+    border: 1px solid var(--line);
+    transition: border-color 0.2s, background 0.2s;
+}
+.quick-row .money-field { background: var(--surface-solid); }
+.quick-row.is-off { background: transparent; }
+.quick-row.is-off .quick-check .cat-chip, .quick-row.is-off .quick-text { opacity: 0.5; }
+.quick-row.is-off .money-field { opacity: 0.4; }
+.quick-check { display: flex; align-items: center; gap: 12px; min-width: 0; cursor: pointer; }
+.quick-check .cat-chip { flex: none; }
+.quick-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; line-height: 1.25; }
+.quick-text b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.quick-text small { color: var(--text-3); font-size: 0.78rem; }
+@media (max-width: 560px) {
+    .quick-row { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 12px; }
+}
+
+/* Moneda principal: tres opciones con su símbolo. */
+.currency-seg button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.currency-seg b { font-weight: 700; color: var(--text-3); transition: color 0.18s; }
+.currency-seg [aria-pressed="true"] b { color: var(--accent); }
+
+/* Tipos de cambio (Ajustes). */
+.fx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.fx-quote { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 14px; background: var(--surface-sunken); border: 1px solid var(--line); }
+.fx-pair { font-size: 0.8rem; font-weight: 600; color: var(--text-2); }
+.fx-quote .input { background: var(--surface-solid); }
+.fx-foot { margin-top: 10px; align-items: flex-start; }
+@media (max-width: 560px) { .fx-foot { flex-direction: column; } }
 
 .check {
     display: flex;

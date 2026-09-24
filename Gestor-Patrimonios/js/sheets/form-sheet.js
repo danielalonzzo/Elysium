@@ -6,7 +6,8 @@
 import { html, raw, haptic } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
 import { openSheet, confirmDialog } from '../ui/overlay.js';
-import { formatMoney, parseAmount } from '../core/money.js';
+import { formatMoney, currencySymbol, displayCurrencyCode } from '../ui/format.js';
+import { parseAmount, CURRENCIES, CURRENCY_CODES } from '../core/money.js';
 import { isISODate } from '../core/dates.js';
 
 /**
@@ -56,8 +57,8 @@ export function formSheet(options) {
             form.addEventListener('change', () => options.onChange?.(read(), form));
             form.querySelectorAll('[data-money]').forEach(input => input.addEventListener('blur', () => {
                 const value = parseAmount(input.value);
-                const currency = form.querySelector(`[name="${input.dataset.currencyField}"]`)?.value || values[input.dataset.currencyField] || 'CRC';
-                if (value !== null) input.value = formatMoney(Math.abs(value), currency, { symbol: false });
+                const currency = form.querySelector(`[name="${input.dataset.currencyField}"]`)?.value || values[input.dataset.currencyField] || displayCurrencyCode();
+                if (value !== null) input.value = formatMoney(Math.abs(value), currency, { symbol: false, decimals: value % 100 ? 2 : 0 });
             }));
             form.querySelector('[data-delete]')?.addEventListener('click', async () => {
                 const ok = await confirmDialog({
@@ -120,10 +121,10 @@ function renderField(field, values) {
         case 'info':
             return html`<div class="field${wide}" data-field="${field.name}"${hiddenAttr}>${field.content}</div>`;
         case 'money': {
-            const currency = values[field.currencyField] || field.currency || 'CRC';
+            const currency = values[field.currencyField] || field.currency || displayCurrencyCode();
             return html`<label class="field${wide}" data-field="${field.name}"${hiddenAttr}><span>${field.label}${hint}</span>
-                <div class="input-group"><span class="prefix" data-prefix-for="${field.currencyField || ''}">${currency === 'USD' ? '$' : '₡'}</span>
-                <input ${attrs} inputmode="decimal" data-money data-currency-field="${field.currencyField || ''}" value="${value ? formatMoney(value, currency, { symbol: false }) : ''}"></div>
+                <div class="input-group"><span class="prefix" data-prefix-for="${field.currencyField || ''}">${currencySymbol(currency)}</span>
+                <input ${attrs} inputmode="decimal" data-money data-currency-field="${field.currencyField || ''}" value="${value ? formatMoney(value, currency, { symbol: false, decimals: value % 100 ? 2 : 0 }) : ''}"></div>
             </label>`;
         }
         case 'number':
@@ -179,7 +180,7 @@ function readValues(form, fields, values) {
     // Los prefijos de moneda siguen al selector de moneda.
     form.querySelectorAll('[data-prefix-for]').forEach(prefix => {
         const currency = data[prefix.dataset.prefixFor];
-        if (currency) prefix.textContent = currency === 'USD' ? '$' : '₡';
+        if (currency) prefix.textContent = currencySymbol(currency);
     });
     return data;
 }
@@ -192,7 +193,4 @@ export function toggleFields(form, visibility) {
     }
 }
 
-export const CURRENCY_OPTIONS = [
-    { value: 'CRC', label: '₡ Colones' },
-    { value: 'USD', label: '$ Dólares' }
-];
+export const CURRENCY_OPTIONS = CURRENCY_CODES.map(code => ({ value: code, label: CURRENCIES[code].label }));

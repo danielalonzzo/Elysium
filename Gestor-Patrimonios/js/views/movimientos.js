@@ -4,12 +4,12 @@
 import { app } from '../context.js';
 import { html, downloadText } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, num } from '../ui/format.js';
+import { money, num, formatMoney } from '../ui/format.js';
 import { txRow, emptyState, txTitle } from '../ui/parts.js';
 import { totals } from '../core/stats.js';
 import { formatDate, shiftPeriod, monthLabel } from '../core/dates.js';
 import { normalizeMerchant } from '../core/stats.js';
-import { inBase, formatMoney } from '../core/money.js';
+import { inBase } from '../core/money.js';
 import { toCSV } from '../core/csv.js';
 import { METHODS } from '../ui/format.js';
 
@@ -45,7 +45,7 @@ function filtered(model) {
         if (state.accountId && tx.accountId !== state.accountId && tx.toAccountId !== state.accountId) return false;
         if (state.flag === 'receipt' && !tx.receipt) return false;
         if (state.flag === 'impulsive' && !tx.impulsive) return false;
-        if (state.flag === 'usd' && tx.currency !== 'USD') return false;
+        if (state.flag === 'foreign' && (tx.currency || model.fx.base) === model.fx.base) return false;
         if (query) {
             const haystack = normalizeMerchant(`${tx.merchant || ''} ${model.catById.get(tx.categoryId)?.name || ''} ${tx.note || ''} ${(tx.tags || []).join(' ')} ${formatMoney(tx.amountMinor, tx.currency, { symbol: false })}`);
             if (!haystack.includes(query)) return false;
@@ -102,15 +102,15 @@ export default {
                 <div class="chips">
                     <button type="button" class="chip" data-flag="receipt" aria-pressed="${state.flag === 'receipt'}">${icon('receipt', { size: 15 })}Con comprobante</button>
                     <button type="button" class="chip" data-flag="impulsive" aria-pressed="${state.flag === 'impulsive'}">${icon('zap', { size: 15 })}Impulsivos</button>
-                    <button type="button" class="chip" data-flag="usd" aria-pressed="${state.flag === 'usd'}">$ En dólares</button>
+                    <button type="button" class="chip" data-flag="foreign" aria-pressed="${state.flag === 'foreign'}">En otra moneda</button>
                 </div>
                 ${hasFilters ? html`<button type="button" class="link-btn" data-clear>Limpiar filtros</button>` : ''}
             </div>
 
             <div class="period-summary">
-                <div class="kv"><small>Ingresos</small><b>${money(sums.income, 'CRC', { tone: 'income' })}</b></div>
+                <div class="kv"><small>Ingresos</small><b>${money(sums.income, model.fx.base, { tone: 'income' })}</b></div>
                 <div class="kv"><small>Gastos</small><b>${money(sums.expense)}</b></div>
-                <div class="kv"><small>Neto</small><b>${money(sums.net, 'CRC', { sign: true, tone: 'auto' })}</b></div>
+                <div class="kv"><small>Neto</small><b>${money(sums.net, model.fx.base, { sign: true, tone: 'auto' })}</b></div>
                 <div class="kv"><small>Movimientos</small><b>${num(list.length)}</b></div>
                 ${range.start !== '0000-01-01' ? html`<div class="kv"><small>Período</small><b>${formatDate(range.start, 'short')} – ${formatDate(range.end, 'short')}</b></div>` : ''}
             </div>
@@ -118,7 +118,7 @@ export default {
             <article class="card">
                 ${groups.length ? html`<div class="list">${groups.map(group => {
                     const dayNet = group.items.reduce((sum, tx) => sum + (tx.type === 'income' ? 1 : tx.type === 'expense' ? -1 : 0) * inBase(tx.amountMinor, tx.currency, model.fx), 0);
-                    return html`<div class="list-day"><span>${formatDate(group.date, 'relative', model.today)}</span><span>${dayNet ? money(dayNet, 'CRC', { sign: true }) : ''}</span></div>${group.items.map(tx => txRow(tx, model))}`;
+                    return html`<div class="list-day"><span>${formatDate(group.date, 'relative', model.today)}</span><span>${dayNet ? money(dayNet, model.fx.base, { sign: true }) : ''}</span></div>${group.items.map(tx => txRow(tx, model))}`;
                 })}</div>
                 ${list.length > shown.length ? html`<div class="load-more"><button type="button" class="btn btn-ghost" data-more>Mostrar ${Math.min(120, list.length - shown.length)} más</button></div>` : ''}`
                 : emptyState({

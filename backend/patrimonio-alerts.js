@@ -182,7 +182,7 @@ function buildWeeklyEmail({ model, core, profile, emailTheme }) {
   const lastMonday = core.addDays(core.startOfWeek(model.today), -7);
   const lastSunday = core.addDays(lastMonday, 6);
   const { totals: weekTotals, byCategory } = weekFigures(model, core, lastMonday, lastSunday);
-  const top = byCategory.slice(0, 3).map(entry => [model.catById.get(entry.categoryId)?.name || 'Sin categoría', core.formatMoney(entry.total)]);
+  const top = byCategory.slice(0, 3).map(entry => [model.catById.get(entry.categoryId)?.name || 'Sin categoría', core.formatMoney(entry.total, model.fx.base)]);
   const goals = model.goals.filter(entry => !entry.progress.done).slice(0, 3)
     .map(entry => [entry.goal.name, `${Math.round(entry.progress.pct)} % · faltan ${core.formatMoney(entry.progress.remaining, entry.goal.currency)}`]);
   const upcoming = model.upcoming.filter(item => item.rule.type === 'expense' && item.daysUntil <= 7)
@@ -190,17 +190,17 @@ function buildWeeklyEmail({ model, core, profile, emailTheme }) {
   const name = firstName(profile);
   const blocks = [
     figureRows([
-      ['Gastó la semana pasada', core.formatMoney(weekTotals.expense)],
-      ['Ingresos de la semana', core.formatMoney(weekTotals.income)],
-      [`Ahorro de ${model.periodLabel} hasta hoy`, core.formatMoney(model.totals.net)],
-      ['Puede gastar por día', core.formatMoney(Math.max(0, model.spendable.perDay))]
+      ['Gastó la semana pasada', core.formatMoney(weekTotals.expense, model.fx.base)],
+      ['Ingresos de la semana', core.formatMoney(weekTotals.income, model.fx.base)],
+      [`Ahorro de ${model.periodLabel} hasta hoy`, core.formatMoney(model.totals.net, model.fx.base)],
+      ['Puede gastar por día', core.formatMoney(Math.max(0, model.spendable.perDay), model.fx.base)]
     ])
   ];
   if (top.length) blocks.push(subheading('Dónde más gastó'), figureRows(top));
   if (goals.length) blocks.push(subheading('Sus sueños'), figureRows(goals));
   if (upcoming.length) blocks.push(subheading('Pagos de esta semana'), figureRows(upcoming));
   return {
-    subject: `Su semana en Patrimonio: ${core.formatMoney(weekTotals.expense)} en gastos`,
+    subject: `Su semana en Patrimonio: ${core.formatMoney(weekTotals.expense, model.fx.base)} en gastos`,
     html: patrimonioShell({
       eyebrow: 'Resumen semanal',
       title: `Semana del ${core.formatDate(lastMonday, 'short')} al ${core.formatDate(lastSunday, 'short')}`,
@@ -208,12 +208,12 @@ function buildWeeklyEmail({ model, core, profile, emailTheme }) {
       blocks,
       cta: 'Ver el detalle',
       ctaHref: `${APP_URL}#/reportes`,
-      preheader: `Gastó ${core.formatMoney(weekTotals.expense)} la semana pasada.`,
+      preheader: `Gastó ${core.formatMoney(weekTotals.expense, model.fx.base)} la semana pasada.`,
       emailTheme
     }),
     text: [
       `Resumen semanal — ${core.formatDate(lastMonday, 'short')} al ${core.formatDate(lastSunday, 'short')}`,
-      `Gastos: ${core.formatMoney(weekTotals.expense)} · Ingresos: ${core.formatMoney(weekTotals.income)}`,
+      `Gastos: ${core.formatMoney(weekTotals.expense, model.fx.base)} · Ingresos: ${core.formatMoney(weekTotals.income, model.fx.base)}`,
       ...top.map(([label, value]) => `• ${label}: ${value}`),
       `Abrir: ${APP_URL}#/reportes`
     ].join('\n')
@@ -244,22 +244,22 @@ function buildMonthlyEmail({ model, core, profile, emailTheme }) {
   const series = model.series12.find(item => item.key === period.key) || { income: 0, expense: 0, net: 0, savingsRate: 0 };
   const label = core.monthLabel(period.key, { long: true, year: true });
   const top = weekFigures(model, core, period.start, period.end).byCategory.slice(0, 4)
-    .map(entry => [model.catById.get(entry.categoryId)?.name || 'Sin categoría', core.formatMoney(entry.total)]);
+    .map(entry => [model.catById.get(entry.categoryId)?.name || 'Sin categoría', core.formatMoney(entry.total, model.fx.base)]);
   const goals = model.goals.slice(0, 4).map(entry => [entry.goal.name, `${Math.round(entry.progress.pct)} %`]);
   const name = firstName(profile);
   const blocks = [
     figureRows([
-      ['Ingresos', core.formatMoney(series.income)],
-      ['Gastos', core.formatMoney(series.expense)],
-      ['Ahorro', core.formatMoney(series.net)],
+      ['Ingresos', core.formatMoney(series.income, model.fx.base)],
+      ['Gastos', core.formatMoney(series.expense, model.fx.base)],
+      ['Ahorro', core.formatMoney(series.net, model.fx.base)],
       ['Tasa de ahorro', `${Math.round(series.savingsRate)} %`],
-      ['Patrimonio neto hoy', core.formatMoney(model.worth.net)]
+      ['Patrimonio neto hoy', core.formatMoney(model.worth.net, model.fx.base)]
     ])
   ];
   if (top.length) blocks.push(subheading('En qué se fue'), figureRows(top));
   if (goals.length) blocks.push(subheading('Avance de sus metas'), figureRows(goals));
   return {
-    subject: `Su informe de ${label}: ahorró ${core.formatMoney(series.net)}`,
+    subject: `Su informe de ${label}: ahorró ${core.formatMoney(series.net, model.fx.base)}`,
     html: patrimonioShell({
       eyebrow: 'Informe del mes',
       title: label.charAt(0).toUpperCase() + label.slice(1),
@@ -267,14 +267,14 @@ function buildMonthlyEmail({ model, core, profile, emailTheme }) {
       blocks,
       cta: 'Ver el informe completo',
       ctaHref: `${APP_URL}#/reportes`,
-      preheader: `Ingresos ${core.formatMoney(series.income)} · Gastos ${core.formatMoney(series.expense)}`,
+      preheader: `Ingresos ${core.formatMoney(series.income, model.fx.base)} · Gastos ${core.formatMoney(series.expense, model.fx.base)}`,
       emailTheme
     }),
     text: [
       `Informe de ${label}`,
-      `Ingresos: ${core.formatMoney(series.income)}`,
-      `Gastos: ${core.formatMoney(series.expense)}`,
-      `Ahorro: ${core.formatMoney(series.net)} (${Math.round(series.savingsRate)} %)`,
+      `Ingresos: ${core.formatMoney(series.income, model.fx.base)}`,
+      `Gastos: ${core.formatMoney(series.expense, model.fx.base)}`,
+      `Ahorro: ${core.formatMoney(series.net, model.fx.base)} (${Math.round(series.savingsRate)} %)`,
       `Abrir: ${APP_URL}#/reportes`
     ].join('\n')
   };

@@ -12,10 +12,10 @@
 import { app } from '../context.js';
 import { html, $, readFileText, haptic } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, METHODS } from '../ui/format.js';
+import { money, METHODS, formatMoney, currencySymbol, nextCurrency } from '../ui/format.js';
 import { openSheet, toast, actionSheet, confirmDialog } from '../ui/overlay.js';
 import { catChip, txTitle } from '../ui/parts.js';
-import { formatMoney, parseAmount, inBase, convertMinor } from '../core/money.js';
+import { parseAmount, inBase, convertMinor, isCurrency, currencyInfo, quote, formatQuote } from '../core/money.js';
 import { addDays, formatDate, todayISO, isISODate } from '../core/dates.js';
 import { normalizeMerchant } from '../core/stats.js';
 import { matchCategory } from '../core/categories.js';
@@ -116,11 +116,11 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     </div>
 
                     <div class="amount-input is-${state.type}">
-                        <button type="button" class="currency-toggle" data-toggle-currency aria-label="Cambiar moneda">${state.currency === 'USD' ? '$' : '₡'}</button>
+                        <button type="button" class="currency-toggle" data-toggle-currency aria-label="Moneda: ${currencyInfo(state.currency).name}. Cambiar" title="Cambiar moneda">${currencySymbol(state.currency)}</button>
                         <input name="amount" inputmode="decimal" enterkeyhint="next" placeholder="0" aria-label="Monto"
                             value="${state.amountMinor ? formatMoney(state.amountMinor, state.currency, { symbol: false }) : ''}" ${editing ? '' : 'autofocus'}>
                     </div>
-                    <p class="amount-words" data-amount-hint>${state.currency !== model.fx.base && state.amountMinor ? `≈ ${formatMoney(convertMinor(state.amountMinor, state.currency, model.fx.base, model.fx.rate), model.fx.base)}` : ''}</p>
+                    <p class="amount-words" data-amount-hint>${state.currency !== model.fx.base && state.amountMinor ? `≈ ${formatMoney(convertMinor(state.amountMinor, state.currency, model.fx.base, model.fx), model.fx.base)}` : ''}</p>
 
                     ${state.type === 'transfer' ? html`
                         <div class="form-grid">
@@ -130,9 +130,9 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                             <label class="field"><span>Hacia</span>
                                 <select name="toAccountId"><option value="">Elija una cuenta…</option>${accounts.filter(a => a.id !== state.accountId).map(a => html`<option value="${a.id}" ${a.id === state.toAccountId ? 'selected' : ''}>${a.name} · ${a.currency}</option>`)}</select>
                             </label>
-                            ${crossCurrency ? html`<label class="field is-wide"><span>Monto recibido en ${toAccount.currency} <small>tipo ${model.fx.rate}</small></span>
-                                <div class="input-group"><span class="prefix">${toAccount.currency === 'USD' ? '$' : '₡'}</span>
-                                <input name="toAmount" inputmode="decimal" value="${state.toAmountMinor ? formatMoney(state.toAmountMinor, toAccount.currency, { symbol: false }) : ''}" placeholder="${state.amountMinor ? formatMoney(convertMinor(state.amountMinor, fromAccount.currency, toAccount.currency, model.fx.rate), toAccount.currency, { symbol: false }) : ''}"></div>
+                            ${crossCurrency ? html`<label class="field is-wide"><span>Monto recibido en ${toAccount.currency} <small>${formatQuote(quote(toAccount.currency, { base: fromAccount.currency, rates: model.fx.rates }))}</small></span>
+                                <div class="input-group"><span class="prefix">${currencySymbol(toAccount.currency)}</span>
+                                <input name="toAmount" inputmode="decimal" value="${state.toAmountMinor ? formatMoney(state.toAmountMinor, toAccount.currency, { symbol: false }) : ''}" placeholder="${state.amountMinor ? formatMoney(convertMinor(state.amountMinor, fromAccount.currency, toAccount.currency, model.fx), toAccount.currency, { symbol: false }) : ''}"></div>
                             </label>` : ''}
                         </div>
                         <label class="field"><span>Concepto <small>opcional</small></span><input name="merchant" value="${state.merchant}" placeholder="Pago de tarjeta, ahorro del mes…" maxlength="120"></label>
@@ -291,7 +291,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                 const direction = directionFor(parsed, model.settings.taxId);
                 state.type = direction === 'income' ? 'income' : 'expense';
                 state.amountMinor = parsed.totalMinor;
-                state.currency = parsed.currency === 'USD' ? 'USD' : 'CRC';
+                state.currency = isCurrency(parsed.currency) ? parsed.currency : 'CRC';
                 if (parsed.date) state.date = parsed.date;
                 state.merchant = parsed.merchant || state.merchant;
                 if (parsed.method) state.method = parsed.method;
@@ -325,7 +325,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                 }));
                 form.querySelector('[data-toggle-currency]')?.addEventListener('click', () => {
                     syncFromInputs();
-                    state.currency = state.currency === 'USD' ? 'CRC' : 'USD';
+                    state.currency = nextCurrency(state.currency);
                     const match = accounts.find(a => a.currency === state.currency);
                     if (match && accounts.find(a => a.id === state.accountId)?.currency !== state.currency) state.accountId = match.id;
                     render();
@@ -335,13 +335,13 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     const value = readAmount();
                     const hint = form.querySelector('[data-amount-hint]');
                     if (hint) hint.textContent = value && state.currency !== model.fx.base
-                        ? `≈ ${formatMoney(convertMinor(value, state.currency, model.fx.base, model.fx.rate), model.fx.base)}`
+                        ? `≈ ${formatMoney(convertMinor(value, state.currency, model.fx.base, model.fx), model.fx.base)}`
                         : '';
                     updateImpact();
                 });
                 amountInput?.addEventListener('blur', () => {
                     const value = readAmount();
-                    if (value) amountInput.value = formatMoney(value, state.currency, { symbol: false, decimals: state.currency === 'USD' ? 2 : (value % 100 ? 2 : 0) });
+                    if (value) amountInput.value = formatMoney(value, state.currency, { symbol: false, decimals: state.currency !== 'CRC' ? 2 : (value % 100 ? 2 : 0) });
                 });
                 const merchantInput = form.querySelector('[name="merchant"]');
                 merchantInput?.addEventListener('change', () => { state.merchant = merchantInput.value.trim(); suggestCategory(); });
@@ -445,7 +445,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                 if (state.type === 'transfer') {
                     doc.toAccountId = state.toAccountId;
                     doc.toAmountMinor = toAccount && fromAccount && toAccount.currency !== fromAccount.currency
-                        ? (state.toAmountMinor || convertMinor(state.amountMinor, fromAccount.currency, toAccount.currency, model.fx.rate))
+                        ? (state.toAmountMinor || convertMinor(state.amountMinor, fromAccount.currency, toAccount.currency, model.fx))
                         : state.amountMinor;
                     delete doc.categoryId;
                     delete doc.impulsive;
@@ -537,7 +537,7 @@ export function openTransactionDetail(id) {
             <div class="tx-detail">
                 <div class="tx-detail-amount is-${tx.type}">
                     ${tx.type === 'expense' ? money(-tx.amountMinor, tx.currency) : money(tx.amountMinor, tx.currency, { sign: tx.type === 'income' })}
-                    ${tx.currency !== model.fx.base ? html`<small>≈ ${money(convertMinor(tx.amountMinor, tx.currency, model.fx.base, model.fx.rate), model.fx.base)}</small>` : ''}
+                    ${tx.currency !== model.fx.base ? html`<small>≈ ${money(convertMinor(tx.amountMinor, tx.currency, model.fx.base, model.fx), model.fx.base)}</small>` : ''}
                 </div>
                 <dl class="detail-list">
                     ${category ? html`<div><dt>Categoría</dt><dd>${catChip(category, { size: 'sm' })}${category.name}</dd></div>` : ''}

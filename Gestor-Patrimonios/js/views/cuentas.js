@@ -10,6 +10,7 @@ import { catChip, progressBar, emptyState } from '../ui/parts.js';
 import { areaChart } from '../ui/charts.js';
 import { ACCOUNT_TYPES } from '../core/stats.js';
 import { formatDate, monthLabel, relativeDays } from '../core/dates.js';
+import { CURRENCY_CODES, quote, formatQuote } from '../core/money.js';
 import { nextMonthlyDay } from '../core/alerts.js';
 import { actionSheet } from '../ui/overlay.js';
 
@@ -22,7 +23,13 @@ const GROUPS = [
 
 export default {
     title: 'Cuentas',
-    eyebrow: model => `Tipo de cambio ₡${String(model.fx.rate).replace('.', ',')} por $1${model.settings.fxUpdatedAt ? ` · ${model.settings.fxSource === 'manual' ? 'fijado a mano' : 'actualizado ' + relativeDays(model.today, model.settings.fxUpdatedAt)}` : ''}`,
+    eyebrow: model => {
+        // Las cotizaciones de las monedas que de verdad usa; si todo va en la principal, las demás.
+        const used = new Set(model.accounts.map(a => a.currency).filter(code => code && code !== model.fx.base));
+        const codes = CURRENCY_CODES.filter(code => code !== model.fx.base && (!used.size || used.has(code)));
+        const when = model.settings.fxUpdatedAt ? ` · ${model.settings.fxSource === 'manual' ? 'fijado a mano' : 'actualizado ' + relativeDays(model.today, model.settings.fxUpdatedAt)}` : '';
+        return codes.map(code => formatQuote(quote(code, model.fx))).join(' · ') + when;
+    },
     actions: () => html`<button type="button" class="btn btn-ghost hide-mobile" data-new-account>${icon('plus', { size: 17 })}Cuenta</button>`,
 
     render(model) {
@@ -46,7 +53,7 @@ export default {
                 <article class="card">
                     <div class="card-head"><div><h2>Composición</h2><p>Qué suma y qué resta</p></div></div>
                     <div class="list">${worth.breakdown.filter(item => item.value !== 0).sort((a, b) => b.value - a.value).map(item => html`<div class="row-between" style="padding:8px 2px;font-size:.9rem">
-                        <span>${item.name}</span>${money(item.value, 'CRC', { tone: item.value < 0 ? 'expense' : 'none' })}</div>`)}</div>
+                        <span>${item.name}</span>${money(item.value, model.fx.base, { tone: item.value < 0 ? 'expense' : 'none' })}</div>`)}</div>
                 </article>
             </div>
 
@@ -54,7 +61,7 @@ export default {
                 const accounts = visible.filter(a => group.types.includes(a.type));
                 if (!accounts.length) return '';
                 const sum = accounts.reduce((s, a) => s + a.balanceBase, 0);
-                return html`<div class="section-title"><h2>${group.title}</h2><span class="muted">${money(sum, 'CRC', { tone: sum < 0 ? 'expense' : 'none' })}</span></div>
+                return html`<div class="section-title"><h2>${group.title}</h2><span class="muted">${money(sum, model.fx.base, { tone: sum < 0 ? 'expense' : 'none' })}</span></div>
                     <div class="grid grid-3">${accounts.map(account => accountCard(account, model))}</div>`;
             })}
             ${archived.length ? html`<div class="section-title"><h2>Archivadas</h2></div><div class="grid grid-3">${archived.map(account => accountCard(account, model))}</div>` : ''}`;

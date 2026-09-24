@@ -104,6 +104,33 @@ export function impulseFreeRuns(txs, today) {
 
 /* ── Insignias ────────────────────────────────────────────────────────────── */
 
+/**
+ * Los hitos de ahorro dependen de la moneda principal: «el primer millón» de
+ * colones son unos 2.000 dólares, y un millón de euros no es un hito, es otra
+ * vida. Los ids no cambian, así que lo ya celebrado se respeta.
+ */
+export const SAVINGS_SCALE = Object.freeze({
+    CRC: {
+        first: { amount: 10000000, name: 'Primeros ₡100.000', description: 'Ahorre sus primeros cien mil colones.' },
+        big: { amount: 100000000, name: 'Primer millón', description: 'Un millón de colones ahorrado.' },
+        week: 100000
+    },
+    USD: {
+        first: { amount: 100000, name: 'Primeros $1.000', description: 'Ahorre sus primeros mil dólares.' },
+        big: { amount: 1000000, name: 'Primeros $10.000', description: 'Diez mil dólares ahorrados.' },
+        week: 100
+    },
+    EUR: {
+        first: { amount: 100000, name: 'Primeros €1.000', description: 'Ahorre sus primeros mil euros.' },
+        big: { amount: 1000000, name: 'Primeros €10.000', description: 'Diez mil euros ahorrados.' },
+        week: 100
+    }
+});
+
+export function savingsScale(currency) {
+    return SAVINGS_SCALE[currency] || SAVINGS_SCALE.CRC;
+}
+
 const ratio = (value, target) => Math.max(0, Math.min(1, (Number(value) || 0) / target));
 
 export const BADGES = Object.freeze([
@@ -117,10 +144,10 @@ export const BADGES = Object.freeze([
         evaluate: s => ratio(s.budgetsCount, 1) },
     { id: 'mes-impecable', name: 'Mes impecable', description: 'Cierre un mes dentro de todos sus presupuestos.', tier: 'silver', points: 100, icon: 'check-circle',
         evaluate: s => ratio(s.monthsWithinBudget, 1) },
-    { id: 'cien-mil', name: 'Primeros ₡100.000', description: 'Ahorre sus primeros cien mil colones.', tier: 'bronze', points: 50, icon: 'coins',
-        evaluate: s => ratio(s.totalSaved, 10000000) },
-    { id: 'primer-millon', name: 'Primer millón', description: 'Un millón de colones ahorrado.', tier: 'gold', points: 200, icon: 'crown',
-        evaluate: s => ratio(s.totalSaved, 100000000) },
+    { id: 'cien-mil', milestone: 'first', tier: 'bronze', points: 50, icon: 'coins',
+        evaluate: s => ratio(s.totalSaved, s.scale.first.amount) },
+    { id: 'primer-millon', milestone: 'big', tier: 'gold', points: 200, icon: 'crown',
+        evaluate: s => ratio(s.totalSaved, s.scale.big.amount) },
     { id: 'red-de-seguridad', name: 'Red de seguridad', description: 'Complete su fondo de emergencia.', tier: 'gold', points: 250, icon: 'shield',
         evaluate: s => ratio(s.emergencyPct, 100) },
     { id: 'sueno-cumplido', name: 'Sueño cumplido', description: 'Cumpla su primera meta.', tier: 'silver', points: 150, icon: 'star',
@@ -172,20 +199,25 @@ export const CHALLENGES = Object.freeze([
     },
     {
         id: 'reto-52-semanas', name: 'Reto de las 52 semanas', days: 364, points: 400, icon: 'calendar',
-        description: 'La semana 1 aparta ₡1.000, la 2 ₡2.000… y la 52 ₡52.000. Al final: ₡1.378.000.',
-        evaluate: ({ contributions, startDate, today }) => {
-            const target = 137800000;
+        description: (currency = 'CRC') => {
+            const step = savingsScale(currency).week;
+            const whole = minor => formatMoney(minor, currency, { decimals: 0 });
+            return `La semana 1 aparta ${whole(step)}, la 2 ${whole(step * 2)}… y la 52 ${whole(step * 52)}. Al final: ${whole(step * 1378)}.`;
+        },
+        evaluate: ({ contributions, startDate, today, currency = 'CRC' }) => {
+            const step = savingsScale(currency).week;
+            const target = step * 1378;
             const end = addDays(startDate, 363);
             const saved = (contributions || [])
                 .filter(c => c.date >= startDate && c.date <= end && c.amountMinor > 0)
                 .reduce((sum, c) => sum + c.amountMinor, 0);
             const week = Math.min(52, Math.floor(Math.max(0, diffDays(startDate, today)) / 7) + 1);
-            const expected = week * (week + 1) / 2 * 100000;
+            const expected = week * (week + 1) / 2 * step;
             return {
                 failed: today > end && saved < target,
                 done: saved >= target,
                 progress: Math.min(1, saved / target),
-                detail: `Semana ${week}: lleva ${formatMoney(saved)} de ${formatMoney(expected)} esperados`
+                detail: `Semana ${week}: lleva ${formatMoney(saved, currency)} de ${formatMoney(expected, currency)} esperados`
             };
         }
     }
@@ -200,10 +232,13 @@ export const CHALLENGES = Object.freeze([
  *   simulationsCount, aguinaldoSavedPct, netWorth, challenges (aceptados)
  */
 export function computeGamification(s) {
+    const currency = s.currency || 'CRC';
+    const scale = savingsScale(currency);
     const days = loggingDays(s.txs);
     const impulse = impulseFreeRuns(s.txs, s.today);
     const stats = {
         ...s,
+        scale,
         txCount: (s.txs || []).length,
         loggingDays: days.size,
         streak: currentStreak(days, s.today),
@@ -215,14 +250,15 @@ export function computeGamification(s) {
 
     const badges = BADGES.map(badge => {
         const progress = badge.evaluate(stats);
-        return { ...badge, progress, unlocked: progress >= 1, evaluate: undefined };
+        const text = badge.milestone ? scale[badge.milestone] : badge;
+        return { ...badge, name: text.name, description: text.description, progress, unlocked: progress >= 1, evaluate: undefined };
     });
 
     const challenges = (s.challenges || []).map(accepted => {
         const def = CHALLENGES.find(c => c.id === accepted.id);
         if (!def) return null;
-        const result = def.evaluate({ txs: s.txs, contributions: s.contributions, startDate: accepted.startDate, today: s.today });
-        return { ...def, ...accepted, ...result, evaluate: undefined };
+        const result = def.evaluate({ txs: s.txs, contributions: s.contributions, startDate: accepted.startDate, today: s.today, currency });
+        return { ...def, ...accepted, ...result, description: describeChallenge(def, currency), evaluate: undefined };
     }).filter(Boolean);
 
     const breakdown = [
@@ -236,6 +272,11 @@ export function computeGamification(s) {
     const points = breakdown.reduce((sum, item) => sum + item.points, 0);
 
     return { points, level: levelFor(points), badges, challenges, breakdown, stats };
+}
+
+/** Texto del reto en la moneda principal (el de 52 semanas se mide en ella). */
+export function describeChallenge(challenge, currency = 'CRC') {
+    return typeof challenge.description === 'function' ? challenge.description(currency) : challenge.description;
 }
 
 /** Insignias recién desbloqueadas respecto a las ya celebradas. */

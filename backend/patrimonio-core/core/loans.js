@@ -95,6 +95,7 @@ export function debtToIncome(paymentMinor, incomeMinor) {
  * @param {number} input.monthlyIncome       ingreso mensual
  * @param {number} [input.existingDebtPayments] cuotas que ya paga
  * @param {string} input.today
+ * @param {string} [input.currency]         moneda base, para los textos
  */
 export function simulatePurchase(input) {
     const price = Math.max(0, Number(input.price) || 0);
@@ -142,10 +143,10 @@ export function simulatePurchase(input) {
         };
     }
 
-    return { price, cash, credit, verdict: purchaseVerdict({ price, cash, credit, capacity, savings }) };
+    return { price, cash, credit, verdict: purchaseVerdict({ price, cash, credit, capacity, savings, currency: input.currency }) };
 }
 
-function purchaseVerdict({ price, cash, credit, capacity, savings }) {
+function purchaseVerdict({ price, cash, credit, capacity, savings, currency = 'CRC' }) {
     const reasons = [];
     if (cash.gap === 0) {
         reasons.push('Su ahorro disponible cubre el precio completo.');
@@ -165,7 +166,7 @@ function purchaseVerdict({ price, cash, credit, capacity, savings }) {
         }
     }
     if (Number.isFinite(cash.months)) {
-        reasons.push(`Ahorrando ${formatMoney(capacity)} al mes lo tendría de contado.`);
+        reasons.push(`Ahorrando ${formatMoney(capacity, currency)} al mes lo tendría de contado.`);
         return { level: 'wait', title: `Espere ${Math.ceil(cash.months)} ${Math.ceil(cash.months) === 1 ? 'mes' : 'meses'}`, months: Math.ceil(cash.months), reasons };
     }
     reasons.push('Hoy no hay capacidad de ahorro para llegar a este precio.');

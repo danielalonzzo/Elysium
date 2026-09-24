@@ -12,7 +12,7 @@
  * Los colores salen de variables CSS (`--c-income`, `--c-expense`,
  * `--c-net`), validadas en los dos temas contra su superficie.
  */
-import { formatMoney } from '../core/money.js';
+import { formatMoney, displayCurrencyCode } from './format.js';
 import { esc, raw } from './dom.js';
 
 const observers = new Set();
@@ -89,7 +89,7 @@ function tipRows(title, rows) {
     ).join('');
 }
 
-const moneyShort = (minor, currency = 'CRC') => formatMoney(minor, currency, { compact: true });
+const moneyShort = (minor, currency = displayCurrencyCode()) => formatMoney(minor, currency, { compact: true });
 
 /* ── Flujo de caja: columnas de ingresos y gastos + línea de ahorro neto ─── */
 
@@ -98,7 +98,7 @@ const moneyShort = (minor, currency = 'CRC') => formatMoney(minor, currency, { c
  * @param {{labels: string[], titles?: string[], income: number[], expense: number[], net?: number[], currency?: string, height?: number}} data
  */
 export function cashflowChart(element, data) {
-    const currency = data.currency || 'CRC';
+    const currency = data.currency || displayCurrencyCode();
     observe(element, width => {
         const height = data.height || (width < 520 ? 210 : 250);
         const m = { top: 14, right: 10, bottom: 26, left: width < 520 ? 44 : 56 };
@@ -192,7 +192,7 @@ function attachIndexHover(svgEl, count, indexFromEvent, show, hide) {
  * @param {{labels: string[], titles?: string[], values: number[], currency?: string, height?: number, tone?: string, name?: string}} data
  */
 export function areaChart(element, data) {
-    const currency = data.currency || 'CRC';
+    const currency = data.currency || displayCurrencyCode();
     const tone = data.tone || 's-gold';
     observe(element, width => {
         const height = data.height || (width < 520 ? 180 : 220);
@@ -284,7 +284,7 @@ export function ring(pct, { size = 64, stroke = 6, tone = 'gold', label = '' } =
  * magnitudes entre categorías.
  * @param {Array<{label: string, value: number, sub?: string, iconHtml?: any, href?: string}>} items
  */
-export function hbars(items, { currency = 'CRC', max = null, tone = 'accent' } = {}) {
+export function hbars(items, { currency = displayCurrencyCode(), max = null, tone = 'accent' } = {}) {
     const top = max ?? Math.max(1, ...items.map(item => item.value));
     return raw(`<ol class="hbars is-${tone}">${items.map(item => {
         const width = Math.max(1.5, (item.value / top) * 100);
@@ -304,7 +304,7 @@ export function hbars(items, { currency = 'CRC', max = null, tone = 'accent' } =
  * @param {{days: string[], values: Map<string, number>, currency?: string, labelFor: (iso: string) => string}} data
  */
 export function heatmap(element, data) {
-    const currency = data.currency || 'CRC';
+    const currency = data.currency || displayCurrencyCode();
     const max = Math.max(1, ...data.values.values());
     const level = value => (value <= 0 ? 0 : Math.min(4, Math.ceil((value / max) * 4)));
     const cells = data.days.map(iso => {

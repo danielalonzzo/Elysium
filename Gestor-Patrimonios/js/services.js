@@ -8,7 +8,7 @@ import { todayISO, addDays } from './core/dates.js';
 import { inBase } from './core/money.js';
 import { monthlyInterest } from './core/loans.js';
 import { spendImpactDays } from './core/goals.js';
-import { formatMoney } from './core/money.js';
+import { formatMoney, displayCurrencyCode } from './ui/format.js';
 import { compressImage } from './ui/dom.js';
 import { toast } from './ui/overlay.js';
 import { play } from './ui/sounds.js';
@@ -134,7 +134,7 @@ export async function payDebt(debt, { amountMinor, date = todayISO(), accountId 
 /** Registra una ocurrencia de un recurrente como movimiento real. */
 export async function postRecurring(rule, date, overrides = {}) {
     const tx = {
-        type: rule.type, amountMinor: rule.amountMinor, currency: rule.currency || 'CRC', date,
+        type: rule.type, amountMinor: rule.amountMinor, currency: rule.currency || displayCurrencyCode(), date,
         accountId: rule.accountId, categoryId: rule.categoryId, merchant: rule.name,
         method: rule.method || (rule.type === 'income' ? 'transfer' : undefined),
         recurringId: rule.id, recurringDate: date, debtId: rule.debtId || undefined,
@@ -172,7 +172,7 @@ export async function autoPostRecurring() {
             if (model.paidKeys.has(`${rule.id}:${date}`)) continue;
             posted += 1;
             ops.push({ op: 'set', name: 'transactions', data: {
-                type: rule.type, amountMinor: rule.amountMinor, currency: rule.currency || 'CRC', date,
+                type: rule.type, amountMinor: rule.amountMinor, currency: rule.currency || displayCurrencyCode(), date,
                 accountId: rule.accountId, categoryId: rule.categoryId, merchant: rule.name,
                 recurringId: rule.id, recurringDate: date, createdDate: model.today, autoPosted: true
             } });

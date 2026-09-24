@@ -6,7 +6,7 @@
  * «gastado este mes» del inicio, el de presupuestos y el de las alertas son
  * siempre la misma cifra.
  */
-import { inBase, DEFAULT_FX_RATE } from './core/money.js';
+import { inBase, fxFromSettings } from './core/money.js';
 import {
     todayISO, periodFor, shiftPeriod, lastPeriods, addDays, addMonths, diffDays, monthLabel, startOfMonth, parseISO, toISO, daysInMonth
 } from './core/dates.js';
@@ -47,10 +47,10 @@ function byDateDesc(a, b) {
 export function buildModel(store, today) {
     const profile = store.profile || {};
     const settings = {
-        baseCurrency: 'CRC', fxRate: DEFAULT_FX_RATE, periodStartDay: 1, payday: { mode: 'monthly', day: 30 },
+        baseCurrency: 'CRC', periodStartDay: 1, payday: { mode: 'monthly', day: 30 },
         gamification: true, emergencyMonths: 6, alerts: {}, email: {}, ...profile.settings
     };
-    const fx = { base: settings.baseCurrency || 'CRC', rate: Number(settings.fxRate) || DEFAULT_FX_RATE };
+    const fx = fxFromSettings(settings);
     const startDay = Number(settings.periodStartDay) || 1;
 
     const period = periodFor(today, startDay);
@@ -150,7 +150,7 @@ export function buildModel(store, today) {
         pct: emergencyGoal ? emergencyGoal.progress.pct : 0
     };
     const contributedThisPeriod = contributions.filter(c => c.date >= period.start && c.date <= period.end)
-        .reduce((sum, c) => sum + Math.max(0, inBase(c.amountMinor, goals.find(g => g.goal.id === c.goalId)?.goal.currency || 'CRC', fx)), 0);
+        .reduce((sum, c) => sum + Math.max(0, inBase(c.amountMinor, goals.find(g => g.goal.id === c.goalId)?.goal.currency || fx.base, fx)), 0);
 
     /* Presupuestos */
     const budgetDocs = store.list('budgets');
@@ -211,10 +211,12 @@ export function buildModel(store, today) {
             return hasData && budgetDocs.every(b => (spent.get(b.categoryId) || 0) <= inBase(b.amountMinor, b.currency, fx));
         }).length
         : 0;
+    const goalCurrency = new Map(goals.map(g => [g.goal.id, g.goal.currency || fx.base]));
     const game = computeGamification({
         txs,
-        contributions,
+        contributions: contributions.map(c => ({ ...c, amountMinor: inBase(c.amountMinor, goalCurrency.get(c.goalId) || fx.base, fx) })),
         today,
+        currency: fx.base,
         budgetsCount: budgetDocs.length,
         monthsWithinBudget,
         totalSaved: Math.max(goalsSavedBase, savingsBalance),
@@ -276,7 +278,7 @@ function aguinaldoSaved(txs, contributions, fx, goals) {
     if (!aguinaldo) return 0;
     const amount = inBase(aguinaldo.amountMinor, aguinaldo.currency, fx);
     const until = addDays(aguinaldo.date, 45);
-    const currencyOf = goalId => goals.find(g => g.goal.id === goalId)?.goal.currency || 'CRC';
+    const currencyOf = goalId => goals.find(g => g.goal.id === goalId)?.goal.currency || fx.base;
     const saved = contributions
         .filter(c => c.date >= aguinaldo.date && c.date <= until && c.amountMinor > 0 && /aguinaldo/i.test(c.note || ''))
         .reduce((sum, c) => sum + inBase(c.amountMinor, currencyOf(c.goalId), fx), 0);

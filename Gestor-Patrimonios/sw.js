@@ -16,7 +16,7 @@
  * «Actualizar» y el SKIP_WAITING activa la nueva versión.
  */
 
-const VERSION = 'patrimonio-v1';
+const VERSION = 'patrimonio-v2';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const BASE = '/Gestor-Patrimonios/';

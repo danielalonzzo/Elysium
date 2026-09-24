@@ -8,11 +8,11 @@
 import { app } from '../context.js';
 import { html, countUp } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, pct, num } from '../ui/format.js';
+import { money, pct, num, formatMoney } from '../ui/format.js';
 import { rosette, waveBand } from '../ui/guilloche.js';
 import { cashflowChart, sparkline, ring, hbars } from '../ui/charts.js';
 import { txRow, catChip, progressBar, deltaPill, emptyState, goalIcon } from '../ui/parts.js';
-import { formatMoney, inBase, roundNice } from '../core/money.js';
+import { inBase, roundNice } from '../core/money.js';
 import { formatDate, monthLabel, relativeDays, addDays, weekday, APP_TIME_ZONE } from '../core/dates.js';
 import { spendImpactDays } from '../core/goals.js';
 import { postRecurring } from '../services.js';
@@ -74,7 +74,7 @@ export default {
                         <p class="eyebrow">Patrimonio neto</p>
                         <p class="hero-value"><span class="amt" data-count="${worth.net}">${formatMoney(worth.net)}</span></p>
                         <div class="hero-meta">
-                            ${prevWorth !== null ? html`<span class="delta ${worthDelta >= 0 ? 'is-up' : 'is-down'}">${icon(worthDelta >= 0 ? 'trending-up' : 'trending-down', { size: 13 })}${money(worthDelta, 'CRC', { sign: true })} este mes</span>` : ''}
+                            ${prevWorth !== null ? html`<span class="delta ${worthDelta >= 0 ? 'is-up' : 'is-down'}">${icon(worthDelta >= 0 ? 'trending-up' : 'trending-down', { size: 13 })}${money(worthDelta, model.fx.base, { sign: true })} este mes</span>` : ''}
                             <span>Activos ${money(worth.assets)} · Pasivos ${money(worth.liabilities)}</span>
                         </div>
                         <div class="hero-split">

@@ -179,7 +179,7 @@ export function demoSeed() {
             createdAt: start,
             settings: {
                 baseCurrency: 'CRC',
-                fxRate: 505,
+                fxRates: { USD: 505, EUR: 590 },
                 fxUpdatedAt: today,
                 fxSource: 'manual',
                 payday: { mode: 'semimonthly' },

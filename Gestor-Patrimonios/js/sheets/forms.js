@@ -5,7 +5,7 @@
 import { app } from '../context.js';
 import { html } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money } from '../ui/format.js';
+import { money, formatMoney, displayCurrencyCode } from '../ui/format.js';
 import { toast } from '../ui/overlay.js';
 import { formSheet, toggleFields, CURRENCY_OPTIONS } from './form-sheet.js';
 import { ACCOUNT_TYPES } from '../core/stats.js';
@@ -13,7 +13,6 @@ import { GOAL_KINDS } from '../core/goals.js';
 import { FREQUENCIES } from '../core/recurring.js';
 import { NATURES, suggestBudget } from '../core/budgets.js';
 import { monthlyPayment } from '../core/loans.js';
-import { formatMoney } from '../core/money.js';
 import { parseISO } from '../core/dates.js';
 import { addContribution, payDebt } from '../services.js';
 import { play } from '../ui/sounds.js';
@@ -30,7 +29,7 @@ export function openAccountSheet({ account = null } = {}) {
         title: editing ? 'Editar cuenta' : 'Nueva cuenta',
         subtitle: editing ? account.name : 'Dónde vive su dinero',
         values: {
-            type: 'bank', currency: 'CRC', includeInNetWorth: true,
+            type: 'bank', currency: displayCurrencyCode(), includeInNetWorth: true,
             ...account,
             openingBalanceMinor: initialBalance
         },
@@ -62,7 +61,7 @@ export function openAccountSheet({ account = null } = {}) {
                 ...(account || {}),
                 name: values.name.slice(0, 60),
                 type,
-                currency: values.currency || 'CRC',
+                currency: values.currency || displayCurrencyCode(),
                 icon: ACCOUNT_ICONS[type],
                 tone: ACCOUNT_TONES[type],
                 includeInNetWorth: values.includeInNetWorth !== false,
@@ -164,7 +163,7 @@ export function openBudgetSheet({ categoryId = null } = {}) {
             const suggestion = suggestBudget(average);
             box.querySelector('span').innerHTML = String(html`En los últimos 3 meses gastó en promedio <b>${money(average)}</b>. Sugerencia: <button type="button" class="link-btn" data-use-suggestion="${suggestion}">${formatMoney(suggestion)}</button>`);
             box.querySelector('[data-use-suggestion]')?.addEventListener('click', event => {
-                form.querySelector('[name="amountMinor"]').value = formatMoney(Number(event.target.dataset.useSuggestion), 'CRC', { symbol: false });
+                form.querySelector('[name="amountMinor"]').value = formatMoney(Number(event.target.dataset.useSuggestion), model.fx.base, { symbol: false });
             });
         },
         async onSubmit(values) {
@@ -196,7 +195,7 @@ export function openGoalSheet({ goal = null, kind = null } = {}) {
         gold: true,
         values: {
             kind: initialKind,
-            currency: 'CRC',
+            currency: displayCurrencyCode(),
             priority: '2',
             ...goal,
             targetMinor: goal?.targetMinor ?? (initialKind === 'emergencia' ? model.emergency.suggested || null : null),
@@ -226,7 +225,7 @@ export function openGoalSheet({ goal = null, kind = null } = {}) {
                 name: values.name.slice(0, 60),
                 kind: values.kind || 'otro',
                 targetMinor: values.targetMinor,
-                currency: values.currency || 'CRC',
+                currency: values.currency || displayCurrencyCode(),
                 deadline: values.deadline || null,
                 monthlyPlanMinor: values.monthlyPlanMinor || null,
                 priority: Number(values.priority) || 2,
@@ -295,7 +294,7 @@ export function openRecurringSheet({ rule = null, preset = {} } = {}) {
     const editing = Boolean(rule);
     const accounts = model.accounts.filter(a => !a.archived && a.type !== 'asset');
     const categoryOptions = type => (type === 'income' ? model.incomeCats : model.expenseCats).map(c => ({ value: c.id, label: c.name }));
-    const initial = { type: 'expense', currency: 'CRC', frequency: 'monthly', anchorDate: model.today, accountId: accounts[0]?.id, autoPost: false, active: true, ...preset, ...rule };
+    const initial = { type: 'expense', currency: displayCurrencyCode(), frequency: 'monthly', anchorDate: model.today, accountId: accounts[0]?.id, autoPost: false, active: true, ...preset, ...rule };
     return formSheet({
         title: editing ? 'Editar recurrente' : 'Nuevo pago o ingreso fijo',
         subtitle: 'Salario, alquiler, servicios, suscripciones…',
@@ -328,7 +327,7 @@ export function openRecurringSheet({ rule = null, preset = {} } = {}) {
                 type: values.type,
                 name: values.name.slice(0, 60),
                 amountMinor: values.amountMinor,
-                currency: values.currency || 'CRC',
+                currency: values.currency || displayCurrencyCode(),
                 frequency: values.frequency,
                 anchorDate: values.anchorDate,
                 categoryId: values.categoryId,
@@ -352,7 +351,7 @@ export function openDebtSheet({ debt = null, preset = {} } = {}) {
     return formSheet({
         title: editing ? 'Editar préstamo' : 'Nuevo préstamo o deuda',
         subtitle: editing ? debt.name : 'Vehículo, vivienda, personal…',
-        values: { kind: 'personal', currency: 'CRC', startDate: model.today, dueDay: 15, ...preset, ...debt },
+        values: { kind: 'personal', currency: displayCurrencyCode(), startDate: model.today, dueDay: 15, ...preset, ...debt },
         fields: [
             { name: 'name', label: 'Nombre', required: true, placeholder: 'Préstamo del carro', maxLength: 60 },
             { name: 'lender', label: 'Entidad', placeholder: 'Banco, cooperativa…', maxLength: 60 },
@@ -381,7 +380,7 @@ export function openDebtSheet({ debt = null, preset = {} } = {}) {
                 name: values.name.slice(0, 60),
                 lender: values.lender?.slice(0, 60) || '',
                 kind: values.kind,
-                currency: values.currency || 'CRC',
+                currency: values.currency || displayCurrencyCode(),
                 principalMinor: values.principalMinor || values.balanceMinor,
                 balanceMinor: values.balanceMinor,
                 annualRate: Number(values.annualRate) || 0,

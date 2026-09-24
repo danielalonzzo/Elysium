@@ -145,7 +145,7 @@ en la siguiente publicación: `Demo-arbol/` la genera entera
 **`Gestor-Patrimonios/` no es un subsitio: es una app.** Es Elysium
 Patrimonio, el gestor financiero que nació de un encargo de Jared: una PWA en
 HTML y módulos ES, sin compilación, que se sirve en `/Gestor-Patrimonios/` pero
-no se enlaza desde el portafolio. Seis cosas que no se ven abriéndola:
+no se enlaza desde el portafolio. Siete cosas que no se ven abriéndola:
 
 1. **Acceso por licencia.** Crear cuenta deja `patrimonio_requests/{uid}`; el
    administrador la activa en el CRM (Licencias → Elysium Patrimonio), que
@@ -166,6 +166,12 @@ no se enlaza desde el portafolio. Seis cosas que no se ven abriéndola:
    si se queda vieja).
 6. **Todo el texto va de usted, en español de Costa Rica.** Hay una prueba que
    falla si se cuela el tuteo.
+7. **Tres monedas (₡, $, €) con el colón de pivote.** `settings.fxRates` guarda
+   colones por dólar y por euro; el `fxRate` de antes (solo ₡ por $) se sigue
+   leyendo. La moneda principal la elige cada persona, y los umbrales se
+   piensan en colones y se convierten. El núcleo recibe siempre la moneda
+   explícita —el backend atiende a muchas personas a la vez—; la interfaz la
+   toma por defecto de `ui/format.js`, que fija `app.model()`.
 
 Al cambiar cualquier archivo de la app, sube `VERSION` en
 `Gestor-Patrimonios/sw.js`: si no, los teléfonos siguen con la versión anterior.
