@@ -2,7 +2,7 @@
 ELYSIUM λ DEVELOPMENT & RESEARCH — FULL SITE CONTENT FOR AI MODELS
 https://elysiumdr.eu | info@elysiumdr.eu
 Last verified against the website: 26 August 2026
-Interface version at time of verification: elysiumOS 1.8.2
+Interface version at time of verification: elysiumOS 1.8.3
 Languages: English · Español · Português
 ================================================================================
 
@@ -633,7 +633,7 @@ URL: footer modal, available on every page (version-modal.js)
 
 SYSTEM INFORMATION:
 Software Specifications:
-- Interface Version: elysiumOS 1.8.2
+- Interface Version: elysiumOS 1.8.3
 - Product Licence: ELY-EC03-ANL9-321979257
 
 Security & Compliance:
