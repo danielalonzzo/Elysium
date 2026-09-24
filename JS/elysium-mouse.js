@@ -67,6 +67,11 @@
 
         '.ely-cursor { position: fixed; top: 0; left: 0; width: 0; height: 0;' +
         ' z-index: 2147483646; transition: opacity .2s ease; }' +
+        /* Como popover hereda estilos del navegador (centrado, borde, fondo). */
+        '.ely-cursor[popover] { inset: auto; top: 0; left: 0; width: 0; height: 0;' +
+        ' margin: 0; padding: 0; border: 0; background: transparent;' +
+        ' overflow: visible; color: inherit; }' +
+        '.ely-cursor::backdrop { display: none; }' +
 
         '.ely-cursor-dot, .ely-cursor-breath, .ely-cursor-comet {' +
         ' position: fixed; top: 0; left: 0;' +
@@ -165,6 +170,63 @@
         return 'translate(' + x + 'px, ' + y + 'px) translate(-50%, -50%)';
     }
 
+    /* ---- Capa superior ---------------------------------------------------- *
+     * Las ventanas del sitio (servicios, biblioteca, CRM) son <dialog> abiertos
+     * con showModal(), y eso las pone en la capa superior del navegador, que se
+     * pinta por encima de cualquier z-index: el cursor quedaba detrás de ellas.
+     * Con la API Popover el cursor entra también en esa capa; como dentro de
+     * ella gana lo último que llega, se vuelve a subir cada vez que se abre
+     * otro diálogo o popover. Sin la API, se queda con su z-index de siempre. */
+    var supportsPopover = typeof HTMLElement !== 'undefined'
+        && Object.prototype.hasOwnProperty.call(HTMLElement.prototype, 'popover');
+    var topLayerObserver = null;
+
+    function raiseToTopLayer() {
+        if (!root || !supportsPopover || !root.isConnected) return;
+        try {
+            if (root.matches(':popover-open')) root.hidePopover();
+            root.showPopover();
+        } catch (error) {
+            // Un navegador a medias con la API: el cursor sigue con su z-index.
+        }
+    }
+
+    function onDialogOpen(mutations) {
+        for (var i = 0; i < mutations.length; i += 1) {
+            var target = mutations[i].target;
+            if (target.tagName === 'DIALOG' && target.hasAttribute('open')) {
+                raiseToTopLayer();
+                return;
+            }
+        }
+    }
+
+    function onPopoverToggle(event) {
+        var target = event.target;
+        if (target === root || event.newState !== 'open') return;
+        if (target && target.nodeType === 1 && target.hasAttribute('popover')) raiseToTopLayer();
+    }
+
+    function watchTopLayer() {
+        if (!supportsPopover) return;
+        root.setAttribute('popover', 'manual');
+        raiseToTopLayer();
+        // showModal() pone `open` antes de pintar: el observador llega a tiempo.
+        topLayerObserver = new MutationObserver(onDialogOpen);
+        topLayerObserver.observe(document.documentElement, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['open']
+        });
+        // `toggle` no burbujea; en captura sí llega al documento.
+        document.addEventListener('toggle', onPopoverToggle, true);
+    }
+
+    function unwatchTopLayer() {
+        if (topLayerObserver) { topLayerObserver.disconnect(); topLayerObserver = null; }
+        document.removeEventListener('toggle', onPopoverToggle, true);
+    }
+
     /* ---- Manejadores ------------------------------------------------------ */
     function onLeave() {
         if (root) root.style.opacity = '0';
@@ -259,6 +321,7 @@
         if (!document.body) return; // se reintentará desde boot()
         injectStyles();
         buildDom();
+        watchTopLayer();
         document.documentElement.classList.add('ely-cursor-active');
 
         document.addEventListener('mousemove', onMove, { passive: true });
@@ -280,6 +343,7 @@
         document.removeEventListener('mousedown', onDown);
         document.removeEventListener('mouseleave', onLeave);
         document.removeEventListener('mouseenter', onEnter);
+        unwatchTopLayer();
 
         document.documentElement.classList.remove('ely-cursor-active');
         if (root && root.parentNode) root.parentNode.removeChild(root);
