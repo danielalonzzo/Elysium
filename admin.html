@@ -738,7 +738,34 @@
                     </tbody>
                 </table>
 
-                
+
+            </div>
+
+            <!-- Elysium Patrimonio: licencias de la app de finanzas (/Gestor-Patrimonios/) -->
+            <div class="patrimonio-licenses" id="patrimonio-licenses">
+                <div class="portal-header patrimonio-header">
+                    <div>
+                        <h2 translate="no">Elysium Patrimonio</h2>
+                        <p class="color-text-secondary" data-i18n="patrimonio.subtitle">Personal finance app. Each license gives one person access to their own data; nobody else, including administrators, can read it.</p>
+                    </div>
+                    <a class="crm-text-action" href="/Gestor-Patrimonios/#/demo" target="_blank" rel="noopener" data-i18n="patrimonio.openDemo">Open the demo</a>
+                </div>
+                <h3 class="patrimonio-subtitle" data-i18n="patrimonio.requestsTitle">Pending requests</h3>
+                <div id="patrimonio-requests" aria-live="polite" data-i18n-dynamic="admin.js:loadPatrimonioAccess"></div>
+                <h3 class="patrimonio-subtitle" data-i18n="patrimonio.accessTitle">People with access</h3>
+                <div class="portal-table-wrap">
+                    <table class="portal-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="patrimonio.colPerson">Person</th>
+                                <th data-i18n="patrimonio.colStatus">Status</th>
+                                <th data-i18n="patrimonio.colSince">Since</th>
+                                <th data-i18n="patrimonio.colActions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patrimonio-access-list" data-i18n-dynamic="admin.js:loadPatrimonioAccess"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 

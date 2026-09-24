@@ -142,6 +142,34 @@ La última es **producto compilado**. Editarla a mano no sirve de nada, se pierd
 en la siguiente publicación: `Demo-arbol/` la genera entera
 `scripts/publish-demo-arbol.sh` desde `Prototipos/Demo-arbol/` (Next 16).
 
+**`Gestor-Patrimonios/` no es un subsitio: es una app.** Es Elysium
+Patrimonio, el gestor financiero que nació de un encargo de Jared: una PWA en
+HTML y módulos ES, sin compilación, que se sirve en `/Gestor-Patrimonios/` pero
+no se enlaza desde el portafolio. Seis cosas que no se ven abriéndola:
+
+1. **Acceso por licencia.** Crear cuenta deja `patrimonio_requests/{uid}`; el
+   administrador la activa en el CRM (Licencias → Elysium Patrimonio), que
+   escribe `patrimonio_access/{uid}`. Los datos viven en `patrimonio/{uid}/…` y
+   las reglas solo se los sirven al dueño con licencia activa: ni el CRM los
+   lee. `scripts/patrimonio-rules.emulator.mjs` lo prueba en el emulador.
+2. **App de Firebase con nombre propio** (`'patrimonio'`): su sesión y su caché
+   no se mezclan con el portal ni con el CRM. Por eso `JS/version-modal.js`
+   respeta su service worker, sus cachés y su IndexedDB al «limpiar».
+3. **Privada a propósito:** `noindex`, CSP propia sin GTM ni scripts en línea
+   (bloque `/Gestor-Patrimonios/*` de `_headers`), fuera del MCP y del sitemap.
+   En `.es`/`.pt` el Worker redirige a `.eu`: una PWA, un origen.
+4. **`#/demo`** abre la app con datos ficticios en memoria, sin cuenta. Sirve
+   para enseñarla y para probar cualquier vista en local.
+5. **Las alertas por correo las calcula el backend** con el mismo modelo que la
+   app: `backend/patrimonio-core/` es copia generada de `Gestor-Patrimonios/js`
+   (`node scripts/sync-patrimonio-core.mjs`; `scripts/patrimonio.test.mjs` falla
+   si se queda vieja).
+6. **Todo el texto va de usted, en español de Costa Rica.** Hay una prueba que
+   falla si se cuela el tuteo.
+
+Al cambiar cualquier archivo de la app, sube `VERSION` en
+`Gestor-Patrimonios/sw.js`: si no, los teléfonos siguen con la versión anterior.
+
 **Pura Vida Pets ya no vive aquí.** Se firmó contrato y salió del repositorio: su
 código está en `λ/Pura Vida Pets/puravidapetscr/`, con git propio
 (`github.com/danielalonzzo/puravidapets`) y dominio propio. En Elysium ya no

@@ -334,3 +334,12 @@
 - Recompilación y sincronización estática de Demo-arbol/ mediante scripts/publish-demo-arbol.sh.
 - VALTRIX Engineering: actualización de perfil ejecutivo de Valeria Vargas, optimización de competencias y habilidades clave, canalización de contacto a info@valtrix.com y actualización de versión a v1.8.2.
 - Despliegue integral a producción: sincronización en GitHub (main), despliegue de Cloudflare Workers Static Assets y despliegue en Firebase (Firestore, Storage, Hosting).
+
+=== CHAT ID: ce83b37d-114d-4da3-8aa4-2c32cc6b09fd - Lanzamiento y despliegue a producción de Elysium Patrimonio (PWA), CRM licencias, Firebase, Cloudflare y GitHub ===
+- Elysium Patrimonio (/Gestor-Patrimonios/): PWA completa de gestión financiera personal (HTML, ES modules, service worker, manifest, tokens, componentes, vistas de cuentas, presupuestos, metas, deudas, simulador, reportes, logros, comprobantes y lector de facturas electrónicas de Costa Rica v4.3/v4.4).
+- CRM Admin (admin.html, JS/admin.js, JS/admin-i18n.js, CSS/admin-portal.css): integración de panel de gestión de licencias de Elysium Patrimonio (#patrimonio-licenses) con activación de solicitudes, suspensión, reactivación y soporte i18n trilingüe (EN/ES/PT).
+- Backend (backend/patrimonio-alerts.js, backend/patrimonio-core/, backend/platform-server.js): microservicio de alertas por correo, sincronización de modelo patrimonial, pruebas automatizadas y endpoints seguros.
+- Reglas de seguridad: actualización de firestore.rules (colecciones patrimonio_access, patrimonio_requests y patrimonio/{uid}/*) y storage.rules (almacenamiento de comprobantes de hasta 10 MB con validación de tipo MIME y propiedad de usuario con licencia activa).
+- Cloudflare & Routing: configuración en _headers (CSP estricta sin inline scripts, noindex, control de caché), worker/index.js (exclusión de indexación MCP pública y redirección canónica a .eu) y soporte de retorno en JS/auth-action.js y persistencia en JS/version-modal.js.
+- Despliegue integral a producción: Firebase (Firestore, Storage, Hosting), Cloudflare Workers Static Assets y sincronización en GitHub (main).
+

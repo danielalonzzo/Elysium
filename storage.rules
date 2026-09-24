@@ -157,6 +157,28 @@ service firebase.storage {
       allow delete: if isCrmTeamIdentity() && request.auth.uid == userId;
     }
 
+    // ── Elysium Patrimonio: comprobantes y portadas de metas ────────────────
+    // Solo la persona dueña, con su licencia activa en `patrimonio_access`.
+    // Fotos (ya comprimidas en el navegador), PDF y XML de factura electrónica,
+    // hasta 10 MB. Las rutas son `patrimonio/{uid}/receipts/{carpeta}/{archivo}`.
+    function patrimonioActive(userId) {
+      return request.auth != null
+        && request.auth.uid == userId
+        && firestore.exists(/databases/(default)/documents/patrimonio_access/$(userId))
+        && firestore.get(/databases/(default)/documents/patrimonio_access/$(userId)).data.active == true;
+    }
+
+    function isPatrimonioFile() {
+      return request.resource.size > 0
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches('^(image/(jpeg|png|webp|heic|heif)|application/pdf|application/xml|text/xml)$');
+    }
+
+    match /patrimonio/{userId}/{allPaths=**} {
+      allow read, delete: if patrimonioActive(userId);
+      allow create, update: if patrimonioActive(userId) && isPatrimonioFile();
+    }
+
     // ── Everything else: admin only ──────────────────────────────────────────
     match /{allPaths=**} {
       allow read, write: if isSuperAdmin();

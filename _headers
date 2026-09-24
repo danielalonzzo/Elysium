@@ -212,3 +212,31 @@
 /Titulos/*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: public, max-age=3600
+
+# «Gestor-Patrimonios/» es Elysium Patrimonio, el gestor financiero con
+# licencia: una app privada, no una página. Por eso:
+#
+# - No se indexa (`X-Robots-Tag` y además la meta del HTML) ni se ofrece a
+#   modelos (`Content-Signal` en no): no hay nada que buscar ahí.
+# - Su CSP es propia y más estricta que la general: sin GTM ni Analytics y
+#   sin `'unsafe-inline'` en scripts (el HTML no lleva ninguno). Sí necesita
+#   gstatic en `connect-src`, porque el service worker guarda los módulos de
+#   Firebase para abrir sin conexión; `blob:` en `img-src` para previsualizar
+#   comprobantes, y `worker-src`/`manifest-src` para la PWA.
+# - El HTML, el service worker y el manifiesto se revalidan siempre (bloques
+#   aparte: si `Cache-Control` fuera en `/*` de la app se uniría con coma).
+/Gestor-Patrimonios/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://firebasestorage.googleapis.com; media-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasestorage.app https://www.gstatic.com https://api.exchangerate-api.com; frame-src https://elysiumdr-eu.firebaseapp.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';
+  ! Content-Signal
+  Content-Signal: search=no, ai-input=no, ai-train=no
+  X-Robots-Tag: noindex, nofollow
+
+/Gestor-Patrimonios/
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/Gestor-Patrimonios/sw.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/Gestor-Patrimonios/manifest.json
+  Cache-Control: no-cache, max-age=0, must-revalidate

@@ -1,0 +1,234 @@
+/*
+ * Elysium Patrimonio — tokens.
+ *
+ * La base es la de Elysium (CSS/base.css): medianoche, platino, azul #2997ff,
+ * cristal y la fuente del sistema. Lo propio de Patrimonio es el oro #D4AF37
+ * como acento del patrimonio (metas, logros, progreso) y el guilloché.
+ *
+ * Tema oscuro «Medianoche» por defecto; tema claro «Marfil» con
+ * data-theme="light"; sin atributo, sigue al sistema.
+ *
+ * Los colores de las series de gráficas (--c-income, --c-expense, --c-net)
+ * están validados con el script del skill de visualización contra la
+ * superficie de cada tema: separación para daltonismo ≥ 9,2 ΔE en todos los
+ * pares y contraste ≥ 3:1 salvo el aqua en Marfil (2,77), que por eso va
+ * siempre con leyenda y valores visibles.
+ */
+
+:root {
+    color-scheme: dark;
+
+    --bg: #03060c;
+    --bg-2: #060b16;
+    --glow-1: rgba(41, 151, 255, 0.13);
+    --glow-2: rgba(212, 175, 55, 0.07);
+    --surface: rgba(12, 19, 34, 0.74);
+    --surface-solid: #0c1322;
+    --surface-2: rgba(19, 28, 47, 0.82);
+    --surface-3: #141d33;
+    --surface-hover: rgba(30, 43, 70, 0.55);
+    --surface-sunken: rgba(3, 6, 12, 0.45);
+    --line: rgba(225, 229, 238, 0.075);
+    --line-strong: rgba(225, 229, 238, 0.15);
+    --highlight: rgba(255, 255, 255, 0.06);
+
+    --text: #eef1f7;
+    --text-2: #a3abbd;
+    --text-3: #6b7387;
+    --text-inverse: #05080f;
+
+    --accent: #2997ff;
+    --accent-strong: #5cb2ff;
+    --accent-soft: rgba(41, 151, 255, 0.14);
+    --accent-line: rgba(41, 151, 255, 0.35);
+    --on-accent: #ffffff;
+
+    --gold: #d4af37;
+    --gold-hi: #f5e6ac;
+    --gold-lo: #9a7719;
+    --gold-soft: rgba(212, 175, 55, 0.13);
+    --gold-line: rgba(212, 175, 55, 0.32);
+    --gold-text: #e8cf7a;
+    --on-gold: #1a1405;
+
+    --pos: #45d99b;
+    --neg: #ff8c7c;
+
+    --ok: #40d896;
+    --warn: #f4c95d;
+    --danger: #ff7676;
+    --info: #5cb2ff;
+    --ok-soft: rgba(64, 216, 150, 0.13);
+    --warn-soft: rgba(244, 201, 93, 0.14);
+    --danger-soft: rgba(255, 118, 118, 0.14);
+    --tone-ok: var(--ok);
+    --tone-warning: var(--warn);
+    --tone-pace: var(--warn);
+    --tone-over: var(--danger);
+    --tone-accent: var(--accent);
+
+    --c-income: #3987e5;
+    --c-expense: #d95926;
+    --c-net: #199e70;
+    --c-gold: #d4af37;
+    --chart-grid: rgba(225, 229, 238, 0.07);
+    --chart-zero: rgba(225, 229, 238, 0.2);
+    --chart-axis: #6b7387;
+    --chart-band: rgba(225, 229, 238, 0.045);
+    --heat-0: rgba(225, 229, 238, 0.05);
+    --heat-1: #173b66;
+    --heat-2: #1c5cab;
+    --heat-3: #2a78d6;
+    --heat-4: #6da7ec;
+
+    --radius-xl: 28px;
+    --radius-lg: 22px;
+    --radius: 18px;
+    --radius-sm: 13px;
+    --radius-xs: 9px;
+    --radius-pill: 999px;
+
+    --shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.75), 0 2px 10px rgba(0, 0, 0, 0.25);
+    --shadow-soft: 0 14px 34px -18px rgba(0, 0, 0, 0.6);
+    --shadow-pop: 0 40px 100px -30px rgba(0, 0, 0, 0.85), 0 0 0 1px var(--line-strong);
+    --blur: saturate(170%) blur(24px);
+
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-serif: ui-serif, "New York", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+    --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --sidebar-w: 260px;
+    --rail-w: 84px;
+    --tabbar-h: 66px;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+    --gutter: clamp(16px, 3vw, 40px);
+}
+
+/* Marfil, elegido a mano. */
+:root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f3efe6;
+    --bg-2: #ebe5d8;
+    --glow-1: rgba(41, 151, 255, 0.07);
+    --glow-2: rgba(212, 175, 55, 0.12);
+    --surface: rgba(255, 254, 250, 0.82);
+    --surface-solid: #fffdf8;
+    --surface-2: rgba(250, 247, 240, 0.95);
+    --surface-3: #f1ece1;
+    --surface-hover: rgba(236, 229, 214, 0.6);
+    --surface-sunken: rgba(230, 223, 208, 0.45);
+    --line: rgba(28, 26, 22, 0.08);
+    --line-strong: rgba(28, 26, 22, 0.16);
+    --highlight: rgba(255, 255, 255, 0.7);
+    --text: #16171c;
+    --text-2: #575d6a;
+    --text-3: #8b8f98;
+    --text-inverse: #fffdf8;
+    --accent: #0a6fe0;
+    --accent-strong: #0859b6;
+    --accent-soft: rgba(10, 111, 224, 0.09);
+    --accent-line: rgba(10, 111, 224, 0.3);
+    --gold: #b38c1c;
+    --gold-hi: #ecd384;
+    --gold-lo: #7a5d0e;
+    --gold-soft: rgba(179, 140, 28, 0.11);
+    --gold-line: rgba(179, 140, 28, 0.35);
+    --gold-text: #8a6a10;
+    --pos: #0e8a55;
+    --neg: #c2412d;
+    --ok: #0f9960;
+    --warn: #b7791f;
+    --danger: #cf3b3b;
+    --info: #0a6fe0;
+    --ok-soft: rgba(15, 153, 96, 0.1);
+    --warn-soft: rgba(183, 121, 31, 0.11);
+    --danger-soft: rgba(207, 59, 59, 0.09);
+    --c-income: #2a78d6;
+    --c-expense: #eb6834;
+    --c-net: #1baf7a;
+    --c-gold: #b38c1c;
+    --chart-grid: rgba(28, 26, 22, 0.07);
+    --chart-zero: rgba(28, 26, 22, 0.22);
+    --chart-axis: #8b8f98;
+    --chart-band: rgba(28, 26, 22, 0.04);
+    --heat-0: rgba(28, 26, 22, 0.06);
+    --heat-1: #cde2fb;
+    --heat-2: #86b6ef;
+    --heat-3: #3987e5;
+    --heat-4: #1c5cab;
+    --shadow: 0 30px 60px -32px rgba(60, 48, 20, 0.35), 0 1px 3px rgba(60, 48, 20, 0.08);
+    --shadow-soft: 0 12px 28px -18px rgba(60, 48, 20, 0.35);
+    --shadow-pop: 0 40px 90px -30px rgba(60, 48, 20, 0.45), 0 0 0 1px var(--line-strong);
+}
+
+/* Sin elección explícita, sigue al sistema. */
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme]) {
+        color-scheme: light;
+        --bg: #f3efe6;
+        --bg-2: #ebe5d8;
+        --glow-1: rgba(41, 151, 255, 0.07);
+        --glow-2: rgba(212, 175, 55, 0.12);
+        --surface: rgba(255, 254, 250, 0.82);
+        --surface-solid: #fffdf8;
+        --surface-2: rgba(250, 247, 240, 0.95);
+        --surface-3: #f1ece1;
+        --surface-hover: rgba(236, 229, 214, 0.6);
+        --surface-sunken: rgba(230, 223, 208, 0.45);
+        --line: rgba(28, 26, 22, 0.08);
+        --line-strong: rgba(28, 26, 22, 0.16);
+        --highlight: rgba(255, 255, 255, 0.7);
+        --text: #16171c;
+        --text-2: #575d6a;
+        --text-3: #8b8f98;
+        --text-inverse: #fffdf8;
+        --accent: #0a6fe0;
+        --accent-strong: #0859b6;
+        --accent-soft: rgba(10, 111, 224, 0.09);
+        --accent-line: rgba(10, 111, 224, 0.3);
+        --gold: #b38c1c;
+        --gold-hi: #ecd384;
+        --gold-lo: #7a5d0e;
+        --gold-soft: rgba(179, 140, 28, 0.11);
+        --gold-line: rgba(179, 140, 28, 0.35);
+        --gold-text: #8a6a10;
+        --pos: #0e8a55;
+        --neg: #c2412d;
+        --ok: #0f9960;
+        --warn: #b7791f;
+        --danger: #cf3b3b;
+        --info: #0a6fe0;
+        --ok-soft: rgba(15, 153, 96, 0.1);
+        --warn-soft: rgba(183, 121, 31, 0.11);
+        --danger-soft: rgba(207, 59, 59, 0.09);
+        --c-income: #2a78d6;
+        --c-expense: #eb6834;
+        --c-net: #1baf7a;
+        --c-gold: #b38c1c;
+        --chart-grid: rgba(28, 26, 22, 0.07);
+        --chart-zero: rgba(28, 26, 22, 0.22);
+        --chart-axis: #8b8f98;
+        --chart-band: rgba(28, 26, 22, 0.04);
+        --heat-0: rgba(28, 26, 22, 0.06);
+        --heat-1: #cde2fb;
+        --heat-2: #86b6ef;
+        --heat-3: #3987e5;
+        --heat-4: #1c5cab;
+        --shadow: 0 30px 60px -32px rgba(60, 48, 20, 0.35), 0 1px 3px rgba(60, 48, 20, 0.08);
+        --shadow-soft: 0 12px 28px -18px rgba(60, 48, 20, 0.35);
+        --shadow-pop: 0 40px 90px -30px rgba(60, 48, 20, 0.45), 0 0 0 1px var(--line-strong);
+    }
+}
+
+/* Oscuro elegido a mano: gana aunque el sistema esté en claro. */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+}

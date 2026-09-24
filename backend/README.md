@@ -99,6 +99,45 @@ en vez de como mensaje nuevo.
 
 `POST /api/meetings/:id/cancel` hace lo mismo con la cancelación.
 
+## Alertas de Elysium Patrimonio
+
+`patrimonio-alerts.js` manda los correos del gestor financiero
+(`/Gestor-Patrimonios/`). Calcula las alertas con el mismo modelo que la app:
+`patrimonio-core/` es una **copia generada** de `Gestor-Patrimonios/js/core` y
+`model.js`, porque Cloud Run solo despliega esta carpeta. No se edita aquí; tras
+tocar el original:
+
+```bash
+node scripts/sync-patrimonio-core.mjs
+```
+
+`scripts/patrimonio.test.mjs` falla si la copia se queda vieja.
+
+- `POST /api/patrimonio/alerts/check`: la app lo llama tras guardar un
+  movimiento, con la sesión de la persona. Envía las alertas inmediatas nuevas
+  (presupuesto al 80 %/100 %, tarjeta cerca del límite).
+- `POST /api/patrimonio/alerts/run`: Cloud Scheduler, cada mañana a las 7 hora
+  de Costa Rica, con `x-elysium-patrimonio-token: $PATRIMONIO_ALERTS_TOKEN`.
+  Resumen de la mañana, resumen semanal los lunes e informe del mes el día en
+  que empieza el período.
+- `POST /api/patrimonio/access-request`: avisa al administrador de una
+  solicitud de licencia.
+
+Cada correo se reclama en `patrimonio/{uid}/email_log/{clave}` antes de salir,
+así que ninguno se envía dos veces aunque corran dos instancias. Solo se escribe
+a correos verificados y según las preferencias de la persona.
+
+El programador (una vez, con el secreto ya guardado en el servicio):
+
+```bash
+gcloud scheduler jobs create http patrimonio-alerts \
+  --project elysiumdr-eu --location europe-west1 \
+  --schedule "0 7 * * *" --time-zone "America/Costa_Rica" \
+  --uri "https://elysiumdr.eu/api/patrimonio/alerts/run" --http-method POST \
+  --headers "x-elysium-patrimonio-token=$PATRIMONIO_ALERTS_TOKEN,Content-Type=application/json" \
+  --message-body '{}'
+```
+
 ## Archivos privados en R2
 
 `POST /api/files/upload-intents` valida al usuario, la entidad relacionada, el

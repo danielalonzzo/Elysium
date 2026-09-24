@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TiqueteElectronico xmlns="https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.4/tiqueteElectronico">
+  <Clave>50601102500310777666500200001040000004567112345678</Clave>
+  <ProveedorSistemas>3101000000</ProveedorSistemas>
+  <CodigoActividadEmisor>552001</CodigoActividadEmisor>
+  <NumeroConsecutivo>00200001040000004567</NumeroConsecutivo>
+  <FechaEmision>2025-10-01T08:05:00-06:00</FechaEmision>
+  <Emisor>
+    <Nombre>HOTEL MIRADOR DEL VOLCAN LIMITADA</Nombre>
+    <Identificacion><Tipo>02</Tipo><Numero>3102777666</Numero></Identificacion>
+  </Emisor>
+  <CondicionVenta>01</CondicionVenta>
+  <DetalleServicio>
+    <LineaDetalle>
+      <NumeroLinea>1</NumeroLinea>
+      <Cantidad>1</Cantidad>
+      <Detalle>Noche habitación doble</Detalle>
+      <PrecioUnitario>120.00000</PrecioUnitario>
+      <MontoTotal>120.00000</MontoTotal>
+      <Impuesto><Codigo>01</Codigo><Tarifa>13.00</Tarifa><Monto>15.60000</Monto></Impuesto>
+      <MontoTotalLinea>135.60000</MontoTotalLinea>
+    </LineaDetalle>
+  </DetalleServicio>
+  <ResumenFactura>
+    <CodigoTipoMoneda><CodigoMoneda>USD</CodigoMoneda><TipoCambio>503.25000</TipoCambio></CodigoTipoMoneda>
+    <TotalImpuesto>15.60000</TotalImpuesto>
+    <MedioPago><TipoMedioPago>06</TipoMedioPago><TotalMedioPago>135.60000</TotalMedioPago></MedioPago>
+    <TotalComprobante>135.60000</TotalComprobante>
+  </ResumenFactura>
+</TiqueteElectronico>

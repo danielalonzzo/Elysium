@@ -408,8 +408,8 @@ test('get_page entrega Markdown de una página pública', async () => {
     assert.match(body.result.content[0].text, /info@elysiumdr\.eu/);
 });
 
-test('get_page se niega a entregar el portal, el CRM o los diplomas', async () => {
-    for (const path of ['/admin', '/profiles', '/Titulos/algo.pdf', '/api/health', '/onboarding']) {
+test('get_page se niega a entregar el portal, el CRM, los diplomas o Patrimonio', async () => {
+    for (const path of ['/admin', '/profiles', '/Titulos/algo.pdf', '/api/health', '/onboarding', '/Gestor-Patrimonios/', '/Gestor-Patrimonios']) {
         const body = await (await rpc('tools/call', { name: 'get_page', arguments: { path } })).json();
         assert.equal(body.result.isError, true, path);
     }

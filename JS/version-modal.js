@@ -748,8 +748,26 @@
                 document.cookie = name + '=;' + exp + ';path=/;domain=' + window.location.hostname;
             });
 
+            // Elysium Patrimonio (/Gestor-Patrimonios/) comparte origen con el
+            // sitio pero es otra app: su service worker, su caché sin conexión,
+            // su Firestore local y sus preferencias de dispositivo (tema, PIN)
+            // no son del sitio y no se borran aquí. Solo su sesión, que vive en
+            // la base de Auth compartida, tendrá que volver a iniciarse.
+            var isPatrimonio = function(name) {
+                return /(^|\/)patrimonio(\/|-|$)/.test(String(name || ''));
+            };
+
             // 3. Clear localStorage & sessionStorage
+            var keptLocal = {};
+            try {
+                Object.keys(localStorage).forEach(function(key) {
+                    if (key.indexOf('patrimonio-') === 0) keptLocal[key] = localStorage.getItem(key);
+                });
+            } catch(_) {}
             try { localStorage.clear(); }   catch(_) {}
+            try {
+                Object.keys(keptLocal).forEach(function(key) { localStorage.setItem(key, keptLocal[key]); });
+            } catch(_) {}
             try { sessionStorage.clear(); } catch(_) {}
             try { sessionStorage.setItem('sys_action', isLogout ? 'logout' : 'update'); } catch(_) {}
 
@@ -776,7 +794,7 @@
                     try {
                         var dbs = await window.indexedDB.databases();
                         dbs.forEach(function(db) {
-                            if (db.name && !dbsToDelete.includes(db.name)) {
+                            if (db.name && !isPatrimonio(db.name) && !dbsToDelete.includes(db.name)) {
                                 dbsToDelete.push(db.name);
                             }
                         });
@@ -790,7 +808,8 @@
             if ('caches' in window) {
                 try {
                     var names = await caches.keys();
-                    await Promise.all(names.map(function(n) { return caches.delete(n); }));
+                    await Promise.all(names.filter(function(n) { return !isPatrimonio(n); })
+                        .map(function(n) { return caches.delete(n); }));
                 } catch(_) {}
             }
 
@@ -798,7 +817,8 @@
             if ('serviceWorker' in navigator) {
                 try {
                     var regs = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(regs.map(function(r) { return r.unregister(); }));
+                    await Promise.all(regs.filter(function(r) { return String(r.scope).indexOf('/Gestor-Patrimonios/') === -1; })
+                        .map(function(r) { return r.unregister(); }));
                 } catch(_) {}
             }
 

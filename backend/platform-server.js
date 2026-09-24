@@ -17,6 +17,7 @@ const { FieldValue, Timestamp, getFirestore } = require('firebase-admin/firestor
 const { getAuth } = require('firebase-admin/auth');
 const { createR2FileRouter, r2Configuration } = require('./r2-file-routes');
 const { createResearchRouter } = require('./research-routes');
+const { createPatrimonioRouter } = require('./patrimonio-alerts');
 
 const defaultFirebaseApp = getApps().find(candidate => candidate.name === '[DEFAULT]')
   || initializeApp({ credential: applicationDefault() });
@@ -200,6 +201,21 @@ app.get('/api/capabilities', requireFirebaseUser, requireFirebaseAdmin, (_reques
 // Firestore operations from the authenticated CRM and are constrained by
 // firestore.rules; keeping them out of Admin SDK preserves those validations.
 app.use('/api/research', createResearchRouter({ db: crmDb }));
+
+// Elysium Patrimonio: alertas por correo del gestor financiero. Lee con Admin
+// SDK los datos de cada persona con licencia activa y calcula las alertas con
+// el mismo modelo que la app (ver patrimonio-alerts.js). Remitente propio si
+// se configura PATRIMONIO_FROM_EMAIL; si no, el de la agenda.
+app.use('/api/patrimonio', createPatrimonioRouter({
+  db,
+  auth: firebaseAuth,
+  sendEmail: (payload, key) => sendEmail(payload, key),
+  emailTheme: (content, preheader) => emailTheme(content, preheader),
+  from: () => process.env.PATRIMONIO_FROM_EMAIL || process.env.MEETING_FROM_EMAIL || '',
+  adminEmail: () => adminNotificationEmail(),
+  verifyUser: (request, response, next) => optionalFirebaseUser(request, response, next),
+  isAdmin: identity => isFirebaseAdmin(identity)
+}));
 
 // El router mantiene las credenciales R2 y las firmas fuera del navegador. Se
 // monta tras el parser JSON compacto: sus endpoints sólo intercambian metadata,

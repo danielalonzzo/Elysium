@@ -260,6 +260,21 @@ test('.es — lo que no está traducido se sirve de la raíz, no da 404', async 
     }
 });
 
+test('.es/.pt — Elysium Patrimonio vive solo en .eu (un origen: una PWA, una sesión)', async () => {
+    for (const [from, to] of [
+        ['https://elysiumdr.es/Gestor-Patrimonios/', 'https://elysiumdr.eu/Gestor-Patrimonios/'],
+        ['https://elysiumdr.pt/Gestor-Patrimonios/js/app.js?v=1', 'https://elysiumdr.eu/Gestor-Patrimonios/js/app.js?v=1'],
+        ['https://elysiumdr.es/Gestor-Patrimonios', 'https://elysiumdr.eu/Gestor-Patrimonios']
+    ]) {
+        const r = await call(from);
+        assert.equal(r.status, 301, from);
+        assert.equal(r.location, to, from);
+    }
+    const eu = await call('https://elysiumdr.eu/Gestor-Patrimonios/');
+    assert.equal(eu.status, 200);
+    assert.equal(eu.asset, '/Gestor-Patrimonios/');
+});
+
 test('.es/.pt — index.html y los HTML localizados canonizan a la URL nacional', async () => {
     for (const [from, to] of [
         ['https://elysiumdr.es/index.html?ref=old', 'https://elysiumdr.es/?ref=old'],

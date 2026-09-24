@@ -592,11 +592,13 @@ const MCP_PROTOCOL_VERSION = '2025-06-18';
  * Lo que no se entrega aunque esté servido: el portal, el CRM y el onboarding
  * (páginas de sesión, sin contenido útil fuera de ella), los diplomas —que
  * llevan el número de cédula y por eso están en `noindex`—, «Demo-arbol», que
- * también lo está, y cualquier cosa bajo `/api` o `/.well-known`.
+ * también lo está, Elysium Patrimonio (`/Gestor-Patrimonios/`, una app
+ * privada con licencia) y cualquier cosa bajo `/api` o `/.well-known`.
  */
 const MCP_PRIVATE = [
     /^\/admin\b/, /^\/profiles\b/, /^\/onboarding\b/, /^\/seed-licenses\b/,
-    /^\/auth-action\b/, /^\/Titulos\//, /^\/Demo-arbol\//, /^\/api\//, /^\/\./
+    /^\/auth-action\b/, /^\/Titulos\//, /^\/Demo-arbol\//, /^\/Gestor-Patrimonios\b/,
+    /^\/api\//, /^\/\./
 ];
 
 const MCP_TOOLS = [
@@ -822,6 +824,14 @@ export default {
         // nacional española o portuguesa.
         if (nationalLanguage && /^\/prototype-selva-y-sal(?:\.html)?\/?$/.test(url.pathname)) {
             return redirect(`${url.origin}/portfolio${url.search}`, 301);
+        }
+
+        // Elysium Patrimonio vive en un solo origen. En `.es` o `.pt` sería otra
+        // app a ojos del navegador: otro service worker, otra caché sin conexión
+        // y otra sesión de Firebase, y el dominio tendría que estar autorizado en
+        // Auth. El fragmento (`#/metas`) lo conserva el navegador al redirigir.
+        if (nationalLanguage && /^\/Gestor-Patrimonios(?:\/|$)/.test(url.pathname)) {
+            return redirect(`https://elysiumdr.eu${url.pathname}${url.search}`, 301);
         }
 
         // `/p` fue un duplicado temporal de portfolio. Canonizarlo en el mismo

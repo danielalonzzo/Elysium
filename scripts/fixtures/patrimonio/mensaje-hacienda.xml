@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MensajeHacienda xmlns="https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.3/mensajeHacienda">
+  <Clave>50615092500310123456700100001010000000123112345678</Clave>
+  <NombreEmisor>SUPERMERCADO LA COLINA SOCIEDAD ANONIMA</NombreEmisor>
+  <Mensaje>1</Mensaje>
+  <TotalFactura>8134.00000</TotalFactura>
+</MensajeHacienda>

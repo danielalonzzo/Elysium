@@ -684,6 +684,72 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // ── Elysium Patrimonio (Gestor-Patrimonios/) ────────────────────────────
+    // Gestor financiero personal. El acceso es una licencia que el
+    // administrador activa desde el CRM en `patrimonio_access/{uid}`; la
+    // persona solo puede leer la suya. Cada cual ve únicamente sus datos y solo
+    // mientras la licencia esté activa: suspenderla corta la lectura sin borrar
+    // nada. Ni el administrador lee las finanzas de nadie desde el navegador.
+    // El registro de correos (`email_log`) lo escribe el backend con Admin SDK.
+    function patrimonioActive(uid) {
+      return isOwner(uid)
+        && exists(/databases/$(database)/documents/patrimonio_access/$(uid))
+        && get(/databases/$(database)/documents/patrimonio_access/$(uid)).data.active == true;
+    }
+
+    function patrimonioIsValidTransaction(data) {
+      return data.type in ['expense', 'income', 'transfer']
+        && data.amountMinor is int
+        && data.amountMinor > 0
+        && data.amountMinor < 100000000000000
+        && data.currency in ['CRC', 'USD']
+        && data.date is string
+        && data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && data.accountId is string
+        && data.accountId.size() > 0
+        && data.accountId.size() <= 80
+        && (!('merchant' in data) || isOptionalText(data.merchant, 120))
+        && (!('note' in data) || isOptionalText(data.note, 500));
+    }
+
+    match /patrimonio_access/{uid} {
+      allow read, write: if isSuperAdmin();
+      allow get: if isOwner(uid);
+    }
+
+    match /patrimonio_requests/{uid} {
+      allow read, delete: if isSuperAdmin();
+      allow get: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['uid', 'email', 'name', 'note', 'requestedAt'])
+        && request.resource.data.uid == uid
+        && request.resource.data.email == request.auth.token.email.lower()
+        && isOptionalText(request.resource.data.name, 80)
+        && isOptionalText(request.resource.data.note, 280)
+        && request.resource.data.requestedAt == request.time;
+    }
+
+    match /patrimonio/{uid} {
+      allow read, write: if patrimonioActive(uid);
+
+      match /transactions/{transactionId} {
+        allow read, delete: if patrimonioActive(uid);
+        allow create, update: if patrimonioActive(uid)
+          && patrimonioIsValidTransaction(request.resource.data);
+      }
+
+      match /email_log/{entryId} {
+        allow read: if patrimonioActive(uid);
+        allow write: if false;
+      }
+
+      match /{collection}/{documentId} {
+        allow read, write: if patrimonioActive(uid)
+          && collection in ['accounts', 'categories', 'budgets', 'goals', 'contributions',
+                            'recurring', 'debts', 'simulations', 'receipts'];
+      }
+    }
+
     // ── Research notebooks (1:N) ──
     // Las lecturas públicas son deliberadamente document-aware. Por ello el
     // frontend debe incluir `status == published` y `visibility == public` en

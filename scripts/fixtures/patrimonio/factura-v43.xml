@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FacturaElectronica xmlns="https://cdn.comprobanteselectronicos.go.cr/xml-schemas/v4.3/facturaElectronica" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Clave>50615092500310123456700100001010000000123112345678</Clave>
+  <CodigoActividad>521101</CodigoActividad>
+  <NumeroConsecutivo>00100001010000000123</NumeroConsecutivo>
+  <FechaEmision>2025-09-15T21:42:31-06:00</FechaEmision>
+  <Emisor>
+    <Nombre>SUPERMERCADO LA COLINA SOCIEDAD ANONIMA</Nombre>
+    <Identificacion>
+      <Tipo>02</Tipo>
+      <Numero>3101999888</Numero>
+    </Identificacion>
+    <NombreComercial>Super La Colina &amp; Hijos</NombreComercial>
+    <CorreoElectronico>facturas@example.cr</CorreoElectronico>
+  </Emisor>
+  <Receptor>
+    <Nombre>PERSONA DE PRUEBA</Nombre>
+    <Identificacion>
+      <Tipo>01</Tipo>
+      <Numero>100000001</Numero>
+    </Identificacion>
+  </Receptor>
+  <CondicionVenta>01</CondicionVenta>
+  <MedioPago>02</MedioPago>
+  <DetalleServicio>
+    <LineaDetalle>
+      <NumeroLinea>1</NumeroLinea>
+      <Cantidad>2.000</Cantidad>
+      <UnidadMedida>Unid</UnidadMedida>
+      <Detalle>LECHE ENTERA 1L</Detalle>
+      <PrecioUnitario>950.00000</PrecioUnitario>
+      <MontoTotal>1900.00000</MontoTotal>
+      <SubTotal>1900.00000</SubTotal>
+      <Impuesto><Codigo>01</Codigo><CodigoTarifa>02</CodigoTarifa><Tarifa>1.00</Tarifa><Monto>19.00000</Monto></Impuesto>
+      <MontoTotalLinea>1919.00000</MontoTotalLinea>
+    </LineaDetalle>
+    <LineaDetalle>
+      <NumeroLinea>2</NumeroLinea>
+      <Cantidad>1.000</Cantidad>
+      <UnidadMedida>Unid</UnidadMedida>
+      <Detalle>DETERGENTE 2KG</Detalle>
+      <PrecioUnitario>5500.00000</PrecioUnitario>
+      <MontoTotal>5500.00000</MontoTotal>
+      <SubTotal>5500.00000</SubTotal>
+      <Impuesto><Codigo>01</Codigo><CodigoTarifa>08</CodigoTarifa><Tarifa>13.00</Tarifa><Monto>715.00000</Monto></Impuesto>
+      <MontoTotalLinea>6215.00000</MontoTotalLinea>
+    </LineaDetalle>
+  </DetalleServicio>
+  <ResumenFactura>
+    <CodigoTipoMoneda><CodigoMoneda>CRC</CodigoMoneda><TipoCambio>1.00000</TipoCambio></CodigoTipoMoneda>
+    <TotalVenta>7400.00000</TotalVenta>
+    <TotalDescuentos>0.00000</TotalDescuentos>
+    <TotalVentaNeta>7400.00000</TotalVentaNeta>
+    <TotalImpuesto>734.00000</TotalImpuesto>
+    <TotalComprobante>8134.00000</TotalComprobante>
+  </ResumenFactura>
+  <ds:Signature Id="id-1"><ds:SignedInfo><ds:Reference><ds:DigestValue>abc</ds:DigestValue></ds:Reference></ds:SignedInfo><ds:SignatureValue>xyz</ds:SignatureValue></ds:Signature>
+</FacturaElectronica>

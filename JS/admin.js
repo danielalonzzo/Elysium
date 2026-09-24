@@ -5297,7 +5297,117 @@ async function createOpportunity(event) {
     }
 }
 
+/**
+ * Licencias de Elysium Patrimonio (`/Gestor-Patrimonios/`).
+ *
+ * Son aparte de las suscripciones de socios: una persona crea su cuenta en la
+ * app, eso deja una solicitud en `patrimonio_requests/{uid}` y aquí se activa
+ * escribiendo `patrimonio_access/{uid}`. Suspender no borra nada: las reglas
+ * dejan de servirle sus datos hasta que se reactive. El CRM no lee las
+ * finanzas de nadie; solo ve quién tiene acceso.
+ */
+async function loadPatrimonioAccess() {
+    const requestsHost = document.getElementById('patrimonio-requests');
+    const accessList = document.getElementById('patrimonio-access-list');
+    if (!requestsHost || !accessList) return;
+    const patrimonioCopy = ui().patrimonio;
+    requestsHost.innerHTML = '<div class="loader-container"><div class="premium-loader"></div></div>';
+    try {
+        const [requestsSnap, accessSnap] = await Promise.all([
+            getDocs(collection(db, 'patrimonio_requests')),
+            getDocs(collection(db, 'patrimonio_access'))
+        ]);
+        const access = new Map(accessSnap.docs.map(item => [item.id, item.data()]));
+        const requests = requestsSnap.docs
+            .map(item => ({ id: item.id, ...item.data() }))
+            .filter(request => access.get(request.id)?.active !== true)
+            .sort((a, b) => adminTimestampMillis(b.requestedAt) - adminTimestampMillis(a.requestedAt));
+
+        requestsHost.innerHTML = requests.length
+            ? `<ul class="patrimonio-requests">${requests.map(request => `
+                <li>
+                    <div><strong>${esc(request.name || request.email || request.id)}</strong><small>${esc(request.email || '')} · ${esc(patrimonioCopy.requestedOn(formatAdminDate(request.requestedAt)))}</small>
+                        ${request.note ? `<p><em>${esc(patrimonioCopy.note)}:</em> ${esc(request.note)}</p>` : ''}</div>
+                    <div class="patrimonio-actions">
+                        <button type="button" class="btn btn-primary btn-sm" data-patrimonio-activate="${esc(request.id)}">${esc(patrimonioCopy.activate)}</button>
+                        <button type="button" class="crm-text-action" data-patrimonio-reject="${esc(request.id)}">${esc(patrimonioCopy.reject)}</button>
+                    </div>
+                </li>`).join('')}</ul>`
+            : `<p class="color-text-secondary">${esc(patrimonioCopy.noRequests)}</p>`;
+
+        const people = [...access.entries()]
+            .map(([uid, data]) => ({ uid, ...data }))
+            .sort((a, b) => Number(b.active === true) - Number(a.active === true) || String(a.name || a.email).localeCompare(String(b.name || b.email)));
+        accessList.innerHTML = people.length
+            ? people.map(person => `<tr>
+                <td data-label="${esc(patrimonioCopy.colPerson)}"><strong>${esc(person.name || person.email || person.uid)}</strong><small>${esc(person.email || '')}</small></td>
+                <td data-label="${esc(patrimonioCopy.colStatus)}"><span class="portal-status ${person.active ? 'is-success' : 'is-warning'}">${esc(person.active ? patrimonioCopy.active : patrimonioCopy.suspended)}</span></td>
+                <td data-label="${esc(patrimonioCopy.colSince)}">${esc(formatAdminDate(person.grantedAt))}</td>
+                <td data-label="${esc(patrimonioCopy.colActions)}">${person.active
+                    ? `<button type="button" class="crm-text-action" data-patrimonio-suspend="${esc(person.uid)}">${esc(patrimonioCopy.suspend)}</button>`
+                    : `<button type="button" class="crm-text-action" data-patrimonio-reactivate="${esc(person.uid)}">${esc(patrimonioCopy.reactivate)}</button>`}</td>
+            </tr>`).join('')
+            : `<tr><td colspan="4" class="license-empty">${esc(patrimonioCopy.noAccess)}</td></tr>`;
+
+        const section = document.getElementById('patrimonio-licenses');
+        if (section && !section.dataset.bound) {
+            section.dataset.bound = '1';
+            section.addEventListener('click', event => handlePatrimonioAction(event));
+        }
+        section._patrimonio = { requests, access };
+    } catch (error) {
+        logger.error('Error loading Patrimonio licenses:', error);
+        requestsHost.innerHTML = `<p class="portal-alert is-error">${esc(patrimonioCopy.error)}<br><small>${esc(error.message)}</small></p>`;
+    }
+}
+
+async function handlePatrimonioAction(event) {
+    const button = event.target.closest('[data-patrimonio-activate],[data-patrimonio-reject],[data-patrimonio-suspend],[data-patrimonio-reactivate]');
+    if (!button) return;
+    const patrimonioCopy = ui().patrimonio;
+    const section = document.getElementById('patrimonio-licenses');
+    const { requests = [], access = new Map() } = section?._patrimonio || {};
+    button.disabled = true;
+    try {
+        if (button.dataset.patrimonioActivate) {
+            const uid = button.dataset.patrimonioActivate;
+            const request = requests.find(item => item.id === uid) || {};
+            const batch = writeBatch(db);
+            batch.set(doc(db, 'patrimonio_access', uid), {
+                active: true,
+                plan: 'personal',
+                email: String(request.email || '').toLowerCase(),
+                name: crmText(request.name || '', 80),
+                grantedAt: serverTimestamp(),
+                grantedBy: auth.currentUser?.email || null
+            }, { merge: true });
+            batch.delete(doc(db, 'patrimonio_requests', uid));
+            await batch.commit();
+        } else if (button.dataset.patrimonioReject) {
+            if (!confirm(patrimonioCopy.confirmReject)) return;
+            await deleteDoc(doc(db, 'patrimonio_requests', button.dataset.patrimonioReject));
+        } else if (button.dataset.patrimonioSuspend) {
+            if (!confirm(patrimonioCopy.confirmSuspend)) return;
+            await updateDoc(doc(db, 'patrimonio_access', button.dataset.patrimonioSuspend), {
+                active: false, suspendedAt: serverTimestamp(), suspendedBy: auth.currentUser?.email || null
+            });
+        } else if (button.dataset.patrimonioReactivate) {
+            const uid = button.dataset.patrimonioReactivate;
+            await updateDoc(doc(db, 'patrimonio_access', uid), {
+                active: true, reactivatedAt: serverTimestamp(), grantedBy: auth.currentUser?.email || access.get(uid)?.grantedBy || null
+            });
+        }
+        await loadPatrimonioAccess();
+    } catch (error) {
+        logger.error('Patrimonio license action failed:', error);
+        alert(patrimonioCopy.error);
+    } finally {
+        button.disabled = false;
+    }
+}
+
 async function loadLicenses() {
+    loadPatrimonioAccess();
     const licensesList = document.getElementById('licenses-list');
     const summary = document.getElementById('licenses-summary');
     licensesList.innerHTML = '<tr><td colspan="6" style="text-align: center;"><div class="premium-loader"></div></td></tr>';

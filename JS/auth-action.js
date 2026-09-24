@@ -7,6 +7,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const mode = urlParams.get('mode');
     const oobCode = urlParams.get('oobCode');
 
+    // Firebase añade `continueUrl` si el correo lo pidió. Solo se respeta para
+    // Elysium Patrimonio en este mismo sitio: una URL ajena convertiría esta
+    // página en un redirector abierto. Sin ella, se vuelve al CRM como siempre.
+    function patrimonioContinueUrl() {
+        try {
+            const target = new URL(urlParams.get('continueUrl') || '', window.location.origin);
+            const sameSite = target.origin === window.location.origin || target.hostname === 'elysiumdr.eu';
+            return sameSite && target.pathname.startsWith('/Gestor-Patrimonios/')
+                ? `${window.location.origin}/Gestor-Patrimonios/`
+                : null;
+        } catch {
+            return null;
+        }
+    }
+    const continueTo = patrimonioContinueUrl();
+
     function showPanel(panelId) {
         document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
         const panel = document.getElementById(panelId);
@@ -69,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             successDiv.style.display = 'block';
                             
                             setTimeout(() => {
-                                window.location.href = './admin.html';
+                                window.location.href = continueTo || './admin.html';
                             }, 3500);
                         })
                         .catch((error) => {
@@ -90,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyActionCode(auth, actionCode)
             .then(() => {
                 showPanel('verify-email-panel');
+                if (continueTo) setTimeout(() => { window.location.href = continueTo; }, 2500);
             })
             .catch((error) => {
                 console.error("Invalid or expired action code:", error);

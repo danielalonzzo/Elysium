@@ -1,0 +1,47 @@
+{
+  "id": "/Gestor-Patrimonios/",
+  "name": "Elysium Patrimonio",
+  "short_name": "Patrimonio",
+  "description": "Gestor financiero personal de Elysium: movimientos, presupuestos, metas, simulador de compras y alertas.",
+  "lang": "es-CR",
+  "dir": "ltr",
+  "start_url": "/Gestor-Patrimonios/#/inicio",
+  "scope": "/Gestor-Patrimonios/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "orientation": "any",
+  "background_color": "#03060c",
+  "theme_color": "#03060c",
+  "categories": ["finance", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "/Gestor-Patrimonios/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/Gestor-Patrimonios/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/Gestor-Patrimonios/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/Gestor-Patrimonios/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/Gestor-Patrimonios/icons/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nuevo gasto",
+      "short_name": "Gasto",
+      "description": "Registrar un gasto",
+      "url": "/Gestor-Patrimonios/#/nuevo?tipo=gasto",
+      "icons": [{ "src": "/Gestor-Patrimonios/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "¿Me alcanza?",
+      "short_name": "¿Me alcanza?",
+      "description": "Saber al instante si una compra cabe en su presupuesto",
+      "url": "/Gestor-Patrimonios/#/alcanza",
+      "icons": [{ "src": "/Gestor-Patrimonios/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Metas",
+      "short_name": "Metas",
+      "description": "Ver sus sueños y cuánto falta",
+      "url": "/Gestor-Patrimonios/#/metas",
+      "icons": [{ "src": "/Gestor-Patrimonios/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

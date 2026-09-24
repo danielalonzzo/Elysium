@@ -4461,3 +4461,45 @@
     color: var(--crm-muted);
     font-size: 0.72rem;
 }
+
+/* ── Licencias de Elysium Patrimonio ────────────────────────────────────── */
+.customer-portal.is-admin .patrimonio-licenses {
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--crm-line);
+}
+.customer-portal.is-admin .patrimonio-header { align-items: flex-start; gap: 1rem; }
+.customer-portal.is-admin .patrimonio-header h2 {
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+    background: linear-gradient(160deg, #f5e6ac, #d4af37 55%, #9a7719);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.customer-portal.is-admin .patrimonio-subtitle {
+    margin: 1.4rem 0 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--crm-muted);
+}
+.customer-portal.is-admin .patrimonio-requests { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.customer-portal.is-admin .patrimonio-requests li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    background: rgba(212, 175, 55, 0.06);
+}
+.customer-portal.is-admin .patrimonio-requests strong { display: block; }
+.customer-portal.is-admin .patrimonio-requests small { color: var(--crm-muted); }
+.customer-portal.is-admin .patrimonio-requests p { margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--crm-muted); }
+.customer-portal.is-admin .patrimonio-actions { display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0; }
+@media (max-width: 48rem) {
+    .customer-portal.is-admin .patrimonio-requests li { flex-direction: column; align-items: flex-start; }
+}

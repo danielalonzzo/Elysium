@@ -359,6 +359,29 @@ export const ADMIN_COPY = {
         licenses: {
             legacy: 'Legacy license'
         },
+        patrimonio: {
+            subtitle: 'Personal finance app. Each license gives one person access to their own data; nobody else, including administrators, can read it.',
+            openDemo: 'Open the demo',
+            requestsTitle: 'Pending requests',
+            accessTitle: 'People with access',
+            noRequests: 'No pending requests.',
+            noAccess: 'Nobody has a license yet.',
+            colPerson: 'Person',
+            colStatus: 'Status',
+            colSince: 'Since',
+            colActions: 'Actions',
+            active: 'Active',
+            suspended: 'Suspended',
+            activate: 'Activate',
+            reject: 'Reject',
+            suspend: 'Suspend',
+            reactivate: 'Reactivate',
+            note: 'Message',
+            requestedOn: date => `Requested ${date}`,
+            confirmReject: 'Reject this request?',
+            confirmSuspend: 'Suspend this access? Their data stays saved and returns when you reactivate it.',
+            error: 'The Patrimonio license could not be updated.'
+        },
         reports: {
             title: 'Reports',
             desc: 'Commercial and operational metrics from the same source of truth.',
@@ -878,6 +901,29 @@ export const ADMIN_COPY = {
         licenses: {
             legacy: 'Licencia heredada'
         },
+        patrimonio: {
+            subtitle: 'App de finanzas personales. Cada licencia da a una persona acceso a sus propios datos; nadie más, ni siquiera el administrador, puede leerlos.',
+            openDemo: 'Abrir la demostración',
+            requestsTitle: 'Solicitudes pendientes',
+            accessTitle: 'Personas con acceso',
+            noRequests: 'No hay solicitudes pendientes.',
+            noAccess: 'Nadie tiene licencia todavía.',
+            colPerson: 'Persona',
+            colStatus: 'Estado',
+            colSince: 'Desde',
+            colActions: 'Acciones',
+            active: 'Activa',
+            suspended: 'Suspendida',
+            activate: 'Activar',
+            reject: 'Rechazar',
+            suspend: 'Suspender',
+            reactivate: 'Reactivar',
+            note: 'Mensaje',
+            requestedOn: date => `Solicitada el ${date}`,
+            confirmReject: '¿Rechazar esta solicitud?',
+            confirmSuspend: '¿Suspender este acceso? Sus datos quedan guardados y vuelven al reactivarlo.',
+            error: 'No se pudo actualizar la licencia de Patrimonio.'
+        },
         reports: {
             title: 'Reportes',
             desc: 'Métricas comerciales y operativas desde la misma fuente de verdad.',
@@ -1396,6 +1442,29 @@ export const ADMIN_COPY = {
         },
         licenses: {
             legacy: 'Licença herdada'
+        },
+        patrimonio: {
+            subtitle: 'App de finanças pessoais. Cada licença dá a uma pessoa acesso aos seus próprios dados; mais ninguém, nem o administrador, os pode ler.',
+            openDemo: 'Abrir a demonstração',
+            requestsTitle: 'Pedidos pendentes',
+            accessTitle: 'Pessoas com acesso',
+            noRequests: 'Não há pedidos pendentes.',
+            noAccess: 'Ninguém tem licença ainda.',
+            colPerson: 'Pessoa',
+            colStatus: 'Estado',
+            colSince: 'Desde',
+            colActions: 'Ações',
+            active: 'Ativa',
+            suspended: 'Suspensa',
+            activate: 'Ativar',
+            reject: 'Rejeitar',
+            suspend: 'Suspender',
+            reactivate: 'Reativar',
+            note: 'Mensagem',
+            requestedOn: date => `Pedido em ${date}`,
+            confirmReject: 'Rejeitar este pedido?',
+            confirmSuspend: 'Suspender este acesso? Os dados ficam guardados e voltam ao reativá-lo.',
+            error: 'Não foi possível atualizar a licença do Patrimonio.'
         },
         reports: {
             title: 'Relatórios',
