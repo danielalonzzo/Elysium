@@ -170,6 +170,39 @@ no se enlaza desde el portafolio. Seis cosas que no se ven abriéndola:
 Al cambiar cualquier archivo de la app, sube `VERSION` en
 `Gestor-Patrimonios/sw.js`: si no, los teléfonos siguen con la versión anterior.
 
+**`/library` es la biblioteca oculta, y lo único del sitio que no está en el
+repositorio.** En `elysiumdr.eu/library` el administrador sube documentos HTML y
+quedan publicados sin commit ni despliegue. No se enlaza desde ningún sitio, va
+con `noindex`, fuera del sitemap y del MCP, y en `.es`/`.pt` redirige a `.eu`.
+Oculta no es privada: la abre cualquiera que tenga el enlace. Cinco cosas que no
+se ven abriéndola:
+
+1. **Los libros viven en Workers KV** (binding `LIBRARY` en `wrangler.jsonc`),
+   un valor por libro (`book:<slug>`) con sus metadatos en la propia clave. R2
+   no está activado en la cuenta; KV admite 25 MiB por valor y la subida se
+   limita a 24 MB. Es eventualmente consistente: un libro nuevo tarda hasta un
+   minuto en verse en todas partes.
+2. **`library/` son plantillas, no páginas.** `worker/library.js` las pide al
+   binding de assets y rellena sus marcadores; ninguna URL bajo `/library` llega
+   a los assets tal cual. Por eso `serve-local.py` no la sirve: hace falta el
+   Worker (`npx wrangler dev`).
+3. **El libro va en un iframe aislado:** `sandbox` sin `allow-same-origin`, en
+   el atributo y en la CSP de la respuesta. Su JavaScript no alcanza la sesión
+   de Firebase del CRM y su CSS no pisa la cabecera ni el pie. Chrome lo carga
+   en otro proceso, y el panel de navegador de Claude no lo pinta en las
+   capturas, no le pasa la rueda y bloquea el atributo `sandbox`: no es un fallo
+   del sitio.
+4. **Al servir el libro se le inyecta un script** (`BOOK_HELPER`): abre en otra
+   pestaña los enlaces a otras páginas y sustituye `scrollIntoView`, que desde
+   dentro del iframe arrastraba la página de Elysium y escondía la cabecera. La
+   descarga (`/download`, la que se sube a ElevenReader) es el fichero tal cual.
+5. **Publica solo un administrador**, con el criterio de `isFirebaseAdmin()` del
+   backend; el Worker verifica el token de Firebase por su cuenta. Solo entra
+   HTML: extensión `.html`, UTF-8 válido y forma de documento. Una sola URL
+   para los tres idiomas (`?lang=`): `main.js` no navega a `/es/…` cuando el
+   `<html>` lleva `data-lang-switch="inline"`. Lo vigila
+   `scripts/library.test.mjs`.
+
 **Pura Vida Pets ya no vive aquí.** Se firmó contrato y salió del repositorio: su
 código está en `λ/Pura Vida Pets/puravidapetscr/`, con git propio
 (`github.com/danielalonzzo/puravidapets`) y dominio propio. En Elysium ya no

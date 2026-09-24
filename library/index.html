@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!--
+    Plantilla de elysiumdr.eu/library. No se sirve tal cual: la entrega
+    `worker/library.js`, que rellena el marcador LIBRARY_DATA de abajo con el
+    catálogo de KV.
+    Una sola URL para los tres idiomas: los textos los pone `JS/library.js`
+    (en-GB, es-CR de usted, pt-PT) según `?lang=`, la preferencia guardada del
+    sitio o el idioma del navegador.
+-->
+<html lang="en-GB" data-lang-switch="inline">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <title>Library — Elysium λ Development & Research</title>
+    <meta name="description" content="Books and documents to read online or listen to as audiobooks.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/CSS/base.css">
+    <link rel="stylesheet" href="/CSS/components.css?v=20260826">
+    <link rel="stylesheet" href="/CSS/pages.css">
+    <link rel="stylesheet" href="/CSS/library.css?v=20260924">
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+
+<body class="library-page" data-library-page="index">
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand-container">
+                <a href="/" class="nav-brand" data-library-nav=""><span class="brand-symbol">λ</span> ELYSIUM</a>
+                <div class="region-switcher-dropdown" id="regionSwitcher">
+                    <button type="button" class="region-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select region">
+                        <span class="region-tag">EUROPE</span>
+                        <span class="region-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="region-switcher-menu" role="menu">
+                        <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item active" role="menuitem" data-region="EU">
+                            <span class="region-indicator">●</span> EUROPE
+                        </a>
+                        <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">SPAIN</a>
+                        <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
+                        <a href="https://elysiumdr.eu/es/?region=CR&amp;override=true" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="/services" class="nav-link" data-library-nav="services" data-i18n="navServices">Services</a>
+                <a href="/portfolio" class="nav-link" data-library-nav="portfolio" data-i18n="navPortfolio">Portfolio</a>
+                <a href="/research" class="nav-link" data-library-nav="research" data-i18n="navResearch">Research</a>
+                <a href="/about" class="nav-link" data-library-nav="about" data-i18n="navAbout">About</a>
+                <a href="/profiles" class="nav-link" data-library-nav="profiles" data-i18n="navAccount">Account</a>
+                <a href="/contact" class="btn btn-primary" data-library-nav="contact" data-i18n="navContact">Contact</a>
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select language" data-i18n-aria="selectLanguage"><span class="lang-current-label">EN</span> <img src="/Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon library-flag"> <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="?lang=en" class="lang-select" role="menuitem" data-lang="en">English <img src="/Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon library-flag"></a>
+                        <a href="?lang=es" class="lang-select" role="menuitem" data-lang="es">Español <img src="/Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon library-flag"></a>
+                        <a href="?lang=pt" class="lang-select" role="menuitem" data-lang="pt">Português <img src="/Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon library-flag"></a>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="mobile-toggle" aria-expanded="false" aria-label="Open navigation menu">☰</button>
+        </div>
+    </nav>
+
+    <header class="page-header library-page-header">
+        <div class="parallax-lambda">λ</div>
+        <div class="container animate-on-scroll">
+            <h1 data-i18n="indexTitle">Library</h1>
+            <p class="hero-subtitle" data-i18n="indexKicker">Read · Listen</p>
+        </div>
+    </header>
+
+    <main id="library-content">
+        <section class="section library-section" aria-labelledby="library-shelf-title">
+            <div class="container">
+                <div class="library-intro">
+                    <div>
+                        <p class="library-eyebrow" data-i18n="indexEyebrow">Elysium λ Library</p>
+                        <h2 id="library-shelf-title" data-i18n="shelfTitle">On the shelf</h2>
+                    </div>
+                    <p data-i18n="indexIntro">Books and documents to read online, on any screen. Each one can also be listened to as an audiobook with ElevenReader.</p>
+                </div>
+
+                <p class="library-notice" data-library-missing role="status" hidden>
+                    <span data-i18n="missingBook">That book is not in the library. It may have been removed, or its address may have changed.</span>
+                </p>
+
+                <div class="library-grid" data-library-grid></div>
+                <p class="library-empty" data-library-empty hidden data-i18n="emptyLibrary">The library is empty for now.</p>
+            </div>
+        </section>
+
+        <section class="library-admin-section" aria-label="Administration" data-i18n-aria="adminEyebrow">
+            <div class="container">
+                <details class="library-admin" data-library-admin>
+                    <summary>
+                        <span class="library-admin-summary-label" data-i18n="adminEyebrow">Administration</span>
+                        <span class="library-admin-summary-arrow" aria-hidden="true">▾</span>
+                    </summary>
+
+                    <div class="library-admin-body">
+                        <div class="library-admin-head">
+                            <h2 data-i18n="adminTitle">Publish a book</h2>
+                            <div class="library-admin-identity" data-admin-identity hidden>
+                                <span class="library-admin-email" data-admin-email translate="no"></span>
+                                <button type="button" class="library-link-button" data-admin-signout data-i18n="signOut">Sign out</button>
+                            </div>
+                        </div>
+
+                        <p class="library-admin-text" data-admin-state="loading" data-i18n="adminChecking">Checking your session…</p>
+
+                        <div data-admin-state="unavailable" hidden>
+                            <p class="library-admin-text" data-i18n="adminUnavailable">The administration tools could not load. Check your connection and reload the page.</p>
+                        </div>
+
+                        <div data-admin-state="signed-out" hidden>
+                            <p class="library-admin-text" data-i18n="adminSignedOut">Only the administrator can publish in the library. Sign in with your Elysium account.</p>
+                            <form class="library-signin" data-admin-signin novalidate>
+                                <label class="library-field">
+                                    <span data-i18n="emailLabel">Email</span>
+                                    <input type="email" name="email" autocomplete="username" required>
+                                </label>
+                                <label class="library-field">
+                                    <span data-i18n="passwordLabel">Password</span>
+                                    <input type="password" name="password" autocomplete="current-password" required>
+                                </label>
+                                <button type="submit" class="btn btn-primary" data-i18n="signIn">Sign in</button>
+                                <p class="library-form-status" data-signin-status role="status" aria-live="polite"></p>
+                            </form>
+                        </div>
+
+                        <div data-admin-state="forbidden" hidden>
+                            <p class="library-admin-text" data-i18n="adminForbidden">This account cannot publish in the library.</p>
+                        </div>
+
+                        <div data-admin-state="not-configured" hidden>
+                            <p class="library-admin-text" data-i18n="adminNotConfigured">The library storage is not connected to this deployment yet.</p>
+                        </div>
+
+                        <form class="library-upload" data-admin-state="admin" data-upload-form hidden novalidate>
+                            <label class="library-dropzone" data-dropzone>
+                                <input type="file" name="file" accept=".html,.htm,text/html" data-file-input>
+                                <span class="library-dropzone-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="28" height="28"><path d="M12 16V4m0 0-5 5m5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                                <span class="library-dropzone-title" data-i18n="dropTitle">Choose an HTML file or drop it here</span>
+                                <span class="library-dropzone-hint" data-i18n="dropHint">Only .html files, up to 24 MB, saved as UTF-8.</span>
+                                <span class="library-dropzone-file" data-file-name translate="no"></span>
+                            </label>
+
+                            <div class="library-fields">
+                                <label class="library-field">
+                                    <span data-i18n="titleLabel">Title</span>
+                                    <input type="text" name="title" maxlength="160" required>
+                                </label>
+                                <label class="library-field">
+                                    <span data-i18n="slugLabel">Web address</span>
+                                    <span class="library-slug-field">
+                                        <span class="library-slug-prefix" translate="no">/library/</span>
+                                        <input type="text" name="slug" maxlength="80" required autocapitalize="off" autocomplete="off" spellcheck="false" inputmode="url">
+                                    </span>
+                                </label>
+                                <label class="library-field library-field-wide">
+                                    <span data-i18n="descriptionLabel">Description (optional)</span>
+                                    <textarea name="description" maxlength="400" rows="3"></textarea>
+                                </label>
+                                <label class="library-replace" data-replace-row hidden>
+                                    <input type="checkbox" name="replace">
+                                    <span data-i18n="replaceLabel">Replace the book already published at this address</span>
+                                </label>
+                            </div>
+
+                            <div class="library-upload-actions">
+                                <button type="submit" class="btn btn-primary" data-upload-submit data-i18n="publish">Publish</button>
+                                <progress max="100" value="0" data-upload-progress hidden></progress>
+                            </div>
+                            <p class="library-form-status" data-upload-status role="status" aria-live="polite"></p>
+                        </form>
+                    </div>
+                </details>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand-wrapper">
+                        <a href="/" class="nav-brand" style="display:inline-block;" data-library-nav="">
+                            <span class="brand-symbol">λ</span> ELYSIUM
+                        </a>
+                        <div class="lang-switcher-dropdown footer-lang-switcher">
+                            <button type="button" class="lang-switcher-trigger" aria-expanded="false"
+                                aria-haspopup="true" aria-label="Select language" data-i18n-aria="selectLanguage"><span
+                                    class="lang-current-label">EN</span> <img src="/Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon library-flag"> <span class="lang-arrow"
+                                    aria-hidden="true">▼</span></button>
+                            <div class="lang-switcher-menu" role="menu">
+                                <a href="?lang=en" role="menuitem" data-lang="en">English <img src="/Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon library-flag"></a>
+                                <a href="?lang=es" role="menuitem" data-lang="es">Español <img src="/Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon library-flag"></a>
+                                <a href="?lang=pt" role="menuitem" data-lang="pt">Português <img src="/Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon library-flag"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br><span data-i18n="footerLocation">Portugal, European Union</span></p>
+                    <p class="footer-service-note" data-i18n="footerAmericas">Also serving the Americas.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="footerCompany">Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about" data-library-nav="about" data-i18n="footerAbout">About Us</a></li>
+                        <li><a href="/services" data-library-nav="services" data-i18n="navServices">Services</a></li>
+                        <li><a href="/research" data-library-nav="research" data-i18n="navResearch">Research</a></li>
+                        <li><a href="/portfolio" data-library-nav="portfolio" data-i18n="navPortfolio">Portfolio</a></li>
+                        <li><a href="/contact" data-library-nav="contact" data-i18n="navContact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="/privacy" data-library-nav="privacy" data-i18n="footerPrivacy">Privacy Policy</a></li>
+                        <li><a href="/terms" data-library-nav="terms" data-i18n="footerTerms">Terms of Service</a></li>
+                        <li><a href="https://www.livroreclamacoes.pt/Pedido/Reclamacao" target="_blank"
+                                rel="noopener noreferrer" translate="no">Livro de Reclamações</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 data-i18n="footerConnect">Connect</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://www.linkedin.com/company/elysiumdr" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                        <li><a href="https://x.com/elysiumdr?s=21" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                        <li><a href="https://www.instagram.com/elysium.dr?igsh=YmFhNnlqbWttM3h0&amp;utm_source=qr" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                        <li><a href="https://api.whatsapp.com/send/?phone=351934086075&amp;text&amp;type=phone_number&amp;app_absent=0" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+                        <li><a href="https://www.tiktok.com/@elysium.dr?_r=1&amp;_t=ZS-992i4U8ZNje" target="_blank" rel="noopener noreferrer">TikTok</a></li>
+                        <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Elysium λ Development & Research. <span data-i18n="footerRights">All rights reserved.</span></span>
+                <span class="brand-symbol footer-lambda">λ</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Audiobook -->
+    <dialog class="library-dialog" data-audiobook-dialog aria-labelledby="audiobook-title">
+        <form method="dialog" class="library-dialog-inner">
+            <button type="submit" class="library-dialog-close" value="close" aria-label="Close" data-i18n-aria="close">×</button>
+            <p class="library-eyebrow" data-i18n="audiobook">Audiobook</p>
+            <h2 id="audiobook-title" data-i18n="audioTitle">Listen to this book</h2>
+            <p class="library-dialog-book" data-audiobook-book></p>
+            <p data-i18n="audioIntro">To listen to it as an audiobook, create an account on ElevenReader. It is free and includes 10 hours of listening every month.</p>
+            <ol class="library-steps">
+                <li data-i18n="audioStep1">Create your free ElevenReader account.</li>
+                <li data-i18n="audioStep2">Download this book's HTML file.</li>
+                <li data-i18n="audioStep3">Upload the file to ElevenReader and enjoy listening.</li>
+            </ol>
+            <div class="library-dialog-actions">
+                <a class="btn btn-primary" href="https://elevenreader.io/" target="_blank" rel="noopener noreferrer" data-audiobook-eleven>
+                    <span data-i18n="openElevenReader">Go to ElevenReader</span>
+                    <span aria-hidden="true">↗</span>
+                </a>
+                <a class="btn" href="#" download data-audiobook-download>
+                    <span data-i18n="downloadHtml">Download HTML</span>
+                    <span aria-hidden="true">↓</span>
+                </a>
+            </div>
+        </form>
+    </dialog>
+
+    <script type="application/json" id="library-data">{{LIBRARY_DATA}}</script>
+
+    <script src="/JS/library.js?v=20260924" defer></script>
+    <script src="/JS/main.js"></script>
+    <script src="/JS/elysium-mouse.js"></script>
+    <script src="/JS/elysium-audio.js"></script>
+    <script src="/JS/version-modal.js"></script>
+</body>
+
+</html>

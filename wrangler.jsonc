@@ -14,5 +14,10 @@
     // redirigen a la única página actual conservando el idioma.
     "run_worker_first": ["/*"]
   },
+  // Los libros de /library (worker/library.js). Se suben desde el navegador,
+  // así que no pueden vivir en el repositorio como el resto del sitio.
+  "kv_namespaces": [
+    { "binding": "LIBRARY", "id": "78ba1727173247dfab80e601d6a220b8" }
+  ],
   "observability": { "enabled": true }
 }

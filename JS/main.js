@@ -161,6 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
             : localNationalDomain;
     const isNationalDomain = Boolean(nationalLanguage);
     const currentRegion = nationalLanguage === 'es' ? 'ES' : nationalLanguage === 'pt' ? 'PT' : 'EU';
+    // Páginas con una sola URL para los tres idiomas (la biblioteca, `/library`):
+    // el idioma lo pone la propia página en `<html lang>` y lo cambia sin
+    // recargar, así que aquí no se navega a `/es/…` ni a `/pt/…`.
+    const hasInlineLanguage = document.documentElement.dataset.langSwitch === 'inline';
 
     const REGION_LABELS = {
         en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA' },
@@ -188,6 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function languageFromPath() {
+        if (hasInlineLanguage) {
+            const declared = (document.documentElement.lang || '').slice(0, 2).toLowerCase();
+            return ['en', 'es', 'pt'].includes(declared) ? declared : 'en';
+        }
         if (isNationalDomain) {
             const requested = pageParams.get('lang');
             return ['en', 'es', 'pt'].includes(requested) ? requested : nationalLanguage;
@@ -323,6 +331,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ensureLanguageSwitcher();
     synchronizeRegionUI();
     synchronizePhysicalLanguageUI();
+    document.addEventListener('elysium:languagechange', () => {
+        synchronizeRegionUI();
+        synchronizePhysicalLanguageUI();
+    });
 
     // Helper to extract canonical page path (e.g. 'services', 'case-pmorais', 'about', 'research/data-driven-sme-intelligence', or '')
     function getCanonicalPagePath() {
@@ -374,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Navigation logic — ONLY on .eu / localhost
             // On .es/.pt, elysium-i18n.js registers its own click handlers
             // that do in-place DOM translation without any page reload.
-            if (!isNationalDomain) {
+            if (!isNationalDomain && !hasInlineLanguage) {
                 menu.querySelectorAll('a, button').forEach(link => {
                     link.addEventListener('click', (e) => {
                         const dataLang = link.getAttribute('data-lang');
@@ -449,7 +461,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Storage can be disabled; navigation must still work.
                     }
 
-                    let page = getCanonicalPagePath();
+                    // Una página de idioma en línea no existe en los otros
+                    // dominios: el cambio de región lleva a su portada.
+                    let page = hasInlineLanguage ? '' : getCanonicalPagePath();
                     if ([
                         'infraestructura-digital-pymes-costa-rica',
                         'infraestructura-digital-pymes-espana',

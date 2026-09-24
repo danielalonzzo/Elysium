@@ -1,7 +1,7 @@
 /**
  * Elysium — el Worker que sirve el sitio.
  *
- * El sitio entero son ficheros estáticos y así sigue. Este Worker hace tres
+ * El sitio entero son ficheros estáticos y así sigue. Este Worker hace cuatro
  * cosas, y nada más:
  *
  *   1. Reparte a quien entra por `elysiumdr.eu` según su país (ver «Entrada»).
@@ -14,6 +14,9 @@
  *      de contraseña, recibe consultas públicas y firma el acceso privado a R2.
  *      Mantenerlo bajo el mismo origen evita CORS para la API; el PUT binario va
  *      directamente al endpoint R2 permitido por la CSP y el CORS del bucket.
+ *   4. Sirve la biblioteca oculta `/library` (`library.js`): la única parte del
+ *      sitio que no está en el repositorio, porque sus libros se suben desde
+ *      el navegador y se guardan en Workers KV (binding `LIBRARY`).
  *
  * Todo lo demás vuelve a los assets sin tocarlo, con su `html_handling:
  * auto-trailing-slash` intacto — de él dependen todas las URLs públicas.
@@ -25,6 +28,7 @@
  */
 
 import { htmlToMarkdown, estimateTokens } from './html-to-markdown.js';
+import { handleLibrary, isLibraryPath } from './library.js';
 
 const API_PREFIX = '/api/';
 
@@ -593,12 +597,13 @@ const MCP_PROTOCOL_VERSION = '2025-06-18';
  * (páginas de sesión, sin contenido útil fuera de ella), los diplomas —que
  * llevan el número de cédula y por eso están en `noindex`—, «Demo-arbol», que
  * también lo está, Elysium Patrimonio (`/Gestor-Patrimonios/`, una app
- * privada con licencia) y cualquier cosa bajo `/api` o `/.well-known`.
+ * privada con licencia), la biblioteca (`/library`, oculta a propósito y con
+ * libros de terceros) y cualquier cosa bajo `/api` o `/.well-known`.
  */
 const MCP_PRIVATE = [
     /^\/admin\b/, /^\/profiles\b/, /^\/onboarding\b/, /^\/seed-licenses\b/,
     /^\/auth-action\b/, /^\/Titulos\//, /^\/Demo-arbol\//, /^\/Gestor-Patrimonios\b/,
-    /^\/api\//, /^\/\./
+    /^\/library(?:\.html)?(?:\/|$)/i, /^\/api\//, /^\/\./
 ];
 
 const MCP_TOOLS = [
@@ -832,6 +837,16 @@ export default {
         // Auth. El fragmento (`#/metas`) lo conserva el navegador al redirigir.
         if (nationalLanguage && /^\/Gestor-Patrimonios(?:\/|$)/.test(url.pathname)) {
             return redirect(`https://elysiumdr.eu${url.pathname}${url.search}`, 301);
+        }
+
+        // La biblioteca (`/library`, ver `worker/library.js`) es una sección
+        // oculta con un solo origen, igual que Elysium Patrimonio: la sesión de
+        // administrador con la que se publica es la de `.eu`. Va antes que la
+        // localización para que ningún dominio nacional la busque en
+        // `_national/`.
+        if (isLibraryPath(url.pathname)) {
+            if (nationalLanguage) return redirect(`https://elysiumdr.eu${url.pathname}${url.search}`, 301);
+            return handleLibrary(request, env, url);
         }
 
         // `/p` fue un duplicado temporal de portfolio. Canonizarlo en el mismo
