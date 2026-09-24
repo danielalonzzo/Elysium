@@ -257,7 +257,7 @@ test('la descarga es el fichero tal cual, como adjunto y sin ejecutarse', async 
 
 // ── API ───────────────────────────────────────────────────────────────────────
 
-test('publicar exige sesión de administrador verificada', async () => {
+test('solo publica la cuenta de Daniel, con el correo verificado', async () => {
     const env = makeEnv();
     assert.equal((await publish(env, 'manual', { token: null })).status, 401);
     const stranger = await publish(env, 'manual', { token: await signToken({ email: 'socio@example.com' }) });
@@ -265,9 +265,15 @@ test('publicar exige sesión de administrador verificada', async () => {
     assert.equal((await stranger.json()).code, 'library_admin_required');
     const unverified = await publish(env, 'manual', { token: await signToken({ email_verified: false }) });
     assert.equal(unverified.status, 403);
-    // El claim `admin` basta, con cualquier correo verificado.
+    // Ser administrador del CRM no da la biblioteca: ni el claim ni un rol.
     const claim = await publish(env, 'manual', { token: await signToken({ email: 'otra@elysiumdr.eu', admin: true }) });
-    assert.equal(claim.status, 201);
+    assert.equal(claim.status, 403);
+    const role = await publish(env, 'manual', { token: await signToken({ email: 'otra@elysiumdr.eu', role: 'super_admin' }) });
+    assert.equal(role.status, 403);
+    assert.equal(env.LIBRARY.entries.size, 0);
+    // La dirección no distingue mayúsculas.
+    const daniel = await publish(env, 'manual', { token: await signToken({ email: 'Daniel.Morales@ElysiumDR.eu' }) });
+    assert.equal(daniel.status, 201);
     assert.equal(env.LIBRARY.entries.size, 1);
 });
 
@@ -309,7 +315,7 @@ test('solo entra HTML: ni otra extensión, ni binarios, ni fragmentos, ni otra c
     assert.equal(empty.status, 400);
     assert.equal(env.LIBRARY.entries.size, 0);
     // Un comentario o un BOM antes del doctype son HTML válido.
-    const commented = await publish(env, 'libro', { html: '﻿<!-- exportado -->\n<!DOCTYPE html><html><body></body></html>' });
+    const commented = await publish(env, 'libro', { html: '\uFEFF<!-- exportado -->\n<!DOCTYPE html><html><body></body></html>' });
     assert.equal(commented.status, 201);
 });
 

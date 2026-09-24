@@ -28,11 +28,10 @@
  * 2. **El iframe también aísla los estilos.** Un libro trae su CSS global
  *    (`body`, `p`, `h2`, `header`…) y lo mismo el sitio. Inyectar la cabecera
  *    dentro del documento haría que se pisaran en los dos sentidos.
- * 3. **Solo publica un administrador**, con el mismo criterio que el backend
- *    (`isFirebaseAdmin`): claim `admin`, un rol de administración o un correo
- *    de la lista, y siempre con el correo verificado. El token se comprueba
- *    aquí mismo con las claves públicas de Firebase: no hay que desplegar el
- *    backend para que la biblioteca funcione.
+ * 3. **Solo publica la cuenta de Daniel** (`daniel.morales@elysiumdr.eu`, con
+ *    el correo verificado). El token se comprueba aquí mismo con las claves
+ *    públicas de Firebase: no hay que desplegar el backend para que la
+ *    biblioteca funcione.
  *
  * Es un módulo puro (sin HTMLRewriter) para poder probarlo con `node --test`,
  * igual que `html-to-markdown.js`: ver `scripts/library.test.mjs`.
@@ -63,9 +62,8 @@ const FIREBASE_PROJECT_ID = 'elysiumdr-eu';
 const TOKEN_ISSUER = `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`;
 const FIREBASE_JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 
-/** El mismo valor por defecto que `ADMIN_EMAILS` en el backend. */
+/** La única cuenta que publica en la biblioteca (ver `isLibraryAdmin`). */
 const DEFAULT_ADMIN_EMAILS = 'daniel.morales@elysiumdr.eu';
-const ADMIN_ROLES = new Set(['admin', 'root', 'super_admin']);
 
 /** El catálogo se guarda un minuto en la caché del punto de presencia. */
 const CATALOG_CACHE_SECONDS = 60;
@@ -187,8 +185,8 @@ export function jsonForScript(value) {
         .replaceAll('<', '\\u003c')
         .replaceAll('>', '\\u003e')
         .replaceAll('&', '\\u0026')
-        .replaceAll(' ', '\\u2028')
-        .replaceAll(' ', '\\u2029');
+        .replaceAll('\u2028', '\\u2028')
+        .replaceAll('\u2029', '\\u2029');
 }
 
 /**
@@ -219,7 +217,7 @@ function utf8Length(value) {
  * suelto, un XML o un texto con extensión `.html` no pasan.
  */
 export function looksLikeHtmlDocument(text) {
-    let rest = String(text).slice(0, 64 * 1024).replace(/^﻿/, '');
+    let rest = String(text).slice(0, 64 * 1024).replace(/^\uFEFF/, '');
     for (;;) {
         const trimmed = rest.replace(/^\s+/, '');
         if (!trimmed.startsWith('<!--')) { rest = trimmed; break; }
@@ -274,7 +272,7 @@ export function downloadFilename(file, slug) {
 }
 
 function contentDisposition(filename) {
-    const ascii = filename.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\x20-\x7e]+/g, '-').replace(/"/g, '');
+    const ascii = filename.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\x20-\x7e]+/g, '-').replace(/"/g, '');
     return `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(filename)}`;
 }
 
@@ -543,19 +541,22 @@ export async function verifyFirebaseIdToken(token, { now = Date.now() } = {}) {
     return payload;
 }
 
-/** El criterio de `isFirebaseAdmin()` en `backend/platform-server.js`. */
+/**
+ * Quién administra la biblioteca: la cuenta de Daniel y ninguna otra. A
+ * diferencia del CRM, aquí no valen el claim `admin` ni los roles: dárselos a
+ * alguien para el CRM no debe darle también la publicación de libros. Otra
+ * dirección solo entra si se añade a `LIBRARY_ADMIN_EMAILS` en el Worker.
+ * Siempre con el correo verificado, que es lo que prueba que es suyo.
+ */
 export function isLibraryAdmin(claims, env = {}) {
     if (!claims || claims.email_verified !== true) return false;
-    const role = String(claims.crmRole || claims.role || '').toLowerCase();
     const emails = new Set(
         String(env.LIBRARY_ADMIN_EMAILS || DEFAULT_ADMIN_EMAILS)
             .split(',')
             .map(value => value.trim().toLowerCase())
             .filter(Boolean)
     );
-    return claims.admin === true
-        || ADMIN_ROLES.has(role)
-        || emails.has(String(claims.email || '').toLowerCase());
+    return emails.has(String(claims.email || '').toLowerCase());
 }
 
 async function requireAdmin(request, env) {

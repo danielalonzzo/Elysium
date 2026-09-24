@@ -19,9 +19,8 @@ import {
 const MAX_BOOK_BYTES = 24 * 1024 * 1024;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const RESERVED_SLUGS = new Set(['api', 'index', 'reader', 'book', 'download']);
-/** El mismo criterio que `isLibraryAdmin()` en el Worker. */
+/** El mismo criterio que `isLibraryAdmin()` en el Worker: solo esta cuenta. */
 const ADMIN_EMAILS = new Set(['daniel.morales@elysiumdr.eu']);
-const ADMIN_ROLES = new Set(['admin', 'root', 'super_admin']);
 
 const ERROR_COPY = {
     library_file_empty: 'fileEmpty',
@@ -41,7 +40,7 @@ const ERROR_COPY = {
 export function slugify(value) {
     return String(value || '')
         .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
+        .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
@@ -55,10 +54,7 @@ function isValidSlug(slug) {
 
 function isAdminClaims(claims) {
     if (!claims || claims.email_verified !== true) return false;
-    const role = String(claims.crmRole || claims.role || '').toLowerCase();
-    return claims.admin === true
-        || ADMIN_ROLES.has(role)
-        || ADMIN_EMAILS.has(String(claims.email || '').toLowerCase());
+    return ADMIN_EMAILS.has(String(claims.email || '').toLowerCase());
 }
 
 /** Título, descripción e idioma del propio HTML, para rellenar el formulario. */
@@ -75,7 +71,7 @@ function readDocumentDetails(text) {
 }
 
 function looksLikeHtmlDocument(text) {
-    let rest = text.slice(0, 64 * 1024).replace(/^﻿/, '');
+    let rest = text.slice(0, 64 * 1024).replace(/^\uFEFF/, '');
     for (;;) {
         rest = rest.replace(/^\s+/, '');
         if (!rest.startsWith('<!--')) break;

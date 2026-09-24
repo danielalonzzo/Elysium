@@ -196,8 +196,10 @@ se ven abriéndola:
    pestaña los enlaces a otras páginas y sustituye `scrollIntoView`, que desde
    dentro del iframe arrastraba la página de Elysium y escondía la cabecera. La
    descarga (`/download`, la que se sube a ElevenReader) es el fichero tal cual.
-5. **Publica solo un administrador**, con el criterio de `isFirebaseAdmin()` del
-   backend; el Worker verifica el token de Firebase por su cuenta. Solo entra
+5. **Publica solo `daniel.morales@elysiumdr.eu`**, con el correo verificado. No
+   basta el claim `admin` ni un rol del CRM: la biblioteca es de Daniel, y otra
+   cuenta solo entra si se añade a `LIBRARY_ADMIN_EMAILS` en el Worker. El
+   Worker verifica el token de Firebase por su cuenta. Solo entra
    HTML: extensión `.html`, UTF-8 válido y forma de documento. Una sola URL
    para los tres idiomas (`?lang=`): `main.js` no navega a `/es/…` cuando el
    `<html>` lleva `data-lang-switch="inline"`. Lo vigila
