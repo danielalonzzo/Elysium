@@ -1,21 +1,39 @@
 /**
  * La biblioteca: `elysiumdr.eu/library`.
  *
- * Una sección oculta —sin enlaces desde el sitio, `noindex`, fuera del sitemap
- * y del MCP— donde el administrador sube documentos HTML y quedan publicados en
- * el acto, sin pasar por git ni por un despliegue. Por eso no pueden vivir en
- * la raíz del repositorio como el resto del sitio: se guardan en Workers KV
- * (binding `LIBRARY`, un valor por libro) y los sirve este módulo.
+ * Una sección pública —enlazada desde el pie de todas las páginas, indexable y
+ * con su propio sitemap— donde el administrador sube documentos HTML y quedan
+ * publicados en el acto, sin pasar por git ni por un despliegue. Por eso no
+ * pueden vivir en la raíz del repositorio como el resto del sitio: se guardan
+ * en Workers KV (binding `LIBRARY`, un valor por libro) y los sirve este
+ * módulo. Sigue fuera del MCP: los libros son obras de terceros.
  *
  * Rutas, todas bajo el mismo prefijo:
  *
  *   /library                      índice (plantilla `library/index.html`)
  *   /library/<slug>               lector: cabecera y pie de Elysium, el libro
- *                                 en un iframe y el botón de audiolibro
+ *                                 en un iframe, su índice de capítulos y los
+ *                                 botones de pantalla completa y audiolibro
  *   /library/<slug>/book          el HTML tal cual, para ese iframe
  *   /library/<slug>/download      el HTML tal cual, como descarga (ElevenReader)
+ *   /library/sitemap.xml          el índice y cada libro, para los buscadores
+ *   /library/manifest.webmanifest la biblioteca como app instalable (PWA)
  *   /library/api/books            GET: el catálogo en JSON
  *   /library/api/books/<slug>     PUT: publicar o reemplazar · DELETE: retirar
+ *
+ * Cómo se encuentra un libro desde un buscador (lo que no se ve abriéndolo):
+ *
+ * - El texto del libro vive en el iframe, así que la página del lector no lo
+ *   lleva. `/book` responde `noindex, indexifembedded`: Google no indexa esa
+ *   URL suelta, pero sí su contenido como parte del lector que lo enmarca.
+ * - Los rastreadores que no ejecutan JavaScript ni abren iframes (los de IA,
+ *   casi todos) leen lo que el servidor escribe en el lector: título,
+ *   descripción, autor, el índice de capítulos sacado del propio libro
+ *   (`extractBookInfo`, guardado en `info:<slug>`) y enlaces al resto de la
+ *   biblioteca. El índice de `/library` también sale ya pintado del servidor.
+ * - Al publicar o retirar, se avisa a IndexNow (Bing, Yandex, Seznam…; Google
+ *   no lo usa y se entera por el sitemap, que `robots.txt` anuncia en `.eu`).
+ *   La clave es pública por diseño y vive también en `/<clave>.txt`.
  *
  * Tres decisiones que no se ven leyendo el código:
  *
@@ -39,8 +57,39 @@
 
 export const LIBRARY_PREFIX = '/library';
 
+/**
+ * El único origen de la biblioteca (`.es` y `.pt` redirigen aquí). Las URLs
+ * canónicas, el sitemap y los datos estructurados lo usan siempre, también
+ * cuando el Worker corre en local.
+ */
+export const LIBRARY_ORIGIN = 'https://elysiumdr.eu';
+
 /** Clave KV de cada libro. Sus metadatos van en los metadatos de la clave. */
 const BOOK_KEY_PREFIX = 'book:';
+
+/**
+ * Clave KV con lo que se extrae del libro para el lector (autor, índice de
+ * capítulos). No cabe en los metadatos de `book:`, que tienen 1024 bytes.
+ * Si cambia su forma, se sube la versión y se recalcula sola al leerse.
+ */
+const INFO_KEY_PREFIX = 'info:';
+const INFO_VERSION = 1;
+const MAX_OUTLINE_ENTRIES = 160;
+const MAX_HEADING_LENGTH = 160;
+
+/**
+ * IndexNow: la misma clave que `/<clave>.txt` en la raíz del sitio. Es pública
+ * a propósito; solo prueba que quien avisa controla el dominio.
+ */
+export const INDEXNOW_KEY = 'e5164b848d4fb714be2fa0cfc750b536';
+const INDEXNOW_ENDPOINT = 'https://api.indexnow.org/indexnow';
+
+/**
+ * Los libros son, casi siempre, obras de terceros: se pueden encontrar y citar
+ * (`search`, `ai-input`), pero Elysium no puede autorizar que se entrene con
+ * ellos, así que aquí no se repite el `ai-train=yes` del resto del sitio.
+ */
+const PUBLIC_CONTENT_SIGNAL = 'search=yes, ai-input=yes, ai-train=no';
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MAX_SLUG_LENGTH = 80;
@@ -82,7 +131,8 @@ class LibraryError extends Error {
 /**
  * Lo que el Worker genera no pasa por `_headers`: Cloudflare solo aplica ese
  * fichero a las respuestas del binding de assets. Aquí se repite lo básico de
- * `/*` y se añade lo propio de una sección oculta.
+ * `/*`. Por defecto nada se indexa (la API, los errores, la descarga); las
+ * páginas y el libro enmarcado lo abren explícitamente.
  */
 function baseHeaders(extra = {}) {
     return new Headers({
@@ -261,7 +311,7 @@ export function inspectHtmlUpload(bytes) {
     if (!looksLikeHtmlDocument(text)) {
         throw new LibraryError('Only HTML documents can be published.', 'library_not_html', 415);
     }
-    return { lang: documentLanguage(text) };
+    return { lang: documentLanguage(text), text };
 }
 
 /** Nombre de fichero seguro para `Content-Disposition`. */
@@ -314,6 +364,106 @@ function publicBook(slug, metadata = {}) {
     };
 }
 
+// ── Lo que se lee del libro ───────────────────────────────────────────────────
+
+const NAMED_ENTITIES = {
+    amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', shy: '',
+    ndash: '–', mdash: '—', hellip: '…', middot: '·', laquo: '«', raquo: '»',
+    lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”'
+};
+
+/** Las entidades que aparecen en un título; las numéricas, todas. */
+export function decodeEntities(text) {
+    return String(text).replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, entity) => {
+        if (entity[0] === '#') {
+            const hex = entity[1] === 'x' || entity[1] === 'X';
+            const code = parseInt(entity.slice(hex ? 2 : 1), hex ? 16 : 10);
+            return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : match;
+        }
+        return NAMED_ENTITIES[entity.toLowerCase()] ?? match;
+    });
+}
+
+function textOf(fragment, maxLength) {
+    return cleanText(decodeEntities(String(fragment)
+        .replace(/<(script|style|svg)\b[\s\S]*?<\/\1\s*>/gi, ' ')
+        .replace(/<[^>]*>/g, ' ')), maxLength);
+}
+
+const ID_ATTRIBUTE = /(?:^|\s)id\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/i;
+
+function anchorValue(match) {
+    const value = decodeEntities(match[1] ?? match[2] ?? match[3] ?? '').trim();
+    return value && value.length <= 200 && !/[\s"'<>]/.test(value) ? value : '';
+}
+
+/**
+ * El ancla a la que salta el índice. Si el título no lleva `id`, se busca en
+ * el contenedor que lo abre justo antes —`<section id="cap-1"><header><h2>`
+ * es la forma habitual de un capítulo—, siempre que ese contenedor no se haya
+ * cerrado ni haya otro título entre medias. Sin ancla, la entrada va sin
+ * enlace: mejor eso que saltar a un sitio equivocado.
+ */
+function headingAnchor(text, index, attributes) {
+    const own = ID_ATTRIBUTE.exec(attributes);
+    if (own) return anchorValue(own);
+    const before = text.slice(Math.max(0, index - 400), index);
+    const openers = [...before.matchAll(/<(?:section|article|header|div)\b([^>]*)>/gi)];
+    for (let i = openers.length - 1; i >= 0; i -= 1) {
+        const id = ID_ATTRIBUTE.exec(openers[i][1]);
+        if (!id) continue;
+        const between = before.slice(openers[i].index + openers[i][0].length);
+        if (/<\/(?:section|article|header|div)\s*>|<h[1-6]\b/i.test(between)) return '';
+        return anchorValue(id);
+    }
+    return '';
+}
+
+function metaContent(head, names) {
+    for (const tag of head.match(/<meta\b[^>]*>/gi) || []) {
+        const name = /\sname\s*=\s*["']?([^"'\s>]+)/i.exec(tag);
+        if (!name || !names.includes(name[1].toLowerCase())) continue;
+        const content = /\scontent\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(tag);
+        const value = content ? cleanText(decodeEntities(content[1] ?? content[2] ?? content[3] ?? ''), 300) : '';
+        if (value) return value;
+    }
+    return '';
+}
+
+/**
+ * Autor, descripción e índice de capítulos (h1–h3) de un libro, para que el
+ * lector los escriba en su HTML. Es lo que leen los buscadores que no abren
+ * el iframe. Se descartan los títulos que se repiten («Notas», «Sumário»):
+ * no orientan a nadie y ensucian el índice.
+ *
+ * Solo expresiones regulares y acotadas: un libro de 4 MB se lee en unos
+ * pocos milisegundos, y esto corre dentro del Worker.
+ */
+export function extractBookInfo(html) {
+    const text = String(html ?? '');
+    const headEnd = text.search(/<\/head\s*>/i);
+    const head = text.slice(0, headEnd === -1 ? 64 * 1024 : Math.min(headEnd, 256 * 1024));
+    const found = [];
+    const pattern = /<h([1-3])\b([^>]*)>([\s\S]*?)<\/h\1\s*>/gi;
+    let match;
+    while ((match = pattern.exec(text)) && found.length < MAX_OUTLINE_ENTRIES * 2) {
+        const title = textOf(match[3], MAX_HEADING_LENGTH);
+        if (title.length < 2) continue;
+        found.push({ l: Number(match[1]), t: title, id: headingAnchor(text, match.index, match[2]) });
+    }
+    const counts = new Map();
+    for (const entry of found) {
+        const key = entry.t.toLowerCase();
+        counts.set(key, (counts.get(key) || 0) + 1);
+    }
+    return {
+        v: INFO_VERSION,
+        author: metaContent(head, ['author', 'citation_author', 'dc.creator', 'dcterms.creator']),
+        description: metaContent(head, ['description']),
+        outline: found.filter(entry => counts.get(entry.t.toLowerCase()) === 1).slice(0, MAX_OUTLINE_ENTRIES)
+    };
+}
+
 // ── Inyección en el libro ─────────────────────────────────────────────────────
 
 /**
@@ -330,6 +480,13 @@ function publicBook(slug, metadata = {}) {
  *    Elysium y escondía la cabecera. Se sustituye por una versión que solo
  *    mueve los contenedores del propio libro. Navegar a un ancla y `focus()`
  *    no tienen ese problema (comprobado), así que no se tocan.
+ * 3. En pantalla completa, la X de salir se esconde mientras se lee y vuelve
+ *    al acercar el puntero al borde de arriba o al subir, como en macOS. La
+ *    página que enmarca no ve nada de lo que pasa dentro del iframe, así que
+ *    el libro se lo cuenta con `postMessage`: solo tres señales sin datos del
+ *    libro (puntero arriba sí/no, sentido del desplazamiento, Escape). El
+ *    destino `*` no expone nada: `frame-ancestors 'self'` impide que otro
+ *    sitio lo enmarque.
  *
  * Se escribe como función y se serializa para que se pueda leer y revisar;
  * no puede usar nada de fuera de su propio cuerpo.
@@ -378,6 +535,30 @@ function bookHelper() {
         var rootPadding = block === 'start' ? px(getComputedStyle(root).scrollPaddingTop) : 0;
         window.scrollBy({ top: offset(this.getBoundingClientRect(), rootPadding, window.innerHeight, block) - margin, behavior: behavior });
     };
+
+    var signal = function (type, value) {
+        try { window.parent.postMessage({ elysiumLibrary: type, value: value }, '*'); } catch (error) { /* sin padre */ }
+    };
+    var nearTop = false;
+    document.addEventListener('mousemove', function (event) {
+        var near = event.clientY < 72;
+        if (near !== nearTop) { nearTop = near; signal('pointer', near); }
+    }, { passive: true });
+    var positions = typeof WeakMap === 'function' ? new WeakMap() : null;
+    var direction = '';
+    document.addEventListener('scroll', function (event) {
+        if (!positions) return;
+        var node = event.target && event.target.nodeType === 1 ? event.target : (document.scrollingElement || document.documentElement);
+        var top = node.scrollTop;
+        var last = positions.get(node);
+        positions.set(node, top);
+        if (last === undefined || Math.abs(top - last) < 3) return;
+        var next = top < last ? 'up' : 'down';
+        if (next !== direction) { direction = next; signal('scroll', next); }
+    }, { capture: true, passive: true });
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') signal('escape', true);
+    });
 }
 
 export const BOOK_HELPER = `<script>/* Elysium Library */(${bookHelper.toString()})();</script>`;
@@ -657,7 +838,39 @@ function readUploadMeta(request) {
     }
 }
 
-async function publishBook(request, env, url, slug) {
+export function bookUrl(slug) {
+    return `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}/${slug}`;
+}
+
+/**
+ * Avisa a IndexNow de que esas URLs cambiaron (también si desaparecen). Solo
+ * desde el dominio de verdad y con `waitUntil`: ni `wrangler dev` ni las
+ * pruebas deben avisar a un buscador. Un fallo aquí no afecta a la subida.
+ */
+export async function notifyIndexNow(urls) {
+    try {
+        const response = await fetch(INDEXNOW_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify({
+                host: new URL(LIBRARY_ORIGIN).host,
+                key: INDEXNOW_KEY,
+                keyLocation: `${LIBRARY_ORIGIN}/${INDEXNOW_KEY}.txt`,
+                urlList: urls
+            })
+        });
+        if (!response.ok) console.warn('[library] IndexNow answered', response.status);
+    } catch (error) {
+        console.warn('[library] IndexNow unreachable:', error);
+    }
+}
+
+function announce(ctx, url, urls) {
+    if (url.origin !== LIBRARY_ORIGIN || !ctx || typeof ctx.waitUntil !== 'function') return;
+    ctx.waitUntil(notifyIndexNow(urls));
+}
+
+async function publishBook(request, env, url, slug, ctx) {
     await requireAdmin(request, env);
     const kv = store(env);
 
@@ -678,7 +891,7 @@ async function publishBook(request, env, url, slug) {
         throw new LibraryError('The file is larger than the library allows.', 'library_file_too_large', 413);
     }
     const bytes = new Uint8Array(await request.arrayBuffer());
-    const { lang } = inspectHtmlUpload(bytes);
+    const { lang, text } = inspectHtmlUpload(bytes);
 
     const key = BOOK_KEY_PREFIX + slug;
     const existing = await kv.list({ prefix: key });
@@ -696,11 +909,13 @@ async function publishBook(request, env, url, slug) {
         uploadedAt: new Date().toISOString()
     });
     await kv.put(key, bytes, { metadata });
+    await kv.put(INFO_KEY_PREFIX + slug, JSON.stringify(extractBookInfo(text)));
     await forgetCatalog(url.origin);
+    announce(ctx, url, [bookUrl(slug), `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`]);
     return json(request, { book: publicBook(slug, metadata), replaced: exists }, exists ? 200 : 201);
 }
 
-async function removeBook(request, env, url, slug) {
+async function removeBook(request, env, url, slug, ctx) {
     await requireAdmin(request, env);
     const kv = store(env);
     const key = BOOK_KEY_PREFIX + slug;
@@ -709,11 +924,13 @@ async function removeBook(request, env, url, slug) {
         throw new LibraryError('That book is not in the library.', 'library_book_missing', 404);
     }
     await kv.delete(key);
+    await kv.delete(INFO_KEY_PREFIX + slug);
     await forgetCatalog(url.origin);
+    announce(ctx, url, [bookUrl(slug), `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`]);
     return json(request, { deleted: slug });
 }
 
-async function handleApi(request, env, url, rest) {
+async function handleApi(request, env, url, rest, ctx) {
     try {
         if (rest === 'books') {
             if (request.method !== 'GET' && request.method !== 'HEAD') return methodNotAllowed(request, 'GET, HEAD');
@@ -725,8 +942,8 @@ async function handleApi(request, env, url, rest) {
         if (!isValidSlug(slug)) {
             throw new LibraryError('The web address may only use lowercase letters, numbers and hyphens.', 'library_slug_invalid');
         }
-        if (request.method === 'PUT') return await publishBook(request, env, url, slug);
-        if (request.method === 'DELETE') return await removeBook(request, env, url, slug);
+        if (request.method === 'PUT') return await publishBook(request, env, url, slug, ctx);
+        if (request.method === 'DELETE') return await removeBook(request, env, url, slug, ctx);
         return methodNotAllowed(request, 'PUT, DELETE');
     } catch (error) {
         return errorJson(request, error);
@@ -746,45 +963,243 @@ async function template(env, url, path) {
 
 /**
  * Las cabeceras de una plantilla: las del binding (CSP general, HSTS…, que
- * `_headers` aplica a `/library/*`) más las de una sección oculta. El HTML se
- * revalida siempre porque lleva el catálogo dentro.
+ * `_headers` aplica a `/library/*`) más las de la biblioteca. El HTML se
+ * revalida siempre porque lleva el catálogo dentro. Solo se indexa lo que
+ * existe: el aviso de «ese libro no está» responde 404 y `noindex`.
  */
-function pageHeaders(response) {
+function pageHeaders(response, { indexable = true } = {}) {
     const headers = new Headers(response.headers);
     headers.set('Content-Type', 'text/html; charset=utf-8');
     headers.set('Cache-Control', 'no-cache, max-age=0, must-revalidate');
-    headers.set('X-Robots-Tag', 'noindex, nofollow');
-    headers.set('Content-Signal', 'search=no, ai-input=no, ai-train=no');
+    if (indexable) headers.delete('X-Robots-Tag');
+    else headers.set('X-Robots-Tag', 'noindex, follow');
+    headers.set('Content-Signal', PUBLIC_CONTENT_SIGNAL);
     headers.delete('Content-Length');
     headers.delete('ETag');
     headers.delete('Last-Modified');
     return headers;
 }
 
+const INDEXABLE_ROBOTS = 'index, follow, max-image-preview:large, max-snippet:-1';
+
+/**
+ * Lo que el servidor escribe en inglés lo vuelve a escribir `JS/library.js`
+ * en el idioma de quien lee. Aquí solo hace falta que sea correcto y legible
+ * sin JavaScript, que es como lo leen casi todos los rastreadores.
+ */
+const SERVER_LOCALE = 'en-GB';
+
+function languageName(tag) {
+    if (!tag) return '';
+    const base = tag.split('-')[0].toLowerCase();
+    try {
+        const name = new Intl.DisplayNames([SERVER_LOCALE], { type: 'language' }).of(base);
+        if (name && name.toLowerCase() !== base) return name;
+    } catch {
+        // Sin datos de idioma: se deja el código.
+    }
+    return base.toUpperCase();
+}
+
+function formatSize(bytes) {
+    if (!bytes) return '';
+    const megabytes = bytes / (1024 * 1024);
+    const value = megabytes >= 1 ? megabytes : bytes / 1024;
+    return `${new Intl.NumberFormat(SERVER_LOCALE, { maximumFractionDigits: 1 }).format(value)} ${megabytes >= 1 ? 'MB' : 'KB'}`;
+}
+
+function formatDate(iso) {
+    const date = new Date(iso || '');
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat(SERVER_LOCALE, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(date);
+}
+
+function langAttribute(lang) {
+    return lang ? ` lang="${escapeHtml(lang)}"` : '';
+}
+
+const HEADPHONES_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg>';
+
+/** Las tarjetas del índice, con el mismo marcado que pinta `JS/library.js`. */
+export function renderBookCards(books) {
+    return books.map(book => {
+        const href = `${LIBRARY_PREFIX}/${escapeHtml(book.slug)}`;
+        const date = formatDate(book.uploadedAt);
+        return `<article class="library-card" data-book="${escapeHtml(book.slug)}">`
+            + '<div class="library-card-top">'
+            + `<span class="library-chip"${book.lang ? ` lang="${SERVER_LOCALE}"` : ''}>${escapeHtml(languageName(book.lang) || 'HTML')}</span>`
+            + `<span class="library-card-size">${escapeHtml(formatSize(book.size))}</span>`
+            + '</div><div class="library-card-body">'
+            + `<h3${langAttribute(book.lang)}><a href="${href}">${escapeHtml(book.title)}</a></h3>`
+            + (book.description ? `<p class="library-card-description"${langAttribute(book.lang)}>${escapeHtml(book.description)}</p>` : '')
+            + `<p class="library-card-date">${date ? `Added ${escapeHtml(date)}` : ''}</p>`
+            + '<div class="library-card-actions">'
+            + `<a class="btn btn-primary" href="${href}">Read</a>`
+            + `<button type="button" class="btn library-audio-button" data-audiobook="${escapeHtml(book.slug)}">${HEADPHONES_ICON}<span>Audiobook</span></button>`
+            + '</div></div></article>';
+    }).join('');
+}
+
+/**
+ * El índice de capítulos del lector. Los títulos del nivel más alto son las
+ * entradas y los del siguiente, sus apartados; lo más profundo se deja fuera.
+ * Cada enlace apunta al iframe por su nombre (`target="library-book"`), así que
+ * salta al capítulo incluso sin JavaScript.
+ */
+export function renderOutline(info, book) {
+    const title = String(book.title || '').toLowerCase();
+    const entries = (info && Array.isArray(info.outline) ? info.outline : [])
+        .filter(entry => entry && entry.t && entry.t.toLowerCase() !== title);
+    if (!entries.length) return '';
+    const top = Math.min(...entries.map(entry => entry.l));
+    const items = [];
+    for (const entry of entries) {
+        if (entry.l === top || !items.length) items.push({ ...entry, children: [] });
+        else if (entry.l === top + 1) items[items.length - 1].children.push(entry);
+    }
+    const file = `${LIBRARY_PREFIX}/${escapeHtml(book.slug)}/book`;
+    const link = entry => (entry.id
+        ? `<a href="${file}#${escapeHtml(entry.id)}" target="library-book" data-library-toc>${escapeHtml(entry.t)}</a>`
+        : `<span>${escapeHtml(entry.t)}</span>`);
+    return items.map(item => `<li>${link(item)}${item.children.length
+        ? `<ol>${item.children.map(child => `<li>${link(child)}</li>`).join('')}</ol>`
+        : ''}</li>`).join('');
+}
+
+function renderMoreBooks(books, slug) {
+    return books.filter(entry => entry.slug !== slug).slice(0, 6).map(entry => `<li><a href="${LIBRARY_PREFIX}/${escapeHtml(entry.slug)}"${langAttribute(entry.lang)}>`
+        + `<span class="library-more-title">${escapeHtml(entry.title)}</span>`
+        + (entry.description ? `<span class="library-more-text">${escapeHtml(entry.description)}</span>` : '')
+        + '</a></li>').join('');
+}
+
+const LIBRARY_NAME = 'Elysium λ Library';
+const ORGANIZATION = { '@type': 'Organization', name: 'Elysium λ Development & Research', url: `${LIBRARY_ORIGIN}/` };
+
+function breadcrumbs(extra = []) {
+    const items = [
+        { name: 'Elysium λ', item: `${LIBRARY_ORIGIN}/` },
+        { name: 'Library', item: `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}` },
+        ...extra
+    ];
+    return {
+        '@type': 'BreadcrumbList',
+        itemListElement: items.map((entry, index) => ({ '@type': 'ListItem', position: index + 1, ...entry }))
+    };
+}
+
+function indexJsonLd(books) {
+    const url = `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`;
+    return jsonForScript({
+        '@context': 'https://schema.org',
+        '@graph': [{
+            '@type': 'CollectionPage',
+            '@id': `${url}#library`,
+            url,
+            name: LIBRARY_NAME,
+            description: 'Books and study materials to read online, full screen on any device, or to listen to as audiobooks. Free, to encourage reading and research.',
+            isAccessibleForFree: true,
+            provider: ORGANIZATION,
+            mainEntity: {
+                '@type': 'ItemList',
+                numberOfItems: books.length,
+                itemListElement: books.map((book, index) => ({
+                    '@type': 'ListItem',
+                    position: index + 1,
+                    url: bookUrl(book.slug),
+                    name: book.title
+                }))
+            }
+        }, breadcrumbs()]
+    });
+}
+
+/**
+ * Los datos estructurados del lector. Solo lo que se sabe de verdad: el autor
+ * únicamente si el propio libro lo declara (`<meta name="author">`), y ni
+ * editorial ni ISBN, que serían de la obra original y no de esta edición.
+ */
+function bookJsonLd(book, info, description) {
+    const url = bookUrl(book.slug);
+    const title = book.title.toLowerCase();
+    const outline = (info.outline || []).filter(entry => entry.t.toLowerCase() !== title);
+    const top = outline.length ? Math.min(...outline.map(entry => entry.l)) : 0;
+    const chapters = outline.filter(entry => entry.l === top).slice(0, 40);
+    const node = {
+        '@type': 'Book',
+        '@id': `${url}#book`,
+        name: book.title,
+        url,
+        mainEntityOfPage: url,
+        bookFormat: 'https://schema.org/EBook',
+        isAccessibleForFree: true,
+        provider: ORGANIZATION
+    };
+    if (description) node.description = description;
+    if (book.lang) node.inLanguage = book.lang;
+    if (info.author) node.author = { '@type': 'Person', name: info.author };
+    if (book.uploadedAt) node.dateModified = book.uploadedAt;
+    if (chapters.length) {
+        node.hasPart = chapters.map((entry, index) => ({ '@type': 'Chapter', position: index + 1, name: entry.t }));
+    }
+    return jsonForScript({
+        '@context': 'https://schema.org',
+        '@graph': [node, breadcrumbs([{ name: book.title, item: url }])]
+    });
+}
+
+async function catalog(env, url) {
+    try {
+        return { books: await listBooks(env, url.origin), configured: true };
+    } catch (error) {
+        if (error instanceof LibraryError && error.code === 'library_not_configured') return { books: [], configured: false };
+        throw error;
+    }
+}
+
 async function serveIndex(request, env, url, { status = 200, missing = '' } = {}) {
     const response = await template(env, url, `${LIBRARY_PREFIX}/`);
-    let books = [];
-    let configured = true;
-    try {
-        books = await listBooks(env, url.origin);
-    } catch (error) {
-        if (!(error instanceof LibraryError) || error.code !== 'library_not_configured') throw error;
-        configured = false;
-    }
+    const { books, configured } = await catalog(env, url);
     const html = renderTemplate(await response.text(), {
+        ROBOTS: status === 200 ? INDEXABLE_ROBOTS : 'noindex, follow',
+        LIBRARY_JSON_LD: indexJsonLd(books),
+        LIBRARY_CARDS: renderBookCards(books),
         LIBRARY_DATA: jsonForScript({ books, missing, configured })
     });
-    return new Response(request.method === 'HEAD' ? null : html, { status, headers: pageHeaders(response) });
+    return new Response(request.method === 'HEAD' ? null : html, {
+        status,
+        headers: pageHeaders(response, { indexable: status === 200 })
+    });
+}
+
+/**
+ * Autor e índice del libro. Los libros subidos antes de que existiera
+ * `info:` (o con una versión vieja) se leen una vez aquí y se guarda el
+ * resultado; si algo falla, el lector sale igual, solo que sin índice.
+ */
+async function bookInfo(env, slug) {
+    const empty = { v: INFO_VERSION, author: '', description: '', outline: [] };
+    const kv = env.LIBRARY;
+    if (!kv) return empty;
+    try {
+        const stored = await kv.get(INFO_KEY_PREFIX + slug, { cacheTtl: 60 });
+        if (stored) {
+            const info = JSON.parse(stored);
+            if (info && info.v === INFO_VERSION) return info;
+        }
+        const html = await kv.get(BOOK_KEY_PREFIX + slug);
+        if (!html) return empty;
+        const info = extractBookInfo(html);
+        await kv.put(INFO_KEY_PREFIX + slug, JSON.stringify(info));
+        return info;
+    } catch (error) {
+        console.warn('[library] book outline unavailable:', error);
+        return empty;
+    }
 }
 
 async function serveReader(request, env, url, slug) {
-    let books;
-    try {
-        books = await listBooks(env, url.origin);
-    } catch (error) {
-        if (error instanceof LibraryError && error.code === 'library_not_configured') books = [];
-        else throw error;
-    }
+    const { books } = await catalog(env, url);
     let book = books.find(entry => entry.slug === slug);
     if (!book && env.LIBRARY) {
         // El catálogo cacheado puede ir un minuto por detrás de una subida.
@@ -796,14 +1211,88 @@ async function serveReader(request, env, url, slug) {
     }
     if (!book) return serveIndex(request, env, url, { status: 404, missing: slug });
 
+    const info = await bookInfo(env, slug);
+    const description = book.description || info.description
+        || `${book.title}. Read it online, full screen on any device, or listen to it as an audiobook.`;
+    const toc = renderOutline(info, book);
+    const more = renderMoreBooks(books, slug);
     const response = await template(env, url, `${LIBRARY_PREFIX}/reader`);
     const html = renderTemplate(await response.text(), {
         BOOK_TITLE: escapeHtml(book.title),
         BOOK_SLUG: escapeHtml(book.slug),
         BOOK_LANG: escapeHtml(book.lang),
-        BOOK_DATA: jsonForScript(book)
+        BOOK_URL: escapeHtml(bookUrl(book.slug)),
+        BOOK_DESCRIPTION: escapeHtml(description),
+        BOOK_OG_LOCALE: escapeHtml((book.lang || SERVER_LOCALE).replace('-', '_')),
+        BOOK_AUTHOR: info.author ? `<p class="library-about-author"${langAttribute(book.lang)}>${escapeHtml(info.author)}</p>` : '',
+        BOOK_LANGUAGE_NAME: escapeHtml(languageName(book.lang) || '—'),
+        BOOK_DATE: escapeHtml(book.uploadedAt || ''),
+        BOOK_DATE_TEXT: escapeHtml(formatDate(book.uploadedAt) || '—'),
+        BOOK_TOC: toc,
+        BOOK_TOC_HIDDEN: toc ? '' : 'hidden',
+        BOOK_MORE: more,
+        BOOK_MORE_HIDDEN: more ? '' : 'hidden',
+        BOOK_JSON_LD: bookJsonLd(book, info, description),
+        BOOK_DATA: jsonForScript({ ...book, author: info.author || '' })
     });
     return new Response(request.method === 'HEAD' ? null : html, { status: 200, headers: pageHeaders(response) });
+}
+
+/**
+ * El sitemap de la biblioteca, aparte del estático de la raíz: los libros no
+ * están en el repositorio. `robots.txt` lo anuncia en `.eu`.
+ */
+async function serveSitemap(request, env, url) {
+    const { books } = await catalog(env, url);
+    const entry = (loc, lastmod) => `  <url>\n    <loc>${escapeHtml(loc)}</loc>\n${lastmod ? `    <lastmod>${escapeHtml(lastmod)}</lastmod>\n` : ''}  </url>\n`;
+    const xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + entry(`${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`, books[0]?.uploadedAt || '')
+        + books.map(book => entry(bookUrl(book.slug), book.uploadedAt || '')).join('')
+        + '</urlset>\n';
+    return new Response(request.method === 'HEAD' ? null : xml, {
+        status: 200,
+        headers: baseHeaders({
+            'Content-Type': 'application/xml; charset=utf-8',
+            'Cache-Control': 'public, max-age=900'
+        })
+    });
+}
+
+/**
+ * La biblioteca como app instalable. Instalada en la pantalla de inicio, el
+ * modo de lectura a pantalla completa ocupa de verdad toda la pantalla,
+ * también en el iPhone, donde Safari no deja poner una página a pantalla
+ * completa desde el navegador.
+ */
+export const LIBRARY_MANIFEST = {
+    id: LIBRARY_PREFIX,
+    name: LIBRARY_NAME,
+    short_name: 'Library',
+    description: 'Books and study materials to read online, full screen, or to listen to as audiobooks.',
+    lang: 'en-GB',
+    start_url: LIBRARY_PREFIX,
+    // Sin barra final: el ámbito se compara como prefijo y tiene que incluir
+    // el propio `/library`, que es la dirección de inicio.
+    scope: LIBRARY_PREFIX,
+    display: 'standalone',
+    background_color: '#020410',
+    theme_color: '#020410',
+    categories: ['books', 'education'],
+    icons: [
+        { src: '/Images/favicon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: '/Images/apple-touch-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any' }
+    ]
+};
+
+function serveManifest(request) {
+    return new Response(request.method === 'HEAD' ? null : JSON.stringify(LIBRARY_MANIFEST), {
+        status: 200,
+        headers: baseHeaders({
+            'Content-Type': 'application/manifest+json; charset=utf-8',
+            'Cache-Control': 'public, max-age=86400'
+        })
+    });
 }
 
 async function serveBookFile(request, env, slug, { download }) {
@@ -823,6 +1312,11 @@ async function serveBookFile(request, env, slug, { download }) {
         if (metadata.size) headers.set('Content-Length', String(metadata.size));
     } else {
         headers.set('Content-Security-Policy', BOOK_CSP);
+        // Esta URL suelta no se indexa (no lleva ni la cabecera de Elysium ni
+        // el botón de volver), pero su texto sí cuenta como parte del lector
+        // que la enmarca: es la página que debe salir en los resultados.
+        headers.set('X-Robots-Tag', 'noindex, indexifembedded');
+        headers.set('Content-Signal', PUBLIC_CONTENT_SIGNAL);
     }
 
     // HEAD lleva las mismas cabeceras que GET, solo sin el cuerpo.
@@ -841,11 +1335,11 @@ async function serveBookFile(request, env, slug, { download }) {
  * nacionales a `.eu` la hace `index.js` antes de llegar aquí: la biblioteca
  * existe en un solo origen.
  */
-export async function handleLibrary(request, env, url) {
+export async function handleLibrary(request, env, url, ctx) {
     // La API no se redirige nunca: un PUT redirigido se perdería por el camino.
     // Un slug mal escrito ahí es un 400, no una URL que corregir.
     const apiPrefix = `${LIBRARY_PREFIX}/api/`;
-    if (url.pathname.startsWith(apiPrefix)) return handleApi(request, env, url, url.pathname.slice(apiPrefix.length));
+    if (url.pathname.startsWith(apiPrefix)) return handleApi(request, env, url, url.pathname.slice(apiPrefix.length), ctx);
 
     // Una sola forma de escribir cada página: en minúsculas (los slugs lo son),
     // sin `.html`, sin barra final y sin `index`.
@@ -862,6 +1356,9 @@ export async function handleLibrary(request, env, url) {
 
     try {
         if (rest === '') return await serveIndex(request, env, url);
+        // Llevan punto, así que nunca pueden ser el slug de un libro.
+        if (rest === 'sitemap.xml') return await serveSitemap(request, env, url);
+        if (rest === 'manifest.webmanifest') return serveManifest(request);
 
         const segments = rest.split('/');
         const slug = segments[0].replace(/\.html$/, '');

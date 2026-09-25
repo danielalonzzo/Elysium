@@ -176,12 +176,13 @@ no se enlaza desde el portafolio. Siete cosas que no se ven abriéndola:
 Al cambiar cualquier archivo de la app, sube `VERSION` en
 `Gestor-Patrimonios/sw.js`: si no, los teléfonos siguen con la versión anterior.
 
-**`/library` es la biblioteca oculta, y lo único del sitio que no está en el
+**`/library` es la biblioteca pública, y lo único del sitio que no está en el
 repositorio.** En `elysiumdr.eu/library` el administrador sube documentos HTML y
-quedan publicados sin commit ni despliegue. No se enlaza desde ningún sitio, va
-con `noindex`, fuera del sitemap y del MCP, y en `.es`/`.pt` redirige a `.eu`.
-Oculta no es privada: la abre cualquiera que tenga el enlace. Cinco cosas que no
-se ven abriéndola:
+quedan publicados sin commit ni despliegue. Desde el 25/09/2026 dejó de ser
+oculta: se enlaza desde el pie de todas las páginas (solo el pie, no el menú),
+se indexa y tiene su propio sitemap, porque el objetivo es que cada libro salga
+al buscarlo. Sigue fuera del MCP (son obras de terceros) y en `.es`/`.pt`
+redirige a `.eu`. Siete cosas que no se ven abriéndola:
 
 1. **Los libros viven en Workers KV** (binding `LIBRARY` en `wrangler.jsonc`),
    un valor por libro (`book:<slug>`) con sus metadatos en la propia clave. R2
@@ -199,8 +200,10 @@ se ven abriéndola:
    capturas, no le pasa la rueda y bloquea el atributo `sandbox`: no es un fallo
    del sitio.
 4. **Al servir el libro se le inyecta un script** (`BOOK_HELPER`): abre en otra
-   pestaña los enlaces a otras páginas y sustituye `scrollIntoView`, que desde
-   dentro del iframe arrastraba la página de Elysium y escondía la cabecera. La
+   pestaña los enlaces a otras páginas, sustituye `scrollIntoView`, que desde
+   dentro del iframe arrastraba la página de Elysium y escondía la cabecera, y
+   avisa con `postMessage` al modo de pantalla completa del lector (para que
+   la X roja aparezca al acercarse arriba o al subir, como en macOS). La
    descarga (`/download`, la que se sube a ElevenReader) es el fichero tal cual.
 5. **Publica solo `daniel.morales@elysiumdr.eu`**, con el correo verificado. No
    basta el claim `admin` ni un rol del CRM: la biblioteca es de Daniel, y otra
@@ -210,6 +213,22 @@ se ven abriéndola:
    para los tres idiomas (`?lang=`): `main.js` no navega a `/es/…` cuando el
    `<html>` lleva `data-lang-switch="inline"`. Lo vigila
    `scripts/library.test.mjs`.
+6. **El texto del libro no está en la página del lector, está en el iframe.**
+   Para que un buscador lo encuentre: `/book` responde `noindex,
+   indexifembedded` (Google cuenta su texto como parte del lector, no como URL
+   suelta), y el servidor escribe en el lector título, descripción, datos
+   estructurados `Book`, el índice de capítulos y enlaces al resto de libros,
+   que es lo que leen los rastreadores que no abren iframes. El índice se saca
+   del propio libro al publicarlo y se guarda en `info:<slug>`; los libros
+   anteriores lo calculan la primera vez que se abren. Un libro bien marcado
+   (`<title>`, `<meta name="description">`, `<meta name="author">`, `h2`/`h3`
+   con `id` o dentro de una `<section id>`) sale mucho mejor.
+7. **Tiene dos sitemaps y un aviso.** `/library/sitemap.xml` lo genera el Worker
+   desde KV y solo lo anuncia el `robots.txt` de `.eu`; el estático de la raíz
+   no lo incluye. Al publicar o retirar se avisa a IndexNow (Bing y compañía;
+   Google no lo usa) con la clave de `worker/library.js`, que tiene que
+   coincidir con el fichero `/<clave>.txt` de la raíz. `Content-Signal` va con
+   `ai-train=no`: los libros son de terceros y Elysium no puede autorizarlo.
 
 **Pura Vida Pets ya no vive aquí.** Se firmó contrato y salió del repositorio: su
 código está en `λ/Pura Vida Pets/puravidapetscr/`, con git propio

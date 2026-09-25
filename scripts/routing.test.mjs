@@ -491,6 +491,11 @@ test('robots.txt es host-specific y bloquea solo los namespaces internos en cada
         assert.match(r.body, /^Allow: \/$/m, host);
         assert.doesNotMatch(r.body, /^Disallow: \/$/m, host);
         if (host !== 'elysiumdr.eu') assert.doesNotMatch(r.body, /elysiumdr\.eu/, host);
+        // La biblioteca solo existe en .eu, y sus libros viven en KV: su
+        // sitemap va aparte y solo lo anuncia ese dominio.
+        if (host === 'elysiumdr.eu') assert.match(r.body, /^Sitemap: https:\/\/elysiumdr\.eu\/library\/sitemap\.xml$/m, host);
+        else assert.doesNotMatch(r.body, /library\/sitemap/, host);
+        assert.equal((r.body.match(/^Sitemap:/gm) || []).length, host === 'elysiumdr.eu' ? 2 : 1, host);
     }
 });
 

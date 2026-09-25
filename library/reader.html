@@ -5,15 +5,44 @@
     libro. El libro va en un iframe con `sandbox` (sin allow-same-origin): sus
     estilos no tocan la cabecera ni el pie, y su JavaScript no puede leer la
     sesión de Elysium. Los textos los pone `JS/library.js` en los tres idiomas.
+
+    Es la página que tiene que salir en un buscador al buscar el libro: por
+    eso el servidor escribe aquí el título, la descripción, los datos
+    estructurados y el índice de capítulos, que es lo que ve un rastreador que
+    no abre el iframe. El texto del iframe cuenta aparte (`indexifembedded`).
 -->
 <html lang="en-GB" data-lang-switch="inline">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="googlebot" content="noindex, nofollow">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
     <title>{{BOOK_TITLE}} — Elysium λ Library</title>
+    <meta name="description" content="{{BOOK_DESCRIPTION}}">
+    <link rel="canonical" href="{{BOOK_URL}}">
+
+    <meta property="og:type" content="book">
+    <meta property="og:title" content="{{BOOK_TITLE}}">
+    <meta property="og:description" content="{{BOOK_DESCRIPTION}}">
+    <meta property="og:url" content="{{BOOK_URL}}">
+    <meta property="og:site_name" content="Elysium λ Library">
+    <meta property="og:locale" content="{{BOOK_OG_LOCALE}}">
+    <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{BOOK_TITLE}}">
+    <meta name="twitter:description" content="{{BOOK_DESCRIPTION}}">
+
+    <script type="application/ld+json">{{BOOK_JSON_LD}}</script>
+
+    <link rel="manifest" href="/library/manifest.webmanifest">
+    <meta name="theme-color" content="#020410">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Library">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/Images/apple-touch-icon.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +53,7 @@
     <link rel="stylesheet" href="/CSS/base.css">
     <link rel="stylesheet" href="/CSS/components.css?v=20260826">
     <link rel="stylesheet" href="/CSS/pages.css">
-    <link rel="stylesheet" href="/CSS/library.css?v=20260924">
+    <link rel="stylesheet" href="/CSS/library.css?v=20260925">
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
@@ -79,21 +108,81 @@
         </div>
     </nav>
 
-    <main class="library-reader" id="library-reader">
-        <div class="library-reader-bar">
-            <a class="library-back" href="/library">
-                <span aria-hidden="true">←</span>
-                <span class="library-back-label" data-i18n="backToLibrary">Library</span>
-            </a>
-            <h1 class="library-reader-title" lang="{{BOOK_LANG}}">{{BOOK_TITLE}}</h1>
-            <button type="button" class="btn btn-primary library-audio-button" data-audiobook="{{BOOK_SLUG}}">
-                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg>
-                <span data-i18n="audiobook">Audiobook</span>
+    <main id="library-content">
+        <div class="library-reader" id="library-reader">
+            <div class="library-reader-bar">
+                <a class="library-back" href="/library">
+                    <span aria-hidden="true">←</span>
+                    <span class="library-back-label" data-i18n="backToLibrary">Library</span>
+                </a>
+                <h1 class="library-reader-title" lang="{{BOOK_LANG}}">{{BOOK_TITLE}}</h1>
+                <button type="button" class="btn library-fullscreen-button" data-immersive-open aria-label="Read full screen" data-i18n-aria="readFullscreen">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="library-button-label" data-i18n="fullscreen">Full screen</span>
+                </button>
+                <button type="button" class="btn btn-primary library-audio-button" data-audiobook="{{BOOK_SLUG}}">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg>
+                    <span class="library-button-label" data-i18n="audiobook">Audiobook</span>
+                </button>
+            </div>
+            <iframe class="library-frame" name="library-book" src="/library/{{BOOK_SLUG}}/book" title="{{BOOK_TITLE}}"
+                sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-modals"
+                referrerpolicy="same-origin"></iframe>
+            <!-- La X de salir de la pantalla completa: un semáforo rojo de
+                 macOS 27 Golden Gate sobre una placa de cristal. -->
+            <button type="button" class="library-immersive-close" data-immersive-close aria-label="Exit full screen" data-i18n-aria="fullscreenClose">
+                <span class="library-close-gem" aria-hidden="true">
+                    <svg class="library-close-glyph" viewBox="0 0 12 12" width="12" height="12"><path d="M3.4 3.4l5.2 5.2M8.6 3.4L3.4 8.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </span>
             </button>
         </div>
-        <iframe class="library-frame" src="/library/{{BOOK_SLUG}}/book" title="{{BOOK_TITLE}}"
-            sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-modals"
-            referrerpolicy="same-origin"></iframe>
+
+        <section class="library-about" aria-labelledby="library-about-title">
+            <div class="container">
+                <div class="library-about-grid">
+                    <div class="library-about-main">
+                        <p class="library-eyebrow" data-i18n="aboutBook">About this book</p>
+                        <h2 id="library-about-title" lang="{{BOOK_LANG}}">{{BOOK_TITLE}}</h2>
+                        {{BOOK_AUTHOR}}
+                        <p class="library-about-description" lang="{{BOOK_LANG}}">{{BOOK_DESCRIPTION}}</p>
+                        <dl class="library-facts">
+                            <div>
+                                <dt data-i18n="factLanguage">Language</dt>
+                                <dd data-library-language="{{BOOK_LANG}}">{{BOOK_LANGUAGE_NAME}}</dd>
+                            </div>
+                            <div>
+                                <dt data-i18n="factAdded">Added</dt>
+                                <dd><time datetime="{{BOOK_DATE}}" data-library-date>{{BOOK_DATE_TEXT}}</time></dd>
+                            </div>
+                            <div>
+                                <dt data-i18n="factAccess">Access</dt>
+                                <dd data-i18n="factAccessValue">Free · online and audiobook</dd>
+                            </div>
+                        </dl>
+                        <div class="library-about-actions">
+                            <button type="button" class="btn btn-primary" data-immersive-open>
+                                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                <span data-i18n="readFullscreen">Read full screen</span>
+                            </button>
+                            <button type="button" class="btn library-audio-button" data-audiobook="{{BOOK_SLUG}}">
+                                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg>
+                                <span data-i18n="audiobook">Audiobook</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <nav class="library-toc" aria-labelledby="library-toc-title" {{BOOK_TOC_HIDDEN}}>
+                        <h3 id="library-toc-title" data-i18n="contents">Contents</h3>
+                        <ol class="library-toc-list" lang="{{BOOK_LANG}}">{{BOOK_TOC}}</ol>
+                    </nav>
+                </div>
+
+                <div class="library-more" {{BOOK_MORE_HIDDEN}}>
+                    <h3 data-i18n="moreBooks">More in the library</h3>
+                    <ul class="library-more-list">{{BOOK_MORE}}</ul>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -126,6 +215,7 @@
                         <li><a href="/about" data-library-nav="about" data-i18n="footerAbout">About Us</a></li>
                         <li><a href="/services" data-library-nav="services" data-i18n="navServices">Services</a></li>
                         <li><a href="/research" data-library-nav="research" data-i18n="navResearch">Research</a></li>
+                        <li><a href="/library" data-i18n="footerLibrary">Library</a></li>
                         <li><a href="/portfolio" data-library-nav="portfolio" data-i18n="navPortfolio">Portfolio</a></li>
                         <li><a href="/contact" data-library-nav="contact" data-i18n="navContact">Contact</a></li>
                     </ul>
@@ -186,7 +276,7 @@
 
     <script type="application/json" id="library-book">{{BOOK_DATA}}</script>
 
-    <script src="/JS/library.js?v=20260924" defer></script>
+    <script src="/JS/library.js?v=20260925" defer></script>
     <script src="/JS/main.js"></script>
     <script src="/JS/elysium-mouse.js"></script>
     <script src="/JS/elysium-audio.js"></script>

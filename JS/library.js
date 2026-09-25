@@ -5,9 +5,16 @@
  * `worker/library.js` desde una plantilla, y este script pone los textos en
  * inglés británico, español de Costa Rica (de usted) o portugués europeo.
  * El idioma sale, por este orden, de `?lang=`, de la preferencia que guarda el
- * selector del sitio (`elysium_lang_pref`), de la página de la que se viene y
- * del navegador. Cambiarlo no recarga: `main.js` se aparta porque el `<html>`
- * declara `data-lang-switch="inline"`.
+ * selector del sitio (`elysium_lang_pref`), de la página de la que se viene,
+ * en el lector del idioma del propio libro —quien llega desde un buscador a un
+ * libro en portugués lo lee todo en portugués— y del navegador. Cambiarlo no
+ * recarga: `main.js` se aparta porque el `<html>` declara
+ * `data-lang-switch="inline"`.
+ *
+ * El lector tiene además un modo de pantalla completa: el libro ocupa toda la
+ * pantalla, sin cabecera ni pie, y en los navegadores que lo permiten también
+ * sin la interfaz del navegador (Fullscreen API). Se sale con la X roja, con
+ * Escape o con el gesto de volver del sistema.
  *
  * La publicación de libros vive aparte, en `library-admin.js`, que solo se
  * descarga si se abre «Administración» o si este navegador ya se identificó
@@ -37,15 +44,16 @@
             footerLocation: 'Portugal, European Union',
             footerAmericas: 'Also serving the Americas.',
             footerRights: 'All rights reserved.',
+            footerLibrary: 'Library',
 
             libraryName: 'Elysium λ Library',
-            indexDocumentTitle: 'Library — Elysium λ Development & Research',
-            indexDescription: 'Books and documents to read online or listen to as audiobooks.',
+            indexDocumentTitle: 'Library: read online, full screen or as an audiobook — Elysium λ',
+            indexDescription: 'Books and study materials to read online, full screen on any device, or to listen to as audiobooks. Free, to encourage reading and research.',
             indexTitle: 'Library',
             indexKicker: 'Read · Listen',
             indexEyebrow: 'Elysium λ Library',
             shelfTitle: 'On the shelf',
-            indexIntro: 'Books and documents to read online, on any screen. Each one can also be listened to as an audiobook with ElevenReader.',
+            indexIntro: 'Knowledge that already exists, adapted to the way we read today. Books and study materials to read online on any screen, full screen, or to listen to as audiobooks with ElevenReader. Free, to encourage reading and research.',
             missingBook: 'That book is not in the library. It may have been removed, or its address may have changed.',
             emptyLibrary: 'The library is empty for now.',
             read: 'Read',
@@ -57,6 +65,16 @@
             addedOn: 'Added {date}',
             backToLibrary: 'Library',
             close: 'Close',
+            fullscreen: 'Full screen',
+            readFullscreen: 'Read full screen',
+            fullscreenClose: 'Exit full screen',
+            aboutBook: 'About this book',
+            factLanguage: 'Language',
+            factAdded: 'Added',
+            factAccess: 'Access',
+            factAccessValue: 'Free · online and audiobook',
+            contents: 'Contents',
+            moreBooks: 'More in the library',
 
             audioTitle: 'Listen to this book',
             audioIntro: 'To listen to it as an audiobook, you need an ElevenReader account. It is free and includes 10 hours of listening every month.',
@@ -122,15 +140,16 @@
             footerLocation: 'Portugal, Unión Europea',
             footerAmericas: 'También en todas las Américas.',
             footerRights: 'Todos los derechos reservados.',
+            footerLibrary: 'Biblioteca',
 
             libraryName: 'Biblioteca Elysium λ',
-            indexDocumentTitle: 'Biblioteca — Elysium λ Development & Research',
-            indexDescription: 'Libros y documentos para leer en línea o escuchar como audiolibros.',
+            indexDocumentTitle: 'Biblioteca: leer en línea, a pantalla completa o como audiolibro — Elysium λ',
+            indexDescription: 'Libros y materiales de estudio para leer en línea, a pantalla completa en cualquier dispositivo, o escuchar como audiolibros. Gratis, para fomentar la lectura y la investigación.',
             indexTitle: 'Biblioteca',
             indexKicker: 'Leer · Escuchar',
             indexEyebrow: 'Biblioteca Elysium λ',
             shelfTitle: 'En la estantería',
-            indexIntro: 'Libros y documentos para leer en línea, en cualquier pantalla. Cada uno puede escucharse también como audiolibro con ElevenReader.',
+            indexIntro: 'Conocimiento que ya existe, adaptado a la forma en que leemos hoy. Libros y materiales de estudio para leer en línea en cualquier pantalla, a pantalla completa, o escuchar como audiolibros con ElevenReader. Gratis, para fomentar la lectura y la investigación.',
             missingBook: 'Ese libro no está en la biblioteca. Puede que se haya retirado o que su dirección haya cambiado.',
             emptyLibrary: 'Por ahora la biblioteca está vacía.',
             read: 'Leer',
@@ -142,6 +161,16 @@
             addedOn: 'Añadido el {date}',
             backToLibrary: 'Biblioteca',
             close: 'Cerrar',
+            fullscreen: 'Pantalla completa',
+            readFullscreen: 'Leer a pantalla completa',
+            fullscreenClose: 'Salir de la pantalla completa',
+            aboutBook: 'Sobre este libro',
+            factLanguage: 'Idioma',
+            factAdded: 'Añadido',
+            factAccess: 'Acceso',
+            factAccessValue: 'Gratis · en línea y en audiolibro',
+            contents: 'Índice',
+            moreBooks: 'Más en la biblioteca',
 
             audioTitle: 'Escuche este libro',
             audioIntro: 'Para escucharlo como audiolibro, debe crearse una cuenta en ElevenReader. Es gratuita e incluye 10 horas de escucha al mes.',
@@ -207,15 +236,16 @@
             footerLocation: 'Portugal, União Europeia',
             footerAmericas: 'Também em todas as Américas.',
             footerRights: 'Todos os direitos reservados.',
+            footerLibrary: 'Biblioteca',
 
             libraryName: 'Biblioteca Elysium λ',
-            indexDocumentTitle: 'Biblioteca — Elysium λ Development & Research',
-            indexDescription: 'Livros e documentos para ler online ou ouvir como audiolivros.',
+            indexDocumentTitle: 'Biblioteca: ler online, em ecrã inteiro ou como audiolivro — Elysium λ',
+            indexDescription: 'Livros e materiais de estudo para ler online, em ecrã inteiro em qualquer dispositivo, ou ouvir como audiolivros. Gratuitos, para promover a leitura e a investigação.',
             indexTitle: 'Biblioteca',
             indexKicker: 'Ler · Ouvir',
             indexEyebrow: 'Biblioteca Elysium λ',
             shelfTitle: 'Na estante',
-            indexIntro: 'Livros e documentos para ler online, em qualquer ecrã. Cada um pode também ser ouvido como audiolivro com o ElevenReader.',
+            indexIntro: 'Conhecimento que já existe, adaptado à forma como lemos hoje. Livros e materiais de estudo para ler online em qualquer ecrã, em ecrã inteiro, ou ouvir como audiolivros com o ElevenReader. Gratuitos, para promover a leitura e a investigação.',
             missingBook: 'Esse livro não está na biblioteca. Pode ter sido retirado ou o endereço pode ter mudado.',
             emptyLibrary: 'Por agora, a biblioteca está vazia.',
             read: 'Ler',
@@ -227,6 +257,16 @@
             addedOn: 'Adicionado a {date}',
             backToLibrary: 'Biblioteca',
             close: 'Fechar',
+            fullscreen: 'Ecrã inteiro',
+            readFullscreen: 'Ler em ecrã inteiro',
+            fullscreenClose: 'Sair do ecrã inteiro',
+            aboutBook: 'Sobre este livro',
+            factLanguage: 'Idioma',
+            factAdded: 'Adicionado',
+            factAccess: 'Acesso',
+            factAccessValue: 'Gratuito · online e em audiolivro',
+            contents: 'Índice',
+            moreBooks: 'Mais na biblioteca',
 
             audioTitle: 'Ouça este livro',
             audioIntro: 'Para o ouvir como audiolivro, precisa de criar uma conta no ElevenReader. É gratuita e inclui 10 horas de audição por mês.',
@@ -278,6 +318,22 @@
         }
     };
 
+    // ── Datos de la página ───────────────────────────────────────────────────
+
+    var page = document.body.getAttribute('data-library-page');
+
+    function readJson(id) {
+        var node = document.getElementById(id);
+        if (!node) return null;
+        try { return JSON.parse(node.textContent); } catch (error) { return null; }
+    }
+
+    var catalog = page === 'index' ? (readJson('library-data') || {}) : {};
+    var books = Array.isArray(catalog.books) ? catalog.books : [];
+    var book = page === 'reader' ? readJson('library-book') : null;
+    var isAdmin = false;
+    var adminApi = null;
+
     // ── Idioma ───────────────────────────────────────────────────────────────
 
     function storageGet(key) {
@@ -295,14 +351,22 @@
         var saved = storageGet('elysium_lang_pref');
         if (SUPPORTED.indexOf(saved) !== -1) return saved;
 
-        // Quien llega desde /es/… o /pt/… del propio sitio sigue en su idioma.
+        // Quien llega desde /es/… o /pt/… del propio sitio, o desde los
+        // dominios nacionales (que solo mandan el origen), sigue en su idioma.
         try {
             var referrer = new URL(document.referrer);
             if (referrer.origin === window.location.origin) {
                 var match = /^\/(es|pt)(?:\/|$)/.exec(referrer.pathname);
                 if (match) return match[1];
             }
+            var national = /(?:^|\.)elysiumdr\.(es|pt)$/.exec(referrer.hostname);
+            if (national) return national[1];
         } catch (error) { /* sin referrer */ }
+
+        if (book && book.lang) {
+            var bookLanguage = String(book.lang).slice(0, 2).toLowerCase();
+            if (SUPPORTED.indexOf(bookLanguage) !== -1) return bookLanguage;
+        }
 
         var preferred = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
         for (var i = 0; i < preferred.length; i += 1) {
@@ -348,6 +412,15 @@
             if (code === language) option.setAttribute('aria-current', 'true');
             else option.removeAttribute('aria-current');
         });
+        // Lo que el servidor escribió en inglés: el nombre del idioma y la fecha.
+        document.querySelectorAll('[data-library-language]').forEach(function (node) {
+            var name = languageName(node.getAttribute('data-library-language'));
+            if (name) node.textContent = name;
+        });
+        document.querySelectorAll('time[data-library-date]').forEach(function (node) {
+            var date = formatDate(node.getAttribute('datetime'));
+            if (date) node.textContent = date;
+        });
         if (page === 'index') {
             document.title = t('indexDocumentTitle');
             var description = document.querySelector('meta[name="description"]');
@@ -381,22 +454,6 @@
             setLanguage(option.getAttribute('data-lang'));
         });
     });
-
-    // ── Datos de la página ───────────────────────────────────────────────────
-
-    var page = document.body.getAttribute('data-library-page');
-
-    function readJson(id) {
-        var node = document.getElementById(id);
-        if (!node) return null;
-        try { return JSON.parse(node.textContent); } catch (error) { return null; }
-    }
-
-    var catalog = page === 'index' ? (readJson('library-data') || {}) : {};
-    var books = Array.isArray(catalog.books) ? catalog.books : [];
-    var book = page === 'reader' ? readJson('library-book') : null;
-    var isAdmin = false;
-    var adminApi = null;
 
     // ── Formato ──────────────────────────────────────────────────────────────
 
@@ -606,6 +663,141 @@
                 back.setAttribute('href', language === 'en' ? '/library' : '/library?lang=' + language);
             });
         }
+
+        // El índice de capítulos navega el iframe por su nombre (funciona sin
+        // JavaScript); aquí solo se sube hasta el lector para verlo.
+        document.querySelectorAll('[data-library-toc]').forEach(function (link) {
+            link.addEventListener('click', function (event) {
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
+            });
+        });
+
+        setupImmersive(frame);
+    }
+
+    function reducedMotion() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+
+    // ── Pantalla completa ────────────────────────────────────────────────────
+
+    /**
+     * Dos capas: la clase `library-immersive` esconde la cabecera, la barra y
+     * el pie y deja el libro a toda la pantalla (funciona en todas partes), y
+     * la Fullscreen API esconde además la interfaz del navegador donde se
+     * puede (escritorio, Android, iPad; en el iPhone solo lo consigue la app
+     * instalada). Salir de cualquiera de las dos cierra las dos.
+     *
+     * La X se esconde mientras se lee y vuelve al acercar el puntero al borde
+     * de arriba o al desplazarse hacia arriba, como en macOS. Lo que pasa
+     * dentro del iframe lo cuenta el propio libro (`BOOK_HELPER`, en
+     * `worker/library.js`) con `postMessage`.
+     */
+    function setupImmersive(frame) {
+        var root = document.documentElement;
+        var close = document.querySelector('[data-immersive-close]');
+        var openers = document.querySelectorAll('[data-immersive-open]');
+        if (!frame || !close || !openers.length) return;
+
+        var active = false;
+        var native = false;
+        var hideTimer = 0;
+        var returnFocus = null;
+
+        function fullscreenElement() {
+            return document.fullscreenElement || document.webkitFullscreenElement || null;
+        }
+
+        function quietly(result) {
+            if (result && typeof result.catch === 'function') result.catch(function () { /* se queda en el modo de la página */ });
+        }
+
+        function showClose(duration) {
+            window.clearTimeout(hideTimer);
+            close.classList.add('is-visible');
+            if (duration) hideTimer = window.setTimeout(hideClose, duration);
+        }
+
+        function hideClose() {
+            window.clearTimeout(hideTimer);
+            if (close.matches(':hover') || close.matches(':focus-visible')) return;
+            close.classList.remove('is-visible');
+        }
+
+        function hideSoon(delay) {
+            window.clearTimeout(hideTimer);
+            hideTimer = window.setTimeout(hideClose, delay);
+        }
+
+        function enter(trigger) {
+            if (active) return;
+            active = true;
+            returnFocus = trigger || null;
+            root.classList.add('library-immersive');
+            var request = root.requestFullscreen || root.webkitRequestFullscreen;
+            if (request) {
+                try { quietly(request.call(root, { navigationUI: 'hide' })); } catch (error) { /* sin permiso */ }
+            }
+            showClose(3200);
+            try { frame.focus({ preventScroll: true }); } catch (error) { frame.focus(); }
+        }
+
+        function exit() {
+            if (!active) return;
+            active = false;
+            window.clearTimeout(hideTimer);
+            close.classList.remove('is-visible');
+            root.classList.remove('library-immersive');
+            if (fullscreenElement()) {
+                var leave = document.exitFullscreen || document.webkitExitFullscreen;
+                if (leave) {
+                    try { quietly(leave.call(document)); } catch (error) { /* ya no estaba */ }
+                }
+            }
+            if (returnFocus && typeof returnFocus.focus === 'function') {
+                try { returnFocus.focus({ preventScroll: true }); } catch (error) { returnFocus.focus(); }
+            }
+        }
+
+        openers.forEach(function (button) {
+            button.addEventListener('click', function () { enter(button); });
+        });
+        close.addEventListener('click', exit);
+        close.addEventListener('mouseleave', function () { if (active) hideSoon(1200); });
+        close.addEventListener('blur', function () { if (active) hideSoon(1200); });
+
+        function onFullscreenChange() {
+            if (fullscreenElement()) {
+                native = true;
+            } else if (native) {
+                // Escape, el botón de volver de Android o el menú del
+                // navegador sacaron la página de la pantalla completa.
+                native = false;
+                exit();
+            }
+        }
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+        document.addEventListener('keydown', function (event) {
+            if (active && event.key === 'Escape' && !fullscreenElement()) exit();
+        });
+
+        window.addEventListener('message', function (event) {
+            if (!active || event.source !== frame.contentWindow) return;
+            var data = event.data;
+            if (!data || typeof data.elysiumLibrary !== 'string') return;
+            if (data.elysiumLibrary === 'pointer') {
+                if (data.value === true) showClose();
+                else hideSoon(1200);
+            } else if (data.elysiumLibrary === 'scroll') {
+                if (data.value === 'up') showClose(2600);
+                else hideClose();
+            } else if (data.elysiumLibrary === 'escape' && !fullscreenElement()) {
+                exit();
+            }
+        });
     }
 
     // ── Administración (carga diferida) ──────────────────────────────────────

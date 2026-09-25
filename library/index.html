@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <!--
     Plantilla de elysiumdr.eu/library. No se sirve tal cual: la entrega
-    `worker/library.js`, que rellena el marcador LIBRARY_DATA de abajo con el
-    catálogo de KV.
+    `worker/library.js`, que rellena los marcadores con el catálogo de KV:
+    las tarjetas ya pintadas (LIBRARY_CARDS, para quien no ejecuta
+    JavaScript, como casi todos los rastreadores), los datos estructurados y
+    el catálogo en JSON que usa `JS/library.js`.
     Una sola URL para los tres idiomas: los textos los pone `JS/library.js`
     (en-GB, es-CR de usted, pt-PT) según `?lang=`, la preferencia guardada del
     sitio o el idioma del navegador.
@@ -12,10 +14,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="googlebot" content="noindex, nofollow">
-    <title>Library — Elysium λ Development & Research</title>
-    <meta name="description" content="Books and documents to read online or listen to as audiobooks.">
+    <meta name="robots" content="{{ROBOTS}}">
+    <title>Library: read online, full screen or as an audiobook — Elysium λ</title>
+    <meta name="description" content="Books and study materials to read online, full screen on any device, or to listen to as audiobooks. Free, to encourage reading and research.">
+    <link rel="canonical" href="https://elysiumdr.eu/library">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Elysium λ Library">
+    <meta property="og:description" content="Books and study materials to read online, full screen on any device, or to listen to as audiobooks. Free, to encourage reading and research.">
+    <meta property="og:url" content="https://elysiumdr.eu/library">
+    <meta property="og:site_name" content="Elysium λ Development & Research">
+    <meta property="og:image" content="https://elysiumdr.eu/Images/favicon-512.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta name="twitter:card" content="summary">
+
+    <script type="application/ld+json">{{LIBRARY_JSON_LD}}</script>
+
+    <link rel="manifest" href="/library/manifest.webmanifest">
+    <meta name="theme-color" content="#020410">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Library">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/Images/apple-touch-icon.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +48,7 @@
     <link rel="stylesheet" href="/CSS/base.css">
     <link rel="stylesheet" href="/CSS/components.css?v=20260826">
     <link rel="stylesheet" href="/CSS/pages.css">
-    <link rel="stylesheet" href="/CSS/library.css?v=20260924">
+    <link rel="stylesheet" href="/CSS/library.css?v=20260925">
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
@@ -97,14 +119,14 @@
                         <p class="library-eyebrow" data-i18n="indexEyebrow">Elysium λ Library</p>
                         <h2 id="library-shelf-title" data-i18n="shelfTitle">On the shelf</h2>
                     </div>
-                    <p data-i18n="indexIntro">Books and documents to read online, on any screen. Each one can also be listened to as an audiobook with ElevenReader.</p>
+                    <p data-i18n="indexIntro">Knowledge that already exists, adapted to the way we read today. Books and study materials to read online on any screen, full screen, or to listen to as audiobooks with ElevenReader. Free, to encourage reading and research.</p>
                 </div>
 
                 <p class="library-notice" data-library-missing role="status" hidden>
                     <span data-i18n="missingBook">That book is not in the library. It may have been removed, or its address may have changed.</span>
                 </p>
 
-                <div class="library-grid" data-library-grid></div>
+                <div class="library-grid" data-library-grid>{{LIBRARY_CARDS}}</div>
                 <p class="library-empty" data-library-empty hidden data-i18n="emptyLibrary">The library is empty for now.</p>
             </div>
         </section>
@@ -231,6 +253,7 @@
                         <li><a href="/about" data-library-nav="about" data-i18n="footerAbout">About Us</a></li>
                         <li><a href="/services" data-library-nav="services" data-i18n="navServices">Services</a></li>
                         <li><a href="/research" data-library-nav="research" data-i18n="navResearch">Research</a></li>
+                        <li><a href="/library" data-i18n="footerLibrary">Library</a></li>
                         <li><a href="/portfolio" data-library-nav="portfolio" data-i18n="navPortfolio">Portfolio</a></li>
                         <li><a href="/contact" data-library-nav="contact" data-i18n="navContact">Contact</a></li>
                     </ul>
@@ -291,7 +314,7 @@
 
     <script type="application/json" id="library-data">{{LIBRARY_DATA}}</script>
 
-    <script src="/JS/library.js?v=20260924" defer></script>
+    <script src="/JS/library.js?v=20260925" defer></script>
     <script src="/JS/main.js"></script>
     <script src="/JS/elysium-mouse.js"></script>
     <script src="/JS/elysium-audio.js"></script>

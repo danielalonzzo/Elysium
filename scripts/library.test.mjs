@@ -1,9 +1,10 @@
 /**
- * Pruebas de la biblioteca oculta (`/library`, `worker/library.js`).
+ * Pruebas de la biblioteca (`/library`, `worker/library.js`).
  *
  * Nada de esto se ve abriendo el sitio: que un libro subido no pueda leer la
  * sesión del CRM, que un no administrador no pueda publicar, que solo entre
- * HTML o que `.es` no sirva su propia copia. Se prueba el Worker real con un
+ * HTML, que `.es` no sirva su propia copia, o que un buscador encuentre en el
+ * lector lo que no puede leer dentro del iframe. Se prueba el Worker real con un
  * `env.ASSETS` que lee las plantillas del repositorio y un KV en memoria. Los
  * tokens de Firebase se firman aquí con una clave RSA propia, y el `fetch` de
  * las claves públicas de Google devuelve la suya.
@@ -12,7 +13,7 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -24,6 +25,7 @@ const INDEX_TEMPLATE = readFileSync(join(ROOT, 'library', 'index.html'), 'utf8')
 const READER_TEMPLATE = readFileSync(join(ROOT, 'library', 'reader.html'), 'utf8');
 const LIBRARY_JS = readFileSync(join(ROOT, 'JS', 'library.js'), 'utf8');
 const LIBRARY_ADMIN_JS = readFileSync(join(ROOT, 'JS', 'library-admin.js'), 'utf8');
+const LIBRARY_CSS = readFileSync(join(ROOT, 'CSS', 'library.css'), 'utf8');
 
 // ── Entorno falso ─────────────────────────────────────────────────────────────
 
@@ -93,8 +95,14 @@ const publicJwk = { ...(await crypto.subtle.exportKey('jwk', publicKey)), kid: K
 const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 
 const realFetch = globalThis.fetch;
+/** Lo que el Worker manda fuera, salvo las claves de Firebase. */
+const outbound = [];
 globalThis.fetch = async (input, init) => {
     const url = typeof input === 'string' ? input : input.url;
+    if (url === 'https://api.indexnow.org/indexnow') {
+        outbound.push({ url, body: JSON.parse(init.body) });
+        return new Response(null, { status: 202 });
+    }
     if (url === JWKS_URL) {
         return new Response(JSON.stringify({ keys: [publicJwk] }), {
             headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600' }
@@ -128,12 +136,23 @@ async function signToken(claims = {}, { kid = KID, key = privateKey } = {}) {
 const BOOK_HTML = '<!doctype html>\n<html lang="pt-PT"><head><meta charset="utf-8"><title>Manual</title></head>'
     + '<body><p>Olá</p><a href="https://doi.org/x">doi</a></body></html>';
 
-async function call(env, url, { method = 'GET', headers = {}, body } = {}) {
+async function call(env, url, { method = 'GET', headers = {}, body, ctx } = {}) {
     const request = new Request(url, { method, headers, body });
-    return worker.fetch(request, env);
+    return worker.fetch(request, env, ctx);
 }
 
-async function publish(env, slug, { html = BOOK_HTML, token, meta = {}, contentType = 'text/html; charset=utf-8' } = {}) {
+/** Los libros guardados, sin contar su `info:`. */
+function storedBooks(env) {
+    return [...env.LIBRARY.entries.keys()].filter(key => key.startsWith('book:')).length;
+}
+
+function jsonLd(html) {
+    const match = /<script type="application\/ld\+json">([^<]*)<\/script>/.exec(html);
+    assert.ok(match, 'the page must carry structured data');
+    return JSON.parse(match[1])['@graph'];
+}
+
+async function publish(env, slug, { html = BOOK_HTML, token, meta = {}, contentType = 'text/html; charset=utf-8', ctx } = {}) {
     const headers = {
         'Content-Type': contentType,
         'X-Library-Meta': encodeURIComponent(JSON.stringify({
@@ -144,7 +163,7 @@ async function publish(env, slug, { html = BOOK_HTML, token, meta = {}, contentT
         }))
     };
     if (token !== null) headers.Authorization = `Bearer ${token ?? await signToken()}`;
-    return call(env, `https://elysiumdr.eu/library/api/books/${slug}`, { method: 'PUT', headers, body: html });
+    return call(env, `https://elysiumdr.eu/library/api/books/${slug}`, { method: 'PUT', headers, body: html, ctx });
 }
 
 function libraryData(html) {
@@ -155,18 +174,27 @@ function libraryData(html) {
 
 // ── Rutas ─────────────────────────────────────────────────────────────────────
 
-test('/library sirve el índice con el catálogo incrustado y sin indexar', async () => {
+test('/library sirve el índice indexable, con las tarjetas ya pintadas y el catálogo incrustado', async () => {
     const env = makeEnv();
     assert.equal((await publish(env, 'manual')).status, 201);
     const response = await call(env, 'https://elysiumdr.eu/library');
     assert.equal(response.status, 200);
-    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow');
-    assert.equal(response.headers.get('Content-Signal'), 'search=no, ai-input=no, ai-train=no');
+    assert.equal(response.headers.get('X-Robots-Tag'), null);
+    // Encontrar y citar, sí; entrenar con libros de terceros, no.
+    assert.equal(response.headers.get('Content-Signal'), 'search=yes, ai-input=yes, ai-train=no');
     assert.match(response.headers.get('Cache-Control'), /no-cache/);
     // La CSP general del binding se conserva: la página usa Firebase.
     assert.equal(response.headers.get('Content-Security-Policy'), "default-src 'self'");
     const html = await response.text();
     assert.ok(!html.includes('{{'), 'no placeholder may survive');
+    assert.match(html, /<meta name="robots" content="index, follow/);
+    assert.match(html, /<link rel="canonical" href="https:\/\/elysiumdr\.eu\/library">/);
+    // Sin JavaScript (como leen casi todos los rastreadores) el libro ya está.
+    assert.match(html, /<article class="library-card" data-book="manual">/);
+    assert.match(html, /<h3 lang="pt-PT"><a href="\/library\/manual">Manual de Técnicas de Expressão e Comunicação<\/a><\/h3>/);
+    const [page] = jsonLd(html);
+    assert.equal(page['@type'], 'CollectionPage');
+    assert.deepEqual(page.mainEntity.itemListElement.map(item => item.url), ['https://elysiumdr.eu/library/manual']);
     const data = libraryData(html);
     assert.equal(data.books.length, 1);
     assert.equal(data.books[0].slug, 'manual');
@@ -204,7 +232,7 @@ test('el lector rellena la plantilla con el libro escapado', async () => {
     const html = await response.text();
     assert.ok(!html.includes('<script>alert(1)</script>'), 'the title must be escaped');
     assert.match(html, /Livro &lt;script&gt;alert\(1\)&lt;\/script&gt; &amp; &quot;citas&quot;/);
-    assert.match(html, /<iframe class="library-frame" src="\/library\/manual\/book"/);
+    assert.match(html, /<iframe class="library-frame" name="library-book" src="\/library\/manual\/book"/);
     assert.match(html, /sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-modals"/);
     assert.ok(!/sandbox="[^"]*allow-same-origin/.test(html), 'the iframe must never share the origin');
     assert.match(html, /data-audiobook="manual"/);
@@ -218,7 +246,10 @@ test('un libro inexistente responde 404 con el índice y el aviso', async () => 
     const env = makeEnv();
     const response = await call(env, 'https://elysiumdr.eu/library/no-existe');
     assert.equal(response.status, 404);
-    assert.equal(libraryData(await response.text()).missing, 'no-existe');
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, follow');
+    const html = await response.text();
+    assert.match(html, /<meta name="robots" content="noindex, follow">/);
+    assert.equal(libraryData(html).missing, 'no-existe');
     for (const path of ['/library/api', '/library/manual/otra', '/library/Mal%20Slug', '/library/reader']) {
         const other = await call(env, `https://elysiumdr.eu${path.toLowerCase()}`);
         assert.equal(other.status, 404, path);
@@ -234,7 +265,8 @@ test('el libro se sirve aislado: CSP sandbox sin allow-same-origin y el ayudante
     assert.match(csp, /^sandbox allow-scripts/);
     assert.ok(!csp.includes('allow-same-origin'));
     assert.match(csp, /frame-ancestors 'self'/);
-    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow');
+    // Suelto no se indexa; enmarcado en el lector, su texto cuenta para él.
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, indexifembedded');
     assert.equal(response.headers.get('Content-Type'), 'text/html; charset=utf-8');
     const html = await response.text();
     const helper = html.indexOf('/* Elysium Library */');
@@ -253,6 +285,7 @@ test('la descarga es el fichero tal cual, como adjunto y sin ejecutarse', async 
     assert.equal(await response.text(), BOOK_HTML);
     assert.match(response.headers.get('Content-Disposition'), /^attachment; filename="Manual de Tecnicas.html"; filename\*=UTF-8''Manual%20de%20T%C3%A9cnicas.html$/);
     assert.match(response.headers.get('Content-Security-Policy'), /^sandbox;/);
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow');
 });
 
 test('HEAD devuelve las mismas cabeceras de seguridad que GET, sin cuerpo', async () => {
@@ -288,7 +321,7 @@ test('solo publica la cuenta de Daniel, con el correo verificado', async () => {
     // La dirección no distingue mayúsculas.
     const daniel = await publish(env, 'manual', { token: await signToken({ email: 'Daniel.Morales@ElysiumDR.eu' }) });
     assert.equal(daniel.status, 201);
-    assert.equal(env.LIBRARY.entries.size, 1);
+    assert.equal(storedBooks(env), 1);
 });
 
 test('un token falsificado, caducado o de otro proyecto no pasa', async () => {
@@ -354,6 +387,7 @@ test('una dirección ocupada no se pisa sin pedirlo, y se puede reemplazar y ret
         headers: { Authorization: `Bearer ${await signToken()}` }
     });
     assert.equal(removed.status, 200);
+    // Con el libro se va también su índice (`info:`).
     assert.equal(env.LIBRARY.entries.size, 0);
     assert.equal((await call(env, 'https://elysiumdr.eu/library/manual/book')).status, 404);
 });
@@ -421,14 +455,238 @@ test('el MCP no entrega la biblioteca', async () => {
     assert.match(body.result.content[0].text, /not part of the public site/);
 });
 
+// ── Buscadores ───────────────────────────────────────────────────────────────
+
+const OUTLINED_BOOK = `<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><title>Manual</title>
+<meta content="Paulo Nunes da Silva" name="author">
+<meta name="description" content="Descrição escrita no próprio livro.">
+</head><body>
+<h1>Manual de Técnicas de Expressão e Comunicação</h1>
+<section class="front" id="apresentacao"><h2>Apresenta&#231;&#227;o</h2></section>
+<section class="chapter" id="cap-1"><header class="chap-head"><span class="chap-num">Capítulo 1</span><h2>Discurso académico &amp; literacia</h2></header>
+<h3 id="s-1-1">1.1. Literacia e <em>discurso</em> académico</h3>
+<h3>Notas</h3>
+</section>
+<section class="chapter" id="cap-2"><h2>Estilo formal</h2>
+<h3 id="s-2-1">2.1. Princípios</h3>
+<h3>Notas</h3>
+</section>
+<div id="solto"></div><h2>Sem âncora</h2>
+</body></html>`;
+
+test('del libro se sacan autor, descripción e índice, con el ancla de cada capítulo', () => {
+    const info = library.extractBookInfo(OUTLINED_BOOK);
+    assert.equal(info.author, 'Paulo Nunes da Silva');
+    assert.equal(info.description, 'Descrição escrita no próprio livro.');
+    assert.deepEqual(info.outline.map(entry => [entry.l, entry.t, entry.id]), [
+        [1, 'Manual de Técnicas de Expressão e Comunicação', ''],
+        [2, 'Apresentação', 'apresentacao'],
+        // El id está en la <section> que abre el capítulo, no en el título.
+        [2, 'Discurso académico & literacia', 'cap-1'],
+        [3, '1.1. Literacia e discurso académico', 's-1-1'],
+        [2, 'Estilo formal', 'cap-2'],
+        [3, '2.1. Princípios', 's-2-1'],
+        // Un contenedor ya cerrado no presta su id: mejor sin enlace.
+        [2, 'Sem âncora', '']
+    ]);
+    // «Notas» se repite en cada capítulo: no orienta y no entra.
+    assert.ok(!info.outline.some(entry => entry.t === 'Notas'));
+    assert.deepEqual(library.extractBookInfo('<!doctype html><p>sin títulos</p>').outline, []);
+});
+
+test('el lector escribe lo que lee un buscador: canónica, datos estructurados, índice y más libros', async () => {
+    const env = makeEnv();
+    await publish(env, 'manual', { html: OUTLINED_BOOK, meta: { description: '' } });
+    await publish(env, 'outro', { meta: { title: 'Outro livro', description: 'Uma descrição' } });
+    const response = await call(env, 'https://elysiumdr.eu/library/manual');
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('X-Robots-Tag'), null);
+    assert.equal(response.headers.get('Content-Signal'), 'search=yes, ai-input=yes, ai-train=no');
+    const html = await response.text();
+    assert.ok(!html.includes('{{'), 'no placeholder may survive');
+    assert.match(html, /<title>Manual de Técnicas de Expressão e Comunicação — Elysium λ Library<\/title>/);
+    assert.match(html, /<link rel="canonical" href="https:\/\/elysiumdr\.eu\/library\/manual">/);
+    // Sin descripción propia, la del libro.
+    assert.match(html, /<meta name="description" content="Descrição escrita no próprio livro\.">/);
+    assert.match(html, /<meta property="og:locale" content="pt_PT">/);
+    assert.match(html, /<p class="library-about-author" lang="pt-PT">Paulo Nunes da Silva<\/p>/);
+
+    // El índice salta dentro del iframe por su nombre, también sin JavaScript.
+    assert.match(html, /<a href="\/library\/manual\/book#cap-1" target="library-book" data-library-toc>Discurso académico &amp; literacia<\/a><ol><li><a href="\/library\/manual\/book#s-1-1" target="library-book" data-library-toc>1\.1\. Literacia e discurso académico<\/a><\/li><\/ol>/);
+    assert.match(html, /<li><span>Sem âncora<\/span><\/li>/);
+    const toc = /<ol class="library-toc-list"[^>]*>([\s\S]*?)<\/ol>\s*<\/nav>/.exec(html)[1];
+    assert.ok(!toc.includes('Manual de Técnicas'), 'the title is not a chapter');
+    assert.match(html, /<nav class="library-toc" aria-labelledby="library-toc-title" >/);
+
+    // El resto de la biblioteca, enlazado desde cada libro.
+    assert.match(html, /<a href="\/library\/outro" lang="pt-PT"><span class="library-more-title">Outro livro<\/span>/);
+    const more = /<ul class="library-more-list">([\s\S]*?)<\/ul>/.exec(html)[1];
+    assert.match(more, /href="\/library\/outro"/);
+    assert.ok(!more.includes('href="/library/manual"'), 'a book does not recommend itself');
+
+    const [book, crumbs] = jsonLd(html);
+    assert.equal(book['@type'], 'Book');
+    assert.equal(book.url, 'https://elysiumdr.eu/library/manual');
+    assert.equal(book.inLanguage, 'pt-PT');
+    assert.equal(book.isAccessibleForFree, true);
+    assert.deepEqual(book.author, { '@type': 'Person', name: 'Paulo Nunes da Silva' });
+    assert.deepEqual(book.hasPart.map(part => part.name), ['Apresentação', 'Discurso académico & literacia', 'Estilo formal', 'Sem âncora']);
+    assert.ok(!('publisher' in book) && !('isbn' in book), 'nothing about the original edition');
+    assert.deepEqual(crumbs.itemListElement.map(item => item.item), [
+        'https://elysiumdr.eu/', 'https://elysiumdr.eu/library', 'https://elysiumdr.eu/library/manual'
+    ]);
+
+    // Un libro sin índice ni otros libros no deja secciones vacías a la vista.
+    const lonely = makeEnv();
+    await publish(lonely, 'solo');
+    const plain = await (await call(lonely, 'https://elysiumdr.eu/library/solo')).text();
+    assert.match(plain, /<nav class="library-toc" aria-labelledby="library-toc-title" hidden>/);
+    assert.match(plain, /<div class="library-more" hidden>/);
+    assert.ok(!/"author"/.test(JSON.stringify(jsonLd(plain)[0])), 'no invented author');
+});
+
+test('un libro subido antes del índice lo calcula al abrirse y lo guarda', async () => {
+    const env = makeEnv();
+    await env.LIBRARY.put('book:antigo', new TextEncoder().encode(OUTLINED_BOOK), {
+        metadata: library.bookMetadata({ title: 'Antigo', description: '', lang: 'pt-PT', size: 900, file: 'antigo.html', uploadedAt: '2026-09-24T10:00:00.000Z' })
+    });
+    assert.ok(!env.LIBRARY.entries.has('info:antigo'));
+    const html = await (await call(env, 'https://elysiumdr.eu/library/antigo')).text();
+    assert.match(html, /book#cap-1/);
+    assert.ok(env.LIBRARY.entries.has('info:antigo'));
+    // Y una versión vieja de `info:` se recalcula.
+    await env.LIBRARY.put('info:antigo', JSON.stringify({ v: 0, outline: [] }));
+    await call(env, 'https://elysiumdr.eu/library/antigo');
+    assert.equal(JSON.parse(await env.LIBRARY.get('info:antigo')).v, 1);
+});
+
+test('la biblioteca tiene su propio sitemap con el índice y cada libro', async () => {
+    const env = makeEnv();
+    await publish(env, 'manual');
+    const response = await call(env, 'https://elysiumdr.eu/library/sitemap.xml');
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('Content-Type'), 'application/xml; charset=utf-8');
+    const xml = await response.text();
+    assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>\n<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
+    assert.match(xml, /<loc>https:\/\/elysiumdr\.eu\/library<\/loc>\n    <lastmod>\d{4}-\d\d-\d\dT/);
+    assert.match(xml, /<loc>https:\/\/elysiumdr\.eu\/library\/manual<\/loc>/);
+    assert.equal((xml.match(/<url>/g) || []).length, 2);
+    const head = await call(env, 'https://elysiumdr.eu/library/sitemap.xml', { method: 'HEAD' });
+    assert.equal(await head.text(), '');
+    // En los dominios nacionales, al único origen.
+    const national = await call(env, 'https://elysiumdr.pt/library/sitemap.xml');
+    assert.equal(national.headers.get('Location'), 'https://elysiumdr.eu/library/sitemap.xml');
+});
+
+test('la biblioteca se instala como app: manifest con ámbito propio e iconos que existen', async () => {
+    const response = await call(makeEnv(), 'https://elysiumdr.eu/library/manifest.webmanifest');
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('Content-Type'), /^application\/manifest\+json/);
+    const manifest = await response.json();
+    assert.equal(manifest.scope, '/library');
+    assert.ok(manifest.start_url.startsWith(manifest.scope), 'the start page must be inside the scope');
+    assert.equal(manifest.display, 'standalone');
+    for (const icon of manifest.icons) assert.ok(existsSync(join(ROOT, icon.src)), icon.src);
+});
+
+test('publicar y retirar avisa a IndexNow, solo desde el dominio de verdad', async () => {
+    assert.equal(readFileSync(join(ROOT, `${library.INDEXNOW_KEY}.txt`), 'utf8'), library.INDEXNOW_KEY);
+    const env = makeEnv();
+    const waits = [];
+    const ctx = { waitUntil: promise => waits.push(promise) };
+    outbound.length = 0;
+
+    assert.equal((await publish(env, 'manual', { ctx })).status, 201);
+    await Promise.all(waits);
+    assert.equal(outbound.length, 1);
+    assert.deepEqual(outbound[0].body, {
+        host: 'elysiumdr.eu',
+        key: library.INDEXNOW_KEY,
+        keyLocation: `https://elysiumdr.eu/${library.INDEXNOW_KEY}.txt`,
+        urlList: ['https://elysiumdr.eu/library/manual', 'https://elysiumdr.eu/library']
+    });
+
+    await call(env, 'https://elysiumdr.eu/library/api/books/manual', {
+        method: 'DELETE', headers: { Authorization: `Bearer ${await signToken()}` }, ctx
+    });
+    await Promise.all(waits);
+    assert.equal(outbound.length, 2);
+
+    // `wrangler dev` o una copia en otro host no avisan a ningún buscador.
+    const local = await call(env, 'http://localhost:8787/library/api/books/local', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+            'X-Library-Meta': encodeURIComponent(JSON.stringify({ title: 'Local', filename: 'local.html' })),
+            Authorization: `Bearer ${await signToken()}`
+        },
+        body: BOOK_HTML,
+        ctx
+    });
+    assert.equal(local.status, 201);
+    await Promise.all(waits);
+    assert.equal(outbound.length, 2);
+});
+
+// ── El pie del sitio ─────────────────────────────────────────────────────────
+
+/** Las páginas del portafolio: la raíz, las traducciones y las bases nacionales. */
+function portfolioPages() {
+    const skip = /^(?:Prototipos|Demo-arbol|VALTRIX Engineering|ONCORE|Dr-Johnny-Piedra|proyecto|Gestor-Patrimonios|CV|Titulos|node_modules|backend|\.)/;
+    return readdirSync(ROOT, { recursive: true })
+        .map(String)
+        .filter(path => path.endsWith('.html') && !skip.test(path) && !/(?:^|\/)(?:node_modules|_comercial|[^/]+\.nosync)\//.test(path));
+}
+
+test('todas las páginas con pie completo enlazan la biblioteca, y solo en el pie', () => {
+    let checked = 0;
+    for (const path of portfolioPages()) {
+        const html = readFileSync(join(ROOT, path), 'utf8');
+        if (!html.includes('footer-links')) continue;
+        checked += 1;
+        const footerAt = html.indexOf('<footer');
+        const footer = html.slice(footerAt);
+        const national = path.startsWith('_national/');
+        const localized = national || /^(?:es|pt)\//.test(path);
+        const href = national ? 'https://elysiumdr.eu/library' : '/library';
+        const label = localized ? 'Biblioteca' : 'Library';
+        assert.match(footer, new RegExp(`<li><a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="\\w+")?>${label}</a></li>`), path);
+        const navbar = html.slice(html.indexOf('<nav'), html.indexOf('</nav>'));
+        assert.ok(!/href="(?:https:\/\/elysiumdr\.eu)?\/library"/.test(navbar), `${path}: the header must not link the library`);
+    }
+    assert.ok(checked >= 80, `only ${checked} pages were checked`);
+});
+
+test('el lector tiene pantalla completa con la X, y el libro le cuenta lo que pasa dentro', () => {
+    assert.equal((READER_TEMPLATE.match(/data-immersive-open/g) || []).length, 2);
+    assert.match(READER_TEMPLATE, /<button type="button" class="library-immersive-close" data-immersive-close aria-label="Exit full screen" data-i18n-aria="fullscreenClose">/);
+    assert.match(READER_TEMPLATE, /<iframe class="library-frame" name="library-book"/);
+    assert.match(LIBRARY_JS, /root\.requestFullscreen \|\| root\.webkitRequestFullscreen/);
+    assert.match(LIBRARY_JS, /document\.exitFullscreen \|\| document\.webkitExitFullscreen/);
+    assert.match(LIBRARY_JS, /addEventListener\('fullscreenchange'/);
+    // Solo se escucha al propio libro.
+    assert.match(LIBRARY_JS, /event\.source !== frame\.contentWindow/);
+    assert.match(library.BOOK_HELPER, /window\.parent\.postMessage\(\{ elysiumLibrary: type, value: value \}, '\*'\)/);
+    // El iframe cambia de tamaño, no de sitio: no se recarga el libro.
+    assert.match(LIBRARY_CSS, /html\.library-immersive \.library-frame \{[^}]*position: fixed;[^}]*width: calc\(100vw/);
+    assert.match(LIBRARY_CSS, /\.library-immersive-close\.is-visible,/);
+});
+
 // ── Plantillas y textos ──────────────────────────────────────────────────────
 
-test('las dos plantillas llevan la cabecera y el pie de Elysium, y no se indexan', () => {
+test('las dos plantillas llevan la cabecera y el pie de Elysium, y se indexan', () => {
+    assert.match(INDEX_TEMPLATE, /<meta name="robots" content="\{\{ROBOTS\}\}">/);
+    assert.match(INDEX_TEMPLATE, /<link rel="canonical" href="https:\/\/elysiumdr\.eu\/library">/);
+    assert.match(READER_TEMPLATE, /<meta name="robots" content="index, follow[^"]*">/);
+    assert.match(READER_TEMPLATE, /<link rel="canonical" href="\{\{BOOK_URL\}\}">/);
     for (const [name, html] of [['index', INDEX_TEMPLATE], ['reader', READER_TEMPLATE]]) {
+        assert.ok(!/noindex/.test(html), `${name}: noindex`);
         assert.match(html, /<html lang="en-GB" data-lang-switch="inline">/, name);
-        assert.match(html, /<meta name="robots" content="noindex, nofollow">/, name);
+        assert.match(html, /<link rel="manifest" href="\/library\/manifest\.webmanifest">/, name);
         assert.match(html, /<nav class="navbar">/, name);
         assert.match(html, /<footer>/, name);
+        assert.match(html, /<li><a href="\/library" data-i18n="footerLibrary">Library<\/a><\/li>/, name);
         assert.match(html, /<dialog class="library-dialog" data-audiobook-dialog/, name);
         assert.match(html, /href="https:\/\/elevenreader\.io\/"/, name);
         assert.match(html, /data-audiobook-download/, name);
