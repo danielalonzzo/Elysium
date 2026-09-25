@@ -13,8 +13,8 @@
  *
  * El lector tiene además un modo de pantalla completa: el libro ocupa toda la
  * pantalla, sin cabecera ni pie, y en los navegadores que lo permiten también
- * sin la interfaz del navegador (Fullscreen API). Se sale con la X roja, con
- * Escape o con el gesto de volver del sistema.
+ * sin la interfaz del navegador (Fullscreen API). Se sale con la X roja, que
+ * está siempre visible en su propia barra, o con Escape.
  *
  * La publicación de libros vive aparte, en `library-admin.js`, que solo se
  * descarga si se abre «Administración» o si este navegador ya se identificó
@@ -689,9 +689,9 @@
      * puede (escritorio, Android, iPad; en el iPhone solo lo consigue la app
      * instalada). Salir de cualquiera de las dos cierra las dos.
      *
-     * La X se esconde mientras se lee y vuelve al acercar el puntero al borde
-     * de arriba o al desplazarse hacia arriba, como en macOS. Lo que pasa
-     * dentro del iframe lo cuenta el propio libro (`BOOK_HELPER`, en
+     * La X vive en una barra propia encima del libro y no se esconde nunca.
+     * Escape pulsado dentro del libro no llega a esta página (es otro
+     * documento): lo avisa el propio libro (`BOOK_HELPER`, en
      * `worker/library.js`) con `postMessage`.
      */
     function setupImmersive(frame) {
@@ -702,7 +702,6 @@
 
         var active = false;
         var native = false;
-        var hideTimer = 0;
         var returnFocus = null;
 
         function fullscreenElement() {
@@ -711,23 +710,6 @@
 
         function quietly(result) {
             if (result && typeof result.catch === 'function') result.catch(function () { /* se queda en el modo de la página */ });
-        }
-
-        function showClose(duration) {
-            window.clearTimeout(hideTimer);
-            close.classList.add('is-visible');
-            if (duration) hideTimer = window.setTimeout(hideClose, duration);
-        }
-
-        function hideClose() {
-            window.clearTimeout(hideTimer);
-            if (close.matches(':hover') || close.matches(':focus-visible')) return;
-            close.classList.remove('is-visible');
-        }
-
-        function hideSoon(delay) {
-            window.clearTimeout(hideTimer);
-            hideTimer = window.setTimeout(hideClose, delay);
         }
 
         function enter(trigger) {
@@ -739,15 +721,12 @@
             if (request) {
                 try { quietly(request.call(root, { navigationUI: 'hide' })); } catch (error) { /* sin permiso */ }
             }
-            showClose(3200);
             try { frame.focus({ preventScroll: true }); } catch (error) { frame.focus(); }
         }
 
         function exit() {
             if (!active) return;
             active = false;
-            window.clearTimeout(hideTimer);
-            close.classList.remove('is-visible');
             root.classList.remove('library-immersive');
             if (fullscreenElement()) {
                 var leave = document.exitFullscreen || document.webkitExitFullscreen;
@@ -764,8 +743,6 @@
             button.addEventListener('click', function () { enter(button); });
         });
         close.addEventListener('click', exit);
-        close.addEventListener('mouseleave', function () { if (active) hideSoon(1200); });
-        close.addEventListener('blur', function () { if (active) hideSoon(1200); });
 
         function onFullscreenChange() {
             if (fullscreenElement()) {
@@ -787,16 +764,7 @@
         window.addEventListener('message', function (event) {
             if (!active || event.source !== frame.contentWindow) return;
             var data = event.data;
-            if (!data || typeof data.elysiumLibrary !== 'string') return;
-            if (data.elysiumLibrary === 'pointer') {
-                if (data.value === true) showClose();
-                else hideSoon(1200);
-            } else if (data.elysiumLibrary === 'scroll') {
-                if (data.value === 'up') showClose(2600);
-                else hideClose();
-            } else if (data.elysiumLibrary === 'escape' && !fullscreenElement()) {
-                exit();
-            }
+            if (data && data.elysiumLibrary === 'escape' && !fullscreenElement()) exit();
         });
     }
 

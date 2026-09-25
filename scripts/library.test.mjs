@@ -658,7 +658,7 @@ test('todas las páginas con pie completo enlazan la biblioteca, y solo en el pi
     assert.ok(checked >= 80, `only ${checked} pages were checked`);
 });
 
-test('el lector tiene pantalla completa con la X, y el libro le cuenta lo que pasa dentro', () => {
+test('el lector tiene pantalla completa con la X siempre visible y fuera del libro', () => {
     assert.equal((READER_TEMPLATE.match(/data-immersive-open/g) || []).length, 2);
     assert.match(READER_TEMPLATE, /<button type="button" class="library-immersive-close" data-immersive-close aria-label="Exit full screen" data-i18n-aria="fullscreenClose">/);
     assert.match(READER_TEMPLATE, /<iframe class="library-frame" name="library-book"/);
@@ -667,10 +667,15 @@ test('el lector tiene pantalla completa con la X, y el libro le cuenta lo que pa
     assert.match(LIBRARY_JS, /addEventListener\('fullscreenchange'/);
     // Solo se escucha al propio libro.
     assert.match(LIBRARY_JS, /event\.source !== frame\.contentWindow/);
-    assert.match(library.BOOK_HELPER, /window\.parent\.postMessage\(\{ elysiumLibrary: type, value: value \}, '\*'\)/);
+    // Escape dentro del libro no llega a la página: lo avisa el libro.
+    assert.match(library.BOOK_HELPER, /window\.parent\.postMessage\(\{ elysiumLibrary: 'escape' \}, '\*'\)/);
+    // La X va en su propia barra y el libro empieza debajo: no tapa nada suyo.
+    assert.match(READER_TEMPLATE, /<div class="library-immersive-bar">\s*<button type="button" class="library-immersive-close"/);
+    assert.match(LIBRARY_CSS, /html\.library-immersive \.library-immersive-bar \{[^}]*position: fixed;[^}]*height: calc\(var\(--library-immersive-bar\)/);
     // El iframe cambia de tamaño, no de sitio: no se recarga el libro.
-    assert.match(LIBRARY_CSS, /html\.library-immersive \.library-frame \{[^}]*position: fixed;[^}]*width: calc\(100vw/);
-    assert.match(LIBRARY_CSS, /\.library-immersive-close\.is-visible,/);
+    assert.match(LIBRARY_CSS, /html\.library-immersive \.library-frame \{[^}]*position: fixed;[^}]*top: calc\(var\(--library-immersive-bar\)[^}]*width: calc\(100vw/);
+    // Y nunca se esconde.
+    assert.ok(!/is-visible/.test(LIBRARY_JS) && !/library-immersive-close[^{]*\{[^}]*opacity: 0/.test(LIBRARY_CSS), 'the X must never hide');
 });
 
 // ── Plantillas y textos ──────────────────────────────────────────────────────

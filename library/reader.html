@@ -128,13 +128,18 @@
             <iframe class="library-frame" name="library-book" src="/library/{{BOOK_SLUG}}/book" title="{{BOOK_TITLE}}"
                 sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-modals"
                 referrerpolicy="same-origin"></iframe>
-            <!-- La X de salir de la pantalla completa: un semáforo rojo de
-                 macOS 27 Golden Gate sobre una placa de cristal. -->
-            <button type="button" class="library-immersive-close" data-immersive-close aria-label="Exit full screen" data-i18n-aria="fullscreenClose">
-                <span class="library-close-gem" aria-hidden="true">
-                    <svg class="library-close-glyph" viewBox="0 0 12 12" width="12" height="12"><path d="M3.4 3.4l5.2 5.2M8.6 3.4L3.4 8.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                </span>
-            </button>
+            <!-- La barra de la pantalla completa, como la de título de una
+                 ventana de macOS: siempre visible y fuera del libro, que empieza
+                 justo debajo, así la X no tapa nunca nada suyo. La X es el
+                 semáforo rojo de macOS 27 Golden Gate. -->
+            <div class="library-immersive-bar">
+                <button type="button" class="library-immersive-close" data-immersive-close aria-label="Exit full screen" data-i18n-aria="fullscreenClose">
+                    <span class="library-close-gem" aria-hidden="true">
+                        <svg class="library-close-glyph" viewBox="0 0 12 12" width="12" height="12"><path d="M3.4 3.4l5.2 5.2M8.6 3.4L3.4 8.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                    </span>
+                </button>
+                <span class="library-immersive-title" lang="{{BOOK_LANG}}">{{BOOK_TITLE}}</span>
+            </div>
         </div>
 
         <section class="library-about" aria-labelledby="library-about-title">

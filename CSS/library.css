@@ -1088,67 +1088,92 @@ html.library-immersive .ely-cursor {
     opacity: 0 !important;
 }
 
+/* La barra de arriba: la de título de una ventana de macOS a pantalla
+   completa, con el semáforo rojo a la izquierda y el título del libro. Está
+   siempre, y el libro empieza debajo: la X no tapa nunca el menú ni los
+   botones que el libro tenga arriba. */
+html.library-immersive {
+    --library-immersive-bar: 44px;
+}
+
+.library-immersive-bar {
+    display: none;
+}
+
+html.library-immersive .library-immersive-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2147483001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--library-immersive-bar) + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) calc(env(safe-area-inset-right, 0px) + 60px) 0 calc(env(safe-area-inset-left, 0px) + 60px);
+    background: linear-gradient(180deg, #0c1326, #070b19);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+    animation: library-bar-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes library-bar-in {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+
+.library-immersive-title {
+    min-width: 0;
+    overflow: hidden;
+    color: rgba(225, 225, 229, 0.72);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 /* Un iframe es un elemento reemplazado: con `inset` y tamaño automático se
-   quedaría en 300 × 150. Se le da la medida de la pantalla menos las zonas
-   seguras (la muesca, la barra de inicio). */
+   quedaría en 300 × 150. Se le da la medida de la pantalla menos la barra y
+   las zonas seguras (la muesca, la barra de inicio). */
 html.library-immersive .library-frame {
     position: fixed;
-    top: env(safe-area-inset-top, 0px);
+    top: calc(var(--library-immersive-bar) + env(safe-area-inset-top, 0px));
     left: env(safe-area-inset-left, 0px);
     z-index: 2147483000;
     width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
-    height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-    height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100vh - var(--library-immersive-bar) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    height: calc(100dvh - var(--library-immersive-bar) - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     border: 0;
     border-radius: 0;
 }
 
-/* La X: el semáforo rojo de macOS 27 Golden Gate —una gota de caramelo al
-   estilo Aqua, con brillo arriba y luz que sube desde abajo— sobre una placa
-   de cristal líquido que la separa de cualquier libro, claro u oscuro. Se
-   esconde mientras se lee; `is-visible` la trae de vuelta con un rebote. */
+/* La X: el semáforo rojo de macOS 27 Golden Gate, una gota de caramelo al
+   estilo Aqua con brillo arriba y luz que sube desde abajo. El botón mide
+   44 × 44 para el dedo; la gota, 24. */
 .library-immersive-close {
-    position: fixed;
-    top: calc(env(safe-area-inset-top, 0px) + 12px);
-    left: calc(env(safe-area-inset-left, 0px) + 12px);
-    z-index: 2147483001;
+    position: absolute;
+    top: env(safe-area-inset-top, 0px);
+    left: calc(env(safe-area-inset-left, 0px) + 8px);
     display: grid;
     place-items: center;
     width: 44px;
     height: 44px;
     padding: 0;
     border: 0;
-    border-radius: 50%;
+    background: none;
     cursor: pointer;
-    visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-10px) scale(0.84);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.07));
-    box-shadow:
-        inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
-        inset 0 1px 1px rgba(255, 255, 255, 0.4),
-        inset 0 -1px 1px rgba(0, 0, 0, 0.08),
-        0 1px 3px rgba(0, 0, 0, 0.2),
-        0 10px 30px rgba(0, 0, 0, 0.28);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
     -webkit-tap-highlight-color: transparent;
-    transition: opacity 0.28s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-html.library-immersive .library-immersive-close {
-    visibility: visible;
-}
-
-.library-immersive-close.is-visible,
-.library-immersive-close:focus-visible {
-    opacity: 1;
-    pointer-events: auto;
-    transform: none;
 }
 
 .library-immersive-close:focus-visible {
+    outline: none;
+}
+
+.library-immersive-close:focus-visible .library-close-gem {
     outline: 2px solid #fff;
     outline-offset: 3px;
 }
@@ -1157,8 +1182,8 @@ html.library-immersive .library-immersive-close {
     position: relative;
     display: grid;
     place-items: center;
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     color: rgba(96, 8, 4, 0.8);
     background:
@@ -1168,8 +1193,8 @@ html.library-immersive .library-immersive-close {
         inset 0 0 0 0.75px rgba(122, 12, 8, 0.6),
         inset 0 -3px 5px rgba(255, 190, 170, 0.35),
         inset 0 2px 3px rgba(80, 0, 0, 0.22),
-        0 1px 2px rgba(80, 0, 0, 0.45),
-        0 3px 9px rgba(226, 49, 42, 0.38);
+        0 1px 2px rgba(0, 0, 0, 0.5),
+        0 2px 8px rgba(226, 49, 42, 0.35);
     transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -1189,13 +1214,15 @@ html.library-immersive .library-immersive-close {
 .library-close-glyph {
     position: relative;
     z-index: 1;
-    opacity: 0.7;
+    width: 11px;
+    height: 11px;
+    opacity: 0.72;
     transition: opacity 0.2s ease;
 }
 
 .library-immersive-close:hover .library-close-gem,
 .library-immersive-close:focus-visible .library-close-gem {
-    transform: scale(1.08);
+    transform: scale(1.1);
 }
 
 .library-immersive-close:hover .library-close-glyph,
@@ -1216,10 +1243,13 @@ html.library-immersive .library-immersive-close {
         animation: none;
     }
 
-    .library-immersive-close,
+    html.library-immersive .library-immersive-bar {
+        animation: none;
+    }
+
     .library-close-gem,
     .library-more-list a {
-        transition: opacity 0.2s ease;
+        transition: none;
         transform: none !important;
     }
 }

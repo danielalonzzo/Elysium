@@ -480,13 +480,11 @@ export function extractBookInfo(html) {
  *    Elysium y escondía la cabecera. Se sustituye por una versión que solo
  *    mueve los contenedores del propio libro. Navegar a un ancla y `focus()`
  *    no tienen ese problema (comprobado), así que no se tocan.
- * 3. En pantalla completa, la X de salir se esconde mientras se lee y vuelve
- *    al acercar el puntero al borde de arriba o al subir, como en macOS. La
- *    página que enmarca no ve nada de lo que pasa dentro del iframe, así que
- *    el libro se lo cuenta con `postMessage`: solo tres señales sin datos del
- *    libro (puntero arriba sí/no, sentido del desplazamiento, Escape). El
- *    destino `*` no expone nada: `frame-ancestors 'self'` impide que otro
- *    sitio lo enmarque.
+ * 3. En pantalla completa, Escape sale del modo. Pero con el foco dentro del
+ *    libro la tecla llega al iframe, no a la página que lo enmarca, así que
+ *    el libro la avisa con `postMessage`: una sola señal, sin datos del
+ *    libro. El destino `*` no expone nada: `frame-ancestors 'self'` impide
+ *    que otro sitio lo enmarque.
  *
  * Se escribe como función y se serializa para que se pueda leer y revisar;
  * no puede usar nada de fuera de su propio cuerpo.
@@ -536,28 +534,9 @@ function bookHelper() {
         window.scrollBy({ top: offset(this.getBoundingClientRect(), rootPadding, window.innerHeight, block) - margin, behavior: behavior });
     };
 
-    var signal = function (type, value) {
-        try { window.parent.postMessage({ elysiumLibrary: type, value: value }, '*'); } catch (error) { /* sin padre */ }
-    };
-    var nearTop = false;
-    document.addEventListener('mousemove', function (event) {
-        var near = event.clientY < 72;
-        if (near !== nearTop) { nearTop = near; signal('pointer', near); }
-    }, { passive: true });
-    var positions = typeof WeakMap === 'function' ? new WeakMap() : null;
-    var direction = '';
-    document.addEventListener('scroll', function (event) {
-        if (!positions) return;
-        var node = event.target && event.target.nodeType === 1 ? event.target : (document.scrollingElement || document.documentElement);
-        var top = node.scrollTop;
-        var last = positions.get(node);
-        positions.set(node, top);
-        if (last === undefined || Math.abs(top - last) < 3) return;
-        var next = top < last ? 'up' : 'down';
-        if (next !== direction) { direction = next; signal('scroll', next); }
-    }, { capture: true, passive: true });
     document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') signal('escape', true);
+        if (event.key !== 'Escape') return;
+        try { window.parent.postMessage({ elysiumLibrary: 'escape' }, '*'); } catch (error) { /* sin padre */ }
     });
 }
 
