@@ -24,7 +24,7 @@ body {
     font-feature-settings: "ss01", "cv11";
 }
 
-/* Fondo ambiental: dos brillos fijos, azul Elysium y oro Patrimonio. */
+/* Fondo ambiental: Bóveda Privada con destellos cálidos de oro y prosperidad. */
 body::before {
     content: "";
     position: fixed;
@@ -32,8 +32,8 @@ body::before {
     z-index: -1;
     pointer-events: none;
     background:
-        radial-gradient(1100px 700px at -10% -20%, var(--glow-1), transparent 60%),
-        radial-gradient(900px 700px at 110% 110%, var(--glow-2), transparent 60%),
+        radial-gradient(1200px 800px at 15% -10%, var(--glow-1), transparent 65%),
+        radial-gradient(1000px 750px at 90% 105%, var(--glow-2), transparent 65%),
         linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
 }
 

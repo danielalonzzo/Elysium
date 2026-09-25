@@ -64,14 +64,21 @@ export default {
             return { label: category?.name || 'Sin categoría', value: entry.total, sub: `${Math.round(entry.share)}%`, iconHtml: catChip(category, { size: 'sm' }), href: `#/movimientos?categoria=${entry.categoryId}` };
         });
         const gamified = model.settings.gamification !== false;
+        const monthlyExpenses = model.avgExpense > 0 ? model.avgExpense : (model.totals.expense > 0 ? model.totals.expense : 0);
+        const peaceMonths = monthlyExpenses > 0 ? (model.liquid / monthlyExpenses) : null;
 
         return html`
             <section class="dash">
+                ${gamified ? streakBanner(model) : ''}
+
                 <div class="dash-hero">
                     <article class="hero">
                         ${rosette({ seed: 'patrimonio-hero', size: 440, layers: 5, strokeWidth: 0.55 })}
                         ${waveBand({ seed: 'hero', width: 800, height: 220, lines: 18 })}
-                        <p class="eyebrow">Patrimonio neto</p>
+                        <div class="hero-head">
+                            <p class="eyebrow">Patrimonio neto</p>
+                            ${peaceMonths !== null && peaceMonths >= 0.5 ? html`<span class="badge-peace">${icon('shield-check', { size: 14 })} <b>${peaceMonths.toFixed(1)} meses</b> de paz mental</span>` : ''}
+                        </div>
                         <p class="hero-value"><span class="amt" data-count="${worth.net}">${formatMoney(worth.net)}</span></p>
                         <div class="hero-meta">
                             ${prevWorth !== null ? html`<span class="delta ${worthDelta >= 0 ? 'is-up' : 'is-down'}">${icon(worthDelta >= 0 ? 'trending-up' : 'trending-down', { size: 13 })}${money(worthDelta, model.fx.base, { sign: true })} este mes</span>` : ''}
@@ -87,7 +94,7 @@ export default {
 
                     <article class="card spend-card">
                         <div class="card-head">
-                            <div><p class="eyebrow is-accent">Puede gastar hoy</p></div>
+                            <div><p class="eyebrow is-gold">Presupuesto del día</p></div>
                             <button type="button" class="btn btn-sm btn-ghost" data-afford>${icon('scale', { size: 15 })}¿Me alcanza?</button>
                         </div>
                         <p class="spend-value">${money(Math.max(0, spendable.perDay))}</p>
@@ -105,27 +112,8 @@ export default {
                 <div class="grid grid-4 dash-kpis">
                     ${kpi('Ingresos', totals.income, 'arrow-down-left', 'is-ok', deltaPill(totals.income, prevToDate.income, { suffix: 'vs. mismo punto del mes pasado' }), model.series12.map(p => p.income))}
                     ${kpi('Gastos', totals.expense, 'arrow-up-right', 'is-danger', deltaPill(totals.expense, prevToDate.expense, { invert: true, suffix: 'vs. mismo punto del mes pasado' }), model.series12.map(p => p.expense))}
-                    ${kpi('Ahorro del mes', totals.net, 'piggy-bank', 'is-gold', html`<span class="pill ${totals.savingsRate >= 20 ? 'is-ok' : totals.savingsRate > 0 ? 'is-accent' : 'is-danger'}">${pct(totals.savingsRate)} de sus ingresos</span>`, model.series12.map(p => p.net))}
-                    ${kpi('Capacidad de ahorro', model.capacity, 'trending-up', '', html`<span>promedio de 3 meses</span>`, null)}
-                </div>
-
-                <div class="grid grid-main">
-                    <article class="card">
-                        <div class="card-head">
-                            <div><h2>Flujo de caja</h2><p>Últimos 12 meses</p></div>
-                            <div class="legend"><span><i class="s-income"></i>Ingresos</span><span><i class="s-expense"></i>Gastos</span><span><i class="is-line s-net"></i>Ahorro neto</span></div>
-                        </div>
-                        ${model.series12.some(p => p.count > 0)
-                            ? html`<div class="chart" data-chart="cashflow"></div>`
-                            : emptyState({ title: 'Su historia empieza hoy', body: 'Con los movimientos de este mes aparecerá aquí cómo entran y salen sus colones, mes a mes.', iconName: 'trending-up' })}
-                    </article>
-                    <article class="card">
-                        <div class="card-head">
-                            <div><h2>En qué se va</h2><p>${monthLabel(model.period.key, { long: true })}</p></div>
-                            <a class="card-link" href="#/reportes">Reportes ${icon('chevron-right', { size: 14 })}</a>
-                        </div>
-                        ${categories.length ? hbars(categories, { tone: 'expense' }) : emptyState({ title: 'Sin gastos este mes', body: 'Cuando registre gastos verá aquí en qué categorías se va su dinero.', iconName: 'pie' })}
-                    </article>
+                    ${kpi('Ahorro del mes', totals.net, 'piggy-bank', 'is-gold', html`<span class="pill ${totals.savingsRate >= 20 ? 'is-ok' : totals.savingsRate > 0 ? 'is-gold' : 'is-danger'}">${pct(totals.savingsRate)} de sus ingresos</span>`, model.series12.map(p => p.net))}
+                    ${kpi('Capacidad de ahorro', model.capacity, 'trending-up', 'is-ok', html`<span>promedio de 3 meses</span>`, null)}
                 </div>
 
                 <div class="grid grid-main">
@@ -163,6 +151,25 @@ export default {
                             : html`<p class="muted">No hay pagos fijos en los próximos 14 días. <a href="#/calendario">Añada sus recurrentes</a> y le avisaremos antes de cada uno.</p>`}
                         </article>
                     </div>
+                </div>
+
+                <div class="grid grid-main">
+                    <article class="card">
+                        <div class="card-head">
+                            <div><h2>Flujo de caja</h2><p>Últimos 12 meses</p></div>
+                            <div class="legend"><span><i class="s-income"></i>Ingresos</span><span><i class="s-expense"></i>Gastos</span><span><i class="is-line s-net"></i>Ahorro neto</span></div>
+                        </div>
+                        ${model.series12.some(p => p.count > 0)
+                            ? html`<div class="chart" data-chart="cashflow"></div>`
+                            : emptyState({ title: 'Su historia empieza hoy', body: 'Con los movimientos de este mes aparecerá aquí cómo entran y salen sus colones, mes a mes.', iconName: 'trending-up' })}
+                    </article>
+                    <article class="card">
+                        <div class="card-head">
+                            <div><h2>En qué se va</h2><p>${monthLabel(model.period.key, { long: true })}</p></div>
+                            <a class="card-link" href="#/reportes">Reportes ${icon('chevron-right', { size: 14 })}</a>
+                        </div>
+                        ${categories.length ? hbars(categories, { tone: 'expense' }) : emptyState({ title: 'Sin gastos este mes', body: 'Cuando registre gastos verá aquí en qué categorías se va su dinero.', iconName: 'pie' })}
+                    </article>
                 </div>
 
                 <div class="grid grid-main">
@@ -237,6 +244,24 @@ function dreamRow(entry, model) {
         </span>
         <span class="dream-pct">${Math.round(progress.pct)}%</span>
     </a>`;
+}
+
+function streakBanner(model) {
+    const { game } = model;
+    return html`<div class="streak-banner">
+        <div class="streak-flame">
+            <span class="flame-icon">${icon('flame', { size: 18 })}</span>
+            <div>
+                <b>${game.stats.streak} días de racha</b>
+                <span class="faint"> · ${game.stats.impulseFreeCurrent} días sin gastos impulsivos</span>
+            </div>
+        </div>
+        <a href="#/logros" class="streak-level-pill">
+            <span>Nivel <b>${game.level.name}</b></span>
+            <span class="pill is-gold">+${num(game.points)} pts</span>
+            ${icon('chevron-right', { size: 13 })}
+        </a>
+    </div>`;
 }
 
 function levelCard(model) {
