@@ -683,6 +683,17 @@ test('en pantalla completa no hay nada de Elysium encima: el botón de salir es 
     assert.match(LIBRARY_CSS, /html\.library-immersive \.library-frame \{[^}]*position: fixed;[^}]*width: calc\(100vw/);
 });
 
+test('toda la tarjeta abre el libro y los botones siguen siendo botones', () => {
+    // El enlace del título se estira sobre la tarjeta; lo que se pulsa encima
+    // (leer, audiolibro, retirar) queda por delante.
+    assert.match(LIBRARY_CSS, /\.library-card h3 a::after \{[^}]*content: "";[^}]*position: absolute;[^}]*inset: 0;/);
+    assert.match(LIBRARY_CSS, /\.library-card \{[^}]*position: relative;/);
+    assert.match(LIBRARY_CSS, /\.library-card-actions \{[^}]*position: relative;[^}]*z-index: 1;/);
+    assert.match(LIBRARY_CSS, /\.library-delete \{[^}]*position: relative;[^}]*z-index: 1;/);
+    // Sin JavaScript también: la tarjeta pintada en servidor lleva el enlace en el título.
+    assert.match(library.renderBookCards([{ slug: 'x', title: 'X', lang: 'pt-PT', size: 1, uploadedAt: null, description: '' }]), /<h3 lang="pt-PT"><a href="\/library\/x">X<\/a><\/h3>/);
+});
+
 test('descargar el HTML funciona al primer toque', () => {
     // Un enlace que nace como «#» lo engancha el desplazamiento suave de
     // main.js al cargar, y al pulsarlo ya con su dirección real lo anulaba.

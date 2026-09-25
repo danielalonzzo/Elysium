@@ -181,6 +181,26 @@
     color: #fff;
 }
 
+/* Toda la tarjeta abre el libro: el enlace del título se estira sobre ella
+   (sin JavaScript ni enlaces anidados), y los botones quedan por encima
+   para seguir haciendo lo suyo. */
+.library-card h3 a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+}
+
+.library-card h3 a:focus-visible {
+    outline: none;
+}
+
+.library-card:has(h3 a:focus-visible) {
+    outline: 2px solid var(--library-accent);
+    outline-offset: 3px;
+}
+
 .library-card-description {
     color: rgba(225, 225, 229, 0.72);
     font-size: 0.93rem;
@@ -200,6 +220,8 @@
 }
 
 .library-card-actions {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
@@ -213,6 +235,8 @@
 }
 
 .library-delete {
+    position: relative;
+    z-index: 1;
     align-self: flex-start;
     margin-top: 1rem;
     padding: 0;
