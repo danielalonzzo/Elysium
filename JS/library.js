@@ -518,9 +518,17 @@
             card.setAttribute('data-book', entry.slug);
 
             var top = element('div', 'library-card-top');
+            var langs = element('span', 'library-card-langs');
             var chip = element('span', 'library-chip', languageName(entry.lang) || 'HTML');
             if (entry.lang) chip.setAttribute('lang', HTML_LANG[language]);
-            top.append(chip, element('span', 'library-card-size', formatSize(entry.size)));
+            langs.append(chip);
+            // Una etiqueta más por cada traducción guardada del libro.
+            (entry.translations || []).forEach(function (code) {
+                var extra = element('span', 'library-chip library-chip-translation', languageName(code));
+                extra.setAttribute('lang', HTML_LANG[language]);
+                langs.append(extra);
+            });
+            top.append(langs, element('span', 'library-card-size', formatSize(entry.size)));
 
             var body = element('div', 'library-card-body');
             var heading = element('h3');

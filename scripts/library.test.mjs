@@ -717,6 +717,12 @@ test('las traducciones guardadas se sirven con ?lang= y el lector las ofrece', a
     assert.match(READER_TEMPLATE, /data-library-lang hidden/);
     assert.ok(existsSync(join(ROOT, 'Images', 'Optimized', 'flag-gb-64.webp')), 'the UK flag exists');
 
+    // La tarjeta del índice lleva una etiqueta por idioma, sacada de los metadatos.
+    const metadata = library.bookMetadata({ title: 'Manual', description: '', lang: 'pt-PT', size: 1, file: 'Manual.html', uploadedAt: null, translations: ['en-GB', 'es-ES', 'xx'] });
+    assert.deepEqual(metadata.tr, ['en-GB', 'es-ES']);
+    const cards = library.renderBookCards([{ slug: 'manual', title: 'Manual', lang: 'pt-PT', size: 1, uploadedAt: null, description: '', translations: ['en-GB', 'es-ES'] }]);
+    assert.match(cards, /<span class="library-card-langs"><span class="library-chip" lang="en-GB">Portuguese<\/span><span class="library-chip library-chip-translation" lang="en-GB">English<\/span><span class="library-chip library-chip-translation" lang="en-GB">Spanish<\/span><\/span>/);
+
     // Republicar el libro se lleva sus traducciones: eran del texto anterior.
     await publish(env, 'manual', { meta: { replace: true } });
     assert.equal(env.LIBRARY.entries.has('tr:manual:en-GB'), false);

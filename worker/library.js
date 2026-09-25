@@ -339,7 +339,7 @@ function contentDisposition(filename) {
  * Los metadatos que se guardan en KV, recortando la descripción (y en último
  * caso el título) hasta que caben en el límite de la clave.
  */
-export function bookMetadata({ title, description, lang, size, file, uploadedAt }) {
+export function bookMetadata({ title, description, lang, size, file, uploadedAt, translations = [] }) {
     const metadata = {
         v: 1,
         title: cleanText(title, MAX_TITLE_LENGTH),
@@ -349,6 +349,10 @@ export function bookMetadata({ title, description, lang, size, file, uploadedAt 
         file: cleanText(file, MAX_FILENAME_LENGTH),
         uploadedAt
     };
+    // Las traducciones guardadas van en los metadatos para que el índice
+    // pueda mostrar sus etiquetas sin leer nada más que el catálogo.
+    const tr = translations.filter(language => TRANSLATION_LANGUAGES.includes(language));
+    if (tr.length) metadata.tr = tr;
     while (utf8Length(JSON.stringify(metadata)) > MAX_METADATA_BYTES && metadata.description) {
         metadata.description = metadata.description.slice(0, Math.max(0, metadata.description.length - 20)).trim();
     }
@@ -369,7 +373,8 @@ function publicBook(slug, metadata = {}) {
         description: metadata.description || '',
         lang: metadata.lang || '',
         size: Number(metadata.size) || 0,
-        uploadedAt: metadata.uploadedAt || null
+        uploadedAt: metadata.uploadedAt || null,
+        translations: Array.isArray(metadata.tr) ? metadata.tr.filter(language => TRANSLATION_LANGUAGES.includes(language)) : []
     };
 }
 
@@ -1086,8 +1091,10 @@ export function renderBookCards(books) {
         const href = `${LIBRARY_PREFIX}/${escapeHtml(book.slug)}`;
         const date = formatDate(book.uploadedAt);
         return `<article class="library-card" data-book="${escapeHtml(book.slug)}">`
-            + '<div class="library-card-top">'
+            + '<div class="library-card-top"><span class="library-card-langs">'
             + `<span class="library-chip"${book.lang ? ` lang="${SERVER_LOCALE}"` : ''}>${escapeHtml(languageName(book.lang) || 'HTML')}</span>`
+            + (book.translations || []).map(language => `<span class="library-chip library-chip-translation" lang="${SERVER_LOCALE}">${escapeHtml(languageName(language))}</span>`).join('')
+            + '</span>'
             + `<span class="library-card-size">${escapeHtml(formatSize(book.size))}</span>`
             + '</div><div class="library-card-body">'
             + `<h3${langAttribute(book.lang)}><a href="${href}">${escapeHtml(book.title)}</a></h3>`
@@ -1298,7 +1305,8 @@ async function serveReader(request, env, url, slug) {
         BOOK_DATA: jsonForScript({
             ...book,
             author: info.author || '',
-            translations: (info.translations || []).filter(language => TRANSLATION_LANGUAGES.includes(language))
+            translations: (book.translations && book.translations.length ? book.translations : info.translations || [])
+                .filter(language => TRANSLATION_LANGUAGES.includes(language))
         })
     });
     return new Response(request.method === 'HEAD' ? null : html, { status: 200, headers: pageHeaders(response) });

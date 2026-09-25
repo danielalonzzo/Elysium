@@ -154,7 +154,21 @@
     text-transform: uppercase;
 }
 
+.library-card-langs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.library-chip-translation {
+    color: rgba(255, 255, 255, 0.62);
+    background: transparent;
+}
+
 .library-card-size {
+    flex: 0 0 auto;
+    white-space: nowrap;
     color: rgba(225, 225, 229, 0.5);
     font-size: 0.78rem;
     font-variant-numeric: tabular-nums;
