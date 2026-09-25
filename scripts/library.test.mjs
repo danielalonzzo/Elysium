@@ -255,6 +255,20 @@ test('la descarga es el fichero tal cual, como adjunto y sin ejecutarse', async 
     assert.match(response.headers.get('Content-Security-Policy'), /^sandbox;/);
 });
 
+test('HEAD devuelve las mismas cabeceras de seguridad que GET, sin cuerpo', async () => {
+    const env = makeEnv();
+    await publish(env, 'manual');
+    for (const path of ['book', 'download']) {
+        const get = await call(env, `https://elysiumdr.eu/library/manual/${path}`);
+        const head = await call(env, `https://elysiumdr.eu/library/manual/${path}`, { method: 'HEAD' });
+        assert.equal(head.status, 200, path);
+        assert.equal(await head.text(), '', path);
+        for (const name of ['Content-Security-Policy', 'Content-Disposition', 'X-Robots-Tag', 'Content-Type']) {
+            assert.equal(head.headers.get(name), get.headers.get(name), `${path} ${name}`);
+        }
+    }
+});
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 test('solo publica la cuenta de Daniel, con el correo verificado', async () => {

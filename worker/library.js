@@ -817,19 +817,21 @@ async function serveBookFile(request, env, slug, { download }) {
         'Cross-Origin-Resource-Policy': 'same-origin'
     });
     if (metadata.uploadedAt) headers.set('Last-Modified', new Date(metadata.uploadedAt).toUTCString());
-
-    if (request.method === 'HEAD') {
-        await found.value.cancel();
-        return new Response(null, { status: 200, headers });
-    }
     if (download) {
         headers.set('Content-Security-Policy', DOWNLOAD_CSP);
         headers.set('Content-Disposition', contentDisposition(downloadFilename(metadata.file, slug)));
         if (metadata.size) headers.set('Content-Length', String(metadata.size));
-        return new Response(found.value, { status: 200, headers });
+    } else {
+        headers.set('Content-Security-Policy', BOOK_CSP);
     }
-    headers.set('Content-Security-Policy', BOOK_CSP);
-    return new Response(injectBeforeHeadClose(found.value, BOOK_HELPER), { status: 200, headers });
+
+    // HEAD lleva las mismas cabeceras que GET, solo sin el cuerpo.
+    if (request.method === 'HEAD') {
+        await found.value.cancel();
+        return new Response(null, { status: 200, headers });
+    }
+    const body = download ? found.value : injectBeforeHeadClose(found.value, BOOK_HELPER);
+    return new Response(body, { status: 200, headers });
 }
 
 // ── Entrada ───────────────────────────────────────────────────────────────────
