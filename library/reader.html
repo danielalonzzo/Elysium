@@ -53,7 +53,7 @@
     <link rel="stylesheet" href="/CSS/base.css">
     <link rel="stylesheet" href="/CSS/components.css?v=20260826">
     <link rel="stylesheet" href="/CSS/pages.css">
-    <link rel="stylesheet" href="/CSS/library.css?v=2026092502">
+    <link rel="stylesheet" href="/CSS/library.css?v=2026092504">
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
@@ -116,6 +116,15 @@
                     <span class="library-back-label" data-i18n="backToLibrary">Library</span>
                 </a>
                 <h1 class="library-reader-title" lang="{{BOOK_LANG}}">{{BOOK_TITLE}}</h1>
+                <!-- Idioma del libro: el original y las traducciones guardadas
+                     (`tr:<slug>:<idioma>`). Lo monta JS/library.js si hay alguna. -->
+                <div class="library-lang" data-library-lang hidden>
+                    <button type="button" class="btn library-lang-button" aria-haspopup="menu" aria-expanded="false" aria-label="Language of the book" data-i18n-aria="bookLanguage" data-lang-toggle>
+                        <img class="library-lang-flag" src="" alt="" width="20" height="20" data-lang-flag>
+                        <span class="library-button-label" data-lang-label>Original</span>
+                    </button>
+                    <div class="library-lang-menu" role="menu" data-lang-menu hidden></div>
+                </div>
                 <button type="button" class="btn library-fullscreen-button" data-immersive-open aria-label="Read full screen" data-i18n-aria="readFullscreen">
                     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span class="library-button-label" data-i18n="fullscreen">Full screen</span>
@@ -269,7 +278,7 @@
 
     <script type="application/json" id="library-book">{{BOOK_DATA}}</script>
 
-    <script src="/JS/library.js?v=20260925" defer></script>
+    <script src="/JS/library.js?v=2026092502" defer></script>
     <script src="/JS/main.js"></script>
     <script src="/JS/elysium-mouse.js"></script>
     <script src="/JS/elysium-audio.js"></script>

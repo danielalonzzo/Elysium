@@ -66,6 +66,8 @@
             backToLibrary: 'Library',
             close: 'Close',
             fullscreen: 'Full screen',
+            bookLanguage: 'Language of the book',
+            originalLanguage: 'Original',
             readFullscreen: 'Read full screen',
             aboutBook: 'About this book',
             factLanguage: 'Language',
@@ -161,6 +163,8 @@
             backToLibrary: 'Biblioteca',
             close: 'Cerrar',
             fullscreen: 'Pantalla completa',
+            bookLanguage: 'Idioma del libro',
+            originalLanguage: 'Original',
             readFullscreen: 'Leer a pantalla completa',
             aboutBook: 'Sobre este libro',
             factLanguage: 'Idioma',
@@ -256,6 +260,8 @@
             backToLibrary: 'Biblioteca',
             close: 'Fechar',
             fullscreen: 'Ecrã inteiro',
+            bookLanguage: 'Idioma do livro',
+            originalLanguage: 'Original',
             readFullscreen: 'Ler em ecrã inteiro',
             aboutBook: 'Sobre este livro',
             factLanguage: 'Idioma',
@@ -601,6 +607,8 @@
     // ── Audiolibro ───────────────────────────────────────────────────────────
 
     var dialog = document.querySelector('[data-audiobook-dialog]');
+    /** La traducción que se está leyendo en el lector ('' = original). */
+    var activeBookLanguage = '';
 
     function findBook(slug) {
         if (book && book.slug === slug) return book;
@@ -617,7 +625,8 @@
             if (entry.lang) name.setAttribute('lang', entry.lang);
         }
         var download = dialog.querySelector('[data-audiobook-download]');
-        if (download) download.setAttribute('href', '/library/' + encodeURIComponent(entry.slug) + '/download');
+        var translated = book && entry.slug === book.slug && activeBookLanguage ? '?lang=' + activeBookLanguage : '';
+        if (download) download.setAttribute('href', '/library/' + encodeURIComponent(entry.slug) + '/download' + translated);
         dialog.returnFocusTo = trigger || null;
         if (typeof dialog.showModal === 'function') dialog.showModal();
         else dialog.setAttribute('open', '');
@@ -671,6 +680,130 @@
         });
 
         setupImmersive(frame);
+        setupBookLanguage(frame);
+    }
+
+    // ── Idioma del libro ─────────────────────────────────────────────────────
+
+    /**
+     * El original y las traducciones guardadas del libro, como el selector de
+     * idioma del sitio: cada una es un documento que ya existe. Cambiar recarga
+     * el iframe con `?lang=` en el último ancla que el lector tenía encima (se
+     * lo dice el propio libro), así que no se pierde la posición.
+     */
+    function setupBookLanguage(frame) {
+        var BOOK_LANGUAGES = {
+            'en-GB': { name: 'English (UK)', short: 'English', flag: '/Images/Optimized/flag-gb-64.webp' },
+            'es-ES': { name: 'Español (España)', short: 'Español', flag: '/Images/Optimized/flag-es-64.webp' },
+            'pt-PT': { name: 'Português (Portugal)', short: 'Português', flag: '/Images/Optimized/flag-pt-64.webp' }
+        };
+        var FLAG_BY_BASE = { en: BOOK_LANGUAGES['en-GB'].flag, es: BOOK_LANGUAGES['es-ES'].flag, pt: BOOK_LANGUAGES['pt-PT'].flag };
+
+        var box = document.querySelector('[data-library-lang]');
+        var translations = book && Array.isArray(book.translations) ? book.translations.filter(function (code) { return BOOK_LANGUAGES[code]; }) : [];
+        if (!box || !frame || !translations.length) return;
+        var toggle = box.querySelector('[data-lang-toggle]');
+        var menu = box.querySelector('[data-lang-menu]');
+        var flag = box.querySelector('[data-lang-flag]');
+        var label = box.querySelector('[data-lang-label]');
+        var base = String(book.lang || '').slice(0, 2).toLowerCase();
+        var current = '';
+
+        function originalName() {
+            try {
+                var name = new Intl.DisplayNames([book.lang || base], { type: 'language' }).of(base);
+                if (name) return name.charAt(0).toUpperCase() + name.slice(1);
+            } catch (error) { /* navegador antiguo */ }
+            return base.toUpperCase();
+        }
+
+        function paint() {
+            var entry = current ? BOOK_LANGUAGES[current] : null;
+            flag.src = entry ? entry.flag : (FLAG_BY_BASE[base] || '');
+            flag.hidden = !flag.getAttribute('src');
+            label.textContent = entry ? entry.short : t('originalLanguage');
+            menu.querySelectorAll('[data-book-lang]').forEach(function (item) {
+                item.setAttribute('aria-checked', String(item.getAttribute('data-book-lang') === current));
+            });
+        }
+
+        function item(code, text, image) {
+            var button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'library-lang-item';
+            button.setAttribute('role', 'menuitemradio');
+            button.setAttribute('data-book-lang', code);
+            if (image) {
+                var img = document.createElement('img');
+                img.src = image; img.alt = ''; img.width = 20; img.height = 20;
+                button.append(img);
+            }
+            var span = document.createElement('span');
+            span.textContent = text;
+            button.append(span);
+            button.addEventListener('click', function () { choose(code); });
+            return button;
+        }
+
+        function build() {
+            menu.replaceChildren(item('', originalName() + ' · ' + t('originalLanguage'), FLAG_BY_BASE[base]));
+            translations.forEach(function (code) { menu.append(item(code, BOOK_LANGUAGES[code].name, BOOK_LANGUAGES[code].flag)); });
+            paint();
+        }
+
+        function open(state) {
+            menu.hidden = !state;
+            toggle.setAttribute('aria-expanded', String(state));
+        }
+
+        function bookPath(code, anchor) {
+            var path = '/library/' + encodeURIComponent(book.slug) + '/book' + (code ? '?lang=' + code : '');
+            return path + (anchor ? '#' + encodeURIComponent(anchor) : '');
+        }
+
+        function whereIsTheReader() {
+            return new Promise(function (resolve) {
+                var done = false;
+                function answer(event) {
+                    if (event.source !== frame.contentWindow || !event.data || event.data.elysiumLibrary !== 'here') return;
+                    finish(String(event.data.value || ''));
+                }
+                function finish(value) {
+                    if (done) return;
+                    done = true;
+                    window.removeEventListener('message', answer);
+                    resolve(value);
+                }
+                window.addEventListener('message', answer);
+                try { frame.contentWindow.postMessage({ elysiumLibrary: 'where' }, '*'); } catch (error) { finish(''); }
+                window.setTimeout(function () { finish(''); }, 400);
+            });
+        }
+
+        function choose(code) {
+            open(false);
+            if (code === current) return;
+            whereIsTheReader().then(function (anchor) {
+                current = code;
+                activeBookLanguage = code;
+                frame.src = bookPath(code, anchor);
+                // La descarga para ElevenReader y el índice siguen al idioma elegido.
+                var download = document.querySelector('[data-audiobook-download]');
+                if (download) download.setAttribute('href', '/library/' + encodeURIComponent(book.slug) + '/download' + (code ? '?lang=' + code : ''));
+                document.querySelectorAll('[data-library-toc]').forEach(function (link) {
+                    var hash = (link.getAttribute('href') || '').split('#')[1] || '';
+                    link.setAttribute('href', bookPath(code, decodeURIComponent(hash)));
+                });
+                paint();
+            });
+        }
+
+        toggle.addEventListener('click', function () { open(menu.hidden); });
+        document.addEventListener('click', function (event) { if (!box.contains(event.target)) open(false); });
+        document.addEventListener('keydown', function (event) { if (event.key === 'Escape') open(false); });
+        listeners.push(build);
+        build();
+        box.hidden = false;
     }
 
     function reducedMotion() {

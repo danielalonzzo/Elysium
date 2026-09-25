@@ -694,6 +694,54 @@ test('toda la tarjeta abre el libro y los botones siguen siendo botones', () => 
     assert.match(library.renderBookCards([{ slug: 'x', title: 'X', lang: 'pt-PT', size: 1, uploadedAt: null, description: '' }]), /<h3 lang="pt-PT"><a href="\/library\/x">X<\/a><\/h3>/);
 });
 
+test('las traducciones guardadas se sirven con ?lang= y el lector las ofrece', async () => {
+    const env = makeEnv();
+    await publish(env, 'manual');
+    const translated = BOOK_HTML.replace('lang="pt-PT"', 'lang="en-GB"').replace('Olá', 'Hello');
+    await env.LIBRARY.put('tr:manual:en-GB', translated, { metadata: { v: 1, lang: 'en-GB', size: translated.length, file: 'Manual.html' } });
+    const info = JSON.parse(await env.LIBRARY.get('info:manual'));
+    await env.LIBRARY.put('info:manual', JSON.stringify({ ...info, translations: ['en-GB'] }));
+
+    const book = await call(env, 'https://elysiumdr.eu/library/manual/book?lang=en-GB');
+    assert.equal(book.status, 200);
+    assert.match(await book.text(), /Hello/);
+    assert.match(book.headers.get('Content-Security-Policy'), /^sandbox allow-scripts/);
+    const download = await call(env, 'https://elysiumdr.eu/library/manual/download?lang=en-GB');
+    assert.match(download.headers.get('Content-Disposition'), /filename="Manual\.en-GB\.html"/);
+    assert.equal((await call(env, 'https://elysiumdr.eu/library/manual/book?lang=fr-FR')).status, 404);
+    assert.equal((await call(env, 'https://elysiumdr.eu/library/manual/book?lang=es-ES')).status, 404);
+
+    const reader = await (await call(env, 'https://elysiumdr.eu/library/manual')).text();
+    const data = JSON.parse(/<script type="application\/json" id="library-book">([^<]*)<\/script>/.exec(reader)[1]);
+    assert.deepEqual(data.translations, ['en-GB']);
+    assert.match(READER_TEMPLATE, /data-library-lang hidden/);
+    assert.ok(existsSync(join(ROOT, 'Images', 'Optimized', 'flag-gb-64.webp')), 'the UK flag exists');
+
+    // Republicar el libro se lleva sus traducciones: eran del texto anterior.
+    await publish(env, 'manual', { meta: { replace: true } });
+    assert.equal(env.LIBRARY.entries.has('tr:manual:en-GB'), false);
+});
+
+test('la herramienta de traducción cambia solo el texto y conserva el formato', async () => {
+    const tool = await import(`file://${join(ROOT, 'scripts', 'library-translation.mjs')}`);
+    const html = '<!doctype html><html lang="pt-PT"><head><title>Livro</title><meta name="description" content="Sobre o livro"></head>'
+        + '<body><h1 id="t">Título</h1><p class="x">Um <em>bom</em> dia.<sup><a href="#n1">1</a></sup></p>'
+        + '<button aria-label="Fechar">×</button><script>var s = \'Início\';</script></body></html>';
+    const source = tool.translationSource(html);
+    assert.equal(source.u2, 'Um <g1>bom</g1> dia.<g2><g3>1</g3></g2>');
+    const english = Object.fromEntries(Object.entries(source).map(([key, value]) => [key, {
+        u1: 'Title', u2: 'A <g1>good</g1> day.<g2><g3>1</g3></g2>', a1: 'Close', title: 'Book', description: 'About the book', s1: 'Start'
+    }[key] ?? value]));
+    const out = tool.applyTranslation(html, english, 'en-GB');
+    assert.match(out, /<html lang="en-GB">/);
+    assert.match(out, /<p class="x">A <em>good<\/em> day\.<sup><a href="#n1">1<\/a><\/sup><\/p>/);
+    assert.match(out, /aria-label="Close"/);
+    assert.match(out, /<title>Book<\/title>/);
+    assert.match(out, /var s = 'Start';/);
+    // Una traducción que pierde un marcador no se aplica.
+    assert.throws(() => tool.applyTranslation(html, { ...english, u2: 'A good day.' }, 'en-GB'), /placeholders changed/);
+});
+
 test('descargar el HTML funciona al primer toque', () => {
     // Un enlace que nace como «#» lo engancha el desplazamiento suave de
     // main.js al cargar, y al pulsarlo ya con su dirección real lo anulaba.
@@ -764,7 +812,7 @@ test('los tres idiomas tienen las mismas claves y cubren las plantillas', () => 
     for (const key of used) assert.ok(key in blocks.en, `missing copy: ${key}`);
 
     // Una traducción que se quedó en inglés.
-    const untranslatable = new Set(['navContact', 'footerCompany', 'emailLabel']);
+    const untranslatable = new Set(['navContact', 'footerCompany', 'emailLabel', 'originalLanguage']);
     for (const language of ['es', 'pt']) {
         for (const key of english) {
             if (untranslatable.has(key) || /ElevenReader|Elysium/.test(blocks.en[key]) && blocks.en[key].length < 30) continue;

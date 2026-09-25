@@ -73,6 +73,15 @@ const BOOK_KEY_PREFIX = 'book:';
  * Si cambia su forma, se sube la versión y se recalcula sola al leerse.
  */
 const INFO_KEY_PREFIX = 'info:';
+
+/**
+ * Traducciones: se hacen una vez con `scripts/library-translation.mjs`, como
+ * las páginas `/es/` y `/pt/` del sitio, y se guardan en `tr:<slug>:<idioma>`.
+ * Las que existen se anotan en `info:<slug>` (`translations`), que es lo que
+ * lee el lector para montar su selector de idioma.
+ */
+const TRANSLATION_KEY_PREFIX = 'tr:';
+export const TRANSLATION_LANGUAGES = ['en-GB', 'es-ES', 'pt-PT'];
 const INFO_VERSION = 1;
 const MAX_OUTLINE_ENTRIES = 160;
 const MAX_HEADING_LENGTH = 160;
@@ -588,6 +597,19 @@ function bookHelper() {
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') send('escape');
     });
+    // Al cambiar de idioma la página recarga el libro traducido: le pregunta
+    // antes por el último ancla ya leída para abrirlo en el mismo sitio.
+    window.addEventListener('message', function (event) {
+        if (event.source !== window.parent || !event.data || event.data.elysiumLibrary !== 'where') return;
+        var scope = document.querySelector('main') || document.body;
+        var nodes = scope.querySelectorAll('[id]');
+        var here = '';
+        for (var i = 0; i < nodes.length; i += 1) {
+            if (nodes[i].getBoundingClientRect().top <= 80) here = nodes[i].id;
+            else if (here) break;
+        }
+        try { window.parent.postMessage({ elysiumLibrary: 'here', value: here }, '*'); } catch (error) { /* sin padre */ }
+    });
 }
 
 export const BOOK_HELPER = `<script>/* Elysium Library */(${bookHelper.toString()})();</script>`;
@@ -938,10 +960,18 @@ async function publishBook(request, env, url, slug, ctx) {
         uploadedAt: new Date().toISOString()
     });
     await kv.put(key, bytes, { metadata });
+    // Las traducciones eran de la versión anterior: con el texto nuevo sobran.
+    await forgetTranslations(kv, slug);
     await kv.put(INFO_KEY_PREFIX + slug, JSON.stringify(extractBookInfo(text)));
     await forgetCatalog(url.origin);
     announce(ctx, url, [bookUrl(slug), `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`]);
     return json(request, { book: publicBook(slug, metadata), replaced: exists }, exists ? 200 : 201);
+}
+
+async function forgetTranslations(kv, slug) {
+    const stored = await kv.get(INFO_KEY_PREFIX + slug);
+    const translations = stored ? (JSON.parse(stored).translations || []) : [];
+    for (const language of translations) await kv.delete(`${TRANSLATION_KEY_PREFIX}${slug}:${language}`);
 }
 
 async function removeBook(request, env, url, slug, ctx) {
@@ -953,6 +983,7 @@ async function removeBook(request, env, url, slug, ctx) {
         throw new LibraryError('That book is not in the library.', 'library_book_missing', 404);
     }
     await kv.delete(key);
+    await forgetTranslations(kv, slug);
     await kv.delete(INFO_KEY_PREFIX + slug);
     await forgetCatalog(url.origin);
     announce(ctx, url, [bookUrl(slug), `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`]);
@@ -1216,9 +1247,11 @@ async function bookInfo(env, slug) {
             const info = JSON.parse(stored);
             if (info && info.v === INFO_VERSION) return info;
         }
+        const previous = stored ? JSON.parse(stored) : null;
         const html = await kv.get(BOOK_KEY_PREFIX + slug);
         if (!html) return empty;
         const info = extractBookInfo(html);
+        if (previous && Array.isArray(previous.translations)) info.translations = previous.translations;
         await kv.put(INFO_KEY_PREFIX + slug, JSON.stringify(info));
         return info;
     } catch (error) {
@@ -1262,7 +1295,11 @@ async function serveReader(request, env, url, slug) {
         BOOK_MORE: more,
         BOOK_MORE_HIDDEN: more ? '' : 'hidden',
         BOOK_JSON_LD: bookJsonLd(book, info, description),
-        BOOK_DATA: jsonForScript({ ...book, author: info.author || '' })
+        BOOK_DATA: jsonForScript({
+            ...book,
+            author: info.author || '',
+            translations: (info.translations || []).filter(language => TRANSLATION_LANGUAGES.includes(language))
+        })
     });
     return new Response(request.method === 'HEAD' ? null : html, { status: 200, headers: pageHeaders(response) });
 }
@@ -1324,9 +1361,10 @@ function serveManifest(request) {
     });
 }
 
-async function serveBookFile(request, env, slug, { download }) {
+async function serveBookFile(request, env, slug, { download, language = null }) {
     const kv = store(env);
-    const found = await kv.getWithMetadata(BOOK_KEY_PREFIX + slug, { type: 'stream' });
+    const key = language ? `${TRANSLATION_KEY_PREFIX}${slug}:${language}` : BOOK_KEY_PREFIX + slug;
+    const found = await kv.getWithMetadata(key, { type: 'stream' });
     if (!found || !found.value) return notFound(request);
     const metadata = found.metadata || {};
     const headers = baseHeaders({
@@ -1337,7 +1375,8 @@ async function serveBookFile(request, env, slug, { download }) {
     if (metadata.uploadedAt) headers.set('Last-Modified', new Date(metadata.uploadedAt).toUTCString());
     if (download) {
         headers.set('Content-Security-Policy', DOWNLOAD_CSP);
-        headers.set('Content-Disposition', contentDisposition(downloadFilename(metadata.file, slug)));
+        const filename = downloadFilename(metadata.file, slug);
+        headers.set('Content-Disposition', contentDisposition(language ? filename.replace(/(\.html?)$/i, `.${language}$1`) : filename));
         if (metadata.size) headers.set('Content-Length', String(metadata.size));
     } else {
         headers.set('Content-Security-Policy', BOOK_CSP);
@@ -1396,8 +1435,12 @@ export async function handleLibrary(request, env, url, ctx) {
             return permanentRedirect(url, `${LIBRARY_PREFIX}/${slug}`);
         }
         if (segments.length === 1) return await serveReader(request, env, url, slug);
-        if (segments.length === 2 && segments[1] === 'book') return await serveBookFile(request, env, slug, { download: false });
-        if (segments.length === 2 && segments[1] === 'download') return await serveBookFile(request, env, slug, { download: true });
+        // `?lang=` pide una traducción guardada; sin él, el original.
+        const requested = url.searchParams.get('lang');
+        const language = TRANSLATION_LANGUAGES.includes(requested) ? requested : null;
+        if (requested && !language && segments.length === 2) return notFound(request);
+        if (segments.length === 2 && segments[1] === 'book') return await serveBookFile(request, env, slug, { download: false, language });
+        if (segments.length === 2 && segments[1] === 'download') return await serveBookFile(request, env, slug, { download: true, language });
         return notFound(request);
     } catch (error) {
         if (error instanceof LibraryError && error.code === 'library_not_configured') return notFound(request);

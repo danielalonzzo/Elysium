@@ -182,7 +182,7 @@ quedan publicados sin commit ni despliegue. Desde el 25/09/2026 dejó de ser
 oculta: se enlaza desde el pie de todas las páginas (solo el pie, no el menú),
 se indexa y tiene su propio sitemap, porque el objetivo es que cada libro salga
 al buscarlo. Sigue fuera del MCP (son obras de terceros) y en `.es`/`.pt`
-redirige a `.eu`. Siete cosas que no se ven abriéndola:
+redirige a `.eu`. Ocho cosas que no se ven abriéndola:
 
 1. **Los libros viven en Workers KV** (binding `LIBRARY` en `wrangler.jsonc`),
    un valor por libro (`book:<slug>`) con sus metadatos en la propia clave. R2
@@ -230,6 +230,18 @@ redirige a `.eu`. Siete cosas que no se ven abriéndola:
    anteriores lo calculan la primera vez que se abren. Un libro bien marcado
    (`<title>`, `<meta name="description">`, `<meta name="author">`, `h2`/`h3`
    con `id` o dentro de una `<section id>`) sale mucho mejor.
+8. **Las traducciones se hacen una vez y se guardan, como las páginas del
+   sitio.** No hay traducción al vuelo: `scripts/library-translation.mjs
+   extract` saca el texto del libro en unidades con marcadores (`<g1>…</g1>`,
+   `<x2/>`), se traduce ese JSON, y `apply` lo mete en el HTML original sin
+   tocar estilos, scripts ni imágenes (falla si una unidad pierde un marcador).
+   Cada traducción va a `tr:<slug>:<idioma>` (en-GB, es-ES o pt-PT) y se anota
+   en `translations` de `info:<slug>`; el lector la sirve con `?lang=` y su
+   selector con banderas la ofrece. Un libro en uno de esos tres idiomas se
+   traduce a los otros dos; en otro idioma, a los tres. Republicar un libro
+   borra sus traducciones (eran del texto anterior). Estado el 25/09/2026:
+   Sociedade e Cultura Inglesas tiene en-GB y es-ES; **faltan Capital Humano
+   (~25.500 palabras) y el Manual (~87.000)**, a en-GB y es-ES.
 7. **Tiene dos sitemaps y un aviso.** `/library/sitemap.xml` lo genera el Worker
    desde KV y solo lo anuncia el `robots.txt` de `.eu`; el estático de la raíz
    no lo incluye. Al publicar o retirar se avisa a IndexNow (Bing y compañía;
