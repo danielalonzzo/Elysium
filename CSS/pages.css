@@ -5059,3 +5059,23 @@ body[data-active-currency="CRC"] .matrix-plan-optional {
 }
 
 .admin-session-back:hover { text-decoration: underline; }
+
+/* La biblioteca no está en el menú: en móvil, donde el pie esconde la
+   columna «Empresa» porque repite el menú, se queda solo su enlace. */
+@media (max-width: 1100px) {
+    footer .footer-grid .footer-col:nth-child(2) {
+        display: flex !important;
+        flex-direction: column;
+    }
+
+    footer .footer-grid .footer-col:nth-child(2) > h3,
+    footer .footer-grid .footer-col:nth-child(2) > h4,
+    footer .footer-grid .footer-col:nth-child(2) li:not(.footer-library) {
+        display: none;
+    }
+
+    footer .footer-grid .footer-col:nth-child(2) .footer-links,
+    footer .footer-grid .footer-col:nth-child(2) .footer-library {
+        margin: 0;
+    }
+}

@@ -571,14 +571,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetId = this.getAttribute('href');
             // `href="#"` is used by auth view toggles. It is not a valid CSS
             // selector and must be left to the component-specific listener.
-            if (!targetId || targetId === '#') return;
-            e.preventDefault();
-            const target = document.querySelector(targetId);
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth'
-                });
+            // The href is read again at click time because some links start
+            // as "#" and get their real address later (the library's
+            // download link did): those must be left to the browser, or the
+            // first tap does nothing.
+            if (!targetId || targetId === '#' || !targetId.startsWith('#')) return;
+            let target = null;
+            try {
+                target = document.querySelector(targetId);
+            } catch (error) {
+                return;
             }
+            if (!target) return;
+            e.preventDefault();
+            target.scrollIntoView({
+                behavior: 'smooth'
+            });
         });
     });
 

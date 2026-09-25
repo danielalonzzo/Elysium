@@ -480,11 +480,15 @@ export function extractBookInfo(html) {
  *    Elysium y escondía la cabecera. Se sustituye por una versión que solo
  *    mueve los contenedores del propio libro. Navegar a un ancla y `focus()`
  *    no tienen ese problema (comprobado), así que no se tocan.
- * 3. En pantalla completa, Escape sale del modo. Pero con el foco dentro del
- *    libro la tecla llega al iframe, no a la página que lo enmarca, así que
- *    el libro la avisa con `postMessage`: una sola señal, sin datos del
- *    libro. El destino `*` no expone nada: `frame-ancestors 'self'` impide
- *    que otro sitio lo enmarque.
+ * 3. La pantalla completa del lector no pone nada de Elysium encima del
+ *    libro: el botón de salir es del propio libro, junto a su botón de tema
+ *    (`<button data-library-exit hidden>`, que llevan los libros de la
+ *    biblioteca). La página avisa al libro de cuándo está a pantalla completa
+ *    y el libro le devuelve el clic en ese botón; si un libro no trae el
+ *    hueco, se le añade uno mínimo arriba a la derecha. Escape pulsado dentro
+ *    del libro tampoco llega a la página, así que también se avisa. Todo va
+ *    por `postMessage` sin datos del libro, y el destino `*` no expone nada:
+ *    `frame-ancestors 'self'` impide que otro sitio lo enmarque.
  *
  * Se escribe como función y se serializa para que se pueda leer y revisar;
  * no puede usar nada de fuera de su propio cuerpo.
@@ -534,9 +538,55 @@ function bookHelper() {
         window.scrollBy({ top: offset(this.getBoundingClientRect(), rootPadding, window.innerHeight, block) - margin, behavior: behavior });
     };
 
+    var send = function (type) {
+        try { window.parent.postMessage({ elysiumLibrary: type }, '*'); } catch (error) { /* sin padre */ }
+    };
+    var immersive = false;
+    var exitButton = null;
+    var fallback = false;
+    var exitLabel = function () {
+        var lang = (document.documentElement.lang || '').slice(0, 2).toLowerCase();
+        return lang === 'pt' ? 'Sair do ecrã inteiro' : lang === 'es' ? 'Salir de la pantalla completa' : 'Exit full screen';
+    };
+    var sync = function () {
+        if (!document.body) return;
+        if (!exitButton) {
+            exitButton = document.querySelector('[data-library-exit]');
+            if (!exitButton && immersive) {
+                fallback = true;
+                exitButton = document.createElement('button');
+                exitButton.type = 'button';
+                exitButton.setAttribute('aria-label', exitLabel());
+                exitButton.title = exitLabel();
+                exitButton.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+                exitButton.style.cssText = 'position:fixed;top:10px;right:10px;z-index:2147483647;width:34px;height:34px;place-items:center;padding:0;border:0;border-radius:50%;background:rgba(20,22,26,.55);color:#fff;cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 1px 3px rgba(0,0,0,.25)';
+                document.body.appendChild(exitButton);
+            }
+            if (exitButton) {
+                exitButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    send('exit');
+                });
+            }
+        }
+        if (!exitButton) return;
+        exitButton.hidden = !immersive;
+        // `hidden` no basta si el CSS del libro le da un `display` propio.
+        exitButton.style.display = immersive ? (fallback ? 'grid' : '') : 'none';
+    };
+    var whenReady = function (callback) {
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', callback, { once: true });
+        else callback();
+    };
+    window.addEventListener('message', function (event) {
+        if (event.source !== window.parent || !event.data || event.data.elysiumLibrary !== 'immersive') return;
+        immersive = event.data.value === true;
+        whenReady(sync);
+    });
+    // Si el libro se recarga a pantalla completa, la página le recuerda el modo.
+    whenReady(function () { send('ready'); });
     document.addEventListener('keydown', function (event) {
-        if (event.key !== 'Escape') return;
-        try { window.parent.postMessage({ elysiumLibrary: 'escape' }, '*'); } catch (error) { /* sin padre */ }
+        if (event.key === 'Escape') send('escape');
     });
 }
 

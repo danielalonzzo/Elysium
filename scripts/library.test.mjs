@@ -26,6 +26,7 @@ const READER_TEMPLATE = readFileSync(join(ROOT, 'library', 'reader.html'), 'utf8
 const LIBRARY_JS = readFileSync(join(ROOT, 'JS', 'library.js'), 'utf8');
 const LIBRARY_ADMIN_JS = readFileSync(join(ROOT, 'JS', 'library-admin.js'), 'utf8');
 const LIBRARY_CSS = readFileSync(join(ROOT, 'CSS', 'library.css'), 'utf8');
+const PAGES_CSS = readFileSync(join(ROOT, 'CSS', 'pages.css'), 'utf8');
 
 // ── Entorno falso ─────────────────────────────────────────────────────────────
 
@@ -639,7 +640,7 @@ function portfolioPages() {
         .filter(path => path.endsWith('.html') && !skip.test(path) && !/(?:^|\/)(?:node_modules|_comercial|[^/]+\.nosync)\//.test(path));
 }
 
-test('todas las páginas con pie completo enlazan la biblioteca, y solo en el pie', () => {
+test('todas las páginas con pie completo enlazan la biblioteca, también en móvil, y solo en el pie', () => {
     let checked = 0;
     for (const path of portfolioPages()) {
         const html = readFileSync(join(ROOT, path), 'utf8');
@@ -651,31 +652,48 @@ test('todas las páginas con pie completo enlazan la biblioteca, y solo en el pi
         const localized = national || /^(?:es|pt)\//.test(path);
         const href = national ? 'https://elysiumdr.eu/library' : '/library';
         const label = localized ? 'Biblioteca' : 'Library';
-        assert.match(footer, new RegExp(`<li><a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="\\w+")?>${label}</a></li>`), path);
+        assert.match(footer, new RegExp(`<li class="footer-library"><a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="\\w+")?>${label}</a></li>`), path);
+        // En móvil el pie esconde la columna «Empresa» (repite el menú), pero
+        // la biblioteca no está en el menú: su enlace tiene que seguir a la vista.
+        const mobileRule = html.includes('pages.css') ? PAGES_CSS : html;
+        assert.match(mobileRule, /footer \.footer-grid \.footer-col:nth-child\(2\) li:not\(\.footer-library\)/, `${path}: mobile footer`);
         const navbar = html.slice(html.indexOf('<nav'), html.indexOf('</nav>'));
         assert.ok(!/href="(?:https:\/\/elysiumdr\.eu)?\/library"/.test(navbar), `${path}: the header must not link the library`);
     }
     assert.ok(checked >= 80, `only ${checked} pages were checked`);
 });
 
-test('el lector tiene pantalla completa con la X siempre visible y fuera del libro', () => {
+test('en pantalla completa no hay nada de Elysium encima: el botón de salir es del libro', () => {
     assert.equal((READER_TEMPLATE.match(/data-immersive-open/g) || []).length, 2);
-    assert.match(READER_TEMPLATE, /<button type="button" class="library-immersive-close" data-immersive-close aria-label="Exit full screen" data-i18n-aria="fullscreenClose">/);
+    assert.ok(!/library-immersive-(?:close|bar)/.test(READER_TEMPLATE + LIBRARY_CSS), 'no Elysium control over the book');
     assert.match(READER_TEMPLATE, /<iframe class="library-frame" name="library-book"/);
     assert.match(LIBRARY_JS, /root\.requestFullscreen \|\| root\.webkitRequestFullscreen/);
     assert.match(LIBRARY_JS, /document\.exitFullscreen \|\| document\.webkitExitFullscreen/);
     assert.match(LIBRARY_JS, /addEventListener\('fullscreenchange'/);
     // Solo se escucha al propio libro.
     assert.match(LIBRARY_JS, /event\.source !== frame\.contentWindow/);
-    // Escape dentro del libro no llega a la página: lo avisa el libro.
-    assert.match(library.BOOK_HELPER, /window\.parent\.postMessage\(\{ elysiumLibrary: 'escape' \}, '\*'\)/);
-    // La X va en su propia barra y el libro empieza debajo: no tapa nada suyo.
-    assert.match(READER_TEMPLATE, /<div class="library-immersive-bar">\s*<button type="button" class="library-immersive-close"/);
-    assert.match(LIBRARY_CSS, /html\.library-immersive \.library-immersive-bar \{[^}]*position: fixed;[^}]*height: calc\(var\(--library-immersive-bar\)/);
+    // La página le dice al libro el modo; el libro le devuelve salir y Escape.
+    assert.match(LIBRARY_JS, /frame\.contentWindow\.postMessage\(\{ elysiumLibrary: 'immersive', value: active \}, '\*'\)/);
+    assert.match(LIBRARY_JS, /if \(type === 'exit'\) exit\(\);/);
+    assert.match(library.BOOK_HELPER, /document\.querySelector\('\[data-library-exit\]'\)/);
+    assert.match(library.BOOK_HELPER, /event\.source !== window\.parent/);
+    assert.match(library.BOOK_HELPER, /send\('exit'\)/);
+    assert.match(library.BOOK_HELPER, /send\('escape'\)/);
     // El iframe cambia de tamaño, no de sitio: no se recarga el libro.
-    assert.match(LIBRARY_CSS, /html\.library-immersive \.library-frame \{[^}]*position: fixed;[^}]*top: calc\(var\(--library-immersive-bar\)[^}]*width: calc\(100vw/);
-    // Y nunca se esconde.
-    assert.ok(!/is-visible/.test(LIBRARY_JS) && !/library-immersive-close[^{]*\{[^}]*opacity: 0/.test(LIBRARY_CSS), 'the X must never hide');
+    assert.match(LIBRARY_CSS, /html\.library-immersive \.library-frame \{[^}]*position: fixed;[^}]*width: calc\(100vw/);
+});
+
+test('descargar el HTML funciona al primer toque', () => {
+    // Un enlace que nace como «#» lo engancha el desplazamiento suave de
+    // main.js al cargar, y al pulsarlo ya con su dirección real lo anulaba.
+    for (const [name, html] of [['index', INDEX_TEMPLATE], ['reader', READER_TEMPLATE]]) {
+        const link = /<a [^>]*data-audiobook-download[^>]*>/.exec(html)[0];
+        assert.match(link, /\sdownload\s/, name);
+        assert.ok(!/href="#/.test(link), `${name}: the download link must not start as an anchor`);
+    }
+    assert.match(READER_TEMPLATE, /href="\/library\/\{\{BOOK_SLUG\}\}\/download" download data-audiobook-download/);
+    const main = readFileSync(join(ROOT, 'JS', 'main.js'), 'utf8');
+    assert.match(main, /if \(!targetId \|\| targetId === '#' \|\| !targetId\.startsWith\('#'\)\) return;/);
 });
 
 // ── Plantillas y textos ──────────────────────────────────────────────────────
@@ -691,7 +709,7 @@ test('las dos plantillas llevan la cabecera y el pie de Elysium, y se indexan', 
         assert.match(html, /<link rel="manifest" href="\/library\/manifest\.webmanifest">/, name);
         assert.match(html, /<nav class="navbar">/, name);
         assert.match(html, /<footer>/, name);
-        assert.match(html, /<li><a href="\/library" data-i18n="footerLibrary">Library<\/a><\/li>/, name);
+        assert.match(html, /<li class="footer-library"><a href="\/library" data-i18n="footerLibrary">Library<\/a><\/li>/, name);
         assert.match(html, /<dialog class="library-dialog" data-audiobook-dialog/, name);
         assert.match(html, /href="https:\/\/elevenreader\.io\/"/, name);
         assert.match(html, /data-audiobook-download/, name);

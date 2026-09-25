@@ -202,11 +202,16 @@ redirige a `.eu`. Siete cosas que no se ven abriéndola:
 4. **Al servir el libro se le inyecta un script** (`BOOK_HELPER`): abre en otra
    pestaña los enlaces a otras páginas, sustituye `scrollIntoView`, que desde
    dentro del iframe arrastraba la página de Elysium y escondía la cabecera, y
-   avisa con `postMessage` cuando se pulsa Escape dentro del libro, para salir
-   de la pantalla completa del lector (la tecla no llega a la página que lo
-   enmarca). En ese modo la X roja va en una barra propia, siempre visible y
-   fuera del libro. La descarga (`/download`, la que se sube a ElevenReader)
-   es el fichero tal cual.
+   hace de puente con la pantalla completa del lector: encima del libro no se
+   pone nada de Elysium, el botón de salir es del propio libro, junto a su
+   botón de tema (`<button class="icon-btn" data-library-exit hidden>`). La
+   página le avisa por `postMessage` de cuándo está a pantalla completa, y el
+   libro le devuelve el clic y la tecla Escape. Si un libro no trae el hueco,
+   el ayudante le añade un botón mínimo arriba a la derecha. La descarga
+   (`/download`, la que se sube a ElevenReader) es el fichero tal cual.
+   Los libros comparten la arquitectura del Manual (barra superior, índice
+   lateral, páginas del original, notas emergentes) y cada uno tiene su
+   paleta: verde azulado el Manual, índigo Capital Humano, granate Sociedade.
 5. **Publica solo `daniel.morales@elysiumdr.eu`**, con el correo verificado. No
    basta el claim `admin` ni un rol del CRM: la biblioteca es de Daniel, y otra
    cuenta solo entra si se añade a `LIBRARY_ADMIN_EMAILS` en el Worker. El

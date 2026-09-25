@@ -128,18 +128,6 @@
             <iframe class="library-frame" name="library-book" src="/library/{{BOOK_SLUG}}/book" title="{{BOOK_TITLE}}"
                 sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-modals"
                 referrerpolicy="same-origin"></iframe>
-            <!-- La barra de la pantalla completa, como la de título de una
-                 ventana de macOS: siempre visible y fuera del libro, que empieza
-                 justo debajo, así la X no tapa nunca nada suyo. La X es el
-                 semáforo rojo de macOS 27 Golden Gate. -->
-            <div class="library-immersive-bar">
-                <button type="button" class="library-immersive-close" data-immersive-close aria-label="Exit full screen" data-i18n-aria="fullscreenClose">
-                    <span class="library-close-gem" aria-hidden="true">
-                        <svg class="library-close-glyph" viewBox="0 0 12 12" width="12" height="12"><path d="M3.4 3.4l5.2 5.2M8.6 3.4L3.4 8.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                    </span>
-                </button>
-                <span class="library-immersive-title" lang="{{BOOK_LANG}}">{{BOOK_TITLE}}</span>
-            </div>
         </div>
 
         <section class="library-about" aria-labelledby="library-about-title">
@@ -220,7 +208,7 @@
                         <li><a href="/about" data-library-nav="about" data-i18n="footerAbout">About Us</a></li>
                         <li><a href="/services" data-library-nav="services" data-i18n="navServices">Services</a></li>
                         <li><a href="/research" data-library-nav="research" data-i18n="navResearch">Research</a></li>
-                        <li><a href="/library" data-i18n="footerLibrary">Library</a></li>
+                        <li class="footer-library"><a href="/library" data-i18n="footerLibrary">Library</a></li>
                         <li><a href="/portfolio" data-library-nav="portfolio" data-i18n="navPortfolio">Portfolio</a></li>
                         <li><a href="/contact" data-library-nav="contact" data-i18n="navContact">Contact</a></li>
                     </ul>
@@ -271,7 +259,7 @@
                     <span data-i18n="openElevenReader">Go to ElevenReader</span>
                     <span aria-hidden="true">↗</span>
                 </a>
-                <a class="btn" href="#" download data-audiobook-download>
+                <a class="btn" href="/library/{{BOOK_SLUG}}/download" download data-audiobook-download>
                     <span data-i18n="downloadHtml">Download HTML</span>
                     <span aria-hidden="true">↓</span>
                 </a>

@@ -13,8 +13,8 @@
  *
  * El lector tiene además un modo de pantalla completa: el libro ocupa toda la
  * pantalla, sin cabecera ni pie, y en los navegadores que lo permiten también
- * sin la interfaz del navegador (Fullscreen API). Se sale con la X roja, que
- * está siempre visible en su propia barra, o con Escape.
+ * sin la interfaz del navegador (Fullscreen API). Se sale con el botón que
+ * el propio libro enseña junto a su botón de tema, o con Escape.
  *
  * La publicación de libros vive aparte, en `library-admin.js`, que solo se
  * descarga si se abre «Administración» o si este navegador ya se identificó
@@ -67,7 +67,6 @@
             close: 'Close',
             fullscreen: 'Full screen',
             readFullscreen: 'Read full screen',
-            fullscreenClose: 'Exit full screen',
             aboutBook: 'About this book',
             factLanguage: 'Language',
             factAdded: 'Added',
@@ -163,7 +162,6 @@
             close: 'Cerrar',
             fullscreen: 'Pantalla completa',
             readFullscreen: 'Leer a pantalla completa',
-            fullscreenClose: 'Salir de la pantalla completa',
             aboutBook: 'Sobre este libro',
             factLanguage: 'Idioma',
             factAdded: 'Añadido',
@@ -259,7 +257,6 @@
             close: 'Fechar',
             fullscreen: 'Ecrã inteiro',
             readFullscreen: 'Ler em ecrã inteiro',
-            fullscreenClose: 'Sair do ecrã inteiro',
             aboutBook: 'Sobre este livro',
             factLanguage: 'Idioma',
             factAdded: 'Adicionado',
@@ -689,16 +686,17 @@
      * puede (escritorio, Android, iPad; en el iPhone solo lo consigue la app
      * instalada). Salir de cualquiera de las dos cierra las dos.
      *
-     * La X vive en una barra propia encima del libro y no se esconde nunca.
-     * Escape pulsado dentro del libro no llega a esta página (es otro
-     * documento): lo avisa el propio libro (`BOOK_HELPER`, en
-     * `worker/library.js`) con `postMessage`.
+     * Encima del libro no se pone nada: el botón de salir es del propio
+     * libro, junto a su botón de tema. Esta página le dice al libro cuándo
+     * está a pantalla completa para que lo enseñe, y el libro le devuelve el
+     * clic y también Escape, que pulsado dentro del iframe no llega aquí. Lo
+     * hace `BOOK_HELPER`, que el Worker inyecta en cada libro
+     * (`worker/library.js`), con `postMessage`.
      */
     function setupImmersive(frame) {
         var root = document.documentElement;
-        var close = document.querySelector('[data-immersive-close]');
         var openers = document.querySelectorAll('[data-immersive-open]');
-        if (!frame || !close || !openers.length) return;
+        if (!frame || !openers.length) return;
 
         var active = false;
         var native = false;
@@ -712,6 +710,12 @@
             if (result && typeof result.catch === 'function') result.catch(function () { /* se queda en el modo de la página */ });
         }
 
+        // El libro vive en un origen opaco (sandbox): solo se le puede
+        // escribir con destino `*`. No se le cuenta nada más que el modo.
+        function tellBook() {
+            try { frame.contentWindow.postMessage({ elysiumLibrary: 'immersive', value: active }, '*'); } catch (error) { /* sin libro */ }
+        }
+
         function enter(trigger) {
             if (active) return;
             active = true;
@@ -721,6 +725,7 @@
             if (request) {
                 try { quietly(request.call(root, { navigationUI: 'hide' })); } catch (error) { /* sin permiso */ }
             }
+            tellBook();
             try { frame.focus({ preventScroll: true }); } catch (error) { frame.focus(); }
         }
 
@@ -728,6 +733,7 @@
             if (!active) return;
             active = false;
             root.classList.remove('library-immersive');
+            tellBook();
             if (fullscreenElement()) {
                 var leave = document.exitFullscreen || document.webkitExitFullscreen;
                 if (leave) {
@@ -742,7 +748,6 @@
         openers.forEach(function (button) {
             button.addEventListener('click', function () { enter(button); });
         });
-        close.addEventListener('click', exit);
 
         function onFullscreenChange() {
             if (fullscreenElement()) {
@@ -763,8 +768,10 @@
 
         window.addEventListener('message', function (event) {
             if (!active || event.source !== frame.contentWindow) return;
-            var data = event.data;
-            if (data && data.elysiumLibrary === 'escape' && !fullscreenElement()) exit();
+            var type = event.data && event.data.elysiumLibrary;
+            if (type === 'exit') exit();
+            else if (type === 'escape' && !fullscreenElement()) exit();
+            else if (type === 'ready') tellBook();
         });
     }
 
