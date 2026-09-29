@@ -617,7 +617,7 @@ function bookHelper() {
     });
 }
 
-export const BOOK_HELPER = `<script>/* Elysium Library */(${bookHelper.toString()})();</script>`;
+export const BOOK_HELPER = `<script>/* Elysium Library */var __name=function(t){return t;};(${bookHelper.toString()})();</script>`;
 
 const HEAD_CLOSE = new TextEncoder().encode('</head');
 

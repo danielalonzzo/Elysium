@@ -6,7 +6,7 @@
  * abierta añade una entrada al historial: el gesto «atrás» de Android o el
  * botón del navegador la cierran en vez de sacar a la persona de la app.
  */
-import { html, $, haptic } from './dom.js';
+import { html, haptic, prefersReducedMotion } from './dom.js';
 import { icon } from './icons.js';
 
 const stack = [];
@@ -65,7 +65,7 @@ export function openSheet(options) {
         <div class="sheet sheet-${options.size || 'md'} ${options.className || ''}" role="dialog" aria-modal="true" aria-labelledby="${id}-title">
             <div class="sheet-grab" aria-hidden="true"><span></span></div>
             <header class="sheet-head">
-                <div class="sheet-titles">
+                <div>
                     ${options.subtitle ? html`<p class="eyebrow">${options.subtitle}</p>` : ''}
                     <h2 id="${id}-title">${options.title}</h2>
                 </div>
@@ -107,8 +107,7 @@ export function openSheet(options) {
                 if (previousFocus?.focus && document.contains(previousFocus)) previousFocus.focus({ preventScroll: true });
                 resolveClosed();
             };
-            const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-            if (reduce) finish(); else setTimeout(finish, 220);
+            if (prefersReducedMotion()) finish(); else setTimeout(finish, 220);
             return closedPromise;
         },
         close() { return entry.dismiss(); }

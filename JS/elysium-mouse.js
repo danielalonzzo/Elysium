@@ -72,6 +72,11 @@
         ' margin: 0; padding: 0; border: 0; background: transparent;' +
         ' overflow: visible; color: inherit; }' +
         '.ely-cursor::backdrop { display: none; }' +
+        'body:has(#elysium-preloader.is-leaving) .ely-cursor, ' +
+        'html:has(#elysium-preloader.is-leaving) .ely-cursor, ' +
+        '#elysium-preloader.is-leaving ~ .ely-cursor, ' +
+        '.ely-cursor.ely-hidden { ' +
+        ' opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }' +
 
         '.ely-cursor-dot, .ely-cursor-breath, .ely-cursor-comet {' +
         ' position: fixed; top: 0; left: 0;' +
@@ -194,7 +199,25 @@
     function onDialogOpen(mutations) {
         for (var i = 0; i < mutations.length; i += 1) {
             var target = mutations[i].target;
-            if (target.tagName === 'DIALOG' && target.hasAttribute('open')) {
+            if (target && target.id === 'elysium-preloader') {
+                if (target.classList.contains('is-leaving')) {
+                    if (root) {
+                        root.classList.add('ely-hidden');
+                        if (supportsPopover && root.matches(':popover-open')) {
+                            try { root.hidePopover(); } catch (e) {}
+                        }
+                    }
+                } else {
+                    if (root) {
+                        root.classList.remove('ely-hidden');
+                        if (supportsPopover && !root.matches(':popover-open')) {
+                            try { root.showPopover(); } catch (e) {}
+                        }
+                    }
+                }
+                return;
+            }
+            if (target && target.tagName === 'DIALOG' && target.hasAttribute('open')) {
                 raiseToTopLayer();
                 return;
             }
@@ -216,7 +239,7 @@
         topLayerObserver.observe(document.documentElement, {
             subtree: true,
             attributes: true,
-            attributeFilter: ['open']
+            attributeFilter: ['open', 'class']
         });
         // `toggle` no burbujea; en captura sí llega al documento.
         document.addEventListener('toggle', onPopoverToggle, true);

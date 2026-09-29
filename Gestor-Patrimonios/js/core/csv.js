@@ -3,7 +3,7 @@
  *
  * Salida: separador `;` y BOM UTF-8, que es lo que Excel en español abre sin
  * preguntar (con `,` mete todo en una columna, porque en es-CR la coma es el
- * decimal). Cada celda que empiece por `= + - @` se neutraliza con un apóstrofo:
+ * decimal). Cada celda que empiece por igual, más, menos o arroba se neutraliza con un apóstrofo:
  * es la inyección de fórmulas que ya evita `safeCsvCell` en el CRM.
  *
  * Entrada: detecta el separador, respeta comillas y convierte filas en
@@ -12,12 +12,16 @@
  */
 import { parseAmount } from './money.js';
 import { parseDateLoose } from './dates.js';
+import { plain, stripAccents, cleanText } from './text.js';
+
+const BOM = '\uFEFF';
 
 export function safeCsvCell(value) {
     if (value == null) return '';
     let text = String(value);
     if (/^[=+\-@\t\r]/.test(text) && !/^-?\d+([.,]\d+)?$/.test(text)) text = `'${text}`;
-    if (/[";\n\r,]/.test(text)) text = `"${text.replace(/"/g, '""')}"`;
+    // El separador es «;»: la coma decimal («-12500,50») no obliga a entrecomillar.
+    if (/[";\n\r]/.test(text)) text = `"${text.replace(/"/g, '""')}"`;
     return text;
 }
 
@@ -31,7 +35,7 @@ export function toCSV(rows, columns) {
         const value = column.format ? column.format(row[column.key], row) : row[column.key];
         return safeCsvCell(value);
     }).join(';'));
-    return '﻿' + [header, ...body].join('\r\n');
+    return BOM + [header, ...body].join('\r\n');
 }
 
 export function detectDelimiter(text) {
@@ -43,7 +47,7 @@ export function detectDelimiter(text) {
 
 /** Parser CSV con comillas dobles (RFC 4180, tolerante). */
 export function parseCSV(input, delimiter = null) {
-    const text = String(input || '').replace(/^﻿/, '');
+    const text = String(input || '').replace(/^\uFEFF/, '');
     const sep = delimiter || detectDelimiter(text);
     const rows = [];
     let row = [];
@@ -84,10 +88,10 @@ const HEADER_HINTS = {
 
 /** Propone qué columna es qué a partir de los encabezados. */
 export function guessMapping(headers) {
-    const normalized = headers.map(h => String(h).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim());
+    const normalized = headers.map(plain);
     const mapping = {};
     for (const [field, hints] of Object.entries(HEADER_HINTS)) {
-        const plainHints = hints.map(h => h.normalize('NFD').replace(/[̀-ͯ]/g, ''));
+        const plainHints = hints.map(stripAccents);
         const index = normalized.findIndex((header, i) =>
             !Object.values(mapping).includes(i) && plainHints.some(hint => header === hint || header.includes(hint)));
         if (index !== -1) mapping[field] = index;
@@ -137,9 +141,65 @@ export function rowsToTransactions(rows, mapping, { hasHeader = true, defaultTyp
             date,
             type,
             amountMinor,
-            merchant: mapping.description !== undefined ? String(row[mapping.description] || '').slice(0, 120) : '',
+            merchant: mapping.description !== undefined ? cleanText(String(row[mapping.description] || '')).trim().slice(0, 120) : '',
             categoryLabel: mapping.category !== undefined ? String(row[mapping.category] || '').trim() : ''
         });
     });
     return { items, errors };
+}
+
+const TYPE_NAMES = Object.freeze({ expense: 'Gasto', income: 'Ingreso', transfer: 'Transferencia' });
+const decimal = minor => (minor / 100).toFixed(2).replace('.', ',');
+
+/**
+ * Movimientos en CSV, con los gastos en negativo. Los nombres de categoría,
+ * cuenta y medio de pago los resuelve quien llama (`names`), para que este
+ * módulo siga siendo puro.
+ *
+ * @param {Array<object>} txs
+ * @param {{category: (id: string) => string, account: (id: string) => string, method?: (id: string) => string, title?: (tx: object) => string}} names
+ */
+export function transactionsToCSV(txs, names) {
+    return toCSV(txs, [
+        { key: 'date', label: 'Fecha' },
+        { key: 'type', label: 'Tipo', format: v => TYPE_NAMES[v] || v },
+        { key: 'merchant', label: 'Descripción', format: (v, tx) => v || names.title?.(tx) || '' },
+        { key: 'categoryId', label: 'Categoría', format: v => (v ? names.category(v) : '') },
+        { key: 'accountId', label: 'Cuenta', format: v => (v ? names.account(v) : '') },
+        { key: 'toAccountId', label: 'Cuenta destino', format: v => (v ? names.account(v) : '') },
+        { key: 'currency', label: 'Moneda' },
+        { key: 'amountMinor', label: 'Monto', format: (v, tx) => decimal(tx.type === 'expense' ? -v : v) },
+        { key: 'method', label: 'Medio', format: v => (v && names.method ? names.method(v) : '') },
+        { key: 'impulsive', label: 'Impulsivo', format: v => (v ? 'Sí' : '') },
+        { key: 'tags', label: 'Etiquetas', format: v => (v || []).join(', ') },
+        { key: 'note', label: 'Nota' }
+    ]);
+}
+
+/**
+ * Separa, de lo que se va a importar, lo que ya está registrado en esa cuenta
+ * (misma fecha, tipo, monto y descripción). Cuenta repeticiones: dos cafés
+ * iguales el mismo día son dos cafés, pero importar dos veces el mismo
+ * archivo no duplica nada.
+ */
+export function splitDuplicates(items, existing, accountId) {
+    const key = tx => [tx.date, tx.type, tx.amountMinor, plain(tx.merchant)].join('|');
+    const available = new Map();
+    for (const tx of existing || []) {
+        if (tx.accountId !== accountId) continue;
+        available.set(key(tx), (available.get(key(tx)) || 0) + 1);
+    }
+    const fresh = [];
+    const duplicates = [];
+    for (const item of items || []) {
+        const itemKey = key(item);
+        const left = available.get(itemKey) || 0;
+        if (left > 0) {
+            available.set(itemKey, left - 1);
+            duplicates.push(item);
+        } else {
+            fresh.push(item);
+        }
+    }
+    return { fresh, duplicates };
 }

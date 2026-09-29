@@ -12,7 +12,7 @@ import { rosette } from '../ui/guilloche.js';
 import * as fb from '../firebase.js';
 
 function brand() {
-    return html`<a class="brand" href="#/" aria-label="Elysium Patrimonio">
+    return html`<a class="brand" href="/" aria-label="Elysium: ir a la página principal de elysiumdr.eu" title="Ir a elysiumdr.eu">
         <span class="brand-mark">${rosette({ seed: 'patrimonio-brand', size: 120, layers: 2, strokeWidth: 1 })}<b>λ</b></span>
         <span class="brand-text"><b>Patrimonio</b><small>Elysium</small></span>
     </a>`;

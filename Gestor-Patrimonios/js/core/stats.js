@@ -1,15 +1,16 @@
 /**
  * Agregados sobre los movimientos: totales, categorías, series mensuales,
- * saldos y patrimonio neto. Todo se expresa en la moneda base con el tipo de
- * cambio que se pase (`fx = { base: 'CRC', rate: 505 }`).
+ * saldos y patrimonio neto. Todo se expresa en la moneda principal con los
+ * tipos de cambio que se pasen (`fx` de `money.fxFromSettings`).
  *
  * Qué cuenta como ingreso o gasto: solo los movimientos `income`/`expense`
  * que no son ajustes de saldo. Las transferencias mueven dinero entre cuentas
  * propias y no son ni una cosa ni otra; los ajustes corrigen un saldo y no
  * deben inflar la estadística del mes.
  */
-import { inBase, percent } from './money.js';
+import { inBase, convertMinor, percent } from './money.js';
 import { weekday } from './dates.js';
+import { stripAccents } from './text.js';
 
 export function isCounted(tx) {
     return tx && !tx.adjustment && (tx.type === 'income' || tx.type === 'expense');
@@ -17,10 +18,6 @@ export function isCounted(tx) {
 
 export function txBase(tx, fx) {
     return inBase(tx.amountMinor, tx.currency, fx);
-}
-
-export function inRange(txs, start, end) {
-    return (txs || []).filter(tx => tx.date >= start && tx.date <= end);
 }
 
 export function totals(txs, start, end, fx) {
@@ -57,8 +54,7 @@ export function byCategory(txs, start, end, fx, type = 'expense') {
 }
 
 export function normalizeMerchant(name) {
-    return String(name || '')
-        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    return stripAccents(name)
         .toLowerCase()
         .replace(/\b(s\.?a\.?|sociedad anonima|srl|ltda|limitada|inc)\b/g, '')
         .replace(/[^a-z0-9 ]+/g, ' ')
@@ -95,35 +91,46 @@ export function dailyTotals(txs, start, end, fx, type = 'expense') {
     return map;
 }
 
-/** Gasto medio por día de la semana (0 = domingo). */
+/** Gasto total de cada día de la semana en el rango (0 = domingo); quien lo pinta lo promedia. */
 export function weekdayProfile(txs, start, end, fx) {
     const totalsByDay = [0, 0, 0, 0, 0, 0, 0];
     for (const [date, amount] of dailyTotals(txs, start, end, fx)) totalsByDay[weekday(date)] += amount;
     return totalsByDay;
 }
 
-/** Promedio por período de un tipo de movimiento (opcionalmente de una categoría). */
+/**
+ * Períodos con al menos un ingreso o un gasto: los únicos que cuentan para un
+ * promedio. Quien lleva un mes usando la app no gasta «un tercio» de lo que
+ * gasta: gasta lo de ese mes.
+ */
+export function periodsWithData(txs, periods) {
+    return (periods || []).filter(period => (txs || []).some(tx => isCounted(tx) && tx.date >= period.start && tx.date <= period.end));
+}
+
+/** Promedio por período de un tipo de movimiento (opcionalmente de una categoría), sobre los períodos con datos. */
 export function averagePerPeriod(txs, periods, fx, { type = 'expense', categoryId = null } = {}) {
-    if (!periods.length) return 0;
+    const active = periodsWithData(txs, periods);
+    if (!active.length) return 0;
     let sum = 0;
-    for (const period of periods) {
+    for (const period of active) {
         for (const tx of txs || []) {
             if (tx.type !== type || !isCounted(tx) || tx.date < period.start || tx.date > period.end) continue;
             if (categoryId && tx.categoryId !== categoryId) continue;
             sum += txBase(tx, fx);
         }
     }
-    return Math.round(sum / periods.length);
+    return Math.round(sum / active.length);
 }
 
-/** Promedio de gasto por categoría en los períodos dados. */
+/** Promedio de gasto por categoría en los períodos con datos (una categoría sin gasto un mes cuenta ese mes como cero). */
 export function categoryAverages(txs, periods, fx) {
     const sums = new Map();
-    if (!periods.length) return sums;
+    const active = periodsWithData(txs, periods);
+    if (!active.length) return sums;
     const start = periods[0].start;
     const end = periods[periods.length - 1].end;
     for (const entry of byCategory(txs, start, end, fx)) {
-        sums.set(entry.categoryId, Math.round(entry.total / periods.length));
+        sums.set(entry.categoryId, Math.round(entry.total / active.length));
     }
     return sums;
 }
@@ -154,30 +161,53 @@ export const ACCOUNT_TYPES = Object.freeze({
 });
 
 /**
+ * Importe de un movimiento en la moneda de su cuenta. Un gasto en dólares con
+ * una tarjeta en colones mueve colones: el importe que cobró el banco se guarda
+ * al registrarlo (`accountAmountMinor`); si falta, se convierte al tipo actual.
+ */
+export function amountInAccount(tx, account, fx) {
+    const amount = Number(tx.amountMinor) || 0;
+    const currency = tx.currency || account?.currency;
+    if (!account || !currency || currency === account.currency) return amount;
+    if (Number.isFinite(Number(tx.accountAmountMinor)) && tx.accountAmountMinor !== null) return Number(tx.accountAmountMinor);
+    return convertMinor(amount, currency, account.currency, fx);
+}
+
+/**
+ * ¿Sigue valiendo el importe que cobró el banco (`accountAmountMinor`) tras
+ * editar un movimiento? Solo si no cambió el monto, la moneda ni la cuenta: si
+ * cambió alguno, hay que volver a calcularlo, o el saldo de la cuenta seguiría
+ * moviéndose por el importe de antes.
+ */
+export function keepsAccountAmount(before, after) {
+    return Boolean(before)
+        && before.amountMinor === after.amountMinor
+        && before.currency === after.currency
+        && before.accountId === after.accountId;
+}
+
+/**
  * Saldo de cada cuenta en su propia moneda: saldo inicial más lo que entra y
  * menos lo que sale desde su fecha de apertura. En una tarjeta de crédito el
  * saldo es negativo mientras se deba.
  */
-export function accountBalances(accounts, txs) {
-    const balances = new Map();
-    const opening = new Map();
-    for (const account of accounts || []) {
-        balances.set(account.id, Number(account.openingBalanceMinor) || 0);
-        opening.set(account.id, account.openingDate || '0000-00-00');
-    }
-    const applies = (accountId, date) => balances.has(accountId) && date >= opening.get(accountId);
+export function accountBalances(accounts, txs, fx) {
+    const byId = new Map((accounts || []).map(account => [account.id, account]));
+    const balances = new Map((accounts || []).map(account => [account.id, Number(account.openingBalanceMinor) || 0]));
+    const applies = (accountId, date) => byId.has(accountId) && date >= (byId.get(accountId).openingDate || '0000-00-00');
+    const add = (accountId, delta) => balances.set(accountId, balances.get(accountId) + delta);
     for (const tx of txs || []) {
-        const amount = Number(tx.amountMinor) || 0;
-        if (tx.type === 'income' && applies(tx.accountId, tx.date)) {
-            balances.set(tx.accountId, balances.get(tx.accountId) + amount);
-        } else if (tx.type === 'expense' && applies(tx.accountId, tx.date)) {
-            balances.set(tx.accountId, balances.get(tx.accountId) - amount);
-        } else if (tx.type === 'transfer') {
-            if (applies(tx.accountId, tx.date)) balances.set(tx.accountId, balances.get(tx.accountId) - amount);
+        const from = byId.get(tx.accountId);
+        if (tx.type === 'income' && applies(tx.accountId, tx.date)) add(tx.accountId, amountInAccount(tx, from, fx));
+        else if (tx.type === 'expense' && applies(tx.accountId, tx.date)) add(tx.accountId, -amountInAccount(tx, from, fx));
+        else if (tx.type === 'transfer') {
+            if (applies(tx.accountId, tx.date)) add(tx.accountId, -amountInAccount(tx, from, fx));
             if (applies(tx.toAccountId, tx.date)) {
-                const incoming = Number.isFinite(Number(tx.toAmountMinor)) && tx.toAmountMinor !== null
-                    ? Number(tx.toAmountMinor) : amount;
-                balances.set(tx.toAccountId, balances.get(tx.toAccountId) + incoming);
+                const to = byId.get(tx.toAccountId);
+                const received = Number.isFinite(Number(tx.toAmountMinor)) && tx.toAmountMinor !== null
+                    ? Number(tx.toAmountMinor)
+                    : convertMinor(Number(tx.amountMinor) || 0, tx.currency || from?.currency || to.currency, to.currency, fx);
+                add(tx.toAccountId, received);
             }
         }
     }
@@ -230,7 +260,7 @@ export function netWorthSeries(currentNet, txs, periods, fx) {
  */
 export function merchantMemory(txs) {
     const tallies = new Map();
-    const sorted = [...(txs || [])].filter(tx => tx.merchant && tx.categoryId).sort((a, b) => (a.date < b.date ? -1 : 1));
+    const sorted = [...(txs || [])].filter(tx => tx.merchant && tx.categoryId).sort((a, b) => a.date.localeCompare(b.date));
     for (const tx of sorted) {
         const key = normalizeMerchant(tx.merchant);
         if (!key) continue;
@@ -257,7 +287,7 @@ export function merchantMemory(txs) {
 /** Comercios usados, con su nombre más reciente, para autocompletar. */
 export function merchantSuggestions(txs, limit = 200) {
     const seen = new Map();
-    const sorted = [...(txs || [])].filter(tx => tx.merchant).sort((a, b) => (a.date > b.date ? -1 : 1));
+    const sorted = [...(txs || [])].filter(tx => tx.merchant).sort((a, b) => b.date.localeCompare(a.date));
     for (const tx of sorted) {
         const key = normalizeMerchant(tx.merchant);
         if (key && !seen.has(key)) seen.set(key, tx.merchant.trim());

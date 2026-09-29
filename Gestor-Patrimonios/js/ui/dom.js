@@ -13,7 +13,7 @@ export function esc(value) {
     return String(value ?? '').replace(/[&<>"']/g, char => ESCAPES[char]);
 }
 
-export class Raw {
+class Raw {
     constructor(text) { this.text = String(text); }
     toString() { return this.text; }
 }
@@ -34,19 +34,6 @@ export function html(strings, ...values) {
     let out = strings[0];
     for (let i = 0; i < values.length; i += 1) out += interpolate(values[i]) + strings[i + 1];
     return new Raw(out);
-}
-
-export const $ = (selector, root = document) => root.querySelector(selector);
-export const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
-
-/** Delegación de eventos; devuelve la función para quitarla. */
-export function on(root, type, selector, handler, options) {
-    const listener = event => {
-        const target = event.target.closest?.(selector);
-        if (target && root.contains(target)) handler(event, target);
-    };
-    root.addEventListener(type, listener, options);
-    return () => root.removeEventListener(type, listener, options);
 }
 
 export function uid(prefix = '') {
@@ -141,7 +128,7 @@ export async function compressImage(file, maxSide = 2000, quality = 0.82) {
         canvas.height = Math.round(bitmap.height * scale);
         canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
         const type = 'image/webp';
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, type, quality));
+        const blob = await new Promise(resolve => { canvas.toBlob(resolve, type, quality); });
         if (!blob || blob.size >= file.size) return file;
         return new File([blob], file.name.replace(/\.\w+$/, '') + '.webp', { type });
     } catch {

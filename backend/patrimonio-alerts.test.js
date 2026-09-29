@@ -20,6 +20,7 @@ const { createPatrimonioService, createPatrimonioRouter, buildAlertsEmail, safeK
 
 function fakeFirestore() {
   const docs = new Map();
+  let collectionReads = 0;
   const snapshot = (id, pathKey) => ({
     id,
     exists: docs.has(pathKey),
@@ -42,21 +43,26 @@ function fakeFirestore() {
       collection: name => collectionRef(`${pathKey}/${name}`)
     };
   }
-  function collectionRef(prefix, filters = [], max = Infinity) {
+  function collectionRef(prefix, filters = [], max = Infinity, after = null) {
     const list = () => [...docs.keys()]
       .filter(key => key.startsWith(`${prefix}/`) && !key.slice(prefix.length + 1).includes('/'))
+      .sort()
       .map(key => snapshot(key.split('/').pop(), key))
       .filter(snap => filters.every(([field, value]) => snap.data()[field] === value))
+      .filter(snap => after === null || snap.id > after)
       .slice(0, max);
     return {
       doc: id => docRef(`${prefix}/${id}`),
-      where: (field, op, value) => collectionRef(prefix, [...filters, [field, value]], max),
-      limit: n => collectionRef(prefix, filters, n),
-      get: async () => { const items = list(); return { docs: items, size: items.length }; }
+      where: (field, op, value) => collectionRef(prefix, [...filters, [field, value]], max, after),
+      orderBy: () => collectionRef(prefix, filters, max, after),
+      startAfter: snap => collectionRef(prefix, filters, max, snap.id),
+      limit: n => collectionRef(prefix, filters, n, after),
+      get: async () => { collectionReads += 1; const items = list(); return { docs: items, size: items.length }; }
     };
   }
   return {
     docs,
+    get collectionReads() { return collectionReads; },
     collection: name => collectionRef(name),
     getAll: async (...refs) => Promise.all(refs.map(ref => ref.get()))
   };
@@ -124,6 +130,29 @@ test('si la persona apaga las alertas inmediatas, no llegan', async () => {
   assert.equal(sent.length, 0);
 });
 
+test('apagar las alertas inmediatas no lee ni una colección de la persona', async () => {
+  const { db, service } = harness();
+  const seed = await seedDemo(db, 'alex');
+  await db.collection('patrimonio').doc('alex').set({ settings: { ...seed.profile.settings, email: { immediate: false } } }, { merge: true });
+  const before = db.collectionReads;
+  assert.equal((await service.checkImmediate('alex')).reason, 'disabled');
+  assert.equal(db.collectionReads, before, 'basta el perfil: no hay que leer todos los movimientos');
+});
+
+test('el «hoy» de cada persona sale de su zona horaria: el lunes en Auckland ya es lunes', async () => {
+  const today = new Date();
+  const sunday = new Date(today);
+  sunday.setUTCDate(today.getUTCDate() + ((7 - today.getUTCDay()) % 7 || 7));
+  sunday.setUTCHours(14, 0, 0, 0); // domingo 08:00 en Costa Rica, lunes de madrugada en Nueva Zelanda
+  const { db, sent, service } = harness({ now: () => sunday });
+  const seed = await seedDemo(db, 'tico');
+  await seedDemo(db, 'kiwi', { profile: { settings: { ...seed.profile.settings, timeZone: 'Pacific/Auckland' } } });
+  await service.runForUser('tico');
+  assert.ok(!sent.some(mail => /Su semana en Patrimonio/.test(mail.subject)), 'en Costa Rica es domingo');
+  await service.runForUser('kiwi');
+  assert.ok(sent.some(mail => /Su semana en Patrimonio/.test(mail.subject) && mail.to[0] === 'kiwi@example.com'), 'en Auckland es lunes');
+});
+
 test('el lunes llega el resumen semanal y el día 1 el informe del mes, una vez', async () => {
   const today = new Date();
   const monday = new Date(today);
@@ -152,6 +181,15 @@ test('runAll recorre solo licencias activas', async () => {
   const results = await service.runAll();
   assert.equal(results.users, 1);
   assert.ok(sent.every(mail => mail.to[0] === 'alex@example.com'));
+});
+
+test('runAll pasa por todas las licencias aunque no quepan en una página', async () => {
+  const { db, deps } = harness();
+  for (const id of ['u1', 'u2', 'u3', 'u4', 'u5']) await db.collection('patrimonio_access').doc(id).set({ active: true });
+  await db.collection('patrimonio_access').doc('u6').set({ active: false });
+  const service = createPatrimonioService({ ...deps, pageSize: 2 });
+  const results = await service.runAll();
+  assert.equal(results.users, 5, 'las cinco activas, en tres páginas de dos');
 });
 
 test('la solicitud de acceso avisa al administrador una vez', async () => {

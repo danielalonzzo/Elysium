@@ -31,7 +31,7 @@ export default {
         return html`
             <section class="level-hero">
                 ${rosette({ seed: 'nivel-' + level.id, size: 520, layers: 5 })}
-                ${medallion({ seed: level.id, iconSvg: icon('crown'), tier: 'gold', size: 118 })}
+                ${medallion({ iconSvg: icon('crown'), tier: 'gold', size: 118 })}
                 <div>
                     <p class="eyebrow is-gold">Nivel ${level.index + 1} de ${LEVELS.length}</p>
                     <h2>${level.name}</h2>
@@ -75,7 +75,7 @@ export default {
             <div class="section-title"><h2>Insignias</h2><span class="muted">${unlocked.length} de ${game.badges.length}</span></div>
             <div class="badge-grid">
                 ${[...unlocked, ...locked].map(badge => html`<article class="badge-card ${badge.unlocked ? 'is-unlocked' : ''}">
-                    ${medallion({ seed: badge.id, iconSvg: icon(badge.icon), tier: badge.tier, locked: !badge.unlocked, size: 84 })}
+                    ${medallion({ iconSvg: icon(badge.icon), tier: badge.tier, locked: !badge.unlocked, size: 84 })}
                     <b>${badge.name}</b>
                     <p>${badge.description}</p>
                     ${badge.unlocked
@@ -97,12 +97,16 @@ export default {
     mount(root, model) {
         const onClick = async event => {
             if (event.target.closest('[data-enable]')) {
-                await app.store.saveProfile({ settings: { ...model.settings, gamification: true } });
+                await app.store.saveSettings({ gamification: true });
                 return;
             }
             const accept = event.target.closest('[data-accept]');
             if (accept) {
-                const challenges = [...(model.profile.challenges || []), { id: accept.dataset.accept, startDate: model.today }];
+                accept.disabled = true;
+                // Con el perfil vivo, no con el de cuando se pintó la vista: un segundo clic no lo acepta dos veces.
+                const current = app.store.profile?.challenges || [];
+                if (current.some(c => c.id === accept.dataset.accept)) return;
+                const challenges = [...current, { id: accept.dataset.accept, startDate: app.model().today }];
                 await app.store.saveProfile({ challenges });
                 toast('Reto aceptado. ¡Suerte!', { tone: 'gold', iconName: 'flag' });
                 return;

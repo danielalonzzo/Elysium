@@ -1,7 +1,7 @@
 // GENERADO por scripts/sync-patrimonio-core.mjs desde Gestor-Patrimonios/js/core/goals.js.
 // No se edita aquí: se edita el original y se vuelve a ejecutar el script.
 /**
- * Metas: «¿Para qué estás ahorrando?».
+ * Metas: «¿Para qué está ahorrando?».
  *
  * Una meta guarda su objetivo; lo ahorrado sale de sus aportes (positivos) y
  * retiros (negativos). La fecha estimada se calcula con dos ritmos: el
@@ -48,7 +48,7 @@ export function actualMonthlyRate(goal, contributions, today, months = 3) {
     const createdAt = goal?.startDate && goal.startDate > from ? goal.startDate : from;
     const windowMonths = Math.max(1, monthsBetween(createdAt, today));
     const sum = (contributions || [])
-        .filter(c => c.goalId === goal.id && c.date >= from && c.date <= today)
+        .filter(c => c.goalId === goal?.id && c.date >= from && c.date <= today)
         .reduce((total, c) => total + (Number(c.amountMinor) || 0), 0);
     return Math.max(0, Math.round(sum / windowMonths));
 }
@@ -73,7 +73,7 @@ export function requiredMonthly(remaining, today, deadline) {
 
 /**
  * Días que un gasto retrasa (o adelanta, si se evita) una meta, dado el
- * aporte mensual. «Si no gastas ₡20.000 este fin de semana, alcanzas tu meta
+ * aporte mensual. «Si no gasta ₡20.000 este fin de semana, alcanza su meta
  * 5 días antes.»
  */
 export function spendImpactDays(amountMinor, monthlyContribution) {
@@ -135,7 +135,8 @@ export function goalHealth({ progress, plannedMonthly, actualMonthly, deadline, 
 
 /**
  * Reparte la capacidad de ahorro entre las metas activas que no tienen un
- * aporte planeado, según su prioridad (1 alta, 2 media, 3 baja).
+ * aporte planeado, según su prioridad (1 alta, 2 media, 3 baja). Todo en una
+ * sola moneda: quien la llama pasa los aportes planeados ya convertidos.
  */
 export function capacityShares(goals, capacityMinor) {
     const active = (goals || []).filter(goal => goal.status !== 'done' && goal.status !== 'archived');

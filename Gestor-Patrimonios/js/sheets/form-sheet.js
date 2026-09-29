@@ -9,21 +9,29 @@ import { openSheet, confirmDialog } from '../ui/overlay.js';
 import { formatMoney, currencySymbol, displayCurrencyCode } from '../ui/format.js';
 import { parseAmount, CURRENCIES, CURRENCY_CODES } from '../core/money.js';
 import { isISODate } from '../core/dates.js';
+import { describeError } from '../ui/errors.js';
 
 /**
  * Tipos de campo: text, money, number, select, date, textarea, switch,
  * chips (una opción entre varias), icons (selector de icono), info (texto).
+ * Un campo `money` es siempre positivo salvo que lleve `signed: true` (un saldo
+ * puede estar en números rojos).
+ * Un campo oculto (`toggleFields`) no se valida aunque sea obligatorio.
  *
  * @param {object} options
  * @param {string} options.title
  * @param {string} [options.subtitle]
- * @param {Array<object>} options.fields
+ * @param {'sm'|'md'|'lg'} [options.size]
+ * @param {boolean} [options.gold]           botón de guardar dorado (metas)
+ * @param {Array<object>} options.fields     {name, label, type, required, hint, wide, disabled, …}
  * @param {object} [options.values]
  * @param {(values: object, api: object) => Promise<void|string>} options.onSubmit  devuelve texto de error o nada
  * @param {() => Promise<void>} [options.onDelete]
+ * @param {{title: string, body?: string}} [options.deleteConfirm]
  * @param {string} [options.submitLabel]
  * @param {string} [options.deleteLabel]
  * @param {(values: object, root: HTMLElement) => void} [options.onChange]
+ * @param {(form: HTMLFormElement, api: object, values: object) => void} [options.onMount]
  * @param {any} [options.intro]
  */
 export function formSheet(options) {
@@ -58,7 +66,7 @@ export function formSheet(options) {
             form.querySelectorAll('[data-money]').forEach(input => input.addEventListener('blur', () => {
                 const value = parseAmount(input.value);
                 const currency = form.querySelector(`[name="${input.dataset.currencyField}"]`)?.value || values[input.dataset.currencyField] || displayCurrencyCode();
-                if (value !== null) input.value = formatMoney(Math.abs(value), currency, { symbol: false, decimals: value % 100 ? 2 : 0 });
+                if (value !== null) input.value = formatMoney(input.dataset.signed ? value : Math.abs(value), currency, { symbol: false, decimals: value % 100 ? 2 : 0 });
             }));
             form.querySelector('[data-delete]')?.addEventListener('click', async () => {
                 const ok = await confirmDialog({
@@ -68,8 +76,15 @@ export function formSheet(options) {
                     danger: true
                 });
                 if (!ok) return;
-                await options.onDelete();
-                api.close();
+                try {
+                    await options.onDelete();
+                    api.close();
+                } catch (err) {
+                    console.error(err);
+                    const error = form.querySelector('[data-error]');
+                    error.textContent = describeError(err, 'No se pudo eliminar. Revise su conexión y vuelva a intentarlo.');
+                    error.hidden = false;
+                }
             });
             form.addEventListener('submit', async event => {
                 event.preventDefault();
@@ -77,9 +92,9 @@ export function formSheet(options) {
                 error.hidden = true;
                 const data = read();
                 for (const field of options.fields) {
-                    if (!field.required || field.hidden?.(data)) continue;
+                    if (!field.required || form.querySelector(`[data-field="${field.name}"]`)?.hidden) continue;
                     const value = data[field.name];
-                    if (value === null || value === undefined || value === '' || (field.type === 'money' && !(value > 0))) {
+                    if (value === null || value === undefined || value === '' || (field.type === 'money' && !field.signed && !(value > 0))) {
                         error.textContent = `Falta: ${field.label.toLowerCase()}.`;
                         error.hidden = false;
                         form.querySelector(`[name="${field.name}"]`)?.focus();
@@ -99,7 +114,7 @@ export function formSheet(options) {
                     api.close();
                 } catch (err) {
                     console.error(err);
-                    error.textContent = 'No se pudo guardar. Revise su conexión y vuelva a intentarlo.';
+                    error.textContent = describeError(err, 'No se pudo guardar. Revise su conexión y vuelva a intentarlo.');
                     error.hidden = false;
                 } finally {
                     submit.disabled = false;
@@ -124,16 +139,18 @@ function renderField(field, values) {
             const currency = values[field.currencyField] || field.currency || displayCurrencyCode();
             return html`<label class="field${wide}" data-field="${field.name}"${hiddenAttr}><span>${field.label}${hint}</span>
                 <div class="input-group"><span class="prefix" data-prefix-for="${field.currencyField || ''}">${currencySymbol(currency)}</span>
-                <input ${attrs} inputmode="decimal" data-money data-currency-field="${field.currencyField || ''}" value="${value ? formatMoney(value, currency, { symbol: false, decimals: value % 100 ? 2 : 0 }) : ''}"></div>
+                <input ${attrs} inputmode="decimal" data-money ${field.signed ? raw('data-signed="1"') : ''} data-currency-field="${field.currencyField || ''}" value="${value ? formatMoney(value, currency, { symbol: false, decimals: value % 100 ? 2 : 0 }) : ''}"></div>
             </label>`;
         }
-        case 'number':
+        case 'number': {
+            const input = html`<input ${attrs} type="number" inputmode="decimal" step="${field.step || 'any'}" ${field.min !== undefined ? raw(`min="${field.min}"`) : ''} ${field.max !== undefined ? raw(`max="${field.max}"`) : ''} value="${value}" class="${field.suffix ? 'has-suffix' : ''}">`;
             return html`<label class="field${wide}" data-field="${field.name}"${hiddenAttr}><span>${field.label}${hint}</span>
-                <div class="input-group"><input ${attrs} type="number" inputmode="decimal" step="${field.step || 'any'}" ${field.min !== undefined ? raw(`min="${field.min}"`) : ''} ${field.max !== undefined ? raw(`max="${field.max}"`) : ''} value="${value}" class="${field.suffix ? 'has-suffix' : ''}" style="padding-left:13px!important">${field.suffix ? html`<span class="suffix">${field.suffix}</span>` : ''}</div>
+                ${field.suffix ? html`<div class="input-group">${input}<span class="suffix">${field.suffix}</span></div>` : input}
             </label>`;
+        }
         case 'select':
             return html`<label class="field${wide}" data-field="${field.name}"${hiddenAttr}><span>${field.label}${hint}</span>
-                <select ${attrs}>${field.options.map(option => html`<option value="${option.value}" ${String(option.value) === String(value) ? 'selected' : ''}>${option.label}</option>`)}</select>
+                <select ${attrs} ${field.disabled ? 'disabled' : ''}>${field.options.map(option => html`<option value="${option.value}" ${String(option.value) === String(value) ? 'selected' : ''}>${option.label}</option>`)}</select>
             </label>`;
         case 'date':
             return html`<label class="field${wide}" data-field="${field.name}"${hiddenAttr}><span>${field.label}${hint}</span><input ${attrs} type="date" value="${value}"></label>`;
@@ -166,7 +183,7 @@ function readValues(form, fields, values) {
         if (!input) continue;
         if (field.type === 'money') {
             const parsed = parseAmount(input.value);
-            data[field.name] = parsed === null ? null : Math.abs(parsed);
+            data[field.name] = parsed === null ? null : (field.signed ? parsed : Math.abs(parsed));
         } else if (field.type === 'number') {
             data[field.name] = input.value === '' ? null : Number(input.value);
         } else if (field.type === 'switch') {

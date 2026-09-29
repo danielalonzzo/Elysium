@@ -5,15 +5,16 @@
 import { app } from '../context.js';
 import { html, haptic } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, formatMoney, currencySymbol, nextCurrency } from '../ui/format.js';
+import { money, formatMoney, fieldAmount, currencySymbol, nextCurrency } from '../ui/format.js';
 import { openSheet, toast } from '../ui/overlay.js';
 import { txTitle } from '../ui/parts.js';
 import { quickAffordability } from '../core/loans.js';
 import { parseAmount, inBase, currencyInfo } from '../core/money.js';
 import { formatDate, addDays } from '../core/dates.js';
-import { normalizeMerchant } from '../core/stats.js';
+import { searchKey } from '../core/text.js';
 import { updateAlertState } from '../services.js';
 import { NAV_ITEMS } from '../nav.js';
+import { isPrivate } from '../ui/theme.js';
 
 /* ── ¿Me alcanza? ─────────────────────────────────────────────────────────── */
 
@@ -27,7 +28,7 @@ export function openAffordSheet({ price = null } = {}) {
         content: html`
             <div class="amount-input">
                 <button type="button" class="currency-toggle" aria-label="Moneda: ${currencyInfo(model.fx.base).name}. Cambiar" title="Cambiar moneda">${currencySymbol(model.fx.base)}</button>
-                <input name="price" inputmode="decimal" placeholder="Precio" aria-label="Precio" autofocus value="${price ? formatMoney(price, model.fx.base, { symbol: false }) : ''}">
+                <input name="price" inputmode="decimal" placeholder="Precio" aria-label="Precio" autofocus value="${price ? fieldAmount(price, model.fx.base) : ''}">
             </div>
             <div class="field">
                 <span>¿De qué categoría? <small>opcional, para mirar su presupuesto</small></span>
@@ -74,11 +75,11 @@ export function openAffordSheet({ price = null } = {}) {
                     <button type="button" class="btn btn-sm btn-ghost" data-simulate>${icon('calculator', { size: 15 })}Simular a crédito o con prima</button>
                     <button type="button" class="btn btn-sm btn-ghost" data-make-goal>${icon('target', { size: 15 })}Convertir en meta</button>
                 </div>` : ''}`);
-                result.querySelector('[data-simulate]')?.addEventListener('click', () => app.go(`#/simulador?precio=${amount}`));
+                result.querySelector('[data-simulate]')?.addEventListener('click', () => app.go(`#/simulador?precio=${amount}&t=${Date.now()}`));
                 result.querySelector('[data-make-goal]')?.addEventListener('click', async () => {
                     const { openGoalSheet } = await import('./forms.js');
                     await app.go('#/metas');
-                    openGoalSheet({ kind: 'otro' });
+                    openGoalSheet({ kind: 'otro', preset: { targetMinor: Math.abs(value), currency } });
                 });
                 haptic(6);
             };
@@ -157,8 +158,13 @@ export function openPalette() {
         { label: '¿Me alcanza?', icon: 'scale', hint: 'A', run: () => openAffordSheet() },
         { label: 'Nueva meta', icon: 'target', run: () => import('./forms.js').then(m => m.openGoalSheet()) },
         { label: 'Ver alertas', icon: 'bell', run: () => openAlertsSheet() },
-        { label: app.model().settings && document.documentElement.classList.contains('is-private') ? 'Mostrar montos' : 'Ocultar montos (modo discreto)', icon: 'eye-off', hint: 'D', run: () => document.dispatchEvent(new CustomEvent('patrimonio:toggle-private')) }
+        { label: isPrivate() ? 'Mostrar montos' : 'Ocultar montos (modo discreto)', icon: 'eye-off', hint: 'D', run: () => document.dispatchEvent(new CustomEvent('patrimonio:toggle-private')) }
     ];
+    // El texto buscable de cada movimiento se prepara una vez, no en cada tecla.
+    const searchable = model.txs.map(tx => ({
+        tx,
+        text: searchKey(`${tx.merchant || ''} ${model.catById.get(tx.categoryId)?.name || ''} ${tx.note || ''} ${(tx.tags || []).join(' ')} ${formatMoney(tx.amountMinor, tx.currency, { symbol: false })}`)
+    }));
     const pages = NAV_ITEMS.map(item => ({ label: item.label, icon: item.icon, run: () => app.go(`#/${item.id}`) }));
 
     return openSheet({
@@ -172,13 +178,13 @@ export function openPalette() {
             let items = [];
             let selected = 0;
             const draw = () => {
-                const query = normalizeMerchant(input.value);
-                const match = text => !query || normalizeMerchant(text).includes(query);
+                const query = searchKey(input.value);
+                const match = text => !query || searchKey(text).includes(query);
                 const groups = [];
                 const actionHits = actions.filter(a => match(a.label));
                 const pageHits = pages.filter(p => match(p.label));
                 const goalHits = model.goals.filter(g => match(g.goal.name)).slice(0, 4).map(g => ({ label: g.goal.name, icon: 'target', meta: `${Math.round(g.progress.pct)}%`, run: () => app.go(`#/metas/${g.goal.id}`) }));
-                const txHits = query ? model.txs.filter(tx => match(`${tx.merchant || ''} ${model.catById.get(tx.categoryId)?.name || ''} ${tx.note || ''} ${(tx.tags || []).join(' ')}`)).slice(0, 8).map(tx => ({
+                const txHits = query ? searchable.filter(entry => entry.text.includes(query)).slice(0, 8).map(({ tx }) => ({
                     label: txTitle(tx, model), icon: 'list', meta: `${formatDate(tx.date, 'short')} · ${formatMoney(tx.type === 'expense' ? -tx.amountMinor : tx.amountMinor, tx.currency)}`,
                     run: () => import('./transaction.js').then(m => m.openTransactionDetail(tx.id))
                 })) : [];

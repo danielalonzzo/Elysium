@@ -8,7 +8,6 @@
   "start_url": "/Gestor-Patrimonios/#/inicio",
   "scope": "/Gestor-Patrimonios/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "any",
   "background_color": "#03060c",
   "theme_color": "#03060c",

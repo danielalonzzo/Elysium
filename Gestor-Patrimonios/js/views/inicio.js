@@ -12,20 +12,25 @@ import { money, pct, num, formatMoney } from '../ui/format.js';
 import { rosette, waveBand } from '../ui/guilloche.js';
 import { cashflowChart, sparkline, ring, hbars } from '../ui/charts.js';
 import { txRow, catChip, progressBar, deltaPill, emptyState, goalIcon } from '../ui/parts.js';
-import { inBase, roundNice } from '../core/money.js';
-import { formatDate, monthLabel, relativeDays, addDays, weekday, APP_TIME_ZONE } from '../core/dates.js';
+import { inBase, roundNice, colonesToBase } from '../core/money.js';
+import { formatDate, monthLabel, relativeDays, addDays, weekday, hourIn } from '../core/dates.js';
 import { spendImpactDays } from '../core/goals.js';
 import { postRecurring } from '../services.js';
 import { toast } from '../ui/overlay.js';
+import { describeError } from '../ui/errors.js';
 
 function greeting() {
-    const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: APP_TIME_ZONE }).format(new Date()));
+    const hour = hourIn();
     if (hour < 12) return 'Buenos días';
     if (hour < 19) return 'Buenas tardes';
     return 'Buenas noches';
 }
 
-/** Gasto variable típico de un fin de semana (últimas 8 semanas), para el «impacto real». */
+/**
+ * Gasto variable típico de un fin de semana (últimas 8 semanas), para el
+ * «impacto real». Con poco historial se usa una cifra de referencia (₡20.000,
+ * o su equivalente redondo en la moneda principal).
+ */
 function typicalWeekend(model) {
     const since = addDays(model.today, -56);
     const variable = new Set(model.expenseCats.filter(c => c.nature === 'want').map(c => c.id));
@@ -37,7 +42,9 @@ function typicalWeekend(model) {
         if (day === 0 || day === 6) total += inBase(tx.amountMinor, tx.currency, model.fx);
     }
     const perWeekend = total / 8;
-    return perWeekend > 500000 ? roundNice(perWeekend * 0.8) : 2000000;
+    return perWeekend > colonesToBase(500000, model.fx)
+        ? roundNice(perWeekend * 0.8, model.fx.base)
+        : colonesToBase(2000000, model.fx);
 }
 
 export default {
@@ -47,7 +54,7 @@ export default {
     render(model) {
         const { worth, worthSeries, totals, prevToDate, spendable, payday, budgetTotals } = model;
         const prevWorth = worthSeries.length > 1 ? worthSeries[worthSeries.length - 2].value : null;
-        const worthDelta = prevWorth ? worth.net - prevWorth : 0;
+        const worthDelta = prevWorth !== null ? worth.net - prevWorth : 0;
         const activeGoals = model.goals.filter(g => !g.progress.done).slice(0, 3);
         const topGoal = activeGoals.find(g => g.pace > 0);
         const weekend = typicalWeekend(model);
@@ -58,7 +65,7 @@ export default {
             ...model.upcoming.filter(item => item.daysUntil <= 14)
         ].slice(0, 5);
         const budgetPct = budgetTotals.limit ? budgetTotals.spent / budgetTotals.limit * 100 : null;
-        const pacePct = (1 - (model.daysLeft - 1) / model.period.days) * 100;
+        const { pacePct } = model;
         const categories = model.byCategory.slice(0, 6).map(entry => {
             const category = model.catById.get(entry.categoryId);
             return { label: category?.name || 'Sin categoría', value: entry.total, sub: `${Math.round(entry.share)}%`, iconHtml: catChip(category, { size: 'sm' }), href: `#/movimientos?categoria=${entry.categoryId}` };
@@ -122,7 +129,7 @@ export default {
                             <div><p class="eyebrow is-gold">Sus sueños</p><h2>¿Para qué está ahorrando?</h2></div>
                             <a class="card-link" href="#/metas">Todas ${icon('chevron-right', { size: 14 })}</a>
                         </div>
-                        ${activeGoals.length ? html`<div class="dream-list">${activeGoals.map(entry => dreamRow(entry, model))}</div>
+                        ${activeGoals.length ? html`<div class="dream-list">${activeGoals.map(dreamRow)}</div>
                             ${topGoal && weekendDays > 0 ? html`<div class="callout is-gold section-gap">${icon('sparkle')}<span>Si este fin de semana no gasta <b>${money(weekend)}</b>, alcanza <b>«${topGoal.goal.name}»</b> ${weekendDays} ${weekendDays === 1 ? 'día' : 'días'} antes.</span></div>` : ''}`
                             : emptyState({ title: 'Póngale nombre a su sueño', body: 'Casa, carro, viaje, negocio o finca. Le decimos cuánto falta y cuándo llega.', seed: 'dream', action: html`<button type="button" class="btn btn-gold" data-new-goal>${icon('plus', { size: 17 })}Crear mi primera meta</button>` })}
                     </article>
@@ -161,7 +168,7 @@ export default {
                         </div>
                         ${model.series12.some(p => p.count > 0)
                             ? html`<div class="chart" data-chart="cashflow"></div>`
-                            : emptyState({ title: 'Su historia empieza hoy', body: 'Con los movimientos de este mes aparecerá aquí cómo entran y salen sus colones, mes a mes.', iconName: 'trending-up' })}
+                            : emptyState({ title: 'Su historia empieza hoy', body: 'Con los movimientos de este mes aparecerá aquí cómo entra y sale su dinero, mes a mes.', iconName: 'trending-up' })}
                     </article>
                     <article class="card">
                         <div class="card-head">
@@ -211,8 +218,13 @@ export default {
                 const rule = model.recurring.find(r => r.id === post.dataset.post);
                 if (rule) {
                     post.disabled = true;
-                    await postRecurring(rule, post.dataset.date);
-                    toast(`${rule.name} registrado`, { tone: 'success' });
+                    try {
+                        await postRecurring(rule, post.dataset.date);
+                        toast(`${rule.name} registrado`, { tone: 'success' });
+                    } catch (error) {
+                        post.disabled = false;
+                        toast(describeError(error, 'No se pudo registrar. Inténtelo de nuevo.'), { tone: 'error' });
+                    }
                 }
             }
         };
@@ -232,7 +244,7 @@ function kpi(label, value, iconName, tone, footer, series) {
     </article>`;
 }
 
-function dreamRow(entry, model) {
+function dreamRow(entry) {
     const { goal, progress, health, eta } = entry;
     const tone = health.state === 'at-risk' || health.state === 'late' ? 'danger' : health.state === 'no-plan' ? 'gray' : 'gold';
     return html`<a class="dream" href="#/metas/${goal.id}">

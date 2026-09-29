@@ -11,7 +11,7 @@
  * código corre en el navegador, en las pruebas de Node y en el backend. Los
  * nodos pueden llevar prefijo de espacio de nombres; se aceptan.
  */
-import { toMinor } from './money.js';
+import { toMinor, isCurrency } from './money.js';
 
 export const DOCUMENT_TYPES = Object.freeze({
     FacturaElectronica: { label: 'Factura electrónica', direction: 'expense' },
@@ -27,11 +27,16 @@ const PAYMENT_METHODS = { '01': 'cash', '02': 'card', '03': 'transfer', '04': 't
 
 const NS = '(?:[\\w.-]+:)?';
 
-function decodeEntities(text) {
-    return String(text)
+/** Un carácter numérico fuera de rango (`&#x110000;`) no debe romper la lectura de la factura. */
+function fromCode(code) {
+    return Number.isInteger(code) && code >= 0 && code <= 0x10ffff ? String.fromCodePoint(code) : '';
+}
+
+function decodeEntities(raw) {
+    return String(raw)
         .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
-        .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
-        .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+        .replace(/&#x([0-9a-f]+);/gi, (_, hex) => fromCode(parseInt(hex, 16)))
+        .replace(/&#(\d+);/g, (_, dec) => fromCode(Number(dec)))
         .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'")
         .replace(/&amp;/g, '&');
 }
@@ -176,13 +181,48 @@ export function prettyMerchant(name) {
 }
 
 /**
- * Sentido del comprobante para quien lo sube: si su cédula es la del emisor,
- * es un ingreso (una factura que emitió); si no, un gasto; una nota de crédito
- * recibida es un reembolso.
+ * Sentido del comprobante para quien lo sube, según su cédula:
+ * - factura o tiquete: si la emitió, es un ingreso; si la recibió, un gasto;
+ * - factura de compra: la emite quien compra (a un proveedor sin factura), así
+ *   que si la emitió es un gasto suyo, y si es el proveedor, un ingreso;
+ * - nota de crédito: recibida es un reembolso (ingreso); emitida, dinero que
+ *   devolvió (gasto);
+ * - nota de débito: como una factura.
  */
 export function directionFor(parsed, ownTaxId) {
-    const own = String(ownTaxId || '').replace(/\D/g, '');
-    if (own && parsed.issuer?.id && parsed.issuer.id.replace(/\D/g, '') === own) return 'income';
-    if (parsed.direction === 'refund') return 'income';
-    return 'expense';
+    const digits = value => String(value || '').replace(/\D/g, '');
+    const own = digits(ownTaxId);
+    const isIssuer = Boolean(own) && digits(parsed.issuer?.id) === own;
+    const isReceiver = Boolean(own) && digits(parsed.receiver?.id) === own;
+    switch (parsed.documentType) {
+        case 'FacturaElectronicaCompra': return isReceiver && !isIssuer ? 'income' : 'expense';
+        case 'NotaCreditoElectronica': return isIssuer ? 'expense' : 'income';
+        default: return isIssuer ? 'income' : 'expense';
+    }
+}
+
+/**
+ * Moneda e importes de la factura tal como la app puede guardarlos. Una moneda
+ * que la app no maneja (libras, pesos) se pasa a colones con el tipo de cambio
+ * que trae el propio comprobante; si no lo trae, no se inventa nada: se avisa.
+ *
+ * @returns {{currency: string, totalMinor: number, taxMinor: number, note: string, unsupported: boolean, converted: boolean}}
+ */
+export function facturaAmounts(parsed) {
+    if (isCurrency(parsed.currency)) {
+        return { currency: parsed.currency, totalMinor: parsed.totalMinor, taxMinor: parsed.taxMinor || 0, note: '', unsupported: false, converted: false };
+    }
+    const rate = Number(parsed.fxRate) > 0 ? Number(parsed.fxRate) : null;
+    const original = `${(parsed.totalMinor / 100).toFixed(2).replace('.', ',')} ${parsed.currency}`;
+    if (!rate) {
+        return { currency: 'CRC', totalMinor: parsed.totalMinor, taxMinor: parsed.taxMinor || 0, note: `Factura en ${parsed.currency} (${original}): revise el monto.`, unsupported: true, converted: false };
+    }
+    return {
+        currency: 'CRC',
+        totalMinor: Math.round(parsed.totalMinor * rate),
+        taxMinor: Math.round((parsed.taxMinor || 0) * rate),
+        note: `Original: ${original} a ₡${String(rate).replace('.', ',')}.`,
+        unsupported: false,
+        converted: true
+    };
 }

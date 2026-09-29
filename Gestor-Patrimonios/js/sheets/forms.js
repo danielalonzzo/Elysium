@@ -3,13 +3,14 @@
  * categorías. Todos usan `formSheet`.
  */
 import { app } from '../context.js';
-import { html } from '../ui/dom.js';
+import { html, esc } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, formatMoney, displayCurrencyCode } from '../ui/format.js';
+import { money, formatMoney, fieldAmount, displayCurrencyCode } from '../ui/format.js';
+import { inBase } from '../core/money.js';
 import { toast } from '../ui/overlay.js';
 import { formSheet, toggleFields, CURRENCY_OPTIONS } from './form-sheet.js';
 import { ACCOUNT_TYPES } from '../core/stats.js';
-import { GOAL_KINDS } from '../core/goals.js';
+import { GOAL_KINDS, goalSaved } from '../core/goals.js';
 import { FREQUENCIES } from '../core/recurring.js';
 import { NATURES, suggestBudget } from '../core/budgets.js';
 import { monthlyPayment } from '../core/loans.js';
@@ -22,9 +23,18 @@ const ACCOUNT_TONES = { cash: 'amber', bank: 'blue', savings: 'gold', cdp: 'teal
 
 /* ── Cuentas ──────────────────────────────────────────────────────────────── */
 
+/** Una cuenta con movimientos, recurrentes o cuotas no se borra: se archiva. */
+function accountInUse(accountId) {
+    return app.store.list('transactions').some(tx => tx.accountId === accountId || tx.toAccountId === accountId)
+        || app.store.list('recurring').some(rule => rule.accountId === accountId);
+}
+
 export function openAccountSheet({ account = null } = {}) {
     const editing = Boolean(account);
-    const initialBalance = account ? Math.abs(account.openingBalanceMinor || 0) : null;
+    // Una tarjeta guarda su deuda en negativo y se muestra positiva; el resto de cuentas conserva su signo (un sobregiro es un saldo negativo).
+    const initialBalance = account ? (account.type === 'credit' ? Math.abs(account.openingBalanceMinor || 0) : (account.openingBalanceMinor || 0)) : null;
+    // Cambiar la moneda de una cuenta con historial reinterpretaría todos sus importes.
+    const currencyLocked = editing && app.store.list('transactions').some(tx => tx.accountId === account.id || tx.toAccountId === account.id);
     return formSheet({
         title: editing ? 'Editar cuenta' : 'Nueva cuenta',
         subtitle: editing ? account.name : 'Dónde vive su dinero',
@@ -36,8 +46,8 @@ export function openAccountSheet({ account = null } = {}) {
         fields: [
             { name: 'type', label: 'Tipo', type: 'chips', options: Object.entries(ACCOUNT_TYPES).map(([value, info]) => ({ value, label: info.label, icon: ACCOUNT_ICONS[value] })) },
             { name: 'name', label: 'Nombre', required: true, placeholder: 'Cuenta corriente, Visa, Efectivo…', maxLength: 60 },
-            { name: 'currency', label: 'Moneda', type: 'select', options: CURRENCY_OPTIONS },
-            { name: 'openingBalanceMinor', label: editing ? 'Saldo inicial' : 'Saldo actual', type: 'money', currencyField: 'currency', hint: editing ? 'Para corregir el saldo use «Ajustar saldo»' : 'Lo que hay hoy' },
+            { name: 'currency', label: 'Moneda', type: 'select', options: CURRENCY_OPTIONS, disabled: currencyLocked, hint: currencyLocked ? 'fija: la cuenta ya tiene movimientos' : '' },
+            { name: 'openingBalanceMinor', label: editing ? 'Saldo inicial' : 'Saldo actual', type: 'money', signed: true, currencyField: 'currency', hint: editing ? 'Para corregir el saldo use «Ajustar saldo»' : 'Lo que hay hoy' },
             { name: 'creditLimitMinor', label: 'Límite de crédito', type: 'money', currencyField: 'currency' },
             { name: 'closingDay', label: 'Día de corte', type: 'number', min: 1, max: 31, step: 1 },
             { name: 'dueDay', label: 'Día de pago', type: 'number', min: 1, max: 31, step: 1 },
@@ -61,7 +71,7 @@ export function openAccountSheet({ account = null } = {}) {
                 ...(account || {}),
                 name: values.name.slice(0, 60),
                 type,
-                currency: values.currency || displayCurrencyCode(),
+                currency: currencyLocked ? account.currency : values.currency || displayCurrencyCode(),
                 icon: ACCOUNT_ICONS[type],
                 tone: ACCOUNT_TONES[type],
                 includeInNetWorth: values.includeInNetWorth !== false,
@@ -71,28 +81,25 @@ export function openAccountSheet({ account = null } = {}) {
                 dueDay: type === 'credit' ? values.dueDay || null : null,
                 lowBalanceAlertMinor: type !== 'credit' && type !== 'asset' ? values.lowBalanceAlertMinor || null : null
             };
+            const opening = values.openingBalanceMinor || 0;
+            doc.openingBalanceMinor = type === 'credit' ? -Math.abs(opening) : opening;
             if (!editing) {
-                const amount = values.openingBalanceMinor || 0;
-                doc.openingBalanceMinor = type === 'credit' ? -amount : amount;
                 doc.openingDate = app.model().today;
                 doc.order = app.store.list('accounts').length;
-            } else {
-                doc.openingBalanceMinor = type === 'credit' ? -(values.openingBalanceMinor || 0) : (values.openingBalanceMinor || 0);
             }
             await app.store.save('accounts', doc);
             toast(editing ? 'Cuenta actualizada' : 'Cuenta creada', { tone: 'success' });
         },
         onDelete: editing ? async () => {
-            const used = app.store.list('transactions').some(tx => tx.accountId === account.id || tx.toAccountId === account.id);
-            if (used) {
+            if (accountInUse(account.id)) {
                 await app.store.patch('accounts', account.id, { archived: true });
-                toast('La cuenta tiene movimientos: se archivó en lugar de borrarla.', { tone: 'info' });
+                toast('La cuenta tiene movimientos o recurrentes: se archivó en lugar de borrarla.', { tone: 'info' });
             } else {
                 await app.store.remove('accounts', account.id);
                 toast('Cuenta eliminada');
             }
         } : null,
-        deleteConfirm: { title: '¿Eliminar la cuenta?', body: 'Si tiene movimientos se archivará para no perder su historial.' }
+        deleteConfirm: { title: '¿Eliminar la cuenta?', body: 'Si tiene movimientos o recurrentes se archivará para no perder su historial.' }
     });
 }
 
@@ -106,10 +113,10 @@ export function openAdjustBalanceSheet(account) {
         subtitle: account.name,
         size: 'sm',
         intro: html`<div class="callout">${icon('info')}<span>Hoy la app calcula ${money(credit ? -current : current, account.currency)}${credit ? ' de deuda' : ''}. Escriba el ${credit ? 'saldo adeudado' : 'saldo'} real y la diferencia quedará registrada como ajuste.</span></div>`,
-        values: { real: Math.abs(current) },
-        fields: [{ name: 'real', label: credit ? 'Deuda real' : 'Saldo real', type: 'money', currency: account.currency, required: false, wide: true }],
+        values: { real: credit ? Math.abs(current) : current },
+        fields: [{ name: 'real', label: credit ? 'Deuda real' : 'Saldo real', type: 'money', signed: !credit, currency: account.currency, required: false, wide: true }],
         async onSubmit(values) {
-            const target = credit ? -(values.real || 0) : (values.real || 0);
+            const target = credit ? -Math.abs(values.real || 0) : (values.real || 0);
             const diff = target - current;
             if (diff === 0) return;
             await app.store.save('transactions', {
@@ -142,10 +149,12 @@ export function openBudgetSheet({ categoryId = null } = {}) {
         return null;
     }
     const first = categoryId || options[0].value;
+    // Se edita en la moneda principal de hoy, aunque se creara con otra.
+    const currentLimit = existing ? inBase(existing.amountMinor, existing.currency, model.fx) : null;
     return formSheet({
         title: existing ? 'Editar presupuesto' : 'Nuevo presupuesto',
         subtitle: 'Límite mensual por categoría',
-        values: { categoryId: first, amountMinor: existing?.amountMinor || null, rollover: existing?.rollover || false },
+        values: { categoryId: first, amountMinor: currentLimit, rollover: existing?.rollover || false },
         fields: [
             { name: 'categoryId', label: 'Categoría', type: 'select', options, wide: true },
             { name: 'amountMinor', label: 'Límite por período', type: 'money', required: true, wide: true },
@@ -160,16 +169,18 @@ export function openBudgetSheet({ categoryId = null } = {}) {
                 box.querySelector('span').textContent = 'Aún no hay historial de esta categoría para sugerir un monto.';
                 return;
             }
-            const suggestion = suggestBudget(average);
+            const suggestion = suggestBudget(average, model.fx.base);
             box.querySelector('span').innerHTML = String(html`En los últimos 3 meses gastó en promedio <b>${money(average)}</b>. Sugerencia: <button type="button" class="link-btn" data-use-suggestion="${suggestion}">${formatMoney(suggestion)}</button>`);
             box.querySelector('[data-use-suggestion]')?.addEventListener('click', event => {
-                form.querySelector('[name="amountMinor"]').value = formatMoney(Number(event.target.dataset.useSuggestion), model.fx.base, { symbol: false });
+                form.querySelector('[name="amountMinor"]').value = fieldAmount(Number(event.target.dataset.useSuggestion), model.fx.base);
             });
         },
         async onSubmit(values) {
             if (existing && existing.categoryId !== values.categoryId) await app.store.remove('budgets', existing.id);
             await app.store.save('budgets', {
                 id: values.categoryId,
+                // Editar el límite no reinicia desde cuándo existe el presupuesto (cuenta para «Mes impecable»).
+                createdAt: existing && existing.categoryId === values.categoryId ? existing.createdAt : undefined,
                 categoryId: values.categoryId,
                 amountMinor: values.amountMinor,
                 currency: model.fx.base,
@@ -185,9 +196,15 @@ export function openBudgetSheet({ categoryId = null } = {}) {
 
 /* ── Metas ────────────────────────────────────────────────────────────────── */
 
-export function openGoalSheet({ goal = null, kind = null } = {}) {
+/**
+ * @param {{goal?: object, kind?: string, preset?: {name?: string, targetMinor?: number, currency?: string}}} [options]
+ *   `preset` rellena una meta nueva (desde «¿Me alcanza?» o el simulador).
+ */
+export function openGoalSheet({ goal = null, kind = null, preset = {} } = {}) {
     const model = app.model();
     const editing = Boolean(goal);
+    // Los aportes no llevan moneda: son la de la meta. Cambiarla reinterpretaría todo lo ahorrado.
+    const currencyLocked = editing && app.store.list('contributions').some(c => c.goalId === goal.id);
     const initialKind = goal?.kind || kind || 'carro';
     return formSheet({
         title: editing ? 'Editar meta' : '¿Para qué está ahorrando?',
@@ -195,18 +212,17 @@ export function openGoalSheet({ goal = null, kind = null } = {}) {
         gold: true,
         values: {
             kind: initialKind,
-            currency: displayCurrencyCode(),
-            priority: '2',
+            currency: preset.currency || displayCurrencyCode(),
             ...goal,
-            targetMinor: goal?.targetMinor ?? (initialKind === 'emergencia' ? model.emergency.suggested || null : null),
-            name: goal?.name || (initialKind === 'emergencia' ? 'Fondo de emergencia' : ''),
+            targetMinor: goal?.targetMinor ?? preset.targetMinor ?? (initialKind === 'emergencia' ? model.emergency.suggested || null : null),
+            name: goal?.name || preset.name || (initialKind === 'emergencia' ? 'Fondo de emergencia' : ''),
             priority: String(goal?.priority || 2)
         },
         fields: [
             { name: 'kind', label: 'Tipo de sueño', type: 'chips', gold: true, options: Object.entries(GOAL_KINDS).map(([value, info]) => ({ value, label: info.label, icon: info.icon })) },
             { name: 'name', label: 'Nombre', required: true, placeholder: 'Land Cruiser 80, Casa en Grecia…', maxLength: 60, wide: true },
             { name: 'targetMinor', label: 'Cuánto necesita', type: 'money', currencyField: 'currency', required: true },
-            { name: 'currency', label: 'Moneda', type: 'select', options: CURRENCY_OPTIONS },
+            { name: 'currency', label: 'Moneda', type: 'select', options: CURRENCY_OPTIONS, disabled: currencyLocked, hint: currencyLocked ? 'fija: la meta ya tiene aportes' : '' },
             { name: 'deadline', label: 'Para cuándo', type: 'date', hint: 'opcional' },
             { name: 'monthlyPlanMinor', label: 'Aporte mensual', type: 'money', currencyField: 'currency', hint: 'vacío = se reparte su capacidad' },
             { name: 'emergencyHint', type: 'info', content: html`<div class="callout is-gold">${icon('shield')}<span>Un fondo de emergencia sano cubre ${model.settings.emergencyMonths || 6} meses de gastos. Con su gasto promedio serían <b>${money(model.emergency.suggested)}</b>.</span></div>`, hiddenInitially: initialKind !== 'emergencia' },
@@ -225,7 +241,7 @@ export function openGoalSheet({ goal = null, kind = null } = {}) {
                 name: values.name.slice(0, 60),
                 kind: values.kind || 'otro',
                 targetMinor: values.targetMinor,
-                currency: values.currency || displayCurrencyCode(),
+                currency: currencyLocked ? goal.currency : values.currency || displayCurrencyCode(),
                 deadline: values.deadline || null,
                 monthlyPlanMinor: values.monthlyPlanMinor || null,
                 priority: Number(values.priority) || 2,
@@ -233,6 +249,11 @@ export function openGoalSheet({ goal = null, kind = null } = {}) {
                 status: goal?.status || 'active',
                 startDate: goal?.startDate || model.today
             };
+            // Al subir el objetivo, una meta que se dio por cumplida sola pasa a estar de nuevo en marcha (una marcada a mano, no).
+            if (editing && goal.status === 'done' && !goal.manualDone && goalSaved(goal.id, app.store.list('contributions')) < doc.targetMinor) {
+                doc.status = 'active';
+                doc.completedAt = null;
+            }
             const id = await app.store.save('goals', doc);
             if (!editing && values.initialMinor > 0) await addContribution({ goalId: id, amountMinor: values.initialMinor, date: model.today, note: 'Saldo inicial' });
             toast(editing ? 'Meta actualizada' : `«${doc.name}» ya es una meta. ¡A por ella!`, { tone: 'gold', iconName: 'target' });
@@ -276,6 +297,9 @@ export function openContributionSheet({ goalId, withdraw = false }) {
             const note = [values.aguinaldo ? 'Aguinaldo' : '', values.note || ''].filter(Boolean).join(' · ');
             await addContribution({ goalId, amountMinor: withdraw ? -values.amountMinor : values.amountMinor, date: values.date || model.today, note });
             const newSaved = progress.saved + (withdraw ? -values.amountMinor : values.amountMinor);
+            if (withdraw && goal.status === 'done' && !goal.manualDone && newSaved < progress.target) {
+                await app.store.patch('goals', goal.id, { status: 'active', completedAt: null });
+            }
             if (!withdraw && newSaved >= progress.target && !progress.done) {
                 await app.store.patch('goals', goal.id, { status: 'done', completedAt: model.today });
                 toast(`¡«${goal.name}» cumplida! Juntó ${formatMoney(progress.target, goal.currency)}.`, { tone: 'gold', iconName: 'trophy', duration: 6000 });
@@ -293,6 +317,10 @@ export function openRecurringSheet({ rule = null, preset = {} } = {}) {
     const model = app.model();
     const editing = Boolean(rule);
     const accounts = model.accounts.filter(a => !a.archived && a.type !== 'asset');
+    if (!accounts.length) {
+        toast('Primero cree una cuenta (efectivo, banco o tarjeta): cada recurrente se anota en una.', { tone: 'info', action: { label: 'Crear', onClick: () => app.go('#/cuentas?nueva=1') } });
+        return null;
+    }
     const categoryOptions = type => (type === 'income' ? model.incomeCats : model.expenseCats).map(c => ({ value: c.id, label: c.name }));
     const initial = { type: 'expense', currency: displayCurrencyCode(), frequency: 'monthly', anchorDate: model.today, accountId: accounts[0]?.id, autoPost: false, active: true, ...preset, ...rule };
     return formSheet({
@@ -307,7 +335,7 @@ export function openRecurringSheet({ rule = null, preset = {} } = {}) {
             { name: 'frequency', label: 'Frecuencia', type: 'select', options: Object.entries(FREQUENCIES).map(([value, label]) => ({ value, label })) },
             { name: 'anchorDate', label: 'Próxima fecha', type: 'date', required: true, hint: 'las demás se calculan desde aquí' },
             { name: 'categoryId', label: 'Categoría', type: 'select', options: categoryOptions(initial.type) },
-            { name: 'accountId', label: 'Cuenta', type: 'select', options: accounts.map(a => ({ value: a.id, label: `${a.name} · ${a.currency}` })) },
+            { name: 'accountId', label: 'Cuenta', type: 'select', required: true, options: accounts.map(a => ({ value: a.id, label: `${a.name} · ${a.currency}` })) },
             { name: 'autoPost', label: 'Registrar automáticamente', type: 'switch', iconName: 'zap', hint: 'Se anota solo al llegar la fecha. Si no, se lo recordamos para que lo confirme.' },
             ...(editing ? [{ name: 'active', label: 'Activo', type: 'switch', iconName: 'repeat', tone: 'green' }] : [])
         ],
@@ -317,7 +345,7 @@ export function openRecurringSheet({ rule = null, preset = {} } = {}) {
             if (select && select.dataset.kind !== wanted) {
                 select.dataset.kind = wanted;
                 const current = select.value;
-                select.innerHTML = categoryOptions(wanted).map(option => `<option value="${option.value}">${option.label}</option>`).join('');
+                select.innerHTML = categoryOptions(wanted).map(option => `<option value="${esc(option.value)}">${esc(option.label)}</option>`).join('');
                 if ([...select.options].some(option => option.value === current)) select.value = current;
             }
         },
@@ -388,7 +416,9 @@ export function openDebtSheet({ debt = null, preset = {} } = {}) {
                 paymentMinor: values.paymentMinor,
                 dueDay: values.dueDay || null,
                 startDate: values.startDate || model.today,
-                active: values.balanceMinor > 0
+                active: values.balanceMinor > 0,
+                status: values.balanceMinor > 0 ? 'active' : 'paid',
+                paidOffDate: values.balanceMinor > 0 ? null : debt?.paidOffDate || model.today
             });
             toast(editing ? 'Préstamo actualizado' : 'Préstamo registrado', { tone: 'success' });
         },

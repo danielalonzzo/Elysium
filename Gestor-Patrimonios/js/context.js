@@ -22,8 +22,8 @@ export const app = {
         navigate(hash, options);
     },
     rerender: () => {},
-    /** Preferencias locales del dispositivo (no viajan a Firestore). */
+    /** Preferencias de la persona que consultan módulos sin modelo a mano. */
     prefs: {
-        get sounds() { return app.model()?.settings?.sounds === true; }
+        get sounds() { return app.store?.profile?.settings?.sounds === true; }
     }
 };

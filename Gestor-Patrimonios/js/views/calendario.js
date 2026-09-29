@@ -7,12 +7,12 @@ import { html } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
 import { money, formatMoney } from '../ui/format.js';
 import { catChip, emptyState } from '../ui/parts.js';
-import { occurrences, nextOccurrence, monthlyEquivalent, FREQUENCIES } from '../core/recurring.js';
-import { addMonths, startOfMonth, endOfMonth, parseISO, toISO, daysInMonth, weekday, addDays, formatDate, monthLabel, relativeDays, WEEKDAYS_SHORT } from '../core/dates.js';
+import { occurrences, occurrenceTotals, nextOccurrence, monthlyEquivalent, FREQUENCIES } from '../core/recurring.js';
+import { addMonths, startOfMonth, endOfMonth, parseISO, toISO, daysInMonth, weekday, addDays, formatDate, monthLabel, relativeDays, WEEKDAYS_SHORT, nextMonthlyDay } from '../core/dates.js';
 import { inBase } from '../core/money.js';
-import { nextMonthlyDay } from '../core/alerts.js';
 import { postRecurring } from '../services.js';
 import { actionSheet, toast } from '../ui/overlay.js';
+import { describeError } from '../ui/errors.js';
 
 const state = { offset: 0 };
 
@@ -27,8 +27,15 @@ export default {
         const events = eventsFor(model, month, monthEnd);
         const incomeRules = model.recurring.filter(r => r.type === 'income');
         const expenseRules = model.recurring.filter(r => r.type === 'expense');
-        const fixedExpense = expenseRules.filter(r => r.active !== false).reduce((sum, r) => sum + inBase(monthlyEquivalent(r), r.currency, model.fx), 0);
-        const fixedIncome = incomeRules.filter(r => r.active !== false).reduce((sum, r) => sum + inBase(monthlyEquivalent(r), r.currency, model.fx), 0);
+        const toBase = (amount, currency) => inBase(amount, currency, model.fx);
+        // Lo que cae de verdad en el mes que se ve: un mes con cinco viernes trae
+        // cinco pagos semanales. El promedio anual queda como dato secundario.
+        const fixed = occurrenceTotals(model.recurring, month, monthEnd, toBase);
+        const average = type => model.recurring
+            .filter(r => r.type === type && r.active !== false)
+            .reduce((sum, r) => sum + toBase(monthlyEquivalent(r), r.currency), 0);
+        const monthName = monthLabel(month.slice(0, 7), { long: true, year: false });
+        const counts = new Map(model.recurring.map(rule => [rule.id, rule.active === false ? 0 : occurrences(rule, month, monthEnd).length]));
 
         const { y, m } = parseISO(month);
         const first = toISO(y, m, 1);
@@ -49,9 +56,9 @@ export default {
             </article>` : ''}
 
             <div class="grid grid-3 ${model.overdueRecurring.length ? 'section-gap' : ''}">
-                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Ingresos fijos al mes</span><span class="kpi-icon is-ok">${icon('arrow-down-left', { size: 17 })}</span></div><div class="kpi-value">${money(fixedIncome)}</div><div class="kpi-sub">${incomeRules.length} reglas</div></article>
-                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Gastos fijos al mes</span><span class="kpi-icon is-danger">${icon('arrow-up-right', { size: 17 })}</span></div><div class="kpi-value">${money(fixedExpense)}</div><div class="kpi-sub">${expenseRules.length} reglas</div></article>
-                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Queda después de lo fijo</span><span class="kpi-icon is-gold">${icon('piggy-bank', { size: 17 })}</span></div><div class="kpi-value">${money(fixedIncome - fixedExpense, model.fx.base, { tone: fixedIncome - fixedExpense < 0 ? 'expense' : 'none' })}</div><div class="kpi-sub">para variables, metas y ahorro</div></article>
+                ${fixedKpi(`Ingresos fijos en ${monthName}`, 'arrow-down-left', 'is-ok', fixed.income, fixed.incomeCount, ['cobro', 'cobros'], average('income'))}
+                ${fixedKpi(`Gastos fijos en ${monthName}`, 'arrow-up-right', 'is-danger', fixed.expense, fixed.expenseCount, ['pago', 'pagos'], average('expense'))}
+                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Queda en ${monthName} después de lo fijo</span><span class="kpi-icon is-gold">${icon('piggy-bank', { size: 17 })}</span></div><div class="kpi-value">${money(fixed.income - fixed.expense, model.fx.base, { tone: fixed.income - fixed.expense < 0 ? 'expense' : 'none' })}</div><div class="kpi-sub">para variables, metas y ahorro</div></article>
             </div>
 
             <article class="card section-gap">
@@ -73,8 +80,8 @@ export default {
             </article>
 
             <div class="grid grid-2 section-gap">
-                ${ruleList('Ingresos', incomeRules, model)}
-                ${ruleList('Gastos', expenseRules, model)}
+                ${ruleList('Ingresos', incomeRules, model, { counts, monthName })}
+                ${ruleList('Gastos', expenseRules, model, { counts, monthName })}
             </div>`;
     },
 
@@ -91,8 +98,13 @@ export default {
                 const rule = model.recurring.find(r => r.id === post.dataset.post);
                 if (!rule) return;
                 post.disabled = true;
-                await postRecurring(rule, post.dataset.date);
-                return toast(`${rule.name} registrado`, { tone: 'success' });
+                try {
+                    await postRecurring(rule, post.dataset.date);
+                    return toast(`${rule.name} registrado`, { tone: 'success' });
+                } catch (error) {
+                    post.disabled = false;
+                    return toast(describeError(error, 'No se pudo registrar. Inténtelo de nuevo.'), { tone: 'error' });
+                }
             }
             const ruleButton = event.target.closest('[data-rule]');
             if (ruleButton) return forms.openRecurringSheet({ rule: model.recurring.find(r => r.id === ruleButton.dataset.rule) });
@@ -137,17 +149,34 @@ function eventsFor(model, from, to) {
         const due = nextMonthlyDay(Number(debt.dueDay), from);
         if (due <= to) events.push({ key: `debt:${debt.id}:${due}`, date: due, name: debt.name, kind: 'expense', debtId: debt.id, label: 'Cuota del préstamo', paid: false });
     }
-    return events.sort((a, b) => (a.date < b.date ? -1 : 1));
+    return events.sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function ruleList(title, rules, model) {
+/**
+ * Tarjeta de lo fijo en el mes. Si el mes se aparta del promedio anual (hay
+ * meses de cuatro semanas y de cinco), el promedio se enseña debajo, explicado.
+ */
+function fixedKpi(label, iconName, tone, value, count, [one, many], averageValue) {
+    const differs = Math.abs(averageValue - value) > Math.max(100, Math.abs(averageValue) * 0.005);
+    return html`<article class="card kpi"><div class="kpi-top"><span class="kpi-label">${label}</span><span class="kpi-icon ${tone}">${icon(iconName, { size: 17 })}</span></div>
+        <div class="kpi-value">${money(value)}</div>
+        <div class="kpi-sub">${count} ${count === 1 ? one : many}${differs ? html` · <span title="Hay meses con cuatro semanas y meses con cinco: a lo largo del año, un pago semanal cae 4,33 veces al mes.">promedio ${money(averageValue)} al mes</span>` : ''}</div></article>`;
+}
+
+/** Cuántas veces cae una regla en el mes, cuando no es obvio (semanales y cada dos semanas). */
+function timesInMonth(rule, count, monthName) {
+    if (!['weekly', 'biweekly'].includes(rule.frequency) || !count) return '';
+    return ` · ${count} ${count === 1 ? 'vez' : 'veces'} en ${monthName}`;
+}
+
+function ruleList(title, rules, model, { counts, monthName }) {
     return html`<article class="card">
         <div class="card-head"><div><h2>${title}</h2></div><button type="button" class="link-btn" data-new-rule>${icon('plus', { size: 14 })} Añadir</button></div>
         ${rules.length ? html`<div class="list">${rules.map(rule => {
             const next = rule.active === false ? null : nextOccurrence(rule, model.today);
             return html`<button type="button" class="tx" data-rule="${rule.id}" style="${rule.active === false ? 'opacity:.5' : ''}">
                 ${catChip(model.catById.get(rule.categoryId) || { icon: 'repeat', tone: 'gray' })}
-                <span class="tx-main"><span class="tx-title">${rule.name}</span><span class="tx-meta">${FREQUENCIES[rule.frequency] || ''}${next ? ` · ${relativeDays(model.today, next)}` : ' · pausado'}${rule.autoPost ? ' · automático' : ''}</span></span>
+                <span class="tx-main"><span class="tx-title">${rule.name}</span><span class="tx-meta">${FREQUENCIES[rule.frequency] || ''}${timesInMonth(rule, counts.get(rule.id), monthName)}${next ? ` · ${relativeDays(model.today, next)}` : ' · pausado'}${rule.autoPost ? ' · automático' : ''}</span></span>
                 <span class="tx-amount">${money(rule.type === 'expense' ? -rule.amountMinor : rule.amountMinor, rule.currency, { sign: rule.type === 'income', tone: rule.type === 'income' ? 'income' : 'none' })}</span>
             </button>`;
         })}</div>` : emptyState({ title: `Sin ${title.toLowerCase()} fijos`, body: title === 'Ingresos' ? 'Su salario, pensiones o alquileres que cobra.' : 'Alquiler, luz, agua, internet, suscripciones, marchamo…', iconName: 'repeat' })}

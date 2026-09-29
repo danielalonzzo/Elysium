@@ -8,7 +8,7 @@
  * cálculos van en céntimos; la cuota se redondea al céntimo y la última fila
  * de la tabla absorbe la diferencia para que el saldo cierre en cero exacto.
  */
-import { addMonths, diffDays, AVG_DAYS_PER_MONTH, addDays } from './dates.js';
+import { addMonths, AVG_DAYS_PER_MONTH, addDays } from './dates.js';
 import { formatMoney, percent } from './money.js';
 
 /** Cuota mensual de un préstamo de `principal` a `annualRatePct` y `months`. */
@@ -39,7 +39,7 @@ export function amortization(principal, annualRatePct, months, { extraMonthly = 
         let principalPart = payment - interest + Math.max(0, Number(extraMonthly) || 0);
         if (principalPart <= 0 && r > 0) break; // cuota que no cubre intereses
         // La última cuota absorbe el redondeo para cerrar el saldo en cero.
-        if (principalPart > balance || (n === Math.round(months) && !extraMonthly)) principalPart = balance;
+        if (principalPart > balance || (n === Math.max(1, Math.round(months)) && !extraMonthly)) principalPart = balance;
         const paid = principalPart + interest;
         balance -= principalPart;
         totalInterest += interest;
@@ -157,6 +157,11 @@ function purchaseVerdict({ price, cash, credit, capacity, savings, currency = 'C
         if (credit.dti.state === 'risk') reasons.push(`Las cuotas se llevarían el ${Math.round(credit.dti.pct)}% de su ingreso.`);
         if (credit.capacityAfter < 0) reasons.push('La cuota es mayor que lo que ahorra al mes.');
         if (!reasons.length) {
+            // Sin ingreso conocido no hay endeudamiento que medir: no se puede decir que es sano.
+            if (credit.dti.state === 'unknown') {
+                reasons.push('No conocemos su ingreso mensual, así que no podemos decir si el endeudamiento es sano. Anótelo en el simulador.');
+                return { level: 'caution', title: 'Falta su ingreso para decidir', reasons };
+            }
             if (credit.dti.state === 'caution') {
                 reasons.push(`La cuota compromete el ${Math.round(credit.dti.pct)}% de su ingreso: entra, pero justo.`);
                 return { level: 'caution', title: 'Puede, pero con cuidado', reasons };
@@ -190,26 +195,42 @@ export function quickAffordability({
     const bucket = categoryRemaining !== null && categoryRemaining !== undefined
         ? Math.min(categoryRemaining, periodAvailable)
         : periodAvailable;
+    const usable = Math.max(0, bucket);
+    const savings = Math.max(0, freeSavings);
+    const delayFor = fromSavings => (goalMonthly > 0 ? Math.round(fromSavings / (goalMonthly / AVG_DAYS_PER_MONTH)) : null);
 
-    if (amount <= bucket) {
+    if (amount <= usable) {
         return {
             level: 'yes',
             title: 'Sí, le alcanza',
-            leftover: bucket - amount,
+            leftover: usable - amount,
             detail: 'Cabe en lo que le queda este período.'
         };
     }
-    if (amount <= freeSavings) {
-        const delayDays = goalMonthly > 0 ? Math.round(amount / (goalMonthly / AVG_DAYS_PER_MONTH)) : null;
+    if (amount <= savings) {
+        const delayDays = delayFor(amount);
         return {
             level: 'caution',
             title: 'Le alcanza con sus ahorros',
-            leftover: freeSavings - amount,
+            leftover: savings - amount,
             delayDays,
             detail: delayDays ? `Retrasaría sus metas unos ${delayDays} días.` : 'Tendría que tomarlo de sus ahorros.'
         };
     }
-    const gap = amount - Math.max(0, bucket) - Math.max(0, freeSavings);
+    // Ni lo que queda del período ni el ahorro alcanzan por separado, pero juntos sí.
+    if (amount <= usable + savings) {
+        const delayDays = delayFor(amount - usable);
+        return {
+            level: 'caution',
+            title: 'Le alcanza con sus ahorros',
+            leftover: usable + savings - amount,
+            delayDays,
+            detail: delayDays
+                ? `Usaría lo que le queda del período y parte de sus ahorros: retrasaría sus metas unos ${delayDays} días.`
+                : 'Usaría lo que le queda del período y parte de sus ahorros.'
+        };
+    }
+    const gap = amount - usable - savings;
     if (monthlyCapacity > 0) {
         const months = gap / monthlyCapacity;
         const days = Math.ceil(months * AVG_DAYS_PER_MONTH);
@@ -280,16 +301,13 @@ export function payoffPlan(debts, { extraMonthly = 0, strategy = 'avalanche', to
             }
         }
     }
+    // Si tras 50 años aún queda saldo, alguna cuota no cubre sus intereses: no hay fecha que prometer.
+    const stuck = pool.some(d => d.balance > 0);
     return {
         months: month,
         totalInterest,
         order: finished,
-        freedomDate: today ? addMonths(today, month) : null,
-        stuck: month >= 600
+        freedomDate: today && !stuck ? addMonths(today, month) : null,
+        stuck
     };
-}
-
-/** Pago a tiempo si se registró en o antes del día de pago de su mes. */
-export function isOnTime(paymentDate, dueDate) {
-    return diffDays(paymentDate, dueDate) >= 0;
 }

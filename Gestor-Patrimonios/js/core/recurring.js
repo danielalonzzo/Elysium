@@ -101,16 +101,16 @@ export function upcoming(rules, today, days = 30, paidKeys = new Set()) {
 }
 
 /**
- * Ocurrencias vencidas y sin registrar desde `since` hasta hoy. Sirven para
- * las reglas «registrar solo» (se crean al abrir la app) y para recordar las
- * que esperan confirmación.
+ * Ocurrencias vencidas y sin registrar: desde `lookbackDays` atrás hasta ayer
+ * (lo de hoy aún está «por venir»). Son las que esperan confirmación.
  */
-export function overdue(rules, today, since, paidKeys = new Set()) {
+export function overdue(rules, today, { lookbackDays = 20, perRule = 3, paidKeys = new Set() } = {}) {
+    const from = addDays(today, -lookbackDays);
+    const until = addDays(today, -1);
     const items = [];
     for (const rule of rules || []) {
         if (rule.active === false) continue;
-        const from = rule.lastPostedDate && rule.lastPostedDate > since ? addDays(rule.lastPostedDate, 1) : since;
-        for (const date of occurrences(rule, from, today, 24)) {
+        for (const date of occurrences(rule, from, until, perRule)) {
             const key = `${rule.id}:${date}`;
             if (!paidKeys.has(key)) items.push({ rule, date, key, daysLate: diffDays(date, today) });
         }
@@ -118,7 +118,34 @@ export function overdue(rules, today, since, paidKeys = new Set()) {
     return items;
 }
 
-/** Monto mensual equivalente, para proyectar gastos fijos. */
+/**
+ * Lo que las reglas activas cobran y pagan de verdad entre `from` y `to`,
+ * contando cada ocurrencia: un mes con cinco viernes trae cinco pagos
+ * semanales y uno con cuatro, cuatro. `toBase(importe, moneda)` lo lleva a la
+ * moneda principal.
+ *
+ * @param {Array<object>} rules
+ * @param {string} from
+ * @param {string} to
+ * @param {(amountMinor: number, currency?: string) => number} [toBase]
+ */
+export function occurrenceTotals(rules, from, to, toBase = amount => amount) {
+    const totals = { income: 0, expense: 0, incomeCount: 0, expenseCount: 0 };
+    for (const rule of rules || []) {
+        if (rule.active === false || (rule.type !== 'income' && rule.type !== 'expense')) continue;
+        const count = occurrences(rule, from, to).length;
+        if (!count) continue;
+        totals[rule.type] += count * toBase(Number(rule.amountMinor) || 0, rule.currency);
+        totals[`${rule.type}Count`] += count;
+    }
+    return totals;
+}
+
+/**
+ * Monto mensual promedio de una regla a lo largo del año (un pago semanal son
+ * 52/12 ≈ 4,33 al mes). Sirve para planificar; lo de un mes concreto lo da
+ * `occurrenceTotals`, porque unos meses traen cuatro semanas y otros cinco.
+ */
 export function monthlyEquivalent(rule) {
     const amount = Number(rule?.amountMinor) || 0;
     switch (rule?.frequency) {

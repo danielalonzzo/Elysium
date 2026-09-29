@@ -10,7 +10,7 @@
 import { app } from '../context.js';
 import { html, downloadText, haptic } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, pct, formatMoney, currencySymbol, currencyOptions } from '../ui/format.js';
+import { money, pct, formatMoney, fieldAmount, currencySymbol, currencyOptions } from '../ui/format.js';
 import { rosette } from '../ui/guilloche.js';
 import { progressBar } from '../ui/parts.js';
 import { simulatePurchase } from '../core/loans.js';
@@ -36,7 +36,7 @@ function defaults(model, route) {
         name: route.query.nombre || '',
         price,
         currency: model.fx.base,
-        mode: price ? 'compare' : 'compare',
+        mode: 'compare',
         downPct: 20,
         annualRate: 11,
         months: 60,
@@ -57,7 +57,10 @@ export default {
     live: false,
 
     render(model, route) {
-        if (!form || route.query.precio || route.query.nuevo) form = defaults(model, route);
+        // Una llegada nueva (con `precio` o `nuevo`) empieza un formulario limpio; los repintados que
+        // trae el mismo enlace, o abrir una simulación guardada, no lo pisan.
+        const arrival = `${route.query.precio || ''}|${route.query.nuevo || ''}|${route.query.t || ''}`;
+        if (!form || ((route.query.precio || route.query.nuevo) && form.arrival !== arrival)) form = { ...defaults(model, route), arrival };
         return html`
             <div class="sim">
                 <article class="card sim-form">
@@ -65,26 +68,26 @@ export default {
                     <form class="form" data-sim-form novalidate autocomplete="off">
                         <label class="field"><span>Qué es</span><input id="sim-name" name="name" value="${form.name}" placeholder="Montero Sport 2019, celular, lote…" maxlength="60"></label>
                         <div class="form-grid">
-                            <label class="field"><span>Precio</span><div class="input-group"><span class="prefix" data-prefix>${currencySymbol(form.currency)}</span><input id="sim-price" name="price" inputmode="decimal" value="${form.price ? formatMoney(form.price, form.currency, { symbol: false }) : ''}" placeholder="8.000.000"></div></label>
+                            <label class="field"><span>Precio</span><div class="input-group"><span class="prefix" data-prefix>${currencySymbol(form.currency)}</span><input id="sim-price" name="price" inputmode="decimal" value="${form.price ? fieldAmount(form.price, form.currency) : ''}" placeholder="8.000.000"></div></label>
                             <label class="field"><span>Moneda</span><select id="sim-currency" name="currency">${currencyOptions(form.currency)}</select></label>
                         </div>
                         <div class="seg is-block" role="group" aria-label="Modalidad">${MODES.map(([value, label]) => html`<button type="button" data-mode="${value}" aria-pressed="${form.mode === value}">${label}</button>`)}</div>
                         <div class="form-grid" data-credit-fields>
-                            <label class="field" data-down-field><span>Prima <small data-down-amount></small></span><div class="input-group"><input id="sim-down" name="downPct" type="number" min="0" max="95" step="1" value="${form.downPct}" class="has-suffix" style="padding-left:13px!important"><span class="suffix">%</span></div></label>
-                            <label class="field"><span>Tasa anual</span><div class="input-group"><input id="sim-rate" name="annualRate" type="number" min="0" max="80" step="0.05" value="${form.annualRate}" class="has-suffix" style="padding-left:13px!important"><span class="suffix">%</span></div></label>
+                            <label class="field" data-down-field><span>Prima <small data-down-amount></small></span><div class="input-group"><input id="sim-down" name="downPct" type="number" min="0" max="95" step="1" value="${form.downPct}" class="has-suffix"><span class="suffix">%</span></div></label>
+                            <label class="field"><span>Tasa anual</span><div class="input-group"><input id="sim-rate" name="annualRate" type="number" min="0" max="80" step="0.05" value="${form.annualRate}" class="has-suffix"><span class="suffix">%</span></div></label>
                             <div class="field is-wide"><span>Plazo <small data-months-label>${form.months} meses</small></span>
                                 <div class="chips">${[12, 24, 36, 48, 60, 72, 84, 96].map(m => html`<button type="button" class="chip" data-months="${m}" aria-pressed="${form.months === m}">${m}</button>`)}</div></div>
-                            <label class="field"><span>Formalización <small>comisión</small></span><div class="input-group"><input id="sim-fees" name="feesPct" type="number" min="0" max="15" step="0.1" value="${form.feesPct}" class="has-suffix" style="padding-left:13px!important"><span class="suffix">%</span></div></label>
-                            <label class="field"><span>Seguros al mes <small>opcional</small></span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-insurance" name="insurance" inputmode="decimal" value="${form.insurance ? formatMoney(form.insurance, model.fx.base, { symbol: false }) : ''}" placeholder="0"></div></label>
+                            <label class="field"><span>Formalización <small>comisión</small></span><div class="input-group"><input id="sim-fees" name="feesPct" type="number" min="0" max="15" step="0.1" value="${form.feesPct}" class="has-suffix"><span class="suffix">%</span></div></label>
+                            <label class="field"><span>Seguros al mes <small>opcional</small></span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-insurance" name="insurance" inputmode="decimal" value="${form.insurance ? fieldAmount(form.insurance, model.fx.base) : ''}" placeholder="0"></div></label>
                         </div>
                         <details class="more">
                             <summary>${icon('sliders', { size: 16 })} Sus números <small class="faint">(tomados de su historial)</small></summary>
                             <div class="form">
                                 <div class="form-grid">
-                                    <label class="field"><span>Ahorro disponible <small>sin fondo de emergencia</small></span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-savings" name="savings" inputmode="decimal" value="${formatMoney(form.savings, model.fx.base, { symbol: false })}"></div></label>
-                                    <label class="field"><span>Ahorra al mes</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-capacity" name="capacity" inputmode="decimal" value="${formatMoney(form.capacity, model.fx.base, { symbol: false })}"></div></label>
-                                    <label class="field"><span>Ingreso mensual</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-income" name="income" inputmode="decimal" value="${formatMoney(form.income, model.fx.base, { symbol: false })}"></div></label>
-                                    <label class="field"><span>Cuotas que ya paga</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-existing" name="existing" inputmode="decimal" value="${formatMoney(form.existing, model.fx.base, { symbol: false })}"></div></label>
+                                    <label class="field"><span>Ahorro disponible <small>sin fondo de emergencia</small></span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-savings" name="savings" inputmode="decimal" value="${fieldAmount(form.savings, model.fx.base)}"></div></label>
+                                    <label class="field"><span>Ahorra al mes</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-capacity" name="capacity" inputmode="decimal" value="${fieldAmount(form.capacity, model.fx.base)}"></div></label>
+                                    <label class="field"><span>Ingreso mensual</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-income" name="income" inputmode="decimal" value="${fieldAmount(form.income, model.fx.base)}"></div></label>
+                                    <label class="field"><span>Cuotas que ya paga</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="sim-existing" name="existing" inputmode="decimal" value="${fieldAmount(form.existing, model.fx.base)}"></div></label>
                                 </div>
                             </div>
                         </details>
@@ -115,24 +118,13 @@ export default {
             form.existing = Math.abs(parseAmount(value('existing')) || 0);
         };
 
-        const draw = () => {
-            read();
-            formEl.querySelector('[data-credit-fields]').hidden = form.mode === 'cash';
-            formEl.querySelector('[data-down-field]').hidden = form.mode === 'credit';
-            formEl.querySelector('[data-prefix]').textContent = currencySymbol(form.currency);
-            formEl.querySelector('[data-months-label]').textContent = `${form.months} meses (${formatMonths(form.months)})`;
-            const priceBase = form.price ? convertMinor(Math.abs(form.price), form.currency, model.fx.base, model.fx) : 0;
-            const downPct = form.mode === 'credit' ? 0 : form.downPct;
-            const down = Math.round(priceBase * downPct / 100);
-            const downLabel = formEl.querySelector('[data-down-amount]');
-            if (downLabel) downLabel.textContent = priceBase ? formatMoney(down) : '';
-            if (!priceBase) {
-                results.innerHTML = String(html`<article class="card empty">${rosette({ seed: 'simulador', size: 150, layers: 3 })}<h3>Escriba un precio</h3><p>Le diremos en cuánto tiempo lo tiene de contado, cuánto pagaría a crédito y si le conviene esperar.</p></article>`);
-                return;
-            }
+        /** La simulación con lo que hay en el formulario, en la moneda principal. */
+        const currentSim = () => {
+            const priceBase = convertMinor(Math.abs(form.price || 0), form.currency, model.fx.base, model.fx);
+            const down = form.mode === 'cash' || form.mode === 'credit' ? 0 : Math.round(priceBase * form.downPct / 100);
             const sim = simulatePurchase({
                 price: priceBase,
-                downPayment: form.mode === 'cash' ? 0 : down,
+                downPayment: down,
                 annualRate: form.annualRate,
                 months: form.mode === 'cash' ? 0 : form.months,
                 feesPct: form.feesPct,
@@ -141,8 +133,25 @@ export default {
                 monthlyCapacity: form.capacity,
                 monthlyIncome: form.income,
                 existingDebtPayments: form.existing,
-                today: model.today
+                today: model.today,
+                currency: model.fx.base
             });
+            return { priceBase, down, sim };
+        };
+
+        const draw = () => {
+            read();
+            formEl.querySelector('[data-credit-fields]').hidden = form.mode === 'cash';
+            formEl.querySelector('[data-down-field]').hidden = form.mode === 'credit';
+            formEl.querySelector('[data-prefix]').textContent = currencySymbol(form.currency);
+            formEl.querySelector('[data-months-label]').textContent = `${form.months} meses (${formatMonths(form.months)})`;
+            const { priceBase, down, sim } = currentSim();
+            const downLabel = formEl.querySelector('[data-down-amount]');
+            if (downLabel) downLabel.textContent = down ? formatMoney(down) : '';
+            if (!priceBase) {
+                results.innerHTML = String(html`<article class="card empty">${rosette({ seed: 'simulador', size: 150, layers: 3 })}<h3>Escriba un precio</h3><p>Le diremos en cuánto tiempo lo tiene de contado, cuánto pagaría a crédito y si le conviene esperar.</p></article>`);
+                return;
+            }
             results.innerHTML = String(resultsView(sim, model));
         };
 
@@ -154,6 +163,44 @@ export default {
                     <p class="muted" style="margin:6px 0 10px">${money(s.priceMinor, s.currency)} · ${formatDate(s.date || model.today, 'medium')}</p>
                     <div class="row"><button type="button" class="btn btn-sm btn-ghost" data-load-sim="${s.id}">Abrir</button><button type="button" class="icon-btn is-sm is-plain" data-delete-sim="${s.id}" aria-label="Eliminar">${icon('trash', { size: 15 })}</button></div>
                 </article>`)}</div>`) : '';
+        };
+
+        const exportTable = () => {
+            const { sim } = currentSim();
+            if (!sim.credit) return;
+            downloadText(`amortizacion-${(form.name || 'compra').toLowerCase().replace(/\W+/g, '-')}.csv`, toCSV(sim.credit.rows, [
+                { key: 'n', label: 'Cuota' },
+                { key: 'payment', label: 'Pago', format: v => (v / 100).toFixed(2).replace('.', ',') },
+                { key: 'interest', label: 'Intereses', format: v => (v / 100).toFixed(2).replace('.', ',') },
+                { key: 'principal', label: 'Capital', format: v => (v / 100).toFixed(2).replace('.', ',') },
+                { key: 'balance', label: 'Saldo', format: v => (v / 100).toFixed(2).replace('.', ',') }
+            ]), 'text/csv');
+        };
+
+        const saveSimulation = async () => {
+            if (!form.price) return;
+            const doc = { name: form.name || 'Compra', priceMinor: form.price, currency: form.currency, mode: form.mode, downPct: form.downPct, annualRate: form.annualRate, months: form.months, feesPct: form.feesPct, insuranceMinor: form.insurance, date: model.today };
+            if (form.loadedId) doc.id = form.loadedId;
+            form.loadedId = await app.store.save('simulations', doc);
+            play('success');
+            toast('Simulación guardada', { tone: 'success' });
+            drawSaved();
+        };
+
+        const makeGoal = async () => {
+            const { openGoalSheet } = await import('../sheets/forms.js');
+            const { priceBase, down } = currentSim();
+            const target = form.mode === 'cash' ? priceBase : down + Math.round(priceBase * form.feesPct / 100);
+            const kind = /carro|auto|montero|toyota|hilux|moto|vehiculo|vehículo/i.test(form.name) ? 'carro' : 'otro';
+            const name = form.mode === 'cash' ? form.name : form.name ? `Prima: ${form.name}` : '';
+            openGoalSheet({ kind, preset: { name, targetMinor: target, currency: model.fx.base } });
+        };
+
+        const makeDebt = async () => {
+            const { openDebtSheet } = await import('../sheets/forms.js');
+            const { sim } = currentSim();
+            if (!sim.credit) return;
+            openDebtSheet({ preset: { name: form.name || 'Préstamo', currency: model.fx.base, principalMinor: sim.credit.loan, balanceMinor: sim.credit.loan, annualRate: form.annualRate, termMonths: form.months, paymentMinor: sim.credit.payment, kind: 'vehicle', startDate: model.today } });
         };
 
         const onInput = () => draw();
@@ -190,55 +237,6 @@ export default {
                 await app.store.remove('simulations', del.dataset.deleteSim);
                 drawSaved();
             }
-        };
-
-        const currentSim = () => {
-            const priceBase = convertMinor(Math.abs(form.price || 0), form.currency, model.fx.base, model.fx);
-            const down = form.mode === 'cash' || form.mode === 'credit' ? 0 : Math.round(priceBase * form.downPct / 100);
-            return { priceBase, down, sim: simulatePurchase({ price: priceBase, downPayment: down, annualRate: form.annualRate, months: form.mode === 'cash' ? 0 : form.months, feesPct: form.feesPct, insuranceMonthly: form.insurance, savingsAvailable: form.savings, monthlyCapacity: form.capacity, monthlyIncome: form.income, existingDebtPayments: form.existing, today: model.today, currency: model.fx.base }) };
-        };
-
-        const exportTable = () => {
-            const { sim } = currentSim();
-            if (!sim.credit) return;
-            downloadText(`amortizacion-${(form.name || 'compra').toLowerCase().replace(/\W+/g, '-')}.csv`, toCSV(sim.credit.rows, [
-                { key: 'n', label: 'Cuota' },
-                { key: 'payment', label: 'Pago', format: v => (v / 100).toFixed(2).replace('.', ',') },
-                { key: 'interest', label: 'Intereses', format: v => (v / 100).toFixed(2).replace('.', ',') },
-                { key: 'principal', label: 'Capital', format: v => (v / 100).toFixed(2).replace('.', ',') },
-                { key: 'balance', label: 'Saldo', format: v => (v / 100).toFixed(2).replace('.', ',') }
-            ]), 'text/csv');
-        };
-
-        const saveSimulation = async () => {
-            if (!form.price) return;
-            const doc = { name: form.name || 'Compra', priceMinor: form.price, currency: form.currency, mode: form.mode, downPct: form.downPct, annualRate: form.annualRate, months: form.months, feesPct: form.feesPct, insuranceMinor: form.insurance, date: model.today };
-            if (form.loadedId) doc.id = form.loadedId;
-            form.loadedId = await app.store.save('simulations', doc);
-            play('success');
-            toast('Simulación guardada', { tone: 'success' });
-            drawSaved();
-        };
-
-        const makeGoal = async () => {
-            const { openGoalSheet } = await import('../sheets/forms.js');
-            const { priceBase, down } = currentSim();
-            const target = form.mode === 'cash' ? priceBase : down + Math.round(priceBase * form.feesPct / 100);
-            openGoalSheet({ goal: null, kind: /carro|auto|montero|toyota|hilux|moto|vehiculo|vehículo/i.test(form.name) ? 'carro' : 'otro' });
-            setTimeout(() => {
-                const sheet = document.querySelector('.overlay:last-child');
-                const name = sheet?.querySelector('[name="name"]');
-                const amount = sheet?.querySelector('[name="targetMinor"]');
-                if (name && !name.value) name.value = form.mode === 'cash' ? form.name : `Prima: ${form.name}`;
-                if (amount) amount.value = formatMoney(target, model.fx.base, { symbol: false });
-            }, 80);
-        };
-
-        const makeDebt = async () => {
-            const { openDebtSheet } = await import('../sheets/forms.js');
-            const { sim } = currentSim();
-            if (!sim.credit) return;
-            openDebtSheet({ preset: { name: form.name || 'Préstamo', currency: model.fx.base, principalMinor: sim.credit.loan, balanceMinor: sim.credit.loan, annualRate: form.annualRate, termMonths: form.months, paymentMinor: sim.credit.payment, kind: 'vehicle', startDate: model.today } });
         };
 
         formEl.addEventListener('input', onInput);

@@ -9,9 +9,8 @@ import { money, pct } from '../ui/format.js';
 import { catChip, progressBar, emptyState } from '../ui/parts.js';
 import { areaChart } from '../ui/charts.js';
 import { ACCOUNT_TYPES } from '../core/stats.js';
-import { formatDate, monthLabel, relativeDays } from '../core/dates.js';
+import { formatDate, monthLabel, relativeDays, nextMonthlyDay } from '../core/dates.js';
 import { CURRENCY_CODES, quote, formatQuote } from '../core/money.js';
-import { nextMonthlyDay } from '../core/alerts.js';
 import { actionSheet } from '../ui/overlay.js';
 
 const GROUPS = [

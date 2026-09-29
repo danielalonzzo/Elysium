@@ -10,7 +10,7 @@
  * Los módulos se cargan bajo demanda: el modo demostración no toca la red.
  */
 
-const SDK = 'https://www.gstatic.com/firebasejs/10.8.0/';
+const SDK = 'https://www.gstatic.com/firebasejs/12.19.0/';
 
 const CONFIG = Object.freeze({
     apiKey: 'AIzaSyABcv1SqIHF78JqU5QVkLd3I94pI2YNPoE',
@@ -92,6 +92,24 @@ export async function resetPassword(email) {
 export async function signOutUser() {
     const { auth, authMod } = await loadFirebase();
     return authMod.signOut(auth);
+}
+
+/**
+ * Deja el dispositivo sin rastro de la sesión que termina: cierra Firestore y
+ * borra su caché de IndexedDB (donde quedan las cuentas y los movimientos, aunque
+ * se cierre la sesión). Es la última llamada antes de recargar la página, que es
+ * lo que reinicia también el estado de las vistas. Si otra pestaña sigue usando
+ * la caché, el borrado no es posible y se ignora.
+ */
+export async function clearLocalSession() {
+    if (!loading) return;
+    try {
+        const { db, fsMod } = await loading;
+        await fsMod.terminate(db);
+        await fsMod.clearIndexedDbPersistence(db);
+    } catch (error) {
+        console.warn('Caché local', error?.code || error);
+    }
 }
 
 export async function reloadUser() {

@@ -74,11 +74,6 @@ export function toMinor(units) {
     return Math.round(value * 100);
 }
 
-/** Céntimos → unidades. */
-export function fromMinor(minor) {
-    return (Number(minor) || 0) / 100;
-}
-
 /**
  * Convierte un importe entre dos monedas pasando por el colón. `rates` es la
  * tabla, un objeto `fx` o, por compatibilidad, los colones por dólar.
@@ -172,12 +167,20 @@ export function formatMoney(minor, currency = BASE_CURRENCY, options = {}) {
             { value: 1e6, suffix: ' M' },
             { value: 1e3, suffix: ' k' }
         ];
-        const unit = units.find(candidate => absolute >= candidate.value);
-        const scaled = absolute / unit.value;
-        const digits = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
-        const fixed = scaled.toFixed(digits).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+        const scale = index => {
+            const scaled = absolute / units[index].value;
+            const digits = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2;
+            return scaled.toFixed(digits).replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+        };
+        let index = units.findIndex(candidate => absolute >= candidate.value);
+        let fixed = scale(index);
+        // 999,9 k se redondea a «1000 k»: es «1 M».
+        if (Number(fixed) >= 1000 && index > 0) {
+            index -= 1;
+            fixed = scale(index);
+        }
         const [intPart, decPart] = fixed.split('.');
-        body = groupDigits(intPart) + (decPart ? ',' + decPart : '') + unit.suffix;
+        body = groupDigits(intPart) + (decPart ? ',' + decPart : '') + units[index].suffix;
     } else {
         const decimals = Number.isInteger(options.decimals) ? options.decimals : info.decimals;
         const fixed = absolute.toFixed(decimals);
@@ -185,7 +188,9 @@ export function formatMoney(minor, currency = BASE_CURRENCY, options = {}) {
         body = groupDigits(intPart) + (decPart ? ',' + decPart : '');
     }
 
-    const prefix = negative ? '−' : (options.sign && amount > 0 ? '+' : '');
+    // Un importe que se redondea a cero no lleva signo: «−₡0» no existe.
+    const isZero = !/[1-9]/.test(body);
+    const prefix = negative && !isZero ? '−' : (options.sign && amount > 0 && !isZero ? '+' : '');
     return `${prefix}${symbol}${body}`;
 }
 
@@ -210,7 +215,9 @@ export function parseAmount(input) {
         text = text.slice(0, suffix.index);
     }
 
-    const negative = /^[-−(]/.test(text) || /\)$/.test(text);
+    // El signo puede ir antes o después del símbolo: «-₡500» y «₡-500».
+    const unsigned = text.replace(/^[₡$€\s]+/, '');
+    const negative = /^[-−(]/.test(unsigned) || /\)$/.test(unsigned);
     text = text.replace(/[^\d.,]/g, '');
     if (!/\d/.test(text)) return null;
 
@@ -225,8 +232,9 @@ export function parseAmount(input) {
     } else if (lastDot !== -1 || lastComma !== -1) {
         const sep = lastDot !== -1 ? '.' : ',';
         const parts = text.split(sep);
+        // «0,500» es medio, no quinientos: los miles nunca empiezan por cero.
         const looksLikeThousands = parts.length > 2
-            || (parts.length === 2 && parts[1].length === 3 && parts[0].length > 0);
+            || (parts.length === 2 && parts[1].length === 3 && Number(parts[0]) > 0);
         normalized = looksLikeThousands ? parts.join('') : parts.join('.');
     } else {
         normalized = text;
@@ -239,12 +247,23 @@ export function parseAmount(input) {
 }
 
 /** Redondea hacia arriba a un múltiplo «bonito» (útil para sugerir presupuestos). */
-export function roundNice(minor, currency = BASE_CURRENCY) {
+export function roundNice(minor, currency) {
     const amount = Math.max(0, Number(minor) || 0);
     const step = currency === 'CRC'
         ? (amount >= 10000000 ? 500000 : 100000)     // ₡5.000 / ₡1.000
         : (amount >= 100000 ? 5000 : 1000);          // $50 / $10 (o €)
     return Math.ceil(amount / step) * step;
+}
+
+/**
+ * Un importe de referencia pensado en colones («un gasto grande son
+ * ₡100.000») expresado en la moneda principal con cifra redonda: en euros es
+ * «€170», no «€100.000».
+ */
+export function colonesToBase(minor, fx) {
+    const base = fx?.base || BASE_CURRENCY;
+    if (base === 'CRC') return minor;
+    return roundNice(convertMinor(minor, 'CRC', base, fx), base);
 }
 
 /** Porcentaje seguro (0 si el divisor es 0). */

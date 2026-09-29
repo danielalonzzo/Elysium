@@ -99,7 +99,6 @@
     padding: 20px;
     min-width: 0;
 }
-.card.is-flush { padding: 0; overflow: hidden; }
 .card.is-tight { padding: 16px; }
 .card-head {
     display: flex;
@@ -395,7 +394,6 @@ a.card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
 .tx-meta .sep { opacity: 0.5; }
 .tx-amount { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-weight: 600; font-size: 0.95rem; }
 .tx-amount small { font-weight: 450; font-size: 0.72rem; color: var(--text-3); }
-.tx-flags { display: inline-flex; gap: 4px; }
 .flag {
     display: inline-flex;
     align-items: center;
@@ -562,7 +560,7 @@ a.card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
 @media (max-width: 560px) { .form-grid { grid-template-columns: minmax(0, 1fr); } }
 
 .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.field > span, .field-label { font-size: 0.78rem; font-weight: 600; color: var(--text-2); display: flex; justify-content: space-between; gap: 8px; }
+.field > span { font-size: 0.78rem; font-weight: 600; color: var(--text-2); display: flex; justify-content: space-between; gap: 8px; }
 .field > span small { font-weight: 450; color: var(--text-3); }
 .field-hint { font-size: 0.74rem; color: var(--text-3); }
 .input, .field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]), .field select, .field textarea {
@@ -598,10 +596,10 @@ a.card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
 /* Sin flechas nativas en los campos numéricos: Safari las pinta aunque el campo tenga estilo propio. */
 input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-.field.has-error input, .field.has-error select { border-color: var(--danger); box-shadow: 0 0 0 4px var(--danger-soft); }
 .field-error { color: var(--danger); font-size: 0.76rem; }
 .input-group { position: relative; display: flex; align-items: center; }
-.input-group input { padding-left: 34px !important; }
+/* Solo los campos con símbolo delante dejan hueco para él. */
+.input-group .prefix + input { padding-left: 34px !important; }
 .input-group .prefix { position: absolute; left: 13px; color: var(--text-3); font-weight: 600; pointer-events: none; }
 .input-group .suffix { position: absolute; right: 13px; color: var(--text-3); font-size: 0.82rem; pointer-events: none; }
 .input-group input.has-suffix { padding-right: 44px !important; }
@@ -780,6 +778,7 @@ input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-o
     font-weight: 600;
     cursor: pointer;
 }
+.amount-input .currency-toggle.is-static { display: grid; place-items: center; cursor: default; opacity: 0.75; }
 .amount-input input {
     width: 100%;
     max-width: 320px;
@@ -1174,13 +1173,6 @@ a.hbar:hover { background: var(--surface-hover); color: inherit; }
 .empty p { color: var(--text-2); max-width: 360px; font-size: 0.9rem; }
 .empty .btn { margin-top: 8px; }
 
-.skeleton {
-    border-radius: 12px;
-    background: linear-gradient(90deg, var(--line) 0%, var(--line-strong) 50%, var(--line) 100%);
-    background-size: 200% 100%;
-    animation: shimmer 1.4s infinite linear;
-}
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
 
 .splash {
     position: fixed;

@@ -14,6 +14,8 @@ import { shiftPeriod, monthLabel, formatDate, addDays, diffDays, WEEKDAYS_LONG }
 import { toCSV } from '../core/csv.js';
 
 const state = { range: '1', table: false };
+/** El perfil por día de la semana mira 90 días: unas 13 de cada día. */
+const WEEKS_IN_PROFILE = 13;
 const RANGES = [['1', 'Este mes'], ['prev', 'Mes pasado'], ['3', '3 meses'], ['6', '6 meses'], ['12', '12 meses'], ['year', 'Este año']];
 
 /**
@@ -27,18 +29,15 @@ function ranges(model) {
     const shift = offset => shiftPeriod(model.period, offset, startDay);
     let current;
     let previous;
-    let months;
     if (state.range === 'prev') {
-        months = 1;
         current = shift(-1);
         previous = shift(-2);
     } else if (state.range === 'year') {
-        months = Number(model.today.slice(5, 7));
         current = { start: `${model.today.slice(0, 4)}-01-01`, end: model.period.end };
         const lastYear = String(Number(model.today.slice(0, 4)) - 1);
         previous = { start: `${lastYear}-01-01`, end: `${lastYear}${model.period.end.slice(4)}` };
     } else {
-        months = Number(state.range);
+        const months = Number(state.range);
         current = { start: shift(-(months - 1)).start, end: model.period.end };
         previous = { start: shift(-(2 * months - 1)).start, end: shift(-months).end };
     }
@@ -47,7 +46,7 @@ function ranges(model) {
         const cut = addDays(previous.start, elapsed);
         if (cut < previous.end) previous = { ...previous, end: cut };
     }
-    return { current, previous, months };
+    return { current, previous };
 }
 
 export default {
@@ -57,7 +56,8 @@ export default {
         <button type="button" class="icon-btn hide-mobile" data-export aria-label="Exportar CSV" title="Exportar resumen CSV">${icon('download')}</button>`,
 
     render(model) {
-        const { current, previous, months } = ranges(model);
+        if (!model.txs.length) return html`<article class="card">${emptyState({ title: 'Aún no hay datos', body: 'Los reportes aparecen en cuanto registre sus primeros movimientos.', iconName: 'pie' })}</article>`;
+        const { current, previous } = ranges(model);
         const now = totals(model.txs, current.start, current.end, model.fx);
         const before = totals(model.txs, previous.start, previous.end, model.fx);
         const cats = byCategory(model.txs, current.start, current.end, model.fx);
@@ -66,11 +66,9 @@ export default {
         const merchants = byMerchant(model.txs, current.start, current.end, model.fx, 8);
         const days = Math.max(1, Math.min(diffDays(current.start, model.today) + 1, diffDays(current.start, current.end) + 1));
         const weekdays = weekdayProfile(model.txs, addDays(model.today, -90), model.today, model.fx);
-        const weekdayItems = [1, 2, 3, 4, 5, 6, 0].map(d => ({ label: WEEKDAYS_LONG[d].charAt(0).toUpperCase() + WEEKDAYS_LONG[d].slice(1), value: Math.round(weekdays[d] / 13) }));
+        const weekdayItems = [1, 2, 3, 4, 5, 6, 0].map(d => ({ label: WEEKDAYS_LONG[d].charAt(0).toUpperCase() + WEEKDAYS_LONG[d].slice(1), value: Math.round(weekdays[d] / WEEKS_IN_PROFILE) }));
         const series = model.series12;
         const delta = (a, b) => (b ? (a - b) / Math.abs(b) * 100 : null);
-
-        if (!model.txs.length) return html`<article class="card">${emptyState({ title: 'Aún no hay datos', body: 'Los reportes aparecen en cuanto registre sus primeros movimientos.', iconName: 'pie' })}</article>`;
 
         return html`
             <div class="report-controls no-print">
@@ -173,7 +171,7 @@ export default {
             const rows = byCategory(model.txs, current.start, current.end, model.fx).map(e => ({ name: model.catById.get(e.categoryId)?.name || 'Sin categoría', total: e.total, share: e.share, count: e.count }));
             downloadText(`patrimonio-reporte-${current.start}-${current.end}.csv`, toCSV(rows, [
                 { key: 'name', label: 'Categoría' },
-                { key: 'total', label: 'Total (CRC)', format: v => (v / 100).toFixed(2).replace('.', ',') },
+                { key: 'total', label: `Total (${model.fx.base})`, format: v => (v / 100).toFixed(2).replace('.', ',') },
                 { key: 'share', label: 'Peso %', format: v => v.toFixed(1).replace('.', ',') },
                 { key: 'count', label: 'Movimientos' }
             ]), 'text/csv');

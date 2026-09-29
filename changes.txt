@@ -343,3 +343,9 @@
 - Cloudflare & Routing: configuración en _headers (CSP estricta sin inline scripts, noindex, control de caché), worker/index.js (exclusión de indexación MCP pública y redirección canónica a .eu) y soporte de retorno en JS/auth-action.js y persistencia en JS/version-modal.js.
 - Despliegue integral a producción: Firebase (Firestore, Storage, Hosting), Cloudflare Workers Static Assets y sincronización en GitHub (main).
 
+=== CHAT ID: d6544962-2abe-4c81-ae19-2ffa0b2abfa6 - Actualización de versión de footer y sistema a elysiumOS 1.8.4 y despliegue integral a producción ===
+- Actualización de versión en JS/version-modal.js a "elysiumOS 1.8.4" y `elysiumOS 1<span class="ely-ver-sub">.8.4</span>`.
+- Actualización de documentación de modelos de lenguaje llms.txt y llms-full.txt (raíz, España y Portugal, incluyendo _national/) a elysiumOS 1.8.4.
+- Actualización de meta tags de versión a v1.8.4-build.1 en páginas de ONCORE (raíz y /en).
+- Despliegue integral a producción: Backend en Google Cloud Run (elysium-billing), Firebase (Firestore rules & indexes, Storage rules), Cloudflare Workers Static Assets y sincronización en GitHub (main).
+

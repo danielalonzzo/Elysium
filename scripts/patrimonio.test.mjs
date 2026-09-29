@@ -35,7 +35,7 @@ import * as categories from '../Gestor-Patrimonios/js/core/categories.js';
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const APP = join(ROOT, 'Gestor-Patrimonios');
 const fixture = name => readFileSync(join(ROOT, 'scripts', 'fixtures', 'patrimonio', name), 'utf8');
-const FX = { base: 'CRC', rate: 500 };
+const FX = { base: 'CRC', rates: { CRC: 1, USD: 500, EUR: 600 } };
 
 /* ── Dinero ───────────────────────────────────────────────────────────────── */
 
@@ -676,5 +676,467 @@ test('las plantillas escriben los booleanos (aria-pressed) y escapan el texto', 
     });
     for (const file of walk(join(APP, 'js')).filter(f => f.endsWith('.js'))) {
         assert.doesNotMatch(readFileSync(file, 'utf8'), /\$\{[^}]*&&\s*html`/, `${file}: use cond ? html\`…\` : ''`);
+    }
+});
+
+/* ── Auditoría del 27/09/2026: cada error corregido, fijado con una prueba ── */
+
+test('recurrentes: el mes suma sus cobros reales, no el promedio de 4,33 semanas (el caso de Jared)', () => {
+    const rules = [
+        { id: 'papi', type: 'income', amountMinor: 2500000, frequency: 'weekly', anchorDate: '2026-09-04' },
+        { id: 'emprendimiento', type: 'income', amountMinor: 1250000, frequency: 'weekly', anchorDate: '2026-09-04' },
+        { id: 'salario', type: 'income', amountMinor: 25000000, frequency: 'monthly', anchorDate: '2026-09-30' },
+        { id: 'pausada', type: 'income', amountMinor: 9900000, frequency: 'monthly', anchorDate: '2026-09-01', active: false }
+    ];
+    // Septiembre de 2026 tiene cuatro viernes: ₡400.000 cerrados.
+    const september = recurring.occurrenceTotals(rules, '2026-09-01', '2026-09-30');
+    assert.equal(september.income, 40000000);
+    assert.equal(september.incomeCount, 9);
+    // Octubre trae cinco viernes: cinco pagos de cada semanal.
+    assert.equal(recurring.occurrenceTotals(rules, '2026-10-01', '2026-10-31').income, 43750000);
+    // El promedio anual sigue disponible para planificar.
+    const average = rules.filter(r => r.active !== false).reduce((sum, r) => sum + recurring.monthlyEquivalent(r), 0);
+    assert.equal(average, 41250000);
+    // Con conversión a la moneda principal.
+    const inColones = recurring.occurrenceTotals([{ id: 'x', type: 'expense', amountMinor: 1000, currency: 'USD', frequency: 'monthly', anchorDate: '2026-09-10' }],
+        '2026-09-01', '2026-09-30', (amount, currency) => money.inBase(amount, currency, FX));
+    assert.equal(inColones.expense, 500000);
+});
+
+test('recurrentes pendientes: hasta ayer, sin los ya registrados y con tope por regla', () => {
+    const rules = [{ id: 'luz', type: 'expense', amountMinor: 1, frequency: 'weekly', anchorDate: '2026-08-01' }];
+    const paid = new Set(['luz:2026-09-12']);
+    const items = recurring.overdue(rules, '2026-09-19', { paidKeys: paid });
+    assert.deepEqual(items.map(i => i.date), ['2026-09-05']);
+    assert.ok(!items.some(i => i.date === '2026-09-19'), 'lo de hoy aún no está vencido');
+    assert.equal(recurring.overdue(rules, '2026-09-19', { perRule: 1 }).length, 1);
+});
+
+test('saldos: un gasto en otra moneda mueve la moneda de la cuenta', () => {
+    const accounts = [
+        { id: 'tarjeta', type: 'credit', currency: 'CRC', openingBalanceMinor: 0 },
+        { id: 'dolares', type: 'bank', currency: 'USD', openingBalanceMinor: 100000 }
+    ];
+    const txs = [
+        { type: 'expense', amountMinor: 2000, currency: 'USD', accountId: 'tarjeta', date: '2026-09-01' },
+        { type: 'expense', amountMinor: 1000, currency: 'USD', accountAmountMinor: 512300, accountId: 'tarjeta', date: '2026-09-02' },
+        { type: 'transfer', amountMinor: 10000, currency: 'USD', accountId: 'dolares', toAccountId: 'tarjeta', date: '2026-09-03' }
+    ];
+    const balances = stats.accountBalances(accounts, txs, FX);
+    // −$20 al tipo actual (₡10.000), −₡5.123 cobrados de verdad, +$100 convertidos (₡50.000).
+    assert.equal(balances.get('tarjeta'), -1000000 - 512300 + 5000000);
+    assert.equal(balances.get('dolares'), 100000 - 10000);
+});
+
+test('presupuestos y referencias en la moneda principal: nada de euros redondeados como colones', () => {
+    assert.equal(budgets.suggestBudget(30000, 'EUR'), 32000);        // €300 de promedio → €320
+    assert.equal(budgets.suggestBudget(3000000, 'CRC'), 3200000);    // ₡30.000 → ₡32.000
+    assert.equal(money.colonesToBase(2000000, FX), 2000000);
+    assert.equal(money.colonesToBase(2000000, { ...FX, base: 'EUR' }), 4000);   // ₡20.000 ≈ €33 → €40
+});
+
+test('alertas: un préstamo con recurrente propio no avisa dos veces de su cuota', () => {
+    const debt = { id: 'carro', name: 'Carro', active: true, balanceMinor: 100000000, paymentMinor: 25000000, currency: 'CRC', dueDay: 20 };
+    const ctx = { today: '2026-09-19', period: dates.periodFor('2026-09-19'), fx: FX, debts: [debt] };
+    assert.ok(alerts.evaluateAlerts(ctx).some(a => a.kind === 'debt-due'));
+    assert.ok(!alerts.evaluateAlerts({ ...ctx, linkedDebtIds: new Set(['carro']) }).some(a => a.kind === 'debt-due'));
+});
+
+test('racha: lo que la app registra sola no cuenta como día registrando', () => {
+    const days = game.loggingDays([
+        { date: '2026-09-01', createdDate: '2026-09-01' },
+        { date: '2026-09-02', createdDate: '2026-09-02', autoPosted: true }
+    ]);
+    assert.deepEqual([...days], ['2026-09-01']);
+});
+
+test('importar CSV: lo ya importado se reconoce, dos cafés iguales siguen siendo dos', () => {
+    const existing = [
+        { accountId: 'banco', date: '2026-09-01', type: 'expense', amountMinor: 150000, merchant: 'Café Britt' },
+        { accountId: 'otra', date: '2026-09-01', type: 'expense', amountMinor: 999, merchant: 'X' }
+    ];
+    const items = [
+        { date: '2026-09-01', type: 'expense', amountMinor: 150000, merchant: 'cafe britt' },
+        { date: '2026-09-01', type: 'expense', amountMinor: 150000, merchant: 'Café Britt' },
+        { date: '2026-09-01', type: 'expense', amountMinor: 999, merchant: 'X' }
+    ];
+    const { fresh, duplicates } = csv.splitDuplicates(items, existing, 'banco');
+    assert.equal(duplicates.length, 1);
+    assert.equal(fresh.length, 2);
+});
+
+test('exportar movimientos: una sola función, gastos en negativo y nombres resueltos', () => {
+    const text = csv.transactionsToCSV([
+        { date: '2026-09-01', type: 'expense', merchant: '', categoryId: 'super', accountId: 'banco', currency: 'CRC', amountMinor: 1250050, tags: ['casa'] }
+    ], { category: () => 'Supermercado', account: () => 'Banco', title: () => 'Supermercado' });
+    const [header, row] = text.replace(/^\uFEFF/, '').split('\r\n');
+    assert.match(header, /^Fecha;Tipo;Descripción;Categoría;Cuenta;Cuenta destino;Moneda;Monto/);
+    assert.equal(row, '2026-09-01;Gasto;Supermercado;Supermercado;Banco;;CRC;-12500,50;;;casa;');
+});
+
+test('modelo: una meta en dólares sin aporte fijo recibe su parte de la capacidad en dólares', async () => {
+    const { buildModel } = await import('../Gestor-Patrimonios/js/model.js');
+    const today = '2026-09-15';
+    const txs = [];
+    for (const month of ['06', '07', '08']) {
+        txs.push({ id: `i${month}`, type: 'income', amountMinor: 100000000, currency: 'CRC', date: `2026-${month}-01`, accountId: 'banco', categoryId: 'salario' });
+        txs.push({ id: `e${month}`, type: 'expense', amountMinor: 50000000, currency: 'CRC', date: `2026-${month}-10`, accountId: 'banco', categoryId: 'supermercado' });
+    }
+    const data = {
+        accounts: [{ id: 'banco', name: 'Banco', type: 'bank', currency: 'CRC', openingBalanceMinor: 0, openingDate: '2026-01-01' }],
+        categories: [], transactions: txs, budgets: [], contributions: [], recurring: [], debts: [], simulations: [], receipts: [],
+        goals: [{ id: 'viaje', name: 'Viaje', kind: 'viaje', currency: 'USD', targetMinor: 1000000, priority: 2, status: 'active', startDate: '2026-01-01' }]
+    };
+    const store = { mode: 'test', profile: { settings: { baseCurrency: 'CRC', fxRates: { USD: 500, EUR: 600 } } }, list: name => [...(data[name] || [])] };
+    const model = buildModel(store, today);
+    assert.equal(model.capacity, 50000000);                 // ₡500.000 al mes
+    assert.equal(model.goals[0].planned, 100000);           // = $1.000, no $500.000
+    assert.equal(model.balances.get('banco'), 150000000);   // toda la historia cuenta
+});
+
+test('almacén: las actualizaciones por lote no reescriben createdAt ni guardan el id como campo', async () => {
+    const { Store, DemoBackend } = await import('../Gestor-Patrimonios/js/store.js');
+    const seed = () => ({ profile: { onboarded: true }, collections: { debts: [{ id: 'd1', name: 'Carro', createdAt: '2026-01-01T00:00:00.000Z' }] } });
+    const store = new Store(new DemoBackend(seed));
+    await store.start();
+    await store.batch([
+        { op: 'update', name: 'debts', id: 'd1', data: { balanceMinor: 10 } },
+        { op: 'set', name: 'debts', data: { id: 'd2', name: 'Moto' } }
+    ]);
+    const d1 = store.backend.table('debts').get('d1');
+    assert.equal(d1.createdAt, '2026-01-01T00:00:00.000Z');
+    assert.equal(d1.balanceMinor, 10);
+    assert.ok(store.backend.table('debts').has('d2'), 'el id del documento sale de sus datos');
+    store.stop();
+});
+
+/* ── Auditoría del 29/09/2026: cada error corregido, fijado con una prueba ── */
+
+const TIMEOUT = () => new Promise(resolve => { setTimeout(resolve, 60); });
+
+/** Almacén con un backend a medida: para simular red caída, rechazos y errores de escucha. */
+async function storeWith(backendOverrides = {}, options = {}) {
+    const { Store, DemoBackend } = await import('../Gestor-Patrimonios/js/store.js');
+    const backend = new DemoBackend(() => ({ profile: { onboarded: true }, collections: {} }));
+    Object.assign(backend, backendOverrides);
+    const store = new Store(backend, { ackTimeout: 15, ...options });
+    await store.start();
+    return store;
+}
+
+test('almacén: sin red el guardado no se cuelga; queda encolado y avisa', async () => {
+    const store = await storeWith({ set: () => new Promise(() => {}) });   // Firestore sin conexión: nunca confirma
+    let queued = 0;
+    store.addEventListener('queued', () => { queued += 1; });
+    const started = Date.now();
+    const id = await store.save('accounts', { name: 'Efectivo' });
+    assert.ok(id, 'devuelve el id aunque el servidor no haya confirmado');
+    assert.ok(Date.now() - started < 500, 'no espera al servidor');
+    assert.equal(queued, 1);
+    store.stop();
+});
+
+test('almacén: un rechazo inmediato sí se propaga y uno tardío se avisa', async () => {
+    const denied = Object.assign(new Error('Missing or insufficient permissions.'), { code: 'permission-denied' });
+    const store = await storeWith({ set: () => Promise.reject(denied) });
+    await assert.rejects(store.save('accounts', { name: 'X' }), error => error.code === 'permission-denied');
+    store.stop();
+
+    let reject;
+    const late = await storeWith({ set: () => new Promise((_, r) => { reject = r; }) });
+    const failures = [];
+    late.addEventListener('write-failed', event => failures.push(event.detail));
+    await late.save('accounts', { name: 'Y' });
+    reject(denied);
+    await TIMEOUT();
+    assert.equal(failures.length, 1);
+    late.stop();
+});
+
+test('almacén: las reglas no admiten «<» ni «>» en comercio y nota: se cambian antes de guardar', async () => {
+    const { sanitizeFields } = await import('../Gestor-Patrimonios/js/store.js');
+    assert.equal(sanitizeFields('transactions', { merchant: 'A > B', note: 'menos de <10k' }).merchant, 'A › B');
+    assert.equal(sanitizeFields('transactions', { merchant: 'A > B', note: 'menos de <10k' }).note, 'menos de ‹10k');
+    assert.equal(sanitizeFields('accounts', { name: 'A > B' }).name, 'A > B', 'solo los movimientos tienen esa regla');
+    const store = await storeWith();
+    const seen = [];
+    store.backend.set = async (name, id, data) => { seen.push(data); };
+    await store.save('transactions', { type: 'expense', merchant: 'Café <Centro>', note: 'x > y' });
+    await store.batch([{ op: 'set', name: 'transactions', data: { merchant: 'A>B' } }]);
+    store.backend.batch = async ops => { seen.push(...ops.map(op => op.data)); };
+    await store.batch([{ op: 'set', name: 'transactions', data: { merchant: 'A>B' } }]);
+    for (const data of seen) assert.doesNotMatch(`${data.merchant} ${data.note || ''}`, /[<>]/);
+    store.stop();
+});
+
+test('almacén: una escucha que falla conserva los datos, avisa y no confunde error con «sin datos»', async () => {
+    let fail;
+    const store = await storeWith({
+        subscribe(name, callback, onError) {
+            if (name === 'accounts') {
+                queueMicrotask(() => callback(new Map([['a1', { id: 'a1', name: 'Banco' }]])));
+                fail = onError;
+                return () => {};
+            }
+            queueMicrotask(() => callback(new Map()));
+            return () => {};
+        }
+    });
+    assert.equal(store.list('accounts').length, 1);
+    const events = [];
+    store.addEventListener('listen-error', event => events.push(event.detail.name));
+    fail(Object.assign(new Error('quota'), { code: 'resource-exhausted' }));
+    assert.equal(store.list('accounts').length, 1, 'no se vacía');
+    assert.ok(store.failed.has('accounts'));
+    assert.deepEqual(events, ['accounts']);
+    store.stop();
+});
+
+test('almacén: los ajustes se guardan por clave, sin pisar lo que se cambió en otro dispositivo', async () => {
+    const store = await storeWith();
+    await store.backend.setProfile({ settings: { sounds: true, taxId: '1-2345-6789' } });
+    await store.saveSettings({ gamification: false });
+    assert.deepEqual(store.backend.profile.settings, { sounds: true, taxId: '1-2345-6789', gamification: false });
+    store.stop();
+});
+
+test('errores para personas: sin «Missing or insufficient permissions» ni mensajes técnicos', async () => {
+    const { describeError } = await import('../Gestor-Patrimonios/js/ui/errors.js');
+    assert.match(describeError({ code: 'permission-denied' }), /licencia/);
+    assert.match(describeError({ code: 'firestore/unavailable' }), /conexión/);
+    assert.equal(describeError(new Error('El archivo supera los 10 MB.')), 'El archivo supera los 10 MB.');
+    assert.equal(describeError(new TypeError('x is undefined'), 'Algo salió mal.', { trustMessage: false }), 'Algo salió mal.');
+});
+
+test('texto: cleanText y searchKey', async () => {
+    const { cleanText, searchKey } = await import('../Gestor-Patrimonios/js/core/text.js');
+    assert.equal(cleanText('A > B <c>'), 'A › B ‹c›');
+    assert.equal(searchKey('₡15.000,50'), '1500050');
+    assert.equal(searchKey('sa'), 'sa', 'buscar «sa» no la borra (antes devolvía todo)');
+    assert.ok(searchKey('Casa Blanca').includes('sa'));
+    assert.equal(searchKey('15000'), '15000');
+});
+
+test('dinero: el signo antes o después del símbolo, «0,500» es medio y los céntimos no se pierden en un campo', async () => {
+    assert.equal(money.parseAmount('₡-500'), -50000);
+    assert.equal(money.parseAmount('-₡500'), -50000);
+    assert.equal(money.parseAmount('0,500'), 50);
+    assert.equal(money.parseAmount('1,500'), 150000);
+    assert.equal(money.formatMoney(99990000, 'CRC', { compact: true }), '₡1 M');
+    assert.equal(money.formatMoney(-0.4, 'CRC'), '₡0');
+    const { fieldAmount } = await import('../Gestor-Patrimonios/js/ui/format.js');
+    assert.equal(fieldAmount(1250050, 'CRC'), '12.500,50');
+    assert.equal(money.parseAmount(fieldAmount(1250050, 'CRC')), 1250050, 'editar no cambia el monto');
+    assert.equal(fieldAmount(1250000, 'CRC'), '12.500');
+    assert.equal(fieldAmount(1250, 'USD'), '12,50');
+});
+
+test('fechas: la zona horaria de la persona, el 1 año en vez de «12 meses» y la hora local', () => {
+    const instant = new Date('2026-10-04T14:00:00Z');
+    assert.equal(dates.todayISO(instant, 'America/Costa_Rica'), '2026-10-04');
+    assert.equal(dates.todayISO(instant, 'Pacific/Auckland'), '2026-10-05');
+    assert.equal(dates.todayISO(instant, 'zona/inventada'), '2026-10-04', 'una zona desconocida cae a Costa Rica');
+    assert.equal(dates.hourIn(instant, 'America/Costa_Rica'), 8);
+    dates.setTimeZone('Pacific/Auckland');
+    assert.equal(dates.todayISO(instant), '2026-10-05');
+    dates.setTimeZone(undefined);
+    assert.equal(dates.todayISO(instant), '2026-10-04');
+    assert.equal(dates.relativeDays('2026-01-01', '2026-12-31'), 'en 1 año');
+});
+
+test('promedios: se dividen entre los períodos con datos, no siempre entre tres', () => {
+    const periods = [
+        { start: '2026-06-01', end: '2026-06-30' }, { start: '2026-07-01', end: '2026-07-31' }, { start: '2026-08-01', end: '2026-08-31' }
+    ];
+    const txs = [{ type: 'expense', categoryId: 'restaurantes', amountMinor: 20000000, date: '2026-08-10', currency: 'CRC' }];
+    assert.equal(stats.averagePerPeriod(txs, periods, FX), 20000000, 'un solo mes de historia: el promedio es ese mes');
+    assert.equal(stats.categoryAverages(txs, periods, FX).get('restaurantes'), 20000000);
+    assert.equal(stats.averagePerPeriod([], periods, FX), 0);
+    const two = [...txs, { type: 'expense', categoryId: 'restaurantes', amountMinor: 10000000, date: '2026-06-10', currency: 'CRC' }];
+    assert.equal(stats.categoryAverages(two, periods, FX).get('restaurantes'), 15000000, 'dos meses con datos: promedio de dos');
+});
+
+test('modelo: con un mes de historia no hay «gasto inusual» falso y «hasta el mismo día» no invade el mes siguiente', async () => {
+    const { buildModel } = await import('../Gestor-Patrimonios/js/model.js');
+    const mk = (type, amountMinor, date, extra = {}) => ({ id: `${type}-${date}-${amountMinor}`, type, amountMinor, currency: 'CRC', date, accountId: 'a', categoryId: type === 'income' ? 'salario' : 'restaurantes', merchant: 'Soda', ...extra });
+    const data = {
+        accounts: [{ id: 'a', name: 'Banco', type: 'bank', currency: 'CRC', openingBalanceMinor: 0, openingDate: '2026-01-01' }],
+        categories: categories.defaultCategories(), budgets: [], goals: [], contributions: [], recurring: [], debts: [], simulations: [], receipts: [],
+        transactions: [mk('income', 85000000, '2026-08-15'), mk('expense', 20000000, '2026-08-10'), mk('expense', 20000000, '2026-09-05'), mk('expense', 3000000, '2026-09-12')]
+    };
+    const store = { mode: 'test', profile: { onboarded: true, settings: { baseCurrency: 'CRC' } }, list: name => [...(data[name] || [])] };
+    const model = buildModel(store, '2026-09-20');
+    assert.equal(model.avgByCategory.get('restaurantes'), 20000000);
+    // ₡230.000 en 20 días frente a ₡200.000 de agosto entero: sí va más rápido, pero un 73 %, no el 417 % de dividir agosto entre tres.
+    const unusual = model.alertsAll.find(alert => alert.kind === 'unusual');
+    assert.match(unusual.body, /\b7[23]\s?% más/);
+
+    // 31 de marzo: febrero terminó el 28; comparar «hasta el 3 de marzo» contaba días de marzo.
+    data.transactions = [mk('expense', 1000, '2026-02-10'), mk('expense', 999000, '2026-03-02'), mk('expense', 5000, '2026-03-31')];
+    const march = buildModel(store, '2026-03-31');
+    assert.equal(march.prevToDate.expense, 1000, 'solo lo de febrero');
+});
+
+test('modelo: una meta marcada como cumplida lo está para todo, y archivarla no quita sus puntos', async () => {
+    const { buildModel } = await import('../Gestor-Patrimonios/js/model.js');
+    const data = {
+        accounts: [], categories: [], transactions: [], budgets: [], recurring: [], debts: [], simulations: [], receipts: [],
+        contributions: [{ id: 'c1', goalId: 'g1', amountMinor: 100, date: '2026-09-01' }],
+        goals: [
+            { id: 'g1', name: 'Viaje', kind: 'viaje', currency: 'CRC', targetMinor: 1000000, monthlyPlanMinor: 500000, status: 'done', manualDone: true, startDate: '2026-01-01' },
+            { id: 'g2', name: 'Casa', kind: 'casa', currency: 'CRC', targetMinor: 1000000, status: 'archived', completedAt: '2026-05-01', startDate: '2026-01-01' }
+        ]
+    };
+    const store = { mode: 'test', profile: { onboarded: true, settings: {} }, list: name => [...(data[name] || [])] };
+    const model = buildModel(store, '2026-09-15');
+    assert.equal(model.goals[0].progress.done, true);
+    assert.equal(model.goalsMonthly, 0, 'una meta cumplida no sigue «comprometiendo» dinero');
+    assert.equal(model.game.stats.goalsDone, 2, 'la archivada cumplida también cuenta');
+});
+
+test('modelo: «mes impecable» solo mide con los presupuestos que ya existían ese mes', async () => {
+    const { buildModel } = await import('../Gestor-Patrimonios/js/model.js');
+    const data = {
+        accounts: [], categories: categories.defaultCategories(), goals: [], contributions: [], recurring: [], debts: [], simulations: [], receipts: [],
+        transactions: ['06', '07', '08'].map(m => ({ id: `t${m}`, type: 'expense', amountMinor: 1000, currency: 'CRC', date: `2026-${m}-10`, accountId: 'a', categoryId: 'supermercado' })),
+        budgets: [{ id: 'supermercado', categoryId: 'supermercado', amountMinor: 100000000, currency: 'CRC', createdAt: '2026-09-10T00:00:00.000Z' }]
+    };
+    const store = { mode: 'test', profile: { onboarded: true, settings: {} }, list: name => [...(data[name] || [])] };
+    assert.equal(buildModel(store, '2026-09-15').game.stats.monthsWithinBudget, 0, 'un presupuesto creado hoy no regala los meses de atrás');
+    data.budgets[0].createdAt = '2026-01-01T00:00:00.000Z';
+    assert.equal(buildModel(store, '2026-09-15').game.stats.monthsWithinBudget, 3);
+});
+
+test('¿Me alcanza?: si el período y el ahorro alcanzan juntos, no espere «−30 días»', () => {
+    const answer = loans.quickAffordability({ price: 100, periodAvailable: 60, freeSavings: 60, monthlyCapacity: 20, goalMonthly: 30, today: '2026-09-29' });
+    assert.equal(answer.level, 'caution');
+    assert.equal(answer.leftover, 20);
+    assert.ok(!('date' in answer), 'no hay fecha de espera: ya le alcanza');
+    const none = loans.quickAffordability({ price: 100, periodAvailable: 60, freeSavings: 60, monthlyCapacity: 0, today: '2026-09-29' });
+    assert.equal(none.level, 'caution', 'sin capacidad de ahorro tampoco es «Hoy no le alcanza»');
+    assert.equal(loans.quickAffordability({ price: 500, periodAvailable: 60, freeSavings: 60, monthlyCapacity: 20, today: '2026-09-29' }).level, 'wait');
+});
+
+test('deudas y simulador: una cuota que no cubre intereses no promete fecha; sin ingreso no se dice «sano»', () => {
+    const stuck = loans.payoffPlan([{ id: 'x', name: 'Tarjeta', balanceMinor: 1000000, annualRate: 60, paymentMinor: 1 }], { today: '2026-09-29' });
+    assert.equal(stuck.stuck, true);
+    assert.equal(stuck.freedomDate, null);
+    const fine = loans.payoffPlan([{ id: 'x', name: 'Carro', balanceMinor: 1000000, annualRate: 10, paymentMinor: 200000 }], { today: '2026-09-29' });
+    assert.equal(fine.stuck, false);
+    assert.ok(fine.freedomDate);
+    const sim = loans.simulatePurchase({ price: 1000000000, downPayment: 200000000, annualRate: 11, months: 60, feesPct: 2, savingsAvailable: 300000000, monthlyCapacity: 50000000, monthlyIncome: 0, today: '2026-09-29' });
+    assert.equal(sim.verdict.level, 'caution');
+    assert.doesNotMatch(sim.verdict.reasons.join(' '), /es sano\.$/);
+});
+
+test('gamificación: un historial importado no regala semanas, y quien deja de registrar deja de sumar', () => {
+    const imported = game.impulseFreeRuns([{ type: 'expense', date: '2023-09-01', createdDate: '2026-09-29' }], '2026-09-29');
+    assert.equal(imported.weeks, 0);
+    const abandoned = game.impulseFreeRuns([{ type: 'expense', date: '2026-01-01', createdDate: '2026-01-01' }], '2026-09-29');
+    assert.ok(abandoned.weeks <= 2, `dos semanas de gracia, no ${abandoned.weeks}`);
+    const twice = game.computeGamification({ txs: [], today: '2026-09-20', challenges: [{ id: 'semana-sin-restaurantes', startDate: '2026-09-10' }, { id: 'semana-sin-restaurantes', startDate: '2026-09-10' }] });
+    assert.equal(twice.challenges.length, 1, 'aceptar un reto dos veces no suma puntos dobles');
+});
+
+test('alertas: los descartes caducan, salvo el de un hito mientras exista su meta', () => {
+    const state = {
+        'budget:comida:2026-01:80': { dismissed: true, at: '2026-01-15' },
+        'budget:comida:2026-09:80': { dismissed: true, at: '2026-09-15' },
+        'goal-milestone:g1:50': { dismissed: true, at: '2026-01-15' },
+        'goal-milestone:borrada:25': { dismissed: true, at: '2026-09-15' },
+        'due:x:2026-10-01': { snoozeUntil: '2026-10-01' }
+    };
+    const kept = alerts.pruneAlertState(state, { today: '2026-09-29', ttlDays: 120, goalExists: id => id === 'g1' });
+    assert.deepEqual(Object.keys(kept).sort(), ['budget:comida:2026-09:80', 'due:x:2026-10-01', 'goal-milestone:g1:50']);
+});
+
+test('cuentas: el importe del banco solo vale si no cambió el monto, la moneda ni la cuenta', () => {
+    const before = { amountMinor: 1000, currency: 'USD', accountId: 'tarjeta', accountAmountMinor: 505000 };
+    assert.equal(stats.keepsAccountAmount(before, { amountMinor: 1000, currency: 'USD', accountId: 'tarjeta' }), true);
+    assert.equal(stats.keepsAccountAmount(before, { amountMinor: 2000, currency: 'USD', accountId: 'tarjeta' }), false);
+    assert.equal(stats.keepsAccountAmount(before, { amountMinor: 1000, currency: 'EUR', accountId: 'tarjeta' }), false);
+    assert.equal(stats.keepsAccountAmount(before, { amountMinor: 1000, currency: 'USD', accountId: 'otra' }), false);
+});
+
+test('facturas: la de compra que emite el usuario es un gasto, la nota de crédito emitida también, y una moneda ajena se convierte o se avisa', () => {
+    const base = { issuer: { id: '1-1234-5678' }, receiver: { id: '3-101-999888' } };
+    assert.equal(factura.directionFor({ ...base, documentType: 'FacturaElectronicaCompra', direction: 'expense' }, '112345678'), 'expense');
+    assert.equal(factura.directionFor({ ...base, documentType: 'FacturaElectronicaCompra', direction: 'expense' }, '3101999888'), 'income', 'el proveedor de una compra cobra');
+    assert.equal(factura.directionFor({ ...base, documentType: 'NotaCreditoElectronica', direction: 'refund' }, '112345678'), 'expense', 'devolvió dinero');
+    assert.equal(factura.directionFor({ ...base, documentType: 'NotaCreditoElectronica', direction: 'refund' }, ''), 'income', 'un reembolso recibido');
+    assert.equal(factura.directionFor({ ...base, documentType: 'FacturaElectronica', direction: 'expense' }, '112345678'), 'income');
+    const pounds = { currency: 'GBP', totalMinor: 5000, taxMinor: 500, fxRate: 700 };
+    const converted = factura.facturaAmounts(pounds);
+    assert.equal(converted.currency, 'CRC');
+    assert.equal(converted.totalMinor, 3500000);
+    assert.match(converted.note, /GBP/);
+    const unknown = factura.facturaAmounts({ currency: 'GBP', totalMinor: 5000 });
+    assert.equal(unknown.unsupported, true, 'sin tipo de cambio no se inventa un monto');
+    assert.equal(factura.facturaAmounts({ currency: 'USD', totalMinor: 5000, taxMinor: 1 }).currency, 'USD');
+    assert.doesNotThrow(() => factura.parseFactura(fixture('factura-v43.xml').replace('</Nombre>', '&#x110000;</Nombre>')));
+});
+
+test('categorías: se busca por palabras, no por trozos («Playa» no es el acueducto)', () => {
+    const list = categories.defaultCategories();
+    for (const label of ['Playa Hermosa', 'Carpetas Universidad', 'Impuesto de renta', 'Business Center', 'Repartos Express', 'Palillos chinos', 'Primero de mayo', 'Trending Store']) {
+        assert.equal(categories.matchCategory(label, list), null, label);
+    }
+    assert.equal(categories.matchCategory('Uber Eats Costa Rica', list), 'restaurantes');
+    assert.equal(categories.matchCategory('Burger King', list), 'restaurantes');
+    assert.equal(categories.matchCategory('Farmacia Fischel', list), 'salud');
+    assert.equal(categories.matchCategory('Veterinaria Patitas', list), 'mascotas');
+});
+
+test('CSV: una descripción con «<» o «>» se importa limpia', () => {
+    const { items } = csv.rowsToTransactions([['Fecha', 'Descripción', 'Monto'], ['01/09/2026', 'SINPE > Ana <casa>', '-1500']], { date: 0, description: 1, amount: 2 });
+    assert.equal(items[0].merchant, 'SINPE › Ana ‹casa›');
+});
+
+test('copia de seguridad: valida cada documento y reporta lo que salta', async () => {
+    const { parseBackup } = await import('../Gestor-Patrimonios/js/core/backup.js');
+    const names = ['accounts', 'transactions', 'goals'];
+    const good = { id: 't1', type: 'expense', amountMinor: 1500, currency: 'CRC', date: '2026-09-01', accountId: 'a1', merchant: 'A > B' };
+    const backup = parseBackup(JSON.stringify({
+        exportedAt: '2026-09-29T10:00:00.000Z', profile: { onboarded: true },
+        accounts: [{ id: 'a1', name: 'Banco' }, { name: 'sin id' }, { id: 'a/b' }],
+        transactions: [good, { ...good, id: 't2', amountMinor: 12.5 }, { ...good, id: 't3', currency: 'GBP' }, { ...good, id: 't4', date: '2026-02-31' }, { ...good, id: 't5', accountId: '' }],
+        ignorada: [{ id: 'x' }]
+    }), names);
+    assert.equal(backup.counts.accounts, 1);
+    assert.equal(backup.counts.transactions, 1);
+    assert.equal(backup.collections.transactions[0].merchant, 'A › B');
+    assert.equal(backup.skipped.length, 6);
+    assert.equal(backup.total, 2);
+    assert.equal(backup.collections.ignorada, undefined, 'solo las colecciones conocidas');
+    assert.throws(() => parseBackup('no es json', names), /JSON/);
+    assert.throws(() => parseBackup('{"algo": 1}', names), /ninguna colección/);
+});
+
+test('router: un «%» suelto en la dirección no rompe el arranque', async () => {
+    const { parseHash } = await import('../Gestor-Patrimonios/js/router.js');
+    assert.equal(parseHash('#/metas/100%').id, '100%');
+    assert.equal(parseHash('#/%E0%A4%A').name, '%E0%A4%A');
+    assert.equal(parseHash('#/metas/mi%20casa').id, 'mi casa');
+});
+
+test('service worker: la versión es la huella de lo que precarga (si se edita algo, hay que regenerarla)', async () => {
+    const { expectedVersion, currentVersion } = await import('./sync-patrimonio-sw.mjs');
+    assert.equal(currentVersion(), expectedVersion(), 'ejecute: node scripts/sync-patrimonio-sw.mjs');
+    const sw = read('Gestor-Patrimonios/sw.js');
+    assert.doesNotMatch(sw, /staleWhileRevalidate/, 'el armazón se sirve de la caché de su versión, sin mezclar versiones');
+});
+
+test('manifest: sin window-controls-overlay (el CSS no reserva la barra de título)', () => {
+    const manifest = JSON.parse(read('Gestor-Patrimonios/manifest.json'));
+    assert.ok(!(manifest.display_override || []).includes('window-controls-overlay'));
+    assert.equal(manifest.display, 'standalone');
+});
+
+test('el logo lleva a la página principal de elysiumdr.eu, no a otra vista de la app', () => {
+    for (const file of ['Gestor-Patrimonios/js/app.js', 'Gestor-Patrimonios/js/views/acceso.js']) {
+        const source = read(file);
+        const brands = source.match(/<a class="brand"[^>]*>/g) || [];
+        assert.ok(brands.length >= 1, file);
+        for (const tag of brands) assert.match(tag, /href="\/"/, `${file}: ${tag}`);
     }
 });

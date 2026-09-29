@@ -6,10 +6,19 @@
  * demás ocurre en el navegador.
  */
 
+/** Un `%` suelto en la dirección («#/metas/100%») hace fallar `decodeURIComponent`: se deja el trozo tal cual. */
+function decodeSegment(segment) {
+    try {
+        return decodeURIComponent(segment);
+    } catch {
+        return segment;
+    }
+}
+
 export function parseHash(hash = location.hash) {
     const clean = String(hash || '').replace(/^#\/?/, '');
     const [path, query = ''] = clean.split('?');
-    const parts = path.split('/').filter(Boolean).map(decodeURIComponent);
+    const parts = path.split('/').filter(Boolean).map(decodeSegment);
     return {
         name: parts[0] || 'inicio',
         id: parts[1] || null,
@@ -17,13 +26,6 @@ export function parseHash(hash = location.hash) {
         query: Object.fromEntries(new URLSearchParams(query)),
         raw: clean
     };
-}
-
-export function buildHash(name, id = null, query = null) {
-    let hash = `#/${name}`;
-    if (id) hash += `/${encodeURIComponent(id)}`;
-    if (query && Object.keys(query).length) hash += `?${new URLSearchParams(query)}`;
-    return hash;
 }
 
 export function onRouteChange(callback) {

@@ -10,9 +10,10 @@ import { html, readFileText } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
 import { money, num } from '../ui/format.js';
 import { emptyState, txTitle } from '../ui/parts.js';
-import { parseFactura, directionFor } from '../core/factura-cr.js';
+import { parseFactura, directionFor, facturaAmounts } from '../core/factura-cr.js';
+import { describeError } from '../ui/errors.js';
 import { formatDate, monthLabel } from '../core/dates.js';
-import { inBase, isCurrency } from '../core/money.js';
+import { inBase } from '../core/money.js';
 import { normalizeMerchant } from '../core/stats.js';
 import { matchCategory } from '../core/categories.js';
 import { uploadReceipt } from '../services.js';
@@ -30,7 +31,8 @@ export default {
         const withReceipt = model.txs.filter(tx => tx.receipt && (state.month === 'all' || tx.date.startsWith(state.month)));
         const periodExpenses = model.periodTxs.filter(tx => tx.type === 'expense' && !tx.adjustment);
         const coverage = periodExpenses.length ? periodExpenses.filter(tx => tx.receipt).length / periodExpenses.length * 100 : 0;
-        const iva = model.txs.filter(tx => tx.factura?.taxMinor && tx.date.slice(0, 4) === model.today.slice(0, 4))
+        // «Pagado»: solo el IVA de los gastos; el de las ventas lo cobró la persona, no lo pagó.
+        const iva = model.txs.filter(tx => tx.type === 'expense' && tx.factura?.taxMinor && tx.date.slice(0, 4) === model.today.slice(0, 4))
             .reduce((sum, tx) => sum + inBase(tx.factura.taxMinor, tx.currency, model.fx), 0);
         const months = [...new Set(model.txs.filter(tx => tx.receipt).map(tx => tx.date.slice(0, 7)))].slice(0, 12);
 
@@ -74,53 +76,55 @@ export default {
         const input = root.querySelector('[data-upload]');
         const zone = root.querySelector('[data-drop]');
         const progress = root.querySelector('[data-progress]');
+        // Se suben todos y se guardan en un solo lote: cada guardado repinta la
+        // vista, y hacerlo archivo por archivo dejaba la barra de progreso huérfana.
         const handleFiles = async files => {
             if (!files?.length) return;
             progress.hidden = false;
             const bar = progress.querySelector('span');
+            const current = app.model();
+            const knownClaves = new Set([
+                ...current.txs.map(tx => tx.factura?.clave),
+                ...current.receipts.map(receipt => receipt.parsed?.clave)
+            ].filter(Boolean));
+            const ops = [];
+            const uploaded = [];
             let done = 0;
             let parsedCount = 0;
             for (const file of files) {
                 try {
                     const isXml = /xml/.test(file.type) || /\.xml$/i.test(file.name);
-                    let parsed = null;
-                    if (isXml) {
-                        try {
-                            parsed = parseFactura(await readFileText(file));
-                        } catch (error) {
-                            toast(`${file.name}: ${error.message}`, { tone: 'error', duration: 6000 });
-                            done += 1;
-                            continue;
-                        }
-                        if (parsed.clave && model.txs.some(tx => tx.factura?.clave === parsed.clave)) {
-                            toast(`${parsed.merchant}: esa factura ya está registrada.`, { tone: 'info' });
-                            done += 1;
-                            continue;
-                        }
-                        parsedCount += 1;
+                    const parsed = isXml ? parseFactura(await readFileText(file)) : null;
+                    if (parsed?.clave && knownClaves.has(parsed.clave)) {
+                        toast(`${parsed.merchant}: esa factura ya está registrada.`, { tone: 'info' });
+                    } else {
+                        if (parsed?.clave) knownClaves.add(parsed.clave);
+                        const id = app.store.newId('rc');
+                        const meta = await uploadReceipt(file, `inbox-${id}`, p => { bar.style.width = `${Math.round(((done + p) / files.length) * 100)}%`; });
+                        uploaded.push(meta.path);
+                        ops.push({ op: 'set', name: 'receipts', id, data: { status: 'inbox', ...meta, parsed: parsed ? inboxData(parsed, current) : null } });
+                        if (parsed) parsedCount += 1;
                     }
-                    const id = app.store.newId('rc');
-                    const meta = await uploadReceipt(file, `inbox-${id}`, p => { bar.style.width = `${Math.round(((done + p) / files.length) * 100)}%`; });
-                    await app.store.save('receipts', {
-                        id, status: 'inbox', ...meta,
-                        parsed: parsed ? {
-                            date: parsed.date, merchant: parsed.merchant, totalMinor: parsed.totalMinor, currency: parsed.currency,
-                            taxMinor: parsed.taxMinor, clave: parsed.clave, consecutivo: parsed.consecutivo, method: parsed.method,
-                            documentType: parsed.documentType, label: parsed.label, issuerId: parsed.issuer?.id || null,
-                            direction: directionFor(parsed, model.settings.taxId),
-                            lines: parsed.lines.slice(0, 6).map(l => l.detail).filter(Boolean)
-                        } : null
-                    });
                 } catch (error) {
-                    toast(`${file.name}: ${error.message || 'no se pudo subir'}`, { tone: 'error' });
+                    toast(`${file.name}: ${error.message || 'no se pudo subir'}`, { tone: 'error', duration: 6000 });
                 }
                 done += 1;
                 bar.style.width = `${Math.round((done / files.length) * 100)}%`;
             }
+            if (input) input.value = '';
+            try {
+                if (ops.length) await app.store.batch(ops);
+            } catch (error) {
+                // Si los documentos no se guardaron, los archivos ya subidos no deben quedar huérfanos.
+                for (const path of uploaded) app.store.removeFile(path);
+                progress.hidden = true;
+                bar.style.width = '0';
+                toast(describeError(error, 'No se pudieron guardar los comprobantes.'), { tone: 'error', duration: 6000 });
+                return;
+            }
             progress.hidden = true;
             bar.style.width = '0';
-            if (input) input.value = '';
-            toast(parsedCount ? `${parsedCount} ${parsedCount === 1 ? 'factura leída' : 'facturas leídas'}: revíselas en la bandeja.` : 'Comprobantes en la bandeja.', { tone: 'success' });
+            if (ops.length) toast(parsedCount ? `${parsedCount} ${parsedCount === 1 ? 'factura leída: revísela' : 'facturas leídas: revíselas'} en la bandeja.` : 'Comprobantes en la bandeja.', { tone: 'success' });
         };
         input?.addEventListener('change', () => handleFiles([...input.files]));
         zone?.addEventListener('dragover', event => { event.preventDefault(); zone.classList.add('is-drag'); });
@@ -155,6 +159,19 @@ export default {
     }
 };
 
+/** Lo que se guarda de una factura leída para confirmarla después. */
+function inboxData(parsed, model) {
+    // La moneda que la app no maneja ya viene pasada a colones (o marcada para revisar).
+    const amounts = facturaAmounts(parsed);
+    return {
+        date: parsed.date, merchant: parsed.merchant, totalMinor: amounts.totalMinor, currency: amounts.currency,
+        note: amounts.note || null, taxMinor: amounts.taxMinor, clave: parsed.clave, consecutivo: parsed.consecutivo, method: parsed.method,
+        documentType: parsed.documentType, label: parsed.label, issuerId: parsed.issuer?.id || null,
+        direction: directionFor(parsed, model.settings.taxId),
+        lines: parsed.lines.slice(0, 6).map(line => line.detail).filter(Boolean)
+    };
+}
+
 function inboxItem(item, model) {
     const p = item.parsed;
     const isXml = /xml/.test(item.type);
@@ -186,8 +203,8 @@ async function createFromInbox(model, id) {
     openTransactionSheet({
         type: kind,
         preset: {
-            type: kind, amountMinor: p.totalMinor, currency: isCurrency(p.currency) ? p.currency : 'CRC', date: p.date || model.today,
-            merchant: p.merchant, method: p.method, categoryId, accountId: account?.id, receipt, inboxId: id,
+            type: kind, amountMinor: p.totalMinor, currency: p.currency, date: p.date || model.today,
+            merchant: p.merchant, method: p.method, categoryId, accountId: account?.id, receipt, inboxId: id, note: p.note || '',
             factura: { label: p.label, consecutivo: p.consecutivo, clave: p.clave, taxMinor: p.taxMinor, documentType: p.documentType, issuer: { id: p.issuerId }, lines: [] }
         }
     });

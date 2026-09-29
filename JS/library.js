@@ -45,6 +45,7 @@
             footerAmericas: 'Also serving the Americas.',
             footerRights: 'All rights reserved.',
             footerLibrary: 'Library',
+            footerPatrimonio: 'Wealth Manager',
 
             libraryName: 'Elysium λ Library',
             indexDocumentTitle: 'Library: read online, full screen or as an audiobook — Elysium λ',
@@ -142,6 +143,7 @@
             footerAmericas: 'También en todas las Américas.',
             footerRights: 'Todos los derechos reservados.',
             footerLibrary: 'Biblioteca',
+            footerPatrimonio: 'Gestor de Patrimonio',
 
             libraryName: 'Biblioteca Elysium λ',
             indexDocumentTitle: 'Biblioteca: leer en línea, a pantalla completa o como audiolibro — Elysium λ',
@@ -239,6 +241,7 @@
             footerAmericas: 'Também em todas as Américas.',
             footerRights: 'Todos os direitos reservados.',
             footerLibrary: 'Biblioteca',
+            footerPatrimonio: 'Gestor de Património',
 
             libraryName: 'Biblioteca Elysium λ',
             indexDocumentTitle: 'Biblioteca: ler online, em ecrã inteiro ou como audiolivro — Elysium λ',

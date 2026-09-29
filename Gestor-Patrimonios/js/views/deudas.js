@@ -1,18 +1,18 @@
 /**
- * Deudas y créditos: saldo, cuota, fecha en que quedas libre, racha de pagos
+ * Deudas y créditos: saldo, cuota, fecha en que queda libre, racha de pagos
  * a tiempo y la estrategia para salir antes (avalancha o bola de nieve).
  */
 import { app } from '../context.js';
 import { html } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, pct, formatMoney, currencySymbol } from '../ui/format.js';
+import { money, pct, fieldAmount, currencySymbol } from '../ui/format.js';
 import { progressBar, emptyState } from '../ui/parts.js';
 import { monthsToPayoff, payoffPlan, amortization, debtToIncome } from '../core/loans.js';
-import { inBase, parseAmount } from '../core/money.js';
-import { addMonths, formatDate, formatMonths, monthLabel } from '../core/dates.js';
-import { nextMonthlyDay } from '../core/alerts.js';
+import { inBase, parseAmount, colonesToBase } from '../core/money.js';
+import { addMonths, formatDate, formatMonths, monthLabel, nextMonthlyDay } from '../core/dates.js';
 
-const state = { extra: 2500000 };
+/** Pago extra mensual que se simula; sin elegir, ₡25.000 o su equivalente. */
+const state = { extra: null };
 
 export default {
     title: 'Deudas',
@@ -27,18 +27,21 @@ export default {
             return html`<article class="card">${emptyState({ title: 'Sin préstamos registrados', body: 'Si tiene un préstamo de carro, vivienda o personal, regístrelo para ver cuándo queda libre y cuánto ahorra pagando un poco más.', iconName: 'landmark', action: html`<button type="button" class="btn btn-primary" data-new-debt>${icon('plus', { size: 17 })}Registrar préstamo</button>` })}</article>
                 ${cards.length ? cardsNote(cards) : ''}`;
         }
-        const totalBalance = debts.reduce((sum, d) => sum + inBase(d.balanceMinor, d.currency, model.fx), 0);
-        const totalPayment = debts.reduce((sum, d) => sum + inBase(d.paymentMinor || 0, d.currency, model.fx), 0);
+        // Las estrategias comparan deudas en distintas monedas: todo en la principal.
+        const inMain = debts.map(d => ({ ...d, balanceMinor: inBase(d.balanceMinor, d.currency, model.fx), paymentMinor: inBase(d.paymentMinor || 0, d.currency, model.fx) }));
+        const totalBalance = inMain.reduce((sum, d) => sum + d.balanceMinor, 0);
+        const totalPayment = inMain.reduce((sum, d) => sum + d.paymentMinor, 0);
         const dti = debtToIncome(totalPayment, model.avgIncome);
-        const baseline = payoffPlan(debts.map(d => ({ ...d, balanceMinor: inBase(d.balanceMinor, d.currency, model.fx), paymentMinor: inBase(d.paymentMinor, d.currency, model.fx) })), { extraMonthly: 0, today: model.today });
-        const avalanche = payoffPlan(debts.map(d => ({ ...d, balanceMinor: inBase(d.balanceMinor, d.currency, model.fx), paymentMinor: inBase(d.paymentMinor, d.currency, model.fx) })), { extraMonthly: state.extra, strategy: 'avalanche', today: model.today });
-        const snowball = payoffPlan(debts.map(d => ({ ...d, balanceMinor: inBase(d.balanceMinor, d.currency, model.fx), paymentMinor: inBase(d.paymentMinor, d.currency, model.fx) })), { extraMonthly: state.extra, strategy: 'snowball', today: model.today });
+        const extra = state.extra ?? colonesToBase(2500000, model.fx);
+        const baseline = payoffPlan(inMain, { extraMonthly: 0, today: model.today });
+        const avalanche = payoffPlan(inMain, { extraMonthly: extra, strategy: 'avalanche', today: model.today });
+        const snowball = payoffPlan(inMain, { extraMonthly: extra, strategy: 'snowball', today: model.today });
 
         return html`
             <div class="grid grid-4">
                 <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Deuda total</span><span class="kpi-icon is-danger">${icon('landmark', { size: 17 })}</span></div><div class="kpi-value">${money(totalBalance)}</div><div class="kpi-sub">${debts.length} ${debts.length === 1 ? 'préstamo activo' : 'préstamos activos'}</div></article>
                 <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Cuotas al mes</span><span class="kpi-icon">${icon('calendar', { size: 17 })}</span></div><div class="kpi-value">${money(totalPayment)}</div><div class="kpi-sub"><span class="pill is-${{ ok: 'ok', caution: 'warn', risk: 'danger', unknown: '' }[dti.state]}">${pct(dti.pct)} de su ingreso</span></div></article>
-                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Libre de deudas</span><span class="kpi-icon is-gold">${icon('unlock', { size: 17 })}</span></div><div class="kpi-value">${baseline.freedomDate ? monthLabel(baseline.freedomDate.slice(0, 7), { long: true }) : '—'}</div><div class="kpi-sub">pagando solo la cuota</div></article>
+                <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Libre de deudas</span><span class="kpi-icon is-gold">${icon('unlock', { size: 17 })}</span></div><div class="kpi-value">${baseline.freedomDate ? monthLabel(baseline.freedomDate.slice(0, 7), { long: true }) : '—'}</div><div class="kpi-sub">${baseline.stuck ? 'alguna cuota no cubre sus intereses' : 'pagando solo la cuota'}</div></article>
                 <article class="card kpi"><div class="kpi-top"><span class="kpi-label">Intereses por pagar</span><span class="kpi-icon is-warn">${icon('percent', { size: 17 })}</span></div><div class="kpi-value">${money(baseline.totalInterest)}</div><div class="kpi-sub">si no adelanta nada</div></article>
             </div>
 
@@ -46,10 +49,10 @@ export default {
                 <div class="stack">${debts.map(debt => debtCard(debt, model))}</div>
                 <article class="card">
                     <div class="card-head"><div><h2>Salir antes</h2><p>¿Y si paga un poco más cada mes?</p></div></div>
-                    <label class="field"><span>Pago extra mensual</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="debt-extra" inputmode="decimal" value="${formatMoney(state.extra, model.fx.base, { symbol: false })}"></div></label>
+                    <label class="field"><span>Pago extra mensual</span><div class="input-group"><span class="prefix">${currencySymbol(model.fx.base)}</span><input id="debt-extra" inputmode="decimal" value="${fieldAmount(extra, model.fx.base)}"></div></label>
                     <div class="compare section-gap">
-                        ${strategyCard('Avalancha', 'Primero la tasa más alta. Paga menos intereses.', avalanche, baseline, model)}
-                        ${strategyCard('Bola de nieve', 'Primero el saldo más pequeño. Ve resultados antes.', snowball, baseline, model)}
+                        ${strategyCard('Avalancha', 'Primero la tasa más alta. Paga menos intereses.', avalanche, baseline)}
+                        ${strategyCard('Bola de nieve', 'Primero el saldo más pequeño. Ve resultados antes.', snowball, baseline)}
                     </div>
                     ${avalanche.totalInterest < snowball.totalInterest ? html`<div class="callout is-gold section-gap">${icon('sparkle')}<span>Con avalancha ahorra <b>${money(snowball.totalInterest - avalanche.totalInterest)}</b> más en intereses que con bola de nieve.</span></div>` : ''}
                 </article>
@@ -106,7 +109,7 @@ function debtCard(debt, model) {
     </article>`;
 }
 
-function strategyCard(title, description, plan, baseline, model) {
+function strategyCard(title, description, plan, baseline) {
     const monthsSaved = baseline.months - plan.months;
     const interestSaved = baseline.totalInterest - plan.totalInterest;
     return html`<article class="card is-tight">

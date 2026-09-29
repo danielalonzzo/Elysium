@@ -14,17 +14,18 @@ import { app } from './context.js';
 import { Store, DemoBackend, FirestoreBackend } from './store.js';
 import { demoSeed } from './demo-data.js';
 import { parseHash, onRouteChange, go } from './router.js';
-import { html, raw, $, debounce } from './ui/dom.js';
+import { html, raw, debounce, prefersReducedMotion } from './ui/dom.js';
 import { icon } from './ui/icons.js';
 import { rosette } from './ui/guilloche.js';
 import { disposeCharts } from './ui/charts.js';
-import { toast, openSheet, hasOpenSheet } from './ui/overlay.js';
+import { toast, openSheet, actionSheet, hasOpenSheet } from './ui/overlay.js';
 import { setPrivate, isPrivate } from './ui/theme.js';
 import { animateBars } from './ui/parts.js';
 import { num } from './ui/format.js';
 import { NAV, NAV_ITEMS } from './nav.js';
 import { newlyUnlocked } from './core/gamification.js';
 import { todayISO } from './core/dates.js';
+import { describeError, isIgnorable } from './ui/errors.js';
 import { autoPostRecurring } from './services.js';
 import { invalidateModel } from './model.js';
 import { initLock } from './ui/lock.js';
@@ -48,6 +49,8 @@ const root = document.getElementById('root');
 let current = { route: null, view: null, cleanup: null };
 let shellMounted = false;
 let unsubscribeRoute = null;
+/** Escuchadores del armazón: se retiran todos juntos al desmontarlo. */
+let shellListeners = null;
 
 /* ── Arranque ─────────────────────────────────────────────────────────────── */
 
@@ -69,7 +72,7 @@ function wantsDemo() {
     try { return sessionStorage.getItem('patrimonio-demo') === '1'; } catch { return false; }
 }
 
-export function exitDemo() {
+function exitDemo() {
     try {
         sessionStorage.removeItem('patrimonio-demo');
         DemoBackend.reset();
@@ -103,17 +106,28 @@ async function start() {
     const { renderAuth, renderPending } = await import('./views/acceso.js');
     let unwatchAccess = null;
     let unwatchRequest = null;
+    let hadUser = false;
     firebase.onAuth(async user => {
         unwatchAccess?.();
         unwatchRequest?.();
         app.store?.stop();
         app.user = user;
         if (!user) {
+            if (hadUser) {
+                // Terminó una sesión (aquí o en otra pestaña): se borra la caché local de sus datos y
+                // se recarga, lo que también reinicia el estado de las vistas. No queda nada de la persona anterior.
+                hadUser = false;
+                teardownShell();
+                await firebase.clearLocalSession();
+                location.reload();
+                return;
+            }
             teardownShell();
             hideSplash();
             renderAuth(root);
             return;
         }
+        hadUser = true;
         unwatchAccess = await firebase.watchAccess(user.uid, async access => {
             if (access?.active === true) {
                 unwatchRequest?.();
@@ -137,8 +151,17 @@ async function openStore(backend) {
     const store = new Store(backend);
     app.store = store;
     invalidateModel();
+    bindStoreNotices(store);
     await store.start();
     hideSplash();
+    // Si al abrir falló la lectura de algo, no se sabe qué hay guardado: no se pinta «sin datos»
+    // (ni se ofrece el primer uso a quien ya tiene su perfil).
+    if (store.failed.size) {
+        store.stop();
+        app.store = null;
+        renderFatal('No se pudieron cargar sus datos', 'Hubo un problema al leer su información. No se perdió nada: revise su conexión e inténtelo de nuevo.');
+        return;
+    }
     const needsOnboarding = !store.profile?.onboarded;
     if (needsOnboarding) {
         const { renderOnboarding } = await import('./views/onboarding.js');
@@ -148,6 +171,32 @@ async function openStore(backend) {
     }
     mountShell();
     afterReady();
+}
+
+/** Avisos del almacén: sin red, un rechazo tardío del servidor o una lectura que se cae. */
+function bindStoreNotices(store) {
+    let lastQueued = 0;
+    let lastListenError = 0;
+    let listenErrorShown = false;
+    store.addEventListener('queued', () => {
+        if (navigator.onLine !== false || Date.now() - lastQueued < 60000) return;
+        lastQueued = Date.now();
+        toast('Sin conexión: sus cambios quedan guardados aquí y se enviarán solos al volver la red.', { tone: 'info', iconName: 'cloud-off', duration: 5000 });
+    });
+    store.addEventListener('write-failed', event => {
+        toast(describeError(event.detail, 'Un cambio no llegó al servidor. Revise su conexión.'), { tone: 'error', duration: 7000 });
+    });
+    store.addEventListener('listen-error', event => {
+        if (!store.ready || event.detail?.error?.code === 'permission-denied' || Date.now() - lastListenError < 30000) return;
+        lastListenError = Date.now();
+        listenErrorShown = true;
+        toast('Se cortó la conexión con sus datos. Reintentando…', { tone: 'error', iconName: 'cloud-off', duration: 6000 });
+    });
+    store.addEventListener('listen-recovered', () => {
+        if (!listenErrorShown || store.failed.size) return;
+        listenErrorShown = false;
+        toast('Conexión recuperada.', { tone: 'success' });
+    });
 }
 
 let lockReady = false;
@@ -180,9 +229,17 @@ function renderFatal(title, body) {
 
 /* ── Armazón ──────────────────────────────────────────────────────────────── */
 
+/** Cada cambio del almacén repinta la vista viva y el cromo, agrupado. */
+const onStoreChange = debounce(() => {
+    if (!shellMounted) return;
+    if (current.view && current.view.live !== false) paint();
+    updateChrome();
+}, 40);
+
 function mountShell() {
     const store = app.store;
     const model = app.model();
+    lastDay = model.today;
     const initials = String(model.profile?.displayName || app.user?.displayName || app.user?.email || 'λ')
         .split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
     document.body.classList.toggle('has-demo', app.mode === 'demo');
@@ -190,7 +247,7 @@ function mountShell() {
         ${app.mode === 'demo' ? html`<div class="demo-banner">${icon('sparkle', { size: 15 })}<span class="hide-mobile">Modo demostración: datos de ejemplo de una persona ficticia. Nada se guarda en la nube.</span><span class="only-mobile">Demostración con datos ficticios</span><button type="button" data-exit-demo>Salir</button></div>` : ''}
         <div class="app">
             <aside class="sidebar" aria-label="Navegación principal">
-                <a class="brand" href="#/inicio" aria-label="Elysium Patrimonio, inicio">
+                <a class="brand" href="/" aria-label="Elysium: ir a la página principal de elysiumdr.eu" title="Ir a elysiumdr.eu">
                     <span class="brand-mark">${rosette({ seed: 'patrimonio-brand', size: 120, layers: 2, strokeWidth: 1 })}<b>λ</b></span>
                     <span class="brand-text"><b>Patrimonio</b><small>Elysium</small></span>
                 </a>
@@ -229,7 +286,8 @@ function mountShell() {
         </div>`);
     shellMounted = true;
     startLock();
-    bindShell();
+    shellListeners = new AbortController();
+    bindShell(shellListeners.signal);
     store.addEventListener('change', onStoreChange);
     unsubscribeRoute?.();
     unsubscribeRoute = onRouteChange(route => renderRoute(route));
@@ -239,6 +297,8 @@ function mountShell() {
 
 function teardownShell() {
     if (!shellMounted) return;
+    shellListeners?.abort();
+    shellListeners = null;
     app.store?.removeEventListener('change', onStoreChange);
     unsubscribeRoute?.();
     unsubscribeRoute = null;
@@ -249,7 +309,7 @@ function teardownShell() {
     root.innerHTML = '';
 }
 
-function bindShell() {
+function bindShell(signal) {
     root.addEventListener('click', async event => {
         const target = event.target.closest('[data-new-tx],[data-open-alerts],[data-open-palette],[data-toggle-private],[data-open-more],[data-exit-demo],[data-back],[data-user-menu]');
         if (!target) return;
@@ -261,15 +321,14 @@ function bindShell() {
         else if (target.matches('[data-exit-demo]')) exitDemo();
         else if (target.matches('[data-back]')) history.length > 1 ? history.back() : go('#/inicio');
         else if (target.matches('[data-user-menu]')) openUserMenu();
-    });
+    }, { signal });
     const topbar = root.querySelector('[data-topbar]');
     const onScroll = () => topbar?.classList.toggle('is-scrolled', window.scrollY > 8);
-    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true, signal });
     onScroll();
 }
 
-async function openUserMenu() {
-    const { actionSheet } = await import('./ui/overlay.js');
+function openUserMenu() {
     const items = [
         { label: 'Ajustes', icon: 'settings', onClick: () => go('#/ajustes') },
         { label: 'Atajos de teclado', icon: 'keyboard', onClick: showShortcuts }
@@ -380,12 +439,6 @@ function highlightNav(name) {
     root.querySelectorAll('[data-tab]').forEach(tab => tab.classList.toggle('is-active', tab.dataset.tab === name));
 }
 
-const onStoreChange = debounce(() => {
-    if (!shellMounted) return;
-    if (current.view && current.view.live !== false) paint();
-    updateChrome();
-}, 40);
-
 /** Contadores, nivel, insignia en el icono y celebraciones. */
 function updateChrome() {
     const model = app.model();
@@ -441,8 +494,8 @@ async function celebrateBadges(model) {
 }
 
 /** Brillo dorado breve para momentos importantes (meta cumplida, deuda saldada). */
-export function celebrate() {
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+function celebrate() {
+    if (prefersReducedMotion()) return;
     const layer = document.createElement('div');
     layer.className = 'celebrate';
     layer.setAttribute('aria-hidden', 'true');
@@ -520,13 +573,27 @@ async function refreshExchangeRate() {
     const fxRates = { USD: Math.round(perDollar * 100) / 100 };
     const perEuro = perDollar / eurosPerDollar;
     if (perEuro > 300 && perEuro < 2000) fxRates.EUR = Math.round(perEuro * 100) / 100;
-    await app.store.saveProfile({ settings: { ...app.store.profile.settings, fxRates: { ...(settings.fxRates || {}), ...fxRates }, fxUpdatedAt: todayISO(), fxSource: 'auto' } });
+    await app.store.saveSettings({ fxRates: { ...(settings.fxRates || {}), ...fxRates }, fxUpdatedAt: todayISO(), fxSource: 'auto' });
 }
 
 /* ── Service worker ───────────────────────────────────────────────────────── */
 
 function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return;
+    // Recargar solo cuando llega una versión nueva y la persona la acepta. La primera vez, el
+    // service worker toma el control de una página que no tenía ninguno, y recargar entonces
+    // borraba lo que se estuviera escribiendo en el acceso o en el primer uso.
+    let controlled = Boolean(navigator.serviceWorker.controller);
+    let reloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!controlled) {
+            controlled = true;
+            return;
+        }
+        if (reloading) return;
+        reloading = true;
+        location.reload();
+    });
     window.addEventListener('load', async () => {
         try {
             const registration = await navigator.serviceWorker.register('/Gestor-Patrimonios/sw.js', { scope: '/Gestor-Patrimonios/' });
@@ -543,17 +610,50 @@ function registerServiceWorker() {
                     if (worker.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(worker);
                 });
             });
-            let reloading = false;
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (reloading) return;
-                reloading = true;
-                location.reload();
-            });
         } catch (error) {
             console.warn('Service worker', error);
         }
     });
 }
+
+/* ── Cambio de día ────────────────────────────────────────────────────────── */
+
+/**
+ * Una PWA puede pasar días en segundo plano: al volver, o pasada la medianoche
+ * con la app abierta, «hoy» debe ser hoy y los recurrentes de la nueva fecha
+ * deben registrarse. Antes solo se enteraba al recargar o al cambiar un dato.
+ */
+let lastDay = '';
+function checkDayChange() {
+    if (!shellMounted) return;
+    const day = app.model().today;
+    if (!lastDay || day === lastDay) {
+        lastDay = day;
+        return;
+    }
+    lastDay = day;
+    invalidateModel();
+    paint();
+    updateChrome();
+    if (app.mode === 'firebase') autoPostRecurring().catch(console.error);
+}
+setInterval(checkDayChange, 60000);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') checkDayChange();
+});
+
+/* ── Errores inesperados ──────────────────────────────────────────────────── */
+
+let lastUnexpected = 0;
+function reportUnexpected(error) {
+    if (!error || isIgnorable(error)) return;
+    console.error(error);
+    if (Date.now() - lastUnexpected < 4000) return;
+    lastUnexpected = Date.now();
+    toast(describeError(error, 'Algo no salió como se esperaba. Si se repite, recargue la página.', { trustMessage: false }), { tone: 'error', duration: 6000 });
+}
+window.addEventListener('unhandledrejection', event => reportUnexpected(event.reason));
+window.addEventListener('error', event => reportUnexpected(event.error));
 
 app.rerender = () => paint();
 start();

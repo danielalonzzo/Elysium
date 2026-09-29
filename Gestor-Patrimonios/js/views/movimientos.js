@@ -4,14 +4,15 @@
 import { app } from '../context.js';
 import { html, downloadText } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, num, formatMoney } from '../ui/format.js';
+import { money, num, formatMoney, METHODS } from '../ui/format.js';
 import { txRow, emptyState, txTitle } from '../ui/parts.js';
 import { totals } from '../core/stats.js';
-import { formatDate, shiftPeriod, monthLabel } from '../core/dates.js';
-import { normalizeMerchant } from '../core/stats.js';
+import { searchKey } from '../core/text.js';
+import { formatDate, shiftPeriod } from '../core/dates.js';
 import { inBase } from '../core/money.js';
-import { toCSV } from '../core/csv.js';
-import { METHODS } from '../ui/format.js';
+import { transactionsToCSV } from '../core/csv.js';
+
+const PAGE_SIZE = 120;
 
 const state = {
     query: '',
@@ -20,7 +21,7 @@ const state = {
     accountId: '',
     range: 'month',
     flag: '',
-    limit: 120,
+    limit: PAGE_SIZE,
     lastQueryKey: ''
 };
 
@@ -37,7 +38,7 @@ function rangeFor(model) {
 
 function filtered(model) {
     const range = rangeFor(model);
-    const query = normalizeMerchant(state.query);
+    const query = searchKey(state.query);
     return model.txs.filter(tx => {
         if (tx.date < range.start || tx.date > range.end) return false;
         if (state.type !== 'all' && tx.type !== state.type) return false;
@@ -47,7 +48,7 @@ function filtered(model) {
         if (state.flag === 'impulsive' && !tx.impulsive) return false;
         if (state.flag === 'foreign' && (tx.currency || model.fx.base) === model.fx.base) return false;
         if (query) {
-            const haystack = normalizeMerchant(`${tx.merchant || ''} ${model.catById.get(tx.categoryId)?.name || ''} ${tx.note || ''} ${(tx.tags || []).join(' ')} ${formatMoney(tx.amountMinor, tx.currency, { symbol: false })}`);
+            const haystack = searchKey(`${tx.merchant || ''} ${model.catById.get(tx.categoryId)?.name || ''} ${tx.note || ''} ${(tx.tags || []).join(' ')} ${formatMoney(tx.amountMinor, tx.currency, { symbol: false })}`);
             if (!haystack.includes(query)) return false;
         }
         return true;
@@ -56,7 +57,7 @@ function filtered(model) {
 
 export default {
     title: 'Movimientos',
-    eyebrow: model => `${num(model.txs.length)} movimientos desde ${monthLabel(app.store.windowStart.slice(0, 7), { long: true })}`,
+    eyebrow: model => `${num(model.txs.length)} ${model.txs.length === 1 ? 'movimiento' : 'movimientos'} en total`,
     actions: () => html`<button type="button" class="icon-btn hide-mobile" data-export aria-label="Exportar CSV" title="Exportar CSV">${icon('download')}</button>`,
 
     render(model, route) {
@@ -120,14 +121,13 @@ export default {
                     const dayNet = group.items.reduce((sum, tx) => sum + (tx.type === 'income' ? 1 : tx.type === 'expense' ? -1 : 0) * inBase(tx.amountMinor, tx.currency, model.fx), 0);
                     return html`<div class="list-day"><span>${formatDate(group.date, 'relative', model.today)}</span><span>${dayNet ? money(dayNet, model.fx.base, { sign: true }) : ''}</span></div>${group.items.map(tx => txRow(tx, model))}`;
                 })}</div>
-                ${list.length > shown.length ? html`<div class="load-more"><button type="button" class="btn btn-ghost" data-more>Mostrar ${Math.min(120, list.length - shown.length)} más</button></div>` : ''}`
+                ${list.length > shown.length ? html`<div class="load-more"><button type="button" class="btn btn-ghost" data-more>Mostrar ${Math.min(PAGE_SIZE, list.length - shown.length)} más</button></div>` : ''}`
                 : emptyState({
                     title: hasFilters ? 'Nada coincide con esos filtros' : 'Sin movimientos en este período',
                     body: hasFilters ? 'Pruebe con otro período o limpie los filtros.' : 'Registre un gasto o un ingreso y aparecerá aquí.',
                     iconName: hasFilters ? 'search' : 'list',
                     action: hasFilters ? html`<button type="button" class="btn btn-ghost" data-clear>Limpiar filtros</button>` : html`<button type="button" class="btn btn-primary" data-new>${icon('plus', { size: 17 })}Registrar</button>`
                 })}
-                ${state.range === 'all' || state.range === 'year' ? html`<div class="load-more"><button type="button" class="btn btn-quiet" data-older>${icon('history', { size: 16 })}Cargar 12 meses anteriores</button></div>` : ''}
             </article>`;
     },
 
@@ -141,13 +141,13 @@ export default {
         let timer;
         search?.addEventListener('input', () => {
             clearTimeout(timer);
-            timer = setTimeout(() => { state.query = search.value; state.limit = 120; rerender(); }, 140);
+            timer = setTimeout(() => { state.query = search.value; state.limit = PAGE_SIZE; rerender(); }, 140);
         });
         const onClick = async event => {
             const tx = event.target.closest('[data-tx]');
             if (tx) return (await import('../sheets/transaction.js')).openTransactionDetail(tx.dataset.tx);
             const range = event.target.closest('[data-range]');
-            if (range) { state.range = range.dataset.range; state.limit = 120; return rerender(); }
+            if (range) { state.range = range.dataset.range; state.limit = PAGE_SIZE; return rerender(); }
             const type = event.target.closest('[data-type]');
             if (type) { state.type = type.dataset.type; return rerender(); }
             const flag = event.target.closest('[data-flag]');
@@ -156,8 +156,7 @@ export default {
                 Object.assign(state, { query: '', type: 'all', categoryId: '', accountId: '', flag: '' });
                 return rerender();
             }
-            if (event.target.closest('[data-more]')) { state.limit += 120; return rerender(); }
-            if (event.target.closest('[data-older]')) { app.store.loadOlder(); return; }
+            if (event.target.closest('[data-more]')) { state.limit += PAGE_SIZE; return rerender(); }
             if (event.target.closest('[data-new]')) return (await import('../sheets/transaction.js')).openTransactionSheet();
         };
         const onChange = event => {
@@ -180,21 +179,11 @@ export default {
 };
 
 function exportCsv(model) {
-    const list = filtered(model);
-    const account = id => model.accounts.find(a => a.id === id)?.name || '';
-    const csv = toCSV(list, [
-        { key: 'date', label: 'Fecha' },
-        { key: 'type', label: 'Tipo', format: v => ({ expense: 'Gasto', income: 'Ingreso', transfer: 'Transferencia' }[v]) },
-        { key: 'merchant', label: 'Descripción', format: (v, tx) => v || txTitle(tx, model) },
-        { key: 'categoryId', label: 'Categoría', format: v => model.catById.get(v)?.name || '' },
-        { key: 'accountId', label: 'Cuenta', format: account },
-        { key: 'toAccountId', label: 'Cuenta destino', format: account },
-        { key: 'currency', label: 'Moneda' },
-        { key: 'amountMinor', label: 'Monto', format: (v, tx) => ((tx.type === 'expense' ? -v : v) / 100).toFixed(2).replace('.', ',') },
-        { key: 'method', label: 'Medio', format: v => METHODS[v]?.label || '' },
-        { key: 'impulsive', label: 'Impulsivo', format: v => (v ? 'Sí' : '') },
-        { key: 'tags', label: 'Etiquetas', format: v => (v || []).join(', ') },
-        { key: 'note', label: 'Nota' }
-    ]);
+    const csv = transactionsToCSV(filtered(model), {
+        category: id => model.catById.get(id)?.name || '',
+        account: id => model.accounts.find(a => a.id === id)?.name || '',
+        method: key => METHODS[key]?.label || '',
+        title: tx => txTitle(tx, model)
+    });
     downloadText(`patrimonio-movimientos-${model.today}.csv`, csv, 'text/csv');
 }

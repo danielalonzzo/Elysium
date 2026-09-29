@@ -10,18 +10,19 @@
  * días retrasa la meta prioritaria y cómo deja el presupuesto de la categoría.
  */
 import { app } from '../context.js';
-import { html, $, readFileText, haptic } from '../ui/dom.js';
+import { html, readFileText, haptic } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, METHODS, formatMoney, currencySymbol, nextCurrency } from '../ui/format.js';
+import { money, METHODS, formatMoney, fieldAmount, currencySymbol, nextCurrency } from '../ui/format.js';
+import { describeError } from '../ui/errors.js';
 import { openSheet, toast, actionSheet, confirmDialog } from '../ui/overlay.js';
 import { catChip, txTitle } from '../ui/parts.js';
-import { parseAmount, inBase, convertMinor, isCurrency, currencyInfo, quote, formatQuote } from '../core/money.js';
+import { parseAmount, inBase, convertMinor, currencyInfo, quote, formatQuote } from '../core/money.js';
 import { addDays, formatDate, todayISO, isISODate } from '../core/dates.js';
-import { normalizeMerchant } from '../core/stats.js';
+import { normalizeMerchant, keepsAccountAmount } from '../core/stats.js';
 import { matchCategory } from '../core/categories.js';
-import { parseFactura, directionFor } from '../core/factura-cr.js';
+import { parseFactura, directionFor, facturaAmounts } from '../core/factura-cr.js';
 import { spendImpactDays } from '../core/goals.js';
-import { saveTransaction, deleteTransaction, impactMessage, addContribution, uploadReceipt } from '../services.js';
+import { saveTransaction, deleteTransaction, impactMessage, addContribution } from '../services.js';
 
 const TYPE_LABELS = { expense: 'Gasto', income: 'Ingreso', transfer: 'Transferencia' };
 
@@ -37,8 +38,12 @@ function recentCategories(model, kind) {
     return ordered;
 }
 
+function usableAccounts(model) {
+    return model.accounts.filter(a => !a.archived && a.type !== 'asset');
+}
+
 function defaultAccount(model, type) {
-    const usable = model.accounts.filter(a => !a.archived && a.type !== 'asset');
+    const usable = usableAccounts(model);
     if (type === 'income') return usable.find(a => a.type === 'bank') || usable[0];
     const counts = new Map();
     for (const tx of model.txs.slice(0, 60)) if (tx.type === type) counts.set(tx.accountId, (counts.get(tx.accountId) || 0) + 1);
@@ -50,9 +55,12 @@ function defaultAccount(model, type) {
  * @param {{tx?: object, type?: 'expense'|'income'|'transfer', preset?: object, file?: File}} [options]
  */
 export function openTransactionSheet({ tx = null, type = null, preset = {}, file = null } = {}) {
-    const model = app.model();
+    // El modelo se relee en cada pintado: tras «Guardar y otro», el impacto y
+    // los presupuestos ya cuentan el movimiento recién guardado.
+    let model = app.model();
+    let accounts = usableAccounts(model);
     const editing = Boolean(tx);
-    const accounts = model.accounts.filter(a => !a.archived && a.type !== 'asset');
+    const isDebtPayment = Boolean(editing && tx.debtId && tx.principalMinor);
     if (!accounts.length) {
         toast('Primero cree una cuenta (efectivo, banco o tarjeta).', { tone: 'info', action: { label: 'Crear', onClick: () => app.go('#/cuentas?nueva=1') } });
         return null;
@@ -66,6 +74,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
         accountId: tx?.accountId || preset.accountId || null,
         toAccountId: tx?.toAccountId || preset.toAccountId || null,
         toAmountMinor: tx?.toAmountMinor ?? null,
+        toAmountTouched: false,
         date: tx?.date || preset.date || model.today,
         merchant: tx?.merchant || preset.merchant || '',
         method: tx?.method || preset.method || null,
@@ -93,6 +102,8 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
             render();
 
             function render() {
+                model = app.model();
+                accounts = usableAccounts(model);
                 const focused = document.activeElement?.name;
                 form.innerHTML = String(template());
                 bind();
@@ -116,10 +127,13 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     </div>
 
                     <div class="amount-input is-${state.type}">
-                        <button type="button" class="currency-toggle" data-toggle-currency aria-label="Moneda: ${currencyInfo(state.currency).name}. Cambiar" title="Cambiar moneda">${currencySymbol(state.currency)}</button>
+                        ${state.type === 'transfer'
+                            ? html`<span class="currency-toggle is-static" title="La transferencia va en la moneda de su cuenta de origen">${currencySymbol(fromAccount?.currency || state.currency)}</span>`
+                            : html`<button type="button" class="currency-toggle" data-toggle-currency aria-label="Moneda: ${currencyInfo(state.currency).name}. Cambiar" title="Cambiar moneda">${currencySymbol(state.currency)}</button>`}
                         <input name="amount" inputmode="decimal" enterkeyhint="next" placeholder="0" aria-label="Monto"
-                            value="${state.amountMinor ? formatMoney(state.amountMinor, state.currency, { symbol: false }) : ''}" ${editing ? '' : 'autofocus'}>
+                            value="${state.amountMinor ? fieldAmount(state.amountMinor, state.currency) : ''}" ${editing ? '' : 'autofocus'} ${isDebtPayment ? 'readonly' : ''}>
                     </div>
+                    ${isDebtPayment ? html`<p class="field-hint">Es una cuota de préstamo: para cambiar el monto, elimínela y regístrela de nuevo desde Deudas, así el saldo del préstamo cuadra.</p>` : ''}
                     <p class="amount-words" data-amount-hint>${state.currency !== model.fx.base && state.amountMinor ? `≈ ${formatMoney(convertMinor(state.amountMinor, state.currency, model.fx.base, model.fx), model.fx.base)}` : ''}</p>
 
                     ${state.type === 'transfer' ? html`
@@ -132,7 +146,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                             </label>
                             ${crossCurrency ? html`<label class="field is-wide"><span>Monto recibido en ${toAccount.currency} <small>${formatQuote(quote(toAccount.currency, { base: fromAccount.currency, rates: model.fx.rates }))}</small></span>
                                 <div class="input-group"><span class="prefix">${currencySymbol(toAccount.currency)}</span>
-                                <input name="toAmount" inputmode="decimal" value="${state.toAmountMinor ? formatMoney(state.toAmountMinor, toAccount.currency, { symbol: false }) : ''}" placeholder="${state.amountMinor ? formatMoney(convertMinor(state.amountMinor, fromAccount.currency, toAccount.currency, model.fx), toAccount.currency, { symbol: false }) : ''}"></div>
+                                <input name="toAmount" inputmode="decimal" value="${state.toAmountMinor ? fieldAmount(state.toAmountMinor, toAccount.currency) : ''}" placeholder="${state.amountMinor ? fieldAmount(convertMinor(state.amountMinor, fromAccount.currency, toAccount.currency, model.fx), toAccount.currency) : ''}"></div>
                             </label>` : ''}
                         </div>
                         <label class="field"><span>Concepto <small>opcional</small></span><input name="merchant" value="${state.merchant}" placeholder="Pago de tarjeta, ahorro del mes…" maxlength="120"></label>
@@ -181,7 +195,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                             ${state.type === 'income' && goals.length && !editing ? html`<label class="field"><span>Apartar parte para una meta <small>opcional</small></span>
                                 <select name="goalId"><option value="">No apartar</option>${goals.map(g => html`<option value="${g.goal.id}" ${state.goalId === g.goal.id ? 'selected' : ''}>${g.goal.name}</option>`)}</select>
                             </label>
-                            <label class="field" data-goal-amount ${state.goalId ? '' : 'hidden'}><span>Monto a apartar</span><input name="goalAmount" inputmode="decimal" placeholder="Ej. 50.000"></label>` : ''}
+                            <label class="field" data-goal-amount ${state.goalId ? '' : 'hidden'}><span>Monto a apartar</span><div class="input-group"><span class="prefix" data-goal-symbol>${currencySymbol(goals.find(g => g.goal.id === state.goalId)?.goal.currency || model.fx.base)}</span><input name="goalAmount" inputmode="decimal" placeholder="0"></div></label>` : ''}
                             <label class="field"><span>Nota <small>opcional</small></span><textarea name="note" maxlength="500" rows="2" placeholder="Algo que quiera recordar">${state.note}</textarea></label>
                             <label class="field"><span>Etiquetas <small>separadas por coma</small></span><input name="tags" value="${state.tags}" placeholder="viaje, cumpleaños…" maxlength="160"></label>
                             <div class="field">
@@ -207,9 +221,9 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     </div>`;
             }
 
-            function receiptIcon(type = '') {
-                if (/xml/.test(type)) return 'file-code';
-                if (/pdf/.test(type)) return 'file-text';
+            function receiptIcon(mime = '') {
+                if (/xml/.test(mime)) return 'file-code';
+                if (/pdf/.test(mime)) return 'file-text';
                 return 'image';
             }
 
@@ -241,10 +255,12 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                 const goal = model.goals.find(g => !g.progress.done && g.pace > 0);
                 const days = goal ? spendImpactDays(base, inBase(goal.pace, goal.goal.currency, model.fx)) : null;
                 const budget = model.budgets.find(b => b.budget.categoryId === state.categoryId);
+                // Al editar, lo que ya contaba este mismo movimiento no se resta dos veces.
+                const alreadyCounted = editing && tx.categoryId === state.categoryId ? inBase(tx.amountMinor, tx.currency, model.fx) : 0;
+                const left = budget ? budget.status.remaining - (base - alreadyCounted) : null;
                 const parts = [];
                 if (goal && days > 0) parts.push(html`Retrasa <b>«${goal.goal.name}»</b> ${days} ${days === 1 ? 'día' : 'días'}.`);
                 if (budget) {
-                    const left = budget.status.remaining - (editing && tx.categoryId === state.categoryId ? base - inBase(tx.amountMinor, tx.currency, model.fx) : base);
                     parts.push(left >= 0
                         ? html` Le quedarían <b>${money(left)}</b> en ${budget.category.name.toLowerCase()}.`
                         : html` Superaría el presupuesto de ${budget.category.name.toLowerCase()} por <b>${money(-left)}</b>.`);
@@ -252,8 +268,8 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                 if (!parts.length) { box.hidden = true; return; }
                 box.innerHTML = String(html`${icon('sparkle', { size: 18 })}<span>${parts}</span>`);
                 box.hidden = false;
-                box.classList.toggle('is-warn', Boolean(budget && budget.status.remaining - base < 0));
-                box.classList.toggle('is-gold', !(budget && budget.status.remaining - base < 0));
+                box.classList.toggle('is-warn', left !== null && left < 0);
+                box.classList.toggle('is-gold', !(left !== null && left < 0));
             }
 
             function suggestCategory() {
@@ -287,11 +303,17 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
             }
 
             function applyFactura(parsed) {
-                state.factura = parsed;
+                const amounts = facturaAmounts(parsed);
+                state.factura = { ...parsed, taxMinor: amounts.taxMinor };
                 const direction = directionFor(parsed, model.settings.taxId);
                 state.type = direction === 'income' ? 'income' : 'expense';
-                state.amountMinor = parsed.totalMinor;
-                state.currency = isCurrency(parsed.currency) ? parsed.currency : 'CRC';
+                state.amountMinor = amounts.totalMinor;
+                state.currency = amounts.currency;
+                // Una factura en una moneda que la app no maneja se pasa a colones o se avisa, no se guarda torcida.
+                if (amounts.note) {
+                    state.note = state.note ? `${state.note} ${amounts.note}` : amounts.note;
+                    if (amounts.unsupported) toast(amounts.note, { tone: 'error', duration: 8000 });
+                }
                 if (parsed.date) state.date = parsed.date;
                 state.merchant = parsed.merchant || state.merchant;
                 if (parsed.method) state.method = parsed.method;
@@ -299,7 +321,8 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     const kind = state.type === 'income' ? 'income' : 'expense';
                     state.categoryId = model.merchantMemory.get(normalizeMerchant(state.merchant))
                         || matchCategory(`${parsed.merchant} ${parsed.lines.map(l => l.detail).join(' ')}`, model.categories, kind)
-                        || state.categoryId;
+                        // Si la factura cambió el tipo (gasto ↔ ingreso), la categoría de antes ya no sirve.
+                        || (model.catById.get(state.categoryId)?.kind === kind ? state.categoryId : null);
                 }
                 const account = accounts.find(a => a.id === state.accountId);
                 if (account && account.currency !== state.currency) {
@@ -331,7 +354,14 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     render();
                 });
                 const amountInput = form.querySelector('[name="amount"]');
+                const toAmountInput = form.querySelector('[name="toAmount"]');
+                toAmountInput?.addEventListener('input', () => { state.toAmountTouched = true; });
                 amountInput?.addEventListener('input', () => {
+                    // El monto recibido que la persona no escribió es una conversión del anterior: se recalcula.
+                    if (toAmountInput && !state.toAmountTouched) {
+                        toAmountInput.value = '';
+                        state.toAmountMinor = null;
+                    }
                     const value = readAmount();
                     const hint = form.querySelector('[data-amount-hint]');
                     if (hint) hint.textContent = value && state.currency !== model.fx.base
@@ -341,7 +371,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                 });
                 amountInput?.addEventListener('blur', () => {
                     const value = readAmount();
-                    if (value) amountInput.value = formatMoney(value, state.currency, { symbol: false, decimals: state.currency !== 'CRC' ? 2 : (value % 100 ? 2 : 0) });
+                    if (value) amountInput.value = fieldAmount(value, state.currency);
                 });
                 const merchantInput = form.querySelector('[name="merchant"]');
                 merchantInput?.addEventListener('change', () => { state.merchant = merchantInput.value.trim(); suggestCategory(); });
@@ -386,6 +416,9 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     state.goalId = event.target.value;
                     const wrap = form.querySelector('[data-goal-amount]');
                     if (wrap) wrap.hidden = !state.goalId;
+                    const symbol = form.querySelector('[data-goal-symbol]');
+                    const goal = model.goals.find(g => g.goal.id === state.goalId);
+                    if (symbol && goal) symbol.textContent = currencySymbol(goal.goal.currency || model.fx.base);
                 });
                 form.querySelector('[name="file"]')?.addEventListener('change', event => {
                     syncFromInputs();
@@ -442,6 +475,11 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     method: state.type === 'transfer' ? 'transfer' : state.method || undefined,
                     receipt: state.receipt || undefined
                 };
+                // El importe que cobró el banco se guardó al crear el movimiento: si cambia el monto, la
+                // moneda o la cuenta, ya no vale y se vuelve a calcular con el tipo de cambio de hoy.
+                if (editing && !keepsAccountAmount(tx, { amountMinor: state.amountMinor, currency, accountId: state.accountId })) {
+                    delete doc.accountAmountMinor;
+                }
                 if (state.type === 'transfer') {
                     doc.toAccountId = state.toAccountId;
                     doc.toAmountMinor = toAccount && fromAccount && toAccount.currency !== fromAccount.currency
@@ -462,9 +500,9 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     };
                 }
                 if (!doc.tags.length) delete doc.tags;
-                if (editing && !state.receipt && tx.receipt?.path && tx.receipt.path !== state.receipt?.path) {
-                    app.store.removeFile(tx.receipt.path);
-                }
+                // El comprobante que se quitó se borra después de guardar, no antes:
+                // si el guardado falla, el movimiento no queda apuntando a nada.
+                const replacedReceipt = editing && tx.receipt?.path && tx.receipt.path !== state.receipt?.path ? tx.receipt.path : null;
 
                 const submitButton = form.querySelector('[type="submit"]');
                 submitButton.disabled = true;
@@ -475,6 +513,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                         receiptFile: state.file,
                         onProgress: p => { if (progress) progress.querySelector('span').style.width = `${Math.round(p * 100)}%`; }
                     });
+                    if (replacedReceipt) app.store.removeFile(replacedReceipt);
                     if (preset.inboxId) await app.store.remove('receipts', preset.inboxId);
                     if (state.goalId && state.type === 'income') {
                         const goalAmount = Math.abs(parseAmount(form.querySelector('[name="goalAmount"]')?.value) || 0);
@@ -503,7 +542,7 @@ export function openTransactionSheet({ tx = null, type = null, preset = {}, file
                     }
                 } catch (err) {
                     console.error(err);
-                    fail(err.message && err.message.length < 120 ? err.message : 'No se pudo guardar. Revise su conexión y vuelva a intentarlo.');
+                    fail(describeError(err, 'No se pudo guardar. Revise su conexión y vuelva a intentarlo.'));
                 } finally {
                     submitButton.disabled = false;
                 }
@@ -589,11 +628,3 @@ export function openTransactionDetail(id) {
     });
 }
 
-/** Adjunta un archivo a un movimiento existente (desde Comprobantes). */
-export async function attachReceipt(txId, file) {
-    const tx = app.store.get('transactions', txId);
-    if (!tx) return;
-    const receipt = await uploadReceipt(file, txId);
-    await app.store.patch('transactions', txId, { receipt });
-    toast('Comprobante adjuntado', { tone: 'success' });
-}

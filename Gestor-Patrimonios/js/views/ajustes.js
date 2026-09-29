@@ -5,7 +5,7 @@
 import { app } from '../context.js';
 import { html, downloadText, readFileText } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, formatMoney, currencySymbol, currencyOptions } from '../ui/format.js';
+import { money, formatMoney, currencySymbol, currencyOptions, METHODS } from '../ui/format.js';
 import { catChip } from '../ui/parts.js';
 import { toast, confirmDialog, openSheet } from '../ui/overlay.js';
 import { getTheme, setTheme, isPrivate, setPrivate } from '../ui/theme.js';
@@ -13,8 +13,10 @@ import { lockConfig, setPin, removePin, setLockMinutes } from '../ui/lock.js';
 import { ALERT_GROUPS, defaultLargeExpense } from '../core/alerts.js';
 import { NATURES } from '../core/budgets.js';
 import { parseAmount, CURRENCY_CODES, currencyInfo, quote, ratesFromQuotes, isCurrency, convertMinor, roundNice } from '../core/money.js';
-import { formatDate } from '../core/dates.js';
-import { parseCSV, guessMapping, rowsToTransactions, toCSV } from '../core/csv.js';
+import { formatDate, isTimeZone, APP_TIME_ZONE } from '../core/dates.js';
+import { parseBackup, MAX_BACKUP_BYTES } from '../core/backup.js';
+import { describeError } from '../ui/errors.js';
+import { parseCSV, guessMapping, rowsToTransactions, transactionsToCSV, splitDuplicates } from '../core/csv.js';
 import { matchCategory } from '../core/categories.js';
 import { COLLECTIONS } from '../store.js';
 
@@ -28,11 +30,24 @@ const SECTIONS = [
     ['datos', 'Sus datos', 'archive']
 ];
 
+/** Cambia solo las claves indicadas: lo que se ajustó desde otro dispositivo no se pisa. */
 async function saveSettings(patch, message = 'Guardado') {
-    const current = app.store.profile?.settings || {};
-    await app.store.saveProfile({ settings: { ...current, ...patch } });
+    await app.store.saveSettings(patch);
     if (message) toast(message, { tone: 'success' });
 }
+
+/** Zonas ofrecidas: Costa Rica, la de este dispositivo y la que ya tenga elegida. */
+function timeZoneOptions(selected) {
+    const device = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const zones = [...new Set([APP_TIME_ZONE, device, selected].filter(isTimeZone))];
+    const label = zone => (zone === APP_TIME_ZONE ? 'Costa Rica' : zone.replace(/_/g, ' ').replace('/', ' · ')) + (zone === device && zone !== APP_TIME_ZONE ? ' (este dispositivo)' : '');
+    return zones.map(zone => html`<option value="${zone}" ${zone === (selected || APP_TIME_ZONE) ? 'selected' : ''}>${label(zone)}</option>`);
+}
+
+const BACKUP_LABELS = {
+    accounts: 'Cuentas', categories: 'Categorías', transactions: 'Movimientos', budgets: 'Presupuestos', goals: 'Metas',
+    contributions: 'Aportes a metas', recurring: 'Recurrentes', debts: 'Deudas', simulations: 'Simulaciones', receipts: 'Comprobantes'
+};
 
 /** Importe para un campo: sin «,00» cuando es redondo. */
 function wholeAmount(minor, currency) {
@@ -127,6 +142,7 @@ export default {
                             })}</div>
                             <div class="row-between fx-foot"><small class="field-hint">Escribir un tipo lo fija a mano; «Automático» lo actualiza a diario con la referencia del mercado.</small>
                             <button type="button" class="btn btn-ghost btn-sm" data-fx-auto ${app.mode === 'demo' || s.fxSource !== 'manual' ? 'disabled' : ''}>${icon('refresh', { size: 15 })}Automático</button></div></div>
+                        <label class="field"><span>Zona horaria <small>para saber qué día es «hoy»</small></span><select id="set-timezone" data-timezone>${timeZoneOptions(s.timeZone)}</select></label>
                         <label class="field"><span>Le pagan</span><select id="set-payday-mode" data-payday-mode>
                             <option value="monthly" ${s.payday?.mode !== 'semimonthly' ? 'selected' : ''}>Una vez al mes</option>
                             <option value="semimonthly" ${s.payday?.mode === 'semimonthly' ? 'selected' : ''}>Quincenal (15 y fin de mes)</option></select></label>
@@ -175,6 +191,7 @@ export default {
                     <div class="stack">
                         <button type="button" class="action-item" data-import>${html`<span class="action-icon">${icon('upload')}</span>`}<span class="action-label">Importar desde Excel o CSV<small>Traiga su hoja de antes: fechas, montos, descripción y categoría</small></span>${icon('chevron-right', { size: 16, className: 'action-chevron' })}</button>
                         <button type="button" class="action-item" data-export-json><span class="action-icon">${icon('download')}</span><span class="action-label">Copia de seguridad (JSON)<small>Todo: cuentas, movimientos, metas, presupuestos…</small></span>${icon('chevron-right', { size: 16, className: 'action-chevron' })}</button>
+                        <button type="button" class="action-item" data-restore><span class="action-icon">${icon('rotate-ccw')}</span><span class="action-label">Restaurar una copia de seguridad<small>Pone otra vez en la app lo de un archivo JSON, sin borrar lo que ya tiene</small></span>${icon('chevron-right', { size: 16, className: 'action-chevron' })}</button>
                         <button type="button" class="action-item" data-export-csv><span class="action-icon">${icon('file-text')}</span><span class="action-label">Movimientos en CSV<small>Para abrir en Excel</small></span>${icon('chevron-right', { size: 16, className: 'action-chevron' })}</button>
                         <button type="button" class="action-item is-danger" data-wipe><span class="action-icon">${icon('trash')}</span><span class="action-label">Borrar todos mis datos<small>Deja la cuenta vacía. No se puede deshacer.</small></span>${icon('chevron-right', { size: 16, className: 'action-chevron' })}</button>
                     </div>
@@ -186,7 +203,6 @@ export default {
     },
 
     mount(root, model) {
-        const s = model.settings;
         const onChange = async event => {
             const el = event.target;
             if (el.matches('[data-profile="displayName"]')) return app.store.saveProfile({ displayName: el.value.trim().slice(0, 60) }).then(() => toast('Nombre guardado', { tone: 'success' }));
@@ -203,8 +219,10 @@ export default {
                 return saveSettings({ fxRates, fxSource: 'manual', fxUpdatedAt: model.today }, 'Tipo de cambio fijado');
             }
             if (el.matches('[data-base-currency]')) return changeBaseCurrency(model, el.value);
-            if (el.matches('[data-payday-mode]')) return saveSettings({ payday: { ...s.payday, mode: el.value } });
-            if (el.matches('[data-payday-day]')) return saveSettings({ payday: { ...s.payday, mode: 'monthly', day: Math.min(31, Math.max(1, Number(el.value) || 30)) } });
+            if (el.matches('[data-timezone]')) return saveSettings({ timeZone: isTimeZone(el.value) ? el.value : APP_TIME_ZONE }, 'Zona horaria guardada');
+            const livePayday = () => app.store.profile?.settings?.payday || {};
+            if (el.matches('[data-payday-mode]')) return saveSettings({ payday: { ...livePayday(), mode: el.value } });
+            if (el.matches('[data-payday-day]')) return saveSettings({ payday: { ...livePayday(), mode: 'monthly', day: Math.min(31, Math.max(1, Number(el.value) || 30)) } });
             if (el.matches('[data-setting-number]')) return saveSettings({ [el.dataset.settingNumber]: Math.min(28, Math.max(1, Number(el.value) || 1)) });
             if (el.matches('[data-setting-select]')) return saveSettings({ [el.dataset.settingSelect]: Number(el.value) });
             if (el.matches('[data-setting-money]')) return saveSettings({ [el.dataset.settingMoney]: Math.abs(parseAmount(el.value) || 0) });
@@ -215,8 +233,8 @@ export default {
                 if (key === 'private') return setPrivate(on);
                 if (key === 'sounds') return saveSettings({ sounds: on }, null);
                 if (key === 'gamification') return saveSettings({ gamification: on }, null);
-                if (key.startsWith('alert:')) return saveSettings({ alerts: { ...(s.alerts || {}), [key.slice(6)]: on } }, null);
-                if (key.startsWith('email:')) return saveSettings({ email: { ...(s.email || {}), [key.slice(6)]: on } }, null);
+                if (key.startsWith('alert:')) return saveSettings({ alerts: { ...(app.store.profile?.settings?.alerts || {}), [key.slice(6)]: on } }, null);
+                if (key.startsWith('email:')) return saveSettings({ email: { ...(app.store.profile?.settings?.email || {}), [key.slice(6)]: on } }, null);
             }
         };
         const onClick = async event => {
@@ -232,6 +250,7 @@ export default {
             if (event.target.closest('[data-pin-set]')) return pinSheet();
             if (event.target.closest('[data-pin-remove]')) { removePin(); toast('PIN quitado'); return app.rerender(); }
             if (event.target.closest('[data-import]')) return importSheet(model);
+            if (event.target.closest('[data-restore]')) return restoreSheet();
             if (event.target.closest('[data-export-json]')) return downloadText(`patrimonio-copia-${model.today}.json`, JSON.stringify(app.store.snapshot(), null, 2), 'application/json');
             if (event.target.closest('[data-export-csv]')) return exportCsv(model);
             if (event.target.closest('[data-wipe]')) return wipe();
@@ -278,17 +297,12 @@ function pinSheet() {
 }
 
 function exportCsv(model) {
-    const account = id => model.accounts.find(a => a.id === id)?.name || '';
-    downloadText(`patrimonio-movimientos-${model.today}.csv`, toCSV(model.txs, [
-        { key: 'date', label: 'Fecha' },
-        { key: 'type', label: 'Tipo', format: v => ({ expense: 'Gasto', income: 'Ingreso', transfer: 'Transferencia' }[v]) },
-        { key: 'merchant', label: 'Descripción' },
-        { key: 'categoryId', label: 'Categoría', format: v => model.catById.get(v)?.name || '' },
-        { key: 'accountId', label: 'Cuenta', format: account },
-        { key: 'currency', label: 'Moneda' },
-        { key: 'amountMinor', label: 'Monto', format: (v, tx) => ((tx.type === 'expense' ? -v : v) / 100).toFixed(2).replace('.', ',') },
-        { key: 'note', label: 'Nota' }
-    ]), 'text/csv');
+    const csv = transactionsToCSV(model.txs, {
+        category: id => model.catById.get(id)?.name || '',
+        account: id => model.accounts.find(a => a.id === id)?.name || '',
+        method: key => METHODS[key]?.label || ''
+    });
+    downloadText(`patrimonio-movimientos-${model.today}.csv`, csv, 'text/csv');
 }
 
 async function wipe() {
@@ -321,6 +335,8 @@ function importSheet(model) {
     const accounts = model.accounts.filter(a => !a.archived && a.type !== 'asset');
     let rows = [];
     let mapping = {};
+    // Lo elegido en los selectores sobrevive a los repintados del mapeo.
+    const choice = { accountId: accounts[0]?.id || '', defaultType: 'expense' };
     openSheet({
         title: 'Importar movimientos',
         subtitle: 'Desde Excel (guárdelo como CSV) o cualquier CSV',
@@ -336,7 +352,8 @@ function importSheet(model) {
                 const headers = rows[0];
                 const option = (field, label, optional = true) => html`<label class="field"><span>${label}</span><select data-map="${field}">
                     ${optional ? html`<option value="">—</option>` : ''}${headers.map((h, i) => html`<option value="${i}" ${mapping[field] === i ? 'selected' : ''}>${h || `Columna ${i + 1}`}</option>`)}</select></label>`;
-                const preview = rowsToTransactions(rows.slice(0, 7), mapping);
+                const preview = rowsToTransactions(rows.slice(0, 7), mapping, { defaultType: choice.defaultType });
+                const previewCurrency = accounts.find(a => a.id === choice.accountId)?.currency || model.fx.base;
                 host.innerHTML = String(html`
                     <div class="form-grid">
                         ${option('date', 'Fecha', false)}
@@ -345,12 +362,12 @@ function importSheet(model) {
                         ${option('category', 'Categoría')}
                         ${option('income', 'Columna de ingresos')}
                         ${option('expense', 'Columna de gastos')}
-                        <label class="field"><span>Cuenta</span><select data-account>${accounts.map(a => html`<option value="${a.id}">${a.name} · ${a.currency}</option>`)}</select></label>
-                        <label class="field"><span>Si el monto no tiene signo, es…</span><select data-default-type><option value="expense">Gasto</option><option value="income">Ingreso</option></select></label>
+                        <label class="field"><span>Cuenta</span><select data-account>${accounts.map(a => html`<option value="${a.id}" ${a.id === choice.accountId ? 'selected' : ''}>${a.name} · ${a.currency}</option>`)}</select></label>
+                        <label class="field"><span>Si el monto no tiene signo, es…</span><select data-default-type><option value="expense" ${choice.defaultType === 'expense' ? 'selected' : ''}>Gasto</option><option value="income" ${choice.defaultType === 'income' ? 'selected' : ''}>Ingreso</option></select></label>
                     </div>
                     <p class="eyebrow" style="margin:6px 0">Vista previa</p>
                     <div class="table-wrap"><table class="table"><thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th class="is-num">Monto</th></tr></thead>
-                    <tbody>${preview.items.map(item => html`<tr><td>${item.date}</td><td>${item.merchant}</td><td>${item.categoryLabel}</td><td class="is-num">${money(item.type === 'expense' ? -item.amountMinor : item.amountMinor)}</td></tr>`)}</tbody></table></div>
+                    <tbody>${preview.items.map(item => html`<tr><td>${item.date}</td><td>${item.merchant}</td><td>${item.categoryLabel}</td><td class="is-num">${money(item.type === 'expense' ? -item.amountMinor : item.amountMinor, previewCurrency)}</td></tr>`)}</tbody></table></div>
                     <p class="field-hint">${rows.length - 1} filas en el archivo${preview.errors.length ? ` · algunas se saltarán (${preview.errors[0].reason.toLowerCase()})` : ''}.</p>
                     <div class="sheet-actions"><button type="button" class="btn btn-primary" data-run-import>${icon('upload', { size: 16 })}Importar ${rows.length - 1} filas</button></div>`);
             };
@@ -358,12 +375,16 @@ function importSheet(model) {
                 if (event.target.matches('[data-csv]')) {
                     const file = event.target.files?.[0];
                     if (!file) return;
+                    if (file.size > 20 * 1024 * 1024) { toast('Ese archivo es demasiado grande (más de 20 MB). Divídalo en varios.', { tone: 'error' }); return; }
                     rows = parseCSV(await readFileText(file));
                     if (rows.length < 2) { toast('El archivo no tiene filas.', { tone: 'error' }); return; }
+                    if (rows.length > 20001) { rows = []; toast('El archivo tiene más de 20.000 filas. Divídalo en varios e impórtelos uno por uno.', { tone: 'error', duration: 7000 }); draw(); return; }
                     mapping = guessMapping(rows[0]);
                     if (mapping.amount !== undefined && (mapping.income !== undefined || mapping.expense !== undefined)) delete mapping.amount;
                     draw();
                 }
+                if (event.target.matches('[data-account]')) choice.accountId = event.target.value;
+                if (event.target.matches('[data-default-type]')) { choice.defaultType = event.target.value; draw(); }
                 if (event.target.matches('[data-map]')) {
                     const value = event.target.value;
                     if (value === '') delete mapping[event.target.dataset.map]; else mapping[event.target.dataset.map] = Number(value);
@@ -373,11 +394,11 @@ function importSheet(model) {
             body.addEventListener('click', async event => {
                 if (!event.target.closest('[data-run-import]')) return;
                 if (mapping.date === undefined) return toast('Elija la columna de fecha.', { tone: 'error' });
-                const accountId = body.querySelector('[data-account]').value;
+                const { accountId, defaultType } = choice;
                 const account = accounts.find(a => a.id === accountId);
-                const defaultType = body.querySelector('[data-default-type]').value;
                 const { items, errors } = rowsToTransactions(rows, mapping, { defaultType });
-                const ops = items.map(item => ({
+                const { fresh, duplicates } = splitDuplicates(items, app.store.list('transactions'), accountId);
+                const ops = fresh.map(item => ({
                     op: 'set', name: 'transactions',
                     data: {
                         type: item.type, amountMinor: item.amountMinor, currency: account?.currency || model.fx.base, date: item.date, accountId,
@@ -386,10 +407,73 @@ function importSheet(model) {
                         tags: ['importado'], createdDate: model.today, imported: true
                     }
                 }));
-                if (!ops.length) return toast('No se encontró ninguna fila válida.', { tone: 'error' });
-                await app.store.batch(ops);
+                if (!ops.length) {
+                    return toast(duplicates.length ? 'Esas filas ya estaban importadas en esa cuenta.' : 'No se encontró ninguna fila válida.', { tone: duplicates.length ? 'info' : 'error' });
+                }
+                try {
+                    await app.store.batch(ops);
+                } catch (error) {
+                    console.error(error);
+                    return toast(describeError(error, 'No se pudo importar. Inténtelo de nuevo.'), { tone: 'error', duration: 7000 });
+                }
                 await api.close();
-                toast(`${ops.length} movimientos importados${errors.length ? `, ${errors.length} filas omitidas` : ''}.`, { tone: 'success', duration: 6000 });
+                const skipped = [
+                    duplicates.length ? `${duplicates.length} ya estaban` : '',
+                    errors.length ? `${errors.length} filas omitidas` : ''
+                ].filter(Boolean).join(', ');
+                toast(`${ops.length} movimientos importados${skipped ? ` (${skipped})` : ''}.`, { tone: 'success', duration: 6000 });
+            });
+        }
+    });
+}
+
+/* ── Restaurar una copia de seguridad ──────────────────────────────────────── */
+
+function restoreSheet() {
+    let backup = null;
+    openSheet({
+        title: 'Restaurar una copia de seguridad',
+        subtitle: 'El archivo JSON que descargó en «Copia de seguridad»',
+        size: 'md',
+        content: html`<div class="form">
+            <label class="upload-zone">${icon('upload', { size: 24 })}<span>Elija el archivo de la copia (.json)</span><input type="file" accept=".json,application/json" data-backup></label>
+            <div data-summary></div>
+        </div>`,
+        onMount(body, api) {
+            const summary = body.querySelector('[data-summary]');
+            body.addEventListener('change', async event => {
+                if (!event.target.matches('[data-backup]')) return;
+                const file = event.target.files?.[0];
+                if (!file) return;
+                backup = null;
+                if (file.size > MAX_BACKUP_BYTES) { summary.innerHTML = String(html`<p class="field-error">Ese archivo pesa demasiado para ser una copia de Patrimonio.</p>`); return; }
+                try {
+                    backup = parseBackup(await readFileText(file), COLLECTIONS);
+                } catch (error) {
+                    summary.innerHTML = String(html`<p class="field-error">${error.message}</p>`);
+                    return;
+                }
+                const rows = Object.entries(backup.counts).filter(([, count]) => count > 0);
+                summary.innerHTML = String(html`
+                    ${backup.exportedAt ? html`<p class="field-hint">Copia del ${formatDate(backup.exportedAt.slice(0, 10), 'medium')}.</p>` : ''}
+                    <div class="table-wrap"><table class="table"><tbody>${rows.map(([name, count]) => html`<tr><td>${BACKUP_LABELS[name] || name}</td><td class="is-num">${count}</td></tr>`)}</tbody></table></div>
+                    <p class="field-hint">Se suma a lo que ya tiene: nada se borra, y lo que tenga el mismo identificador se reemplaza por lo de la copia. Los archivos de comprobantes y portadas no viajan en la copia.${backup.skipped.length ? ` Se saltarán ${backup.skipped.length} elementos que no son válidos.` : ''}</p>
+                    <div class="sheet-actions"><button type="button" class="btn btn-primary" data-run-restore ${backup.total ? '' : 'disabled'}>${icon('rotate-ccw', { size: 16 })}Restaurar ${backup.total} elementos</button></div>`);
+            });
+            body.addEventListener('click', async event => {
+                const button = event.target.closest('[data-run-restore]');
+                if (!button || !backup?.total) return;
+                button.disabled = true;
+                const ops = Object.entries(backup.collections).flatMap(([name, docs]) => docs.map(doc => ({ op: 'set', name, id: doc.id, data: doc })));
+                try {
+                    await app.store.batch(ops);
+                } catch (error) {
+                    console.error(error);
+                    button.disabled = false;
+                    return toast(describeError(error, 'No se pudo restaurar. Inténtelo de nuevo.'), { tone: 'error', duration: 7000 });
+                }
+                await api.close();
+                toast(`${ops.length} elementos restaurados.`, { tone: 'success', duration: 6000 });
             });
         }
     });

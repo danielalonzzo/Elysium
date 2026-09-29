@@ -23,7 +23,7 @@ export const POINTS = Object.freeze({
 });
 
 export const LEVELS = Object.freeze([
-    { id: 'obolo', name: 'Óbolo', min: 0, motto: 'Cada colón cuenta.' },
+    { id: 'obolo', name: 'Óbolo', min: 0, motto: 'Cada moneda cuenta.' },
     { id: 'dracma', name: 'Dracma', min: 500, motto: 'El hábito ya es suyo.' },
     { id: 'estatero', name: 'Estátero', min: 1500, motto: 'Su dinero tiene un plan.' },
     { id: 'mina', name: 'Mina', min: 4000, motto: 'Construye patrimonio.' },
@@ -41,10 +41,14 @@ export function levelFor(points) {
 
 /* ── Rachas ───────────────────────────────────────────────────────────────── */
 
-/** Días (fecha de registro) en que se anotó al menos un movimiento. */
+/**
+ * Días (fecha de registro) en que la persona anotó al menos un movimiento. Lo
+ * que la app registra sola (recurrentes automáticos) no cuenta: la racha
+ * premia el hábito, no abrir la app.
+ */
 export function loggingDays(txs) {
     const days = new Set();
-    for (const tx of txs || []) days.add(tx.createdDate || tx.date);
+    for (const tx of txs || []) if (!tx.autoPosted) days.add(tx.createdDate || tx.date);
     return days;
 }
 
@@ -72,20 +76,28 @@ export function longestStreak(days) {
     return best;
 }
 
+/** Días sin registrar tras los que se deja de premiar la ausencia de impulsos. */
+const IMPULSE_GRACE_DAYS = 14;
+
 /**
- * Tramos sin gastos impulsivos desde el primer registro: cuántas semanas
- * completas (7 días seguidos) se lograron, la racha actual y la mejor.
+ * Tramos sin gastos impulsivos desde que la persona empezó a registrar: cuántas
+ * semanas completas (7 días seguidos) se lograron, la racha actual y la mejor.
+ * Se cuenta desde el primer día que anotó algo (no desde la fecha de sus
+ * movimientos más viejos: un historial importado de hace años no regala
+ * semanas) y deja de contar si lleva más de dos semanas sin registrar nada.
  */
 export function impulseFreeRuns(txs, today) {
-    const list = txs || [];
-    if (!list.length) return { weeks: 0, current: 0, best: 0 };
-    const first = list.reduce((min, tx) => (tx.date < min ? tx.date : min), today);
-    const impulsive = new Set(list.filter(tx => tx.type === 'expense' && tx.impulsive).map(tx => tx.date));
+    const logged = [...loggingDays(txs)].sort();
+    if (!logged.length) return { weeks: 0, current: 0, best: 0 };
+    const first = logged[0];
+    const end = addDays(logged[logged.length - 1], IMPULSE_GRACE_DAYS);
+    const last = end < today ? end : today;
+    const impulsive = new Set((txs || []).filter(tx => tx.type === 'expense' && tx.impulsive).map(tx => tx.date));
     let weeks = 0;
     let run = 0;
     let best = 0;
     let block = 0;
-    for (let day = first; day <= today; day = addDays(day, 1)) {
+    for (let day = first; day <= last; day = addDays(day, 1)) {
         if (impulsive.has(day)) {
             run = 0;
             block = 0;
@@ -254,7 +266,10 @@ export function computeGamification(s) {
         return { ...badge, name: text.name, description: text.description, progress, unlocked: progress >= 1, evaluate: undefined };
     });
 
-    const challenges = (s.challenges || []).map(accepted => {
+    // Un reto aceptado dos veces (doble clic) cuenta una sola.
+    const seenChallenges = new Set();
+    const acceptedChallenges = (s.challenges || []).filter(accepted => !seenChallenges.has(accepted.id) && seenChallenges.add(accepted.id));
+    const challenges = acceptedChallenges.map(accepted => {
         const def = CHALLENGES.find(c => c.id === accepted.id);
         if (!def) return null;
         const result = def.evaluate({ txs: s.txs, contributions: s.contributions, startDate: accepted.startDate, today: s.today, currency });

@@ -31,12 +31,46 @@ export function isISODate(value) {
     return m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(y, m);
 }
 
-/** Hoy en Costa Rica (o en la zona indicada), como `YYYY-MM-DD`. */
-export function todayISO(now = new Date(), timeZone = APP_TIME_ZONE) {
+/**
+ * Zona horaria con la que el navegador cuenta «hoy». Costa Rica por defecto;
+ * quien vive en otro huso la elige en Ajustes. Solo la usa la app: el backend,
+ * que atiende a muchas personas a la vez, pasa la zona de cada una explícita.
+ */
+let currentTimeZone = APP_TIME_ZONE;
+
+/** ¿Es un nombre de zona IANA que este motor conoce? */
+export function isTimeZone(name) {
+    if (typeof name !== 'string' || !name) return false;
+    try {
+        new Intl.DateTimeFormat('en-CA', { timeZone: name });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export function setTimeZone(name) {
+    currentTimeZone = isTimeZone(name) ? name : APP_TIME_ZONE;
+}
+
+export function getTimeZone() {
+    return currentTimeZone;
+}
+
+/** Hoy en la zona indicada (por defecto la de la app), como `YYYY-MM-DD`. */
+export function todayISO(now = new Date(), timeZone = currentTimeZone) {
     // en-CA formatea como YYYY-MM-DD.
     return new Intl.DateTimeFormat('en-CA', {
-        timeZone, year: 'numeric', month: '2-digit', day: '2-digit'
+        timeZone: isTimeZone(timeZone) ? timeZone : APP_TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit'
     }).format(now);
+}
+
+/** Hora del día (0–23) en la zona indicada, para saludar según la hora local. */
+export function hourIn(now = new Date(), timeZone = currentTimeZone) {
+    const hour = Number(new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric', hourCycle: 'h23', timeZone: isTimeZone(timeZone) ? timeZone : APP_TIME_ZONE
+    }).format(now));
+    return hour === 24 ? 0 : hour;
 }
 
 export function parseISO(iso) {
@@ -87,18 +121,6 @@ export function diffDays(a, b) {
     return Math.round(toEpochDay(b) - toEpochDay(a));
 }
 
-export function compareISO(a, b) {
-    return a < b ? -1 : a > b ? 1 : 0;
-}
-
-export function minISO(a, b) {
-    return a <= b ? a : b;
-}
-
-export function maxISO(a, b) {
-    return a >= b ? a : b;
-}
-
 /** 0 = domingo … 6 = sábado. */
 export function weekday(iso) {
     const day = toEpochDay(iso);
@@ -125,7 +147,7 @@ export function isoWeekKey(iso) {
     const dayNum = (date.getUTCDay() + 6) % 7;
     date.setUTCDate(date.getUTCDate() - dayNum + 3);
     const firstThursday = new Date(Date.UTC(date.getUTCFullYear(), 0, 4));
-    const week = 1 + Math.round(((date - firstThursday) / DAY_MS - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
+    const week = 1 + Math.round(((date.getTime() - firstThursday.getTime()) / DAY_MS - 3 + ((firstThursday.getUTCDay() + 6) % 7)) / 7);
     return `${date.getUTCFullYear()}-W${pad(week)}`;
 }
 
@@ -180,13 +202,18 @@ export function lastPeriods(iso, n, startDay = 1) {
     return periods;
 }
 
+/** Próxima fecha con el día `day` del mes, desde `today` (incluido); el 31 se recorta en los meses cortos. */
+export function nextMonthlyDay(day, today) {
+    const p = parseISO(today);
+    const thisMonth = toISO(p.y, p.m, Math.min(day, daysInMonth(p.y, p.m)));
+    if (thisMonth >= today) return thisMonth;
+    const next = parseISO(addMonths(toISO(p.y, p.m, 1), 1));
+    return toISO(next.y, next.m, Math.min(day, daysInMonth(next.y, next.m)));
+}
+
 /** Meses (fraccionarios) entre dos fechas. */
 export function monthsBetween(a, b) {
     return diffDays(a, b) / AVG_DAYS_PER_MONTH;
-}
-
-export function isBetween(iso, start, end) {
-    return iso >= start && iso <= end;
 }
 
 /* ── Presentación ─────────────────────────────────────────────────────────── */
@@ -199,7 +226,7 @@ export function monthLabel(key, { long = false, year = true } = {}) {
 
 /**
  * `short`: 23 sep · `medium`: 23 sep 2026 · `long`: martes, 23 de septiembre
- * · `relative`: Hoy / Ayer / Mañana / martes 23 sep.
+ * · `full`: 23 de septiembre de 2026 · `relative`: Hoy / Ayer / Mañana / martes 23 sep.
  */
 export function formatDate(iso, style = 'medium', today = null) {
     const p = parseISO(iso);
@@ -228,7 +255,8 @@ export function relativeDays(fromISO, toISOValue) {
     if (abs < 31) text = `${abs} ${abs === 1 ? 'día' : 'días'}`;
     else if (abs < 365) {
         const months = Math.round(abs / AVG_DAYS_PER_MONTH);
-        text = `${months} ${months === 1 ? 'mes' : 'meses'}`;
+        // 364 días redondean a «12 meses»: es un año.
+        text = months >= 12 ? '1 año' : `${months} ${months === 1 ? 'mes' : 'meses'}`;
     } else {
         const years = Math.floor(abs / 365.25);
         const months = Math.round((abs - years * 365.25) / AVG_DAYS_PER_MONTH);

@@ -51,8 +51,8 @@ export function carryOver(previousLimitMinor, previousSpentMinor) {
     return Math.max(0, (Number(previousLimitMinor) || 0) - (Number(previousSpentMinor) || 0));
 }
 
-/** Presupuesto sugerido a partir del gasto medio: un 5% de holgura, redondeado. */
-export function suggestBudget(averageMinor, currency = 'CRC') {
+/** Presupuesto sugerido a partir del gasto medio: un 5% de holgura, redondeado en su moneda. */
+export function suggestBudget(averageMinor, currency) {
     if (!averageMinor || averageMinor <= 0) return 0;
     return roundNice(averageMinor * 1.05, currency);
 }
@@ -95,7 +95,7 @@ export function natureBreakdown(categories, categoryTotals, incomeMinor) {
 }
 
 /**
- * «Puedes gastar ₡X por día hasta el próximo pago».
+ * «Puede gastar ₡X por día hasta el próximo pago».
  *
  * Con presupuestos, es lo que les queda repartido entre los días que faltan.
  * Sin ellos, se estima: ingreso esperado del período menos lo gastado y lo

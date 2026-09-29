@@ -391,3 +391,7 @@ details.more > .form { padding: 14px; }
     .is-private .amt { color: #111 !important; text-shadow: none; }
     .chart-svg .axis { fill: #555; }
 }
+
+/* Metas archivadas: una línea por meta con su botón de restaurar. */
+.archived-goal { padding: 8px 2px; }
+.archived-goal + .archived-goal { border-top: 1px solid var(--line); }

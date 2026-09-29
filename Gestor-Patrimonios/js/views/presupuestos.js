@@ -1,6 +1,6 @@
 /**
  * Presupuestos: un límite por categoría y período, con la línea de ritmo
- * (dónde deberías ir hoy), sugerencias a partir del gasto real y la regla
+ * (dónde debería ir hoy), sugerencias a partir del gasto real y la regla
  * 50/30/20.
  */
 import { app } from '../context.js';
@@ -19,7 +19,7 @@ export default {
 
     render(model) {
         const { budgets, budgetTotals, spendable } = model;
-        const pace = (1 - (model.daysLeft - 1) / model.period.days) * 100;
+        const pace = model.pacePct;
         const usedPct = budgetTotals.limit ? budgetTotals.spent / budgetTotals.limit * 100 : 0;
         const budgeted = new Set(budgets.map(b => b.budget.categoryId));
         const unbudgeted = model.expenseCats
@@ -69,7 +69,7 @@ export default {
                         <div class="list">${unbudgeted.slice(0, 8).map(item => html`<button type="button" class="tx" data-new-budget="${item.category.id}">
                             ${catChip(item.category)}
                             <span class="tx-main"><span class="tx-title">${item.category.name}</span><span class="tx-meta">promedio ${money(item.average)} · este mes ${money(item.spent)}</span></span>
-                            <span class="tx-amount"><span class="link-btn">${item.average ? html`Sugerir ${money(suggestBudget(item.average))}` : 'Crear'}</span></span>
+                            <span class="tx-amount"><span class="link-btn">${item.average ? html`Sugerir ${money(suggestBudget(item.average, model.fx.base))}` : 'Crear'}</span></span>
                         </button>`)}</div>
                     </article>` : ''}
                 </div>
@@ -87,7 +87,7 @@ export default {
                 const budgeted = new Set(model.budgets.map(b => b.budget.categoryId));
                 const ops = model.expenseCats
                     .filter(c => !budgeted.has(c.id) && (model.avgByCategory.get(c.id) || 0) > 0)
-                    .map(c => ({ op: 'set', name: 'budgets', id: c.id, data: { categoryId: c.id, amountMinor: suggestBudget(model.avgByCategory.get(c.id)), currency: model.fx.base, rollover: false } }));
+                    .map(c => ({ op: 'set', name: 'budgets', id: c.id, data: { categoryId: c.id, amountMinor: suggestBudget(model.avgByCategory.get(c.id), model.fx.base), currency: model.fx.base, rollover: false } }));
                 if (!ops.length) return;
                 await app.store.batch(ops);
                 toast(`${ops.length} presupuestos creados a partir de su gasto promedio`, { tone: 'success' });

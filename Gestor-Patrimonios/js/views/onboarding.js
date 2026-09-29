@@ -11,7 +11,7 @@ import { GOAL_KINDS } from '../core/goals.js';
 import { defaultCategories } from '../core/categories.js';
 import { defaultLargeExpense } from '../core/alerts.js';
 import { parseAmount, roundNice, CURRENCIES, CURRENCY_CODES, DEFAULT_FX_RATES, currencyInfo } from '../core/money.js';
-import { todayISO } from '../core/dates.js';
+import { todayISO, isTimeZone, APP_TIME_ZONE } from '../core/dates.js';
 import { toast } from '../ui/overlay.js';
 
 /**
@@ -34,10 +34,19 @@ const EXAMPLES = {
 };
 
 /** Porcentaje del ingreso que se sugiere para cada categoría variable. */
-const BUDGET_SHARES = [['supermercado', 12], ['restaurantes', 6], ['combustible', 6], ['transporte', 3], ['ocio', 4], ['ropa', 3], ['suscripciones', 2]];
+const BUDGET_SHARES = [
+    { categoryId: 'supermercado', share: 12 }, { categoryId: 'restaurantes', share: 6 }, { categoryId: 'combustible', share: 6 },
+    { categoryId: 'transporte', share: 3 }, { categoryId: 'ocio', share: 4 }, { categoryId: 'ropa', share: 3 }, { categoryId: 'suscripciones', share: 2 }
+];
 
 /** La «otra» moneda más común según la principal: en Costa Rica, dólares y colones van juntos. */
 const secondCurrency = base => (base === 'USD' ? 'CRC' : 'USD');
+
+/** La zona horaria del dispositivo; Costa Rica si el navegador no la dice. */
+function deviceTimeZone() {
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return isTimeZone(zone) ? zone : APP_TIME_ZONE;
+}
 
 export function renderOnboarding(root, done) {
     const user = app.user || {};
@@ -50,7 +59,7 @@ export function renderOnboarding(root, done) {
         income: null,
         accounts: ACCOUNT_PRESETS.map(preset => ({ ...preset, currency: null, balance: null })),
         goal: { kind: 'carro', name: '', target: null, monthly: null, skip: false },
-        budgets: BUDGET_SHARES.map(([categoryId, share]) => ({ categoryId, share, on: true, amount: null }))
+        budgets: BUDGET_SHARES.map(entry => ({ ...entry, on: true, amount: null }))
     };
     const categories = defaultCategories();
     const STEPS = 5;
@@ -68,6 +77,7 @@ export function renderOnboarding(root, done) {
     const amountText = (minor, currency) => (minor ? formatMoney(minor, currency, { symbol: false, decimals: minor % 100 ? 2 : 0 }) : '');
     const moneyField = (currency, inner) => html`<span class="money-field"><span class="money-symbol" aria-hidden="true">${currencySymbol(currency)}</span>${inner}</span>`;
 
+    let focusedStep = -1;
     const draw = () => {
         root.innerHTML = String(html`<div class="onboarding">
             <div class="onboarding-card card">
@@ -84,7 +94,12 @@ export function renderOnboarding(root, done) {
             </div>
         </div>`);
         bind();
-        root.querySelector('input:not([type="checkbox"])')?.focus();
+        // El foco va al primer campo al llegar a un paso, no cada vez que se repinta el mismo
+        // (marcar una cuenta lo hacía saltar y, en el móvil, abría el teclado).
+        if (state.step !== focusedStep) {
+            focusedStep = state.step;
+            root.querySelector('input:not([type="checkbox"])')?.focus();
+        }
     };
 
     function welcome() {
@@ -235,8 +250,11 @@ export function renderOnboarding(root, done) {
         const ops = [];
         const existing = new Set(app.store.list('categories').map(c => c.id));
         for (const category of categories) if (!existing.has(category.id)) ops.push({ op: 'set', name: 'categories', id: category.id, data: category });
+        // Los ids se fijan una vez: si guardar falla a medias y se reintenta, los mismos
+        // documentos se reescriben en vez de duplicarse.
         state.accounts.filter(a => a.on).forEach((account, order) => {
-            ops.push({ op: 'set', name: 'accounts', data: {
+            account.docId = account.docId || app.store.newId('cta-');
+            ops.push({ op: 'set', name: 'accounts', id: account.docId, data: {
                 name: accountName(account), type: account.type, currency: currencyOf(account), icon: account.icon, tone: account.tone,
                 openingBalanceMinor: account.type === 'credit' ? -(account.balance || 0) : (account.balance || 0),
                 openingDate: today, order, includeInNetWorth: true, archived: false
@@ -244,7 +262,8 @@ export function renderOnboarding(root, done) {
         });
         let goalId = null;
         if (!state.goal.skip && state.goal.name && state.goal.target) {
-            goalId = app.store.newId('meta-');
+            state.goalDocId = state.goalDocId || app.store.newId('meta-');
+            goalId = state.goalDocId;
             ops.push({ op: 'set', name: 'goals', id: goalId, data: {
                 name: state.goal.name, kind: state.goal.kind, targetMinor: state.goal.target, currency: state.base,
                 monthlyPlanMinor: state.goal.monthly, priority: 1, status: 'active', startDate: today, deadline: null, note: ''
@@ -264,6 +283,7 @@ export function renderOnboarding(root, done) {
                 settings: {
                     baseCurrency: state.base, fxRates: { USD: DEFAULT_FX_RATES.USD, EUR: DEFAULT_FX_RATES.EUR }, fxSource: 'auto', fxUpdatedAt: null,
                     payday: state.payMode === 'semimonthly' ? { mode: 'semimonthly' } : { mode: 'monthly', day: state.payDay },
+                    timeZone: deviceTimeZone(),
                     periodStartDay: 1, expectedIncomeMinor: state.income, gamification: true, sounds: false,
                     largeExpenseMinor: defaultLargeExpense({ base: state.base, rates: DEFAULT_FX_RATES }), emergencyMonths: 6, taxId: '', alerts: {},
                     email: { immediate: true, daily: true, weekly: true, monthly: true }

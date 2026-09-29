@@ -275,6 +275,8 @@ test('el libro se sirve aislado: CSP sandbox sin allow-same-origin y el ayudante
     assert.equal(html.replace(library.BOOK_HELPER, ''), BOOK_HTML, 'nothing else changes');
     // Sin esto, el índice del libro arrastra la página de Elysium en Chrome.
     assert.match(library.BOOK_HELPER, /Element\.prototype\.scrollIntoView = function/);
+    // El empaquetador de Cloudflare (esbuild) envuelve funciones con __name; el navegador no lo tiene.
+    assert.match(library.BOOK_HELPER, /var __name\s*=\s*function/);
     assert.ok(!library.BOOK_HELPER.slice('<script>'.length, -'</script>'.length).includes('</script'), 'the helper cannot close its own tag');
 });
 
@@ -661,6 +663,41 @@ test('todas las páginas con pie completo enlazan la biblioteca, también en mó
         assert.ok(!/href="(?:https:\/\/elysiumdr\.eu)?\/library"/.test(navbar), `${path}: the header must not link the library`);
     }
     assert.ok(checked >= 80, `only ${checked} pages were checked`);
+});
+
+test('todas las páginas con pie completo enlazan Gestor de Patrimonio justo debajo de la biblioteca, en cada idioma y también en móvil', () => {
+    const LABELS = { en: 'Wealth Manager', es: 'Gestor de Patrimonio', pt: 'Gestor de Património' };
+    let checked = 0;
+    for (const path of portfolioPages()) {
+        const html = readFileSync(join(ROOT, path), 'utf8');
+        if (!html.includes('footer-links')) continue;
+        checked += 1;
+        const footer = html.slice(html.indexOf('<footer'));
+        const national = path.startsWith('_national/');
+        const lang = /^(?:_national\/)?es\//.test(path) ? 'es' : /^(?:_national\/)?pt\//.test(path) ? 'pt' : 'en';
+        const href = national ? 'https://elysiumdr.eu/Gestor-Patrimonios/' : '/Gestor-Patrimonios/';
+        // Las páginas que traducen el pie con JavaScript llevan `data-i18n` y el texto en inglés de partida.
+        const anchor = new RegExp(`<a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="footerPatrimonio">${LABELS.en}|>${LABELS[lang]})</a>`);
+        assert.match(footer, new RegExp(`<li class="footer-library"><a href="[^"]*library"[^>]*>[^<]+</a></li>\\s*<li class="footer-library">${anchor.source}</li>`), `${path}: debajo de Library`);
+        // Lleva la clase de Library: el pie móvil esconde la columna «Empresa» salvo esa clase.
+        const mobileRule = html.includes('pages.css') ? PAGES_CSS : html;
+        assert.match(mobileRule, /footer \.footer-grid \.footer-col:nth-child\(2\) li:not\(\.footer-library\)/, `${path}: mobile footer`);
+        const navbar = html.slice(html.indexOf('<nav'), html.indexOf('</nav>'));
+        assert.ok(!navbar.includes('Gestor-Patrimonios'), `${path}: la app no va en el menú, solo en el pie`);
+    }
+    assert.ok(checked >= 80, `only ${checked} pages were checked`);
+});
+
+test('el pie traducido por JavaScript trae «Gestor de Patrimonio» en los tres idiomas', () => {
+    const labels = ['Wealth Manager', 'Gestor de Patrimonio', 'Gestor de Património'];
+    for (const file of ['JS/library.js', 'JS/profiles.js']) {
+        const source = readFileSync(join(ROOT, file), 'utf8');
+        const found = [...source.matchAll(/footerPatrimonio: '([^']+)'/g)].map(match => match[1]);
+        assert.deepEqual(found, labels, file);
+    }
+    for (const template of ['library/index.html', 'library/reader.html', 'profiles.html']) {
+        assert.match(readFileSync(join(ROOT, template), 'utf8'), /<li class="footer-library"><a href="\/Gestor-Patrimonios\/" data-i18n="footerPatrimonio">Wealth Manager<\/a><\/li>/, template);
+    }
 });
 
 test('en pantalla completa no hay nada de Elysium encima: el botón de salir es del libro', () => {

@@ -34,7 +34,11 @@ const express = require('express');
 const APP_URL = 'https://elysiumdr.eu/Gestor-Patrimonios/';
 const DATA_COLLECTIONS = ['accounts', 'categories', 'transactions', 'budgets', 'goals', 'contributions', 'recurring', 'debts'];
 const CHECK_MIN_INTERVAL_MS = 20_000;
-const MAX_USERS_PER_RUN = 200;
+/** Licencias que se leen de una vez; las siguientes páginas se piden a continuación. */
+const USERS_PAGE_SIZE = 200;
+/** Tope de seguridad de una pasada: por encima de esto algo va mal, no hay tanta gente con licencia. */
+const MAX_USERS_PER_RUN = 5000;
+const MEMORY_TTL_MS = 60 * 60_000;
 
 let corePromise = null;
 function loadCore() {
@@ -65,11 +69,28 @@ function safeKey(key) {
 
 /* ── Datos ─────────────────────────────────────────────────────────────────── */
 
-/** Lee todo lo que el modelo necesita de una persona y lo presenta como un almacén. */
-async function loadUserStore(db, uid) {
+/** Solo el perfil: permite descartar un aviso sin leer todos sus movimientos. */
+async function loadProfile(db, uid) {
+  const snap = await db.collection('patrimonio').doc(uid).get();
+  return snap.exists ? { id: uid, ...snap.data() } : null;
+}
+
+/** Guarda una marca de tiempo por clave y olvida las de más de una hora, para que los mapas no crezcan sin fin. */
+function remember(map, key, at = Date.now()) {
+  map.set(key, at);
+  if (map.size > 500) {
+    for (const [known, when] of map) if (at - when > MEMORY_TTL_MS) map.delete(known);
+  }
+}
+
+/**
+ * Lee todo lo que el modelo necesita de una persona y lo presenta como un
+ * almacén. Con `profile` (ya leído) no se pide otra vez.
+ */
+async function loadUserStore(db, uid, profile = undefined) {
   const base = db.collection('patrimonio').doc(uid);
   const [profileSnap, ...snapshots] = await Promise.all([
-    base.get(),
+    profile === undefined ? base.get() : Promise.resolve(null),
     ...DATA_COLLECTIONS.map(name => base.collection(name).get())
   ]);
   const data = Object.fromEntries(DATA_COLLECTIONS.map((name, index) => [
@@ -79,7 +100,7 @@ async function loadUserStore(db, uid) {
   return {
     mode: 'server',
     version: 0,
-    profile: profileSnap.exists ? { id: uid, ...profileSnap.data() } : null,
+    profile: profile !== undefined ? profile : (profileSnap.exists ? { id: uid, ...profileSnap.data() } : null),
     list: name => data[name] || []
   };
 }
@@ -301,11 +322,15 @@ function createPatrimonioService(deps) {
     return user.email;
   }
 
-  async function modelFor(uid) {
+  /**
+   * El «hoy» de cada persona sale de su zona horaria (Costa Rica si no eligió otra):
+   * a quien vive en Madrid no se le habla del día anterior.
+   */
+  async function modelFor(uid, profile = undefined) {
     const core = await loadCore();
-    const store = await loadUserStore(deps.db, uid);
+    const store = await loadUserStore(deps.db, uid, profile);
     if (!store.profile?.onboarded) return { core, store, model: null };
-    return { core, store, model: core.buildModel(store, core.todayISO(now())) };
+    return { core, store, model: core.buildModel(store, core.todayISO(now(), store.profile?.settings?.timeZone)) };
   }
 
   async function deliver(uid, key, to, email, meta = {}) {
@@ -327,9 +352,14 @@ function createPatrimonioService(deps) {
   }
 
   async function checkImmediate(uid) {
-    const { model, store } = await modelFor(uid);
+    // Con el perfil basta para saber si hay algo que hacer: sin avisos inmediatos, o con los
+    // dos grupos que los generan apagados, no se leen todas sus colecciones (una lectura por documento).
+    const profile = await loadProfile(deps.db, uid);
+    if (!profile?.onboarded) return { sent: 0, reason: 'not_onboarded' };
+    const groups = profile.settings?.alerts || {};
+    if (profile.settings?.email?.immediate === false || (groups.budget === false && groups.cards === false)) return { sent: 0, reason: 'disabled' };
+    const { model, store } = await modelFor(uid, profile);
     if (!model) return { sent: 0, reason: 'not_onboarded' };
-    if (model.settings.email?.immediate === false) return { sent: 0, reason: 'disabled' };
     const alerts = await pending(uid, model.alerts.filter(alert => alert.email === 'immediate'));
     if (!alerts.length) return { sent: 0 };
     const to = await recipientFor(uid);
@@ -375,17 +405,31 @@ function createPatrimonioService(deps) {
     return { sent };
   }
 
+  /** Recorre todas las licencias activas por páginas: pasado el tamaño de una página, nadie se queda sin su resumen. */
   async function runAll() {
-    const snapshot = await deps.db.collection('patrimonio_access').where('active', '==', true).limit(MAX_USERS_PER_RUN).get();
-    const results = { users: snapshot.size, sent: 0, skipped: 0, failed: 0 };
-    for (const doc of snapshot.docs) {
-      try {
-        const outcome = await runForUser(doc.id);
-        if (outcome.sent) results.sent += outcome.sent; else results.skipped += 1;
-      } catch (error) {
-        results.failed += 1;
-        console.error('[patrimonio-alerts] usuario', doc.id, error?.code || error?.message || error);
+    const pageSize = deps.pageSize || USERS_PAGE_SIZE;
+    const results = { users: 0, sent: 0, skipped: 0, failed: 0 };
+    let last = null;
+    for (;;) {
+      let query = deps.db.collection('patrimonio_access').where('active', '==', true).orderBy('__name__').limit(pageSize);
+      if (last) query = query.startAfter(last);
+      const page = await query.get();
+      for (const doc of page.docs) {
+        results.users += 1;
+        try {
+          const outcome = await runForUser(doc.id);
+          if (outcome.sent) results.sent += outcome.sent; else results.skipped += 1;
+        } catch (error) {
+          results.failed += 1;
+          console.error('[patrimonio-alerts] usuario', doc.id, error?.code || error?.message || error);
+        }
       }
+      if (page.docs.length < pageSize) break;
+      if (results.users >= MAX_USERS_PER_RUN) {
+        console.error('[patrimonio-alerts] tope de usuarios por pasada alcanzado', MAX_USERS_PER_RUN);
+        break;
+      }
+      last = page.docs[page.docs.length - 1];
     }
     return results;
   }
@@ -443,6 +487,8 @@ function createPatrimonioRouter(deps) {
   const service = createPatrimonioService(deps);
   const lastCheck = new Map();
   const lastRequestMail = new Map();
+  /** Personas cuya revisión está en curso: una segunda petición no lee otra vez todos sus datos. */
+  const checking = new Set();
 
   router.use((request, response, next) => { response.set('Cache-Control', 'no-store'); next(); });
 
@@ -450,8 +496,9 @@ function createPatrimonioRouter(deps) {
     const uid = request.firebaseUser?.uid;
     if (!uid) return response.status(401).json({ error: 'Authentication required.' });
     const previous = lastCheck.get(uid) || 0;
-    if (Date.now() - previous < CHECK_MIN_INTERVAL_MS) return response.status(202).json({ ok: true, throttled: true });
-    lastCheck.set(uid, Date.now());
+    if (checking.has(uid) || Date.now() - previous < CHECK_MIN_INTERVAL_MS) return response.status(202).json({ ok: true, throttled: true });
+    remember(lastCheck, uid);
+    checking.add(uid);
     try {
       const access = await deps.db.collection('patrimonio_access').doc(uid).get();
       if (!access.exists || access.data()?.active !== true) return response.status(403).json({ error: 'No Patrimonio license.', code: 'no_license' });
@@ -460,6 +507,8 @@ function createPatrimonioRouter(deps) {
     } catch (error) {
       console.error('[patrimonio-alerts] check', error?.code || error?.message || error);
       return response.status(error?.code === 'email_not_configured' ? 503 : 500).json({ error: 'Unable to check alerts.', code: 'patrimonio_check_failed' });
+    } finally {
+      checking.delete(uid);
     }
   });
 
@@ -482,7 +531,7 @@ function createPatrimonioRouter(deps) {
     if (!uid) return response.status(401).json({ error: 'Authentication required.' });
     const previous = lastRequestMail.get(uid) || 0;
     if (Date.now() - previous < 10 * 60_000) return response.status(202).json({ ok: true, throttled: true });
-    lastRequestMail.set(uid, Date.now());
+    remember(lastRequestMail, uid);
     try {
       const outcome = await service.notifyAccessRequest(uid);
       return response.status(202).json({ ok: true, outcome });

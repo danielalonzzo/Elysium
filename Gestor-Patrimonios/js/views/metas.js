@@ -1,5 +1,5 @@
 /**
- * Metas: «¿Para qué estás ahorrando?». La pantalla favorita de Jared.
+ * Metas: «¿Para qué está ahorrando?». La pantalla favorita de Jared.
  *
  * La mayoría de apps enseñan números; esta enseña sueños con cifras: una
  * portada (foto propia o guilloché), cuánto falta, cuándo se llega, qué
@@ -8,12 +8,12 @@
 import { app } from '../context.js';
 import { html } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { money, pct, formatMoney } from '../ui/format.js';
+import { money, formatMoney } from '../ui/format.js';
 import { rosette } from '../ui/guilloche.js';
 import { ring, areaChart } from '../ui/charts.js';
 import { progressBar, emptyState, goalIcon, stateIcon } from '../ui/parts.js';
 import { GOAL_KINDS, MILESTONES, accelerationScenarios, spendImpactDays } from '../core/goals.js';
-import { inBase, convertMinor } from '../core/money.js';
+import { inBase, convertMinor, colonesToBase } from '../core/money.js';
 import { formatDate, monthLabel, formatMonths, lastPeriods } from '../core/dates.js';
 import { toast, confirmDialog, actionSheet } from '../ui/overlay.js';
 import { uploadReceipt } from '../services.js';
@@ -61,7 +61,7 @@ export default {
         const done = model.goals.filter(g => g.progress.done || g.goal.status === 'done');
         const overCommitted = model.goalsMonthly > model.capacity && model.capacity > 0;
 
-        if (!model.goals.length) {
+        if (!model.goals.length && !model.archivedGoals.length) {
             return html`<article class="card">
                 <div class="empty">${rosette({ seed: 'suenos', size: 180, layers: 4 })}
                     <h3 class="serif" style="font-size:1.6rem">La mayoría de apps solo muestran números.</h3>
@@ -82,10 +82,15 @@ export default {
 
             <div class="section-title"><h2>Sus sueños</h2><button type="button" class="link-btn only-mobile" data-new-goal>${icon('plus', { size: 15 })} Nueva</button></div>
             <div class="goals-grid">
-                ${active.map(entry => goalCard(entry, model))}
+                ${active.map(goalCard)}
                 <button type="button" class="card goal-add" data-new-goal><span>${icon('plus', { size: 28 })}Nuevo sueño<br><small class="faint">Casa, carro, viaje, negocio, finca…</small></span></button>
             </div>
-            ${done.length ? html`<div class="section-title"><h2>Cumplidas</h2></div><div class="goals-grid">${done.map(entry => goalCard(entry, model))}</div>` : ''}`;
+            ${done.length ? html`<div class="section-title"><h2>Cumplidas</h2></div><div class="goals-grid">${done.map(goalCard)}</div>` : ''}
+            ${model.archivedGoals.length ? html`<div class="section-title"><h2>Archivadas</h2><span class="muted">Ocultas, con sus aportes intactos</span></div>
+                <article class="card"><div class="list">${model.archivedGoals.map(goal => html`<div class="row-between archived-goal">
+                    <span class="row">${icon(goalIcon(goal), { size: 18, className: 'faint' })}<b>${goal.name}</b></span>
+                    <button type="button" class="btn btn-sm btn-ghost" data-restore-goal="${goal.id}">${icon('rotate-ccw', { size: 15 })}Restaurar</button>
+                </div>`)}</div></article>` : ''}`;
     },
 
     mount(root, model, route) {
@@ -103,6 +108,11 @@ export default {
             if (event.target.closest('[data-new-goal]')) return forms.openGoalSheet();
             const kind = event.target.closest('[data-kind]');
             if (kind) return forms.openGoalSheet({ kind: kind.dataset.kind });
+            const restore = event.target.closest('[data-restore-goal]');
+            if (restore) {
+                await app.store.patch('goals', restore.dataset.restoreGoal, { status: 'active' });
+                return toast('Meta restaurada', { tone: 'gold', iconName: 'target' });
+            }
             if (!entry) return;
             if (event.target.closest('[data-contribute]')) return forms.openContributionSheet({ goalId: entry.goal.id });
             if (event.target.closest('[data-withdraw]')) return forms.openContributionSheet({ goalId: entry.goal.id, withdraw: true });
@@ -118,7 +128,15 @@ export default {
             const removeContribution = event.target.closest('[data-remove-contribution]');
             if (removeContribution) {
                 const ok = await confirmDialog({ title: '¿Eliminar este aporte?', confirmLabel: 'Eliminar', danger: true });
-                if (ok) await app.store.remove('contributions', removeContribution.dataset.removeContribution);
+                if (ok) {
+                    const removed = entry.contributions.find(c => c.id === removeContribution.dataset.removeContribution);
+                    await app.store.remove('contributions', removeContribution.dataset.removeContribution);
+                    // Si con este aporte la meta se había dado por cumplida sola y ahora no llega, pasa a estar de nuevo en marcha.
+                    const savedNow = entry.saved - (Number(removed?.amountMinor) || 0);
+                    if (entry.goal.status === 'done' && !entry.goal.manualDone && savedNow < entry.progress.target) {
+                        await app.store.patch('goals', entry.goal.id, { status: 'active', completedAt: null });
+                    }
+                }
             }
         };
         const onChange = async event => {
@@ -129,8 +147,13 @@ export default {
             try {
                 toast('Subiendo portada…');
                 const meta = await uploadReceipt(file, `goal-${entry.goal.id}`);
+                try {
+                    await app.store.patch('goals', entry.goal.id, { cover: { path: meta.path, type: meta.type } });
+                } catch (error) {
+                    app.store.removeFile(meta.path);
+                    throw error;
+                }
                 if (entry.goal.cover?.path) app.store.removeFile(entry.goal.cover.path);
-                await app.store.patch('goals', entry.goal.id, { cover: { path: meta.path, type: meta.type } });
                 coverUrls.delete(meta.path);
                 toast('Portada actualizada', { tone: 'success' });
             } catch (error) {
@@ -146,7 +169,7 @@ export default {
     }
 };
 
-function goalCard(entry, model) {
+function goalCard(entry) {
     const { goal, progress, health, eta } = entry;
     const done = progress.done || goal.status === 'done';
     return html`<a class="card goal-card ${done ? 'is-done' : ''}" href="#/metas/${goal.id}">
@@ -191,8 +214,10 @@ function detail(model, id) {
         aguinaldoMinor: toGoal(aguinaldo)
     }).slice(0, 4);
 
-    // Impacto real de gastar.
-    const impacts = [1000000, 2000000, 5000000, 10000000].map(amount => ({ amount, days: spendImpactDays(toGoal(amount), pace) }));
+    // Impacto real de gastar: ₡10.000 a ₡100.000, o su equivalente redondo.
+    const impacts = [1000000, 2000000, 5000000, 10000000]
+        .map(colones => colonesToBase(colones, model.fx))
+        .map(amount => ({ amount, days: spendImpactDays(toGoal(amount), pace) }));
 
     return html`
         <section class="goal-hero" data-cover="${goal.id}">
@@ -287,8 +312,8 @@ async function goalMenu(entry) {
             { label: 'Cambiar portada', icon: 'camera', onClick: () => document.querySelector('[data-cover-input]')?.click() },
             ...(goal.cover?.path ? [{ label: 'Quitar portada', icon: 'image', onClick: async () => { app.store.removeFile(goal.cover.path); await app.store.patch('goals', goal.id, { cover: null }); } }] : []),
             done
-                ? { label: 'Reabrir meta', icon: 'rotate-ccw', onClick: () => app.store.patch('goals', goal.id, { status: 'active', completedAt: null }) }
-                : { label: 'Marcar como cumplida', icon: 'trophy', onClick: async () => { await app.store.patch('goals', goal.id, { status: 'done', completedAt: app.model().today }); document.dispatchEvent(new CustomEvent('patrimonio:celebrate')); toast(`¡«${goal.name}» cumplida!`, { tone: 'gold', iconName: 'trophy' }); } },
+                ? { label: 'Reabrir meta', icon: 'rotate-ccw', onClick: () => app.store.patch('goals', goal.id, { status: 'active', completedAt: null, manualDone: false }) }
+                : { label: 'Marcar como cumplida', icon: 'trophy', onClick: async () => { await app.store.patch('goals', goal.id, { status: 'done', completedAt: app.model().today, manualDone: true }); document.dispatchEvent(new CustomEvent('patrimonio:celebrate')); toast(`¡«${goal.name}» cumplida!`, { tone: 'gold', iconName: 'trophy' }); } },
             { label: 'Archivar', icon: 'archive', hint: 'Se oculta sin borrar sus aportes', onClick: async () => { await app.store.patch('goals', goal.id, { status: 'archived' }); app.go('#/metas'); } },
             { label: 'Editar', icon: 'edit', onClick: () => forms.openGoalSheet({ goal }) }
         ]

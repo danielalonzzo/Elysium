@@ -10,6 +10,7 @@
  * `tone` es el tono del icono en la interfaz (no un color de gráfica: las
  * gráficas por categoría usan un solo tono y el nombre como identidad).
  */
+import { plain } from './text.js';
 
 export const EXPENSE_CATEGORIES = Object.freeze([
     { id: 'supermercado', name: 'Supermercado', icon: 'cart', nature: 'need', tone: 'green' },
@@ -51,35 +52,41 @@ export function defaultCategories() {
 }
 
 /**
- * Busca la categoría que mejor encaja con una etiqueta libre (al importar un
- * CSV o leer una factura): coincidencia exacta de nombre, luego parcial, luego
- * por palabras clave de comercios habituales.
+ * Palabras clave → categoría, en orden de prioridad. Se busca por palabras, no
+ * por trozos de texto: «aya» (el acueducto) no está dentro de «Playa», ni «pet»
+ * dentro de «Carpetas». `word` exige la palabra entera; `stem` deja que siga
+ * (`super` encuentra «supermercado», `servicentro` encuentra «servicentros»).
  */
+const word = (...list) => new RegExp(`(?<![a-z0-9])(?:${list.join('|')})(?![a-z0-9])`);
+const stem = (...list) => new RegExp(`(?<![a-z0-9])(?:${list.join('|')})`);
+const either = (...patterns) => ({ test: text => patterns.some(pattern => pattern.test(text)) });
+
+/** @type {Array<[{test: (text: string) => boolean}, string]>} */
 const KEYWORDS = [
-    [/walmart|masxmenos|mas x menos|automercado|auto mercado|pali|maxi pali|megasuper|fresh market|pricesmart|super|abastecedor|pulperia/, 'supermercado'],
-    [/restaurante|soda|pizza|burger|kfc|mcdonald|subway|starbucks|cafe|taco|sushi|uber ?eats|rappi|didi food|pedidos ya/, 'restaurantes'],
-    [/gasolin|servicentro|\bdelta\b|\buno\b|\bpuma\b|total energ|combustible|recope/, 'combustible'],
-    [/uber|didi|taxi|bus|peaje|parqueo|parking|tren/, 'transporte'],
-    [/marchamo|riteve|rtv|dekra|taller|llanta|repuesto|ins |seguro de auto/, 'vehiculo'],
-    [/alquiler|hipoteca|condominio|renta/, 'vivienda'],
-    [/\bice\b|kolbi|cnfl|aya|acueducto|jasec|esph|coopelesca|liberty|claro|tigo|cabletica|telecable|internet|electric/, 'servicios'],
-    [/farmacia|fischel|la bomba|clinica|hospital|ccss|ebais|laboratorio|dentista|optica/, 'salud'],
-    [/netflix|spotify|disney|hbo|max|prime|apple|icloud|google|youtube|chatgpt|adobe|microsoft/, 'suscripciones'],
-    [/cine|cinepolis|ccm|teatro|concierto|bar |discoteca|entrada/, 'ocio'],
-    [/zara|h&m|siman|ekono|universal|pequeño mundo|peluqueria|barberia|salon/, 'ropa'],
-    [/epa|construplaza|el lagar|ferreteria|colono|ikea|gollo|monge|importadora monge/, 'hogar'],
-    [/veterinari|pet|mascota|agroservicio/, 'mascotas'],
-    [/hotel|airbnb|booking|aerolinea|avianca|copa|volaris|sansa|vuelo/, 'viajes']
+    [either(word('walmart', 'masxmenos', 'mas x menos', 'automercado', 'auto mercado', 'pali', 'maxi pali', 'megasuper', 'fresh market', 'pricesmart', 'super', 'supermercado', 'abastecedor', 'pulperia'), stem('supermerc', 'pricesmart')), 'supermercado'],
+    [either(word('restaurante', 'restaurantes', 'soda', 'sodas', 'pizza', 'pizzeria', 'burger', 'burguer', 'kfc', 'subway', 'starbucks', 'cafe', 'cafeteria', 'taco', 'tacos', 'sushi', 'rappi', 'uber ?eats', 'didi food', 'pedidos ya'), stem('mcdonald')), 'restaurantes'],
+    [either(word('delta', 'uno', 'puma', 'recope', 'gasolina', 'gasolinera', 'combustible'), stem('servicentro', 'gasolin', 'total energ')), 'combustible'],
+    [word('uber', 'didi', 'taxi', 'bus', 'buses', 'peaje', 'parqueo', 'parking', 'tren'), 'transporte'],
+    [word('marchamo', 'riteve', 'rtv', 'dekra', 'taller', 'llanta', 'llantas', 'repuesto', 'repuestos', 'ins', 'seguro de auto'), 'vehiculo'],
+    [word('alquiler', 'hipoteca', 'condominio'), 'vivienda'],
+    [either(word('ice', 'kolbi', 'cnfl', 'aya', 'acueducto', 'jasec', 'esph', 'coopelesca', 'liberty', 'claro', 'tigo', 'cabletica', 'telecable', 'internet'), stem('electric')), 'servicios'],
+    [word('farmacia', 'fischel', 'la bomba', 'clinica', 'hospital', 'ccss', 'ebais', 'laboratorio', 'dentista', 'optica'), 'salud'],
+    [word('netflix', 'spotify', 'disney', 'hbo', 'max', 'prime', 'apple', 'icloud', 'google', 'youtube', 'chatgpt', 'adobe', 'microsoft'), 'suscripciones'],
+    [word('cine', 'cinepolis', 'ccm', 'teatro', 'concierto', 'bar', 'discoteca', 'entrada', 'entradas'), 'ocio'],
+    [word('zara', 'h&m', 'siman', 'ekono', 'universal', 'pequeno mundo', 'peluqueria', 'barberia', 'salon'), 'ropa'],
+    [word('epa', 'construplaza', 'el lagar', 'ferreteria', 'colono', 'ikea', 'gollo', 'monge', 'importadora monge'), 'hogar'],
+    [word('veterinaria', 'veterinario', 'mascota', 'mascotas', 'agroservicio', 'pet', 'pets'), 'mascotas'],
+    [word('hotel', 'airbnb', 'booking', 'aerolinea', 'avianca', 'copa', 'volaris', 'sansa', 'vuelo', 'vuelos'), 'viajes']
 ];
 
 export function matchCategory(label, categories, kind = 'expense') {
-    const text = String(label || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    const text = plain(label);
     if (!text) return null;
     const pool = (categories || []).filter(category => category.kind === kind && !category.archived);
-    const plain = name => String(name).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
     const exact = pool.find(category => plain(category.name) === text);
     if (exact) return exact.id;
-    const partial = pool.find(category => text.includes(plain(category.name)) || plain(category.name).includes(text));
+    // Coincidencia parcial solo con palabras de cierta longitud: «a» no es «Alquiler».
+    const partial = text.length >= 3 && pool.find(category => text.includes(plain(category.name)) || plain(category.name).includes(text));
     if (partial) return partial.id;
     if (kind === 'expense') {
         for (const [pattern, id] of KEYWORDS) {

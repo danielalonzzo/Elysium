@@ -9,21 +9,21 @@
  * `email` marca cómo viaja por correo: `immediate` (en cuanto se registra el
  * movimiento que la provoca) o `daily` (en el resumen de la mañana).
  */
-import { formatMoney, convertMinor, roundNice } from './money.js';
-import { addDays, diffDays, formatDate, parseISO, toISO, daysInMonth, addMonths } from './dates.js';
+import { formatMoney, convertMinor, colonesToBase } from './money.js';
+import { addDays, diffDays, formatDate, nextMonthlyDay } from './dates.js';
 
 export const ALERT_KINDS = Object.freeze({
-    budget: { label: 'Presupuestos al 80% y al 100%', group: 'budget' },
-    pace: { label: 'Ritmo de gasto alto', group: 'budget' },
-    unusual: { label: 'Gasto inusual por categoría', group: 'unusual' },
-    due: { label: 'Pagos próximos', group: 'due' },
-    'card-limit': { label: 'Tarjeta cerca del límite', group: 'cards' },
-    'card-due': { label: 'Fecha de pago de tarjeta', group: 'cards' },
-    'debt-due': { label: 'Cuota de préstamo', group: 'due' },
-    'goal-risk': { label: 'Meta en riesgo', group: 'goals' },
-    'goal-milestone': { label: 'Hitos de metas', group: 'goals' },
-    'low-balance': { label: 'Saldo bajo', group: 'lowBalance' },
-    large: { label: 'Gasto grande', group: 'large' }
+    budget: { group: 'budget' },
+    pace: { group: 'budget' },
+    unusual: { group: 'unusual' },
+    due: { group: 'due' },
+    'card-limit': { group: 'cards' },
+    'card-due': { group: 'cards' },
+    'debt-due': { group: 'due' },
+    'goal-risk': { group: 'goals' },
+    'goal-milestone': { group: 'goals' },
+    'low-balance': { group: 'lowBalance' },
+    large: { group: 'large' }
 });
 
 export const ALERT_GROUPS = Object.freeze({
@@ -50,8 +50,7 @@ const UNUSUAL_THRESHOLD = 30;
  * euros, «₡100.000» es «€170», no «€100.000».
  */
 export function defaultLargeExpense(fx) {
-    const base = fx?.base || 'CRC';
-    return base === 'CRC' ? DEFAULT_LARGE_EXPENSE : roundNice(convertMinor(DEFAULT_LARGE_EXPENSE, 'CRC', base, fx), base);
+    return colonesToBase(DEFAULT_LARGE_EXPENSE, fx);
 }
 
 function whenText(daysUntil) {
@@ -60,20 +59,11 @@ function whenText(daysUntil) {
     return `vence en ${daysUntil} días`;
 }
 
-/** Próxima fecha con el día `day` del mes, desde `today` (incluido). */
-export function nextMonthlyDay(day, today) {
-    const p = parseISO(today);
-    const thisMonth = toISO(p.y, p.m, Math.min(day, daysInMonth(p.y, p.m)));
-    if (thisMonth >= today) return thisMonth;
-    const next = parseISO(addMonths(toISO(p.y, p.m, 1), 1));
-    return toISO(next.y, next.m, Math.min(day, daysInMonth(next.y, next.m)));
-}
-
 /**
  * @param {object} ctx
  * @param {string} ctx.today
  * @param {{start: string, end: string, key: string, days: number}} ctx.period
- * @param {{base: string, rate: number}} ctx.fx
+ * @param {{base: string, rates: object}} ctx.fx  de money.fxFromSettings
  * @param {object} [ctx.settings]  { largeExpenseMinor, alerts: {budget: true, …} }
  * @param {Array} [ctx.categories]
  * @param {Array} [ctx.budgets]    [{ categoryId, status }]  (status de budgets.budgetStatus)
@@ -84,6 +74,7 @@ export function nextMonthlyDay(day, today) {
  * @param {Map}   [ctx.balances]
  * @param {Array} [ctx.goals]      [{ goal, progress, health, required }]
  * @param {Array} [ctx.debts]
+ * @param {Set}   [ctx.linkedDebtIds] préstamos con un recurrente propio (ese ya avisa del pago)
  * @param {Array} [ctx.recentExpenses] movimientos de gasto recientes
  */
 export function evaluateAlerts(ctx) {
@@ -210,7 +201,7 @@ export function evaluateAlerts(ctx) {
 
     // Cuotas de préstamos.
     for (const debt of ctx.debts || []) {
-        if (debt.active === false || !debt.dueDay || !(Number(debt.balanceMinor) > 0)) continue;
+        if (debt.active === false || !debt.dueDay || !(Number(debt.balanceMinor) > 0) || ctx.linkedDebtIds?.has(debt.id)) continue;
         const due = nextMonthlyDay(Number(debt.dueDay), today);
         const days = diffDays(today, due);
         if (days > 3) continue;
@@ -279,4 +270,22 @@ export function visibleAlerts(alerts, state = {}, today) {
         if (entry.snoozeUntil && entry.snoozeUntil > today) return false;
         return true;
     });
+}
+
+/**
+ * Olvida los descartes y aplazamientos viejos. Casi todos los ids llevan su
+ * fecha o su período y no vuelven a aparecer, así que guardarlos para siempre
+ * solo engordaría el perfil. La excepción son los hitos de una meta
+ * (`goal-milestone:<meta>:<hito>`): no llevan fecha y el hito sigue siendo
+ * cierto, así que un descarte se conserva mientras la meta exista.
+ *
+ * @param {Record<string, {dismissed?: boolean, snoozeUntil?: string, at?: string}>} state
+ * @param {{today: string, ttlDays: number, goalExists: (goalId: string) => boolean}} options
+ */
+export function pruneAlertState(state, { today, ttlDays, goalExists }) {
+    const cutoff = addDays(today, -ttlDays);
+    return Object.fromEntries(Object.entries(state || {}).filter(([id, value]) => {
+        if (id.startsWith('goal-milestone:')) return goalExists(id.split(':')[1]);
+        return (value?.snoozeUntil || value?.at || today) >= cutoff;
+    }));
 }

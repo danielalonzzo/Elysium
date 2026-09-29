@@ -30,6 +30,16 @@ export function formatMoney(minor, currency = displayCurrency, options = {}) {
 
 export { currencySymbol };
 
+/**
+ * Importe para un campo de texto editable, sin símbolo: los colones sin
+ * decimales salvo que traigan céntimos («12.500,50»). Con `formatMoney` a secas
+ * un ₡12.500,50 se mostraba «12.501» y, al guardar, el monto cambiaba solo.
+ */
+export function fieldAmount(minor, currency = displayCurrency) {
+    const value = Number(minor) || 0;
+    return formatCore(value, currency || displayCurrency, { symbol: false, decimals: value % 100 ? 2 : undefined });
+}
+
 /** Opciones de moneda para un `<select>` («₡ Colones», «$ Dólares», «€ Euros»). */
 export function currencyOptions(selected) {
     return raw(CURRENCY_CODES.map(code => `<option value="${code}"${code === selected ? ' selected' : ''}>${esc(CURRENCIES[code].label)}</option>`).join(''));
@@ -69,10 +79,6 @@ export function pct(value, digits = 0) {
 
 export function num(value) {
     return String(Math.round(Number(value) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-export function plural(n, one, many) {
-    return `${num(n)} ${n === 1 ? one : many}`;
 }
 
 export const METHODS = Object.freeze({

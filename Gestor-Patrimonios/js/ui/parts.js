@@ -16,7 +16,7 @@ export function catChip(category, { size = '' } = {}) {
     return html`<span class="cat-chip ${size ? 'is-' + size : ''} tone-${tone}" aria-hidden="true">${icon(name, { size: size === 'sm' ? 16 : size === 'lg' ? 24 : 20 })}</span>`;
 }
 
-export function txIconFor(tx, model) {
+function txIconFor(tx, model) {
     if (tx.type === 'transfer') return catChip({ icon: 'transfer', tone: 'blue' });
     return catChip(model.catById.get(tx.categoryId) || { icon: tx.type === 'income' ? 'arrow-down-left' : 'dots', tone: 'gray' });
 }

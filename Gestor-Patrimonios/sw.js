@@ -1,10 +1,12 @@
 /**
  * Service worker de Elysium Patrimonio (scope /Gestor-Patrimonios/).
  *
- * - El armazón (HTML, CSS, módulos, iconos) se precarga: la app abre sin red.
+ * - El armazón (HTML, CSS, módulos, iconos) se precarga en una caché con el
+ *   nombre de su versión y se sirve de ahí, sin revalidar en segundo plano: un
+ *   `app.js` nuevo nunca convive con una vista vieja, porque todo el conjunto
+ *   cambia de golpe cuando llega la versión siguiente.
  * - Las páginas van primero a la red y, si no hay, caen al armazón guardado.
  * - Los módulos de Firebase (gstatic, URL con versión) se guardan al primer uso.
- * - Lo demás propio va con stale-while-revalidate: rápido y al día.
  * - Nunca se cachean los datos: Firestore, Storage, /api ni el tipo de cambio.
  *   Los datos sin conexión los resuelve la caché persistente de Firestore.
  *
@@ -12,11 +14,14 @@
  * `index.html` responde 307 (html_handling de Cloudflare), el error latente
  * del service worker de ONCORE.
  *
- * Al cambiar cualquier archivo del armazón, sube VERSION: la app ofrecerá
+ * VERSION no se sube a mano: es una huella de todo lo que se precarga, y la
+ * escribe `node scripts/sync-patrimonio-sw.mjs`. Si se edita un archivo y no
+ * se ejecuta, `scripts/patrimonio.test.mjs` falla; así los teléfonos nunca se
+ * quedan con la versión anterior sin que nada avise. Al cambiar, la app ofrece
  * «Actualizar» y el SKIP_WAITING activa la nueva versión.
  */
 
-const VERSION = 'patrimonio-v3';
+const VERSION = 'patrimonio-7c7a2486';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const BASE = '/Gestor-Patrimonios/';
@@ -46,6 +51,7 @@ const PRECACHE = [
     '/Gestor-Patrimonios/js/services.js',
     '/Gestor-Patrimonios/js/store.js',
     '/Gestor-Patrimonios/js/core/alerts.js',
+    '/Gestor-Patrimonios/js/core/backup.js',
     '/Gestor-Patrimonios/js/core/budgets.js',
     '/Gestor-Patrimonios/js/core/categories.js',
     '/Gestor-Patrimonios/js/core/csv.js',
@@ -57,12 +63,14 @@ const PRECACHE = [
     '/Gestor-Patrimonios/js/core/money.js',
     '/Gestor-Patrimonios/js/core/recurring.js',
     '/Gestor-Patrimonios/js/core/stats.js',
+    '/Gestor-Patrimonios/js/core/text.js',
     '/Gestor-Patrimonios/js/sheets/form-sheet.js',
     '/Gestor-Patrimonios/js/sheets/forms.js',
     '/Gestor-Patrimonios/js/sheets/quick.js',
     '/Gestor-Patrimonios/js/sheets/transaction.js',
     '/Gestor-Patrimonios/js/ui/charts.js',
     '/Gestor-Patrimonios/js/ui/dom.js',
+    '/Gestor-Patrimonios/js/ui/errors.js',
     '/Gestor-Patrimonios/js/ui/format.js',
     '/Gestor-Patrimonios/js/ui/guilloche.js',
     '/Gestor-Patrimonios/js/ui/icons.js',
@@ -129,7 +137,7 @@ self.addEventListener('fetch', event => {
         return;
     }
     if (url.pathname.startsWith(BASE) || url.pathname.startsWith('/sounds/')) {
-        event.respondWith(staleWhileRevalidate(request, event));
+        event.respondWith(fromShell(request));
     }
 });
 
@@ -147,20 +155,14 @@ async function networkFirstPage(request) {
     }
 }
 
-async function staleWhileRevalidate(request, event) {
+/** De la caché de esta versión; lo que no esté (un sonido, un archivo nuevo) se pide una vez y se guarda. */
+async function fromShell(request) {
     const cache = await caches.open(SHELL);
     const cached = await cache.match(request, { ignoreSearch: true });
-    const network = fetch(request)
-        .then(response => {
-            if (response.ok && response.type === 'basic') cache.put(request, response.clone());
-            return response;
-        })
-        .catch(() => null);
-    if (cached) {
-        event.waitUntil(network);
-        return cached;
-    }
-    return (await network) || Response.error();
+    if (cached) return cached;
+    const response = await fetch(request).catch(() => null);
+    if (response && response.ok && response.type === 'basic') cache.put(request, response.clone());
+    return response || Response.error();
 }
 
 async function cacheFirst(request) {

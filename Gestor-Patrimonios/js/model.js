@@ -4,22 +4,24 @@
  * «gastado este mes» del inicio, el de presupuestos y el de las alertas son
  * siempre la misma cifra.
  */
-import { inBase, fxFromSettings } from './core/money.js';
+import { inBase, convertMinor, fxFromSettings } from './core/money.js';
 import {
-    todayISO, periodFor, shiftPeriod, lastPeriods, addDays, addMonths, diffDays, monthLabel, startOfMonth, parseISO, toISO, daysInMonth
+    todayISO, setTimeZone, periodFor, shiftPeriod, lastPeriods, addDays, addMonths, diffDays, monthLabel, startOfMonth, parseISO, toISO, daysInMonth
 } from './core/dates.js';
 import * as stats from './core/stats.js';
 import { budgetStatus, dailySpendable, carryOver } from './core/budgets.js';
 import {
     goalSaved, goalProgress, actualMonthlyRate, goalHealth, requiredMonthly, capacityShares, emergencyTarget, etaFromMonthly
 } from './core/goals.js';
-import { upcoming as upcomingRecurring, nextPayday, occurrences } from './core/recurring.js';
+import { upcoming as upcomingRecurring, overdue as overdueRecurringItems, nextPayday } from './core/recurring.js';
 import { evaluateAlerts, visibleAlerts } from './core/alerts.js';
 import { computeGamification } from './core/gamification.js';
 
 let cache = { version: -1, day: '', model: null };
 
 export function getModel(store) {
+    // «Hoy» se cuenta en la zona de la persona (Costa Rica si no eligió otra).
+    setTimeZone(store.profile?.settings?.timeZone);
     const today = todayISO();
     if (cache.version === store.version && cache.day === today && cache.model) return cache.model;
     const model = buildModel(store, today);
@@ -58,7 +60,8 @@ export function buildModel(store, today) {
     const closed12 = lastPeriods(prevPeriod.end, 12, startDay);
 
     /* Catálogos */
-    const categories = store.list('categories').sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name));
+    const byName = (a, b) => String(a.name || '').localeCompare(String(b.name || ''));
+    const categories = store.list('categories').sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || byName(a, b));
     const catById = new Map(categories.map(c => [c.id, c]));
     const expenseCats = categories.filter(c => c.kind === 'expense' && !c.archived);
     const incomeCats = categories.filter(c => c.kind === 'income' && !c.archived);
@@ -71,7 +74,9 @@ export function buildModel(store, today) {
     const prevTotals = stats.totals(txs, prevPeriod.start, prevPeriod.end, fx);
     // Comparación justa con el período anterior: hasta el mismo día.
     const elapsedDays = diffDays(period.start, today);
-    const prevToDate = stats.totals(txs, prevPeriod.start, addDays(prevPeriod.start, elapsedDays), fx);
+    // Sin pasarse del final del período anterior: si era más corto (febrero), «hasta el mismo día» es todo él.
+    const prevCut = addDays(prevPeriod.start, elapsedDays);
+    const prevToDate = stats.totals(txs, prevPeriod.start, prevCut < prevPeriod.end ? prevCut : prevPeriod.end, fx);
     const byCategory = stats.byCategory(txs, period.start, period.end, fx);
     const spentByCategory = new Map(byCategory.map(entry => [entry.categoryId, entry.total]));
     const avgByCategory = stats.categoryAverages(txs, closed3, fx);
@@ -86,8 +91,8 @@ export function buildModel(store, today) {
     const capacity = stats.savingsCapacity(txs, closed3, fx);
 
     /* Cuentas y patrimonio */
-    const accounts = store.list('accounts').sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name));
-    const balances = stats.accountBalances(accounts, txs);
+    const accounts = store.list('accounts').sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || byName(a, b));
+    const balances = stats.accountBalances(accounts, txs, fx);
     const accountViews = accounts.map(account => ({
         ...account,
         balance: balances.get(account.id) || 0,
@@ -103,17 +108,11 @@ export function buildModel(store, today) {
     const savingsBalance = accountViews.filter(a => !a.archived && ['savings', 'cdp', 'investment'].includes(a.type)).reduce((sum, a) => sum + Math.max(0, a.balanceBase), 0);
 
     /* Recurrentes */
-    const recurring = store.list('recurring').sort((a, b) => a.name.localeCompare(b.name));
+    const recurring = store.list('recurring').sort(byName);
     const paidKeys = new Set(txs.filter(tx => tx.recurringId && tx.recurringDate).map(tx => `${tx.recurringId}:${tx.recurringDate}`));
     const upcoming = upcomingRecurring(recurring, today, 35, paidKeys);
-    const overdueRecurring = [];
-    for (const rule of recurring) {
-        if (rule.active === false) continue;
-        for (const date of occurrences(rule, addDays(today, -20), addDays(today, -1), 3)) {
-            const key = `${rule.id}:${date}`;
-            if (!paidKeys.has(key) && date >= (rule.anchorDate || date)) overdueRecurring.push({ rule, date, key, daysLate: diffDays(date, today) });
-        }
-    }
+    const overdueRecurring = overdueRecurringItems(recurring, today, { paidKeys });
+    const linkedDebtIds = new Set(recurring.filter(rule => rule.debtId && rule.active !== false).map(rule => rule.debtId));
     const payday = nextPayday(settings.payday, today);
     const committedRecurring = upcoming
         .filter(item => item.rule.type === 'expense' && item.date <= period.end)
@@ -123,11 +122,21 @@ export function buildModel(store, today) {
     const contributions = store.list('contributions');
     const goalsRaw = store.list('goals');
     const activeGoals = goalsRaw.filter(goal => goal.status !== 'archived');
-    const shares = capacityShares(activeGoals.filter(goal => goal.status !== 'done'), capacity);
+    const archivedGoals = goalsRaw.filter(goal => goal.status === 'archived');
+    const currencyOfGoal = new Map(goalsRaw.map(goal => [goal.id, goal.currency || fx.base]));
+    // La capacidad está en la moneda principal: los aportes planeados se
+    // convierten para repartirla, y la parte de cada meta vuelve a su moneda.
+    const shares = capacityShares(activeGoals
+        .filter(goal => goal.status !== 'done')
+        .map(goal => ({ ...goal, monthlyPlanMinor: inBase(Number(goal.monthlyPlanMinor) || 0, goal.currency, fx) })), capacity);
     const goals = activeGoals.map(goal => {
         const saved = goalSaved(goal.id, contributions);
         const progress = goalProgress(goal, saved);
-        const planned = shares.get(goal.id) || Number(goal.monthlyPlanMinor) || 0;
+        // Una meta marcada como cumplida lo está para todo: inicio, «comprometido» y alertas.
+        if (goal.status === 'done') progress.done = true;
+        const planned = Number(goal.monthlyPlanMinor) > 0
+            ? Number(goal.monthlyPlanMinor)
+            : convertMinor(shares.get(goal.id) || 0, fx.base, currencyOfGoal.get(goal.id), fx);
         const actual = actualMonthlyRate(goal, contributions, today);
         const health = goalHealth({ progress, plannedMonthly: planned, actualMonthly: actual, deadline: goal.deadline, today });
         const required = goal.deadline ? requiredMonthly(progress.remaining, today, goal.deadline) : null;
@@ -138,7 +147,7 @@ export function buildModel(store, today) {
             savedBase: inBase(saved, goal.currency, fx),
             contributions: contributions.filter(c => c.goalId === goal.id).sort((a, b) => (a.date < b.date ? 1 : -1))
         };
-    }).sort((a, b) => (a.goal.status === 'done') - (b.goal.status === 'done') || (a.goal.priority || 2) - (b.goal.priority || 2) || b.progress.pct - a.progress.pct);
+    }).sort((a, b) => Number(a.goal.status === 'done') - Number(b.goal.status === 'done') || (a.goal.priority || 2) - (b.goal.priority || 2) || b.progress.pct - a.progress.pct);
     const goalsMonthly = goals.filter(g => !g.progress.done).reduce((sum, g) => sum + inBase(g.pace, g.goal.currency, fx), 0);
     const goalsSavedBase = goals.reduce((sum, g) => sum + g.savedBase, 0);
     const emergencyGoal = goals.find(g => g.goal.kind === 'emergencia') || null;
@@ -148,18 +157,17 @@ export function buildModel(store, today) {
         pct: emergencyGoal ? emergencyGoal.progress.pct : 0
     };
     const contributedThisPeriod = contributions.filter(c => c.date >= period.start && c.date <= period.end)
-        .reduce((sum, c) => sum + Math.max(0, inBase(c.amountMinor, goals.find(g => g.goal.id === c.goalId)?.goal.currency || fx.base, fx)), 0);
+        .reduce((sum, c) => sum + Math.max(0, inBase(c.amountMinor, currencyOfGoal.get(c.goalId) || fx.base, fx)), 0);
 
     /* Presupuestos */
     const budgetDocs = store.list('budgets');
+    const prevSpentByCategory = budgetDocs.some(budget => budget.rollover)
+        ? new Map(stats.byCategory(txs, prevPeriod.start, prevPeriod.end, fx).map(entry => [entry.categoryId, entry.total]))
+        : new Map();
     const budgets = budgetDocs.map(budget => {
         const category = catById.get(budget.categoryId);
         const limit = inBase(budget.amountMinor, budget.currency, fx);
-        let carry = 0;
-        if (budget.rollover) {
-            const prevSpent = stats.byCategory(txs, prevPeriod.start, prevPeriod.end, fx).find(e => e.categoryId === budget.categoryId)?.total || 0;
-            carry = carryOver(limit, prevSpent);
-        }
+        const carry = budget.rollover ? carryOver(limit, prevSpentByCategory.get(budget.categoryId) || 0) : 0;
         const status = budgetStatus({ limitMinor: limit, spentMinor: spentByCategory.get(budget.categoryId) || 0, period, today, carryMinor: carry });
         return { budget, category, status, carry, average: avgByCategory.get(budget.categoryId) || 0 };
     }).filter(entry => entry.category && !entry.category.archived)
@@ -171,6 +179,8 @@ export function buildModel(store, today) {
     }, { limit: 0, spent: 0 });
 
     const daysLeft = Math.max(1, diffDays(today, period.end) + 1);
+    // Dónde debería ir el gasto hoy, en % del período (la marca de ritmo).
+    const pacePct = (1 - (daysLeft - 1) / period.days) * 100;
     // Sin historial (primer mes) vale el ingreso que la persona declaró al empezar.
     const expectedIncome = Math.max(avgIncome || Number(settings.expectedIncomeMinor) || 0, totals.income);
     const spendable = dailySpendable({
@@ -194,6 +204,7 @@ export function buildModel(store, today) {
         accounts, balances,
         goals: goals.map(g => ({ goal: g.goal, progress: g.progress, health: g.health, required: g.required })),
         debts,
+        linkedDebtIds,
         recentExpenses
     });
     const alerts = visibleAlerts(alertsAll, profile.alertState || {}, today);
@@ -202,30 +213,36 @@ export function buildModel(store, today) {
     const activeDebts = debts.filter(d => d.active !== false);
     const onTimeMonths = activeDebts.length ? Math.min(...activeDebts.map(d => d.onTimeMonths)) : 0;
     const closedSeries = stats.periodSeries(txs, closed12, fx);
+    // Un mes solo se mide con los presupuestos que ya existían en él: crear límites
+    // hoy no regala los meses de atrás.
     const monthsWithinBudget = budgetDocs.length
         ? closed12.filter(p => {
+            const existing = budgetDocs.filter(b => !b.createdAt || String(b.createdAt).slice(0, 10) <= p.start);
+            if (!existing.length) return false;
             const spent = new Map(stats.byCategory(txs, p.start, p.end, fx).map(e => [e.categoryId, e.total]));
             const hasData = txs.some(tx => tx.date >= p.start && tx.date <= p.end);
-            return hasData && budgetDocs.every(b => (spent.get(b.categoryId) || 0) <= inBase(b.amountMinor, b.currency, fx));
+            return hasData && existing.every(b => (spent.get(b.categoryId) || 0) <= inBase(b.amountMinor, b.currency, fx));
         }).length
         : 0;
-    const goalCurrency = new Map(goals.map(g => [g.goal.id, g.goal.currency || fx.base]));
+    // Las metas cumplidas cuentan aunque después se archiven.
+    const goalsDone = goalsRaw.filter(goal => goal.status === 'done' || goal.completedAt
+        || goalProgress(goal, goalSaved(goal.id, contributions)).done).length;
     const game = computeGamification({
         txs,
-        contributions: contributions.map(c => ({ ...c, amountMinor: inBase(c.amountMinor, goalCurrency.get(c.goalId) || fx.base, fx) })),
+        contributions: contributions.map(c => ({ ...c, amountMinor: inBase(c.amountMinor, currencyOfGoal.get(c.goalId) || fx.base, fx) })),
         today,
         currency: fx.base,
         budgetsCount: budgetDocs.length,
         monthsWithinBudget,
         totalSaved: Math.max(goalsSavedBase, savingsBalance),
         emergencyPct: emergency.pct,
-        goalsDone: goals.filter(g => g.progress.done || g.goal.status === 'done').length,
+        goalsDone,
         onTimeMonths: Number.isFinite(onTimeMonths) ? onTimeMonths : 0,
         debtsPaidOff: debts.filter(d => d.status === 'paid' || (Number(d.principalMinor) > 0 && Number(d.balanceMinor) <= 0)).length,
         bestSavingsRate: Math.max(0, ...closedSeries.filter(p => p.income > 0).map(p => p.savingsRate)),
         receiptsCount: txs.filter(tx => tx.receipt).length + store.list('receipts').filter(r => !r.transactionId).length,
         simulationsCount: store.list('simulations').length,
-        aguinaldoSavedPct: aguinaldoSaved(txs, contributions, fx, goals),
+        aguinaldoSavedPct: aguinaldoSaved(txs, contributions, fx, currencyOfGoal),
         netWorth: worth.net,
         challenges: profile.challenges || []
     });
@@ -241,8 +258,8 @@ export function buildModel(store, today) {
         series12, avgIncome, avgExpense, capacity,
         accounts: accountViews, balances, debts, worth, worthSeries, liquid, savingsBalance,
         recurring, upcoming, overdueRecurring, paidKeys, payday, committedRecurring,
-        goals, goalsMonthly, goalsSavedBase, emergency, contributions,
-        budgets, budgetTotals, spendable, daysLeft,
+        goals, archivedGoals, goalsMonthly, goalsSavedBase, emergency, contributions,
+        budgets, budgetTotals, spendable, daysLeft, pacePct,
         alerts, alertsAll,
         game,
         merchantMemory, merchants,
@@ -271,14 +288,13 @@ function debtOnTimeMonths(debt, txs, today) {
 }
 
 /** Porcentaje del último aguinaldo que terminó en metas (aportes en los 45 días siguientes). */
-function aguinaldoSaved(txs, contributions, fx, goals) {
+function aguinaldoSaved(txs, contributions, fx, currencyOfGoal) {
     const aguinaldo = txs.find(tx => tx.type === 'income' && tx.categoryId === 'aguinaldo');
     if (!aguinaldo) return 0;
     const amount = inBase(aguinaldo.amountMinor, aguinaldo.currency, fx);
     const until = addDays(aguinaldo.date, 45);
-    const currencyOf = goalId => goals.find(g => g.goal.id === goalId)?.goal.currency || fx.base;
     const saved = contributions
         .filter(c => c.date >= aguinaldo.date && c.date <= until && c.amountMinor > 0 && /aguinaldo/i.test(c.note || ''))
-        .reduce((sum, c) => sum + inBase(c.amountMinor, currencyOf(c.goalId), fx), 0);
+        .reduce((sum, c) => sum + inBase(c.amountMinor, currencyOfGoal.get(c.goalId) || fx.base, fx), 0);
     return amount ? saved / amount * 100 : 0;
 }

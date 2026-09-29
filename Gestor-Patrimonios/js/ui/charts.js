@@ -38,9 +38,9 @@ function observe(element, draw) {
 }
 
 function niceStep(range, ticks) {
-    const raw = range / Math.max(1, ticks);
-    const magnitude = Math.pow(10, Math.floor(Math.log10(raw || 1)));
-    const residual = raw / magnitude;
+    const rough = range / Math.max(1, ticks);
+    const magnitude = Math.pow(10, Math.floor(Math.log10(rough || 1)));
+    const residual = rough / magnitude;
     const nice = residual > 5 ? 10 : residual > 2.5 ? 5 : residual > 2 ? 2.5 : residual > 1 ? 2 : 1;
     return nice * magnitude;
 }
