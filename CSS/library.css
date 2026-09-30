@@ -101,21 +101,37 @@
     min-height: 340px;
     overflow: hidden;
     isolation: isolate;
-    background: linear-gradient(155deg, rgba(14, 29, 55, 0.92), rgba(3, 8, 22, 0.96));
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background:
+        radial-gradient(circle at 85% 0%, var(--library-accent-soft), transparent 58%),
+        linear-gradient(160deg, color-mix(in srgb, var(--library-accent) 9%, rgba(14, 29, 55, 0.94)) 0%, rgba(8, 17, 36, 0.96) 50%, rgba(3, 8, 22, 0.98) 100%);
+    border: 1px solid color-mix(in srgb, var(--library-accent) 22%, rgba(255, 255, 255, 0.11));
+    border-top-color: color-mix(in srgb, var(--library-accent) 42%, rgba(255, 255, 255, 0.2));
     border-radius: 28px;
-    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28), 0 0 28px -8px var(--library-accent-soft);
     transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.35s ease, box-shadow 0.45s ease;
 }
 
-.library-card:nth-child(3n + 2) {
-    --library-accent: #a688ff;
-    --library-accent-soft: rgba(166, 136, 255, 0.22);
+/* 1. Manual de Técnicas de Expressão e Comunicação — Amarillo / Dorado académico */
+.library-card:nth-child(3n + 1),
+.library-card[data-book*="manual"],
+.library-card[data-book*="tecnicas"] {
+    --library-accent: #f0c346;
+    --library-accent-soft: rgba(240, 195, 70, 0.26);
 }
 
-.library-card:nth-child(3n + 3) {
-    --library-accent: #45d4b4;
-    --library-accent-soft: rgba(69, 212, 180, 0.2);
+/* 2. Capital Humano — Azul Índigo / Zafiro organizacional */
+.library-card:nth-child(3n + 2),
+.library-card[data-book*="capital"] {
+    --library-accent: #5e7ce2;
+    --library-accent-soft: rgba(94, 124, 226, 0.26);
+}
+
+/* 3. Sociedade e Cultura Inglesas — Morado Real Británico (British Royal Purple) */
+.library-card:nth-child(3n + 3),
+.library-card[data-book*="sociedade"],
+.library-card[data-book*="sociedad"] {
+    --library-accent: #9d4edd;
+    --library-accent-soft: rgba(157, 78, 221, 0.28);
 }
 
 .library-card::after {
@@ -123,15 +139,15 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(circle at 85% 8%, var(--library-accent-soft), transparent 45%);
+    background: radial-gradient(circle at 85% 10%, var(--library-accent-soft) 0%, color-mix(in srgb, var(--library-accent) 12%, transparent) 40%, transparent 70%);
     pointer-events: none;
 }
 
 .library-card:hover,
 .library-card:focus-within {
     transform: translateY(-6px);
-    border-color: color-mix(in srgb, var(--library-accent) 55%, white 15%);
-    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.38), 0 0 32px var(--library-accent-soft);
+    border-color: color-mix(in srgb, var(--library-accent) 65%, white 15%);
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42), 0 0 38px var(--library-accent-soft);
 }
 
 .library-card-top {
@@ -144,7 +160,7 @@
 
 .library-chip {
     padding: 0.34rem 0.7rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
     background: rgba(2, 4, 16, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: var(--radius-pill);
@@ -152,6 +168,12 @@
     font-weight: 700;
     letter-spacing: 0.11em;
     text-transform: uppercase;
+}
+
+.library-card .library-chip:not(.library-chip-translation) {
+    color: color-mix(in srgb, var(--library-accent) 75%, #ffffff);
+    background: color-mix(in srgb, var(--library-accent) 12%, rgba(2, 4, 16, 0.55));
+    border-color: color-mix(in srgb, var(--library-accent) 32%, rgba(255, 255, 255, 0.16));
 }
 
 .library-card-langs {
@@ -191,8 +213,12 @@
     overflow-wrap: anywhere;
 }
 
+.library-card h3 a {
+    transition: color 0.25s ease;
+}
+
 .library-card h3 a:hover {
-    color: #fff;
+    color: color-mix(in srgb, var(--library-accent) 30%, #ffffff);
 }
 
 /* Toda la tarjeta abre el libro: el enlace del título se estira sobre ella
@@ -276,6 +302,153 @@
     text-align: center;
     border: 1px dashed var(--glass-border);
     border-radius: 28px;
+}
+
+/* ── Propuesta de digitalización / transcripción ────────────────────────── */
+
+.library-proposal-section {
+    padding: 0 0 clamp(3rem, 7vw, 6rem);
+}
+
+.library-proposal-card {
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    background: rgba(5, 16, 37, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: clamp(1.75rem, 4vw, 3rem);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+.library-proposal-card::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    width: 260px;
+    height: 260px;
+    background: radial-gradient(circle, rgba(74, 144, 226, 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+.library-proposal-header {
+    margin-bottom: 2rem;
+    max-width: 46rem;
+}
+
+.library-proposal-header h2 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(1.6rem, 3vw, 2.25rem);
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.75rem;
+}
+
+.library-proposal-intro {
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.library-proposal-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+@media (max-width: 48rem) {
+    .library-proposal-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.library-proposal-dropzone {
+    margin-top: 0.4rem;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.library-proposal-dropzone.is-dragover {
+    border-color: var(--library-accent, #4a90e2);
+    background: rgba(74, 144, 226, 0.08);
+}
+
+.library-proposal-file-chosen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 12px;
+    background: rgba(74, 144, 226, 0.12);
+    border: 1px solid rgba(74, 144, 226, 0.3);
+}
+
+.library-proposal-file-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #fff;
+    overflow-wrap: anywhere;
+}
+
+.library-proposal-file-size {
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+}
+
+.library-proposal-file-remove {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: rgba(255, 120, 120, 0.85);
+    font-size: 0.78rem;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.library-proposal-file-remove:hover {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.15);
+}
+
+.library-proposal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.library-admin-access-hint {
+    font-size: 0.82rem;
+}
+
+.library-admin-access-hint .library-link-button {
+    font-size: 0.82rem;
+    opacity: 0.65;
+    transition: opacity var(--transition-fast);
+}
+
+.library-admin-access-hint .library-link-button:hover {
+    opacity: 1;
+}
+
+.library-form-status[data-tone="success"] {
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-top: 1rem;
 }
 
 /* ── Administración ─────────────────────────────────────────────────────── */
@@ -795,6 +968,14 @@ html.library-cursor-off .ely-cursor {
 }
 
 @media (max-width: 1024px) {
+    .library-reader-page,
+    .library-reader-page body {
+        height: 100%;
+        height: 100dvh;
+        overflow: hidden;
+        overscroll-behavior: none;
+    }
+
     .library-reader-page {
         --library-nav-offset: var(--header-height);
     }
@@ -814,6 +995,13 @@ html.library-cursor-off .ely-cursor {
     .library-frame {
         border: 0;
         border-radius: 0;
+    }
+
+    /* En móvil, al estar dentro de un libro no se muestra la parte de
+       «About this book» ni el footer: solo el lector. En escritorio se ven abajo. */
+    .library-reader-page .library-about,
+    .library-reader-page footer {
+        display: none !important;
     }
 }
 

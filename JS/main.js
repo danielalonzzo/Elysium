@@ -122,6 +122,23 @@ document.addEventListener('visibilitychange', () => {
     if (!document.hidden) resetNavigationTransition();
 });
 
+// Google Analytics 4. Load the destination independently from GTM because the
+// Analytics property must not depend on an unpublished container change.
+const GOOGLE_ANALYTICS_ID = 'G-PY4LMCTNG9';
+window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function () {
+    window.dataLayer.push(arguments);
+};
+window.gtag('js', new Date());
+window.gtag('config', GOOGLE_ANALYTICS_ID);
+
+if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}"]`)) {
+    const analyticsScript = document.createElement('script');
+    analyticsScript.async = true;
+    analyticsScript.src = `https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID}`;
+    document.head.appendChild(analyticsScript);
+}
+
 // Keep third-party analytics out of the critical path. GTM starts on the
 // visitor's first interaction, so it cannot delay the initial LCP/TBT audit.
 function loadGoogleTagManager() {

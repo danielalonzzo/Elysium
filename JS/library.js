@@ -32,6 +32,8 @@
             navServices: 'Services',
             navPortfolio: 'Portfolio',
             navResearch: 'Research',
+            navLibrary: 'Library',
+            navPatrimonio: 'Wealth Manager',
             navAbout: 'About',
             navAccount: 'Account',
             navContact: 'Contact',
@@ -124,12 +126,34 @@
             slugTaken: 'A book already uses that address. Tick the box to replace it, or choose another address.',
             sessionExpired: 'Your session has expired. Sign in again.',
             uploadFailed: 'The book could not be published. Try again in a moment.',
-            networkError: 'There is no connection with the server. Check your connection and try again.'
+            networkError: 'There is no connection with the server. Check your connection and try again.',
+
+            proposalEyebrow: 'Digitisation & Transcription',
+            proposalTitle: 'Propose a book or document',
+            proposalIntro: 'Have a printed book, PDF, scan, or study document you would like to see in the library? Send your proposal with the file or details so our team can review and transcribe it.',
+            proposalNameLabel: 'Full name',
+            proposalNamePlaceholder: 'Name and surname',
+            proposalEmailLabel: 'Email address',
+            proposalEmailPlaceholder: 'name@example.com',
+            proposalFileLabel: 'File (image, PDF, Word, TXT, etc.)',
+            proposalDropTitle: 'Choose a file or drop it here',
+            proposalDropHint: 'PDF, Word, images, TXT or scans up to 24 MB',
+            proposalMessageLabel: 'Proposal details and notes',
+            proposalMessagePlaceholder: 'Title of the book, author, edition, transcription instructions, or notes about the document…',
+            proposalSubmit: 'Submit proposal',
+            proposalSending: 'Sending proposal…',
+            proposalSuccess: 'Thank you! Your proposal has been received. Our team will review the document and contact you if needed.',
+            proposalError: 'The proposal could not be sent. Check your connection and try again.',
+            proposalFileTooLarge: 'The file exceeds the 24 MB limit.',
+            adminAccessLink: 'Administrator access',
+            removeSelectedFile: 'Remove file'
         },
         es: {
             navServices: 'Servicios',
             navPortfolio: 'Portafolio',
             navResearch: 'Investigación',
+            navLibrary: 'Biblioteca',
+            navPatrimonio: 'Gestor de Patrimonio',
             navAbout: 'Nosotros',
             navAccount: 'Cuenta',
             navContact: 'Contacto',
@@ -222,12 +246,34 @@
             slugTaken: 'Ya hay un libro en esa dirección. Marque la casilla para reemplazarlo o elija otra dirección.',
             sessionExpired: 'Su sesión expiró. Inicie sesión de nuevo.',
             uploadFailed: 'No se pudo publicar el libro. Inténtelo de nuevo en un momento.',
-            networkError: 'No hay conexión con el servidor. Revise su conexión e inténtelo de nuevo.'
+            networkError: 'No hay conexión con el servidor. Revise su conexión e inténtelo de nuevo.',
+
+            proposalEyebrow: 'Digitalización y transcripción',
+            proposalTitle: 'Proponga un libro o documento',
+            proposalIntro: '¿Tiene un libro impreso, PDF, escaneo o material de estudio que desearía ver en la biblioteca? Envíe su propuesta con el archivo o los detalles para su valoración y transcripción por nuestro equipo.',
+            proposalNameLabel: 'Nombre completo',
+            proposalNamePlaceholder: 'Nombre y apellidos',
+            proposalEmailLabel: 'Correo electrónico',
+            proposalEmailPlaceholder: 'nombre@ejemplo.com',
+            proposalFileLabel: 'Archivo (imagen, PDF, Word, TXT, etc.)',
+            proposalDropTitle: 'Seleccione un archivo o arrástrelo aquí',
+            proposalDropHint: 'PDF, Word, imágenes, TXT o escaneos de hasta 24 MB',
+            proposalMessageLabel: 'Detalles de la propuesta y notas',
+            proposalMessagePlaceholder: 'Título de la obra, autor, edición, instrucciones de transcripción o notas sobre el documento…',
+            proposalSubmit: 'Enviar propuesta',
+            proposalSending: 'Enviando propuesta…',
+            proposalSuccess: '¡Muchas gracias! Su propuesta ha sido recibida. Nuestro equipo valorará el documento y le contactará de ser necesario.',
+            proposalError: 'No se pudo enviar la propuesta. Compruebe su conexión y vuelva a probar.',
+            proposalFileTooLarge: 'El archivo supera el límite de 24 MB.',
+            adminAccessLink: 'Acceso de administración',
+            removeSelectedFile: 'Quitar archivo'
         },
         pt: {
             navServices: 'Serviços',
             navPortfolio: 'Portefólio',
             navResearch: 'Investigação',
+            navLibrary: 'Biblioteca',
+            navPatrimonio: 'Gestor de Património',
             navAbout: 'Sobre nós',
             navAccount: 'Conta',
             navContact: 'Contacto',
@@ -320,7 +366,27 @@
             slugTaken: 'Já existe um livro nesse endereço. Assinale a caixa para o substituir ou escolha outro endereço.',
             sessionExpired: 'A sua sessão expirou. Inicie sessão novamente.',
             uploadFailed: 'Não foi possível publicar o livro. Tente novamente dentro de momentos.',
-            networkError: 'Não há ligação ao servidor. Verifique a sua ligação e tente novamente.'
+            networkError: 'Não há ligação ao servidor. Verifique a sua ligação e tente novamente.',
+
+            proposalEyebrow: 'Digitalização e transcrição',
+            proposalTitle: 'Proponha um livro ou documento',
+            proposalIntro: 'Tem um livro impresso, PDF, digitalização ou material de estudo que gostaria de ver na biblioteca? Envie a sua proposta com o ficheiro ou os detalhes para a nossa equipa rever e transcrever.',
+            proposalNameLabel: 'Nome completo',
+            proposalNamePlaceholder: 'Nome e apelido',
+            proposalEmailLabel: 'Endereço de correio eletrónico',
+            proposalEmailPlaceholder: 'nome@exemplo.com',
+            proposalFileLabel: 'Ficheiro (imagem, PDF, Word, TXT, etc.)',
+            proposalDropTitle: 'Selecione um ficheiro ou arraste-o para aqui',
+            proposalDropHint: 'PDF, Word, imagens, TXT ou digitalizações até 24 MB',
+            proposalMessageLabel: 'Detalhes da proposta e notas',
+            proposalMessagePlaceholder: 'Título da obra, autor, edição, instruções de transcrição ou notas sobre o documento…',
+            proposalSubmit: 'Enviar proposta',
+            proposalSending: 'A enviar proposta…',
+            proposalSuccess: 'Muito obrigado! A sua proposta foi recebida. A nossa equipa irá rever o documento e entrará em contacto se for necessário.',
+            proposalError: 'Não foi possível enviar a proposta. Verifique a sua ligação e tente novamente.',
+            proposalFileTooLarge: 'O ficheiro excede o limite de 24 MB.',
+            adminAccessLink: 'Acesso de administração',
+            removeSelectedFile: 'Remover ficheiro'
         }
     };
 
@@ -408,6 +474,9 @@
         });
         document.querySelectorAll('[data-i18n-aria]').forEach(function (element) {
             element.setAttribute('aria-label', t(element.getAttribute('data-i18n-aria')));
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(function (element) {
+            element.setAttribute('placeholder', t(element.getAttribute('data-i18n-placeholder')));
         });
         document.querySelectorAll('[data-library-nav]').forEach(function (link) {
             link.setAttribute('href', localizedPath(link.getAttribute('data-library-nav')));
@@ -919,9 +988,27 @@
         });
     }
 
-    // ── Administración (carga diferida) ──────────────────────────────────────
+    // ── Propuestas y Administración (index) ─────────────────────────────────
 
+    var adminSection = document.querySelector('[data-library-admin-section]');
     var adminPanel = document.querySelector('[data-library-admin]');
+    var proposalSection = document.querySelector('[data-library-proposal-section]');
+    var proposalForm = document.querySelector('[data-proposal-form]');
+    var proposalDropzone = document.querySelector('[data-proposal-dropzone]');
+    var proposalFileInput = document.querySelector('[data-proposal-file-input]');
+    var proposalFileInfo = document.querySelector('[data-proposal-file-info]');
+    var proposalFileName = document.querySelector('[data-proposal-file-name]');
+    var proposalFileSize = document.querySelector('[data-proposal-file-size]');
+    var proposalFileRemove = document.querySelector('[data-proposal-file-remove]');
+    var proposalSubmitBtn = document.querySelector('[data-proposal-submit]');
+    var proposalStatus = document.querySelector('[data-proposal-status]');
+    var openAdminSigninBtn = document.querySelector('[data-open-admin-signin]');
+
+    function updateAdminVisibility(adminState) {
+        if (adminSection) adminSection.hidden = !adminState;
+        if (proposalSection) proposalSection.hidden = adminState;
+    }
+
     var adminLoading = null;
 
     function loadAdmin() {
@@ -937,13 +1024,149 @@
         return adminLoading;
     }
 
-    if (page === 'index' && adminPanel) {
-        adminPanel.addEventListener('toggle', function () {
-            if (adminPanel.open) loadAdmin();
-        });
-        if (storageGet(ADMIN_HINT_KEY) === '1') {
-            if ('requestIdleCallback' in window) window.requestIdleCallback(loadAdmin, { timeout: 2000 });
-            else window.setTimeout(loadAdmin, 300);
+    function formatBytes(bytes) {
+        if (!bytes || bytes <= 0) return '0 B';
+        var units = ['B', 'KB', 'MB', 'GB'];
+        var i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
+    }
+
+    if (page === 'index') {
+        var hasAdminHint = storageGet(ADMIN_HINT_KEY) === '1';
+        updateAdminVisibility(hasAdminHint);
+
+        if (adminPanel) {
+            adminPanel.addEventListener('toggle', function () {
+                if (adminPanel.open) loadAdmin();
+            });
+            if (hasAdminHint) {
+                if ('requestIdleCallback' in window) window.requestIdleCallback(loadAdmin, { timeout: 2000 });
+                else window.setTimeout(loadAdmin, 300);
+            }
+        }
+
+        if (openAdminSigninBtn) {
+            openAdminSigninBtn.addEventListener('click', function () {
+                if (adminSection) adminSection.hidden = false;
+                if (adminPanel) {
+                    adminPanel.open = true;
+                    loadAdmin();
+                    adminPanel.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        }
+
+        if (proposalForm) {
+            var selectedProposalFile = null;
+
+            function setProposalStatus(tone, copyKey) {
+                if (!proposalStatus) return;
+                proposalStatus.removeAttribute('data-tone');
+                if (!copyKey) {
+                    proposalStatus.textContent = '';
+                    return;
+                }
+                if (tone) proposalStatus.setAttribute('data-tone', tone);
+                proposalStatus.textContent = t(copyKey);
+            }
+
+            function handleFileSelection(file) {
+                setProposalStatus('', '');
+                if (!file) {
+                    selectedProposalFile = null;
+                    if (proposalFileInput) proposalFileInput.value = '';
+                    if (proposalFileInfo) proposalFileInfo.hidden = true;
+                    return;
+                }
+                if (file.size > 24 * 1024 * 1024) {
+                    setProposalStatus('error', 'proposalFileTooLarge');
+                    if (proposalFileInput) proposalFileInput.value = '';
+                    selectedProposalFile = null;
+                    if (proposalFileInfo) proposalFileInfo.hidden = true;
+                    return;
+                }
+                selectedProposalFile = file;
+                if (proposalFileName) proposalFileName.textContent = file.name;
+                if (proposalFileSize) proposalFileSize.textContent = ' (' + formatBytes(file.size) + ')';
+                if (proposalFileInfo) proposalFileInfo.hidden = false;
+            }
+
+            if (proposalFileInput) {
+                proposalFileInput.addEventListener('change', function () {
+                    var file = proposalFileInput.files && proposalFileInput.files[0];
+                    handleFileSelection(file);
+                });
+            }
+
+            if (proposalFileRemove) {
+                proposalFileRemove.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleFileSelection(null);
+                });
+            }
+
+            if (proposalDropzone) {
+                ['dragenter', 'dragover'].forEach(function (eventName) {
+                    proposalDropzone.addEventListener(eventName, function (e) {
+                        e.preventDefault();
+                        proposalDropzone.classList.add('is-dragover');
+                    });
+                });
+                ['dragleave', 'drop'].forEach(function (eventName) {
+                    proposalDropzone.addEventListener(eventName, function (e) {
+                        e.preventDefault();
+                        proposalDropzone.classList.remove('is-dragover');
+                    });
+                });
+                proposalDropzone.addEventListener('drop', function (e) {
+                    var files = e.dataTransfer && e.dataTransfer.files;
+                    if (files && files.length > 0) {
+                        handleFileSelection(files[0]);
+                    }
+                });
+            }
+
+            proposalForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                var name = String(proposalForm.elements.name ? proposalForm.elements.name.value : '').trim();
+                var email = String(proposalForm.elements.email ? proposalForm.elements.email.value : '').trim();
+                var message = String(proposalForm.elements.message ? proposalForm.elements.message.value : '').trim();
+
+                if (!name || !email || !message) {
+                    setProposalStatus('error', 'proposalError');
+                    return;
+                }
+
+                var formData = new FormData();
+                formData.append('name', name);
+                formData.append('email', email);
+                formData.append('message', message);
+                formData.append('lang', language);
+                if (selectedProposalFile) {
+                    formData.append('file', selectedProposalFile, selectedProposalFile.name);
+                }
+
+                if (proposalSubmitBtn) proposalSubmitBtn.disabled = true;
+                setProposalStatus('', 'proposalSending');
+
+                fetch('/library/api/proposals', {
+                    method: 'POST',
+                    body: formData
+                }).then(function (res) {
+                    if (!res.ok) throw new Error('status_' + res.status);
+                    return res.json();
+                }).then(function () {
+                    proposalForm.reset();
+                    handleFileSelection(null);
+                    setProposalStatus('success', 'proposalSuccess');
+                }).catch(function (error) {
+                    console.warn('[library] proposal submit failed:', error);
+                    setProposalStatus('error', 'proposalError');
+                }).finally(function () {
+                    if (proposalSubmitBtn) proposalSubmitBtn.disabled = false;
+                });
+            });
         }
     }
 
@@ -964,9 +1187,11 @@
             adminApi = isAdmin ? providedApi : null;
             if (isAdmin) {
                 storageSet(ADMIN_HINT_KEY, '1');
+                updateAdminVisibility(true);
                 if (adminPanel) adminPanel.open = true;
             } else {
                 try { window.localStorage.removeItem(ADMIN_HINT_KEY); } catch (error) { /* modo privado */ }
+                updateAdminVisibility(false);
             }
             renderBooks();
         },

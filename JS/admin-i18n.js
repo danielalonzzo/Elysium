@@ -44,7 +44,8 @@ export const ADMIN_COPY = {
             reports: 'Reports',
             licenses: 'Licenses',
             prototypes: 'Secrets Prototypes',
-            research: 'Research'
+            research: 'Research',
+            library: 'Library'
         },
         platform: {
             checking: 'Checking platform…',
@@ -563,6 +564,33 @@ export const ADMIN_COPY = {
             accountStatusError: reason => `Error updating account status: ${reason}`,
             pdfLoaderFailed: 'The PDF generator could not be loaded. Check the connection and try again.',
             pdfFailed: 'Failed to create PDF. Please try again.'
+        },
+        libraryCrm: {
+            title: 'Library Requests',
+            subtitle: 'Digitization and transcription proposals submitted by readers.',
+            refresh: 'Refresh',
+            openPublic: 'Open Library ↗',
+            statTotal: 'Total proposals',
+            statNew: 'New / Pending',
+            statInProgress: 'In progress',
+            statWithFile: 'With attached file',
+            filterAll: 'All',
+            filterNew: 'New',
+            filterInProgress: 'In progress',
+            filterCompleted: 'Completed',
+            filterArchived: 'Archived',
+            searchPlaceholder: 'Search proposals…',
+            emptyTitle: 'No proposals yet',
+            emptySubtitle: 'Proposals submitted from the public library will appear here.',
+            statusNew: 'New',
+            statusInProgress: 'In progress',
+            statusCompleted: 'Completed',
+            statusArchived: 'Archived',
+            downloadFile: 'Download file',
+            deleteBtn: 'Delete',
+            confirmDelete: 'Are you sure you want to delete this digitization request? This action cannot be undone.',
+            errorLoading: 'Could not load library proposals.',
+            emptyFiltered: 'No proposals match the current filter or search query.'
         }
     },
     es: {
@@ -586,7 +614,8 @@ export const ADMIN_COPY = {
             reports: 'Reportes',
             licenses: 'Licencias',
             prototypes: 'Prototipos Secretos',
-            research: 'Research'
+            research: 'Research',
+            library: 'Biblioteca'
         },
         platform: {
             checking: 'Comprobando la plataforma…',
@@ -1105,6 +1134,33 @@ export const ADMIN_COPY = {
             accountStatusError: reason => `Error al actualizar el estado de la cuenta: ${reason}`,
             pdfLoaderFailed: 'No se pudo cargar el generador de PDF. Revisa la conexión e inténtalo de nuevo.',
             pdfFailed: 'No se pudo crear el PDF. Inténtalo de nuevo.'
+        },
+        libraryCrm: {
+            title: 'Solicitudes de biblioteca',
+            subtitle: 'Propuestas de digitalización y transcripción enviadas por los lectores.',
+            refresh: 'Actualizar',
+            openPublic: 'Abrir biblioteca ↗',
+            statTotal: 'Propuestas totales',
+            statNew: 'Nuevas / Pendientes',
+            statInProgress: 'En curso',
+            statWithFile: 'Con archivo adjunto',
+            filterAll: 'Todas',
+            filterNew: 'Nuevas',
+            filterInProgress: 'En curso',
+            filterCompleted: 'Completadas',
+            filterArchived: 'Archivadas',
+            searchPlaceholder: 'Buscar propuestas…',
+            emptyTitle: 'Sin solicitudes por el momento',
+            emptySubtitle: 'Las propuestas enviadas desde la biblioteca pública aparecerán aquí.',
+            statusNew: 'Nueva',
+            statusInProgress: 'En curso',
+            statusCompleted: 'Completada',
+            statusArchived: 'Archivada',
+            downloadFile: 'Descargar archivo',
+            deleteBtn: 'Eliminar',
+            confirmDelete: '¿Confirma que desea eliminar esta solicitud de digitalización? Esta acción no se puede deshacer.',
+            errorLoading: 'No se pudieron cargar las solicitudes de la biblioteca.',
+            emptyFiltered: 'Ninguna solicitud coincide con el filtro o la búsqueda actual.'
         }
     },
     pt: {
@@ -1128,7 +1184,8 @@ export const ADMIN_COPY = {
             reports: 'Relatórios',
             licenses: 'Licenças',
             prototypes: 'Protótipos Secretos',
-            research: 'Research'
+            research: 'Research',
+            library: 'Biblioteca'
         },
         platform: {
             checking: 'A verificar a plataforma…',
@@ -1647,6 +1704,33 @@ export const ADMIN_COPY = {
             accountStatusError: reason => `Erro ao atualizar o estado da conta: ${reason}`,
             pdfLoaderFailed: 'Não foi possível carregar o gerador de PDF. Verifique a ligação e tente de novo.',
             pdfFailed: 'Não foi possível criar o PDF. Tente de novo.'
+        },
+        libraryCrm: {
+            title: 'Pedidos da biblioteca',
+            subtitle: 'Propostas de digitalização e transcrição submetidas pelos leitores.',
+            refresh: 'Atualizar',
+            openPublic: 'Abrir biblioteca ↗',
+            statTotal: 'Propostas totais',
+            statNew: 'Novas / Pendentes',
+            statInProgress: 'Em curso',
+            statWithFile: 'Com ficheiro anexo',
+            filterAll: 'Todas',
+            filterNew: 'Novas',
+            filterInProgress: 'Em curso',
+            filterCompleted: 'Concluídas',
+            filterArchived: 'Arquivadas',
+            searchPlaceholder: 'Pesquisar propostas…',
+            emptyTitle: 'Sem pedidos até ao momento',
+            emptySubtitle: 'As propostas enviadas a partir da biblioteca pública surgirão aqui.',
+            statusNew: 'Nova',
+            statusInProgress: 'Em curso',
+            statusCompleted: 'Concluída',
+            statusArchived: 'Arquivada',
+            downloadFile: 'Descarregar ficheiro',
+            deleteBtn: 'Eliminar',
+            confirmDelete: 'Confirma que pretende eliminar este pedido de digitalização? Esta ação não pode ser desfeita.',
+            errorLoading: 'Não foi possível carregar os pedidos da biblioteca.',
+            emptyFiltered: 'Nenhum pedido corresponde ao filtro ou à pesquisa atual.'
         }
     }
 };

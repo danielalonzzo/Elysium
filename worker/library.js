@@ -82,6 +82,8 @@ const INFO_KEY_PREFIX = 'info:';
  */
 const TRANSLATION_KEY_PREFIX = 'tr:';
 export const TRANSLATION_LANGUAGES = ['en-GB', 'es-ES', 'pt-PT'];
+export const PROPOSAL_KEY_PREFIX = 'proposal:';
+export const PROPOSAL_FILE_KEY_PREFIX = 'proposal_file:';
 const INFO_VERSION = 1;
 const MAX_OUTLINE_ENTRIES = 160;
 const MAX_HEADING_LENGTH = 160;
@@ -799,8 +801,15 @@ export function isLibraryAdmin(claims, env = {}) {
 async function requireAdmin(request, env) {
     const authorization = request.headers.get('Authorization') || '';
     const match = /^Bearer\s+(\S+)$/i.exec(authorization);
-    if (!match) throw unauthorized('Sign in as an administrator to manage the library.', 'library_auth_required');
-    const claims = await verifyFirebaseIdToken(match[1]);
+    let token = match ? match[1] : '';
+    if (!token) {
+        try {
+            const url = new URL(request.url);
+            token = url.searchParams.get('token') || '';
+        } catch { /* URL inválida */ }
+    }
+    if (!token) throw unauthorized('Sign in as an administrator to manage the library.', 'library_auth_required');
+    const claims = await verifyFirebaseIdToken(token);
     if (!isLibraryAdmin(claims, env)) {
         throw new LibraryError('Administrator access required.', 'library_admin_required', 403);
     }
@@ -995,11 +1004,169 @@ async function removeBook(request, env, url, slug, ctx) {
     return json(request, { deleted: slug });
 }
 
+// ── Solicitudes de digitalización / transcripción ────────────────────────────
+
+export async function createProposal(request, env) {
+    const kv = store(env);
+    const contentType = request.headers.get('content-type') || '';
+    let name = '';
+    let email = '';
+    let message = '';
+    let lang = 'en';
+    let file = null;
+
+    if (contentType.includes('multipart/form-data')) {
+        const formData = await request.formData();
+        name = String(formData.get('name') || '').trim();
+        email = String(formData.get('email') || '').trim();
+        message = String(formData.get('message') || '').trim();
+        lang = String(formData.get('lang') || 'en').trim();
+        const rawFile = formData.get('file');
+        if (rawFile && typeof rawFile === 'object' && 'size' in rawFile && rawFile.size > 0) {
+            file = rawFile;
+        }
+    } else if (contentType.includes('application/json')) {
+        const body = await request.json();
+        name = String(body.name || '').trim();
+        email = String(body.email || '').trim();
+        message = String(body.message || '').trim();
+        lang = String(body.lang || 'en').trim();
+    } else {
+        throw new LibraryError('Invalid content type.', 'invalid_content_type', 400);
+    }
+
+    if (!name) throw new LibraryError('Name is required.', 'name_required', 400);
+    if (name.length > 120) throw new LibraryError('Name is too long.', 'name_too_long', 400);
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        throw new LibraryError('Valid email is required.', 'email_invalid', 400);
+    }
+    if (email.length > 254) throw new LibraryError('Email is too long.', 'email_too_long', 400);
+    if (!message) throw new LibraryError('Message is required.', 'message_required', 400);
+    if (message.length > 5000) throw new LibraryError('Message is too long.', 'message_too_long', 400);
+
+    if (file && file.size > MAX_BOOK_BYTES) {
+        throw new LibraryError('The attached file exceeds the 24 MB limit.', 'file_too_large', 400);
+    }
+
+    const id = 'prop_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    const hasFile = Boolean(file && file.size > 0);
+    let fileName = null;
+    let fileType = null;
+    let fileSize = 0;
+
+    if (hasFile) {
+        fileName = String(file.name || 'document').slice(0, 240);
+        fileType = String(file.type || 'application/octet-stream').slice(0, 100);
+        fileSize = file.size;
+        const arrayBuffer = await file.arrayBuffer();
+        await kv.put(PROPOSAL_FILE_KEY_PREFIX + id, new Uint8Array(arrayBuffer), {
+            metadata: { fileName, fileType, fileSize, uploadedAt: new Date().toISOString() }
+        });
+    }
+
+    const proposal = {
+        id,
+        name,
+        email,
+        message,
+        lang: ['en', 'es', 'pt'].includes(lang) ? lang : 'en',
+        hasFile,
+        fileName,
+        fileType,
+        fileSize,
+        status: 'new',
+        submittedAt: new Date().toISOString()
+    };
+
+    await kv.put(PROPOSAL_KEY_PREFIX + id, JSON.stringify(proposal));
+    return json(request, { ok: true, id }, 201);
+}
+
+export async function listProposals(request, env) {
+    await requireAdmin(request, env);
+    const kv = store(env);
+    const proposals = [];
+    let cursor;
+    do {
+        const page = await kv.list({ prefix: PROPOSAL_KEY_PREFIX, cursor });
+        for (const key of page.keys) {
+            const raw = await kv.get(key.name);
+            if (raw) {
+                try {
+                    proposals.push(JSON.parse(raw));
+                } catch { /* ignorar corrupto */ }
+            }
+        }
+        cursor = page.list_complete ? undefined : page.cursor;
+    } while (cursor);
+
+    proposals.sort((a, b) => String(b.submittedAt || '').localeCompare(String(a.submittedAt || '')));
+    return json(request, { proposals });
+}
+
+export async function downloadProposalFile(request, env, id) {
+    await requireAdmin(request, env);
+    const kv = store(env);
+    const key = PROPOSAL_FILE_KEY_PREFIX + id;
+    const found = await kv.getWithMetadata(key, { type: 'stream' });
+    if (!found || !found.value) return notFound(request);
+    const metadata = found.metadata || {};
+    const filename = metadata.fileName || `proposal-${id}.bin`;
+    const headers = baseHeaders({
+        'Content-Type': metadata.fileType || 'application/octet-stream',
+        'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+        'Content-Disposition': contentDisposition(filename)
+    });
+    if (metadata.fileSize) headers.set('Content-Length', String(metadata.fileSize));
+    return new Response(found.value, { status: 200, headers });
+}
+
+export async function deleteProposal(request, env, id) {
+    await requireAdmin(request, env);
+    const kv = store(env);
+    await kv.delete(PROPOSAL_KEY_PREFIX + id);
+    await kv.delete(PROPOSAL_FILE_KEY_PREFIX + id);
+    return json(request, { ok: true, deleted: id });
+}
+
+export async function updateProposal(request, env, id) {
+    await requireAdmin(request, env);
+    const kv = store(env);
+    const raw = await kv.get(PROPOSAL_KEY_PREFIX + id);
+    if (!raw) return notFound(request);
+    let existing;
+    try { existing = JSON.parse(raw); } catch { return notFound(request); }
+    const updates = await request.json();
+    if (updates.status && ['new', 'in_progress', 'completed', 'archived'].includes(updates.status)) {
+        existing.status = updates.status;
+    }
+    await kv.put(PROPOSAL_KEY_PREFIX + id, JSON.stringify(existing));
+    return json(request, { ok: true, proposal: existing });
+}
+
 async function handleApi(request, env, url, rest, ctx) {
     try {
         if (rest === 'books') {
             if (request.method !== 'GET' && request.method !== 'HEAD') return methodNotAllowed(request, 'GET, HEAD');
             return json(request, { books: await listBooks(env, url.origin) });
+        }
+        if (rest === 'proposals') {
+            if (request.method === 'POST') return await createProposal(request, env);
+            if (request.method === 'GET') return await listProposals(request, env);
+            return methodNotAllowed(request, 'GET, POST');
+        }
+        const proposalFileMatch = /^proposals\/([^/]+)\/file$/.exec(rest);
+        if (proposalFileMatch) {
+            const id = proposalFileMatch[1];
+            if (request.method === 'GET' || request.method === 'HEAD') return await downloadProposalFile(request, env, id);
+            return methodNotAllowed(request, 'GET, HEAD');
+        }
+        const proposalMatch = /^proposals\/([^/]+)$/.exec(rest);
+        if (proposalMatch) {
+            const id = proposalMatch[1];
+            if (request.method === 'PATCH') return await updateProposal(request, env, id);
+            if (request.method === 'DELETE') return await deleteProposal(request, env, id);
+            return methodNotAllowed(request, 'PATCH, DELETE');
         }
         const match = /^books\/([^/]+)$/.exec(rest);
         if (!match) return notFound(request);

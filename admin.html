@@ -173,6 +173,15 @@
                 </svg>
                 <span class="portal-nav-text" data-i18n="nav.research">Research</span>
             </button>
+
+            <button type="button" class="portal-nav-item" data-target="library" id="nav-library">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+                <span class="portal-nav-text" data-i18n="nav.library">Library</span>
+                <span class="portal-nav-badge" id="sidebar-library-count" translate="no">0</span>
+            </button>
         </nav>
 
         <!-- Sidebar Footer -->
@@ -925,6 +934,67 @@
                     <div><span id="research-article-count" data-i18n-dynamic="admin-research.js:applyCopy">0 publications</span><h2 id="research-publications-title" data-i18n-dynamic="admin-research.js:applyCopy">Publications</h2></div>
                 </div>
                 <div class="research-article-list" id="research-article-list" aria-live="polite"></div>
+            </div>
+        </section>
+
+        <!-- ─── LIBRARY ────────────────────────────────────────── -->
+        <section id="library" class="portal-section" aria-labelledby="library-crm-title">
+            <div class="portal-header">
+                <div>
+                    <span class="crm-section-eyebrow" translate="no">Elysium Library</span>
+                    <h1 id="library-crm-title" data-i18n="libraryCrm.title">Library Requests</h1>
+                    <p class="color-text-secondary" id="library-crm-description" data-i18n="libraryCrm.subtitle">Digitization and transcription proposals submitted by readers.</p>
+                </div>
+                <div class="library-crm-header-actions">
+                    <button type="button" class="btn btn-secondary" id="library-refresh-btn" data-i18n="libraryCrm.refresh">Refresh</button>
+                    <a href="/library" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="library-open-public" data-i18n="libraryCrm.openPublic">Open Library ↗</a>
+                </div>
+            </div>
+
+            <!-- KPI stat cards -->
+            <div class="kpi-grid" id="library-stats-grid" style="margin-bottom: 1.75rem;">
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="libraryCrm.statTotal">Total proposals</span>
+                    <span class="kpi-value" id="library-kpi-total" translate="no">0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="libraryCrm.statNew">New / Pending</span>
+                    <span class="kpi-value highlight" id="library-kpi-new" translate="no">0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="libraryCrm.statInProgress">In progress</span>
+                    <span class="kpi-value" id="library-kpi-progress" translate="no">0</span>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="libraryCrm.statWithFile">With attached file</span>
+                    <span class="kpi-value" id="library-kpi-files" translate="no">0</span>
+                </div>
+            </div>
+
+            <!-- Filter tabs & search -->
+            <div class="library-crm-toolbar" style="margin-bottom: 1.5rem;">
+                <div class="library-crm-filters" role="tablist">
+                    <button type="button" class="library-filter-btn active" data-filter="all" data-i18n="libraryCrm.filterAll">All</button>
+                    <button type="button" class="library-filter-btn" data-filter="new" data-i18n="libraryCrm.filterNew">New</button>
+                    <button type="button" class="library-filter-btn" data-filter="in_progress" data-i18n="libraryCrm.filterInProgress">In progress</button>
+                    <button type="button" class="library-filter-btn" data-filter="completed" data-i18n="libraryCrm.filterCompleted">Completed</button>
+                    <button type="button" class="library-filter-btn" data-filter="archived" data-i18n="libraryCrm.filterArchived">Archived</button>
+                </div>
+                <div class="library-crm-search-box">
+                    <input type="search" id="library-search-input" class="ios-search-input" data-i18n-placeholder="libraryCrm.searchPlaceholder" placeholder="Search proposals…">
+                </div>
+            </div>
+
+            <div class="portal-alert is-error" id="library-alert" role="alert" aria-live="polite" hidden></div>
+
+            <!-- Proposals list -->
+            <div class="library-proposals-container" id="library-proposals-container" aria-live="polite">
+                <div class="loader-container" id="library-proposals-loader"><div class="premium-loader"></div></div>
+                <div class="library-proposals-empty" id="library-proposals-empty" hidden>
+                    <h3 data-i18n="libraryCrm.emptyTitle">No proposals yet</h3>
+                    <p data-i18n="libraryCrm.emptySubtitle">Proposals submitted from the public library will appear here.</p>
+                </div>
+                <div class="library-proposals-list" id="library-proposals-list"></div>
             </div>
         </section>
 

@@ -4503,3 +4503,283 @@
 @media (max-width: 48rem) {
     .customer-portal.is-admin .patrimonio-requests li { flex-direction: column; align-items: flex-start; }
 }
+
+/* Library Proposals CRM -------------------------------------------------- */
+
+.customer-portal.is-admin .library-crm-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .library-crm-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.customer-portal.is-admin .library-crm-filters {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--crm-line);
+    border-radius: 9999px;
+}
+
+.customer-portal.is-admin .library-filter-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--crm-muted);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 550;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.customer-portal.is-admin .library-filter-btn:hover {
+    color: var(--crm-text);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.customer-portal.is-admin .library-filter-btn.active {
+    color: #ddebff;
+    background: rgba(47, 125, 246, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(47, 125, 246, 0.35);
+}
+
+.customer-portal.is-admin .library-crm-search-box {
+    min-width: 16rem;
+    max-width: 24rem;
+}
+
+.customer-portal.is-admin .library-crm-search-box .ios-search-input {
+    width: 100%;
+}
+
+.customer-portal.is-admin .library-proposals-container {
+    min-height: 12rem;
+}
+
+.customer-portal.is-admin .library-proposals-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.customer-portal.is-admin .library-proposal-admin-card {
+    background: var(--crm-panel);
+    border: 1px solid var(--crm-line);
+    border-radius: 14px;
+    padding: 1.25rem 1.4rem;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.customer-portal.is-admin .library-proposal-admin-card:hover {
+    border-color: var(--crm-line-strong);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.customer-portal.is-admin .library-proposal-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--crm-line);
+}
+
+.customer-portal.is-admin .library-proposal-user-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+}
+
+.customer-portal.is-admin .library-proposal-author-name {
+    font-weight: 650;
+    color: var(--crm-text);
+    font-size: 0.95rem;
+}
+
+.customer-portal.is-admin .library-proposal-author-email {
+    color: var(--crm-blue);
+    font-size: 0.84rem;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.customer-portal.is-admin .library-proposal-author-email:hover {
+    text-decoration: underline;
+}
+
+.customer-portal.is-admin .library-proposal-lang-chip {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .library-proposal-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .library-proposal-date {
+    font-size: 0.76rem;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .library-status-select {
+    appearance: none;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 1.8rem 0.3rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid var(--crm-line);
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.04);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238f9caf' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    transition: border-color 0.2s ease;
+}
+
+.customer-portal.is-admin .library-status-select.status-new {
+    color: #60a5fa;
+    border-color: rgba(96, 165, 250, 0.35);
+    background-color: rgba(96, 165, 250, 0.1);
+}
+
+.customer-portal.is-admin .library-status-select.status-in_progress {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.35);
+    background-color: rgba(251, 191, 36, 0.1);
+}
+
+.customer-portal.is-admin .library-status-select.status-completed {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.35);
+    background-color: rgba(52, 211, 153, 0.1);
+}
+
+.customer-portal.is-admin .library-status-select.status-archived {
+    color: #9ca3af;
+    border-color: rgba(156, 163, 175, 0.3);
+    background-color: rgba(156, 163, 175, 0.08);
+}
+
+.customer-portal.is-admin .library-proposal-delete-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--crm-muted);
+    padding: 0.35rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.customer-portal.is-admin .library-proposal-delete-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+.customer-portal.is-admin .library-proposal-delete-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.customer-portal.is-admin .library-proposal-message-text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.customer-portal.is-admin .library-crm-file-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 0.9rem;
+    padding: 0.65rem 0.9rem;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--crm-line);
+    border-radius: 8px;
+}
+
+.customer-portal.is-admin .library-crm-file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .library-crm-file-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--crm-blue);
+    flex-shrink: 0;
+}
+
+.customer-portal.is-admin .library-crm-file-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .library-crm-file-name {
+    font-size: 0.84rem;
+    font-weight: 550;
+    color: var(--crm-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .library-crm-file-size {
+    font-size: 0.72rem;
+    color: var(--crm-muted);
+    flex-shrink: 0;
+}
+
+.customer-portal.is-admin .library-proposals-empty {
+    text-align: center;
+    padding: 3.5rem 1.5rem;
+    background: var(--crm-panel);
+    border: 1px dashed var(--crm-line);
+    border-radius: 14px;
+}
+
+.customer-portal.is-admin .library-proposals-empty h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1.05rem;
+    color: var(--crm-text);
+}
+
+.customer-portal.is-admin .library-proposals-empty p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--crm-muted);
+}
+

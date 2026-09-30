@@ -48,7 +48,7 @@
     <link rel="stylesheet" href="/CSS/base.css">
     <link rel="stylesheet" href="/CSS/components.css?v=20260826">
     <link rel="stylesheet" href="/CSS/pages.css">
-    <link rel="stylesheet" href="/CSS/library.css?v=2026092505">
+    <link rel="stylesheet" href="/CSS/library.css?v=2026093002">
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
@@ -85,6 +85,8 @@
                 <a href="/services" class="nav-link" data-library-nav="services" data-i18n="navServices">Services</a>
                 <a href="/portfolio" class="nav-link" data-library-nav="portfolio" data-i18n="navPortfolio">Portfolio</a>
                 <a href="/research" class="nav-link" data-library-nav="research" data-i18n="navResearch">Research</a>
+                <a href="/library" class="nav-link active" data-i18n="navLibrary">Library</a>
+                <a href="/Gestor-Patrimonios/" class="nav-link" data-i18n="navPatrimonio">Wealth Manager</a>
                 <a href="/about" class="nav-link" data-library-nav="about" data-i18n="navAbout">About</a>
                 <a href="/profiles" class="nav-link" data-library-nav="profiles" data-i18n="navAccount">Account</a>
                 <a href="/contact" class="btn btn-primary" data-library-nav="contact" data-i18n="navContact">Contact</a>
@@ -131,7 +133,69 @@
             </div>
         </section>
 
-        <section class="library-admin-section" aria-label="Administration" data-i18n-aria="adminEyebrow">
+        <!-- Proposal Section: shown when admin is not signed in -->
+        <section class="library-proposal-section" data-library-proposal-section aria-labelledby="proposal-title">
+            <div class="container">
+                <div class="library-proposal-card">
+                    <div class="library-proposal-header">
+                        <p class="library-eyebrow" data-i18n="proposalEyebrow">Digitisation &amp; Transcription</p>
+                        <h2 id="proposal-title" data-i18n="proposalTitle">Propose a book or document</h2>
+                        <p class="library-proposal-intro" data-i18n="proposalIntro">Have a printed book, PDF, scan, or study document you would like to see in the library? Send your proposal with the file or details so our team can review and transcribe it.</p>
+                    </div>
+
+                    <form class="library-proposal-form" data-proposal-form novalidate>
+                        <div class="library-proposal-fields">
+                            <label class="library-field">
+                                <span data-i18n="proposalNameLabel">Full name</span>
+                                <input type="text" name="name" maxlength="120" required autocomplete="name" placeholder="Name and surname" data-i18n-placeholder="proposalNamePlaceholder">
+                            </label>
+                            <label class="library-field">
+                                <span data-i18n="proposalEmailLabel">Email address</span>
+                                <input type="email" name="email" maxlength="254" required autocomplete="email" placeholder="name@example.com" data-i18n-placeholder="proposalEmailPlaceholder">
+                            </label>
+                        </div>
+
+                        <div class="library-field library-field-wide">
+                            <span class="library-field-label" data-i18n="proposalFileLabel">File (image, PDF, Word, TXT, etc.)</span>
+                            <label class="library-dropzone library-proposal-dropzone" data-proposal-dropzone>
+                                <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.txt,.rtf,.epub,.odt,image/*" data-proposal-file-input>
+                                <span class="library-dropzone-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                                        <polyline points="9 15 12 12 15 15"></polyline>
+                                    </svg>
+                                </span>
+                                <span class="library-dropzone-title" data-i18n="proposalDropTitle">Choose a file or drop it here</span>
+                                <span class="library-dropzone-hint" data-i18n="proposalDropHint">PDF, Word, images, TXT or scans up to 24 MB</span>
+                                <div class="library-proposal-file-chosen" data-proposal-file-info hidden>
+                                    <span class="library-proposal-file-name" data-proposal-file-name translate="no"></span>
+                                    <span class="library-proposal-file-size" data-proposal-file-size translate="no"></span>
+                                    <button type="button" class="library-proposal-file-remove" data-proposal-file-remove data-i18n="removeSelectedFile">Remove file</button>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="library-field library-field-wide">
+                            <span data-i18n="proposalMessageLabel">Proposal details and notes</span>
+                            <textarea name="message" rows="4" maxlength="5000" required placeholder="Title of the book, author, edition, transcription instructions, or notes about the document…" data-i18n-placeholder="proposalMessagePlaceholder"></textarea>
+                        </div>
+
+                        <div class="library-proposal-actions">
+                            <button type="submit" class="btn btn-primary" data-proposal-submit data-i18n="proposalSubmit">Submit proposal</button>
+                            <span class="library-admin-access-hint">
+                                <button type="button" class="library-link-button" data-open-admin-signin data-i18n="adminAccessLink">Administrator access</button>
+                            </span>
+                        </div>
+                        <p class="library-form-status" data-proposal-status role="status" aria-live="polite"></p>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Administration Section (hidden until admin signs in) -->
+        <section class="library-admin-section" data-library-admin-section hidden aria-label="Administration" data-i18n-aria="adminEyebrow">
             <div class="container">
                 <details class="library-admin" data-library-admin>
                     <summary>

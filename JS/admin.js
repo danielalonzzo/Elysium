@@ -3215,6 +3215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAgendaCalendarControls();
     initPipelineFilters();
     initUnifiedCrmControls();
+    initLibraryCrmControls();
     document.getElementById('admin-profile-trigger')?.addEventListener('click', openProfileDialog);
     document.getElementById('admin-profile-form')?.addEventListener('submit', saveAdminProfile);
     document.getElementById('admin-profile-photo')?.addEventListener('change', event => {
@@ -3258,6 +3259,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // `loadCrmUsers` ya repinta el selector de responsable al terminar.
         loadCrmUsers();
+        loadLibraryRequests({ background: true });
         loadPlatformCapabilities()
             .then(refreshCapabilityDependentViews)
             .catch(error => logger.warn('Capability refresh failed:', error));
@@ -3364,6 +3366,7 @@ function navigateTo(target, { push = true } = {}) {
         case 'reports':  loadReports(); break;
         case 'mail':     loadMailSection(); break;
         case 'agenda':   loadAgenda(); break;
+        case 'library':  loadLibraryRequests(); break;
         default: break;
     }
     // Cualquier destino que no sea la agenda descarta una carga en vuelo suya.
@@ -3399,6 +3402,10 @@ function applyTranslations() {
     const activeNavLabel = document.querySelector('.portal-nav-item.active .portal-nav-text')?.textContent;
     const commandSection = document.getElementById('crm-command-section');
     if (commandSection && activeNavLabel) commandSection.textContent = activeNavLabel;
+
+    if (document.getElementById('library')?.classList.contains('active')) {
+        renderLibraryProposals();
+    }
 
     // Diálogo de perfil. Igual que la sección de correo: por id, uno a uno,
     // porque el diálogo no se vuelve a pintar al cambiar de idioma.
@@ -8986,3 +8993,324 @@ async function loadMailSection() {
     fillMailRecipientOptions();  // asíncrona: rellena el datalist cuando pueda
     loadMailSenders();
 }
+
+// ── Library Proposals CRM ────────────────────────────────────────────────────
+
+let _libraryProposals = [];
+let _libraryFilter = 'all';
+let _librarySearchQuery = '';
+let _libraryLoading = false;
+
+function initLibraryCrmControls() {
+    document.getElementById('library-refresh-btn')?.addEventListener('click', () => {
+        loadLibraryRequests({ force: true });
+    });
+
+    document.querySelectorAll('.library-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.library-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            _libraryFilter = btn.dataset.filter || 'all';
+            renderLibraryProposals();
+        });
+    });
+
+    const searchInput = document.getElementById('library-search-input');
+    searchInput?.addEventListener('input', () => {
+        _librarySearchQuery = String(searchInput.value || '').trim().toLowerCase();
+        renderLibraryProposals();
+    });
+}
+
+async function loadLibraryRequests({ background = false, force = false } = {}) {
+    if (_libraryLoading && !force) return;
+    _libraryLoading = true;
+
+    const loader = document.getElementById('library-proposals-loader');
+    const emptyState = document.getElementById('library-proposals-empty');
+    const alertBox = document.getElementById('library-alert');
+
+    if (!background) {
+        if (alertBox) alertBox.hidden = true;
+        if (loader) loader.hidden = false;
+        if (emptyState) emptyState.hidden = true;
+    }
+
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Unauthenticated');
+        const token = await user.getIdToken();
+
+        const response = await fetch('/library/api/proposals', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to load proposals (${response.status})`);
+        }
+
+        const data = await response.json();
+        _libraryProposals = Array.isArray(data.proposals) ? data.proposals : [];
+        updateLibraryStats();
+        if (!background) {
+            renderLibraryProposals();
+        }
+    } catch (err) {
+        console.error('Failed to load library requests:', err);
+        if (!background) {
+            const alertElem = document.getElementById('library-alert');
+            if (alertElem) {
+                alertElem.textContent = ui().libraryCrm.errorLoading;
+                alertElem.hidden = false;
+            }
+        }
+    } finally {
+        _libraryLoading = false;
+        if (!background && loader) {
+            loader.hidden = true;
+        }
+    }
+}
+
+function updateLibraryStats() {
+    const total = _libraryProposals.length;
+    const newCount = _libraryProposals.filter(p => p.status === 'new').length;
+    const inProgress = _libraryProposals.filter(p => p.status === 'in_progress').length;
+    const filesCount = _libraryProposals.filter(p => p.hasFile).length;
+
+    const elTotal = document.getElementById('library-kpi-total');
+    const elNew = document.getElementById('library-kpi-new');
+    const elProgress = document.getElementById('library-kpi-progress');
+    const elFiles = document.getElementById('library-kpi-files');
+    const sidebarBadge = document.getElementById('sidebar-library-count');
+
+    if (elTotal) elTotal.textContent = String(total);
+    if (elNew) elNew.textContent = String(newCount);
+    if (elProgress) elProgress.textContent = String(inProgress);
+    if (elFiles) elFiles.textContent = String(filesCount);
+    if (sidebarBadge) {
+        sidebarBadge.textContent = String(newCount);
+        sidebarBadge.classList.toggle('has-items', newCount > 0);
+    }
+}
+
+function renderLibraryProposals() {
+    const emptyState = document.getElementById('library-proposals-empty');
+    const listContainer = document.getElementById('library-proposals-list');
+    if (!listContainer) return;
+
+    let filtered = _libraryProposals;
+    if (_libraryFilter !== 'all') {
+        filtered = filtered.filter(p => p.status === _libraryFilter);
+    }
+    if (_librarySearchQuery) {
+        filtered = filtered.filter(p => {
+            const haystack = `${p.name || ''} ${p.email || ''} ${p.message || ''} ${p.fileName || ''}`.toLowerCase();
+            return haystack.includes(_librarySearchQuery);
+        });
+    }
+
+    if (filtered.length === 0) {
+        listContainer.innerHTML = '';
+        if (emptyState) {
+            const emptyTitle = emptyState.querySelector('h3');
+            const emptySubtitle = emptyState.querySelector('p');
+            if (_librarySearchQuery || _libraryFilter !== 'all') {
+                if (emptyTitle) emptyTitle.textContent = ui().libraryCrm.emptyTitle;
+                if (emptySubtitle) emptySubtitle.textContent = ui().libraryCrm.emptyFiltered;
+            } else {
+                if (emptyTitle) emptyTitle.textContent = ui().libraryCrm.emptyTitle;
+                if (emptySubtitle) emptySubtitle.textContent = ui().libraryCrm.emptySubtitle;
+            }
+            emptyState.hidden = false;
+        }
+        return;
+    }
+
+    if (emptyState) emptyState.hidden = true;
+
+    const statusLabels = {
+        new: ui().libraryCrm.statusNew,
+        in_progress: ui().libraryCrm.statusInProgress,
+        completed: ui().libraryCrm.statusCompleted,
+        archived: ui().libraryCrm.statusArchived
+    };
+
+    listContainer.innerHTML = filtered.map(proposal => {
+        const id = esc(proposal.id);
+        const name = esc(proposal.name || 'Anonymous');
+        const email = esc(proposal.email || '');
+        const message = esc(proposal.message || '');
+        const dateStr = proposal.submittedAt ? new Date(proposal.submittedAt).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : '';
+        const lang = esc((proposal.lang || 'en').toUpperCase());
+        const status = proposal.status || 'new';
+
+        let fileSnippet = '';
+        if (proposal.hasFile) {
+            const fileName = esc(proposal.fileName || 'Attached file');
+            const sizeMb = proposal.fileSize ? (proposal.fileSize / (1024 * 1024)).toFixed(2) + ' MB' : '';
+            fileSnippet = `
+                <div class="library-crm-file-card">
+                    <div class="library-crm-file-info">
+                        <svg class="library-crm-file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <div class="library-crm-file-meta">
+                            <span class="library-crm-file-name" title="${fileName}">${fileName}</span>
+                            ${sizeMb ? `<span class="library-crm-file-size" translate="no">${sizeMb}</span>` : ''}
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm library-crm-download-btn" data-proposal-id="${id}" data-file-name="${fileName}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 4px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        ${esc(ui().libraryCrm.downloadFile)}
+                    </button>
+                </div>
+            `;
+        }
+
+        return `
+            <article class="library-proposal-admin-card" data-id="${id}">
+                <div class="library-proposal-card-header">
+                    <div class="library-proposal-user-meta">
+                        <span class="library-proposal-author-name">${name}</span>
+                        <a href="mailto:${email}" class="library-proposal-author-email" translate="no">${email}</a>
+                        <span class="library-proposal-lang-chip" translate="no">${lang}</span>
+                    </div>
+                    <div class="library-proposal-header-right">
+                        <span class="library-proposal-date" translate="no">${esc(dateStr)}</span>
+                        <div class="library-proposal-status-select-wrap">
+                            <select class="library-status-select status-${status}" data-proposal-id="${id}">
+                                <option value="new" ${status === 'new' ? 'selected' : ''}>${esc(statusLabels.new)}</option>
+                                <option value="in_progress" ${status === 'in_progress' ? 'selected' : ''}>${esc(statusLabels.in_progress)}</option>
+                                <option value="completed" ${status === 'completed' ? 'selected' : ''}>${esc(statusLabels.completed)}</option>
+                                <option value="archived" ${status === 'archived' ? 'selected' : ''}>${esc(statusLabels.archived)}</option>
+                            </select>
+                        </div>
+                        <button type="button" class="library-proposal-delete-btn" data-proposal-id="${id}" title="${esc(ui().libraryCrm.deleteBtn)}" aria-label="${esc(ui().libraryCrm.deleteBtn)}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="library-proposal-card-body">
+                    <p class="library-proposal-message-text">${message}</p>
+                    ${fileSnippet}
+                </div>
+            </article>
+        `;
+    }).join('');
+
+    listContainer.querySelectorAll('.library-status-select').forEach(select => {
+        select.addEventListener('change', async () => {
+            const proposalId = select.dataset.proposalId;
+            const newStatus = select.value;
+            await updateProposalStatus(proposalId, newStatus);
+        });
+    });
+
+    listContainer.querySelectorAll('.library-crm-download-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const proposalId = btn.dataset.proposalId;
+            const fileName = btn.dataset.fileName;
+            await downloadProposalFileAdmin(proposalId, fileName);
+        });
+    });
+
+    listContainer.querySelectorAll('.library-proposal-delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const proposalId = btn.dataset.proposalId;
+            if (window.confirm(ui().libraryCrm.confirmDelete)) {
+                await deleteProposalAdmin(proposalId);
+            }
+        });
+    });
+}
+
+async function updateProposalStatus(id, status) {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Unauthenticated');
+        const token = await user.getIdToken();
+
+        const response = await fetch(`/library/api/proposals/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status })
+        });
+
+        if (!response.ok) throw new Error('Failed to update proposal status');
+        const item = _libraryProposals.find(p => p.id === id);
+        if (item) {
+            item.status = status;
+            updateLibraryStats();
+        }
+    } catch (err) {
+        console.error('Error updating proposal status:', err);
+        alert(ui().libraryCrm.errorLoading);
+    }
+}
+
+async function deleteProposalAdmin(id) {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Unauthenticated');
+        const token = await user.getIdToken();
+
+        const response = await fetch(`/library/api/proposals/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to delete proposal');
+        _libraryProposals = _libraryProposals.filter(p => p.id !== id);
+        updateLibraryStats();
+        renderLibraryProposals();
+    } catch (err) {
+        console.error('Error deleting proposal:', err);
+        alert(ui().libraryCrm.errorLoading);
+    }
+}
+
+async function downloadProposalFileAdmin(id, fileName) {
+    try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Unauthenticated');
+        const token = await user.getIdToken();
+
+        const response = await fetch(`/library/api/proposals/${id}/file`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) throw new Error('Failed to download file');
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName || 'document';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+        console.error('Error downloading proposal file:', err);
+        alert(ui().libraryCrm.errorLoading);
+    }
+}
+

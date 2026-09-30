@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sociedade e Cultura Inglesas</title>
+<meta name="author" content="Luísa Leal de Faria">
+<meta name="description" content="As origens da sociedade inglesa, dos romanos ao fim da Inglaterra anglo-saxónica: cristianização, Beda, os vikings e o rei Alfredo. A autora parte da definição de modernidade de Giddens e descreve uma sociedade assente no parentesco e na lealdade ao senhor e uma Igreja que o Sínodo de Whitby (664) alinhou com Roma.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
+<style>:root {
+  --bg: #faf6ef;
+  --surface: #fffdf8;
+  --fg: #2a211d;
+  --muted: #72665e;
+  --faint: #a39488;
+  --accent: #56216c;
+  --accent-soft: #efe7f6;
+  --box: #f3ece1;
+  --box-edge: #ddd0bf;
+  --rule: #e7dccd;
+  --quote-edge: #c4aed4;
+  --shadow: 0 1px 2px rgba(35, 15, 45, .06), 0 8px 24px rgba(35, 15, 45, .08);
+  --side-w: 320px;
+  --top-h: 52px;
+  --measure: 44rem;
+  --serif: "Iowan Old Style", "Charter", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --mark: #f3e2c7; --mark-line: #c99b5e;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171311; --surface: #1f1a17; --fg: #ece4dc; --muted: #b3a79d; --faint: #7f736a; --accent: #c89df2; --accent-soft: #2b163a; --box: #221c19; --box-edge: #3e332d; --rule: #312924; --quote-edge: #5a3473; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); --mark: #3a2c1b; --mark-line: #8a6a3c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171311; --surface: #1f1a17; --fg: #ece4dc; --muted: #b3a79d; --faint: #7f736a; --accent: #c89df2; --accent-soft: #2b163a; --box: #221c19; --box-edge: #3e332d; --rule: #312924; --quote-edge: #5a3473; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35); --mark: #3a2c1b; --mark-line: #8a6a3c;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(var(--top-h) + 16px); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 400 1.075rem/1.68 var(--serif);
+  font-kerning: normal; font-variant-numeric: lining-nums proportional-nums;
+  text-rendering: optimizeLegibility;
+}
+a { color: var(--accent); text-underline-offset: .15em; text-decoration-thickness: 1px; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--surface); padding: 8px 12px; z-index: 50; }
+.skip:focus { left: 8px; }
+
+/* ---------- top bar ---------- */
+.progress { position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 40; }
+.progress span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .1s linear; }
+.topbar {
+  position: fixed; inset: 0 0 auto 0; height: var(--top-h); z-index: 30;
+  display: flex; align-items: center; gap: 10px; padding: 0 12px 0 8px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--rule); font-family: var(--sans); font-size: .875rem;
+}
+.icon-btn {
+  display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 8px;
+  border: 0; background: transparent; color: var(--fg); cursor: pointer;
+}
+.icon-btn:hover { background: var(--accent-soft); }
+.icon-btn[hidden] { display: none; }
+.icon-btn:focus-visible, .goto input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.crumb { flex: 1; min-width: 0; display: flex; gap: 6px; align-items: baseline; white-space: nowrap; overflow: hidden; }
+.crumb-book { color: var(--muted); }
+.crumb-sep { color: var(--faint); }
+.crumb-cur { overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.goto { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.goto input {
+  width: 4.2em; height: 30px; padding: 0 8px; border-radius: 7px; border: 1px solid var(--rule);
+  background: var(--surface); color: var(--fg); font: inherit; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- sidebar ---------- */
+.sidebar {
+  position: fixed; top: var(--top-h); bottom: 0; left: 0; width: var(--side-w); z-index: 20;
+  overflow-y: auto; overscroll-behavior: contain; padding: 14px 10px 40px 12px;
+  border-right: 1px solid var(--rule); background: var(--bg); font-family: var(--sans); font-size: .84rem; line-height: 1.35;
+}
+.side-head { padding: 4px 8px 10px; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.toc, .toc ol { list-style: none; margin: 0; padding: 0; }
+.toc ol { padding-left: 14px; }
+.toc a {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: baseline;
+  padding: 5px 8px; border-radius: 6px; color: var(--fg); text-decoration: none;
+}
+.toc a:hover { background: var(--accent-soft); }
+.toc a.active { background: var(--accent-soft); color: var(--accent); }
+.toc li.ch > a { font-weight: 600; margin-top: 6px; }
+.toc .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.toc .pgn { color: var(--faint); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.toc em { font-style: italic; }
+.scrim { position: fixed; inset: var(--top-h) 0 0 0; background: rgba(0,0,0,.35); z-index: 19; }
+
+/* ---------- main column ---------- */
+main { padding: calc(var(--top-h) + 28px) 16px 80px; margin-left: var(--side-w); }
+main > * , .chapter > * { max-width: var(--measure); margin-left: auto; margin-right: auto; }
+.chapter { max-width: none; }
+
+.front { display: grid; grid-template-columns: minmax(0, 220px) 1fr; gap: 32px; align-items: start; padding: 24px 0 48px; border-bottom: 1px solid var(--rule); margin-bottom: 24px; }
+.cover { width: 100%; height: auto; border-radius: 4px; box-shadow: var(--shadow); }
+.front h1 { font: 700 2.1rem/1.15 var(--sans); letter-spacing: -.015em; margin: .2em 0 .35em; text-wrap: balance; }
+.kicker { font: 600 .75rem/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0; }
+.author { font-size: 1.2rem; margin: 0; }
+.pub { color: var(--muted); margin: .1em 0 1em; }
+.meta { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; font: .82rem/1.5 var(--sans); color: var(--muted); margin: 0 0 1em; }
+.meta dt { font-weight: 600; color: var(--fg); }
+.meta dd { margin: 0; overflow-wrap: anywhere; }
+.note-ocr { font: .82rem/1.5 var(--sans); color: var(--muted); background: var(--box); border: 1px solid var(--box-edge); border-radius: 8px; padding: 10px 12px; }
+.book-summary { font: .9rem/1.62 var(--sans); color: color-mix(in srgb, var(--fg) 86%, var(--muted)); padding: 12px 14px; }
+.book-summary p { text-indent: 0; margin: 0; }
+.book-summary p + p { margin-top: .65em; }
+.book-summary .summary-kicker { font: 700 .68rem/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: .6em; }
+.start { display: inline-block; margin-top: 6px; font: 600 .9rem/1 var(--sans); background: var(--accent); color: var(--bg); padding: 10px 14px; border-radius: 8px; text-decoration: none; }
+.buy { display: inline-block; margin: 6px 0 0 8px; font: 600 .9rem/1 var(--sans); color: var(--accent); padding: 9px 13px; border: 1px solid var(--accent); border-radius: 8px; text-decoration: none; }
+.buy:hover { background: var(--accent-soft); }
+.back .buy { margin: 8px 0 0; max-width: 100%; }
+
+.chap-head { margin: 64px auto 28px; padding-top: 28px; border-top: 3px solid var(--accent); }
+.chap-num { display: block; font: 600 .78rem/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+h2 { font: 700 1.85rem/1.2 var(--sans); letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+h3, h4, h5 { font-family: var(--sans); line-height: 1.3; text-wrap: balance; }
+h3 { font-size: 1.28rem; font-weight: 700; margin: 2.2em auto .7em; }
+h4 { font-size: 1.1rem; font-weight: 650; margin: 1.9em auto .6em; }
+h5 { font-size: 1rem; font-weight: 650; margin: 1.6em auto .5em; color: var(--muted); }
+h3 .num, h4 .num, h5 .num { color: var(--accent); font-variant-numeric: tabular-nums lining-nums; margin-right: .25em; }
+
+p { margin: 0 auto; hyphens: manual; text-wrap: pretty; overflow-wrap: break-word; }
+p + p { text-indent: 1.6em; }
+p.flush, p.center, p.right, p.cite, p.dash, p.hang, p.caption, p.source, p.offset,
+.pgbreak + p, h3 + p, h4 + p, h5 + p, .chap-head + p, figure + p, .box + p, blockquote + p { text-indent: 0; }
+p.flush, p.dash, p.hang, p.offset { margin-top: .55em; }
+p.center { text-align: center; margin-top: .7em; margin-bottom: .2em; }
+p.right, p.cite { text-align: right; margin-top: .3em; }
+p.dash { padding-left: 1.2em; text-indent: -1.2em; }
+p.hang { padding-left: 2em; text-indent: -2em; margin-top: .7em; }
+p.offset { padding-left: 2em; }
+p.caption { font: 600 .88rem/1.4 var(--sans); text-align: center; margin-top: 1.6em; margin-bottom: .6em; color: var(--fg); }
+p.source { font: .8rem/1.4 var(--sans); color: var(--muted); margin-top: .35em; margin-bottom: 1.2em; }
+p.source strong { font-weight: 600; }
+strong { font-weight: 700; }
+
+blockquote {
+  margin: 1.2em auto; padding: .2em 0 .2em 1.2em; border-left: 3px solid var(--quote-edge);
+  font-size: .95rem; line-height: 1.6; color: color-mix(in srgb, var(--fg) 88%, var(--muted));
+}
+blockquote p + p { text-indent: 1.6em; }
+blockquote footer { text-align: right; font: 600 .82rem/1.4 var(--sans); color: var(--muted); margin-top: .4em; }
+blockquote .pgbreak { margin: .4em 0; }
+
+.box {
+  margin: 1.3em auto; padding: .9em 1.1em; background: var(--box); border: 1px solid var(--box-edge); border-radius: 10px;
+  font-size: .97rem; line-height: 1.62;
+}
+.box p { text-indent: 0 !important; margin-top: .45em; }
+.box p:first-child { margin-top: 0; }
+.box blockquote { margin: .6em 0; }
+
+figure.scan { margin: 1.2em auto 1.4em; }
+figure.scan img {
+  display: block; width: var(--w, 100%); max-width: 100%; height: auto; margin: 0 auto;
+  background: #fff; border-radius: 6px; box-shadow: 0 0 0 1px var(--rule);
+}
+:root[data-theme="dark"] figure.scan img { filter: brightness(.92); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) figure.scan img { filter: brightness(.92); } }
+figure details { font: .78rem/1.45 var(--sans); color: var(--muted); margin: .5em auto 0; width: var(--w, 100%); max-width: 100%; }
+figure summary { cursor: pointer; width: max-content; }
+figure details ul { margin: .4em 0 0; padding-left: 1.1em; columns: 2 14rem; }
+
+.pgbreak { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin: 1.1em auto .5em; height: 0; }
+.pgbreak::before { content: ""; flex: 1; border-top: 1px dashed var(--rule); }
+a.pg {
+  display: inline-block; font: 600 .66rem/1 var(--sans); font-variant-numeric: tabular-nums lining-nums;
+  color: var(--faint); border: 1px solid var(--rule); border-radius: 999px; padding: 3px 6px; text-decoration: none;
+  vertical-align: .15em; text-indent: 0; user-select: none; -webkit-user-select: none; background: var(--bg);
+}
+a.pg:hover { color: var(--accent); border-color: var(--accent); }
+a.pg:target, a.pg.flash { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+
+sup.fn { line-height: 0; font: 600 .68em/0 var(--sans); }
+sup.fn a { text-decoration: none; padding: 0 .12em; border-radius: 3px; }
+sup.fn a:hover { background: var(--accent-soft); }
+
+.notes { margin: 3em auto 1em; padding-top: 1em; border-top: 1px solid var(--rule); font: .84rem/1.55 var(--sans); color: color-mix(in srgb, var(--fg) 85%, var(--muted)); }
+.notes h3 { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 .8em; }
+.notes ol { padding-left: 2.2em; margin: 0; }
+.notes li { margin: .45em 0; scroll-margin-top: calc(var(--top-h) + 20px); }
+.notes li::marker { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+.notes li:target { background: var(--accent-soft); border-radius: 6px; }
+.note-body { display: inline; }
+.notes .back { text-decoration: none; margin-left: .2em; }
+
+.back { text-align: center; margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--rule); }
+.colophon { font: .8rem/1.4 var(--sans); color: var(--muted); }
+.backcover { width: min(100%, 320px); height: auto; border-radius: 4px; box-shadow: var(--shadow); margin-top: 12px; }
+
+.fn-pop {
+  position: absolute; z-index: 45; width: min(28rem, calc(100vw - 32px)); max-height: 50vh; overflow: auto;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--rule); border-radius: 10px; box-shadow: var(--shadow);
+  padding: 12px 34px 12px 14px; font: .88rem/1.55 var(--sans);
+}
+.fn-pop .fn-num { color: var(--accent); font-weight: 700; margin-right: .35em; }
+.fn-close { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 18px; cursor: pointer; }
+.fn-close:hover { background: var(--accent-soft); }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1080px) {
+  main { margin-left: 0; }
+  .sidebar { transform: translateX(-102%); transition: transform .22s ease; box-shadow: var(--shadow); width: min(var(--side-w), 88vw); }
+  body.nav-open .sidebar { transform: none; }
+  .crumb-book, .crumb-sep { display: none; }
+}
+@media (min-width: 1081px) { .menu-btn { display: none; } .scrim { display: none !important; } }
+@media (max-width: 640px) {
+  body { font-size: 1.02rem; line-height: 1.62; }
+  .front { grid-template-columns: 1fr; gap: 18px; }
+  .cover { max-width: 180px; }
+  .front h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.45rem; }
+  .box { padding: .75em .8em; }
+  blockquote { padding-left: .9em; }
+  .goto label { display: none; }
+}
+@media print {
+  .topbar, .sidebar, .progress, .scrim, .fn-pop, figure details, .start, .buy { display: none !important; }
+  main { margin: 0; padding: 0; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .chap-head { break-before: page; }
+  a.pg { border: 0; color: #888; }
+}
+
+figure.scan figcaption { font: .78rem/1.4 var(--sans); color: var(--muted); text-align: center; margin-top: .4em; }
+
+.front p { text-indent: 0; }
+figure.scan img { cursor: zoom-in; }
+.lightbox { position: fixed; inset: 0; z-index: 60; background: rgba(10, 12, 11, .86); display: grid; place-items: center; padding: 16px; overflow: auto; }
+.lightbox[hidden] { display: none; }
+.lightbox img { max-width: min(100%, 1240px); max-height: 100%; height: auto; background: #fff; border-radius: 6px; cursor: zoom-out; }
+@media (max-width: 700px) { .lightbox { place-items: start center; } .lightbox img { max-width: none; width: 180%; max-height: none; } }
+.lb-close { position: fixed; top: 10px; right: 12px; width: 40px; height: 40px; border-radius: 999px; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 24px; cursor: pointer; }
+
+/* Long URLs in the notes must wrap: on phones they pushed the page to ~615px wide. */
+.notes, .fn-pop, blockquote, .box { overflow-wrap: anywhere; }
+
+/* ---------- Sociedade e Cultura Inglesas ---------- */
+.cover-type {
+  aspect-ratio: 2 / 3; display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
+  padding: 22px 18px 20px; color: #fbf1e6; font-family: var(--serif);
+  background: radial-gradient(120% 80% at 20% 0%, #6f298a 0%, #46155b 55%, #280a38 100%);
+}
+.ct-kicker { font: 600 .62rem/1.35 var(--sans); letter-spacing: .14em; text-transform: uppercase; opacity: .82; }
+.ct-title { font-size: 1.5rem; line-height: 1.16; font-weight: 600; letter-spacing: .03em; text-transform: uppercase; padding: 14px 0; border-top: 1px solid rgba(251, 241, 230, .35); border-bottom: 1px solid rgba(251, 241, 230, .35); text-wrap: balance; }
+.ct-author { font-size: .98rem; font-style: italic; }
+.ct-year { font: 600 .68rem/1 var(--sans); letter-spacing: .14em; opacity: .82; }
+@media (max-width: 640px) { .ct-title { font-size: 1.15rem; } }
+
+h3 .num, h4 .num { margin-right: .35em; }
+.summary h3 { margin-top: 0; font-size: 1.05rem; }
+.summary .pgbreak { margin-top: .2em; }
+ul.bullets { margin: 1em auto 1.3em; padding-left: 0; list-style: none; }
+ul.bullets li { position: relative; padding-left: 1.5em; margin: .55em 0; }
+ul.bullets li::before { content: "—"; position: absolute; left: 0; color: var(--accent); }
+ol.outline { margin: .9em 0 .2em; padding-left: 1.3em; }
+ol.outline > li { margin-bottom: .6em; font-weight: 600; }
+ol.outline > li::marker { color: var(--accent); }
+ol.outline ul { margin: .45em 0 .7em; padding-left: 0; list-style: none; font-weight: 400; }
+ol.outline ul li { position: relative; padding-left: 1.1em; margin-bottom: .3em; }
+ol.outline ul li::before { content: "·"; position: absolute; left: .25em; color: var(--accent); font-weight: 700; }
+blockquote.en { font-style: italic; }
+
+/* Passagens reconstruídas: invisíveis ao ler, assinaladas com o marcador. */
+.rec { border-bottom: 1px dotted transparent; transition: background .2s, border-color .2s; cursor: help; }
+body.show-rec .rec { background: var(--mark); border-bottom-color: var(--mark-line); border-radius: 2px; padding: 0 .1em; }
+.rec-btn[aria-pressed="true"] { background: var(--mark); color: var(--fg); box-shadow: inset 0 0 0 1px var(--mark-line); }
+
+.editorial p, .editorial li, .editorial dd { font: .9rem/1.62 var(--sans); }
+.editorial p + p { text-indent: 0; margin-top: .8em; }
+.editorial dl { margin: 1.2em auto; }
+.editorial dt { font: 600 .82rem/1.4 var(--sans); letter-spacing: .02em; color: var(--accent); margin-top: 1.3em; }
+.editorial dd { margin: .35em 0 0; color: color-mix(in srgb, var(--fg) 82%, var(--muted)); }
+.editorial ul { padding-left: 1.1em; margin: .4em 0 0; }
+.editorial li { margin-bottom: .45em; }
+.editorial code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .84em; background: var(--box); border: 1px solid var(--box-edge); padding: .05em .35em; border-radius: 4px; }
+.arrow { color: var(--faint); padding: 0 .3em; }
+</style>
+</head>
+<body>
+<a class="skip" href="#conteudo">Saltar para o conteúdo</a>
+<div class="progress" aria-hidden="true"><span></span></div>
+<header class="topbar">
+  <button class="icon-btn menu-btn" aria-label="Abrir índice" aria-expanded="false" aria-controls="sidebar">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+  <div class="crumb"><span class="crumb-book">Sociedade e Cultura Inglesas</span><span class="crumb-sep">/</span><span class="crumb-cur">Início</span></div>
+  <form class="goto" role="search" aria-label="Ir para página do original">
+    <label for="goto-in">Pág.</label>
+    <input id="goto-in" type="number" min="35" max="58" inputmode="numeric" placeholder="—">
+  </form>
+  <button class="icon-btn rec-btn" type="button" aria-pressed="false" aria-label="Destacar reconstruções" title="Destacar reconstruções">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M14.5 4.5l5 5L10 19l-5.5 1 1-5.5z M4 21h8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="icon-btn theme-btn" aria-label="Alternar tema claro/escuro">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9A7 7 0 0 1 12 3z" fill="currentColor"/></svg>
+  </button>
+  <button class="icon-btn exit-btn" type="button" data-library-exit hidden aria-label="Sair do ecrã inteiro" title="Sair do ecrã inteiro">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+  </button>
+</header>
+<nav id="sidebar" class="sidebar" aria-label="Índice">
+  <div class="side-head"><span>Índice</span></div>
+  <ol class="toc"><li class="ch"><a href="#parte-1"><span class="n">I</span><span class="t">Do Pré-Moderno à Modernidade</span><span class="pgn">37</span></a><ol><li><a href="#introducao"><span class="n"></span><span class="t">Introdução e objectivos de aprendizagem</span><span class="pgn">37</span></a></li></ol></li><li class="ch"><a href="#cap-1"><span class="n">1</span><span class="t">Do Império Romano ao Feudalismo</span><span class="pgn">41</span></a><ol><li><a href="#sumario"><span class="n"></span><span class="t">Sumário</span><span class="pgn">41</span></a></li><li><a href="#s-1-1"><span class="n">1.1</span><span class="t">A desintegração do Império Romano</span><span class="pgn">43</span></a><ol><li><a href="#s-1-1-1"><span class="n">1.1.1</span><span class="t">Factores genéricos de caracterização do Império</span><span class="pgn">45</span></a></li></ol></li><li><a href="#s-1-2"><span class="n">1.2</span><span class="t">A Inglaterra anglo-saxónica</span><span class="pgn">47</span></a><ol><li><a href="#s-1-2-1"><span class="n">1.2.1</span><span class="t">Aspectos da organização social</span><span class="pgn">48</span></a></li><li><a href="#s-1-2-2"><span class="n">1.2.2</span><span class="t">Composição étnica</span><span class="pgn">50</span></a></li><li><a href="#s-1-2-3"><span class="n">1.2.3</span><span class="t">A língua e a religião</span><span class="pgn">51</span></a></li><li><a href="#s-1-2-4"><span class="n">1.2.4</span><span class="t">A cultura cristã</span><span class="pgn">53</span></a></li><li><a href="#s-1-2-5"><span class="n">1.2.5</span><span class="t">As invasões viking e as reformas do rei Alfredo</span><span class="pgn">55</span></a></li><li><a href="#s-1-2-6"><span class="n">1.2.6</span><span class="t">A reforma beneditina</span><span class="pgn">57</span></a></li></ol></li></ol></li><li class="ch"><a href="#nota-editorial"><span class="n"></span><span class="t">Nota editorial</span></a></li></ol>
+</nav>
+<div class="scrim" hidden></div>
+<main id="conteudo">
+  <section class="front" id="inicio">
+    <div class="cover cover-type" role="img" aria-label="Capa: Sociedade e Cultura Inglesas, Luísa Leal de Faria, Universidade Aberta, 1996">
+      <span class="ct-kicker">Universidade Aberta</span>
+      <span class="ct-title">Sociedade e Cultura Inglesas</span>
+      <span class="ct-author">Luísa Leal de Faria</span>
+      <span class="ct-year">1996</span>
+    </div>
+    <div class="front-text">
+      <p class="kicker">Universidade Aberta · Transcrição</p>
+      <h1>Sociedade e Cultura Inglesas</h1>
+      <p class="author">Luísa Leal de Faria</p>
+      <p class="pub">Universidade Aberta · 1996</p>
+      <dl class="meta">
+        <dt>Âmbito</dt><dd>Parte I e Capítulo 1 · páginas 35 a 58 do original</dd>
+        <dt>Edição</dt><dd>© Universidade Aberta, 1996</dd>
+      </dl>
+      <div class="note-ocr book-summary"><p class="summary-kicker">Resumo</p><p>As origens da sociedade inglesa, dos romanos ao fim da Inglaterra anglo-saxónica: cristianização, Beda, os vikings e o rei Alfredo. A autora parte da definição de modernidade de Giddens e descreve uma sociedade assente no parentesco e na lealdade ao senhor e uma Igreja que o Sínodo de Whitby (664) alinhou com Roma.</p></div>
+      <a class="start" href="#parte-1">Começar a ler →</a>
+      <a class="buy" href="https://uab.euleio.pt/eBook/SOCIEDADE-E-CULTURA-INGLESAS/9789726749615" target="_blank" rel="noopener" title="Loja da Universidade Aberta (iLEIO)">Comprar o livro completo ↗</a>
+    </div>
+  </section>
+<section class="chapter" id="parte-1"><header class="chap-head"><span class="chap-num">Parte I</span><h2>Do Pré-Moderno à Modernidade</h2></header>
+  <h3 id="introducao">Introdução e objectivos de aprendizagem</h3>
+
+  <div class="pgbreak"><a class="pg" id="p37" href="#p37" title="Página 37 do original">37</a></div>
+  <p>Segundo Anthony Giddens, a «modernidade» refere-se a modos de vida social ou de organização que emergiram na Europa do século XVII em diante e que, subsequentemente, se tornaram mais ou menos influentes em todo o mundo. Assim definida, a modernidade está associada a um período de tempo e a uma localização geográfica apenas, e não está caracterizada<sup class="fn"><a href="#nota-1" id="ref-1" data-fn="1">1</a></sup>.</p>
+
+  <p>A caracterização da modernidade, que se empreenderá nos capítulos subsequentes deste trabalho, depende da caracterização de dois outros momentos: um anterior, a que chamaremos pré-modernidade, e outro posterior, ou o momento presente, que é, para muitos, um tempo de pós-modernidade. A controvérsia gerada em torno deste último termo decorre, em boa parte, da divulgação da obra de Jean-François Lyotard, que interpreta o presente, em 1985, como tendo já consumado um conjunto de mudanças epistemológicas que o distinguem radicalmente do passado próximo. Para este autor, a condição da pós-modernidade traduz-se, essencialmente, na descrença no progresso arquitectado pelos homens, logo, na pulverização da «grande narrativa», ou seja, da linha de continuidades históricas que dotavam as sociedades de um passado definido e de um futuro previsível. A condição pós-moderna, ainda segundo Lyotard, veria uma pluralidade de vias para o saber, nas quais a ciência não teria lugar privilegiado<sup class="fn"><a href="#nota-2" id="ref-2" data-fn="2">2</a></sup>.</p>
+
+  <p>Outros autores, porém, contestam as propostas de Lyotard e examinam a modernidade, encontrando nexos e continuidades que, sem menosprezo por circunstâncias evidentemente novas relacionadas com novas tecnologias, por exemplo, procuram identificar os processos, necessariamente descontínuos, que são relevantes para a compreensão do presente.</p>
+
+  <p>No presente trabalho, seguir-se-á esta linha, procurando-se identificar quatro processos sociais maiores, que não constituem necessariamente uma unidade, ou procedem em padrões idênticos de desenvolvimento, mas que, no conjunto, constituirão um modelo teórico que se baseia na interacção de processos de mudança, profundamente estruturados, que ocorrem ao longo de séculos: o político, o económico, o social e o cultural.</p>
+
+  <p>Nem sempre é possível, ou desejável, isolar estes processos. Tentar-se-á, porém, caracterizar cada um deles, nas formas que vão adquirindo ao longo do tempo, e perspectivar as situações específicas da sociedade e cultura inglesas no campo mais vasto das condições sociais e culturais da Europa. As formações da modernidade britânica processaram-se, curiosamente, partindo de um contexto europeu medieval, para chegarem a um outro contexto, também europeu, moderno.</p>
+
+  <div class="pgbreak"><a class="pg" id="p38" href="#p38" title="Página 38 do original">38</a></div>
+  <p>Do século XVII até meados do século XX os percursos britânicos nas áreas acima indicadas foram, em muitos aspectos, diferentes dos de outros estados europeus. No período medieval e agora, em finais do século XX, <span class="rec" title="Reconstruído: o original digitalizado apresenta aqui caracteres corrompidos.">as especificidades foram e são atenuadas pela prevalência de estruturas comuns e de interdependências relativamente a outras nações. Importa, pois, caracterizar, em primeiro lugar, a Europa e a Inglaterra medievais.</span></p>
+
+  <p>A formação da nação inglesa consistiu num processo longo para o qual concorreram diversas circunstâncias, nomeadamente:</p>
+
+  <ul class="bullets">
+    <li>a fixação nas Ilhas Britânicas de diferentes tribos e formações sociais, antes, durante e depois da presença dos exércitos romanos e da tutela de Roma, que, pouco a pouco, se foram organizando em reinos feudais;</li>
+    <li>a constituição de um sistema de coesão social que se fundamentava nas relações de <em>kinship</em> e de hierarquia;</li>
+    <li>a difusão do cristianismo, por duas vias diferentes e posteriormente unificadas;</li>
+    <li>a formação de uma língua comum adequada à comunicação e à expressão poética.</li>
+  </ul>
+
+  <p>Uma breve descrição de cada um destes elementos contribuirá para clarificar as diferenças entre a sociedade e a cultura pré-moderna e moderna. Os capítulos que a seguir desenvolveremos destinam-se a clarificar e interpretar os aspectos acima enunciados.</p>
+  <section class="notes" aria-label="Notas"><h3>Notas</h3><ol><li id="nota-1" value="1"><div class="note-body">Anthony Giddens, <em>The Consequences of Modernity</em>, Cambridge, Polity Press, 1991, p. 1.</div> <a class="back" href="#ref-1" aria-label="Voltar ao texto">↩</a></li><li id="nota-2" value="2"><div class="note-body">Jean-François Lyotard, <em>The Post-Modern Condition</em>, Minneapolis, University of Minnesota Press, 1985.</div> <a class="back" href="#ref-2" aria-label="Voltar ao texto">↩</a></li></ol></section>
+</section>
+<section class="chapter" id="cap-1"><header class="chap-head"><span class="chap-num">Capítulo 1</span><h2>Do Império Romano ao Feudalismo</h2></header>
+  <div class="box summary">
+    <h3 id="sumario">Sumário</h3>
+    <div class="pgbreak"><a class="pg" id="p41" href="#p41" title="Página 41 do original">41</a></div>
+  <p>Este capítulo destina-se a traçar um quadro geral da cultura e da sociedade inglesas <span class="rec" title="Reconstruído: no original digitalizado lê-se «en re o período da OCUJlilc&lt;;:_ão romana e o século XL».">entre o período da ocupação romana e o século XI</span>. Deverão ficar claras as grandes linhas de transformação que passam pela extinção do Império e o florescimento de uma sociedade e cultura inglesas. É, por isso, importante reflectir sobre as estruturas sociais em mudança, assim como sobre a língua e a religião. O conteúdo sumário do capítulo é o seguinte:</p>
+    <ol class="outline">
+      <li>Características políticas do Império Romano.
+        <ul>
+          <li>A ocupação das Ilhas Britânicas pelos exércitos romanos.</li>
+          <li>A importância da família e do reconhecimento público na organização social do Império.</li>
+        </ul>
+      </li>
+      <li>A Inglaterra Anglo-saxónica: estruturas sociais em mudança.
+        <ul>
+          <li>A organização social: factores de coesão e estrutura social.</li>
+          <li>Composição étnica: as diferentes tribos que povoaram o território.</li>
+          <li>Línguas e religião: o uso do latim e das línguas vernáculas, a introdução do cristianismo.</li>
+          <li>A cultura cristã: o uso do latim, a construção de igrejas, a escrita e a produção de livros, o ensino e os seus conteúdos.</li>
+          <li>As invasões viking e as reformas do rei Alfredo; produção e divulgação de textos; a literatura anglo-saxónica.</li>
+          <li>A reforma beneditina.</li>
+        </ul>
+      </li>
+    </ol>
+  </div>
+
+  <h3 id="s-1-1"><span class="num">1.1</span> A desintegração do Império Romano</h3>
+
+  <div class="pgbreak"><a class="pg" id="p43" href="#p43" title="Página 43 do original">43</a></div>
+  <p>A ideia de estado-nação é moderna, ou seja, começa a ganhar contornos, ainda imprecisos e não uniformes, apenas <span class="rec" title="Reconstruído: no original digitalizado lê-se «en:i_P!i_ll_cípios do sé,;gl VL».">em princípios do século XVI</span>. Na próxima secção serão desenvolvidas as teorias e as condições práticas que promovem este conceito e avançadas as razões por que esta forma de estado se implantou e desenvolveu na Europa. Importa agora analisar brevemente as condições de implantação e expansão do Império Romano, a sua desagregação e a emergência do feudalismo na Europa, em geral, e nas Ilhas Britânicas, em particular.</p>
+
+  <p>Em princípios do <span class="rec" title="Reconstruído: «séçplo a era cristã» no original digitalizado.">século I da era cristã</span>, o Império Romano estendia-se a ocidente até à <span class="rec" title="Reconstruído: «P l;Ibé ica» no original digitalizado.">Península Ibérica</span>, a oriente até à Pérsia, a norte até à Escócia e a sul ocupava o Norte de África. As Ilhas Britânicas tinham sido alvo de duas invasões, chefiadas por Júlio César, já em 55 e 54 a.C., que não tinham, no entanto, resultado imediatamente em ocupação do território pelos exércitos de Roma. A conquista militar começou apenas em 43 d.C., sob o domínio do Imperador Cláudio e, em finais do século I, a totalidade da Inglaterra e Gales estava incorporada no Império, mantendo-se essa situação nos trezentos anos subsequentes. É característica dos <span class="rec" title="Reconstruído: «Ililpério mi :; rem mas não governarem» no original digitalizado.">Impérios reinarem mas não governarem</span>, ou seja, a influência directa dos imperadores é limitada a um espaço geográfico e social muito mais reduzido do que a extensão de território do Império, por falta de meios capazes de exercer, com regularidade, as funções administrativas necessárias à coesão dos territórios. A continuação dos impérios depende, fundamentalmente, da organização dos exércitos e da sua capacidade bélica.</p>
+
+  <p>Nas Ilhas Britânicas, como noutros pontos do Império, a prática romana era a de delegar o provimento e as despesas da administração quotidiana às populações locais. Após as invasões chefiadas por Cláudio, uma pequena parte do território sob domínio romano era governada por concelhos locais regulares, chefiados por notáveis locais, enquanto os restantes territórios eram entregues aos governantes britânicos, ficando sob supervisão romana. Na primeira situação, quando o poder local era visto como amigo de Roma, havia lugar a recompensas materiais, de que <span class="rec" title="Reconstruído: «V Q.l,» no original digitalizado; trata-se de Verulamium, a cidade romana junto a St. Albans.">Verulamium</span>, perto de St. Albans, é exemplo. O segundo caso constituía o sistema de «<span class="rec" title="Reconstruído: «r os cli 11tes» no original digitalizado.">reis clientes</span>», ou estados-satélite nativos, que convinham a Roma, dentro e fora das áreas militarmente ocupadas.</p>
+
+  <p>Um dos resultados importantes desta política terá sido uma ampla divergência nos aspectos culturais da romanização, consoante os reis clientes e os seus povos desejavam, ou tinham possibilidade, de adaptar o modo de vida romano<sup class="fn"><a href="#nota-3" id="ref-3" data-fn="3">3</a></sup>. Nas duas décadas que se seguiram à invasão de Cláudio, a sucessão de vitórias militares imprimiu um cunho triunfalista à ocupação romana, desde logo manifestado nas construções arquitectónicas da cidade de Colchester, e continuado na redução das guarnições militares nos territórios cuja conquista se julgava consumada. A estratégia romana foi, então, a da conquista das tribos bretãs ainda não romanizadas, o que deu origem a um período de conflito violento, em que a <span class="rec" title="Reconstruído: «a 2posição aRoma dirigida,p.ela rainha Boucliççª» no original digitalizado.">oposição a Roma dirigida pela rainha Boudicca</span> e pelos Trinovantes de Essex acabou por ser vencida, definindo-se, em finais do século I, <span class="rec" title="Reconstruído: «as fronteir s cl()JU1pério_; G.ales e o Sud9e.5te» no original digitalizado.">as fronteiras do Império: Gales e o Sudoeste</span> da Inglaterra tinham sido incorporados, e a norte o Sul da Escócia. Os reinos «clientes» foram pouco a pouco desmantelados, e ao longo do século II assistiu-se a um desenvolvimento da sociedade britânica segundo os modelos romanos.</p>
+
+  <div class="pgbreak"><a class="pg" id="p44" href="#p44" title="Página 44 do original">44</a></div>
+  <p>Este parece ter sido um período de paz, em que a população atingiu níveis, em número e densidade, idênticos aos da Idade Média antes da peste negra.</p>
+
+  <p>A agricultura constituía a principal actividade, desenvolvendo-se em quintas de proporções medianas, cujos proprietários se articulavam com a vida das cidades onde desempenhavam funções de administração dos assuntos quotidianos. A presença, em Inglaterra, do <span class="rec" title="Reconstruído: «lmperad 2,;._b.driauo» no original digitalizado.">Imperador Adriano</span> em 122 contribuiu largamente para um novo ímpeto na construção de infra-estruturas de serviço público, visíveis não apenas na célebre muralha, mas também noutros pontos de Inglaterra, nomeadamente em Londres.</p>
+
+  <p>Esta situação de tranquilidade começou a alterar-se nos finais do século, com uma série de surtos de revolta nas zonas fronteiriças do Império. Neste período, correspondente às primeiras décadas do século III, o Império Romano pareceu entrar em desagregação, nomeadamente durante o reinado de Septímio Severo (193-211), que chegou a instalar-se em Londres com toda a família real para dirigir pessoalmente as campanhas pela preservação das fronteiras. Em finais do século III assiste-se a uma revitalização do Império, com os imperadores Diocleciano (284-305) e Constantino, o Grande (306-337). Em 313, com o Édito de Milão, acaba oficialmente a perseguição aos cristãos e, passado pouco mais de uma década, a religião oficial do Império é a religião cristã. Convém lembrar, desde já, que a divulgação do cristianismo nas Ilhas Britânicas não se irá fazer linearmente a partir deste momento. Teremos ocasião de ver, posteriormente, como se desenrolou o processo de integração do cristianismo nas estruturas da sociedade britânica.</p>
+
+  <p>No princípio do <span class="rec" title="Reconstruído: o século está ilegível no original; o contexto (Constantino, 306; conflitos de 353) situa a passagem no século IV.">século IV</span> pode constatar-se, no Sul de Inglaterra, por um lado, uma grande prosperidade, de que são testemunho grandes casas de campo e propriedades e, por outro, uma tendência conservadora nos seus habitantes, que preservam ou recuperam os cultos religiosos tradicionais. Esta prosperidade poderá ficar a dever-se ao próprio imperador Constantino, cuja subida, inconstitucional, ao trono, se fez em York, e é provável que tenha recompensado generosamente os seus apoiantes britânicos. O período de prosperidade foi interrompido em 353 devido a conflitos políticos relacionados com a sucessão do imperador, e a protecção às Ilhas Britânicas, fornecida pelos exércitos romanos, enfraqueceu, tornando-as vulneráveis a diversos <em>raids</em>, ou incursões, rápidas e violentas, por via marítima, de tribos bárbaras. Nos primeiros dez anos do século V as Ilhas Britânicas estavam já praticamente isoladas do resto do Império, sem exército nem funcionários oficiais romanos.</p>
+
+  <div class="pgbreak"><a class="pg" id="p45" href="#p45" title="Página 45 do original">45</a></div>
+  <p>Os acontecimentos da primeira metade do século V são praticamente desconhecidos. O pouco que se sabe assenta mais em conjecturas verosímeis do que em dados arqueologicamente sustentados. Dois fenómenos parecem ter concorrido, nestes anos, para mudar radicalmente a situação das Ilhas Britânicas na sua relação com o Império, reflectindo também tendências que ocorriam noutros lugares: a <strong>divulgação do cristianismo</strong> e a sua aceitação, cada vez maior, por parte da aristocracia, e o reforço do <strong>poder das forças bárbaras</strong>, frequentemente utilizadas por Roma e pagas em dinheiro ou autorizadas a fixar-se dentro das fronteiras do Império. Na primeira metade do século V a <span class="rec" title="Reconstruído: «parecia extr m3:tne11te 3:ctiva_ n3: sua adesão» no original digitalizado.">aristocracia romano-britânica parecia extremamente activa na sua adesão ao cristianismo</span>, e uma das primeiras e mais devastadoras <span class="rec" title="Reconstruído: «J1«resias ... PelígjQ. Bêdá:_17êfere» no original digitalizado.">heresias do século ficou a dever-se exactamente a um britânico, Pelágio. Beda refere</span>, na sua <em>Ecclesiastical History of the English People</em>, a heresia pelagiana como <em>«noxious and abominable teaching that man had no need of God's grace»</em>, e narra como esta heresia <em>«had seriously infected the faith of the British Church»</em>, o que teria levado os britânicos a recorrer à ajuda dos bispos gauleses, Germanus de Auxerre e Lupus de Troyes<sup class="fn"><a href="#nota-4" id="ref-4" data-fn="4">4</a></sup>. A narrativa de Beda, que data do século VIII, evoca uma sociedade activa, rica, empenhada nos assuntos da religião. Ficam, porém, obscuros os acontecimentos que terão levado à extinção do Império na Grã-Bretanha, bem como aqueles que proporcionaram o aparecimento dos anglo-saxões, e toda uma civilização própria das Ilhas Britânicas.</p>
+
+  <p>O mapa político da Europa iria transformar-se pouco a pouco, ao longo do século V, com a progressiva desintegração do Império Romano. Também o mapa das Ilhas Britânicas iria frequentemente mudar, ao longo do chamado «período anglo-saxónico». Mas esse será o assunto da próxima secção deste capítulo. Interessa agora sistematizar, brevemente, alguns dos traços da sociedade e cultura no período romano da civilização britânica.</p>
+
+  <h4 id="s-1-1-1"><span class="num">1.1.1</span> Factores genéricos de caracterização do Império</h4>
+
+  <p>O Império não tem semelhanças com o moderno estado-nação. Enquanto este assenta predominantemente na capacidade das estruturas administrativas, podendo conduzir ao predomínio da burocracia, como se verá posteriormente, o Império assenta sobretudo nas estruturas militares e na capacidade de fazer a guerra. <a class="pg" id="p46" href="#p46" title="Página 46 do original">46</a> Os limites do Império não constituíam fronteiras e, dentro desses limites, podiam coexistir diferentes formas de organização política e social.</p>
+
+  <p>Entre os elementos que caracterizam a sociedade no período do Império Romano devem destacar-se dois: a <strong>importância da família</strong> e a importância atribuída ao <strong>reconhecimento público do mérito individual</strong>.</p>
+
+  <p>O conceito de <strong>família</strong> é abrangente, incluindo não só os laços de sangue, mas também o <span class="rec" title="Reconstruído: «o·p oal doméstico» no original digitalizado.">pessoal doméstico</span> e todos os dependentes. Este conceito alargado irá ter continuidade nas sociedades europeias, durante séculos, tendo contribuído, em conjunto com outros factores, para estruturar a sociedade ocidental até ao período moderno. Uma das condições importantes da formação da modernidade será a alteração das relações familiares e do próprio conceito de família por volta de <span class="rec" title="Reconstruído: «J'iQQ.5» no original digitalizado; a nota 5 remete para Lawrence Stone, England 1500-1800.">1500</span><sup class="fn"><a href="#nota-5" id="ref-5" data-fn="5">5</a></sup>. Este sistema de relações sociais, no período romano, era ainda alargado pelo sistema de <strong>clientelismo</strong>, que assegurava formas de protecção e de responsabilidade entre grupos menos e mais poderosos. O clientelismo proporcionava, a uns, protecção, a outros, prestígio pela protecção que exerciam. Construíam-se, deste modo, teias de relações mutuamente dependentes e eficazes ainda ao longo do período feudal.</p>
+
+  <p>O <strong>reconhecimento público do mérito individual</strong> teve também efeitos culturalmente importantes. Na civilização romana deu lugar ao aparecimento de inúmeras obras destinadas a celebrar vitórias, em escultura e arquitectura, que se mantiveram ao longo de séculos como modelo para a celebração da excelência, tanto nas artes da guerra como nas da paz.</p>
+
+  <p>Dois factores, de natureza diferente dos acima apontados, são frequentemente invocados para suportar a tese de que a Europa viveu, no passado, uma unidade cultural que agora, no presente, se fragmenta. Esses factores seriam o uso de uma <strong>língua comum, o latim</strong>, e a convicção e prática de uma <strong>única religião, o cristianismo</strong>. Qualquer destas afirmações merece análise cuidada, o que se fará na secção seguinte deste capítulo, uma vez que o período a que estas afirmações se referem é, em geral, a Idade Média. Importa, porém, não esquecer que, como refere David Held: <span class="rec" title="Reconstruído: a citação está fortemente corrompida no original digitalizado («a.'E.!:!J;Q.J!,i'.,_fui.3l J. criação &lt;!9.IDJJitoqir.oeessos complexos...»).">«a Europa foi a criação de muitos processos complexos, na intersecção de forças 'internas' e 'externas'. Há mil anos a Europa, enquanto tal, não existia.</span> Os cerca de trinta milhões de pessoas que viviam no território europeu não se consideravam como um povo inter-relacionado, unido por uma história, uma cultura e um destino comuns<sup class="fn"><a href="#nota-6" id="ref-6" data-fn="6">6</a></sup>.»</p>
+
+  <h3 id="s-1-2"><span class="num">1.2</span> A Inglaterra anglo-saxónica</h3>
+
+  <div class="pgbreak"><a class="pg" id="p47" href="#p47" title="Página 47 do original">47</a></div>
+  <p>Com algum sentido de humor, G. M. Trevelyan comenta que, ao fim e ao cabo, a presença romana em Inglaterra apenas deixou três coisas com valor: o cristianismo galês, as estradas romanas e a importância tradicional de algumas cidades, nomeadamente Londres. Para este autor, o acontecimento determinante de toda a história de Inglaterra é o estabelecimento, no território britânico, dos povos Nórdicos<sup class="fn"><a href="#nota-7" id="ref-7" data-fn="7">7</a></sup>. Embora as razões avançadas por Trevelyan assentem em juízos sobre a formação do carácter nacional, dificilmente demonstráveis em termos sociológicos e culturais, o facto em si é da maior relevância para a análise da cultura e da sociedade britânicas.</p>
+
+  <p>Tomando como balizas temporais os meados do século V e a morte, em 1087, de Guilherme, o Conquistador, poder-se-á dizer que, ao longo deste período de seiscentos anos, se formou um conceito de <em>englishness</em>, para o qual muito contribuiu a Igreja cristã, e que é já perceptível na obra de Beda, <em>Ecclesiastical History of the English Nation</em> (c. 731). Alguns padrões de organização social nasceram também neste período e perduraram ao longo de séculos:</p>
+
+  <ul class="bullets">
+    <li>os <em>county shires</em>, ou seja, as unidades territoriais de poder local, <span class="rec" title="Reconstruído: «esta belecúâin-se» no original digitalizado.">estabeleceram-se</span> em formas que iriam perdurar até à sua reorganização em 1974;</li>
+    <li>a rede de dioceses e paróquias formou-se, segundo um padrão que duraria até ao século XIX;</li>
+    <li>as aldeias e cidades inglesas começaram a tomar contornos e a adaptar os nomes que, ainda hoje, têm;</li>
+    <li>finalmente, foi também neste período que se começou a falar uma forma ancestral do inglês moderno, e que aquele adquiriu o estatuto de linguagem literária<sup class="fn"><a href="#nota-8" id="ref-8" data-fn="8">8</a></sup>.</li>
+  </ul>
+
+  <p>Nestes seiscentos anos muita coisa mudou, e é um erro pensar na Idade Média, mesmo nos primeiros séculos, como um período mais estático do que dinâmico. O ritmo de mudança era, sem dúvida, lento, mas deu lugar a profundas alterações, quer no aspecto religioso, quer no uso da língua e na capacidade de a utilizar, quer na organização do poder, quer na economia ou no desenvolvimento populacional. Também os padrões de produção das artes e do mecenato se alteraram neste período. Estes aspectos serão brevemente examinados nesta secção, com vista a delinear apenas grandes enquadramentos que persistirão, ou cuja alteração merece registo, nos últimos séculos da Idade Média.</p>
+
+  <div class="pgbreak"><a class="pg" id="p48" href="#p48" title="Página 48 do original">48</a></div>
+  <p>É importante, contudo, mencionar, desde já, três aspectos da sociedade anglo-saxónica que apresentam continuidade neste período. Em primeiro lugar, <strong>as mulheres</strong> parecem ter grande importância, tendo sido fundadoras de casas monásticas, proprietárias e gestoras de bens próprios, que livremente podiam doar, e também patronas e mecenas das artes. Posteriormente, as mulheres viriam a perder esta independência e, no século XIX, por exemplo, a própria legislação limita drasticamente as liberdades da mulher, principalmente casada. Os outros dois aspectos relevantes para a análise cultural deste período referem-se à <strong>organização da família</strong> e à natureza dos <strong>laços que ligam os senhores e os seus dependentes</strong>. Estes, em particular, viriam a ser interpretados no século XIX por alguns autores, nomeadamente Thomas Carlyle, como alternativa às relações impessoais que se estabelecem e desenvolvem nas sociedades industrializadas. É, pois, importante perceber qual a natureza destas relações, para posteriormente podermos confrontar as suas reinterpretações.</p>
+
+  <h4 id="s-1-2-1"><span class="num">1.2.1</span> Aspectos da organização social</h4>
+
+  <p>A <strong>lealdade</strong> é a mais importante forma de relação entre um senhor e os seus companheiros (<span class="rec" title="Reconstruído: «corr1Jtes ou ge_sítjias» no original digitalizado."><em>comites</em> ou <em>gesithas</em></span>). Já Tácito, no século I, ficara impressionado com o vigor desta relação sublinhando o facto de ela não ser tribal, mas estritamente pessoal, ou seja, um chefe de reconhecido valor atrairia para si homens de diferentes tribos, que competiriam contra outros chefes, no campo de batalha. Seria considerada infâmia sobreviver ao chefe ou abandonar o campo de batalha. Segundo Tácito, <em>«to defend him, to protect him, even to ascribe to his glory their own exploits, is the essence of their sworn allegiance. The chiefs fight for victory, the followers for their chief»</em><sup class="fn"><a href="#nota-9" id="ref-9" data-fn="9">9</a></sup>. A contrapartida para esta dedicação seriam <span class="rec" title="Reconstruído: «recgmJ;J_e_gsas» no original digitalizado.">recompensas</span> em armas, cavalos e terras, bem como um lugar de destaque nas comemorações das vitórias. As relações de família (<em>kinship</em>) e o <em>comitatus</em> mantiveram-se ao longo de todo o período anglo-saxónico, e seriam indispensáveis à sua estabilidade.</p>
+
+  <p>A <span class="rec" title="Reconstruído: «A relação t&quot;.!)trt:_°'§ !1.ilore:Ü&quot;seu_ ()mpanheiro énvolvia o direito.e_o qexerde ving;m_ça» no original digitalizado.">relação entre o senhor e o seu companheiro envolvia o direito e o dever de exercer vingança</span> pelo sobrevivente, no caso de um deles ser morto. O mesmo acontecia no âmbito da família, quando um dos seus membros era assassinado — os familiares da vítima tinham o dever e o direito de exercer vingança ou exigir compensações. Esta compensação era chamada <em>wergild</em> e consistia num preço estabelecido, consoante a importância da pessoa assassinada. Quer o <em>comitatus</em>, quer as relações de família, proporcionavam a preservação e desenvolvimento de uma sociedade fortemente hierarquizada. Os valores atribuídos em termos de <em>wergild</em> indicam diferentes estatutos sociais bem definidos, como por exemplo na região de Kent, em que a lei distinguia três tipos de homens livres, três de semilivres e ainda três tipos de escravos.</p>
+
+  <div class="pgbreak"><a class="pg" id="p49" href="#p49" title="Página 49 do original">49</a></div>
+  <p>A terminologia é, no entanto, variada e os mesmos termos não correspondem necessariamente a situações sociais análogas, em toda a Inglaterra. Em Kent, no século VII, <span class="rec" title="Reconstruído: «os nobres são chamados !EtLenquanto noutras partes o ter mo não é utiliz-ªQC> senão na poesia, pai:a n.rn.Ír c9.mcJ1url» no original digitalizado. A rima eorl/churl confirma a leitura.">os nobres são chamados <em>eorl</em>, enquanto noutras partes o termo não é utilizado senão na poesia, para rimar com <em>churl</em>. A palavra <em>gesithas</em>, companheiro, é mais tarde substituída por <em>thane</em>, que significara primeiro</span> «servo», mas que posteriormente fora promovida para designar aqueles que serviam o rei. Pode, no entanto, definir-se um grupo social, constituído por aqueles homens livres que serviam o rei que, juntamente com as respectivas famílias, formam a <strong>nobreza</strong>. Os nobres são proprietários de terras e repetem, nas suas residências, os mesmos hábitos da corte, embora em menor escala. Os seus deveres para com o rei consistem, essencialmente, na prestação de serviço militar, construção de fortificações e reparação de pontes. Em contrapartida, são livres de utilizar as suas terras e de as doar a quem quiserem.</p>
+
+  <p>O homem livre comum é chamado <strong><em>churl</em></strong>. A esta categoria corresponde um <em>wergild</em> inferior ao do <em>thane</em> (cerca de um sexto), mas o <em>churl</em> é ainda um proprietário, por vezes substancial, de terras. Em certas zonas da Inglaterra distingue-se um outro estrato, abaixo deste, os <em>laet</em>, e ainda, os camponeses, por quem também era devido <em>wergild</em>. Com o correr do tempo a situação do <em>churl</em> parece ter-se deteriorado, acentuando-se a sua dependência relativamente ao senhor. São, no entanto, perceptíveis inúmeras gradações de importância e riqueza, neste grupo, até ao século XI.</p>
+
+  <p>Por último, na hierarquia anglo-saxónica, vêm os <strong>escravos</strong>. Embora lhes fosse atribuído um preço, este não constituía <em>wergild</em>, mas apenas o preço de um bem móvel. O escravo podia ser comprado e vendido, não possuindo qualquer propriedade. Por esta razão, não podia ser condenado ao pagamento de multas por infracções cometidas, sendo em geral castigado com chicotadas, mutilação ou mesmo morte, a menos que o seu proprietário estivesse disposto a pagar as multas ou compensações envolvidas. A legislação não previa qualquer sanção para maus tratos dos escravos pelos seus donos, que ficavam apenas sujeitos a sanções eclesiásticas. Foi também o aumento de influência cristã que contribuiu para mitigar, <span class="rec" title="Reconstruído: «pouco apCJUCO,.ac.o.ndiç.ão.dos.. ctaYos, a qu_elll, _prqgressiYameQte, (qram sendo re.conbecidos algu=direit.o.s» no original digitalizado.">pouco a pouco, a condição dos escravos, a quem, progressivamente, foram sendo reconhecidos alguns direitos</span>. A origem dos escravos, no período anglo-saxónico, é variada. Alguns <span class="rec" title="Reconstruído: «Alguns des ce1lâ1ãmcfapcJpuI1.ção-t,retã, e o próprio termo britrJJl significava» no original digitalizado. O termo vernáculo em itálico permanece ilegível: lê-se aqui como a designação do bretão.">descendiam da população bretã, e o próprio termo <em>bretão</em></span> significava simplesmente «escravo»; outros eram prisioneiros de guerra, capturados em escaramuças entre os diversos reinos e outros ainda, a maior parte, eram condenados em resultado de determinados delitos, ou por não pagamento de dívidas.</p>
+
+  <p>As diferenças sociais eram claramente visíveis nas roupas, jóias e armaduras e bastará comparar a riqueza do espólio do funeral real de Sutton Hoo (c. 625) com a miséria da maior parte das campas deste período, estudadas pelos arqueólogos, para perceber a enorme discrepância de riqueza que existia nesta sociedade fortemente hierarquizada. <a class="pg" id="p50" href="#p50" title="Página 50 do original">50</a> A introdução do cristianismo não veio trazer alterações no sentido de uma maior igualdade, como se verá.</p>
+
+  <h4 id="s-1-2-2"><span class="num">1.2.2</span> Composição étnica</h4>
+
+  <p>A composição étnica dos povos que ocupavam as Ilhas Britânicas neste período (séculos V-XI) não é uniforme e é importante mencioná-la, a fim de melhor se entenderem os traços culturais da época. Beda, por volta do ano de 731, preocupara-se em clarificar, para os leitores da sua <em>Ecclesiastical History</em>, a origem destes povos, que definia, no presente, como quatro nações, falando cinco línguas: os Ingleses, os Bretões, os Irlandeses e os Pictos, que falavam quatro línguas diferentes, unificadas por uma quinta, o latim.</p>
+
+  <p><span class="rec" title="Reconstruído: «Os,primeirns l!lll:litªnte_s te_riam sido os Bretões ... vindos do norte da J:'ra11s:1;1-» no original digitalizado.">Os primeiros habitantes teriam sido os Bretões, que povoaram o Sul da Inglaterra, vindos do norte da França.</span> Os Pictos teriam vindo da Escandinávia, para as costas norte da Irlanda, habitada pelos Irlandeses, que lhes teriam recomendado que atravessassem de novo para leste e se estabelecessem no Norte da Grã-Bretanha (na Escócia), o que fora cumprido. Posteriormente, os próprios Irlandeses teriam migrado para a mesma área<sup class="fn"><a href="#nota-10" id="ref-10" data-fn="10">10</a></sup>. Beda prossegue a sua narrativa contando episódios da ocupação romana e, no capítulo 15 do livro I, refere que, entre 449 e 456, os Anglos ou Saxões vieram para a Bretanha, a convite do rei Vortigern. Aos recém-chegados foram dadas terras e, em troca, teriam o dever de proteger o reino. Mas, segundo Beda, as verdadeiras intenções destes povos eram estabelecerem-se em Inglaterra e dominarem o povo local. Por isso, tendo derrotado os invasores do norte, os Pictos, os Saxões teriam informado o seu próprio povo que o território era fértil e os Bretões cobardes, pelo que, prontamente, novos guerreiros se vieram juntar aos anteriores, formando um exército invencível. A sua origem seriam as três mais formidáveis raças germânicas, <span class="rec" title="Reconstruído: «os ilxõ_&lt;':s, os _os eos Jutas» no original digitalizado.">os Saxões, os Anglos e os Jutas</span>.</p>
+
+  <p>Beda prossegue, referindo as áreas colonizadas por cada um destes povos e as vicissitudes decorrentes das rivalidades entre eles, concluindo o capítulo com uma narrativa da opressão dos Bretões e destruição das suas terras e propriedades, pelas armas dos Anglos e dos Saxões, em finais do século V. É inequívoca a opinião de que a segunda metade do século V constituíra um período de radical mudança nas Ilhas Britânicas.</p>
+
+  <p>A pesquisa arqueológica contemporânea não confirma exactamente a interpretação de Beda, antes se inclina a pensar que o estabelecimento dos Anglos, Saxões, Jutas e alguns outros invasores — nomeadamente Francos e Frísios — da Escandinávia ocidental constituiu um processo longo, que poderá ter <a class="pg" id="p51" href="#p51" title="Página 51 do original">51</a> tido início antes dos meados do século V, continuando até às primeiras décadas do VI<sup class="fn"><a href="#nota-11" id="ref-11" data-fn="11">11</a></sup>. No entanto, quer tenha consistido num conjunto de acções ocorridas num tempo relativamente curto ou, pelo contrário, quer tenha sido um processo mais longo, o estabelecimento dos povos germânicos nas Ilhas Britânicas apresenta evidências de ruptura cultural com a presença romana, sem paralelo com o que ocorre noutros pontos da Europa. São duas as áreas de descontinuidade mais significativas: a <strong>língua</strong> e a <strong>religião</strong>.</p>
+
+  <h4 id="s-1-2-3"><span class="num">1.2.3</span> A língua e a religião</h4>
+
+  <p>No caso da <strong>língua</strong>, a verificação imediata <span class="rec" title="Reconstruído: «a verificação imediataji_aruptura com o latim» no original digitalizado.">é a da ruptura</span> com o latim, como língua vernácula. Ao contrário do que aconteceu em Espanha, França ou Itália, onde os Visigodos, Ostrogodos e Francos não impuseram as suas línguas, os anglo-saxões acabaram por quase obliterar o celta e o latim. A própria toponímia é evidência da supremacia anglo-saxónica, sendo raros os nomes de cidades, vilas ou aldeias que conservaram a raiz latina, em comparação com aquelas que adquiriram nomes anglo-saxónicos ou escandinavos. É evidente que o latim se manteve como língua de escrita e comunicação oral em situações relacionadas com o estado, a igreja e as leis, mas muito cedo começa a surgir uma literatura vernácula que demonstra a maturidade de uma língua de raiz não latina.</p>
+
+  <p>No caso da <strong>religião</strong>, verificam-se também rupturas importantes relativamente à presença romana. Nas primeiras décadas do século V o cristianismo romano <span class="rec" title="Reconstruído: «parece ter_u_ma eno!l11e irriportãricíaemingl&lt;1terra ... êi'íffê os proprietários» no original digitalizado.">parece ter uma enorme importância em Inglaterra, principalmente entre os proprietários</span> de terras romano-bretões. O aparecimento da heresia pelagiana leva, inclusivamente, a que o Papa envie para Inglaterra, por duas vezes, o Bispo de Auxerre, São Germano, que, como diz Beda, apazigua duas tempestades, uma no mar e outra nos pelagianos, além de praticar feitos de armas e milagres.</p>
+
+  <p>Simultaneamente, em meados do século V, São Patrício, que era de origem romano-britânica, cristianizara a Irlanda, num processo que continuaria com a obra missionária de São Columbano, não apenas na Irlanda, mas também no oeste da Escócia e em Northumbria. Não parece ter sido intenção de São Patrício fundar, na Irlanda, uma forma de cristianismo diferente do que era praticado em Roma. Porém, todo um conjunto de circunstâncias contribuiu para isolar a Irlanda nos anos subsequentes: a queda do Império Romano no ocidente, a quase extinção de instituições romanas na vizinha Grã-Bretanha, a conquista bárbara <span class="rec" title="Restituído: este segmento aparece na digitalização como um bloco solto na margem da p. 51, desligado da frase a que pertence.">em França e na Itália, concorreram decerto para que, privada de contactos com outras regiões, a Irlanda desenvolvesse uma igreja</span> <a class="pg" id="p52" href="#p52" title="Página 52 do original">52</a> e uma civilização próprias, de raiz celta, que se expandiu para o sul da Escócia e norte da Inglaterra, vindo posteriormente a entrar em conflito com o cristianismo romano.</p>
+
+  <p>Não se sabe muito, como já foi referido, sobre os acontecimentos ocorridos em Inglaterra na segunda metade do século V. Beda atribui aos Bretões o crime de não terem nunca pregado a fé cristã aos anglo-saxões, mas acrescenta que Deus não esquecerá o seu povo escolhido. Assim, já na última década do século VI, o Papa Gregório, o Grande, ter-se-ia lembrado de enviar uma missão às Ilhas Britânicas, chefiada por <span class="rec" title="Reconstruído: «SaJJtQ4Kostin]lo» no original digitalizado.">Santo Agostinho</span>. O relato de Beda tornou-se uma das histórias mais recordadas da tradição inglesa e, por isso, vale a pena mencioná-lo. A história é narrada no capítulo I do livro II, onde é resumida a vida e obra do Papa e, a este episódio, Beda atribui o desejo que Gregório manifestara, ainda antes de ser Papa, de ver convertida a nação inglesa.</p>
+
+  <p>Estando Gregório um dia no mercado, em Roma, avistou, entre outras mercadorias, dois escravos expostos para venda. Eram de pele clara, feições finas e belo cabelo. Perguntou de onde eram e em resposta foi informado que vinham da Ilha da Bretanha, onde toda a gente tinha aquele aspecto e era pagã. Entristecido, Gregório perguntara o nome da sua raça:</p>
+
+  <blockquote class="en">«'They are called <span class="rec" title="No original digitalizado: «Agles».">Angles</span>', he was told. 'That is appropriate,' he said, 'for they have angelic faces, and it is right that they should become joint-heirs with the angels in heaven. And what is the name of the province from which they have been brought?' 'Deira,' was the answer. 'Good. They shall indeed be rescued <em>de ira</em> — from wrath — and called to the mercy of Christ. And what is the name of their king?' 'Aelle,' he was told. 'Then,' said Gregory, making play on the name, 'it is right that their land should echo the praise of God our Creator in the word Alleluia.'<sup class="fn"><a href="#nota-12" id="ref-12" data-fn="12">12</a></sup>»</blockquote>
+
+  <p>A narrativa de Beda regista os acontecimentos subsequentes à chegada da missão chefiada por Santo Agostinho a Kent e a conversão do rei Aethelbert e da sua corte. Um ano mais tarde, o Papa escreveria ao Patriarca de Alexandria dizendo que 10 000 ingleses tinham sido baptizados. Em 604 tinham sido já fundadas as dioceses de Rochester, Londres e Cantuária.</p>
+
+  <p>A cristianização da Inglaterra não iria, contudo, prosseguir sem sobressaltos e recuos. <span class="rec" title="Reconstrução conjectural: o sujeito da frase está ilegível no original («O Ri!&amp; UW»). O sentido do período aponta para a subsistência das práticas pagãs.">O paganismo continuaria a existir</span> e os conflitos entre casas reais mais ou menos favoráveis ao cristianismo levariam a flutuações na estabilidade dos cristãos. Simultaneamente, no Norte das Ilhas Britânicas, <span class="rec" title="Reconstruído: «o cris/tianismo c lta desenvolvitLp,Jticas nem s rnpi: _c:onfor,rnes às r()11aííãse:·» no original digitalizado.">o cristianismo celta desenvolvia práticas nem sempre conformes às romanas</span> e, em meados do século VII, é já evidente a diversidade de práticas litúrgicas e de organização da igreja. Por este motivo, a igreja da Northumbria toma a iniciativa, em <span class="rec" title="Corrigido: a digitalização lê «644». O Sínodo de Whitby reuniu-se em 664.">664</span>, de convocar o chamado <span class="rec" title="Reconstruído: «1,c;&gt; il)Jy» no original digitalizado.">Sínodo de Whitby</span>, que decidiria pela conformidade com as práticas litúrgicas de Roma.</p>
+
+  <div class="pgbreak"><a class="pg" id="p53" href="#p53" title="Página 53 do original">53</a></div>
+  <p>Esta decisão levou a um imenso incremento das relações com o mundo mediterrânico, através das viagens de homens como Benedict Biscop (628-690), que fundou os Mosteiros de Monkwearmouth em <span class="rec" title="Corrigido: a digitalização lê «647». Monkwearmouth foi fundado em 674.">674</span> e de Jarrow em 681-682, ou de Wilfrid (634-709), que foi arcebispo de Ripon e de Hexham. A igreja irlandesa, que manteve as suas especificidades, continuou a ser procurada por nomes notáveis, como Alcuíno, que, de França, manteve correspondência com os <em>scholars</em> irlandeses. Estas relações contribuíram para o cosmopolitismo da igreja em Inglaterra, nestes primeiros tempos. A ocupação de cargos eclesiásticos em Inglaterra, por homens das mais diversas origens, era frequente, sendo de destacar os casos de Teodoro de Tarso (669-690) ou de Adriano, oriundo do Norte de África, bem como um sem-número de bispos franceses em East Anglia e Wessex.</p>
+
+  <h4 id="s-1-2-4"><span class="num">1.2.4</span> A cultura cristã</h4>
+
+  <p>A conversão ao cristianismo introduziu alterações significativas em todas as áreas culturais. Em primeiro lugar, a substituição dos cultos e rituais pagãos pelos cristãos <span class="rec" title="Reconstruído: «não !!l!_ azer consigo ... mas c ortou também» no original digitalizado.">não só trouxe</span> consigo uma importantíssima mudança de atitude relativamente à transcendência, à visão do mundo e ao relacionamento do homem com os seus semelhantes, mas <span class="rec" title="Reconstruído: «mas c ortou também um conjunto de alterações nas próprias formas de expressão iesentação» no original digitalizado.">comportou também um conjunto de alterações nas próprias formas de expressão e representação</span>. Com a construção de novas igrejas foram introduzidos novos materiais e tecnologias, nomeadamente no tratamento e utilização da pedra, em construções tradicionalmente feitas em madeira, bem como novos elementos decorativos. O latim voltou a ser utilizado nos rituais religiosos e na escrita. A liturgia envolvia também música e canto, bem como representações dramáticas, ensinados e transmitidos por mestres vindos do continente. A preservação e glorificação das relíquias dos santos gerou também novas necessidades em bordados, ourivesaria, trabalho de metais e pintura.</p>
+
+  <p>Com o cristianismo desenvolveram-se também dois aspectos fundamentais da cultura anglo-saxónica: a instrução e a técnica de fazer livros. Nenhum destes dois aspectos se generalizou, no sentido em que se quisesse dizer que a sociedade anglo-saxónica em geral era educada e tinha acesso a livros. De facto, a leitura, a escrita e a própria produção de livros raramente ultrapassavam os limites do mosteiro e da hierarquia da igreja. Aqui, porém, floresceram importantes bibliotecas, constituídas primeiro com livros trazidos do continente e, logo depois, com produções próprias, originais e cópias. Beda, que nunca viajou para longe de Jarrow, conhecia as obras dos padres da igreja, como Santo Agostinho de Hipona, Santo Ambrósio e São Gregório, bem como de Isidoro de Sevilha, dos poetas cristãos, como Arator, Sedúlio, Juvenco, Fortunato, Próspero, Lactâncio e Prudêncio, dos historiadores <a class="pg" id="p54" href="#p54" title="Página 54 do original">54</a> Eusébio, Orósio, Josephus, Cassiodoro e Gregório de Tours, autores clássicos, como Plínio, Ovídio e Virgílio. Entre as produções das bibliotecas e <em>scriptoria</em> dos mosteiros figuram obras como os <em>Lindisfarne Gospels</em>, escritos e iluminados pelo bispo Eadfrith em Lindisfarne, o <em>Book of Durrow</em>, os <em>Durham Gospels</em>, os <em>Echternach Gospels</em>, os <em>Lichfield Gospels</em> e o <em>Book of Kells</em>, todos eles apresentando extraordinária criatividade.</p>
+
+  <p>Se o livro, não obstante o seu significado cultural, não teve impacto social de maior, já o mesmo não se pode dizer de uma outra esfera de influência da igreja, essa sim, sentida por toda a sociedade: a propriedade da terra. A criação de um mosteiro envolvia a doação de terras que não podiam posteriormente ser reclamadas para outras doações, destinadas a recompensar serviços prestados ao rei, por exemplo. Por outro lado, a fundação de mosteiros podia transformar-se numa quase instituição familiar, quando os membros das famílias assumiam o cargo de abade <span class="rec" title="Reconstruído: «assumiam o cargo de abade,é assim preservavam as.foás terras» no original digitalizado.">e assim preservavam as suas terras</span> geração após geração. É importante perceber que a posse de extensas terras pelos mosteiros não tinha apenas a finalidade de lhes garantir um poder temporal em reforço do poder espiritual. A riqueza, em terras, era fundamental para a economia do mosteiro, na execução das tarefas que se propunha: por exemplo, a composição de um manuscrito envolvia uma organização complexa e cara, em que um dos elementos essenciais eram as próprias peles de que se faria o pergaminho. Um só manuscrito, produzido em Jarrow por volta do ano de 700, o <em>Codex Amiatinus</em>, composto por 1030 páginas em pergaminho, precisou das peles de 515 vitelos. Dado o ritmo de produção de manuscritos e, em muitos casos, a sua monumentalidade, torna-se evidente a necessidade de abundantes recursos nos mosteiros<sup class="fn"><a href="#nota-13" id="ref-13" data-fn="13">13</a></sup>.</p>
+
+  <p><span class="rec" title="Reconstruído: «Ambas as_gnhas de divulga@Q_@sristiavlilliO» no original digitalizado.">Ambas as linhas de divulgação do cristianismo</span>, a irlandesa e a romana, garantiam a sua continuidade, através do ensino, a rapazes destinados à carreira eclesiástica. As matérias leccionadas eram as necessárias ao desempenho do sacerdócio: o latim, as Escrituras, o cômputo das estações do ano, a música para as cerimónias religiosas. A teologia tinha lugar central no <em>curriculum</em> e os mosteiros irlandeses continuavam, no século VII, a ensinar <span class="rec" title="Reconstruído: «g[llIDAfiç,i e retórica» no original digitalizado.">gramática e retórica</span>, com alguma atenção à literatura latina secular.</p>
+
+  <p>Pode situar-se neste período, a partir de meados do <span class="rec" title="Reconstrução conjectural: o algarismo do século está ilegível no original («meados do século yg»). O contexto — de Boécio a Beda — aponta para o século VII.">século VII</span>, uma alteração importante no âmbito do <span class="rec" title="Reconstruído: «no âmbito do estu_d__o daJilo ofia, corri.implicações» no original digitalizado.">estudo da filosofia, com implicações</span> intelectuais, práticas e morais, e efeitos que perdurariam ao longo da Idade Média, para só começarem a modificar-se com o advento do humanismo e da modernidade. O cristianismo impõe-se como modelo de pensamento e de vida, substituindo a filosofia, que iria sobreviver como disciplina académica, sujeita a limitações das fontes clássicas, em resultado do declínio do conhecimento do grego. Se Santo Agostinho de Hipona e Boécio, no século V, faziam ainda a articulação entre a filosofia e a vida, a <em>beata vita</em> do primeiro ou <em>A Consolação da Filosofia</em> do segundo, já no tempo de Beda ninguém <a class="pg" id="p55" href="#p55" title="Página 55 do original">55</a> <span class="rec" title="Reconstruído: «esc:ofüeria um sistema filosófic_o como base de vida, em )JJg,ir_&lt;lg_gisJia_: nismo» no original digitalizado.">escolheria um sistema filosófico como base de vida, em lugar do cristianismo</span>. O próprio Beda, a exemplo do seu mentor, Benedict Biscop (c. 628-689), tinha uma visão prática e não especulativa do cristianismo, e muita da sua actividade foi orientada para a produção de textos úteis ou edificantes, como estudos sobre ortografia e gramática, sobre o cálculo da data da Páscoa, o mundo da natureza, história e biografia (com o intuito de demonstrar a intervenção divina nos assuntos humanos), comentários às Escrituras com fins didácticos, etc.</p>
+
+  <p>Na secção seguinte deste capítulo voltaremos a este assunto, o da sobrevivência do legado clássico na Europa medieval e sua articulação com o cristianismo. Antes, porém, importa mencionar dois aspectos da sociedade e da cultura do período anglo-saxónico que introduziram modificações importantes. Tratar-se-á, em primeiro lugar, das invasões viking e das suas implicações e, depois, da reforma beneditina.</p>
+
+  <h4 id="s-1-2-5"><span class="num">1.2.5</span> As invasões viking e as reformas do rei Alfredo</h4>
+
+  <p>A partir de finais do século VIII a costa leste da Inglaterra começou a ser alvo de <em>raids</em> provenientes da Escandinávia, que provocaram a destruição de vários mosteiros, sobretudo no norte, e a conquista de centros urbanos importantes. Em 876 a cidade de York estava em poder dos Vikings e, no ano seguinte, o mesmo aconteceria com Lincoln, Nottingham, Derby, Leicester e Stamford. A invasão viking só foi travada no último quartel do século IX, pelo rei anglo-saxónico Alfredo (871-899), que conseguiu estabilizar a sua zona de influência, <span class="rec" title="Reconstruído: «no s arcando-a de um norte» no original digitalizado.">no sul, demarcando-a de um norte</span> predominantemente anglo-escandinavo. A presença viking em Inglaterra só veio a desaparecer em finais do século X, mas deixou vestígios duradouros numa demarcação norte/sul que, em certos aspectos, ainda hoje é visível.</p>
+
+  <p>Embora os vikings se tivessem rapidamente convertido ao cristianismo, não deixaram de provocar estragos irreversíveis, quer nos mosteiros que saquearam e bibliotecas que destruíram, mas também na ocupação de terras, de onde desalojaram uma aristocracia anglo-saxónica já habituada a proteger as artes. O declínio dos mosteiros e da cultura monástica empobreceu também as artes e diminuiu o contacto entre as grandes casas de religião, que era tão favorável à inovação e à criatividade.</p>
+
+  <p>O rei Alfredo parece ter tido consciência de que o declínio da acção educativa e social dos mosteiros poderia ter estado na origem do enfraquecimento e vulnerabilidade dos anglo-saxões à ocupação escandinava. A reforma educativa que foi empreendida no seu reinado teve como objectivos principais o desenvolvimento da competência de leitura e escrita em vernáculo e o <a class="pg" id="p56" href="#p56" title="Página 56 do original">56</a> fornecimento de livros em inglês. O latim continuaria a ser ensinado àqueles que seguissem a vida religiosa ou desempenhassem altos cargos públicos, mas a sua preocupação central seria com a divulgação de obras úteis, em inglês, para que todos os jovens nascidos livres e com meios de fortuna adequados as pudessem conhecer. Em 890 enviou uma carta a cada um dos seus bispos, acompanhada por uma tradução da sua autoria de <em>The Pastoral Care</em>, de Gregório, o Grande; e nela incluiu a lista de obras que considerava essenciais: <em>The Pastoral Care</em> e <em>Dialogues</em>, de Gregório, o Grande; <em>Universal History against the Pagans</em>, de Orósio, e <em>Ecclesiastical History of the English Nation</em>, de Beda; <em>On the Consolation of Philosophy</em>, de Boécio, e parte dos <em>Solilóquios</em>, de Santo Agostinho, a que acrescentou alguns outros textos acerca da sabedoria divina e da <span class="rec" title="Reconstruído: «da re,ação de D us com a alma humana» no original digitalizado.">relação de Deus com a alma humana</span><sup class="fn"><a href="#nota-14" id="ref-14" data-fn="14">14</a></sup>.</p>
+
+  <p>Pode, pois, dizer-se que Alfredo foi o grande impulsionador do <em>old english</em>, na sua forma escrita. A poesia vernácula existia já, mas as duas <span class="rec" title="Reconstruído: «as duas omJosições escritas&amp;m per:gamínho ]J_í)lis intigas» no original digitalizado.">composições escritas em pergaminho mais antigas</span>, que são <em>Caedmon's Hymn</em> e <em>Bede's Death Song</em>, devem a sua sobrevivência e as inúmeras cópias que delas foram feitas à sua associação com o nome de Beda. Sabe-se, também, que Beda completara, já no seu leito de morte, uma tradução para <em>old english</em> do Evangelho segundo São João <span class="rec" title="Reconstrução conjectural: «.$iê' sé·]5êi'.deu» no original digitalizado.">que se perdeu</span>. E sabe-se, também, que na época de Beda existia uma tradição de poesia vernácula, de que se conservaram alguns registos escritos. Podem, pois, distinguir-se três períodos na <strong>literatura anglo-saxónica</strong>:</p>
+
+  <ul class="bullets">
+    <li>o período de Beda, anglo-latino, em que aparecem os primeiros versos escritos em <em>old english</em>;</li>
+    <li>o de Alfredo, em que surge a prosa vernácula;</li>
+    <li>por último, o da reforma beneditina, em que o <em>old english</em> escrito se desenvolveu e aplicou a uma série de finalidades civis e religiosas.</li>
+  </ul>
+
+  <p>A poesia vernácula do tempo de Beda pertence, ainda, a uma cultura de tradição oral. Os poemas são anónimos e consistem, em geral, numa compilação miscelânea de versos, compostos ao longo de várias gerações, antes de terem sido passados a escrito. Este é o caso de <em>Dream of the Rood</em> e de <em>Beowulf</em>, ou mesmo de poemas históricos posteriores, como <em>Brunanburgh</em> e <em>Maldon</em>. Beda conta a história de Caedmon, que teria sido frade no mosteiro de Streanaeshalch, por volta de 680, e que teria recebido de Deus a graça de compor versos na sua língua materna, sempre com temas religiosos cristãos<sup class="fn"><a href="#nota-15" id="ref-15" data-fn="15">15</a></sup>. Infelizmente os poemas de Caedmon não sobreviveram e, deste período, conhece-se apenas <em>The Dream of The Rood</em>, de temática religiosa também.</p>
+
+  <p><em>Beowulf</em> é um poema épico que a crítica contemporânea não consegue ainda datar com precisão, e cuja acção se desenrola no Sul da Escandinávia, no <a class="pg" id="p57" href="#p57" title="Página 57 do original">57</a> século VI, principalmente na corte dinamarquesa. É um poema simultaneamente histórico, lendário e mítico, preocupado com o destino dos homens, dos heróis, dos reis e dos impérios, com a glória e a vaidade, com o heroísmo e a vingança. W. P. Ker chama a atenção, na leitura deste poema, para as alusões históricas e temas secundários, onde se encontram «revelações de um mundo trágico», e que, muito mais do que o desenvolvimento do tema central, evocam um temperamento aristocrático e um auditório exigente<sup class="fn"><a href="#nota-16" id="ref-16" data-fn="16">16</a></sup>.</p>
+
+  <p>O rei Alfredo entendia que a sabedoria (<em>wisdom</em>) era indispensável ao cristão, e que ela se adquiria através da aprendizagem (<em>learning</em>). Os seus textos originais e a escolha daqueles que traduziu tinham em vista a aquisição de saberes como instrumento para a construção do «edifício» da sabedoria e para a orientação na «estrada» da vida. Mas, para além deste sentido pedagógico do próprio rei, o seu reinado viu nascer a <em>Crónica Anglo-Saxónica</em>, que continuou a ser compilada até ao século XII. Sobre a acção educativa do rei Alfredo é de registar a opinião de Michael Alexander:</p>
+
+  <blockquote class="en">It is a paradox that his crash programme of converting Christian assets from Latin into English, which had as an accidental result the authoritative establishment of a tradition of writing in English, was itself the direct result of the disastrous coincidence of the decay of monastic learning and the almost complete success of the invasions of the Danish heathen. Nowhere else in Europe was Latin literacy so thoroughly impressed on a barbarous learned elite, so nearly lost so early, and then so quickly converted for vernacular purposes.<sup class="fn"><a href="#nota-17" id="ref-17" data-fn="17">17</a></sup></blockquote>
+
+  <h4 id="s-1-2-6"><span class="num">1.2.6</span> A reforma beneditina</h4>
+
+  <p><span class="rec" title="Reconstrução conjectural: o início da frase está ilegível no original. O reinado de Edgar (959-975), referido a seguir, situa o movimento no século X.">No século X</span> assiste-se, em Inglaterra, a um movimento de reforma da vida monástica inspirado por movimentos análogos no continente, nomeadamente Fleury em França e Ghent e St. Omer na Flandres. O rei será o elemento-chave para o êxito da reforma da ordem que fora fundada por São Bento de Núrsia, no século VI (c. 543). Foi o rei Edgar (959-975) que garantiu a doação e conservação de terras que asseguravam o pagamento dos <em>tithes</em>, e por isso eram indispensáveis à sobrevivência das casas monásticas. Em Inglaterra, a reforma beneditina teria dois aspectos importantes:</p>
+
+  <ul class="bullets">
+    <li>um, a reforma da vida monástica, com ênfase no seu carácter litúrgico e no celibato, bem como na abolição da propriedade privada;</li>
+    <li>outro, promovido pelo rei, o de tentar uniformizar as práticas das diferentes casas monásticas, expresso no documento <em>Regularis Concordia</em>.</li>
+  </ul>
+
+  <div class="pgbreak"><a class="pg" id="p58" href="#p58" title="Página 58 do original">58</a></div>
+  <p>Não obstante os esforços do rei e da Igreja, a reforma beneditina não atingiu a totalidade da Inglaterra, mas apenas as áreas do sul onde o rei detinha terras. No norte, as rupturas decorrentes das invasões viking dificultaram a sua implantação. Merecem, porém, registo as inovações introduzidas pela reforma, se não ao nível dos costumes, pelo menos ao nível da actividade litúrgica e suas expressões plásticas. Foram introduzidas alterações na arquitectura das igrejas, a fim de acomodar procissões, coros e canto em antifonia. A iluminação e a ornamentação ganharam novo relevo e a importância das alfaias litúrgicas era sublinhada pela riqueza dos materiais e a elaboração dos desenhos. A arte deste período ficou conhecida como <em>Winchester art</em> devido à preponderância da catedral de Winchester no <span class="rec" title="Reconstruído: «no processo d ;;fumia Foi nela que» no original digitalizado.">processo da reforma. Foi nela que</span>, por volta do ano de 970, se reuniu o conclave que redigiu a <em>Regularis Concordia</em>, e foi ali também que o bispo Aethelwold e os seus discípulos desenvolveram uma forma de escrita em <em>old english</em> que seria usada por mais de um século como norma, independentemente da variante oral, de Canterbury no sul, a Worcester a ocidente e York no norte. Seria sob essa forma que, nos mosteiros, seriam elaborados os manuscritos em que perdura a poesia anglo-saxónica.</p>
+
+  <p><span class="rec" title="Reconstruído: «Uma segun ª_deimrasõesvikinge_m finais do s ulo X ... obrÍgÕu» no original digitalizado.">Uma segunda vaga de invasões viking em finais do século X</span> e princípios do XI obrigou ao pagamento de pesados tributos que, não raramente, envolveram os próprios tesouros eclesiásticos e obrigaram a uma visível recessão na construção de lugares e objectos de culto. Mas o cristianismo não enfraqueceu e mesmo Canuto, dinamarquês e rei de Inglaterra (1017-1035), fundou mosteiros e foi <span class="rec" title="Reconstruído: «foip tr-;;-;;odasãrtes» no original digitalizado.">protector das artes</span>. <span class="rec" title="Reconstruído: «qjim._cl_a_J;ri_g!_a!W.lLª!!gl9_-:§!!XÓnica» no original digitalizado.">O fim da Inglaterra anglo-saxónica</span> não seria precipitado pelos vikings, mas sim pela influência francesa que, já com <span class="rec" title="Reconstruído: «I:duaraõ;·c;cQ (Í042 ló66) s começou à fazer sentir, na cÜrté e--;;;s altos postos» no original digitalizado.">Eduardo, o Confessor (1042-1066), se começou a fazer sentir, na corte e nos altos postos</span> da Igreja. Com o regresso de Eduardo do exílio, começam a desenhar-se traços de influência francesa que a conquista normanda iria acentuar. Mas, enquanto o Confessor trouxe para Inglaterra modelos do continente que iriam marcar a vida da corte, os mais altos cargos eclesiásticos e a arquitectura (a Catedral de Westminster, começada em cerca de 1050, é já exemplo da influência da arquitectura românica), <span class="rec" title="Reconstruído: «o CQJ1giiistador iria pro-mover uma sa;gri de bens e de riq ;;ru;-pari o contine;ie:'·beii:i ç9mo» no original digitalizado.">o Conquistador iria promover uma sangria de bens e de riquezas para o continente, bem como</span> um programa de construção de castelos e igrejas em Inglaterra, que destruiu ou fez desaparecer a maior parte da herança anglo-saxónica.</p>
+
+  <p>Mas a estrutura hierárquica da sociedade anglo-saxónica tinha já todos os traços que iriam caracterizar o feudalismo no norte da Europa. A esta sociedade, entre a conquista normanda e a dinastia Tudor, serão dedicados os próximos capítulos.</p>
+  <section class="notes" aria-label="Notas"><h3>Notas</h3><ol><li id="nota-3" value="3"><div class="note-body"><em>The Cambridge Cultural History of Britain</em>, ed. Boris Ford, vol. I, <em>Early Britain</em>, Cambridge, Cambridge UP, 1992, p. 38.</div> <a class="back" href="#ref-3" aria-label="Voltar ao texto">↩</a></li><li id="nota-4" value="4"><div class="note-body">Bede, <em>Ecclesiastical History of the English People with Bede's Letter to Egbert and Cuthbert's Letter on the Death of Bede</em>. Trad. Leo Sherley-Price <em>et al.</em>, Harmondsworth, Penguin, 1990, pp. 56 e 65.</div> <a class="back" href="#ref-4" aria-label="Voltar ao texto">↩</a></li><li id="nota-5" value="5"><div class="note-body">Adopta-se aqui a data avançada por Lawrence Stone em <em>The Family, Sex and Marriage in England 1500-1800</em>, a que se fará referência posteriormente.</div> <a class="back" href="#ref-5" aria-label="Voltar ao texto">↩</a></li><li id="nota-6" value="6"><div class="note-body">David Held, «The Development of the Modern State», in <em>Formations of Modernity</em>, ed. Stuart Hall and Bram Gieben, Cambridge, Polity Press, 1992, p. 75.</div> <a class="back" href="#ref-6" aria-label="Voltar ao texto">↩</a></li><li id="nota-7" value="7"><div class="note-body">G. M. Trevelyan, <em>A Shortened History of England</em>, Harmondsworth, Penguin, 1965, pp. 28 e 37.</div> <a class="back" href="#ref-7" aria-label="Voltar ao texto">↩</a></li><li id="nota-8" value="8"><div class="note-body"><em>The Cambridge Cultural History of Britain</em>, <em>op. cit.</em>, p. 101.</div> <a class="back" href="#ref-8" aria-label="Voltar ao texto">↩</a></li><li id="nota-9" value="9"><div class="note-body">Cit. in Dorothy Whitelock, <em>The Beginnings of English Society: The Anglo-Saxon Period</em>, Harmondsworth, Penguin, 1959, p. 29.</div> <a class="back" href="#ref-9" aria-label="Voltar ao texto">↩</a></li><li id="nota-10" value="10"><div class="note-body">Bede, <em>op. cit.</em>, pp. 44-46.</div> <a class="back" href="#ref-10" aria-label="Voltar ao texto">↩</a></li><li id="nota-11" value="11"><div class="note-body"><em>The Cambridge Cultural History of Britain</em>, <em>op. cit.</em>, p. 104.</div> <a class="back" href="#ref-11" aria-label="Voltar ao texto">↩</a></li><li id="nota-12" value="12"><div class="note-body">Bede, <em>op. cit.</em>, pp. 103-104.</div> <a class="back" href="#ref-12" aria-label="Voltar ao texto">↩</a></li><li id="nota-13" value="13"><div class="note-body"><em>The Cambridge Cultural History of Britain</em>, <em>op. cit.</em>, pp. 112 e 147.</div> <a class="back" href="#ref-13" aria-label="Voltar ao texto">↩</a></li><li id="nota-14" value="14"><div class="note-body">D. Whitelock, <em>op. cit.</em>, p. 215.</div> <a class="back" href="#ref-14" aria-label="Voltar ao texto">↩</a></li><li id="nota-15" value="15"><div class="note-body">Bede, <em>op. cit.</em>, pp. 248-251.</div> <a class="back" href="#ref-15" aria-label="Voltar ao texto">↩</a></li><li id="nota-16" value="16"><div class="note-body">W. P. Ker, <em>The Dark Ages</em>, New York, Mentor Books, 1958, p. 164.</div> <a class="back" href="#ref-16" aria-label="Voltar ao texto">↩</a></li><li id="nota-17" value="17"><div class="note-body"><em>The Cambridge Cultural History of Britain</em>, <em>op. cit.</em>, p. 191.</div> <a class="back" href="#ref-17" aria-label="Voltar ao texto">↩</a></li></ol></section>
+</section>
+<section class="chapter editorial" id="nota-editorial"><header class="chap-head"><span class="chap-num">Sobre esta transcrição</span><h2>Nota editorial</h2></header>
+  <p>Este documento transcreve as páginas 35-58 de <em>Sociedade e Cultura Inglesas</em> (Luísa Leal de Faria, Universidade Aberta, 1996). O PDF de origem é uma digitalização de má qualidade, com uma camada de texto sobreposta que substituiu palavras inteiras por sequências de caracteres sem sentido, partiu palavras a meio («clarifi car», «pró gresso»), trocou pontos finais por vírgulas e deslocou blocos de texto para as margens.</p>
+
+    <p>Critério seguido: reconstruir apenas o que o contexto permite determinar com segurança, eliminar o ruído puramente tipográfico e assinalar tudo o que foi reposto. Carregue em <strong>«Destacar reconstruções»</strong> (o marcador na barra superior) para ver as passagens intervencionadas — cada uma tem, ao passar o rato, a leitura corrompida do original.</p>
+
+    <dl>
+      <dt>Ruído tipográfico eliminado (sem marcação)</dt>
+      <dd>Palavras partidas pela coluna de texto foram reunidas; hífenes e traços espúrios, marcas de sublinhado da camada OCR e pontuação trocada (vírgulas no lugar de pontos finais) foram normalizados. Nomes e títulos mal reconhecidos foram corrigidos: <code>Post-Modeni</code> <span class="arrow">→</span> <em>Post-Modern</em>; <code>Modew State</code> <span class="arrow">→</span> <em>Modern State</em>; <code>A Shortened Hisrory</code> <span class="arrow">→</span> <em>A Shortened History</em>; <code>EarJY Britain</code> <span class="arrow">→</span> <em>Early Britain</em>; <code>Cuthbe,tS Letteron</code> <span class="arrow">→</span> <em>Cuthbert's Letter on</em>; <code>Agles</code> <span class="arrow">→</span> <em>Angles</em>; <code>Latiu / leaming / Iiteracy / vemacular</code> <span class="arrow">→</span> <em>Latin / learning / literacy / vernacular</em>; <code>CodexAmiatinus</code> <span class="arrow">→</span> <em>Codex Amiatinus</em>; <code>Vortingem</code> <span class="arrow">→</span> Vortigern.</dd>
+
+      <dt>Grafias uniformizadas</dt>
+      <dd>A digitalização alterna <em>wergild</em> e <em>werguild</em> na mesma passagem; adoptou-se <em>wergild</em>, a forma usada na primeira ocorrência. O mesmo para <em>Wj_nchester art</em> <span class="arrow">→</span> <em>Winchester art</em> e <em>Solil6quios</em> <span class="arrow">→</span> <em>Solilóquios</em>.</dd>
+
+      <dt>Bloco de texto reposicionado</dt>
+      <dd>Na p. 51 a digitalização deixou solto na margem direita o segmento «França e na Itália, concorreram decerto para que, privada de contactos com outras regiões, a Irlanda desenvolvesse uma igreja». Foi reintegrado na frase a que pertence, que continua na p. 52 («e uma civilização próprias, de raiz celta…»).</dd>
+
+      <dt>Numeração de notas corrigida</dt>
+      <dd>A nota que remete para o passo sobre Caedmon aparece na digitalização numerada como 13, embora a chamada no texto seja 15 e a nota 13 já exista noutra página. Foi renumerada para <strong>15</strong>. A nota 1 lê <code>p. L</code>, corrigido para <strong>p. 1</strong>.</dd>
+
+      <dt>Datas corrigidas por serem verificavelmente erradas</dt>
+      <dd>
+        <ul>
+          <li><strong>Sínodo de Whitby:</strong> a digitalização lê «em 644»; o sínodo reuniu-se em <strong>664</strong>. A frase situa-o «em meados do século VII», o que é incompatível com 644.</li>
+          <li><strong>Monkwearmouth:</strong> a digitalização lê «em 647»; o mosteiro foi fundado em <strong>674</strong>, seis ou sete anos antes de Jarrow (681-682), como o próprio texto indica.</li>
+        </ul>
+      </dd>
+
+      <dt>Passagens reconstruídas por conjectura (assinaladas no texto)</dt>
+      <dd>
+        <ul>
+          <li><strong>p. 43</strong> — «apenas <code>en:i_P!i_ll_cípios do sé,;gl VL</code>» foi lido como «em princípios do século XVI». O algarismo é a parte menos segura da leitura.</li>
+          <li><strong>p. 44</strong> — o século de «No princípio do s…» está ilegível; o contexto (Constantino, 306; conflitos de 353) impõe o <strong>século IV</strong>.</li>
+          <li><strong>p. 49</strong> — o termo vernáculo em itálico («<code>britrJJl</code>») que significaria «escravo» permanece indecifrável; ficou como <em>bretão</em>, coerente com a frase, mas não é uma leitura segura.</li>
+          <li><strong>p. 52</strong> — o sujeito de «<code>O Ri!&amp; UW</code> continuaria a existir» é ilegível. Lido como «O paganismo», única leitura compatível com o resto do período.</li>
+          <li><strong>p. 54</strong> — «meados do século <code>yg</code>» foi lido como <strong>século VII</strong>, por ser o período que separa Boécio (século V-VI) do tempo de Beda.</li>
+          <li><strong>p. 56</strong> — «tradução para <em>old english</em> do Evangelho segundo São João <code>.$iê' sé·]5êi'.deu</code>» foi lido como «que se perdeu».</li>
+          <li><strong>p. 57</strong> — o início da secção 1.2.6 está truncado; reposto como «No século X», pelo reinado de Edgar (959-975) que a frase seguinte refere.</li>
+        </ul>
+      </dd>
+
+      <dt>Divergências do original que se mantiveram</dt>
+      <dd>Não foram alterados dois pontos que parecem ser da autora e não da digitalização: a atribuição a <strong>São Columbano</strong> da missão no oeste da Escócia e em Northumbria (obra habitualmente atribuída a São Columba, de Iona), e a designação <strong>«Catedral de Westminster»</strong> para o edifício iniciado c. 1050 por Eduardo, o Confessor (a Abadia de Westminster). Assinalam-se aqui para conhecimento do leitor.</dd>
+    </dl>
+</section>
+  <section class="back">
+    <p class="colophon">Luísa Leal de Faria · <em>Sociedade e Cultura Inglesas</em> · Universidade Aberta, 1996 · pp. 35–58</p>
+    <p class="center"><a class="buy" href="https://uab.euleio.pt/eBook/SOCIEDADE-E-CULTURA-INGLESAS/9789726749615" target="_blank" rel="noopener">Comprar o livro completo na loja da Universidade Aberta ↗</a></p>
+  </section>
+</main>
+<div class="fn-pop" role="dialog" aria-modal="false" hidden><button class="fn-close" aria-label="Fechar">×</button><div class="fn-pop-body"></div></div>
+<script>(() => {
+  const root = document.documentElement;
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  };
+
+  // tema
+  const saved = store.get('sci-theme');
+  if (saved) root.dataset.theme = saved;
+  document.querySelector('.theme-btn').addEventListener('click', () => {
+    const dark = root.dataset.theme
+      ? root.dataset.theme === 'dark'
+      : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    store.set('sci-theme', root.dataset.theme);
+  });
+
+  // passagens reconstruídas
+  const recBtn = document.querySelector('.rec-btn');
+  const setRec = (on) => {
+    document.body.classList.toggle('show-rec', on);
+    recBtn.setAttribute('aria-pressed', String(on));
+    const label = on ? 'Ocultar reconstruções' : 'Destacar reconstruções';
+    recBtn.setAttribute('aria-label', label);
+    recBtn.title = label;
+    store.set('sci-show-rec', on ? '1' : '0');
+  };
+  setRec(store.get('sci-show-rec') === '1');
+  recBtn.addEventListener('click', () => setRec(!document.body.classList.contains('show-rec')));
+
+  // barra lateral (telemóvel)
+  const menuBtn = document.querySelector('.menu-btn');
+  const scrim = document.querySelector('.scrim');
+  const setNav = (open) => {
+    document.body.classList.toggle('nav-open', open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+    scrim.hidden = !open;
+  };
+  menuBtn.addEventListener('click', () => setNav(!document.body.classList.contains('nav-open')));
+  scrim.addEventListener('click', () => setNav(false));
+  document.querySelectorAll('.toc a').forEach((a) => a.addEventListener('click', () => setNav(false)));
+
+  // ir para página do original: etiqueta mais próxima (≤ n)
+  const pages = [...document.querySelectorAll('a.pg[id]')]
+    .map((el) => [parseInt(el.id.slice(1), 10), el]).sort((a, b) => a[0] - b[0]);
+  const goto = document.querySelector('.goto');
+  goto.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const n = parseInt(goto.querySelector('input').value, 10);
+    if (isNaN(n)) return;
+    let el = null;
+    for (const [p, e] of pages) { if (p <= n) el = e; else break; }
+    if (!el) el = document.getElementById('inicio');
+    el.scrollIntoView({ block: 'center' });
+    if (el.classList.contains('pg')) {
+      el.classList.add('flash');
+      setTimeout(() => el.classList.remove('flash'), 1600);
+      history.replaceState(null, '', '#' + el.id);
+    }
+  });
+
+  // barra de progresso e secção atual
+  const bar = document.querySelector('.progress span');
+  const crumb = document.querySelector('.crumb-cur');
+  const tocLinks = new Map();
+  document.querySelectorAll('.toc a').forEach((a) => tocLinks.set(a.getAttribute('href').slice(1), a));
+  const heads = [...document.querySelectorAll('.chapter[id], h3[id], h4[id]')];
+  let ticking = false;
+  const onScroll = () => {
+    ticking = false;
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+    const line = 90;
+    let cur = null;
+    for (const el of heads) {
+      const top = (el.matches('.chapter') ? el.querySelector('.chap-head') : el).getBoundingClientRect().top;
+      if (top - line <= 0) cur = el; else break;
+    }
+    document.querySelectorAll('.toc a.active').forEach((a) => a.classList.remove('active'));
+    if (cur) {
+      const a = tocLinks.get(cur.id);
+      if (a) {
+        a.classList.add('active');
+        const ch = cur.closest('.chapter');
+        const chA = ch && tocLinks.get(ch.id);
+        crumb.textContent = chA && chA !== a ? chA.querySelector('.t').textContent : a.querySelector('.t').textContent;
+      }
+    } else {
+      crumb.textContent = 'Início';
+    }
+  };
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  // manter visível a entrada ativa do índice
+  const side = document.querySelector('.sidebar');
+  let lastActive = null;
+  setInterval(() => {
+    const a = side.querySelector('a.active');
+    if (a && a !== lastActive) {
+      lastActive = a;
+      const r = a.getBoundingClientRect(), s = side.getBoundingClientRect();
+      if (r.top < s.top + 40 || r.bottom > s.bottom - 40) a.scrollIntoView({ block: 'center' });
+    }
+  }, 600);
+
+  // notas: janela sobre a chamada
+  const pop = document.querySelector('.fn-pop');
+  const popBody = pop.querySelector('.fn-pop-body');
+  let openRef = null;
+  const closePop = () => { pop.hidden = true; if (openRef) openRef.focus({ preventScroll: true }); openRef = null; };
+  document.addEventListener('click', (ev) => {
+    const a = ev.target.closest('sup.fn a');
+    if (a) {
+      ev.preventDefault();
+      if (openRef === a) { closePop(); return; }
+      const n = a.dataset.fn;
+      const li = document.getElementById('nota-' + n);
+      if (!li) return;
+      popBody.innerHTML = '<span class="fn-num">' + n + '</span>' + li.querySelector('.note-body').innerHTML +
+        ' <a href="#nota-' + n + '" class="fn-go">ver nas notas</a>';
+      pop.hidden = false;
+      const r = a.getBoundingClientRect();
+      const w = pop.offsetWidth;
+      let left = r.left + scrollX - w / 2;
+      left = Math.max(scrollX + 16, Math.min(left, scrollX + innerWidth - w - 16));
+      let top = r.bottom + scrollY + 8;
+      if (r.bottom + pop.offsetHeight + 16 > innerHeight) top = r.top + scrollY - pop.offsetHeight - 8;
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+      openRef = a;
+      return;
+    }
+    if (ev.target.closest('.fn-close') || (!ev.target.closest('.fn-pop') && !pop.hidden)) closePop();
+    if (ev.target.closest('.fn-go')) pop.hidden = true;
+  });
+  addEventListener('keydown', (ev) => { if (ev.key === 'Escape' && !pop.hidden) closePop(); });
+})();
+</script>
+</body>
+</html>

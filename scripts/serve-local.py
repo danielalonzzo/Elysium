@@ -163,6 +163,129 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(404, "Private national asset")
             return None
 
+        # Previsualización local de la biblioteca y libros
+        if path in {"/library", "/library/"}:
+            index_path = ROOT / "library" / "index.html"
+            if index_path.is_file():
+                raw = index_path.read_text(encoding="utf-8")
+                cards_html = (
+                    '<article class="library-card" data-book="manual-de-tecnicas-de-expressao-e-comunicacao">'
+                    '<div class="library-card-top"><span class="library-card-langs">'
+                    '<span class="library-chip" lang="en-GB">Portuguese</span></span>'
+                    '<span class="library-card-size">4.2 MB</span>'
+                    '</div><div class="library-card-body">'
+                    '<h3 lang="pt-PT"><a href="/library/manual-de-tecnicas-de-expressao-e-comunicacao">Manual de Técnicas de Expressão e Comunicação</a></h3>'
+                    '<p class="library-card-description" lang="pt-PT">Guia prático de escrita académica: planificar, redigir e rever; pontuar e organizar parágrafos; responder em provas e citar sem plagiar. Pensado para estudantes do ensino superior que dominam as matérias mas perdem nota na forma como escrevem, inclui ainda a escrita de mensagens eletrónicas.</p>'
+                    '<p class="library-card-date">Added 30 September 2026</p>'
+                    '<div class="library-card-actions">'
+                    '<a class="btn btn-primary" href="/library/manual-de-tecnicas-de-expressao-e-comunicacao">Read</a>'
+                    '<button type="button" class="btn library-audio-button" data-audiobook="manual-de-tecnicas-de-expressao-e-comunicacao">'
+                    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg><span>Audiobook</span></button>'
+                    '</div></div></article>'
+                    '<article class="library-card" data-book="capital-humano-temas-para-uma-boa-gestao-das-organizacoes">'
+                    '<div class="library-card-top"><span class="library-card-langs">'
+                    '<span class="library-chip" lang="en-GB">Portuguese</span></span>'
+                    '<span class="library-card-size">343.2 KB</span>'
+                    '</div><div class="library-card-body">'
+                    '<h3 lang="pt-PT"><a href="/library/capital-humano-temas-para-uma-boa-gestao-das-organizacoes">Capital Humano: Temas para uma boa gestão das organizações</a></h3>'
+                    '<p class="library-card-description" lang="pt-PT">Os nove temas essenciais para gerir pessoas numa organização, sempre com uma abordagem contingencial. Parte do quadro português das relações laborais e da função de recursos humanos; passa pela motivação, a liderança, o poder, o conflito e a negociação; e acaba na prática: estratégia, análise de funções, recrutamento, seleção, acolhimento e remuneração.</p>'
+                    '<p class="library-card-date">Added 25 September 2026</p>'
+                    '<div class="library-card-actions">'
+                    '<a class="btn btn-primary" href="/library/capital-humano-temas-para-uma-boa-gestao-das-organizacoes">Read</a>'
+                    '<button type="button" class="btn library-audio-button" data-audiobook="capital-humano-temas-para-uma-boa-gestao-das-organizacoes">'
+                    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg><span>Audiobook</span></button>'
+                    '</div></div></article>'
+                    '<article class="library-card" data-book="sociedade-e-cultura-inglesas">'
+                    '<div class="library-card-top"><span class="library-card-langs">'
+                    '<span class="library-chip" lang="en-GB">Portuguese</span>'
+                    '<span class="library-chip library-chip-translation" lang="en-GB">English</span>'
+                    '<span class="library-chip library-chip-translation" lang="en-GB">Spanish</span>'
+                    '</span>'
+                    '<span class="library-card-size">101.5 KB</span>'
+                    '</div><div class="library-card-body">'
+                    '<h3 lang="pt-PT"><a href="/library/sociedade-e-cultura-inglesas">Sociedade e Cultura Inglesas</a></h3>'
+                    '<p class="library-card-description" lang="pt-PT">As origens da sociedade inglesa, dos romanos ao fim da Inglaterra anglo-saxónica: cristianização, Beda, os vikings e o rei Alfredo. A autora parte da definição de modernidade de Giddens e descreve uma sociedade assente no parentesco e na lealdade ao senhor e uma Igreja que o Sínodo de Whitby (664) alinhou com Roma.</p>'
+                    '<p class="library-card-date">Added 25 September 2026</p>'
+                    '<div class="library-card-actions">'
+                    '<a class="btn btn-primary" href="/library/sociedade-e-cultura-inglesas">Read</a>'
+                    '<button type="button" class="btn library-audio-button" data-audiobook="sociedade-e-cultura-inglesas">'
+                    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg><span>Audiobook</span></button>'
+                    '</div></div></article>'
+                )
+                catalog_json = '{"books":[{"slug":"manual-de-tecnicas-de-expressao-e-comunicacao","title":"Manual de Técnicas de Expressão e Comunicação","description":"Guia prático de escrita académica: planificar, redigir e rever; pontuar e organizar parágrafos; responder em provas e citar sem plagiar.","lang":"pt-PT","size":4375065,"uploadedAt":"2026-09-30T10:00:00.000Z"},{"slug":"capital-humano-temas-para-uma-boa-gestao-das-organizacoes","title":"Capital Humano: Temas para uma boa gestão das organizações","description":"Os nove temas essenciais para gerir pessoas numa organização, sempre com uma abordagem contingencial.","lang":"pt-PT","size":351436,"uploadedAt":"2026-09-25T12:00:00.000Z"},{"slug":"sociedade-e-cultura-inglesas","title":"Sociedade e Cultura Inglesas","description":"As origens da sociedade inglesa, dos romanos ao fim da Inglaterra anglo-saxónica: cristianização, Beda, os vikings e o rei Alfredo.","lang":"pt-PT","size":103954,"translations":["en-GB","es-ES"],"uploadedAt":"2026-09-25T12:11:00.000Z"}],"missing":false,"configured":true}'
+                raw = raw.replace("{{ROBOTS}}", "noindex, nofollow")
+                raw = raw.replace("{{LIBRARY_JSON_LD}}", "{}")
+                raw = raw.replace("{{LIBRARY_CARDS}}", cards_html)
+                raw = raw.replace("{{LIBRARY_DATA}}", catalog_json)
+                payload = raw.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+                return None
+
+        if path.startswith("/library/"):
+            rest = path[len("/library/"):].strip("/")
+            books_meta = {
+                "manual-de-tecnicas-de-expressao-e-comunicacao": {
+                    "title": "Manual de Técnicas de Expressão e Comunicação",
+                    "file": "manual-de-tecnicas-de-expressao-e-comunicacao.html",
+                    "author": "Paulo Nunes da Silva",
+                    "date": "2026-09-30",
+                    "date_text": "30 September 2026",
+                    "desc": "Guia prático de escrita académica: planificar, redigir e rever; pontuar e organizar parágrafos; responder em provas e citar sem plagiar."
+                },
+                "capital-humano-temas-para-uma-boa-gestao-das-organizacoes": {
+                    "title": "Capital Humano: Temas para uma boa gestão das organizações",
+                    "file": "capital-humano-temas-para-uma-boa-gestao-das-organizacoes.html",
+                    "author": "Luísa Leal de Faria",
+                    "date": "2026-09-25",
+                    "date_text": "25 September 2026",
+                    "desc": "Os nove temas essenciais para gerir pessoas numa organização, sempre com uma abordagem contingencial."
+                },
+                "sociedade-e-cultura-inglesas": {
+                    "title": "Sociedade e Cultura Inglesas",
+                    "file": "sociedade-e-cultura-inglesas.html",
+                    "author": "Luísa Leal de Faria",
+                    "date": "2026-09-25",
+                    "date_text": "25 September 2026",
+                    "desc": "As origens da sociedade inglesa, dos romanos ao fim da Inglaterra anglo-saxónica: cristianização, Beda, os vikings e o rei Alfredo."
+                }
+            }
+            if rest in books_meta:
+                meta = books_meta[rest]
+                reader_path = ROOT / "library" / "reader.html"
+                if reader_path.is_file():
+                    raw = reader_path.read_text(encoding="utf-8")
+                    raw = raw.replace("{{BOOK_TITLE}}", meta["title"])
+                    raw = raw.replace("{{BOOK_SLUG}}", rest)
+                    raw = raw.replace("{{BOOK_LANG}}", "pt-PT")
+                    raw = raw.replace("{{BOOK_LANGUAGE_NAME}}", "Português")
+                    raw = raw.replace("{{BOOK_AUTHOR}}", f'<p class="library-author">{meta["author"]}</p>')
+                    raw = raw.replace("{{BOOK_DESCRIPTION}}", meta["desc"])
+                    raw = raw.replace("{{BOOK_DATE}}", meta["date"])
+                    raw = raw.replace("{{BOOK_DATE_TEXT}}", meta["date_text"])
+                    raw = raw.replace("{{BOOK_OG_LOCALE}}", "pt_PT")
+                    raw = raw.replace("{{BOOK_URL}}", f"http://localhost:{PORT}/library/{rest}")
+                    raw = raw.replace("{{BOOK_JSON_LD}}", "{}")
+                    raw = raw.replace("{{BOOK_TOC_HIDDEN}}", "hidden")
+                    raw = raw.replace("{{BOOK_TOC}}", "")
+                    raw = raw.replace("{{BOOK_MORE_HIDDEN}}", "hidden")
+                    raw = raw.replace("{{BOOK_MORE}}", "")
+                    payload = raw.encode("utf-8")
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.send_header("Content-Length", str(len(payload)))
+                    self.end_headers()
+                    self.wfile.write(payload)
+                    return None
+            for b_slug, b_info in books_meta.items():
+                if rest in {f"{b_slug}/book", b_info["file"]}:
+                    book_file = ROOT / "library" / b_info["file"]
+                    if book_file.is_file():
+                        return self._serve(book_file)
+
         national = query.get("national", [""])[0]
         slug = self._canonical_slug(path)
 

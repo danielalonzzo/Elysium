@@ -35,7 +35,14 @@ function memoryKv() {
     return {
         entries,
         async put(key, value, options = {}) {
-            const bytes = value instanceof Uint8Array ? value : new TextEncoder().encode(String(value));
+            let bytes;
+            if (value instanceof Uint8Array) {
+                bytes = value;
+            } else if (value instanceof ArrayBuffer) {
+                bytes = new Uint8Array(value);
+            } else {
+                bytes = new TextEncoder().encode(String(value));
+            }
             entries.set(key, { bytes: new Uint8Array(bytes), metadata: options.metadata ?? null });
         },
         async get(key) {
@@ -404,6 +411,89 @@ test('las direcciones de libro son slugs y no pueden chocar con las rutas propia
     assert.equal((await publish(env, 'manual-2023')).status, 201);
 });
 
+test('las propuestas de digitalización se guardan y solo el administrador las gestiona', async () => {
+    const env = makeEnv();
+
+    // Envío anónimo por JSON
+    const res1 = await call(env, 'https://elysiumdr.eu/library/api/proposals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            name: 'Lectora Interesada',
+            email: 'lectora@example.com',
+            message: 'Propongo transcribir este libro clásico de filosofía.',
+            lang: 'es'
+        })
+    });
+    assert.equal(res1.status, 201);
+    const body1 = await res1.json();
+    assert.ok(body1.ok);
+    assert.ok(body1.id);
+
+    // Envío anónimo con FormData y archivo
+    const form = new FormData();
+    form.append('name', 'Investigador');
+    form.append('email', 'investigador@example.com');
+    form.append('message', 'Adjunto escaneo del documento en PDF.');
+    form.append('lang', 'es');
+    const fakeFile = new Blob(['%PDF-1.4 contenido simulado del libro'], { type: 'application/pdf' });
+    form.append('file', fakeFile, 'documento-antiguo.pdf');
+
+    const res2 = await call(env, 'https://elysiumdr.eu/library/api/proposals', {
+        method: 'POST',
+        body: form
+    });
+    assert.equal(res2.status, 201);
+    const body2 = await res2.json();
+    assert.ok(body2.id);
+
+    // Acceso no autenticado a listar propuestas -> 401
+    const anonGet = await call(env, 'https://elysiumdr.eu/library/api/proposals');
+    assert.equal(anonGet.status, 401);
+
+    // Acceso autenticado como Daniel
+    const adminToken = await signToken();
+    const adminGet = await call(env, 'https://elysiumdr.eu/library/api/proposals', {
+        headers: { Authorization: `Bearer ${adminToken}` }
+    });
+    assert.equal(adminGet.status, 200);
+    const list = await adminGet.json();
+    assert.equal(list.proposals.length, 2);
+    const withFile = list.proposals.find(p => p.id === body2.id);
+    assert.ok(withFile);
+    assert.equal(withFile.hasFile, true);
+    assert.equal(withFile.fileName, 'documento-antiguo.pdf');
+
+    // Descarga del archivo adjunto por el admin
+    const fileRes = await call(env, `https://elysiumdr.eu/library/api/proposals/${body2.id}/file`, {
+        headers: { Authorization: `Bearer ${adminToken}` }
+    });
+    assert.equal(fileRes.status, 200);
+    assert.match(fileRes.headers.get('Content-Disposition') || '', /documento-antiguo\.pdf/);
+    assert.equal(await fileRes.text(), '%PDF-1.4 contenido simulado del libro');
+
+    // Actualización de estado
+    const patchRes = await call(env, `https://elysiumdr.eu/library/api/proposals/${body2.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` },
+        body: JSON.stringify({ status: 'in_progress' })
+    });
+    assert.equal(patchRes.status, 200);
+    const patchData = await patchRes.json();
+    assert.equal(patchData.proposal.status, 'in_progress');
+
+    // Eliminación de propuesta
+    const delRes = await call(env, `https://elysiumdr.eu/library/api/proposals/${body1.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${adminToken}` }
+    });
+    assert.equal(delRes.status, 200);
+    const afterDel = await call(env, 'https://elysiumdr.eu/library/api/proposals', {
+        headers: { Authorization: `Bearer ${adminToken}` }
+    });
+    assert.equal((await afterDel.json()).proposals.length, 1);
+});
+
 test('sin el binding de KV la biblioteca no se rompe: índice vacío y API 503', async () => {
     const env = makeEnv();
     delete env.LIBRARY;
@@ -642,7 +732,7 @@ function portfolioPages() {
         .filter(path => path.endsWith('.html') && !skip.test(path) && !/(?:^|\/)(?:node_modules|_comercial|[^/]+\.nosync)\//.test(path));
 }
 
-test('todas las páginas con pie completo enlazan la biblioteca, también en móvil, y solo en el pie', () => {
+test('todas las páginas con pie completo enlazan la biblioteca, también en móvil, y en el menú si tienen navegación completa', () => {
     let checked = 0;
     for (const path of portfolioPages()) {
         const html = readFileSync(join(ROOT, path), 'utf8');
@@ -656,16 +746,18 @@ test('todas las páginas con pie completo enlazan la biblioteca, también en mó
         const label = localized ? 'Biblioteca' : 'Library';
         assert.match(footer, new RegExp(`<li class="footer-library"><a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="\\w+")?>${label}</a></li>`), path);
         // En móvil el pie esconde la columna «Empresa» (repite el menú), pero
-        // la biblioteca no está en el menú: su enlace tiene que seguir a la vista.
+        // el enlace de la biblioteca tiene que seguir a la vista.
         const mobileRule = html.includes('pages.css') ? PAGES_CSS : html;
         assert.match(mobileRule, /footer \.footer-grid \.footer-col:nth-child\(2\) li:not\(\.footer-library\)/, `${path}: mobile footer`);
         const navbar = html.slice(html.indexOf('<nav'), html.indexOf('</nav>'));
-        assert.ok(!/href="(?:https:\/\/elysiumdr\.eu)?\/library"/.test(navbar), `${path}: the header must not link the library`);
+        if (/portfolio|portafolio|portefólio/i.test(navbar)) {
+            assert.match(navbar, new RegExp(`<a href="${href.replaceAll('.', '\\.')}" class="nav-link(?: active)?"(?: data-i18n="[^"]*")?>${label}</a>`), `${path}: header links library`);
+        }
     }
     assert.ok(checked >= 80, `only ${checked} pages were checked`);
 });
 
-test('todas las páginas con pie completo enlazan Gestor de Patrimonio justo debajo de la biblioteca, en cada idioma y también en móvil', () => {
+test('todas las páginas con pie completo enlazan Gestor de Patrimonio justo debajo de la biblioteca, en cada idioma, en móvil y en el menú', () => {
     const LABELS = { en: 'Wealth Manager', es: 'Gestor de Patrimonio', pt: 'Gestor de Património' };
     let checked = 0;
     for (const path of portfolioPages()) {
@@ -683,7 +775,10 @@ test('todas las páginas con pie completo enlazan Gestor de Patrimonio justo deb
         const mobileRule = html.includes('pages.css') ? PAGES_CSS : html;
         assert.match(mobileRule, /footer \.footer-grid \.footer-col:nth-child\(2\) li:not\(\.footer-library\)/, `${path}: mobile footer`);
         const navbar = html.slice(html.indexOf('<nav'), html.indexOf('</nav>'));
-        assert.ok(!navbar.includes('Gestor-Patrimonios'), `${path}: la app no va en el menú, solo en el pie`);
+        if (/portfolio|portafolio|portefólio/i.test(navbar)) {
+            const navAnchor = new RegExp(`<a href="${href.replaceAll('.', '\\.')}" class="nav-link(?: active)?"(?: data-i18n="[^"]*")?>${LABELS[lang]}</a>`);
+            assert.match(navbar, navAnchor, `${path}: header links Gestor-Patrimonios`);
+        }
     }
     assert.ok(checked >= 80, `only ${checked} pages were checked`);
 });
@@ -697,6 +792,7 @@ test('el pie traducido por JavaScript trae «Gestor de Patrimonio» en los tres 
     }
     for (const template of ['library/index.html', 'library/reader.html', 'profiles.html']) {
         assert.match(readFileSync(join(ROOT, template), 'utf8'), /<li class="footer-library"><a href="\/Gestor-Patrimonios\/" data-i18n="footerPatrimonio">Wealth Manager<\/a><\/li>/, template);
+        assert.match(readFileSync(join(ROOT, template), 'utf8'), /<a href="\/Gestor-Patrimonios\/" class="nav-link" data-i18n="navPatrimonio">Wealth Manager<\/a>/, template);
     }
 });
 
