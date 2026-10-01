@@ -100,23 +100,23 @@ test('.eu — Portugal va a su dominio', async () => {
     assert.equal(r.location, 'https://elysiumdr.pt/');
 });
 
-test('.eu — Costa Rica se queda en Europa, en español', async () => {
+test('.eu — Costa Rica va al sitio global, en español de Costa Rica', async () => {
     const r = await call(EU, { country: 'CR' });
     assert.equal(r.status, 302);
-    assert.equal(r.location, 'https://elysiumdr.eu/es/');
+    assert.equal(r.location, 'https://elysiumdr.com/es/');
 });
 
-test('.eu — resto de hispanohablantes, Europa en español', async () => {
+test('.eu — resto de hispanohablantes, sitio global en español', async () => {
     for (const country of ['MX', 'AR', 'CO', 'PE', 'CL', 'GQ', 'PR']) {
         const r = await call(EU, { country });
-        assert.equal(r.location, 'https://elysiumdr.eu/es/', country);
+        assert.equal(r.location, 'https://elysiumdr.com/es/', country);
     }
 });
 
-test('.eu — lusófonos que no son Portugal, Europa en portugués', async () => {
+test('.eu — lusófonos que no son Portugal, sitio global en portugués', async () => {
     for (const country of ['BR', 'AO', 'MZ', 'CV', 'TL', 'GW', 'ST', 'MO']) {
         const r = await call(EU, { country });
-        assert.equal(r.location, 'https://elysiumdr.eu/pt/', country);
+        assert.equal(r.location, 'https://elysiumdr.com/pt/', country);
     }
 });
 
@@ -187,7 +187,7 @@ test('.eu — un enlace profundo NO se reparte', async () => {
 
 test('.eu — el reparto conserva el query', async () => {
     const r = await call('https://elysiumdr.eu/?utm_source=li', { country: 'CR' });
-    assert.equal(r.location, 'https://elysiumdr.eu/es/?utm_source=li');
+    assert.equal(r.location, 'https://elysiumdr.com/es/?utm_source=li');
 });
 
 test('.eu — www va al ápice antes de repartir', async () => {
@@ -380,7 +380,15 @@ test('las landings regionales heredadas tienen una sola región canónica', asyn
     for (const [from, to] of [
         [
             'https://elysiumdr.es/infraestructura-digital-pymes-costa-rica?src=old',
-            'https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica?src=old'
+            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica?src=old'
+        ],
+        [
+            'https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica',
+            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica'
+        ],
+        [
+            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica.html',
+            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica'
         ],
         [
             'https://elysiumdr.es/infraestructura-digital-pymes-espana.html?src=old',
@@ -405,9 +413,10 @@ test('las landings regionales heredadas tienen una sola región canónica', asyn
         assert.equal(r.asset, null, from);
     }
 
-    const costaRica = await call('https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica');
+    // El aterrizaje de Costa Rica vive en el sitio global, no en el europeo.
+    const costaRica = await call('https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica');
     assert.equal(costaRica.status, 200);
-    assert.equal(costaRica.asset, '/es/infraestructura-digital-pymes-costa-rica');
+    assert.equal(costaRica.asset, '/_national/com/es/infraestructura-digital-pymes-costa-rica');
 });
 
 test('/p y sus variantes se canonizan a portfolio sin cambiar de región', async () => {
@@ -695,9 +704,10 @@ test('el proxy conserva el WWW-Authenticate que ya trae el upstream', async t =>
 
 // ── www ────────────────────────────────────────────────────────────────────────────
 
-test('www — los tres dominios redirigen a su propio ápice', async () => {
+test('www — los cuatro dominios redirigen a su propio ápice', async () => {
     for (const [from, to] of [
         ['https://www.elysiumdr.eu/about', 'https://elysiumdr.eu/about'],
+        ['https://www.elysiumdr.com/es/about', 'https://elysiumdr.com/es/about'],
         ['https://www.elysiumdr.es/services', 'https://elysiumdr.es/services'],
         ['https://www.elysiumdr.pt/portfolio', 'https://elysiumdr.pt/portfolio']
     ]) {
@@ -714,7 +724,8 @@ test('www — el query sobrevive a la redirección', async () => {
 
 test('www — nunca sirve contenido: no hay dos URLs para la misma página', async () => {
     for (const url of [
-        'https://www.elysiumdr.eu/', 'https://www.elysiumdr.es/', 'https://www.elysiumdr.pt/'
+        'https://www.elysiumdr.eu/', 'https://www.elysiumdr.es/', 'https://www.elysiumdr.pt/',
+        'https://www.elysiumdr.com/'
     ]) {
         assert.equal((await call(url)).asset, null, url);
     }

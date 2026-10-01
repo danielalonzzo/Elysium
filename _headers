@@ -104,6 +104,18 @@
 /JS/home.v20260826.min.js
   Cache-Control: public, max-age=31536000, immutable
 
+# Un fichero versionado es inmutable: si cambia su contenido hay que cambiar su
+# nombre (así se quedó el selector de idioma de `.eu` con la bandera vieja en los
+# navegadores que ya lo tenían). 20261001: barra de navegación y regiones.
+/CSS/home.v20261001.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/CSS/home-critical.v20261001.min.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/JS/home.v20261001.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
 # components.css is requested with a versioned query string by every interior
 # page, so it can share the immutable policy used by the dated home bundles.
 /CSS/components.css

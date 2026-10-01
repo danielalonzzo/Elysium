@@ -129,7 +129,8 @@ function formatDate(value) {
     if (!value) return '';
     const date = typeof value.toDate === 'function' ? value.toDate() : new Date(value);
     if (Number.isNaN(date.getTime())) return '';
-    const localeTag = locale === 'es' ? 'es-CR' : locale === 'pt' ? 'pt-PT' : 'en-GB';
+    const spanish = window.location.hostname.toLowerCase() === 'elysiumdr.com' ? 'es-CR' : 'es-ES';
+    const localeTag = locale === 'es' ? spanish : locale === 'pt' ? 'pt-PT' : 'en-GB';
     return new Intl.DateTimeFormat(localeTag, { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 }
 

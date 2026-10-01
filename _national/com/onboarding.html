@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NDDNWMFH');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding - Elysium λ</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="CSS/base.css">
+    <link rel="stylesheet" href="CSS/components.css?v=20261001">
+    <link rel="stylesheet" href="CSS/pages.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+    <style>
+        .onboarding-container {
+            max-width: 800px;
+            margin: 10rem auto 4rem;
+            padding: 3rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-container {
+            margin-bottom: 3rem;
+        }
+
+        .progress-bar-bg {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: var(--color-accent);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .tier-note {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--color-accent);
+            letter-spacing: 0.03em;
+            min-height: 1em;
+        }
+
+        .form-step {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 1.8rem;
+            color: var(--color-platinum);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            color: var(--color-text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .checkbox-group, .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .option-card.selected {
+            border-color: var(--color-accent);
+            background: rgba(0, 150, 255, 0.08);
+        }
+
+        .option-card input {
+            display: none;
+        }
+
+        .conditional-section {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .conditional-section.visible {
+            display: block;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Micro-copy styles */
+        .micro-copy {
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
+        .required-star {
+            color: #ff4444;
+            margin-left: 2px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Access transfer checklist */
+        .access-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .access-row {
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 1rem;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .access-row { grid-template-columns: 1fr; }
+        }
+
+        /* Live asset ingestion (Firebase Storage) */
+        .upload-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 1.75rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.02);
+            margin-top: 0.75rem;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--color-accent);
+            background: rgba(0, 150, 255, 0.06);
+        }
+
+        .upload-zone input[type="file"] { display: none; }
+
+        .upload-zone-icon { font-size: 1.6rem; opacity: 0.6; margin-bottom: 0.4rem; }
+
+        .upload-file-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.75rem 0 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: left;
+        }
+
+        .upload-file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem 0.85rem;
+            font-size: 0.85rem;
+        }
+
+        .upload-file-item .file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .upload-file-progress {
+            width: 90px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .upload-file-progress span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: var(--color-accent);
+            transition: width 0.2s ease;
+        }
+
+        .upload-file-item.upload-done .upload-file-progress span { background: #00c875; }
+        .upload-file-item.upload-error { border-color: #ff4444; }
+
+        .upload-file-remove {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            padding: 0.2rem;
+        }
+        .upload-file-remove:hover { color: #ff4444; }
+
+        .rbac-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .rbac-cell {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+        }
+
+        .rbac-cell label {
+            display: block;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-text-secondary);
+            margin-bottom: 0.5rem;
+        }
+    </style>
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="canonical" href="https://elysiumdr.com/onboarding">
+    <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.com/onboarding">
+    <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.com/es/onboarding">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.com/pt/onboarding">
+    <link rel="alternate" hreflang="x-default" href="https://elysiumdr.com/onboarding">
+    <meta property="og:url" content="https://elysiumdr.com/onboarding">
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDDNWMFH"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand-container">
+                <a href="./" class="nav-brand" data-localized-route=""><span class="brand-symbol">λ</span> ELYSIUM</a>
+                <!-- Region Switcher Dropdown -->
+                <div class="region-switcher-dropdown" id="regionSwitcher">
+                    <button type="button" class="region-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select region">
+                        <span class="region-tag">GLOBAL</span>
+                        <span class="region-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="region-switcher-menu" role="menu">
+                        <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item" role="menuitem" data-region="EU">EUROPE</a>
+                        <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">SPAIN</a>
+                        <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
+                        <a href="https://elysiumdr.com/" class="region-item active" role="menuitem" data-region="GLOBAL" aria-current="true"><span class="region-indicator" aria-hidden="true">●</span> GLOBAL</a>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Select language" data-i18n-aria="authLanguage"><span class="lang-current-label">EN</span> <img src="Images/Optimized/flag-eu-64.webp" alt="EN" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="/onboarding" class="lang-select" role="menuitem" data-lang="en">English <img src="Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/es/onboarding" class="lang-select" role="menuitem" data-lang="es">Español <img src="Images/Optimized/flag-cr-64.webp" alt="CR" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/pt/onboarding" class="lang-select" role="menuitem" data-lang="pt">Português <img src="Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="section">
+        <div class="container">
+            <div class="onboarding-container">
+
+                <div class="progress-container">
+                    <div class="progress-bar-bg">
+                        <div id="progress-fill" class="progress-bar-fill"></div>
+                    </div>
+                    <div class="step-indicator">
+                        <span id="step-number">Module 1</span>
+                        <span id="step-category">λ 01 · Organization</span>
+                    </div>
+                    <div id="tier-note" class="tier-note"></div>
+                </div>
+
+                <form id="onboarding-form" novalidate>
+
+                    <!-- ═══ Module 1 · Organization & Contacts (all plans) ═══ -->
+                    <div class="form-step active" data-step="1" data-category="λ 01 · Organization">
+                        <h2 class="step-title">Organization &amp; Contacts <span class="required-star">*</span></h2>
+                        <p class="step-description">Welcome to the λ Immersion Protocol. Let's confirm who we are building for and who leads the project on your side.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Full Name <span class="required-star">*</span></label>
+                            <input type="text" name="contact_name" class="form-control" required placeholder="John Doe">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Position or Role <span class="required-star">*</span></label>
+                            <input type="text" name="contact_role" class="form-control" required placeholder="e.g., Founder, CEO, Operations Manager">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Corporate Email <span class="required-star">*</span></label>
+                            <input type="email" name="contact_email" class="form-control" required placeholder="john@company.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Country <span class="required-star">*</span></label>
+                            <select name="contact_country" class="form-control" required>
+                                <option value="">Select country</option>
+                                <option value="Portugal">Portugal</option>
+                                <option value="Spain">Spain</option>
+                                <option value="Argentina">Argentina</option>
+                                <option value="Mexico">Mexico</option>
+                                <option value="Colombia">Colombia</option>
+                                <option value="Chile">Chile</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone / WhatsApp <span class="required-star">*</span></label>
+                            <input type="tel" name="contact_phone" class="form-control" required placeholder="+351 900 000 000">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Company Name <span class="required-star">*</span></label>
+                            <input type="text" name="company_name" class="form-control" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Current Website (if any)</label>
+                            <input type="url" name="company_website" class="form-control" placeholder="https://">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Industry Sector <span class="required-star">*</span></label>
+                            <select name="company_sector" class="form-control" required>
+                                <option value="">Select industry</option>
+                                <option value="Health">Health</option>
+                                <option value="Education">Education</option>
+                                <option value="Retail">Retail / Commerce</option>
+                                <option value="Professional Services">Professional Services</option>
+                                <option value="Hospitality">Restaurant / Hospitality</option>
+                                <option value="Real Estate">Construction / Real Estate</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Consulting">Consulting</option>
+                                <option value="Fitness">Sport / Fitness</option>
+                                <option value="Research">Research</option>
+                                <option value="NGO">NGO / Association</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Organization Size <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="company_size" value="1" required> Solo Founder / Entrepreneur (1)</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="2-9" required> Micro (2-9 employees)</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="10-49" required> Small (10-49 employees)</label>
+                                <label class="option-card"><input type="radio" name="company_size" value="Other" required> Other</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Brief Description of your business <span class="required-star">*</span></label>
+                            <textarea name="company_description" class="form-control" placeholder="What do you do, who do you help, and what makes you different?" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Project lead on your side (if different from you)</label>
+                            <input type="text" name="project_lead_name" class="form-control" placeholder="Name and role of the person who approves deliverables">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Technical contact (if any)</label>
+                            <input type="text" name="tech_contact_name" class="form-control" placeholder="Name of the person who answers technical questions">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Technical contact email</label>
+                            <input type="email" name="tech_contact_email" class="form-control" placeholder="tech@company.com">
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 2 · Operational Telemetry (crm, basic, preferential, advanced) ═══ -->
+                    <div class="form-step" data-step="2" data-category="λ 01 · Operational Telemetry" data-tiers="crm basic preferential advanced">
+                        <h2 class="step-title">Operational Telemetry <span class="required-star">*</span></h2>
+                        <p class="step-description">To engineer your infrastructure we need to map your real daily operation — not the ideal one, the actual one.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Describe, step by step, what happens today from the moment a client says "yes, I want to buy" until the service is delivered <span class="required-star">*</span></label>
+                            <textarea name="process_journey" class="form-control" required placeholder="Mention the tools you touch at each step."></textarea>
+                            <p class="micro-copy">Example: "A WhatsApp message arrives → I write it in a notebook → I copy it into Excel on Fridays → I invoice at the end of the month."</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Which step of that process consumes the most time or produces the most errors? <span class="required-star">*</span></label>
+                            <textarea name="process_bottleneck" class="form-control" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Which tools does your team use today? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="whatsapp" required> WhatsApp</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="phone" required> Phone calls</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="paper" required> Paper / notebooks</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="spreadsheets" required> Excel / Google Sheets</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="email" required> Email</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="social_media" required> Social media</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="crm_software" required> An existing CRM</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="accounting_software" required> Accounting software</label>
+                                <label class="option-card"><input type="checkbox" name="process_tools" value="other" id="tools-other-checkbox" required> Other</label>
+                            </div>
+                        </div>
+
+                        <div class="conditional-section" id="tools-other-text">
+                            <div class="form-group">
+                                <label class="form-label">Which other tools?</label>
+                                <input type="text" name="process_tools_other" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">If this process stayed exactly the same for 2 more years, what would it cost your business? <span class="required-star">*</span></label>
+                            <textarea name="status_quo_risk" class="form-control" required placeholder="Lost clients, wasted hours, errors, stress…"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 3 · Team & Ergonomics (crm, basic, preferential, advanced) ═══ -->
+                    <div class="form-step" data-step="3" data-category="λ 01 · Team &amp; Ergonomics" data-tiers="crm basic preferential advanced">
+                        <h2 class="step-title">Team &amp; Ergonomics <span class="required-star">*</span></h2>
+                        <p class="step-description">We design ergonomic interfaces adapted to human behaviour. Tell us who will actually use the system every day.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">How many people will use the system daily? <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="team_size_daily" value="just_me" required> Just me</label>
+                                <label class="option-card"><input type="radio" name="team_size_daily" value="2_5" required> 2 – 5 people</label>
+                                <label class="option-card"><input type="radio" name="team_size_daily" value="6_15" required> 6 – 15 people</label>
+                                <label class="option-card"><input type="radio" name="team_size_daily" value="16_plus" required> More than 15</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">How would you describe your team's technology adoption level? <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="team_digital_level" value="low" required> Low — used to paper, technology frustrates them</label>
+                                <label class="option-card"><input type="radio" name="team_digital_level" value="medium" required> Medium — comfortable with Office / email</label>
+                                <label class="option-card"><input type="radio" name="team_digital_level" value="high" required> High — digital natives, adapt quickly</label>
+                            </div>
+                            <p class="micro-copy">If the level is low, we prioritize large buttons, strict linear flows, and avoid complex dashboards.</p>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">On which device will the team mainly work? <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="team_devices" value="mobile" required> Mobile, in the field</label>
+                                <label class="option-card"><input type="radio" name="team_devices" value="desktop" required> Desktop, at the office</label>
+                                <label class="option-card"><input type="radio" name="team_devices" value="mixed" required> Both</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 4 · Technical Inventory (all plans) ═══ -->
+                    <div class="form-step" data-step="4" data-category="λ 02 · Technical Inventory">
+                        <h2 class="step-title">Technical Inventory <span class="required-star">*</span></h2>
+                        <p class="step-description">State of the art: what already exists, who controls it, and which data would need to be migrated.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Current website status <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="has_website" value="no" required> I don't have a website</label>
+                                <label class="option-card"><input type="radio" name="has_website" value="yes_working" required> Yes, and it works</label>
+                                <label class="option-card"><input type="radio" name="has_website" value="in_development" required> In development</label>
+                                <label class="option-card"><input type="radio" name="has_website" value="abandoned" required> Yes, but abandoned</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Which assets do you already have? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="domain" required> Own domain</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="hosting" required> Hosting</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="logo" required> Logo</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="brand_manual" required> Brand manual</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="crm" required> CRM / client database</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="corporate_email" required> Corporate email</label>
+                                <label class="option-card"><input type="checkbox" name="current_assets" value="none" id="assets-none-checkbox" required> None of these</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Access checklist — who controls each of these today? <span class="required-star">*</span></label>
+                            <p class="micro-copy" style="margin-bottom: 0.5rem;">We never ask for passwords here. We only need to know what exists and who holds the keys, to plan the transfer.</p>
+                            <div class="access-grid">
+                                <div class="access-row">
+                                    <span>Domain / DNS</span>
+                                    <select name="access_domain" class="form-control" required>
+                                        <option value="">Select</option>
+                                        <option value="i_control">I control it</option>
+                                        <option value="third_party">A third party controls it</option>
+                                        <option value="unknown">I don't know</option>
+                                        <option value="dont_have">I don't have one</option>
+                                    </select>
+                                </div>
+                                <div class="access-row">
+                                    <span>Current hosting</span>
+                                    <select name="access_hosting" class="form-control" required>
+                                        <option value="">Select</option>
+                                        <option value="i_control">I control it</option>
+                                        <option value="third_party">A third party controls it</option>
+                                        <option value="unknown">I don't know</option>
+                                        <option value="dont_have">I don't have one</option>
+                                    </select>
+                                </div>
+                                <div class="access-row">
+                                    <span>Google Business Profile</span>
+                                    <select name="access_google_business" class="form-control" required>
+                                        <option value="">Select</option>
+                                        <option value="i_control">I control it</option>
+                                        <option value="third_party">A third party controls it</option>
+                                        <option value="unknown">I don't know</option>
+                                        <option value="dont_have">I don't have one</option>
+                                    </select>
+                                </div>
+                                <div class="access-row">
+                                    <span>Meta Business (Facebook / Instagram)</span>
+                                    <select name="access_meta" class="form-control" required>
+                                        <option value="">Select</option>
+                                        <option value="i_control">I control it</option>
+                                        <option value="third_party">A third party controls it</option>
+                                        <option value="unknown">I don't know</option>
+                                        <option value="dont_have">I don't have one</option>
+                                    </select>
+                                </div>
+                                <div class="access-row">
+                                    <span>Corporate email account</span>
+                                    <select name="access_corporate_email" class="form-control" required>
+                                        <option value="">Select</option>
+                                        <option value="i_control">I control it</option>
+                                        <option value="third_party">A third party controls it</option>
+                                        <option value="unknown">I don't know</option>
+                                        <option value="dont_have">I don't have one</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Do you have legacy data that should live in the new system? <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="legacy_data" value="none" required> No legacy data</label>
+                                <label class="option-card"><input type="radio" name="legacy_data" value="spreadsheets" required> Yes, in Excel / CSV / Sheets</label>
+                                <label class="option-card"><input type="radio" name="legacy_data" value="other_software" required> Yes, in another software</label>
+                                <label class="option-card"><input type="radio" name="legacy_data" value="paper" required> Yes, on paper</label>
+                            </div>
+                        </div>
+
+                        <div class="conditional-section" id="legacy-detail">
+                            <div class="form-group">
+                                <label class="form-label">Roughly how many records? (clients, products, appointments…)</label>
+                                <div class="radio-group">
+                                    <label class="option-card"><input type="radio" name="legacy_records" value="lt_100"> Fewer than 100</label>
+                                    <label class="option-card"><input type="radio" name="legacy_records" value="100_1000"> 100 – 1,000</label>
+                                    <label class="option-card"><input type="radio" name="legacy_records" value="1000_10000"> 1,000 – 10,000</label>
+                                    <label class="option-card"><input type="radio" name="legacy_records" value="gt_10000"> More than 10,000</label>
+                                    <label class="option-card"><input type="radio" name="legacy_records" value="unknown"> I don't know</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Where does that data live? (name of the software or file)</label>
+                                <input type="text" name="legacy_source" class="form-control" placeholder="e.g., clients.xlsx, an old CRM, invoicing software…">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 5 · Asset Ingestion (crm, basic, preferential, advanced) ═══ -->
+                    <div class="form-step" data-step="5" data-category="λ 02 · Asset Ingestion" data-tiers="crm basic preferential advanced">
+                        <h2 class="step-title">Asset Ingestion</h2>
+                        <p class="step-description">Upload your materials right now — when this session ends, our engineering team already has everything on the server. Files are stored in your private, encrypted client folder.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Brand identity — logo (SVG / EPS / PNG) and brand manual (PDF)</label>
+                            <div class="upload-zone" data-upload-category="identity">
+                                <input type="file" multiple accept=".svg,.eps,.ai,.png,.jpg,.jpeg,.webp,.pdf,.zip">
+                                <div class="upload-zone-icon">⬆</div>
+                                <div>Drag &amp; drop files here, or click to browse</div>
+                                <ul class="upload-file-list"></ul>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Content — texts, corporate photos, key documents</label>
+                            <div class="upload-zone" data-upload-category="content">
+                                <input type="file" multiple accept=".png,.jpg,.jpeg,.webp,.pdf,.doc,.docx,.txt,.zip">
+                                <div class="upload-zone-icon">⬆</div>
+                                <div>Drag &amp; drop files here, or click to browse</div>
+                                <ul class="upload-file-list"></ul>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Legacy data — client lists, inventory, or services in Excel / CSV</label>
+                            <div class="upload-zone" data-upload-category="data">
+                                <input type="file" multiple accept=".csv,.xls,.xlsx,.txt,.zip">
+                                <div class="upload-zone-icon">⬆</div>
+                                <div>Drag &amp; drop files here, or click to browse</div>
+                                <ul class="upload-file-list"></ul>
+                            </div>
+                            <p class="micro-copy">If these files contain personal data of third parties, they are processed under our <a href="privacy" target="_blank" style="color: var(--color-accent);">Privacy Policy</a> (GDPR / Law No. 8968) exclusively to build your system.</p>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Anything you don't have at hand right now?</label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="pending_assets" value="identity_later"> I'll send the brand identity later</label>
+                                <label class="option-card"><input type="checkbox" name="pending_assets" value="content_later"> I'll send the content later</label>
+                                <label class="option-card"><input type="checkbox" name="pending_assets" value="data_later"> I'll send the data later</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 6 · Problem & Measurable Objective (crm, basic, preferential, advanced) ═══ -->
+                    <div class="form-step" data-step="6" data-category="λ 03–04 · Problem Definition" data-tiers="crm basic preferential advanced">
+                        <h2 class="step-title">Problem &amp; Measurable Objective <span class="required-star">*</span></h2>
+                        <p class="step-description">Critical variables and problem definition — the core that the new infrastructure must resolve.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Company Vision</label>
+                            <textarea name="company_vision" class="form-control" placeholder="Where is your company heading in the next few years?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Company Mission</label>
+                            <textarea name="company_mission" class="form-control" placeholder="What is your company's purpose?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">What is the main problem you want this project to solve? <span class="required-star">*</span></label>
+                            <textarea name="problem_description" class="form-control" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">What exactly do you want to achieve? <span class="required-star">*</span></label>
+                            <textarea name="goal_description" class="form-control" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">How will we know, 6 months after launch, that this worked? <span class="required-star">*</span></label>
+                            <input type="text" name="kpi_metric" class="form-control" required placeholder="A concrete, verifiable metric">
+                            <p class="micro-copy">Examples: "20 more bookings per month", "zero hours of weekly Excel work", "15 qualified leads per month". This becomes the acceptance criterion of the QA phase.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Describe your ideal customer <span class="required-star">*</span></label>
+                            <textarea name="ideal_customer" class="form-control" required placeholder="Who are they, what do they need, how do they find you?"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Target audience <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="local_b2c" required> Local consumers (B2C)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="national_b2c" required> National consumers (B2C)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="international" required> International clients</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="b2b" required> Other businesses (B2B)</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="government" required> Government / institutions</label>
+                                <label class="option-card"><input type="checkbox" name="target_audience" value="other" required> Other</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 7 · Security Architecture & RBAC (crm, advanced) ═══ -->
+                    <div class="form-step" data-step="7" data-category="λ 07 · Security &amp; RBAC" data-tiers="crm advanced">
+                        <h2 class="step-title">Security Architecture (RBAC) <span class="required-star">*</span></h2>
+                        <p class="step-description">This matrix translates directly into the access-control rules of your system: each person sees only what they need to see.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">How many people per access level? <span class="required-star">*</span></label>
+                            <div class="rbac-grid">
+                                <div class="rbac-cell">
+                                    <label>Administrators (full access)</label>
+                                    <input type="number" name="rbac_admins" class="form-control" min="0" max="999" required placeholder="0">
+                                </div>
+                                <div class="rbac-cell">
+                                    <label>Editors (create / modify their area)</label>
+                                    <input type="number" name="rbac_editors" class="form-control" min="0" max="999" required placeholder="0">
+                                </div>
+                                <div class="rbac-cell">
+                                    <label>Read-only (view only)</label>
+                                    <input type="number" name="rbac_viewers" class="form-control" min="0" max="999" required placeholder="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Will the system handle highly sensitive information? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="sensitive_data" value="health" required> Health data (Art. 9 GDPR / Law 8968)</label>
+                                <label class="option-card"><input type="checkbox" name="sensitive_data" value="financial" required> Financial data</label>
+                                <label class="option-card"><input type="checkbox" name="sensitive_data" value="minors" required> Data of minors</label>
+                                <label class="option-card"><input type="checkbox" name="sensitive_data" value="none" id="sensitive-none-checkbox" required> None of these</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">What must a standard employee NOT be able to see?</label>
+                            <textarea name="restricted_info" class="form-control" placeholder="e.g., finances, the full client list, salaries…"></textarea>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Have you suffered any of these in the past? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="past_problems" value="downtime" required> Website down</label>
+                                <label class="option-card"><input type="checkbox" name="past_problems" value="slow" required> Very slow site / system</label>
+                                <label class="option-card"><input type="checkbox" name="past_problems" value="hacked" required> Hacking / intrusion</label>
+                                <label class="option-card"><input type="checkbox" name="past_problems" value="data_loss" required> Data loss</label>
+                                <label class="option-card"><input type="checkbox" name="past_problems" value="none" id="past-problems-none-checkbox" required> None</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 8 · Functional Scope & Integrations (crm, basic, preferential, advanced) ═══ -->
+                    <div class="form-step" data-step="8" data-category="λ 06 · Functional Scope" data-tiers="crm basic preferential advanced">
+                        <h2 class="step-title">Functional Scope &amp; Integrations <span class="required-star">*</span></h2>
+                        <p class="step-description">Preliminary architecture: which capabilities the ecosystem must include and which third-party services it must talk to.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Which functions does your project need? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="features" value="portfolio" required> Showcase services / portfolio</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="appointments" required> Bookings / appointments</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="payments" required> Online payments</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="ecommerce" required> E-commerce / catalog</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="client_area" required> Private client area</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="blog_news" required> Blog / news</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="contact_forms" required> Contact forms</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="file_management" required> Document / file management</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="reporting" required> Reports and statistics</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="automation" required> Process automation</label>
+                                <label class="option-card"><input type="checkbox" name="features" value="other" id="feature-other-checkbox" required> Other</label>
+                            </div>
+                        </div>
+
+                        <div class="conditional-section" id="feature-other-text">
+                            <div class="form-group">
+                                <label class="form-label">Which other functions?</label>
+                                <input type="text" name="feature_other" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;" data-tiers="basic preferential advanced">
+                            <label class="form-label">Which sections should the website include? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="home" required> Home</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="about" required> About us</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="services" required> Services</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="portfolio" required> Portfolio / cases</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="blog" required> Blog / news</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="testimonials" required> Testimonials</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="faq" required> FAQ</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="contact" required> Contact</label>
+                                <label class="option-card"><input type="checkbox" name="web_sections" value="legal" required> Legal pages</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;" data-tiers="crm advanced">
+                            <label class="form-label">Who will use the internal application? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="app_users" value="internal_team" required> Internal team</label>
+                                <label class="option-card"><input type="checkbox" name="app_users" value="clients" required> Your clients</label>
+                                <label class="option-card"><input type="checkbox" name="app_users" value="external_admins" required> External administrators</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Which tools should the system connect with? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="integrations" value="social_media" required> Social media</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="whatsapp" required> WhatsApp</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="email_marketing" required> Email marketing (Mailchimp…)</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="analytics" required> Google Analytics</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="payment_gateway" required> Payment gateway (Stripe…)</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="calendar" required> Corporate calendar</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="accounting_erp" required> Accounting / ERP</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="maps" required> Google Maps</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="none" id="integrations-none-checkbox" required> None</label>
+                                <label class="option-card"><input type="checkbox" name="integrations" value="other" id="integration-other-checkbox" required> Other</label>
+                            </div>
+                        </div>
+
+                        <div class="conditional-section" id="integration-other-text">
+                            <div class="form-group">
+                                <label class="form-label">Which other integrations?</label>
+                                <input type="text" name="integration_other" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Briefly describe how they should work together — and note which of these accounts you already have active</label>
+                            <textarea name="integration_desc" class="form-control" placeholder="e.g., 'When someone books, send a WhatsApp reminder. I already have Stripe and Instagram; I don't have Mailchimp yet.'"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 9 · Identity & Design (crm, basic, preferential, advanced) ═══ -->
+                    <div class="form-step" data-step="9" data-category="λ 06 · Identity &amp; Design" data-tiers="crm basic preferential advanced">
+                        <h2 class="step-title">Identity &amp; Design <span class="required-star">*</span></h2>
+                        <p class="step-description">Visual direction for the interface your clients and team will live in.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">What should the design transmit? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="professional" required> Professional / corporate</label>
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="modern" required> Modern / innovative</label>
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="premium" required> Premium / exclusive</label>
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="minimalist" required> Minimalist / clean</label>
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="technological" required> Technological</label>
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="scientific" required> Scientific / rigorous</label>
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="warm" required> Warm / human</label>
+                                <label class="option-card"><input type="checkbox" name="brand_feeling" value="other" id="brand-other-checkbox" required> Other</label>
+                            </div>
+                        </div>
+
+                        <div class="conditional-section" id="brand-other-text">
+                            <div class="form-group">
+                                <label class="form-label">Describe it</label>
+                                <input type="text" name="brand_feeling_other" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">2–3 websites or apps you love — and why <span class="required-star">*</span></label>
+                            <textarea name="design_refs" class="form-control" required placeholder="Paste the URLs and tell us what you like about each one."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Anything the design should avoid?</label>
+                            <textarea name="design_avoids" class="form-control" placeholder="Colors, styles, or elements you dislike."></textarea>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;" data-tiers="preferential advanced">
+                            <label class="form-label">Which languages should the site speak? <span class="required-star">*</span></label>
+                            <div class="checkbox-group">
+                                <label class="option-card"><input type="checkbox" name="site_languages" value="spanish" required> Spanish</label>
+                                <label class="option-card"><input type="checkbox" name="site_languages" value="english" required> English</label>
+                                <label class="option-card"><input type="checkbox" name="site_languages" value="portuguese" required> Portuguese</label>
+                                <label class="option-card"><input type="checkbox" name="site_languages" value="french" required> French</label>
+                                <label class="option-card"><input type="checkbox" name="site_languages" value="german" required> German</label>
+                                <label class="option-card"><input type="checkbox" name="site_languages" value="other" required> Other</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Color scheme preference <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="color_scheme" value="light" required> Light mode</label>
+                                <label class="option-card"><input type="radio" name="color_scheme" value="dark" required> Dark mode</label>
+                                <label class="option-card"><input type="radio" name="color_scheme" value="both" required> Both (auto-adaptive)</label>
+                                <label class="option-card"><input type="radio" name="color_scheme" value="designer_choice" required> I trust the design team</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 10 · Operations & Launch (all plans) ═══ -->
+                    <div class="form-step" data-step="10" data-category="λ 08–10 · Operations &amp; Launch">
+                        <h2 class="step-title">Operations &amp; Launch <span class="required-star">*</span></h2>
+                        <p class="step-description">Delivery logistics: who operates the system, when it must go live, and who validates it.</p>
+
+                        <div class="form-group" data-tiers="crm basic preferential advanced">
+                            <label class="form-label">Who will update the content day to day? <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="ops_updates" value="internal_team" required> Our internal team</label>
+                                <label class="option-card"><input type="radio" name="ops_updates" value="elysium" required> Elysium</label>
+                                <label class="option-card"><input type="radio" name="ops_updates" value="third_party" required> A third party</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;" data-tiers="crm basic preferential advanced">
+                            <label class="form-label">How often will content or data change? <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="ops_frequency" value="rarely" required> Almost never</label>
+                                <label class="option-card"><input type="radio" name="ops_frequency" value="monthly" required> Monthly</label>
+                                <label class="option-card"><input type="radio" name="ops_frequency" value="weekly" required> Weekly</label>
+                                <label class="option-card"><input type="radio" name="ops_frequency" value="daily" required> Daily</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;" data-tiers="basic preferential advanced">
+                            <label class="form-label">How important is SEO positioning? <span class="required-star">*</span></label>
+                            <div class="radio-group">
+                                <label class="option-card"><input type="radio" name="seo_priority" value="essential" required> Just the essentials</label>
+                                <label class="option-card"><input type="radio" name="seo_priority" value="from_start" required> A priority from day one</label>
+                                <label class="option-card"><input type="radio" name="seo_priority" value="phase_two" required> For a second phase</label>
+                                <label class="option-card"><input type="radio" name="seo_priority" value="not_priority" required> Not a priority</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Is there a target launch date? <span class="required-star">*</span></label>
+                            <select id="deadline-select" name="has_deadline" class="form-control" required>
+                                <option value="">Select</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No, flexible</option>
+                            </select>
+                        </div>
+
+                        <div class="conditional-section" id="deadline-detail">
+                            <div class="form-group">
+                                <label class="form-label">Target date</label>
+                                <input type="date" name="deadline_date" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Is it tied to an event? (fair, campaign, high season…)</label>
+                                <input type="text" name="launch_event" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 2rem;">
+                            <label class="form-label">Who on your team will test the system and receive the final training? <span class="required-star">*</span></label>
+                            <input type="text" name="acceptance_tester" class="form-control" required placeholder="Name and role">
+                        </div>
+                    </div>
+
+                    <!-- ═══ Module 11 · Privacy & Consent (all plans) ═══ -->
+                    <div class="form-step" data-step="11" data-category="Submission">
+                        <h2 class="step-title">Privacy &amp; Consent <span class="required-star">*</span></h2>
+                        <p class="step-description">Last step — then engineering begins.</p>
+
+                        <div class="form-group">
+                            <label class="option-card" style="width: 100%; cursor: pointer;">
+                                <input type="checkbox" name="privacy_consent" required style="display: block; width: auto;">
+                                <span>I have read and accept the <a href="privacy" target="_blank" style="color: var(--color-accent); text-decoration: underline;">Privacy Policy</a> and authorize the processing of my data to plan and build my project. <span class="required-star">*</span></span>
+                            </label>
+                        </div>
+
+                        <div class="form-group" id="files-consent-group">
+                            <label class="option-card" style="width: 100%; cursor: pointer;">
+                                <input type="checkbox" name="files_consent" style="display: block; width: auto;">
+                                <span>I authorize the processing of the files and datasets I have uploaded, exclusively for the development of my system (GDPR Art. 28 / Law No. 8968).</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="option-card" style="width: 100%; cursor: pointer;">
+                                <input type="checkbox" name="marketing_consent">
+                                <span>I agree to receive information related to services, news, or resources from Elysium.</span>
+                            </label>
+                        </div>
+
+                        <p class="micro-copy" style="margin-top: 2rem;">
+                            Your data will only be used to design, build, and maintain your digital infrastructure. You can request access, rectification, or deletion of your data at any time.
+                        </p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" id="prev-btn" class="btn" style="visibility: hidden;">Back</button>
+                        <button type="button" id="next-btn" class="btn btn-primary" style="display: block;">Next Module</button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary" style="display: none;">Submit Onboarding</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer style="margin-top: 4rem;">
+        <div class="container text-center">
+            <p class="micro-copy">&copy; 2026 Elysium λ Development & Research. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="JS/main.js"></script>
+    <script src="JS/elysium-mouse.js"></script>
+    <script src="JS/elysium-audio.js"></script>
+    <script type="module" src="JS/onboarding.js?v=2026080603"></script>
+</body>
+
+</html>

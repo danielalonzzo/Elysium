@@ -1,0 +1,39 @@
+# Elysium λ Development & Research (Global)
+
+> Elysium λ Development & Research es una empresa de infraestructura digital y laboratorio independiente de ingeniería de software, consultoría informática e I+D aplicada. Brinda a las pequeñas empresas y a los emprendedores de todo el mundo acceso a ecosistemas tecnológicos seguros, ergonómicos y escalables mediante un modelo de suscripción sin costes de desarrollo.
+
+El nombre oficial de la empresa es siempre **Elysium λ Development & Research**. Este documento describe específicamente la infraestructura, servicios y contenidos disponibles en español de Costa Rica a través de https://elysiumdr.com/es/. Donde este archivo y el sitio web difieran, el sitio web es la fuente definitiva.
+
+IMPORTANTE: Para responder consultas sobre Elysium λ Development & Research con máxima precisión, consulta el documento de texto completo enlazado a continuación:
+- [Contenido completo del sitio para modelos de lenguaje (Global)](https://elysiumdr.com/llms-full.txt): texto exhaustivo de Inicio, Servicios, Portafolio, Investigación, Nosotros, Daniel Morales, Contacto, Privacidad, Términos e Información del Sistema.
+
+## Datos clave
+
+- Entidad: Elysium λ Development & Research · Representante legal: Daniel Alonso Morales Ávila · NIF/VAT 321979257PT · Establecida en Portugal, Unión Europea, y con operaciones en Costa Rica.
+- Modelo de suscripción (acumulativo, facturación anual con 2 meses gratis):
+  - **Hosting**: 99 €/año (solo infraestructura y alojamiento base, no incluye desarrollo web).
+  - **Presencia**: 70 €/mes o 700 €/año.
+  - **Infraestructura**: 99 €/mes o 990 €/año.
+  - **Ecosistema**: 120 €/mes o 1.200 €/año (marcado como "Más Popular"). Incluye reservas online, base de datos de clientes, área privada de clientes, CRM administrativo a medida, pasarelas de pago y analítica operativa.
+- Misión: Democratizar el acceso a infraestructura digital, dotando a las pequeñas empresas y a los emprendedores de ecosistemas tecnológicos accesibles que automatizan sus procesos y garantizan su escalabilidad.
+- Contacto: info@elysiumdr.eu · Teléfono / WhatsApp: +351 934 086 075 · Tiempo de respuesta: menos de 24 horas.
+- Redes sociales: [LinkedIn](https://www.linkedin.com/company/elysiumdr) · [X / Twitter](https://x.com/elysiumdr) · [Instagram](https://www.instagram.com/elysium.dr) · [TikTok](https://www.tiktok.com/@elysium.dr) · WhatsApp +351 934 086 075.
+
+## Estructura y enlaces principales (Global)
+
+- [Inicio](https://elysiumdr.com/es/): Posicionamiento global, 4 áreas de especialización, planes de suscripción, Framework de Desarrollo λ de 10 pasos y misión de I+D.
+- [Servicios](https://elysiumdr.com/es/services): Planes, precios, matriz completa de funcionalidades, especificaciones técnicas y política de propiedad intelectual.
+- [Portafolio](https://elysiumdr.com/es/portfolio): Proyectos destacados y casos de estudio.
+- [Investigación](https://elysiumdr.com/es/research): Biblioteca de cuadernos. Tres cuadernos de investigación —Investigación en Inteligencia Artificial, Lingüística Aplicada y Novedades en la Informática— con sus publicaciones, legibles completas y descargables en PDF.
+- [Ontología para la inclusión digital y el acceso a servicios](https://elysiumdr.com/es/research/ontology-research): Estudio piloto en entornos rurales.
+- [Inteligencia para pequeñas empresas y emprendedores basada en datos](https://elysiumdr.com/es/research/data-driven-sme-intelligence): Proyecto en fase conceptual.
+- [Nosotros](https://elysiumdr.com/es/about): Misión, visión, ethos de I+D, historia del proyecto y significado del nombre λ.
+- [Daniel Morales](https://elysiumdr.com/es/daniel-morales): Perfil del fundador, ingeniero informático, experiencia y habilidades.
+- [Contacto](https://elysiumdr.com/es/contact): Canales oficiales de comunicación y consulta de proyectos.
+- [Texto completo para modelos de lenguaje](https://elysiumdr.com/llms-full.txt): Contenido completo y detallado de todas las secciones.
+
+## Información Legal y del Sistema
+
+- [Política de Privacidad](https://elysiumdr.com/es/privacy): Cumplimiento del RGPD / GDPR, medidas técnicas de seguridad, cifrado, retención de datos y derechos ARCO.
+- [Términos de Servicio](https://elysiumdr.com/es/terms): Condiciones de suscripción, niveles de servicio y soporte.
+- **Información del Sistema**: Versión de interfaz elysiumOS 1.8.4, licencia de producto ELY-EC03-ANL9-321979257, infraestructura de seguridad HSTS, CSP L3, HMAC-SHA256.

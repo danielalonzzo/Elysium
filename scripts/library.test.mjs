@@ -724,6 +724,15 @@ test('publicar y retirar avisa a IndexNow, solo desde el dominio de verdad', asy
 
 // ── El pie del sitio ─────────────────────────────────────────────────────────
 
+/**
+ * El idioma de una página del portafolio. `_national/com/` es el sitio global:
+ * inglés en su raíz y español/portugués en sus carpetas.
+ */
+function pageLanguage(path) {
+    const match = /^(?:_national\/com\/|_national\/)?(es|pt)\//.exec(path);
+    return match ? match[1] : 'en';
+}
+
 /** Las páginas del portafolio: la raíz, las traducciones y las bases nacionales. */
 function portfolioPages() {
     const skip = /^(?:Prototipos|Demo-arbol|VALTRIX Engineering|ONCORE|Dr-Johnny-Piedra|proyecto|Gestor-Patrimonios|CV|Titulos|node_modules|backend|\.)/;
@@ -741,9 +750,8 @@ test('todas las páginas con pie completo enlazan la biblioteca, también en mó
         const footerAt = html.indexOf('<footer');
         const footer = html.slice(footerAt);
         const national = path.startsWith('_national/');
-        const localized = national || /^(?:es|pt)\//.test(path);
         const href = national ? 'https://elysiumdr.eu/library' : '/library';
-        const label = localized ? 'Biblioteca' : 'Library';
+        const label = pageLanguage(path) === 'en' ? 'Library' : 'Biblioteca';
         assert.match(footer, new RegExp(`<li class="footer-library"><a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="\\w+")?>${label}</a></li>`), path);
         // En móvil el pie esconde la columna «Empresa» (repite el menú), pero
         // el enlace de la biblioteca tiene que seguir a la vista.
@@ -766,7 +774,7 @@ test('todas las páginas con pie completo enlazan Gestor de Patrimonio justo deb
         checked += 1;
         const footer = html.slice(html.indexOf('<footer'));
         const national = path.startsWith('_national/');
-        const lang = /^(?:_national\/)?es\//.test(path) ? 'es' : /^(?:_national\/)?pt\//.test(path) ? 'pt' : 'en';
+        const lang = pageLanguage(path);
         const href = national ? 'https://elysiumdr.eu/Gestor-Patrimonios/' : '/Gestor-Patrimonios/';
         // Las páginas que traducen el pie con JavaScript llevan `data-i18n` y el texto en inglés de partida.
         const anchor = new RegExp(`<a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="footerPatrimonio">${LABELS.en}|>${LABELS[lang]})</a>`);

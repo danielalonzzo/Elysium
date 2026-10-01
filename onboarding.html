@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 
 <head>
     <!-- Google Tag Manager -->
@@ -21,7 +21,7 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="CSS/base.css">
-    <link rel="stylesheet" href="CSS/components.css?v=20260826">
+    <link rel="stylesheet" href="CSS/components.css?v=20261001">
     <link rel="stylesheet" href="CSS/pages.css">
 
     <!-- Favicon -->
@@ -312,7 +312,7 @@
 
     <link rel="canonical" href="https://elysiumdr.eu/onboarding">
     <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/onboarding">
-    <link rel="alternate" hreflang="es-CR" href="https://elysiumdr.eu/es/onboarding">
+    <link rel="alternate" hreflang="es-ES" href="https://elysiumdr.eu/es/onboarding">
     <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.eu/pt/onboarding">
     <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/onboarding">
     <meta property="og:url" content="https://elysiumdr.eu/onboarding">
@@ -342,18 +342,11 @@
                         <span class="region-arrow" aria-hidden="true">▼</span>
                     </button>
                     <div class="region-switcher-menu" role="menu">
-                        <a href="https://elysiumdr.eu/?region=EU&override=true" class="region-item active" role="menuitem" data-region="EU">
-                            <span class="region-indicator">●</span> EUROPE
-                        </a>
-                        <a href="https://elysiumdr.es/?region=ES" class="region-item " role="menuitem" data-region="ES">
-                            SPAIN
-                        </a>
-                        <a href="https://elysiumdr.pt/?region=PT" class="region-item " role="menuitem" data-region="PT">
-                            PORTUGAL
-                        </a>
-                        <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">
-                            WORLDWIDE
-                        </a></div>
+                        <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item active" role="menuitem" data-region="EU" aria-current="true"><span class="region-indicator" aria-hidden="true">●</span> EUROPE</a>
+                        <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">SPAIN</a>
+                        <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
+                        <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">GLOBAL</a>
+                    </div>
                 </div>
             </div>
             <div class="nav-links">
@@ -712,7 +705,7 @@
                                 <div>Drag &amp; drop files here, or click to browse</div>
                                 <ul class="upload-file-list"></ul>
                             </div>
-                            <p class="micro-copy">If these files contain personal data of third parties, they are processed under our <a href="privacy" target="_blank" style="color: var(--color-accent);">Privacy Policy</a> (GDPR / Law No. 8968) exclusively to build your system.</p>
+                            <p class="micro-copy">If these files contain personal data of third parties, they are processed under our <a href="privacy" target="_blank" style="color: var(--color-accent);">Privacy Policy</a> (GDPR) exclusively to build your system.</p>
                         </div>
 
                         <div class="form-group" style="margin-top: 2rem;">
@@ -800,7 +793,7 @@
                         <div class="form-group" style="margin-top: 2rem;">
                             <label class="form-label">Will the system handle highly sensitive information? <span class="required-star">*</span></label>
                             <div class="checkbox-group">
-                                <label class="option-card"><input type="checkbox" name="sensitive_data" value="health" required> Health data (Art. 9 GDPR / Law 8968)</label>
+                                <label class="option-card"><input type="checkbox" name="sensitive_data" value="health" required> Health data (Art. 9 GDPR)</label>
                                 <label class="option-card"><input type="checkbox" name="sensitive_data" value="financial" required> Financial data</label>
                                 <label class="option-card"><input type="checkbox" name="sensitive_data" value="minors" required> Data of minors</label>
                                 <label class="option-card"><input type="checkbox" name="sensitive_data" value="none" id="sensitive-none-checkbox" required> None of these</label>
@@ -1040,7 +1033,7 @@
                         <div class="form-group" id="files-consent-group">
                             <label class="option-card" style="width: 100%; cursor: pointer;">
                                 <input type="checkbox" name="files_consent" style="display: block; width: auto;">
-                                <span>I authorize the processing of the files and datasets I have uploaded, exclusively for the development of my system (GDPR Art. 28 / Law No. 8968).</span>
+                                <span>I authorize the processing of the files and datasets I have uploaded, exclusively for the development of my system (GDPR Art. 28).</span>
                             </label>
                         </div>
 

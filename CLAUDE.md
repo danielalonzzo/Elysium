@@ -42,6 +42,79 @@ aplica `_headers`. Está versionado a la fuerza, como
 `publish-demo-arbol.sh`: `*.py` y `*.sh` están en `.gitignore` para
 los scripts de usar y tirar, no para las herramientas del repositorio.
 
+## Las cuatro regiones
+
+El sitio no es uno solo traducido a tres idiomas: son **cuatro regiones**, cada
+una con su dominio, sus idiomas y su manera de hablar de sí misma.
+
+| Región | Dominio | Idiomas | Dónde están sus páginas |
+|---|---|---|---|
+| Europa | `elysiumdr.eu` | inglés europeo (`/`), español de España (`/es/`), portugués de Portugal (`/pt/`) | físicas: la raíz, `es/` y `pt/` |
+| España | `elysiumdr.es` | español de España, y traducción en vivo a los otros dos | `_national/es/`, sin prefijo en la URL |
+| Portugal | `elysiumdr.pt` | portugués de Portugal, y traducción en vivo a los otros dos | `_national/pt/`, sin prefijo en la URL |
+| Global | `elysiumdr.com` | inglés europeo (`/`), español de Costa Rica (`/es/`), portugués de Portugal (`/pt/`) | físicas: `_national/com/`, `_national/com/es/`, `_national/com/pt/` |
+
+Lo que tiene que cumplirse siempre (lo vigila `scripts/regions.test.mjs`, y
+`scripts/e2e/regions.e2e.mjs` lo comprueba con un Chrome real):
+
+1. **Cada región abre en SU idioma, sin importar el navegador.** Ningún código
+   mira `navigator.language` ni `Accept-Language`. El único reparto es el de la
+   portada de `.eu` por país de la IP (ver `worker/index.js`): España → `.es`,
+   Portugal → `.pt`, hispanohablantes del resto del mundo → `.com/es/`,
+   lusófonos → `.com/pt/`.
+2. **Cada región habla de sí misma, en todas sus páginas.** El titular de la
+   portada es el contrato: «Pan-European digital infrastructure for
+   small-businesses and startups:» (Europa), «Infraestructura Digital para
+   pequeñas empresas y emprendedores de España:», «Infraestrutura Digital para
+   pequenas empresas e startups de Portugal:» y «Digital infrastructure for
+   small-businesses and startups:» (Global, sin región). Los datos de la
+   empresa (Bragança, NIF, la ley portuguesa) no cambian: son hechos, no mercado.
+3. **El español lleva la bandera de su región:** España en `.eu` y `.es`, Costa
+   Rica en `.com`. Costa Rica ya no es una región del selector: vive dentro de
+   Global. El selector tiene cuatro entradas —Europa, España, Portugal, Global—
+   y cambiar de región abre la nueva en SU idioma (Europa y Global, en inglés).
+4. **La legislación va con la región.** `.eu` solo cita el RGPD y la ley
+   portuguesa; la ley 8968 y el derecho de retracto de Costa Rica viven en
+   `.com/es/`. `.es` y `.pt` citan las suyas.
+
+Cosas que no se ven abriendo el sitio:
+
+- **`_national/com/` no es una URL.** Como `_national/es` y `_national/pt`, es
+  una base privada que el Worker pide al binding (`serveGlobalPage`). `.com` es
+  físico como `.eu`, no traduce al vuelo: `/__i18n` responde 404 allí.
+- **`elysiumdr.com` tiene que estar asociado al Worker** (Workers & Pages →
+  `elysium` → Settings → Domains & Routes → Add → Custom domain). Sin eso el
+  dominio resuelve en Cloudflare pero la conexión TLS falla (`internal error`).
+  Hasta entonces el selector «Global» y el reparto de los hispanohablantes de
+  fuera de España llevan a un dominio que no abre. Compruébelo antes de
+  desplegar: `curl -sI https://elysiumdr.com/`.
+- **Los selectores de región e idioma están escritos a mano en cada página** y
+  además los pone `JS/main.js` donde faltan. Si cambia uno, cambian los dos
+  (hay prueba). `JS/elysium-i18n.js` solo actúa en `.es`/`.pt`; en `.eu` y
+  `.com` el cambio de idioma es navegar a otra carpeta.
+- **`HOME_COPY` y `REGIONAL_PAGE_COPY` de `elysium-i18n.js`** dicen cómo se
+  describe España o Portugal cuando alguien las traduce a otro idioma
+  («…in Spain»). Si se edita el titular de `.es`/`.pt`, edite también ahí.
+- **Los bundles de portada son inmutables.** `CSS/home.vAAAAMMDD.min.css`,
+  `CSS/home-critical…` y `JS/home.vAAAAMMDD.min.js` se sirven con
+  `Cache-Control: immutable` un año: editar uno **con el mismo nombre** deja a
+  los navegadores que ya lo tienen con la versión vieja para siempre (así
+  siguió «Costa Rica» como bandera del español de `.eu` después de arreglarlo).
+  Se copia con otro nombre, se cambia en las ocho portadas y en `_headers`, y
+  `UPDATE_IMMUTABLE=1 node --test scripts/regions.test.mjs` actualiza el
+  manifiesto. Lo mismo vale para `CSS/components.css`: se invalida con el `?v=`
+  de todas las páginas. `home.vAAAAMMDD.min.js` es `main.js` minificado con
+  esbuild **sin el bloque de GA4** (las portadas cargan `google-analytics.js`
+  aparte; con los dos, GA contaría cada visita dos veces).
+- **La barra de navegación está dentro de las ocho portadas** (CSS crítico en
+  línea) y en `components.css`: cabe en español y portugués hasta 1180 px y por
+  debajo pasa al menú móvil. Un cambio de estilos va en los tres sitios.
+
+Probar en local: `scripts/serve-local.py` sirve `.eu` y, con `?national=es|pt`,
+`.es` y `.pt`; **no sirve `.com`**. Para ver las cuatro regiones tal como las
+sirve Cloudflare, con los dominios reales mapeados a local y un Chrome de
+verdad: `node scripts/e2e/regions.e2e.mjs` (necesita Google Chrome y `openssl`).
+
 ## Lo que lee un agente
 
 El sitio se sirve dos veces: en HTML para las personas y en formato legible por
@@ -57,10 +130,10 @@ fácil romperlo sin enterarse — por eso está cubierto por
 - **`JS/webmcp.js`** declara esas mismas herramientas de consulta y una
   navegación visible en el navegador, para un agente que llegue con WebMCP.
   Prefiere la API vigente en `document.modelContext` y conserva el respaldo
-  antiguo de `navigator.modelContext`. Tiene que cargarse en las cinco fuentes
-  de portada (las tres físicas y las dos bases nacionales): estas últimas se
-  quedaron fuera aunque las primeras ya lo cargaban, así que un escáner
-  redirigido por país no veía herramientas. La prueba que lo vigila está en
+  antiguo de `navigator.modelContext`. Tiene que cargarse en las ocho fuentes
+  de portada (las tres de `.eu`, las dos bases nacionales y las tres de `.com`):
+  las bases nacionales se quedaron fuera aunque las físicas ya lo cargaban, así
+  que un escáner redirigido por país no veía herramientas. La prueba que lo vigila está en
   `agents.test.mjs`, porque abriendo el sitio no se nota.
 - **`.well-known/`** guarda el catálogo de APIs (RFC 9727), el manifiesto ARD,
   la tarjeta del servidor MCP, los metadatos de recurso protegido (RFC 9728) y

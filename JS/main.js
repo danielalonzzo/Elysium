@@ -177,22 +177,29 @@ document.addEventListener('DOMContentLoaded', () => {
             ? 'pt'
             : localNationalDomain;
     const isNationalDomain = Boolean(nationalLanguage);
-    const currentRegion = nationalLanguage === 'es' ? 'ES' : nationalLanguage === 'pt' ? 'PT' : 'EU';
+    // `.com` es el sitio global: igual que `.eu`, sus tres idiomas son carpetas
+    // físicas (`/`, `/es/`, `/pt/`), no traducción dinámica.
+    const isGlobalDomain = currentHostname === 'elysiumdr.com';
+    const currentRegion = nationalLanguage === 'es' ? 'ES' : nationalLanguage === 'pt' ? 'PT' : isGlobalDomain ? 'GLOBAL' : 'EU';
     // Páginas con una sola URL para los tres idiomas (la biblioteca, `/library`):
     // el idioma lo pone la propia página en `<html lang>` y lo cambia sin
     // recargar, así que aquí no se navega a `/es/…` ni a `/pt/…`.
     const hasInlineLanguage = document.documentElement.dataset.langSwitch === 'inline';
 
     const REGION_LABELS = {
-        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' },
-        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' },
-        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
+        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
+        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
+        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
     };
+    // El español de cada región lleva su bandera: España en `.eu` y `.es`, Costa
+    // Rica en `.com`. (En `.eu` llevó la de Costa Rica hasta octubre de 2026.)
+    const SPANISH_FLAG = isGlobalDomain ? 'cr' : 'es';
     const LANGUAGE_FLAGS = {
         en: '/Images/Optimized/flag-eu-64.webp',
-        es: '/Images/Optimized/flag-es-64.webp',
+        es: `/Images/Optimized/flag-${SPANISH_FLAG}-64.webp`,
         pt: '/Images/Optimized/flag-pt-64.webp'
     };
+    const flagAlt = language => language === 'en' ? 'EU' : language === 'es' ? SPANISH_FLAG.toUpperCase() : 'PT';
     const SWITCHABLE_MARKETING_PAGES = new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
         'daniel-morales', 'onboarding', 'portfolio', 'privacy',
@@ -212,6 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return ['en', 'es', 'pt'].includes(declared) ? declared : 'en';
         }
         if (isNationalDomain) {
+            // En `.es` y `.pt` el idioma lo cambia `elysium-i18n.js` sin tocar la
+            // URL y lo declara en `<html lang>`: leer solo `?lang=` dejaba la
+            // etiqueta de región («SPAIN») en el idioma nativo tras traducir.
+            const declared = (document.documentElement.lang || '').slice(0, 2).toLowerCase();
+            if (['en', 'es', 'pt'].includes(declared)) return declared;
             const requested = pageParams.get('lang');
             return ['en', 'es', 'pt'].includes(requested) ? requested : nationalLanguage;
         }
@@ -249,8 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item" role="menuitem" data-region="EU">EUROPE</a>
                 <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">SPAIN</a>
                 <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
-                <a href="https://elysiumdr.eu/es/?region=CR&amp;override=true" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
-                <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">WORLDWIDE</a>
+                <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">GLOBAL</a>
             </div>`;
         brandContainer.appendChild(dropdown);
         return dropdown;
@@ -273,12 +284,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const dropdown = document.createElement('div');
         dropdown.className = 'lang-switcher-dropdown';
         const option = (code, name) => isNationalDomain
-            ? `<button type="button" class="lang-option" data-lang="${code}" role="menuitem">${name} <img src="${LANGUAGE_FLAGS[code]}" alt="${code === 'en' ? 'EU' : code.toUpperCase()}" class="flag-icon"></button>`
-            : `<a href="${targetPaths[code]}" class="lang-select" data-lang="${code}" role="menuitem">${name} <img src="${LANGUAGE_FLAGS[code]}" alt="${code === 'en' ? 'EU' : code.toUpperCase()}" class="flag-icon"></a>`;
+            ? `<button type="button" class="lang-option" data-lang="${code}" role="menuitem">${name} <img src="${LANGUAGE_FLAGS[code]}" alt="${flagAlt(code)}" class="flag-icon"></button>`
+            : `<a href="${targetPaths[code]}" class="lang-select" data-lang="${code}" role="menuitem">${name} <img src="${LANGUAGE_FLAGS[code]}" alt="${flagAlt(code)}" class="flag-icon"></a>`;
         dropdown.innerHTML = `
             <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true" aria-label="${language === 'es' ? 'Seleccionar idioma' : language === 'pt' ? 'Selecionar idioma' : 'Select language'}">
                 <span class="lang-current-label">${language.toUpperCase()}</span>
-                <img src="${LANGUAGE_FLAGS[language]}" alt="${language === 'en' ? 'EU' : language.toUpperCase()}" class="flag-icon">
+                <img src="${LANGUAGE_FLAGS[language]}" alt="${flagAlt(language)}" class="flag-icon">
                 <span class="lang-arrow" aria-hidden="true">▼</span>
             </button>
             <div class="lang-switcher-menu" role="menu">
@@ -335,14 +346,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 : lang === 'pt' ? 'Selecionar idioma' : 'Select language');
             if (flag) {
                 flag.src = LANGUAGE_FLAGS[lang];
-                flag.alt = lang === 'en' ? 'EU' : lang.toUpperCase();
+                flag.alt = flagAlt(lang);
             }
             dropdown.querySelectorAll('[data-lang]').forEach(option => {
                 const optionLanguage = option.getAttribute('data-lang');
                 const optionFlag = option.querySelector('.flag-icon');
                 if (optionFlag && LANGUAGE_FLAGS[optionLanguage]) {
                     optionFlag.src = LANGUAGE_FLAGS[optionLanguage];
-                    optionFlag.alt = optionLanguage === 'en' ? 'EU' : optionLanguage.toUpperCase();
+                    optionFlag.alt = flagAlt(optionLanguage);
                 }
             });
         });
@@ -435,7 +446,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 target.searchParams.append(key, value);
                             }
                         });
-                        if (targetLang === 'en' && !page) {
+                        // Solo `.eu` reparte por país en su portada: ahí el inglés
+                        // elegido a mano tiene que fijar el override.
+                        if (targetLang === 'en' && !page && !isGlobalDomain) {
                             target.searchParams.set('lang', 'en');
                             target.searchParams.set('region', 'EU');
                             target.searchParams.set('override', 'true');
@@ -470,12 +483,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 trigger.setAttribute('aria-expanded', 'false');
             });
 
-            // Set region override when manually navigating regions
+            // Cada región se abre en SU idioma —el del dominio—, no en el del
+            // navegador ni en el que se estaba leyendo: Europa y Global en
+            // inglés, España en español, Portugal en portugués. El idioma
+            // elegido a mano dentro de una región no cruza a la siguiente.
+            const REGION_ORIGINS = {
+                EU: 'https://elysiumdr.eu',
+                ES: 'https://elysiumdr.es',
+                PT: 'https://elysiumdr.pt',
+                GLOBAL: 'https://elysiumdr.com'
+            };
             menu.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', (e) => {
                     const dataRegion = link.getAttribute('data-region') || '';
+                    if (!REGION_ORIGINS[dataRegion]) return;
+
+                    // La región en la que ya se está no cambia nada.
+                    if (dataRegion === currentRegion) {
+                        e.preventDefault();
+                        regionDropdown.classList.remove('is-open');
+                        trigger.setAttribute('aria-expanded', 'false');
+                        return;
+                    }
+
                     try {
-                        localStorage.setItem('elysium_region_override', 'true');
+                        // El Worker de `.eu` deja de repartir por país a quien
+                        // ha elegido región a mano.
                         document.cookie = "elysium_region_override=true; path=/; max-age=31536000; SameSite=Lax";
                     } catch (error) {
                         // Storage can be disabled; navigation must still work.
@@ -489,68 +522,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         'infraestructura-digital-pymes-espana',
                         'infraestrutura-digital-pme-portugal'
                     ].includes(page)) page = '';
-                    const activeLanguageLabel = document.querySelector('.lang-current-label');
-                    const selectedLanguage = (activeLanguageLabel && activeLanguageLabel.textContent || languageFromPath())
-                        .trim().slice(0, 2).toLowerCase();
-                    const targetLanguage = ['en', 'es', 'pt'].includes(selectedLanguage)
-                        ? selectedLanguage
-                        : languageFromPath();
-                    let targetUrl;
 
-                    if (dataRegion === 'ES') {
-                        try {
-                            localStorage.setItem('elysium_lang_pref', 'es');
-                            localStorage.setItem('langOverride', 'true');
-                            document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
-                        } catch (error) {}
-                        if (isLocal) {
-                            targetUrl = `/${page}?national=es`;
-                        } else {
-                            const target = new URL(`https://elysiumdr.es/${page}`);
-                            target.searchParams.set('region', 'ES');
-                            targetUrl = target.toString();
-                        }
-                    } else if (dataRegion === 'PT') {
-                        try {
-                            localStorage.setItem('elysium_lang_pref', 'pt');
-                            localStorage.setItem('langOverride', 'true');
-                            document.cookie = "elysium_lang_pref=pt; path=/; max-age=31536000; SameSite=Lax";
-                        } catch (error) {}
-                        if (isLocal) {
-                            targetUrl = `/${page}?national=pt`;
-                        } else {
-                            const target = new URL(`https://elysiumdr.pt/${page}`);
-                            target.searchParams.set('region', 'PT');
-                            targetUrl = target.toString();
-                        }
-                    } else if (dataRegion === 'CR') {
-                        try {
-                            localStorage.setItem('elysium_lang_pref', 'es');
-                            localStorage.setItem('langOverride', 'true');
-                            document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
-                        } catch (error) {}
-                        targetUrl = isLocal ? `/es/${page}` : `https://elysiumdr.eu/es/${page}?region=CR&override=true`;
-                    } else if (dataRegion === 'GLOBAL') {
-                        targetUrl = 'https://elysiumdr.com/';
+                    let targetUrl;
+                    if (isLocal && (dataRegion === 'ES' || dataRegion === 'PT')) {
+                        targetUrl = `/${page}?national=${dataRegion.toLowerCase()}`;
+                    } else if (isLocal && dataRegion === 'EU') {
+                        targetUrl = `/${page}`;
                     } else {
-                        const targetPath = targetLanguage === 'es'
-                            ? `/es/${page}`
-                            : targetLanguage === 'pt' ? `/pt/${page}` : `/${page}`;
-                        if (isLocal) {
-                            targetUrl = targetPath;
-                        } else {
-                            const target = new URL(targetPath, 'https://elysiumdr.eu');
+                        const target = new URL(`/${page}`, REGION_ORIGINS[dataRegion]);
+                        if (dataRegion === 'ES' || dataRegion === 'PT') {
+                            target.searchParams.set('region', dataRegion);
+                        } else if (dataRegion === 'EU') {
                             target.searchParams.set('region', 'EU');
                             target.searchParams.set('override', 'true');
-                            if (targetLanguage === 'en') target.searchParams.set('lang', 'en');
-                            targetUrl = target.toString();
+                            target.searchParams.set('lang', 'en');
                         }
+                        targetUrl = target.toString();
                     }
 
-                    if (targetUrl) {
-                        e.preventDefault();
-                        window.location.assign(targetUrl);
-                    }
+                    e.preventDefault();
+                    window.location.assign(targetUrl);
                 });
             });
         }

@@ -53,21 +53,21 @@
             switchTo: 'Switch language to',
             selectRegion: 'Select region',
             closeDialog: 'Close dialog',
-            regions: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
+            regions: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
         },
         es: {
             selectLanguage: 'Seleccionar idioma',
             switchTo: 'Cambiar idioma a',
             selectRegion: 'Seleccionar región',
             closeDialog: 'Cerrar diálogo',
-            regions: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
+            regions: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
         },
         pt: {
             selectLanguage: 'Selecionar idioma',
             switchTo: 'Mudar idioma para',
             selectRegion: 'Selecionar região',
             closeDialog: 'Fechar diálogo',
-            regions: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
+            regions: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
         }
     };
 

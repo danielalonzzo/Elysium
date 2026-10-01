@@ -241,7 +241,10 @@ test('todas las portadas públicas declaran las herramientas WebMCP y el manifie
         ['es/index.html', '../JS/webmcp.js'],
         ['pt/index.html', '../JS/webmcp.js'],
         ['_national/es/index.html', '../JS/webmcp.js'],
-        ['_national/pt/index.html', '../JS/webmcp.js']
+        ['_national/pt/index.html', '../JS/webmcp.js'],
+        ['_national/com/index.html', 'JS/webmcp.js'],
+        ['_national/com/es/index.html', '../JS/webmcp.js'],
+        ['_national/com/pt/index.html', '../JS/webmcp.js']
     ];
     for (const [page, src] of portadas) {
         const html = readFileSync(join(ROOT, page), 'utf8');

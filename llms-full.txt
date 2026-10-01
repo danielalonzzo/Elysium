@@ -64,8 +64,8 @@ CORE COMPETENCIES:
 4. Cybersecurity and governance
    - High-level security and encryption standards protect data.
    - Strict access control limits each person to the information they need.
-   - Infrastructure is designed for compliance with the GDPR, Costa Rica's Law
-     No. 8968, and applicable local privacy rules.
+   - Infrastructure is designed for compliance with the GDPR and
+     applicable European privacy rules.
 
 SUBSCRIPTION OPTIONS SHOWN ON THE HOMEPAGE:
 - Presence: EUR 70/month or EUR 700/year.
@@ -94,7 +94,7 @@ Firebase, Git, NPM, Node.js, cPanel.
 7. Technology Selection — select security protocols, databases, and integrations.
 8. Design, Development, and Database — build the project's digital ecosystem.
 9. QA and Audit — test the system, validate access controls, and audit compliance
-   with the GDPR and Costa Rica's Law No. 8968.
+   with the GDPR.
 10. Handover and Training — launch the system, synchronise final data, and train
     the client's team.
 
@@ -546,8 +546,7 @@ Last updated: August 2026
    info@elysiumdr.eu. It does not apply to services fully performed with prior
    express consent, or to custom digital content delivered and accepted.
 4. Data protection & privacy — governed by the Privacy Policy, incorporated by
-   reference. Compliance with the GDPR (EU 2016/679), Law No. 8968 (Costa Rica,
-   supervised by PRODHAB) and Law No. 58/2019 (Portugal). Sensitive data,
+   reference. Compliance with the GDPR (EU 2016/679) and Law No. 58/2019 (Portugal). Sensitive data,
    including health information, only on explicit documented consent.
 5. Intellectual property — all content, code, designs and materials remain the
    exclusive intellectual property of the company unless transferred in writing.
@@ -570,11 +569,9 @@ Last updated: August 2026
 11. Amendments — the terms may be updated at any time; the "Last Updated" date
     reflects the most recent revision.
 
-NOTE ON LOCALISATION: the right of withdrawal is localised per market. The English
-and Portuguese versions apply Directive 2011/83/EU with 14 days (the Portuguese
-version also cites its transposition, Decreto-Lei n.º 24/2014). The Spanish
-version applies Costa Rica's Law No. 7472 with 8 working days and the MEIC
-e-commerce provisions.
+NOTE ON LOCALISATION: the right of withdrawal applies Directive 2011/83/EU with
+14 days in all three language versions (the Portuguese version also cites its
+transposition, Decreto-Lei n.º 24/2014).
 
 --- PRIVACY POLICY ---
 URL: https://elysiumdr.eu/privacy
@@ -590,7 +587,7 @@ later with the same content)
    information and execute pre-contractual or contractual measures.
 3. Sensitive data — health information: where services involve health-related or
    clinically sensitive data, this is special category data under Art. 9 GDPR and
-   sensitive personal data under Art. 9 of Law No. 8968. Processed only on
+   sensitive personal data under applicable EU member-state law. Processed only on
    explicit documented consent, recorded as consentHealthData: true, revocable at
    any time. Processing without consent is strictly prohibited.
 4. Legal basis — explicit consent; pre-contractual measures; legitimate interest
@@ -602,14 +599,12 @@ later with the same content)
    backend tasks.
 6. Rights — access, rectification, erasure, restriction, portability, objection
    and withdrawal of consent, exercised free of charge via info@elysiumdr.eu,
-   under the GDPR, Law No. 58/2019 (Portugal) and Law No. 8968 (Costa Rica /
-   PRODHAB).
+   under the GDPR and Law No. 58/2019 (Portugal).
 7. Recipients and third parties — data is never sold or traded. Processors:
    Firebase (Google Cloud), servers primarily in the EU; corporate email and
    secure CRM systems for project management.
 8. International transfers — transfers outside the EEA are covered by Standard
-   Contractual Clauses approved by the European Commission (Art. 46 GDPR). For
-   Costa Rica, transfers comply with Law No. 8968.
+   Contractual Clauses approved by the European Commission (Art. 46 GDPR).
 9. Technical security measures — HSTS for one year; Content Security Policy
    Level 3; X-Frame-Options / frame-ancestors; Permissions-Policy restricting
    camera, microphone and geolocation; HMAC-SHA256 cryptographic signing;
@@ -622,11 +617,10 @@ later with the same content)
     HIPAA-eligible services.
 11. Cookies and tracking — only essential and technical cookies. No third-party
     tracking, profiling or behavioural advertising cookies without explicit
-    opt-in consent, per the ePrivacy Directive (2002/58/EC) and Law No. 8968.
+    opt-in consent, per the ePrivacy Directive (2002/58/EC).
 12. Mandatory nature of information — fields marked with an asterisk are required.
 13. Right to lodge a complaint — Portugal (EU): Comissão Nacional de Proteção de
-    Dados (CNPD), www.cnpd.pt. Costa Rica: Agencia de Protección de Datos de los
-    Habitantes (PRODHAB), www.prodhab.go.cr.
+    Dados (CNPD), www.cnpd.pt.
 
 --- SYSTEM & SECURITY INFORMATION ---
 URL: footer modal, available on every page (version-modal.js)
@@ -639,7 +633,7 @@ Software Specifications:
 Security & Compliance:
 - Privacy Directive: ePrivacy Directive · Cookie Consent v1.0
 - Security Infrastructure: HSTS · CSP L3 · HMAC-SHA256
-- Legal Framework: GDPR (EU) · Law 8968 (CR)
+- Legal Framework: GDPR (EU) · Law 58/2019 (PT)
 
 Corporate Information:
 - Organisation: Elysium λ Development & Research
@@ -702,7 +696,7 @@ en la nube, el software de gestión y la seguridad evolucionen con cada negocio.
 4. Ciberseguridad y gobernanza
    - Estándares elevados de seguridad y cifrado.
    - Control de acceso estricto para limitar la información según cada función.
-   - Cumplimiento con el RGPD, la Ley N.º 8968 de Costa Rica y la normativa local.
+   - Cumplimiento con el RGPD y la normativa europea aplicable.
 
 OPCIONES DE SUSCRIPCIÓN MOSTRADAS EN INICIO:
 - Presence: 70 EUR/mes o 700 EUR/año.
@@ -728,7 +722,7 @@ FRAMEWORK DE DESARROLLO λ — METODOLOGÍA CIENTÍFICA:
 6. Arquitectura — proponer SaaS, CRM a medida o rediseño del sitio, según el caso.
 7. Selección de Tecnologías — elegir seguridad, bases de datos e integraciones.
 8. Diseño, Desarrollo y Base de Datos — construir el ecosistema digital.
-9. QA y Auditoría — probar, validar accesos y auditar RGPD y Ley N.º 8968.
+9. QA y Auditoría — probar, validar accesos y auditar el RGPD.
 10. Entrega y Capacitación — lanzar, sincronizar datos y formar al equipo.
 
 INVESTIGACIÓN Y DESARROLLO:
@@ -1005,17 +999,14 @@ Tiempo de respuesta declarado: 24 horas.
 URL: https://elysiumdr.eu/es/terms
 Última actualización: agosto 2026
 
-Once secciones, con el mismo contenido que la versión inglesa salvo el derecho
-de desistimiento, que está localizado para Costa Rica:
+Once secciones, con el mismo contenido que la versión inglesa:
 1. Identificación del prestador de servicios (NIF 321979257PT, Bragança).
 2. Alcance de los servicios, incluido el catálogo de la suscripción.
-3. Derecho de retracto (Costa Rica — Ley N.º 7472): 8 días hábiles desde la
-   contratación o recepción del servicio, sin necesidad de invocar causa, según
-   la Ley de Promoción de la Competencia y Defensa Efectiva del Consumidor y las
-   disposiciones de comercio electrónico del MEIC. No aplica a servicios
-   completamente prestados con consentimiento expreso previo ni a contenido
-   digital personalizado entregado y aceptado.
-4. Protección de datos personales (RGPD, Ley 8968, Ley 58/2019).
+3. Derecho de desistimiento (UE): 14 días naturales desde la celebración del
+   contrato, sin necesidad de indicar el motivo, según la Directiva 2011/83/UE.
+   No aplica a servicios completamente prestados con consentimiento expreso
+   previo ni a contenido digital personalizado entregado y aceptado.
+4. Protección de datos personales (RGPD, Ley 58/2019).
 5. Propiedad intelectual.
 6. Limitación de responsabilidad (12 meses).
 7. Obligaciones tributarias (CIVA; art. 9 CIVA para servicios de salud).
@@ -1030,11 +1021,11 @@ URL: https://elysiumdr.eu/es/privacy
 
 Trece secciones, con el mismo contenido que la versión inglesa: responsable del
 tratamiento; información recopilada y finalidad; datos sensibles de salud
-(art. 9 RGPD / art. 9 Ley 8968); base jurídica; plazos de conservación y purga
+(art. 9 RGPD); base jurídica; plazos de conservación y purga
 automatizada (5 y 10 años); derechos; destinatarios y terceros; transferencias
 internacionales; medidas técnicas de seguridad; certificaciones de
 infraestructura heredadas de Google Cloud; cookies; obligatoriedad de los datos;
-y derecho a reclamar ante la CNPD (Portugal) o la PRODHAB (Costa Rica).
+y derecho a reclamar ante la CNPD (Portugal).
 
 ================================================================================
 PART 3 — PORTUGUÊS (PT)
@@ -1086,7 +1077,7 @@ software de gestão e a segurança evoluam com cada negócio.
 4. Cibersegurança e governação
    - Padrões elevados de segurança e cifragem.
    - Controlo de acesso estrito, limitando a informação a cada função.
-   - Conformidade com o RGPD, a Lei n.º 8968 da Costa Rica e a legislação local.
+   - Conformidade com o RGPD e a legislação europeia aplicável.
 
 OPÇÕES DE SUBSCRIÇÃO MOSTRADAS NA PÁGINA INICIAL:
 - Presence: 70 EUR/mês ou 700 EUR/ano.
@@ -1112,7 +1103,7 @@ FRAMEWORK DE DESENVOLVIMENTO λ — METODOLOGIA CIENTÍFICA:
 6. Arquitetura — propor SaaS, CRM à medida ou redesenho do site, conforme o caso.
 7. Seleção de Tecnologias — escolher segurança, bases de dados e integrações.
 8. Design, Desenvolvimento e Base de Dados — construir o ecossistema digital.
-9. QA e Auditoria — testar, validar acessos e auditar RGPD e Lei n.º 8968.
+9. QA e Auditoria — testar, validar acessos e auditar o RGPD.
 10. Entrega e Formação — lançar, sincronizar dados e formar a equipa.
 
 INVESTIGAÇÃO E DESENVOLVIMENTO:
