@@ -56,3 +56,6 @@ wrangler.jsonc
 .gitignore
 .gitattributes
 worker/**
+
+# Libro servido por Library desde KV en partes; supera el límite de assets.
+library/A-Literatura-Europeia-Jean-Louis-Backes.html
