@@ -380,29 +380,24 @@ let t = COPY[currentLang];
 
 const LANGUAGE_FLAGS = {
     en: { src: '/Images/Optimized/flag-eu-64.webp', alt: 'EU' },
-    es: {
-        src: isNationalDomain
-            ? '/Images/Optimized/flag-es-64.webp'
-            : '/Images/Optimized/flag-cr-64.webp',
-        alt: isNationalDomain ? 'ES' : 'CR'
-    },
+    es: { src: '/Images/Optimized/flag-es-64.webp', alt: 'ES' },
     pt: { src: '/Images/Optimized/flag-pt-64.webp', alt: 'PT' }
 };
 
 const REGION_COPY = {
     en: {
         select: 'Select region',
-        labels: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA' },
+        labels: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' },
         location: { EU: 'Europe', ES: 'Spain, European Union', PT: 'Portugal, European Union' }
     },
     es: {
         select: 'Seleccionar región',
-        labels: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA' },
+        labels: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' },
         location: { EU: 'Europa', ES: 'España, Unión Europea', PT: 'Portugal, Unión Europea' }
     },
     pt: {
         select: 'Selecionar região',
-        labels: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA' },
+        labels: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' },
         location: { EU: 'Europa', ES: 'Espanha, União Europeia', PT: 'Portugal, União Europeia' }
     }
 };
@@ -526,6 +521,46 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             changeLanguage(e.currentTarget.dataset.lang);
+        });
+    });
+    document.querySelectorAll('.region-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            const region = (item.dataset.region || '').toUpperCase();
+            try {
+                localStorage.setItem('elysium_region_override', 'true');
+                document.cookie = "elysium_region_override=true; path=/; max-age=31536000; SameSite=Lax";
+            } catch (_) {}
+            if (region === 'ES') {
+                try {
+                    localStorage.setItem('elysium_lang_pref', 'es');
+                    localStorage.setItem('langOverride', 'true');
+                    document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
+                } catch (_) {}
+                if (isLocal) {
+                    e.preventDefault();
+                    window.location.assign('/?national=es');
+                }
+            } else if (region === 'PT') {
+                try {
+                    localStorage.setItem('elysium_lang_pref', 'pt');
+                    localStorage.setItem('langOverride', 'true');
+                    document.cookie = "elysium_lang_pref=pt; path=/; max-age=31536000; SameSite=Lax";
+                } catch (_) {}
+                if (isLocal) {
+                    e.preventDefault();
+                    window.location.assign('/?national=pt');
+                }
+            } else if (region === 'CR') {
+                try {
+                    localStorage.setItem('elysium_lang_pref', 'es');
+                    localStorage.setItem('langOverride', 'true');
+                    document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
+                } catch (_) {}
+                if (isLocal) {
+                    e.preventDefault();
+                    window.location.assign('/es/');
+                }
+            }
         });
     });
     changeLanguage(currentLang, { updateUrl: false });

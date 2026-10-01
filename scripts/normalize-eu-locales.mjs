@@ -67,34 +67,86 @@ function normalizeLanguageMenus(html, slug) {
 
 function normalizeRegionItems(html, language) {
   const labels = language === 'es'
-    ? { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA' }
-    : { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA' };
+    ? { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
+    : { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' };
   const hrefs = {
     EU: 'https://elysiumdr.eu/?region=EU&amp;override=true',
     ES: 'https://elysiumdr.es/?region=ES',
     PT: 'https://elysiumdr.pt/?region=PT',
-    CR: 'https://elysiumdr.eu/es/?region=CR&amp;override=true'
+    CR: 'https://elysiumdr.eu/es/?region=CR&amp;override=true',
+    GLOBAL: 'https://elysiumdr.com/'
   };
 
   html = html.replace(/<span class="region-tag">[^<]*<\/span>/g, `<span class="region-tag">${localeConfig[language].label}</span>`);
-  return html.replace(/<a\b([^>]*\bdata-region="(EU|ES|PT|CR)"[^>]*)>[\s\S]*?<\/a>/g, (_item, rawAttrs, region) => {
-    let attrs = rawAttrs;
-    if (/\shref="[^"]*"/.test(attrs)) attrs = attrs.replace(/\shref="[^"]*"/, ` href="${hrefs[region]}"`);
-    else attrs = ` href="${hrefs[region]}"${attrs}`;
+  html = html.replace(
+    /(<button\b[^>]*class="region-switcher-trigger"[^>]*\baria-label=")[^"]*(")/g,
+    `$1${language === 'es' ? 'Seleccionar región' : 'Selecionar região'}$2`
+  );
 
-    const classMatch = attrs.match(/\bclass="([^"]*)"/);
-    const classes = new Set((classMatch?.[1] || 'region-item').split(/\s+/).filter(Boolean));
-    classes.delete('active');
-    if (region === 'EU') classes.add('active');
-    const classValue = [...classes].join(' ');
-    if (classMatch) attrs = attrs.replace(/\bclass="[^"]*"/, `class="${classValue}"`);
-    else attrs += ` class="${classValue}"`;
-    attrs = attrs.replace(/\saria-current="[^"]*"/g, '');
-    if (region === 'EU') attrs += ' aria-current="true"';
+  return html.replace(
+    /(<div\s+class="region-switcher-menu"[^>]*>)([\s\S]*?)(<\/div>)/,
+    (_m, open, _body, close) => {
+      const order = ['EU', 'ES', 'PT', 'CR', 'GLOBAL'];
+      const items = order.map(region => {
+        const active = region === 'EU';
+        const indicator = active ? '<span class="region-indicator" aria-hidden="true">●</span> ' : '';
+        const current = active ? ' aria-current="true"' : '';
+        const cls = active ? 'region-item active' : 'region-item';
+        return `<a href="${hrefs[region]}" class="${cls}" role="menuitem" data-region="${region}"${current}>${indicator}${labels[region]}</a>`;
+      }).join('\n                        ');
+      return `${open}\n                        ${items}\n                    ${close}`;
+    }
+  );
+}
 
-    const indicator = region === 'EU' ? '<span class="region-indicator" aria-hidden="true">●</span> ' : '';
-    return `<a${attrs}>${indicator}${labels[region]}</a>`;
-  });
+function normalizeLanguageFlags(html, locale, slug) {
+  const depth = slug.includes('/') ? '../../' : '../';
+  const ariaLabel = locale === 'es' ? 'Seleccionar idioma' : 'Selecionar idioma';
+  const flagName = locale === 'es' ? 'flag-es-64.webp' : 'flag-pt-64.webp';
+
+  // 1. Language switcher trigger in nav
+  html = html.replace(
+    /(<button\b[^>]*class="lang-switcher-trigger"[^>]*>[\s\S]*?<span class="lang-current-label">)([A-Z]{2})(<\/span>\s*<img\b[^>]*src=")[^"]*("[^>]*alt=")[^"]*(")/g,
+    `$1${locale.toUpperCase()}$3${depth}Images/Optimized/${flagName}$4${locale.toUpperCase()}$5`
+  );
+  html = html.replace(
+    /(<button\b[^>]*class="lang-switcher-trigger"[^>]*\baria-label=")[^"]*(")/g,
+    `$1${ariaLabel}$2`
+  );
+
+  // 2. Language options in header lang-switcher-menu
+  html = html.replace(
+    /(<a\b[^>]*class="lang-select"[^>]*data-lang="es"[^>]*>[\s\S]*?<img\b[^>]*src=")[^"]*("[^>]*alt=")[^"]*(")/g,
+    `$1${depth}Images/Optimized/flag-es-64.webp$2ES$3`
+  );
+  html = html.replace(
+    /(<a\b[^>]*class="lang-select"[^>]*data-lang="pt"[^>]*>[\s\S]*?<img\b[^>]*src=")[^"]*("[^>]*alt=")[^"]*(")/g,
+    `$1${depth}Images/Optimized/flag-pt-64.webp$2PT$3`
+  );
+  html = html.replace(
+    /(<a\b[^>]*class="lang-select"[^>]*data-lang="en"[^>]*>[\s\S]*?<img\b[^>]*src=")[^"]*("[^>]*alt=")[^"]*(")/g,
+    `$1${depth}Images/Optimized/flag-eu-64.webp$2EU$3`
+  );
+
+  // 3. Footer language switcher (if present)
+  html = html.replace(
+    /(<div\s+class="[^"]*footer-lang-switcher[^"]*"[\s\S]*?<div\s+class="lang-switcher-menu"[^>]*>[\s\S]*?<(?:a|button)\b[^>]*data-lang="es"[^>]*>[\s\S]*?<img\b[^>]*src=")[^"]*("[^>]*alt=")[^"]*(")/g,
+    (m, p1, p2, p3) => {
+      const src = p1.includes('Images/Banderas/') ? `${depth}Images/Banderas/espana.png` : `${depth}Images/Optimized/flag-es-64.webp`;
+      return `${p1}${src}${p2}ES${p3}`;
+    }
+  );
+  if (locale === 'es') {
+    html = html.replace(
+      /(<div\s+class="[^"]*footer-lang-switcher[^"]*"[\s\S]*?<span\s+class="lang-current-label">ES<\/span>\s*<img\b[^>]*src=")[^"]*("[^>]*alt=")[^"]*(")/g,
+      (m, p1, p2, p3) => {
+        const src = p1.includes('Images/Banderas/') ? `${depth}Images/Banderas/espana.png` : `${depth}Images/Optimized/flag-es-64.webp`;
+        return `${p1}${src}${p2}ES${p3}`;
+      }
+    );
+  }
+
+  return html;
 }
 
 function normalizeHead(html, locale, slug) {
@@ -134,8 +186,7 @@ for (const [locale, config] of Object.entries(localeConfig)) {
     html = normalizeHead(html, locale, slug);
     html = normalizeRegionItems(html, locale);
     html = normalizeLanguageMenus(html, slug);
-    html = html.replaceAll('flag-es-64.webp', 'flag-cr-64.webp');
-    html = html.replace(/(<img\b[^>]*flag-cr-64\.webp[^>]*\balt=")ES("[^>]*>)/g, '$1CR$2');
+    html = normalizeLanguageFlags(html, locale, slug);
     await writeFile(filename, html);
   }
 }

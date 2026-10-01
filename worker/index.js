@@ -99,6 +99,7 @@ function entryTargetFor(country) {
 
 /** Solo el ápice: los `www.` se redirigen antes de llegar hasta aquí (paso 0). */
 const LOCALIZED_HOSTS = new Map([
+    ['elysiumdr.com', 'com'],
     ['elysiumdr.es', 'es'],
     ['elysiumdr.pt', 'pt']
 ]);
@@ -108,6 +109,7 @@ const LOCALIZED_HOSTS = new Map([
  * el Worker solo las pide internamente al binding de assets.
  */
 const NATIONAL_ASSET_BASES = new Map([
+    ['com', '/_national/com'],
     ['es', '/_national/es'],
     ['pt', '/_national/pt']
 ]);
@@ -133,6 +135,13 @@ const NATIONAL_ASSET_BASES = new Map([
  *       | sed 's|^\./||; s|\.html$||; s|^index$||' | sort
  */
 const LOCALIZED_PAGES = new Map([
+    ['com', new Set([
+        '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
+        'daniel-morales', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
+        'prototype-moyra', 'prototype-pmorais', 'prototype-valtrix', 'research',
+        'research/data-driven-sme-intelligence', 'research/ontology-research',
+        'review-pmorais', 'services', 'terms', 'thank-you'
+    ])],
     ['es', new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
         'daniel-morales', 'llms-full.txt', 'llms.txt',
@@ -169,6 +178,7 @@ const COMMON_EUROPEAN_HTML_PAGES = new Set(
 );
 const EUROPEAN_HTML_PAGES = new Map([
     ['en', COMMON_EUROPEAN_HTML_PAGES],
+    ['com', NATIONAL_HTML_PAGES.get('com')],
     ['es', NATIONAL_HTML_PAGES.get('es')],
     ['pt', NATIONAL_HTML_PAGES.get('pt')]
 ]);
@@ -183,6 +193,7 @@ const NATIONAL_NOINDEX_PAGES = new Set(['onboarding', 'thank-you']);
 
 /** Exclusiones editoriales adicionales del sitemap nacional. */
 const NATIONAL_SITEMAP_EXCLUSIONS = new Map([
+    ['com', new Set()],
     ['es', new Set()],
     ['pt', new Set()]
 ]);

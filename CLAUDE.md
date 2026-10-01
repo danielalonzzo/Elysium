@@ -221,7 +221,7 @@ redirige a `.eu`. Ocho cosas que no se ven abriéndola:
    (`/download`, la que se sube a ElevenReader) es el fichero tal cual.
    Los libros comparten la arquitectura del Manual (barra superior, índice
    lateral, páginas del original, notas emergentes) y cada uno tiene su
-   paleta: amarillo el Manual, índigo Capital Humano, morado real Sociedade.
+   paleta: amarillo el Manual, verde Capital Humano, naranja Introdução aos Estudos Linguísticos, azul real A Literatura Europeia, morado real Sociedade.
 5. **Publica solo `daniel.morales@elysiumdr.eu`**, con el correo verificado. No
    basta el claim `admin` ni un rol del CRM: la biblioteca es de Daniel, y otra
    cuenta solo entra si se añade a `LIBRARY_ADMIN_EMAILS` en el Worker. El

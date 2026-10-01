@@ -53,21 +53,21 @@
             switchTo: 'Switch language to',
             selectRegion: 'Select region',
             closeDialog: 'Close dialog',
-            regions: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA' }
+            regions: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
         },
         es: {
             selectLanguage: 'Seleccionar idioma',
             switchTo: 'Cambiar idioma a',
             selectRegion: 'Seleccionar región',
             closeDialog: 'Cerrar diálogo',
-            regions: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA' }
+            regions: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
         },
         pt: {
             selectLanguage: 'Selecionar idioma',
             switchTo: 'Mudar idioma para',
             selectRegion: 'Selecionar região',
             closeDialog: 'Fechar diálogo',
-            regions: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA' }
+            regions: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
         }
     };
 
@@ -568,6 +568,20 @@
         const queryLanguage = readQueryLanguage();
         if (queryLanguage && !isQueryLanguageSuperseded(queryLanguage)) {
             return { language: queryLanguage, source: 'query' };
+        }
+
+        let regionParam = null;
+        try {
+            regionParam = new URLSearchParams(window.location.search).get('region');
+        } catch (error) {
+            regionParam = null;
+        }
+
+        if (regionParam === 'ES' || (!queryLanguage && configuration && configuration.region === 'ES' && configuration.isLocal)) {
+            return { language: 'es', source: 'region' };
+        }
+        if (regionParam === 'PT' || (!queryLanguage && configuration && configuration.region === 'PT' && configuration.isLocal)) {
+            return { language: 'pt', source: 'region' };
         }
 
         let storedLanguage = null;

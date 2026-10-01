@@ -111,23 +111,43 @@
     transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.35s ease, box-shadow 0.45s ease;
 }
 
-/* 1. Manual de Técnicas de Expressão e Comunicação — Amarillo / Dorado académico */
-.library-card:nth-child(3n + 1),
+/* 1. A Literatura Europeia — Azul Real Europeu */
+.library-card:nth-child(5n + 1),
+.library-card[data-book*="literatura"],
+.library-card[data-book*="backes"],
+.library-card[data-book*="europeia"] {
+    --library-accent: #2e62f0;
+    --library-accent-soft: rgba(46, 98, 240, 0.26);
+}
+
+/* 2. Manual de Técnicas de Expressão e Comunicação — Amarillo / Dorado académico */
+.library-card:nth-child(5n + 2),
 .library-card[data-book*="manual"],
 .library-card[data-book*="tecnicas"] {
     --library-accent: #f0c346;
     --library-accent-soft: rgba(240, 195, 70, 0.26);
 }
 
-/* 2. Capital Humano — Azul Índigo / Zafiro organizacional */
-.library-card:nth-child(3n + 2),
-.library-card[data-book*="capital"] {
-    --library-accent: #5e7ce2;
-    --library-accent-soft: rgba(94, 124, 226, 0.26);
+/* 3. Capital Humano — Verde Esmeralda / Gestión organizacional */
+.library-card:nth-child(5n + 3),
+.library-card[data-book*="capital"],
+.library-card[data-book*="gestao"],
+.library-card[data-book*="organizacoes"] {
+    --library-accent: #2ec486;
+    --library-accent-soft: rgba(46, 196, 134, 0.26);
 }
 
-/* 3. Sociedade e Cultura Inglesas — Morado Real Británico (British Royal Purple) */
-.library-card:nth-child(3n + 3),
+/* 4. Introdução aos Estudos Linguísticos — Naranja cálido / Editorial académico */
+.library-card:nth-child(5n + 4),
+.library-card[data-book*="linguist"],
+.library-card[data-book*="estudos"],
+.library-card[data-book*="introducao"] {
+    --library-accent: #f27d28;
+    --library-accent-soft: rgba(242, 125, 40, 0.26);
+}
+
+/* 5. Sociedade e Cultura Inglesas — Morado Real Británico (British Royal Purple) */
+.library-card:nth-child(5n + 5),
 .library-card[data-book*="sociedade"],
 .library-card[data-book*="sociedad"] {
     --library-accent: #9d4edd;

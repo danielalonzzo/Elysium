@@ -184,15 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const hasInlineLanguage = document.documentElement.dataset.langSwitch === 'inline';
 
     const REGION_LABELS = {
-        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA' },
-        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA' },
-        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA' }
+        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' },
+        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' },
+        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'WORLDWIDE' }
     };
     const LANGUAGE_FLAGS = {
         en: '/Images/Optimized/flag-eu-64.webp',
-        es: isNationalDomain
-            ? '/Images/Optimized/flag-es-64.webp'
-            : '/Images/Optimized/flag-cr-64.webp',
+        es: '/Images/Optimized/flag-es-64.webp',
         pt: '/Images/Optimized/flag-pt-64.webp'
     };
     const SWITCHABLE_MARKETING_PAGES = new Set([
@@ -252,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">SPAIN</a>
                 <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
                 <a href="https://elysiumdr.eu/es/?region=CR&amp;override=true" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
+                <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">WORLDWIDE</a>
             </div>`;
         brandContainer.appendChild(dropdown);
         return dropdown;
@@ -275,11 +274,11 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdown.className = 'lang-switcher-dropdown';
         const option = (code, name) => isNationalDomain
             ? `<button type="button" class="lang-option" data-lang="${code}" role="menuitem">${name} <img src="${LANGUAGE_FLAGS[code]}" alt="${code === 'en' ? 'EU' : code.toUpperCase()}" class="flag-icon"></button>`
-            : `<a href="${targetPaths[code]}" class="lang-select" data-lang="${code}" role="menuitem">${name} <img src="${LANGUAGE_FLAGS[code]}" alt="${code === 'en' ? 'EU' : code === 'es' ? 'CR' : 'PT'}" class="flag-icon"></a>`;
+            : `<a href="${targetPaths[code]}" class="lang-select" data-lang="${code}" role="menuitem">${name} <img src="${LANGUAGE_FLAGS[code]}" alt="${code === 'en' ? 'EU' : code.toUpperCase()}" class="flag-icon"></a>`;
         dropdown.innerHTML = `
-            <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true" aria-label="Select language">
+            <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true" aria-label="${language === 'es' ? 'Seleccionar idioma' : language === 'pt' ? 'Selecionar idioma' : 'Select language'}">
                 <span class="lang-current-label">${language.toUpperCase()}</span>
-                <img src="${LANGUAGE_FLAGS[language]}" alt="${language === 'en' ? 'EU' : language === 'es' && !isNationalDomain ? 'CR' : language.toUpperCase()}" class="flag-icon">
+                <img src="${LANGUAGE_FLAGS[language]}" alt="${language === 'en' ? 'EU' : language.toUpperCase()}" class="flag-icon">
                 <span class="lang-arrow" aria-hidden="true">▼</span>
             </button>
             <div class="lang-switcher-menu" role="menu">
@@ -329,17 +328,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.lang-switcher-dropdown').forEach(dropdown => {
             const label = dropdown.querySelector('.lang-current-label');
             const flag = dropdown.querySelector('.lang-switcher-trigger .flag-icon');
+            const trigger = dropdown.querySelector('.lang-switcher-trigger');
             if (label) label.textContent = lang.toUpperCase();
+            if (trigger) trigger.setAttribute('aria-label', lang === 'es'
+                ? 'Seleccionar idioma'
+                : lang === 'pt' ? 'Selecionar idioma' : 'Select language');
             if (flag) {
                 flag.src = LANGUAGE_FLAGS[lang];
-                flag.alt = lang === 'en' ? 'EU' : lang === 'es' ? 'CR' : 'PT';
+                flag.alt = lang === 'en' ? 'EU' : lang.toUpperCase();
             }
             dropdown.querySelectorAll('[data-lang]').forEach(option => {
                 const optionLanguage = option.getAttribute('data-lang');
                 const optionFlag = option.querySelector('.flag-icon');
                 if (optionFlag && LANGUAGE_FLAGS[optionLanguage]) {
                     optionFlag.src = LANGUAGE_FLAGS[optionLanguage];
-                    optionFlag.alt = optionLanguage === 'en' ? 'EU' : optionLanguage === 'es' ? 'CR' : 'PT';
+                    optionFlag.alt = optionLanguage === 'en' ? 'EU' : optionLanguage.toUpperCase();
                 }
             });
         });
@@ -494,32 +497,54 @@ document.addEventListener('DOMContentLoaded', () => {
                         : languageFromPath();
                     let targetUrl;
 
-                    if (isLocal) {
-                        if (dataRegion === 'ES') targetUrl = `/${page}?national=es&lang=${targetLanguage}`;
-                        else if (dataRegion === 'PT') targetUrl = `/${page}?national=pt&lang=${targetLanguage}`;
-                        else if (dataRegion === 'CR') targetUrl = `/es/${page}`;
-                        else targetUrl = targetLanguage === 'es' ? `/es/${page}` : targetLanguage === 'pt' ? `/pt/${page}` : `/${page}`;
-                    } else if (dataRegion === 'ES') {
-                        const target = new URL(`https://elysiumdr.es/${page}`);
-                        target.searchParams.set('region', 'ES');
-                        if (targetLanguage !== 'es') target.searchParams.set('lang', targetLanguage);
-                        targetUrl = target.toString();
+                    if (dataRegion === 'ES') {
+                        try {
+                            localStorage.setItem('elysium_lang_pref', 'es');
+                            localStorage.setItem('langOverride', 'true');
+                            document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
+                        } catch (error) {}
+                        if (isLocal) {
+                            targetUrl = `/${page}?national=es`;
+                        } else {
+                            const target = new URL(`https://elysiumdr.es/${page}`);
+                            target.searchParams.set('region', 'ES');
+                            targetUrl = target.toString();
+                        }
                     } else if (dataRegion === 'PT') {
-                        const target = new URL(`https://elysiumdr.pt/${page}`);
-                        target.searchParams.set('region', 'PT');
-                        if (targetLanguage !== 'pt') target.searchParams.set('lang', targetLanguage);
-                        targetUrl = target.toString();
+                        try {
+                            localStorage.setItem('elysium_lang_pref', 'pt');
+                            localStorage.setItem('langOverride', 'true');
+                            document.cookie = "elysium_lang_pref=pt; path=/; max-age=31536000; SameSite=Lax";
+                        } catch (error) {}
+                        if (isLocal) {
+                            targetUrl = `/${page}?national=pt`;
+                        } else {
+                            const target = new URL(`https://elysiumdr.pt/${page}`);
+                            target.searchParams.set('region', 'PT');
+                            targetUrl = target.toString();
+                        }
                     } else if (dataRegion === 'CR') {
-                        targetUrl = `https://elysiumdr.eu/es/${page}?region=CR&override=true`;
+                        try {
+                            localStorage.setItem('elysium_lang_pref', 'es');
+                            localStorage.setItem('langOverride', 'true');
+                            document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
+                        } catch (error) {}
+                        targetUrl = isLocal ? `/es/${page}` : `https://elysiumdr.eu/es/${page}?region=CR&override=true`;
+                    } else if (dataRegion === 'GLOBAL') {
+                        targetUrl = 'https://elysiumdr.com/';
                     } else {
                         const targetPath = targetLanguage === 'es'
                             ? `/es/${page}`
                             : targetLanguage === 'pt' ? `/pt/${page}` : `/${page}`;
-                        const target = new URL(targetPath, 'https://elysiumdr.eu');
-                        target.searchParams.set('region', 'EU');
-                        target.searchParams.set('override', 'true');
-                        if (targetLanguage === 'en') target.searchParams.set('lang', 'en');
-                        targetUrl = target.toString();
+                        if (isLocal) {
+                            targetUrl = targetPath;
+                        } else {
+                            const target = new URL(targetPath, 'https://elysiumdr.eu');
+                            target.searchParams.set('region', 'EU');
+                            target.searchParams.set('override', 'true');
+                            if (targetLanguage === 'en') target.searchParams.set('lang', 'en');
+                            targetUrl = target.toString();
+                        }
                     }
 
                     if (targetUrl) {
@@ -536,12 +561,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelector('.nav-links');
 
     if (mobileToggle && navLinks) {
+        const currentLang = languageFromPath();
         const closeMobileMenu = () => {
             navLinks.classList.remove('active');
             document.body.classList.remove('mobile-menu-open');
             mobileToggle.textContent = '☰';
             mobileToggle.setAttribute('aria-expanded', 'false');
-            mobileToggle.setAttribute('aria-label', 'Open navigation menu');
+            mobileToggle.setAttribute('aria-label', currentLang === 'es'
+                ? 'Abrir menú de navegación'
+                : currentLang === 'pt' ? 'Abrir menu de navegação' : 'Open navigation menu');
             document.body.style.overflow = '';
         };
 
@@ -553,7 +581,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (navLinks.classList.contains('active')) {
                 mobileToggle.textContent = '✕';
                 mobileToggle.setAttribute('aria-expanded', 'true');
-                mobileToggle.setAttribute('aria-label', 'Close navigation menu');
+                mobileToggle.setAttribute('aria-label', currentLang === 'es'
+                    ? 'Cerrar menú de navegación'
+                    : currentLang === 'pt' ? 'Fechar menu de navegação' : 'Close navigation menu');
                 document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
             } else {
                 closeMobileMenu();

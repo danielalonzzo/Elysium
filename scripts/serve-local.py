@@ -169,6 +169,19 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
             if index_path.is_file():
                 raw = index_path.read_text(encoding="utf-8")
                 cards_html = (
+                    '<article class="library-card" data-book="a-literatura-europeia-jean-louis-backes">'
+                    '<div class="library-card-top"><span class="library-card-langs">'
+                    '<span class="library-chip" lang="en-GB">Portuguese</span></span>'
+                    '<span class="library-card-size">71.5 MB</span>'
+                    '</div><div class="library-card-body">'
+                    '<h3 lang="pt-PT"><a href="/library/a-literatura-europeia-jean-louis-backes">A Literatura Europeia</a></h3>'
+                    '<p class="library-card-description" lang="pt-PT">Ensaio comparatista de Jean-Louis Backès sobre a existência e os fundamentos de uma literatura europeia comum: autores de notoriedade continental, mitos e formas partilhadas, das origens à modernidade.</p>'
+                    '<p class="library-card-date">Added 1 October 2026</p>'
+                    '<div class="library-card-actions">'
+                    '<a class="btn btn-primary" href="/library/a-literatura-europeia-jean-louis-backes">Read</a>'
+                    '<button type="button" class="btn library-audio-button" data-audiobook="a-literatura-europeia-jean-louis-backes">'
+                    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg><span>Audiobook</span></button>'
+                    '</div></div></article>'
                     '<article class="library-card" data-book="manual-de-tecnicas-de-expressao-e-comunicacao">'
                     '<div class="library-card-top"><span class="library-card-langs">'
                     '<span class="library-chip" lang="en-GB">Portuguese</span></span>'
@@ -195,6 +208,19 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
                     '<button type="button" class="btn library-audio-button" data-audiobook="capital-humano-temas-para-uma-boa-gestao-das-organizacoes">'
                     '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg><span>Audiobook</span></button>'
                     '</div></div></article>'
+                    '<article class="library-card" data-book="introducao-aos-estudos-linguisticos">'
+                    '<div class="library-card-top"><span class="library-card-langs">'
+                    '<span class="library-chip" lang="en-GB">Portuguese</span></span>'
+                    '<span class="library-card-size">2.1 MB</span>'
+                    '</div><div class="library-card-body">'
+                    '<h3 lang="pt-PT"><a href="/library/introducao-aos-estudos-linguisticos">Introdução aos Estudos Linguísticos</a></h3>'
+                    '<p class="library-card-description" lang="pt-PT">Manual de Introdução aos Estudos Linguísticos (Paulo Nunes da Silva, 2010), leitura obrigatória, e leituras de Saussure (1916), Mateus e Villalva (2006) e Salgado e Marques (2017).</p>'
+                    '<p class="library-card-date">Added 1 October 2026</p>'
+                    '<div class="library-card-actions">'
+                    '<a class="btn btn-primary" href="/library/introducao-aos-estudos-linguisticos">Read</a>'
+                    '<button type="button" class="btn library-audio-button" data-audiobook="introducao-aos-estudos-linguisticos">'
+                    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg><span>Audiobook</span></button>'
+                    '</div></div></article>'
                     '<article class="library-card" data-book="sociedade-e-cultura-inglesas">'
                     '<div class="library-card-top"><span class="library-card-langs">'
                     '<span class="library-chip" lang="en-GB">Portuguese</span>'
@@ -212,7 +238,7 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
                     '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 14v-2a8 8 0 0 1 16 0v2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="3" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/><rect x="16.5" y="13" width="4.5" height="7" rx="1.6" fill="currentColor"/></svg><span>Audiobook</span></button>'
                     '</div></div></article>'
                 )
-                catalog_json = '{"books":[{"slug":"manual-de-tecnicas-de-expressao-e-comunicacao","title":"Manual de Técnicas de Expressão e Comunicação","description":"Guia prático de escrita académica: planificar, redigir e rever; pontuar e organizar parágrafos; responder em provas e citar sem plagiar.","lang":"pt-PT","size":4375065,"uploadedAt":"2026-09-30T10:00:00.000Z"},{"slug":"capital-humano-temas-para-uma-boa-gestao-das-organizacoes","title":"Capital Humano: Temas para uma boa gestão das organizações","description":"Os nove temas essenciais para gerir pessoas numa organização, sempre com uma abordagem contingencial.","lang":"pt-PT","size":351436,"uploadedAt":"2026-09-25T12:00:00.000Z"},{"slug":"sociedade-e-cultura-inglesas","title":"Sociedade e Cultura Inglesas","description":"As origens da sociedade inglesa, dos romanos ao fim da Inglaterra anglo-saxónica: cristianização, Beda, os vikings e o rei Alfredo.","lang":"pt-PT","size":103954,"translations":["en-GB","es-ES"],"uploadedAt":"2026-09-25T12:11:00.000Z"}],"missing":false,"configured":true}'
+                catalog_json = '{"books":[{"slug":"a-literatura-europeia-jean-louis-backes","title":"A Literatura Europeia","description":"Ensaio comparatista de Jean-Louis Backès sobre a existência e os fundamentos de uma literatura europeia comum: autores de notoriedade continental, mitos e formas partilhadas, das origens à modernidade.","lang":"pt-PT","size":75010920,"uploadedAt":"2026-10-01T12:50:00.000Z"},{"slug":"manual-de-tecnicas-de-expressao-e-comunicacao","title":"Manual de Técnicas de Expressão e Comunicação","description":"Guia prático de escrita académica: planificar, redigir e rever; pontuar e organizar parágrafos; responder em provas e citar sem plagiar.","lang":"pt-PT","size":4375065,"uploadedAt":"2026-09-30T10:00:00.000Z"},{"slug":"capital-humano-temas-para-uma-boa-gestao-das-organizacoes","title":"Capital Humano: Temas para uma boa gestão das organizações","description":"Os nove temas essenciais para gerir pessoas numa organização, sempre com uma abordagem contingencial.","lang":"pt-PT","size":351436,"uploadedAt":"2026-09-25T12:00:00.000Z"},{"slug":"introducao-aos-estudos-linguisticos","title":"Introdução aos Estudos Linguísticos","description":"Manual de Introdução aos Estudos Linguísticos (Paulo Nunes da Silva, 2010), leitura obrigatória, e leituras de Saussure (1916), Mateus e Villalva (2006) e Salgado e Marques (2017).","lang":"pt-PT","size":2172496,"uploadedAt":"2026-10-01T10:00:00.000Z"},{"slug":"sociedade-e-cultura-inglesas","title":"Sociedade e Cultura Inglesas","description":"As origens da sociedade inglesa, dos romanos ao fim da Inglaterra anglo-saxónica: cristianização, Beda, os vikings e o rei Alfredo.","lang":"pt-PT","size":103954,"translations":["en-GB","es-ES"],"uploadedAt":"2026-09-25T12:11:00.000Z"}],"missing":false,"configured":true}'
                 raw = raw.replace("{{ROBOTS}}", "noindex, nofollow")
                 raw = raw.replace("{{LIBRARY_JSON_LD}}", "{}")
                 raw = raw.replace("{{LIBRARY_CARDS}}", cards_html)
@@ -228,6 +254,14 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
         if path.startswith("/library/"):
             rest = path[len("/library/"):].strip("/")
             books_meta = {
+                "a-literatura-europeia-jean-louis-backes": {
+                    "title": "A Literatura Europeia",
+                    "file": "A-Literatura-Europeia-Jean-Louis-Backes.html",
+                    "author": "Jean-Louis Backès",
+                    "date": "2026-10-01",
+                    "date_text": "1 October 2026",
+                    "desc": "Ensaio comparatista de Jean-Louis Backès sobre a existência e os fundamentos de uma literatura europeia comum: autores de notoriedade continental, mitos e formas partilhadas, das origens à modernidade."
+                },
                 "manual-de-tecnicas-de-expressao-e-comunicacao": {
                     "title": "Manual de Técnicas de Expressão e Comunicação",
                     "file": "manual-de-tecnicas-de-expressao-e-comunicacao.html",
@@ -242,7 +276,15 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
                     "author": "Luísa Leal de Faria",
                     "date": "2026-09-25",
                     "date_text": "25 September 2026",
-                    "desc": "Os nove temas essenciais para gerir pessoas numa organização, sempre com uma abordagem contingencial."
+                    "desc": "Os nove temas essenciais para gerir pessoas numa organização, siempre com uma abordagem contingencial."
+                },
+                "introducao-aos-estudos-linguisticos": {
+                    "title": "Introdução aos Estudos Linguísticos",
+                    "file": "introducao-aos-estudos-linguisticos.html",
+                    "author": "Paulo Nunes da Silva",
+                    "date": "2026-10-01",
+                    "date_text": "1 October 2026",
+                    "desc": "Manual de Introdução aos Estudos Linguísticos (Paulo Nunes da Silva, 2010), leitura obrigatória, e leituras de Saussure (1916), Mateus e Villalva (2006) e Salgado e Marques (2017)."
                 },
                 "sociedade-e-cultura-inglesas": {
                     "title": "Sociedade e Cultura Inglesas",
