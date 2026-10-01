@@ -71,6 +71,12 @@ function fakeFirestore() {
 async function seedDemo(db, uid, overrides = {}) {
   const { demoSeed } = await import(pathToFileURL(path.join(__dirname, '..', 'Gestor-Patrimonios', 'js', 'demo-data.js')).href);
   const seed = demoSeed();
+  // Garantiza una alerta incluso el primer día del mes.
+  seed.collections.transactions.push({
+    id: 'test-budget-expense', type: 'expense', amountMinor: 33000000,
+    currency: 'CRC', date: seed.profile.settings.fxUpdatedAt,
+    accountId: 'cta-colones', categoryId: 'supermercado'
+  });
   await db.collection('patrimonio').doc(uid).set({ ...seed.profile, ...overrides.profile });
   for (const [name, list] of Object.entries(seed.collections)) {
     for (const item of list) {
@@ -103,7 +109,7 @@ test('las alertas inmediatas salen una vez, de usted, al correo verificado', asy
   const { db, sent, service } = harness();
   await seedDemo(db, 'alex');
   const first = await service.checkImmediate('alex');
-  assert.ok(first.sent >= 1, 'la demo tiene presupuestos por encima del 80 %');
+  assert.ok(first.sent >= 1, 'el gasto de prueba supera el 80 % del presupuesto');
   assert.equal(sent.length, 1, 'un solo correo agrupa las alertas nuevas');
   assert.deepEqual(sent[0].to, ['alex@example.com']);
   assert.match(sent[0].html, /Ha gastado|Presupuesto de .* excedido/);
