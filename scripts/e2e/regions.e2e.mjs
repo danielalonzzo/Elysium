@@ -165,6 +165,80 @@ try {
     check(errors.length === 0, `[${d}${path}] sin errores de JavaScript`, errors.join(' | '));
     await page.close();
   }
+
+  // ── 9. «Biblioteca» y «Cuenta» respetan la región y el idioma de la región ──
+  // Con el navegador en otro idioma y con una elección guardada que contradice a la región.
+  const REGION_VIEW = [
+    // [desde, región, <html lang>, idioma]
+    ['https://elysiumdr.eu/', 'EUROPE', 'en-GB', 'EN'],
+    ['https://elysiumdr.eu/es/', 'EUROPA', 'es-ES', 'ES'],
+    ['https://elysiumdr.eu/pt/', 'EUROPA', 'pt-PT', 'PT'],
+    ['https://elysiumdr.es/', 'ESPAÑA', 'es-ES', 'ES'],
+    ['https://elysiumdr.pt/', 'PORTUGAL', 'pt-PT', 'PT'],
+    ['https://elysiumdr.com/', 'GLOBAL', 'en-GB', 'EN'],
+    ['https://elysiumdr.com/es/', 'GLOBAL', 'es-CR', 'ES'],
+    ['https://elysiumdr.com/pt/', 'GLOBAL', 'pt-PT', 'PT']
+  ];
+  for (const [home, region, lang, label] of REGION_VIEW) {
+    for (const [selector, name] of [['.nav-link[href*="library"]', 'Biblioteca'], ['.nav-link[href*="profiles"]', 'Cuenta']]) {
+      for (const browser of ['fr-FR,fr', 'es-ES,es', 'pt-BR,pt']) {
+        const page = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: browser });
+        const origin = new URL(home).origin;
+        // Una elección guardada de otra vez, en el idioma contrario al de la región.
+        await page.goto(`${origin}/robots.txt`, { settle: 200 });
+        const contrary = lang.startsWith('pt') ? 'es' : 'pt';
+        await page.eval(`localStorage.clear(); ${new URL(home).hostname.match(/\.(es|pt)$/) ? '' : `localStorage.setItem('elysium_lang_pref', '${contrary}'); localStorage.setItem('elysium_lang', '${contrary}');`}`);
+        await page.goto(`${home}?override=true`);
+        await page.eval(`document.querySelector('${selector}').click()`);
+        await sleep(3500);
+        const s = await page.eval(SNAP);
+        const where = `[${home.replace('https://', '')} → ${name} · navegador ${browser.slice(0, 5)}]`;
+        eq(new URL(s.href).hostname, new URL(home).hostname, `${where} se queda en su dominio`);
+        eq(s.region, region, `${where} región`);
+        eq(s.htmlLang, lang, `${where} idioma de la región`);
+        await page.close();
+      }
+    }
+  }
+
+  // El índice → un libro conserva el idioma; la región, también.
+  for (const [home, lang] of [['https://elysiumdr.es/', 'es-ES'], ['https://elysiumdr.com/es/', 'es-CR'], ['https://elysiumdr.eu/pt/', 'pt-PT'], ['https://elysiumdr.pt/', 'pt-PT'], ['https://elysiumdr.com/', 'en-GB']]) {
+    const page = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: 'fr-FR,fr' });
+    await page.goto(`${home}?override=true`);
+    await page.eval(`document.querySelector('.nav-link[href*="library"]').click()`);
+    await sleep(3000);
+    await page.eval(`document.querySelector('.library-card a, a[href^="/library/manual"]').click()`);
+    await sleep(3000);
+    const s = await page.eval(SNAP);
+    const where = `[${home.replace('https://', '')} → biblioteca → libro]`;
+    check(/\/library\/manual/.test(s.href) && new URL(s.href).hostname === new URL(home).hostname, `${where} el libro abre en el mismo dominio`, s.href);
+    eq(s.htmlLang, lang, `${where} idioma de la región (el libro está en portugués y el navegador en francés)`);
+    await page.close();
+  }
+
+  // Cambiar de región desde la biblioteca abre la región nueva en SU idioma.
+  for (const [from, region, host, lang] of [['https://elysiumdr.es/', 'EU', 'elysiumdr.eu', 'en-GB'], ['https://elysiumdr.com/es/', 'PT', 'elysiumdr.pt', 'pt-PT'], ['https://elysiumdr.pt/', 'GLOBAL', 'elysiumdr.com', 'en-GB']]) {
+    const page = await newPage(chrome, { width: 1440, height: 900 });
+    await page.goto(`${from}?override=true`);
+    await page.eval(`document.querySelector('.nav-link[href*="library"]').click()`);
+    await sleep(3000);
+    await page.eval(`document.querySelector('.navbar .region-item[data-region="${region}"]').click()`);
+    await sleep(3000);
+    const s = await page.eval(SNAP);
+    eq(new URL(s.href).hostname, host, `[biblioteca de ${from.replace('https://', '')} → ${region}] aterriza en ${host}`);
+    eq(s.htmlLang, lang, `[biblioteca de ${from.replace('https://', '')} → ${region}] abre en el idioma de la región`);
+    await page.close();
+  }
+
+  // La administración solo existe en .eu: en los espejos el botón lleva allí.
+  {
+    const page = await newPage(chrome, { width: 1440, height: 900 });
+    await page.goto('https://elysiumdr.es/library');
+    await sleep(1500);
+    const hidden = await page.eval(`(()=>{const s=document.querySelector('[data-library-admin-section]');return !s || s.hidden})()`);
+    check(hidden, '[.es/library] la administración no se ofrece fuera de .eu');
+    await page.close();
+  }
 } finally { chrome.close(); server.close(); }
 
 const failed = results.filter(r => !r.ok);

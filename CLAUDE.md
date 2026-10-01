@@ -91,7 +91,8 @@ Cosas que no se ven abriendo el sitio:
 - **Los selectores de región e idioma están escritos a mano en cada página** y
   además los pone `JS/main.js` donde faltan. Si cambia uno, cambian los dos
   (hay prueba). `JS/elysium-i18n.js` solo actúa en `.es`/`.pt`; en `.eu` y
-  `.com` el cambio de idioma es navegar a otra carpeta.
+  `.com` el cambio de idioma es navegar a otra carpeta (salvo los 22 idiomas
+  en vivo de `.eu`, ver más abajo).
 - **`HOME_COPY` y `REGIONAL_PAGE_COPY` de `elysium-i18n.js`** dicen cómo se
   describe España o Portugal cuando alguien las traduce a otro idioma
   («…in Spain»). Si se edita el titular de `.es`/`.pt`, edite también ahí.
@@ -109,6 +110,56 @@ Cosas que no se ven abriendo el sitio:
 - **La barra de navegación está dentro de las ocho portadas** (CSS crítico en
   línea) y en `components.css`: cabe en español y portugués hasta 1180 px y por
   debajo pasa al menú móvil. Un cambio de estilos va en los tres sitios.
+- **`.eu` traduce en vivo otros 22 idiomas, y ninguno es un fichero.** Inglés,
+  español y portugués son nativos y físicos (carpetas). Alemán, búlgaro, checo,
+  croata, danés, eslovaco, esloveno, estonio, finés, francés, griego, húngaro,
+  irlandés, italiano, letón, lituano, maltés, neerlandés, polaco, rumano, sueco
+  y latín los traduce **Google Website Translator en el navegador** de quien los
+  pide: `JS/elysium-translate.js` añade sus 22 entradas al selector que ya
+  existe (no se escriben a mano en las páginas) y `CSS/elysium-translate.css`
+  esconde la interfaz de Google. No hay diccionarios en el repositorio: se
+  probó con diccionarios traducidos y se descartó. Un Worker tampoco puede
+  servir plantillas traducidas como hace con `.es`/`.pt`: el proxy
+  `*.translate.goog` devuelve la página **en inglés** con un script que traduce
+  en el navegador. Reglas que no se ven abriendo el sitio:
+  1. **Solo en las 60 páginas de marketing de `.eu`** (tres carpetas × veinte,
+     la lista de `SWITCHABLE_MARKETING_PAGES` de `main.js`). En `.es`, `.pt` y
+     `.com` queda inerte. Se carga con `<script src="/JS/elysium-translate.js"
+     defer>` en cada página, **no** desde `main.js` ni desde los bundles
+     inmutables: meterlo ahí obligaría a sacar otro `home.vAAAAMMDD.min.js`.
+     Una página de marketing nueva tiene que llevarlo (hay prueba).
+  2. **Nunca por el navegador.** Solo existe tras una elección explícita: la
+     cookie de sesión `googtrans=/<origen>/<destino>` o `?lang=de`. Se traduce
+     desde la página en la que se está (`/es/` parte del español). Volver al
+     original es borrar la cookie y recargar; elegir EN/ES/PT también la borra.
+     Un `/?lang=de` anula el reparto por país del Worker
+     (`LIVE_TRANSLATION_LANGUAGES`), o desde España acabaría en `.es`.
+  3. **La CSP de `_headers` tiene que abrir tres hosts de Google en
+     `script-src`**: `translate.google.com`, `translate.googleapis.com` y
+     `translate-pa.googleapis.com`, más `www.gstatic.com` en `style-src`. Si
+     falta `translate-pa`, el widget carga, no da ningún error y se queda con el
+     `<select>` vacío, sin traducir. `data:` en `frame-src` y `'unsafe-eval'` no
+     hacen falta. Lo vigila `scripts/translate.test.mjs`.
+  4. **El texto de la página se envía a Google al traducir.** Está dicho en la
+     política de privacidad de `.eu` (EN/ES/PT) junto con la cookie. Si algún día
+     se ofrece en `.com`, hay que repetir eso y revisar su CSP.
+  5. Es traducción automática y la página lo avisa (con «Ver original»); su
+     calidad es variable, sobre todo en irlandés, maltés y latín.
+  6. **Cómo probarlo.** Con la CSP real: `scripts/serve-local.py` aplica
+     `_headers`, pero lo lee al arrancar (reinícielo tras tocarlo) y sirve
+     igual en el navegador del panel. El arnés (`node
+     scripts/e2e/translate.e2e.mjs`, Chrome real y Worker de verdad, necesita
+     red) comprueba el comportamiento pero **no** aplica la CSP. Google va lento
+     alguna vez y una comprobación puede fallar de forma puntual.
+
+- **La biblioteca y la cuenta (`/profiles`) son páginas únicas, no carpetas**, y
+  por eso se les escapó la regla dos veces: la biblioteca saltaba a `.eu` desde
+  `.es`, `.pt` y `.com` (otra región, otro idioma) y elegía idioma por el
+  navegador; la cuenta dejaba que una elección guardada en `.eu` mandara sobre
+  la región. Ahora: en `.eu` y `.com` el idioma es `?lang=`/carpeta o inglés, y
+  **no** se lee `elysium_lang_pref`; en `.es` y `.pt` manda la traducción del
+  sitio y, si no hay, el idioma del dominio. Una página nueva de este tipo
+  tiene que pasar por `scripts/e2e/regions.e2e.mjs` (sección 9).
 
 Probar en local: `scripts/serve-local.py` sirve `.eu` y, con `?national=es|pt`,
 `.es` y `.pt`; **no sirve `.com`**. Para ver las cuatro regiones tal como las
@@ -254,8 +305,13 @@ repositorio.** En `elysiumdr.eu/library` el administrador sube documentos HTML y
 quedan publicados sin commit ni despliegue. Desde el 25/09/2026 dejó de ser
 oculta: se enlaza desde el pie de todas las páginas (solo el pie, no el menú),
 se indexa y tiene su propio sitemap, porque el objetivo es que cada libro salga
-al buscarlo. Sigue fuera del MCP (son obras de terceros) y en `.es`/`.pt`
-redirige a `.eu`. Ocho cosas que no se ven abriéndola:
+al buscarlo. Sigue fuera del MCP (son obras de terceros). **Se sirve en los
+cuatro dominios** para no sacar a nadie de su región: en `.es`, `.pt` y `.com`
+es un espejo `noindex` con el canónico en `.eu` (`isMirror` en
+`worker/library.js`; el sitemap y la administración siguen siendo solo de
+`.eu`). Su idioma es el de la región —`.es` español, `.pt` portugués, `.eu` y
+`.com` inglés o el de la carpeta de la que se viene—, nunca el del navegador ni
+el del libro. Ocho cosas que no se ven abriéndola:
 
 1. **Los libros viven en Workers KV** (binding `LIBRARY` en `wrangler.jsonc`),
    con sus metadatos en la propia clave `book:<slug>`. R2 no está activado en la

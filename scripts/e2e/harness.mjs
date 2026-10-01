@@ -54,6 +54,27 @@ function assets() {
     };
 }
 
+const DEMO_BOOK = '<!doctype html><html lang="pt-PT"><head><meta charset="utf-8"><title>Livro de prova</title></head><body><h1 id="a">Livro de prova</h1><p>Texto.</p></body></html>';
+
+/** Un KV en memoria con un solo libro («manual», en portugués) para ver el índice y el lector. */
+function demoLibrary(bookMetadata) {
+    const bytes = new TextEncoder().encode(DEMO_BOOK);
+    const metadata = bookMetadata({ title: 'Livro de prova', description: 'Um livro para a verificação.', lang: 'pt-PT', size: bytes.length, file: 'manual.html', uploadedAt: '2026-09-30T10:00:00.000Z' });
+    const entries = new Map([['book:manual', { bytes, metadata }]]);
+    return {
+        async get(key) { const entry = entries.get(key); return entry ? new TextDecoder().decode(entry.bytes) : null; },
+        async getWithMetadata(key, options = {}) {
+            const entry = entries.get(key);
+            if (!entry) return { value: null, metadata: null };
+            return { value: options.type === 'stream' ? new Response(entry.bytes).body : new TextDecoder().decode(entry.bytes), metadata: entry.metadata };
+        },
+        async put() {}, async delete() {},
+        async list({ prefix = '' } = {}) {
+            return { keys: [...entries.keys()].filter(name => name.startsWith(prefix)).map(name => ({ name, metadata: entries.get(name).metadata })), list_complete: true };
+        }
+    };
+}
+
 /** Arranca el Worker por HTTPS. El país simulado llega en la cabecera `X-Test-Country`. */
 export async function startServer({ port = 0 } = {}) {
     const dir = mkdtempSync(join(tmpdir(), 'elysium-e2e-'));
@@ -62,7 +83,8 @@ export async function startServer({ port = 0 } = {}) {
         '-days', '2', '-subj', '/CN=elysiumdr.eu', '-addext', `subjectAltName=${alt}`], { stdio: 'ignore' });
 
     const worker = (await import(`file://${join(ROOT, 'worker', 'index.js')}`)).default;
-    const env = { ASSETS: assets(), ELYSIUM_API_ORIGIN: '', LIBRARY: { get: async () => null, list: async () => ({ keys: [] }) } };
+    const { bookMetadata } = await import(`file://${join(ROOT, 'worker', 'library.js')}`);
+    const env = { ASSETS: assets(), ELYSIUM_API_ORIGIN: '', LIBRARY: demoLibrary(bookMetadata) };
     const server = https.createServer({ key: readFileSync(join(dir, 'key.pem')), cert: readFileSync(join(dir, 'cert.pem')) }, async (req, res) => {
         try {
             const host = (req.headers.host || '').split(':')[0];

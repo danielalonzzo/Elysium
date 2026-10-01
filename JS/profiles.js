@@ -132,9 +132,15 @@ function localeForLanguage(language) {
 const requestedLanguage = languageParams.get('lang');
 const pathLanguage = !isNationalDomain && supportedLanguages.has(pathParts[0]) ? pathParts[0] : null;
 const storedLanguage = readStoredLanguage();
+// Cada región abre la cuenta en SU idioma, no en el del navegador ni en el que
+// se eligió otra vez. Orden: `?lang=` (el enlace de las páginas de `.eu` y `.com`
+// lo lleva) o la carpeta; en `.es` y `.pt`, la elección que dejó la traducción
+// del sitio y, si no hay, el idioma del dominio; en `.eu` y `.com`, que son
+// físicos, inglés. El `localStorage` de `.eu` no decide: una elección de ayer
+// en `/pt/` dejaba la cuenta en portugués al entrar por la portada inglesa.
 let currentLang = supportedLanguages.has(requestedLanguage) && !isQueryLanguageSuperseded(requestedLanguage)
     ? requestedLanguage
-    : pathLanguage || storedLanguage || nationalLanguage || 'en';
+    : pathLanguage || (isNationalDomain ? storedLanguage : null) || nationalLanguage || 'en';
 let locale = localeForLanguage(currentLang);
 
 function localizedPath(path = '', language = currentLang) {
@@ -526,46 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             changeLanguage(e.currentTarget.dataset.lang);
-        });
-    });
-    document.querySelectorAll('.region-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            const region = (item.dataset.region || '').toUpperCase();
-            try {
-                localStorage.setItem('elysium_region_override', 'true');
-                document.cookie = "elysium_region_override=true; path=/; max-age=31536000; SameSite=Lax";
-            } catch (_) {}
-            if (region === 'ES') {
-                try {
-                    localStorage.setItem('elysium_lang_pref', 'es');
-                    localStorage.setItem('langOverride', 'true');
-                    document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
-                } catch (_) {}
-                if (isLocal) {
-                    e.preventDefault();
-                    window.location.assign('/?national=es');
-                }
-            } else if (region === 'PT') {
-                try {
-                    localStorage.setItem('elysium_lang_pref', 'pt');
-                    localStorage.setItem('langOverride', 'true');
-                    document.cookie = "elysium_lang_pref=pt; path=/; max-age=31536000; SameSite=Lax";
-                } catch (_) {}
-                if (isLocal) {
-                    e.preventDefault();
-                    window.location.assign('/?national=pt');
-                }
-            } else if (region === 'CR') {
-                try {
-                    localStorage.setItem('elysium_lang_pref', 'es');
-                    localStorage.setItem('langOverride', 'true');
-                    document.cookie = "elysium_lang_pref=es; path=/; max-age=31536000; SameSite=Lax";
-                } catch (_) {}
-                if (isLocal) {
-                    e.preventDefault();
-                    window.location.assign('/es/');
-                }
-            }
         });
     });
     changeLanguage(currentLang, { updateUrl: false });

@@ -238,6 +238,24 @@ export function isLibraryPath(pathname) {
     return /^\/library(?:\.html)?(?:\/|$)/i.test(pathname);
 }
 
+/**
+ * La biblioteca se sirve en los cuatro dominios para que quien la abre desde
+ * España, Portugal o el sitio global siga en SU región y en su idioma. Pero
+ * existe en un solo origen a efectos de buscadores y de administración: los
+ * libros son los mismos, y `.eu` es el canónico (las plantillas ya lo declaran)
+ * y el único que publica, avisa a IndexNow y anuncia su sitemap. Las páginas de
+ * los otros tres dominios son un espejo: `noindex`.
+ */
+const MIRROR_HOSTS = new Set(['elysiumdr.es', 'elysiumdr.pt', 'elysiumdr.com']);
+
+export function isMirror(url) {
+    return MIRROR_HOSTS.has(url.hostname.toLowerCase());
+}
+
+function redirectToPrimary(url) {
+    return new Response(null, { status: 301, headers: { Location: `${LIBRARY_ORIGIN}${url.pathname}${url.search}` } });
+}
+
 export function isValidSlug(slug) {
     return typeof slug === 'string'
         && slug.length > 0
@@ -1629,15 +1647,16 @@ async function catalog(env, url) {
 async function serveIndex(request, env, url, { status = 200, missing = '' } = {}) {
     const response = await template(env, url, `${LIBRARY_PREFIX}/`);
     const { books, configured } = await catalog(env, url);
+    const indexable = status === 200 && !isMirror(url);
     const html = renderTemplate(await response.text(), {
-        ROBOTS: status === 200 ? INDEXABLE_ROBOTS : 'noindex, follow',
+        ROBOTS: indexable ? INDEXABLE_ROBOTS : 'noindex, follow',
         LIBRARY_JSON_LD: indexJsonLd(books),
         LIBRARY_CARDS: renderBookCards(books),
         LIBRARY_DATA: jsonForScript({ books, missing, configured })
     });
     return new Response(request.method === 'HEAD' ? null : html, {
         status,
-        headers: pageHeaders(response, { indexable: status === 200 })
+        headers: pageHeaders(response, { indexable })
     });
 }
 
@@ -1716,7 +1735,10 @@ async function serveReader(request, env, url, slug) {
                 .filter(language => TRANSLATION_LANGUAGES.includes(language))
         })
     });
-    return new Response(request.method === 'HEAD' ? null : html, { status: 200, headers: pageHeaders(response) });
+    return new Response(request.method === 'HEAD' ? null : html, {
+        status: 200,
+        headers: pageHeaders(response, { indexable: !isMirror(url) })
+    });
 }
 
 /**
@@ -1776,7 +1798,7 @@ function serveManifest(request) {
     });
 }
 
-async function serveBookFile(request, env, slug, { download, language = null }) {
+async function serveBookFile(request, env, slug, { download, language = null, mirror = false }) {
     const kv = store(env);
     const key = language ? `${TRANSLATION_KEY_PREFIX}${slug}:${language}` : BOOK_KEY_PREFIX + slug;
     const found = await kv.getWithMetadata(key, { type: 'stream' });
@@ -1801,7 +1823,7 @@ async function serveBookFile(request, env, slug, { download, language = null }) 
         // Esta URL suelta no se indexa (no lleva ni la cabecera de Elysium ni
         // el botón de volver), pero su texto sí cuenta como parte del lector
         // que la enmarca: es la página que debe salir en los resultados.
-        headers.set('X-Robots-Tag', 'noindex, indexifembedded');
+        headers.set('X-Robots-Tag', mirror ? 'noindex' : 'noindex, indexifembedded');
         headers.set('Content-Signal', PUBLIC_CONTENT_SIGNAL);
     }
 
@@ -1822,9 +1844,8 @@ async function serveBookFile(request, env, slug, { download, language = null }) 
 // ── Entrada ───────────────────────────────────────────────────────────────────
 
 /**
- * Atiende cualquier ruta de `isLibraryPath()`. La redirección de los dominios
- * nacionales a `.eu` la hace `index.js` antes de llegar aquí: la biblioteca
- * existe en un solo origen.
+ * Atiende cualquier ruta de `isLibraryPath()`, en los cuatro dominios (ver
+ * `isMirror`). Lo que no se puede duplicar —el sitemap— redirige a `.eu`.
  */
 export async function handleLibrary(request, env, url, ctx) {
     // La API no se redirige nunca: un PUT redirigido se perdería por el camino.
@@ -1848,7 +1869,8 @@ export async function handleLibrary(request, env, url, ctx) {
     try {
         if (rest === '') return await serveIndex(request, env, url);
         // Llevan punto, así que nunca pueden ser el slug de un libro.
-        if (rest === 'sitemap.xml') return await serveSitemap(request, env, url);
+        // El sitemap y sus URL son de `.eu`; los espejos no tienen el suyo.
+        if (rest === 'sitemap.xml') return isMirror(url) ? redirectToPrimary(url) : await serveSitemap(request, env, url);
         if (rest === 'manifest.webmanifest') return serveManifest(request);
 
         const segments = rest.split('/');
@@ -1862,8 +1884,8 @@ export async function handleLibrary(request, env, url, ctx) {
         const requested = url.searchParams.get('lang');
         const language = TRANSLATION_LANGUAGES.includes(requested) ? requested : null;
         if (requested && !language && segments.length === 2) return notFound(request);
-        if (segments.length === 2 && segments[1] === 'book') return await serveBookFile(request, env, slug, { download: false, language });
-        if (segments.length === 2 && segments[1] === 'download') return await serveBookFile(request, env, slug, { download: true, language });
+        if (segments.length === 2 && segments[1] === 'book') return await serveBookFile(request, env, slug, { download: false, language, mirror: isMirror(url) });
+        if (segments.length === 2 && segments[1] === 'download') return await serveBookFile(request, env, slug, { download: true, language, mirror: isMirror(url) });
         return notFound(request);
     } catch (error) {
         if (error instanceof LibraryError && error.code === 'library_not_configured') return notFound(request);

@@ -107,6 +107,17 @@ function entryTargetFor(country) {
 
 // ── Dominios nacionales ───────────────────────────────────────────────────────
 
+/**
+ * Los 22 idiomas que `JS/elysium-translate.js` traduce en vivo en `.eu` (los
+ * demás de la Unión Europea y el latín). Un enlace `/?lang=de` es una elección
+ * explícita: tiene que anular el reparto por país, o quien lo abra desde
+ * España o Portugal acabaría en `.es`/`.pt` y perdería el idioma.
+ */
+const LIVE_TRANSLATION_LANGUAGES = new Set([
+    'de', 'bg', 'cs', 'hr', 'da', 'sk', 'sl', 'et', 'fi', 'fr', 'el',
+    'hu', 'ga', 'it', 'lv', 'lt', 'mt', 'nl', 'pl', 'ro', 'sv', 'la'
+]);
+
 /** Solo el ápice: los `www.` se redirigen antes de llegar hasta aquí (paso 0). */
 const LOCALIZED_HOSTS = new Map([
     ['elysiumdr.com', 'com'],
@@ -979,15 +990,13 @@ export default {
             return redirect(`https://elysiumdr.eu${url.pathname}${url.search}`, 301);
         }
 
-        // La biblioteca (`/library`, ver `worker/library.js`) tiene un solo
-        // origen, igual que Elysium Patrimonio: la sesión de administrador con
-        // la que se publica es la de `.eu`, y un libro en tres dominios serían
-        // tres copias compitiendo en el buscador. Va antes que la localización
-        // para que ningún dominio nacional la busque en `_national/`.
-        if (isLibraryPath(url.pathname)) {
-            if (nationalLanguage) return redirect(`https://elysiumdr.eu${url.pathname}${url.search}`, 301);
-            return handleLibrary(request, env, url, ctx);
-        }
+        // La biblioteca (`/library`, ver `worker/library.js`) se sirve en los
+        // cuatro dominios: quien la abre desde `.es`, `.pt` o `.com` sigue en su
+        // región y en su idioma (antes saltaba a `.eu`, en la región y el idioma
+        // equivocados). Va antes que la localización para que ningún dominio
+        // nacional la busque en `_national/`. Los libros son los mismos y `.eu`
+        // sigue siendo el canónico; los otros tres son un espejo `noindex`.
+        if (isLibraryPath(url.pathname)) return handleLibrary(request, env, url, ctx);
 
         // `/p` fue un duplicado temporal de portfolio. Canonizarlo en el mismo
         // host evita que los dominios nacionales sirvan la copia inglesa y que
@@ -1070,7 +1079,9 @@ export default {
         // 1. Reparto por país en la portada de .eu.
         const isEuropeanHost = host === 'elysiumdr.eu';
         const isHomepage = url.pathname === '/' || url.pathname === '/index.html';
-        const hasParamOverride = url.searchParams.has('override') || url.searchParams.has('region') || url.searchParams.get('lang') === 'en';
+        const requestedLang = url.searchParams.get('lang');
+        const hasParamOverride = url.searchParams.has('override') || url.searchParams.has('region')
+            || requestedLang === 'en' || LIVE_TRANSLATION_LANGUAGES.has(requestedLang);
         if (isEuropeanHost && isHomepage) {
             const cookieHeader = request.headers.get('Cookie') || '';
             const hasManualOverride = cookieHeader.includes('elysium_region_override=true');

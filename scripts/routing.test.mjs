@@ -144,6 +144,28 @@ test('.eu — el parámetro override anula el reparto por país y fija la cookie
     assert.match(r.setCookie || '', /elysium_region_override=true/);
 });
 
+test('.eu — un enlace /?lang=<idioma en vivo> anula el reparto por país', async () => {
+    // `JS/elysium-translate.js` traduce 22 idiomas en el navegador. Quien abre
+    // `/?lang=de` desde España no debe acabar en `.es` y perder el alemán.
+    for (const lang of ['de', 'fr', 'la', 'ga', 'mt', 'bg']) {
+        for (const country of ['ES', 'PT', 'MX']) {
+            const r = await call(`https://elysiumdr.eu/?lang=${lang}`, { country });
+            assert.equal(r.status, 200, `${lang} desde ${country}`);
+            assert.match(r.setCookie || '', /elysium_region_override=true/, `${lang} desde ${country}`);
+        }
+    }
+});
+
+test('.eu — ?lang=es y ?lang=pt no anulan el reparto por país', async () => {
+    // El español y el portugués nativos son carpetas (/es/, /pt/): no hay
+    // motivo para saltarse el reparto con un parámetro suelto.
+    for (const lang of ['es', 'pt', 'xx']) {
+        const r = await call(`https://elysiumdr.eu/?lang=${lang}`, { country: 'ES' });
+        assert.equal(r.status, 302, lang);
+        assert.equal(r.location, `https://elysiumdr.es/?lang=${lang}`, lang);
+    }
+});
+
 test('.eu — el parámetro region anula el reparto por país y fija la cookie', async () => {
     const r = await call('https://elysiumdr.eu/?region=EU', { country: 'ES' });
     assert.equal(r.status, 200);

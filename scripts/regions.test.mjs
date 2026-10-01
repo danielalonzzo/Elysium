@@ -372,12 +372,14 @@ test('.com — la base interna no es una URL pública, y la traducción en vivo 
     assert.equal((await call(`${COM}/__i18n?lang=es&path=/`)).status, 404);
 });
 
-test('.com — Elysium Patrimonio y la biblioteca viven solo en .eu', async () => {
-    for (const path of ['/Gestor-Patrimonios/', '/library', '/library/']) {
-        const r = await call(`${COM}${path}`);
-        assert.equal(r.status, 301, path);
-        assert.equal(r.location, `https://elysiumdr.eu${path}`, path);
-    }
+test('.com — Elysium Patrimonio vive solo en .eu, pero la biblioteca se sirve aquí, en la región', async () => {
+    const patrimonio = await call(`${COM}/Gestor-Patrimonios/`);
+    assert.equal(patrimonio.status, 301);
+    assert.equal(patrimonio.location, 'https://elysiumdr.eu/Gestor-Patrimonios/');
+    // La biblioteca no salta a `.eu`: seguiría en otra región y en otro idioma.
+    const library = await call(`${COM}/library`);
+    assert.notEqual(library.status, 301);
+    assert.equal(library.location, null);
 });
 
 test('.com — su sitemap lista las tres carpetas con sus hreflang y sin páginas noindex', async () => {

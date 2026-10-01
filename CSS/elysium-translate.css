@@ -1,0 +1,167 @@
+/*
+ * Traducción por código de elysiumdr.eu (JS/elysium-translate.js).
+ * Se carga solo cuando hace falta (al abrir la página traducida o al montar el
+ * selector), así que no pesa en el CSS de portada ni en components.css.
+ */
+
+/* El menú de idioma pasa de 3 a 25 entradas: se desplaza en vez de salirse de la pantalla. */
+.lang-switcher-menu.has-machine-translation {
+    max-height: min(70vh, 28rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, .25) transparent;
+}
+
+.lang-switcher-menu .lang-menu-heading {
+    margin-top: .35rem;
+    padding: .65rem 1rem .3rem;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #6b7280);
+}
+
+.lang-switcher-menu .lang-translate.active,
+.lang-switcher-menu .lang-translate[aria-current="true"] {
+    color: var(--color-accent, #2997ff);
+    font-weight: 700;
+}
+
+.lang-switcher-menu .lang-translate .flag-icon {
+    width: 1.2em;
+    height: auto;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+/*
+ * La interfaz de Google Translate no se ve: el selector es el de Elysium y el
+ * aviso de abajo hace de atribución y de salida al original. Sin esto el widget
+ * baja la página 40 px con su barra y pone un globo sobre cada frase.
+ */
+#elysium-google-translate {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+body > .skiptranslate,
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-te-spinner-pos {
+    display: none !important;
+}
+
+.goog-text-highlight {
+    background: none !important;
+    box-shadow: none !important;
+}
+
+html.translated-ltr,
+html.translated-rtl,
+html.translated-ltr body,
+html.translated-rtl body {
+    top: 0 !important;
+}
+
+/* Aviso de que el texto es una traducción automática, con la salida al original. */
+.elysium-translate-banner {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    max-width: min(32rem, calc(100vw - 2rem));
+    padding: .55rem .6rem .55rem 1rem;
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 999px;
+    background: rgba(8, 14, 28, .94);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .4);
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: .78rem;
+    line-height: 1.35;
+}
+
+.elysium-translate-banner button {
+    flex: 0 0 auto;
+    padding: .35rem .8rem;
+    border: 1px solid rgba(41, 151, 255, .45);
+    border-radius: 999px;
+    background: rgba(41, 151, 255, .12);
+    color: var(--color-platinum, #e1e1e5);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
+
+.elysium-translate-banner button:hover,
+.elysium-translate-banner button:focus-visible {
+    background: rgba(41, 151, 255, .28);
+    border-color: rgba(41, 151, 255, .8);
+}
+
+/* La cruz que cierra el aviso: discreta, sin el borde de pastilla del botón de «Ver original». */
+.elysium-translate-banner .elysium-translate-dismiss {
+    padding: .1rem .55rem;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.elysium-translate-banner .elysium-translate-dismiss:hover,
+.elysium-translate-banner .elysium-translate-dismiss:focus-visible {
+    background: rgba(255, 255, 255, .1);
+    color: var(--color-platinum, #e1e1e5);
+}
+
+/* `.lang-option` fija `display: flex` y le gana al atributo `hidden`. */
+.lang-switcher-menu .lang-translate-restore[hidden] {
+    display: none;
+}
+
+/* Las palabras alemanas, finesas o húngaras son más largas que las inglesas: que partan en vez de desbordar. */
+html[data-machine-translation] :is(h1, h2, h3, h4, h5, p, li, td, th, label, .btn, .card) {
+    overflow-wrap: break-word;
+}
+
+/* Guionar el texto corrido sí; guionar el titular de la portada («In-frastruktur») no. */
+html[data-machine-translation] :is(p, li, td, th, label) {
+    hyphens: auto;
+    -webkit-hyphens: auto;
+}
+
+/*
+ * En el menú móvil (por debajo de 1180 px, como el resto de la barra) el
+ * desplegable sigue flotando: ponerlo en el flujo comprime el botón «Contact»,
+ * porque el panel es una columna flex. El panel se desplaza y la última fila
+ * (Latina) llega al borde inferior.
+ */
+@media (max-width: 1180px) {
+    .lang-switcher-menu.has-machine-translation {
+        max-height: min(55vh, 24rem);
+    }
+}
+
+@media (max-width: 520px) {
+    .elysium-translate-banner {
+        left: .75rem;
+        right: .75rem;
+        bottom: .75rem;
+        max-width: none;
+        border-radius: 1rem;
+    }
+}

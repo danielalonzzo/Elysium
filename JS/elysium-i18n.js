@@ -3,7 +3,9 @@
  *
  * Este fichero tiene un límite deliberado: solo actúa en elysiumdr.es y
  * elysiumdr.pt. El dominio europeo usa documentos físicos (/ , /es/ y /pt/)
- * y, por tanto, nunca debe ser traducido por JavaScript.
+ * para sus tres idiomas nativos y no pasa por aquí; sus otros 22 idiomas los
+ * traduce en vivo `JS/elysium-translate.js` (Google Website Translator), que a
+ * su vez solo actúa en `.eu`.
  *
  * Para pruebas locales se puede activar explícitamente con
  * `?national=es` o `?national=pt`. Sin ese parámetro localhost se comporta

@@ -1,13 +1,17 @@
 /**
- * Elysium λ — Library (elysiumdr.eu/library)
+ * Elysium λ — Library (/library, en los cuatro dominios)
  *
  * Una sola URL para los tres idiomas: el índice y el lector los sirve
  * `worker/library.js` desde una plantilla, y este script pone los textos en
- * inglés británico, español de Costa Rica (de usted) o portugués europeo.
- * El idioma sale, por este orden, de `?lang=`, de la preferencia que guarda el
- * selector del sitio (`elysium_lang_pref`), de la página de la que se viene,
- * en el lector del idioma del propio libro —quien llega desde un buscador a un
- * libro en portugués lo lee todo en portugués— y del navegador. Cambiarlo no
+ * inglés británico, español (de España en `.eu` y `.es`, de Costa Rica en
+ * `.com`) o portugués europeo.
+ *
+ * La biblioteca respeta la región en la que se está, igual que el resto del
+ * sitio: se abre en el idioma de SU región, no en el del navegador ni en el del
+ * libro. El orden es `?lang=`; en `.es` y `.pt`, la elección guardada por la
+ * traducción del sitio (`elysium_lang_pref`) y, si no hay, el idioma del
+ * dominio; en `.eu` y `.com`, que son físicos, el de la carpeta (`/es/`, `/pt/`)
+ * o el `?lang=` de la página de la que se viene, y si no, inglés. Cambiarlo no
  * recarga: `main.js` se aparta porque el `<html>` declara
  * `data-lang-switch="inline"`.
  *
@@ -24,8 +28,18 @@
     'use strict';
 
     var SUPPORTED = ['en', 'es', 'pt'];
-    var HTML_LANG = { en: 'en-GB', es: 'es-CR', pt: 'pt-PT' };
     var ADMIN_HINT_KEY = 'elysium_library_admin';
+
+    // La región es la del dominio. `.es` y `.pt` traducen en vivo (sin carpetas
+    // de idioma en la URL); `.eu` y `.com` son físicos (`/`, `/es/`, `/pt/`).
+    var HOSTNAME = window.location.hostname.toLowerCase();
+    var NATIONAL = /(?:^|\.)elysiumdr\.(es|pt)$/.exec(HOSTNAME);
+    var NATIVE_LANGUAGE = NATIONAL ? NATIONAL[1] : null;
+    var IS_GLOBAL = /(?:^|\.)elysiumdr\.com$/.test(HOSTNAME);
+    // Solo `.eu` publica y administra: la sesión de administrador y los
+    // dominios autorizados de Firebase son suyos.
+    var CAN_ADMINISTER = !NATIONAL && !IS_GLOBAL;
+    var HTML_LANG = { en: 'en-GB', es: IS_GLOBAL ? 'es-CR' : 'es-ES', pt: 'pt-PT' };
 
     var COPY = {
         en: {
@@ -416,35 +430,35 @@
         try { window.localStorage.setItem(key, value); } catch (error) { /* modo privado */ }
     }
 
+    /** El idioma que pide una página del propio sitio: `?lang=` o la carpeta `/es/`, `/pt/`. */
+    function languageOfSitePage(address) {
+        var requested = address.searchParams.get('lang');
+        if (SUPPORTED.indexOf(requested) !== -1) return requested;
+        var folder = /^\/(es|pt)(?:\/|$)/.exec(address.pathname);
+        return folder ? folder[1] : null;
+    }
+
     function initialLanguage() {
         var requested = new URLSearchParams(window.location.search).get('lang');
         if (SUPPORTED.indexOf(requested) !== -1) return requested;
 
-        var saved = storageGet('elysium_lang_pref');
-        if (SUPPORTED.indexOf(saved) !== -1) return saved;
+        if (NATIVE_LANGUAGE) {
+            // `.es` y `.pt`: la elección que hizo quien tradujo el sitio, y si no, la del dominio.
+            var saved = storageGet('elysium_lang_pref');
+            return SUPPORTED.indexOf(saved) !== -1 ? saved : NATIVE_LANGUAGE;
+        }
 
-        // Quien llega desde /es/… o /pt/… del propio sitio, o desde los
-        // dominios nacionales (que solo mandan el origen), sigue en su idioma.
+        // `.eu` y `.com`: el idioma de la página de la que se viene (su carpeta
+        // o su `?lang=`), para no perderlo al abrir la biblioteca desde `/es/…`
+        // ni al pasar del índice a un libro. Nunca el del navegador ni el del
+        // libro: cada región se abre en el suyo.
         try {
             var referrer = new URL(document.referrer);
             if (referrer.origin === window.location.origin) {
-                var match = /^\/(es|pt)(?:\/|$)/.exec(referrer.pathname);
-                if (match) return match[1];
+                var inherited = languageOfSitePage(referrer);
+                if (inherited) return inherited;
             }
-            var national = /(?:^|\.)elysiumdr\.(es|pt)$/.exec(referrer.hostname);
-            if (national) return national[1];
         } catch (error) { /* sin referrer */ }
-
-        if (book && book.lang) {
-            var bookLanguage = String(book.lang).slice(0, 2).toLowerCase();
-            if (SUPPORTED.indexOf(bookLanguage) !== -1) return bookLanguage;
-        }
-
-        var preferred = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language];
-        for (var i = 0; i < preferred.length; i += 1) {
-            var code = String(preferred[i] || '').slice(0, 2).toLowerCase();
-            if (SUPPORTED.indexOf(code) !== -1) return code;
-        }
         return 'en';
     }
 
@@ -462,6 +476,9 @@
     }
 
     function localizedPath(page) {
+        // En `.es` y `.pt` el idioma no vive en la URL: la traducción del sitio
+        // lo recuerda (`elysium_lang_pref`, que `setLanguage` escribe).
+        if (NATIONAL) return page ? '/' + page : '/';
         if (page === 'profiles') return language === 'en' ? '/profiles' : '/profiles?lang=' + language;
         var prefix = language === 'en' ? '' : '/' + language;
         return page ? prefix + '/' + page : prefix + '/';
@@ -1032,7 +1049,7 @@
     }
 
     if (page === 'index') {
-        var hasAdminHint = storageGet(ADMIN_HINT_KEY) === '1';
+        var hasAdminHint = CAN_ADMINISTER && storageGet(ADMIN_HINT_KEY) === '1';
         updateAdminVisibility(hasAdminHint);
 
         if (adminPanel) {
@@ -1047,6 +1064,11 @@
 
         if (openAdminSigninBtn) {
             openAdminSigninBtn.addEventListener('click', function () {
+                if (!CAN_ADMINISTER) {
+                    // La administración vive en `.eu`: allí está la sesión.
+                    window.location.assign('https://elysiumdr.eu/library');
+                    return;
+                }
                 if (adminSection) adminSection.hidden = false;
                 if (adminPanel) {
                     adminPanel.open = true;

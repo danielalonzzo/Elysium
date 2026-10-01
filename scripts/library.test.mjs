@@ -223,13 +223,46 @@ test('una sola URL: mayúsculas, .html, barra final e index redirigen a /library
     assert.equal(book.headers.get('Location'), 'https://elysiumdr.eu/library/manual');
 });
 
-test('en .es y .pt la biblioteca redirige a .eu: existe en un solo origen', async () => {
+test('la biblioteca se sirve en .es, .pt y .com como espejo noindex de .eu: la región no se pierde', async () => {
     const env = makeEnv();
-    for (const host of ['elysiumdr.es', 'elysiumdr.pt']) {
-        const response = await call(env, `https://${host}/library/manual?lang=es`);
-        assert.equal(response.status, 301);
-        assert.equal(response.headers.get('Location'), 'https://elysiumdr.eu/library/manual?lang=es');
+    await publish(env, 'manual');
+    for (const host of ['elysiumdr.es', 'elysiumdr.pt', 'elysiumdr.com']) {
+        const index = await call(env, `https://${host}/library`);
+        assert.equal(index.status, 200, host);
+        const indexHtml = await index.text();
+        assert.match(indexHtml, /<link rel="canonical" href="https:\/\/elysiumdr\.eu\/library">/, host);
+        assert.match(indexHtml, /<meta name="robots" content="noindex, follow">/, host);
+        assert.equal(index.headers.get('X-Robots-Tag'), 'noindex, follow', host);
+
+        const reader = await call(env, `https://${host}/library/manual`);
+        assert.equal(reader.status, 200, host);
+        const readerHtml = await reader.text();
+        assert.match(readerHtml, /<link rel="canonical" href="https:\/\/elysiumdr\.eu\/library\/manual">/, host);
+        assert.equal(reader.headers.get('X-Robots-Tag'), 'noindex, follow', host);
+        // El iframe del libro es del propio dominio: la región no cambia ni al leer.
+        assert.match(readerHtml, /src="\/library\/manual\/book"/, host);
+
+        const book = await call(env, `https://${host}/library/manual/book`);
+        assert.equal(book.status, 200, host);
+        assert.equal(book.headers.get('X-Robots-Tag'), 'noindex', `${host}: sin «indexifembedded» fuera de .eu`);
+        assert.equal((await call(env, `https://${host}/library/manual/download`)).status, 200, host);
+
+        // El sitemap y las URL que anuncia son de `.eu`.
+        const sitemap = await call(env, `https://${host}/library/sitemap.xml`);
+        assert.equal(sitemap.status, 301, host);
+        assert.equal(sitemap.headers.get('Location'), 'https://elysiumdr.eu/library/sitemap.xml', host);
     }
+    // `.eu` sigue siendo el indexable.
+    const primary = await call(env, 'https://elysiumdr.eu/library/manual');
+    assert.equal(primary.headers.get('X-Robots-Tag'), null);
+    assert.equal((await call(env, 'https://elysiumdr.eu/library/manual/book')).headers.get('X-Robots-Tag'), 'noindex, indexifembedded');
+});
+
+test('la biblioteca de un espejo canoniza sus URL dentro del propio dominio', async () => {
+    const env = makeEnv();
+    const response = await call(env, 'https://elysiumdr.pt/Library/');
+    assert.equal(response.status, 301);
+    assert.equal(response.headers.get('Location'), 'https://elysiumdr.pt/library/');
 });
 
 test('el lector rellena la plantilla con el libro escapado', async () => {
@@ -749,8 +782,9 @@ test('todas las páginas con pie completo enlazan la biblioteca, también en mó
         checked += 1;
         const footerAt = html.indexOf('<footer');
         const footer = html.slice(footerAt);
-        const national = path.startsWith('_national/');
-        const href = national ? 'https://elysiumdr.eu/library' : '/library';
+        // La biblioteca se sirve en los cuatro dominios: el enlace es relativo y
+        // no saca a nadie de su región (antes, en `.es`, `.pt` y `.com`, iba a `.eu`).
+        const href = '/library';
         const label = pageLanguage(path) === 'en' ? 'Library' : 'Biblioteca';
         assert.match(footer, new RegExp(`<li class="footer-library"><a href="${href.replaceAll('.', '\\.')}"(?: data-i18n="\\w+")?>${label}</a></li>`), path);
         // En móvil el pie esconde la columna «Empresa» (repite el menú), pero
