@@ -16,7 +16,11 @@ import {
     signOut
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
-const MAX_BOOK_BYTES = 24 * 1024 * 1024;
+const MAX_BOOK_BYTES = 100 * 1024 * 1024;
+/** Hasta aquí un libro viaja entero y se guarda en un solo valor de KV. */
+const SINGLE_UPLOAD_BYTES = 24 * 1024 * 1024;
+/** Mayor que eso se parte en trozos de este tamaño (el Worker los une al servir). */
+const PART_BYTES = 12 * 1024 * 1024;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const RESERVED_SLUGS = new Set(['api', 'index', 'reader', 'book', 'download']);
 /** El mismo criterio que `isLibraryAdmin()` en el Worker: solo esta cuenta. */
@@ -80,6 +84,47 @@ function looksLikeHtmlDocument(text) {
         rest = rest.slice(end + 3);
     }
     return /^<!doctype\s+html(?:[\s>])/i.test(rest) || /^<html(?:[\s>])/i.test(rest);
+}
+
+/**
+ * Comprueba que el fichero entero es UTF-8 válido y devuelve su cabecera. Se
+ * lee por tramos: un libro de 70 MB descodificado de una vez ocuparía el
+ * doble en memoria sin necesidad.
+ */
+async function readHead(file) {
+    const decoder = new TextDecoder('utf-8', { fatal: true });
+    let head = '';
+    for (let start = 0; start < file.size; start += PART_BYTES) {
+        const end = Math.min(start + PART_BYTES, file.size);
+        const bytes = new Uint8Array(await file.slice(start, end).arrayBuffer());
+        const text = decoder.decode(bytes, { stream: end < file.size });
+        if (start === 0) head = text.slice(0, 256 * 1024);
+    }
+    return head;
+}
+
+/**
+ * Dónde cortar un libro grande sin partir un carácter: el Worker valida cada
+ * trozo por su cuenta, así que ninguno puede empezar en mitad de uno. Un byte
+ * `10xxxxxx` continúa el carácter anterior, y se retrocede hasta su primer byte.
+ */
+async function splitPoints(file) {
+    const points = [0];
+    let end = PART_BYTES;
+    while (end < file.size) {
+        const window = new Uint8Array(await file.slice(end - 3, end + 1).arrayBuffer());
+        let index = 3;
+        while (index > 0 && (window[index] & 0xc0) === 0x80) index -= 1;
+        const cut = end - (3 - index);
+        points.push(cut);
+        end = cut + PART_BYTES;
+    }
+    points.push(file.size);
+    return points;
+}
+
+function newUploadId() {
+    return Array.from(crypto.getRandomValues(new Uint8Array(8)), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 class LibraryAdminError extends Error {
@@ -254,7 +299,7 @@ export function initLibraryAdmin(library) {
         let text;
         try {
             // `fatal` rechaza un fichero que no esté en UTF-8 antes de subirlo.
-            text = new TextDecoder('utf-8', { fatal: true }).decode(await file.arrayBuffer());
+            text = await readHead(file);
         } catch {
             setStatus(uploadStatus, 'error', 'fileNotUtf8');
             fileInput.value = '';
@@ -329,25 +374,78 @@ export function initLibraryAdmin(library) {
 
     // ── Publicar ─────────────────────────────────────────────────────────────
 
-    function upload(url, token, file, meta) {
+    function report(loaded, total) {
+        const percent = Math.min(99, Math.round((loaded / total) * 100));
+        progress.value = percent;
+        setStatus(uploadStatus, '', percent >= 99 ? 'processing' : 'publishing', { values: { percent } });
+    }
+
+    function send(url, token, body, { contentType, meta, onProgress }) {
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
             request.open('PUT', url);
             request.setRequestHeader('Authorization', `Bearer ${token}`);
-            request.setRequestHeader('Content-Type', 'text/html; charset=utf-8');
-            request.setRequestHeader('X-Library-Meta', encodeURIComponent(JSON.stringify(meta)));
+            request.setRequestHeader('Content-Type', contentType);
+            if (meta) request.setRequestHeader('X-Library-Meta', encodeURIComponent(JSON.stringify(meta)));
             request.responseType = 'json';
             request.upload.addEventListener('progress', event => {
-                if (!event.lengthComputable) return;
-                const percent = Math.min(99, Math.round((event.loaded / event.total) * 100));
-                progress.value = percent;
-                setStatus(uploadStatus, '', percent >= 99 ? 'processing' : 'publishing', { values: { percent } });
+                if (event.lengthComputable) onProgress(event.loaded, event.total);
             });
             request.addEventListener('load', () => resolve({ status: request.status, body: request.response || {} }));
             request.addEventListener('error', () => reject(new LibraryAdminError('networkError', t('networkError'))));
             request.addEventListener('abort', () => reject(new LibraryAdminError('uploadFailed', t('uploadFailed'))));
-            request.send(file);
+            request.send(body);
         });
+    }
+
+    /** Un libro que cabe en un solo valor viaja entero. */
+    async function uploadWhole(slug, file, details) {
+        const token = await idToken();
+        return send(`/library/api/books/${encodeURIComponent(slug)}`, token, file, {
+            contentType: 'text/html; charset=utf-8',
+            meta: details,
+            onProgress: report
+        });
+    }
+
+    /**
+     * Un libro grande viaja en trozos y se cierra al final: hasta ese momento
+     * el libro anterior (si se reemplaza) sigue publicado. Cada trozo se
+     * reintenta un par de veces, porque 70 MB son muchos minutos de conexión.
+     */
+    async function uploadInParts(slug, file, details) {
+        const base = `/library/api/books/${encodeURIComponent(slug)}`;
+        const upload = newUploadId();
+        const points = await splitPoints(file);
+        const parts = points.length - 1;
+        for (let index = 0; index < parts; index += 1) {
+            const piece = file.slice(points[index], points[index + 1]);
+            for (let attempt = 0; ; attempt += 1) {
+                let result;
+                try {
+                    // El token se pide en cada intento: dura una hora y esto puede tardar más.
+                    result = await send(`${base}/parts/${index}?upload=${upload}`, await idToken(), piece, {
+                        contentType: 'text/html; charset=utf-8',
+                        onProgress: (loaded, total) => report(points[index] + (loaded / total) * piece.size, file.size)
+                    });
+                } catch (error) {
+                    if (attempt >= 2 || !(error instanceof LibraryAdminError) || error.copyKey !== 'networkError') throw error;
+                    continue;
+                }
+                if (result.status >= 500 && attempt < 2) continue;
+                if (result.status !== 201) return result;
+                break;
+            }
+        }
+        report(file.size, file.size);
+        const response = await authorizedFetch(`${base}/commit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...details, upload, parts, size: file.size })
+        });
+        let body = {};
+        try { body = await response.json(); } catch { /* sin cuerpo JSON */ }
+        return { status: response.status, body };
     }
 
     form.addEventListener('submit', async event => {
@@ -375,13 +473,15 @@ export function initLibraryAdmin(library) {
         setStatus(uploadStatus, '', 'publishing', { values: { percent: 0 } });
 
         try {
-            const token = await idToken();
-            const { status, body } = await upload(`/library/api/books/${encodeURIComponent(slug)}`, token, selectedFile, {
+            const details = {
                 title,
                 description: form.elements.description.value.replace(/\s+/g, ' ').trim(),
                 filename: selectedFile.name,
                 replace
-            });
+            };
+            const { status, body } = selectedFile.size <= SINGLE_UPLOAD_BYTES
+                ? await uploadWhole(slug, selectedFile, details)
+                : await uploadInParts(slug, selectedFile, details);
             if (status !== 200 && status !== 201) {
                 const copyKey = ERROR_COPY[body?.code] || 'uploadFailed';
                 if (body?.code === 'library_slug_taken') replaceRow.hidden = false;

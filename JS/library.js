@@ -105,7 +105,7 @@
             signInTooMany: 'Too many attempts. Wait a few minutes and try again.',
             signInNetwork: 'There is no connection with the server. Check your connection and try again.',
             dropTitle: 'Choose an HTML file or drop it here',
-            dropHint: 'Only .html files, up to 24 MB, saved as UTF-8.',
+            dropHint: 'Only .html files, up to 100 MB, saved as UTF-8.',
             titleLabel: 'Title',
             slugLabel: 'Web address',
             descriptionLabel: 'Description (optional)',
@@ -118,7 +118,7 @@
             propagation: 'It can take up to a minute to appear everywhere.',
             fileMissing: 'Choose an HTML file first.',
             fileNotHtml: 'Only HTML documents (.html) can be published.',
-            fileTooLarge: 'The file is larger than 24 MB.',
+            fileTooLarge: 'The file is larger than 100 MB.',
             fileEmpty: 'The file is empty.',
             fileNotUtf8: 'The file must be saved as UTF-8.',
             titleMissing: 'Give the book a title.',
@@ -225,7 +225,7 @@
             signInTooMany: 'Demasiados intentos. Espere unos minutos e inténtelo de nuevo.',
             signInNetwork: 'No hay conexión con el servidor. Revise su conexión e inténtelo de nuevo.',
             dropTitle: 'Elija un archivo HTML o suéltelo aquí',
-            dropHint: 'Solo archivos .html, de hasta 24 MB, guardados en UTF-8.',
+            dropHint: 'Solo archivos .html, de hasta 100 MB, guardados en UTF-8.',
             titleLabel: 'Título',
             slugLabel: 'Dirección web',
             descriptionLabel: 'Descripción (opcional)',
@@ -238,7 +238,7 @@
             propagation: 'Puede tardar hasta un minuto en verse en todas partes.',
             fileMissing: 'Primero elija un archivo HTML.',
             fileNotHtml: 'Solo se pueden publicar documentos HTML (.html).',
-            fileTooLarge: 'El archivo pesa más de 24 MB.',
+            fileTooLarge: 'El archivo pesa más de 100 MB.',
             fileEmpty: 'El archivo está vacío.',
             fileNotUtf8: 'El archivo debe estar guardado en UTF-8.',
             titleMissing: 'Póngale un título al libro.',
@@ -345,7 +345,7 @@
             signInTooMany: 'Demasiadas tentativas. Aguarde alguns minutos e tente novamente.',
             signInNetwork: 'Não há ligação ao servidor. Verifique a sua ligação e tente novamente.',
             dropTitle: 'Escolha um ficheiro HTML ou largue-o aqui',
-            dropHint: 'Apenas ficheiros .html, até 24 MB, guardados em UTF-8.',
+            dropHint: 'Apenas ficheiros .html, até 100 MB, guardados em UTF-8.',
             titleLabel: 'Título',
             slugLabel: 'Endereço web',
             descriptionLabel: 'Descrição (opcional)',
@@ -358,7 +358,7 @@
             propagation: 'Pode demorar até um minuto a aparecer em todo o lado.',
             fileMissing: 'Escolha primeiro um ficheiro HTML.',
             fileNotHtml: 'Só é possível publicar documentos HTML (.html).',
-            fileTooLarge: 'O ficheiro tem mais de 24 MB.',
+            fileTooLarge: 'O ficheiro tem mais de 100 MB.',
             fileEmpty: 'O ficheiro está vazio.',
             fileNotUtf8: 'O ficheiro tem de estar guardado em UTF-8.',
             titleMissing: 'Dê um título ao livro.',
@@ -1013,7 +1013,7 @@
 
     function loadAdmin() {
         if (adminLoading) return adminLoading;
-        adminLoading = import('/JS/library-admin.js?v=20260924').then(function (module) {
+        adminLoading = import('/JS/library-admin.js?v=20261001').then(function (module) {
             return module.initLibraryAdmin(api);
         }).catch(function (error) {
             console.warn('[library] administration unavailable:', error);

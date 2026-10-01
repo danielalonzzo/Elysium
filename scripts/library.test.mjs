@@ -969,3 +969,197 @@ test('el español va de usted y el portugués es europeo', () => {
     assert.match(es.audioIntro, /10 horas/);
     assert.match(pt.audioIntro, /10 horas/);
 });
+
+// ── Libros partidos (mayores que un valor de KV) ──────────────────────────────
+
+const BIG_PARTS = [
+    '<!doctype html>\n<html lang="pt-PT"><head><meta charset="utf-8"><title>Grande</title>'
+        + '<meta name="author" content="Jean-Louis Backès"></head><body><h2 id="a">Capítulo A</h2><p>Início ',
+    'meio com ção e 😀</p><h2 id="b">Capítulo B</h2><p>segundo trozo</p>',
+    '<h2 id="c">Capítulo C</h2><p>fim</p></body></html>'
+];
+const BIG_HTML = BIG_PARTS.join('');
+const UPLOAD = 'a1b2c3d4e5f60718';
+
+async function stagePart(env, slug, index, body, { upload = UPLOAD, token, contentType = 'text/html; charset=utf-8' } = {}) {
+    const headers = { 'Content-Type': contentType };
+    if (token !== null) headers.Authorization = `Bearer ${token ?? await signToken()}`;
+    return call(env, `https://elysiumdr.eu/library/api/books/${slug}/parts/${index}?upload=${upload}`, { method: 'PUT', headers, body });
+}
+
+async function commitParts(env, slug, body = {}, { token } = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token !== null) headers.Authorization = `Bearer ${token ?? await signToken()}`;
+    return call(env, `https://elysiumdr.eu/library/api/books/${slug}/commit`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+            title: 'A Literatura Europeia',
+            description: 'Jean-Louis Backès',
+            filename: 'Literatura.html',
+            upload: UPLOAD,
+            parts: BIG_PARTS.length,
+            size: new TextEncoder().encode(BIG_HTML).length,
+            ...body
+        })
+    });
+}
+
+async function publishInParts(env, slug, options = {}) {
+    for (const [index, text] of BIG_PARTS.entries()) {
+        const staged = await stagePart(env, slug, index, text, options);
+        assert.equal(staged.status, 201, `part ${index}`);
+    }
+    return commitParts(env, slug, options.commit);
+}
+
+test('un libro partido se publica por trozos y se sirve unido, sin límite de un valor de KV', async () => {
+    const env = makeEnv();
+    const response = await publishInParts(env, 'grande');
+    assert.equal(response.status, 201);
+    const { book } = await response.json();
+    assert.equal(book.size, new TextEncoder().encode(BIG_HTML).length);
+    assert.equal(book.lang, 'pt-PT');
+
+    // `book:` es solo el manifiesto; el texto vive en los trozos.
+    const stored = env.LIBRARY.entries.get('book:grande');
+    assert.equal(stored.metadata.p, 3);
+    assert.equal(stored.metadata.rev, UPLOAD);
+    assert.ok(stored.bytes.byteLength < 200, 'the manifest is tiny');
+    assert.equal(storedBooks(env), 1);
+    assert.deepEqual([...env.LIBRARY.entries.keys()].filter(key => key.startsWith('part:')).sort(),
+        [0, 1, 2].map(index => `part:grande:${UPLOAD}:${index}`));
+
+    const reader = await call(env, 'https://elysiumdr.eu/library/grande/book');
+    assert.equal(reader.status, 200);
+    const html = await reader.text();
+    assert.ok(html.indexOf('/* Elysium Library */') < html.indexOf('</head>'), 'the helper still goes inside <head>');
+    assert.equal(html.replace(library.BOOK_HELPER, ''), BIG_HTML, 'the parts join byte for byte, even across a multibyte character');
+
+    const download = await call(env, 'https://elysiumdr.eu/library/grande/download');
+    assert.equal(download.status, 200);
+    assert.equal(await download.text(), BIG_HTML);
+    assert.match(download.headers.get('Content-Disposition'), /^attachment; filename="Literatura.html"/);
+
+    const head = await call(env, 'https://elysiumdr.eu/library/grande/book', { method: 'HEAD' });
+    assert.equal(head.status, 200);
+    assert.equal(await head.text(), '');
+});
+
+test('el índice de capítulos y el autor se sacan de todos los trozos', async () => {
+    const env = makeEnv();
+    await publishInParts(env, 'grande');
+    const info = JSON.parse(await env.LIBRARY.get('info:grande'));
+    assert.equal(info.author, 'Jean-Louis Backès');
+    assert.deepEqual(info.outline.map(entry => entry.t), ['Capítulo A', 'Capítulo B', 'Capítulo C']);
+    const page = await (await call(env, 'https://elysiumdr.eu/library/grande')).text();
+    assert.match(page, /Capítulo C/);
+    assert.match(page, /Jean-Louis Backès/);
+});
+
+test('un libro partido sin su info se recalcula leyendo los trozos, no el manifiesto', async () => {
+    const env = makeEnv();
+    await publishInParts(env, 'grande');
+    env.LIBRARY.entries.delete('info:grande');
+    const page = await (await call(env, 'https://elysiumdr.eu/library/grande')).text();
+    assert.match(page, /Capítulo B/);
+    assert.deepEqual(JSON.parse(await env.LIBRARY.get('info:grande')).outline.map(entry => entry.t),
+        ['Capítulo A', 'Capítulo B', 'Capítulo C']);
+});
+
+test('los trozos solo los sube la cuenta de Daniel y se validan uno a uno', async () => {
+    const env = makeEnv();
+    assert.equal((await stagePart(env, 'grande', 0, BIG_PARTS[0], { token: null })).status, 401);
+    const stranger = await stagePart(env, 'grande', 0, BIG_PARTS[0], { token: await signToken({ email: 'socio@example.com' }) });
+    assert.equal(stranger.status, 403);
+    assert.equal((await commitParts(env, 'grande', {}, { token: null })).status, 401);
+    // El primero tiene que ser un documento; el resto, solo UTF-8 sin nulos.
+    assert.equal((await stagePart(env, 'grande', 0, 'no soy html')).status, 415);
+    assert.equal((await stagePart(env, 'grande', 1, 'no soy html')).status, 201);
+    assert.equal((await stagePart(env, 'grande', 1, new Uint8Array([0x61, 0x00, 0x62]))).status, 415);
+    const notUtf8 = await stagePart(env, 'grande', 1, new Uint8Array([0x61, 0xe7, 0x62]));
+    assert.equal(notUtf8.status, 415);
+    assert.equal((await notUtf8.json()).code, 'library_not_utf8');
+    assert.equal((await stagePart(env, 'grande', 1, '')).status, 400);
+    assert.equal((await stagePart(env, 'grande', 1, BIG_PARTS[1], { contentType: 'application/pdf' })).status, 415);
+    assert.equal((await stagePart(env, 'grande', 1, BIG_PARTS[1], { upload: 'corto' })).status, 400);
+    assert.equal((await stagePart(env, 'grande', 99, BIG_PARTS[1])).status, 413);
+    assert.equal((await stagePart(env, 'Mal-Slug', 1, BIG_PARTS[1])).status, 400);
+    const wrongMethod = await call(env, `https://elysiumdr.eu/library/api/books/grande/parts/0?upload=${UPLOAD}`, { method: 'POST' });
+    assert.equal(wrongMethod.status, 405);
+    assert.equal(storedBooks(env), 0, 'staging parts never publishes a book');
+});
+
+test('cerrar la subida con un trozo ausente o con otro tamaño no publica nada', async () => {
+    const env = makeEnv();
+    for (const index of [0, 2]) assert.equal((await stagePart(env, 'grande', index, BIG_PARTS[index])).status, 201);
+    const missing = await commitParts(env, 'grande');
+    assert.equal(missing.status, 409);
+    assert.equal((await missing.json()).code, 'library_part_missing');
+    assert.equal(storedBooks(env), 0);
+
+    assert.equal((await stagePart(env, 'grande', 1, BIG_PARTS[1])).status, 201);
+    const mismatch = await commitParts(env, 'grande', { size: 12345 });
+    assert.equal(mismatch.status, 409);
+    assert.equal((await mismatch.json()).code, 'library_parts_mismatch');
+    assert.equal(storedBooks(env), 0);
+
+    for (const body of [{ parts: 1 }, { parts: 99 }, { parts: 'tres' }, { upload: 'x' }]) {
+        assert.equal((await commitParts(env, 'grande', body)).status, 400, JSON.stringify(body));
+    }
+    assert.equal((await commitParts(env, 'grande', { title: '' })).status, 400);
+    assert.equal((await commitParts(env, 'grande', { filename: 'Literatura.pdf' })).status, 415);
+    assert.equal(storedBooks(env), 0);
+    assert.equal((await commitParts(env, 'grande')).status, 201);
+});
+
+test('un libro partido no pisa otro sin pedirlo, y al reemplazarlo no quedan trozos viejos', async () => {
+    const env = makeEnv();
+    assert.equal((await publish(env, 'grande')).status, 201);
+    const taken = await publishInParts(env, 'grande');
+    assert.equal(taken.status, 409);
+    assert.equal((await taken.json()).code, 'library_slug_taken');
+    assert.equal(await (await call(env, 'https://elysiumdr.eu/library/grande/download')).text(), BOOK_HTML, 'the old book stays until the new one is closed');
+
+    const replaced = await publishInParts(env, 'grande', { commit: { replace: true } });
+    assert.equal(replaced.status, 200);
+    assert.equal((await replaced.json()).replaced, true);
+    assert.equal(await (await call(env, 'https://elysiumdr.eu/library/grande/download')).text(), BIG_HTML);
+
+    // Una segunda subida deja solo sus propios trozos (y limpia una a medias).
+    await stagePart(env, 'grande', 0, BIG_PARTS[0], { upload: 'ffffffffffffffff' });
+    const second = 'b2b2b2b2b2b2b2b2';
+    for (const [index, text] of BIG_PARTS.entries()) await stagePart(env, 'grande', index, text, { upload: second });
+    assert.equal((await commitParts(env, 'grande', { upload: second, replace: true })).status, 200);
+    const parts = [...env.LIBRARY.entries.keys()].filter(key => key.startsWith('part:'));
+    assert.deepEqual(parts.sort(), [0, 1, 2].map(index => `part:grande:${second}:${index}`));
+
+    // Y volver a un libro de un solo valor suelta los trozos.
+    assert.equal((await publish(env, 'grande', { meta: { replace: true } })).status, 200);
+    assert.equal([...env.LIBRARY.entries.keys()].filter(key => key.startsWith('part:')).length, 0);
+    assert.equal(await (await call(env, 'https://elysiumdr.eu/library/grande/download')).text(), BOOK_HTML);
+});
+
+test('retirar un libro partido borra también sus trozos', async () => {
+    const env = makeEnv();
+    await publishInParts(env, 'grande');
+    const removed = await call(env, 'https://elysiumdr.eu/library/api/books/grande', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${await signToken()}` }
+    });
+    assert.equal(removed.status, 200);
+    assert.equal(env.LIBRARY.entries.size, 0);
+    assert.equal((await call(env, 'https://elysiumdr.eu/library/grande/book')).status, 404);
+});
+
+test('el panel parte los libros grandes sin cortar un carácter y cierra la subida', () => {
+    assert.match(LIBRARY_ADMIN_JS, /const MAX_BOOK_BYTES = 100 \* 1024 \* 1024;/);
+    assert.match(LIBRARY_ADMIN_JS, /const SINGLE_UPLOAD_BYTES = 24 \* 1024 \* 1024;/);
+    assert.match(LIBRARY_ADMIN_JS, /\/parts\/\$\{index\}\?upload=\$\{upload\}/);
+    assert.match(LIBRARY_ADMIN_JS, /\/commit/);
+    assert.match(LIBRARY_ADMIN_JS, /& 0xc0\) === 0x80/);
+    // La descarga y los textos hablan del mismo límite que el Worker.
+    for (const copy of [LIBRARY_JS, INDEX_TEMPLATE]) assert.match(copy, /up to 100 MB/);
+    assert.equal(library.MAX_BOOK_BYTES, 100 * 1024 * 1024);
+    assert.ok(library.MAX_PART_BYTES < 25 * 1024 * 1024, 'a part has to fit in one KV value');
+});

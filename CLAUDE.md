@@ -185,10 +185,20 @@ al buscarlo. Sigue fuera del MCP (son obras de terceros) y en `.es`/`.pt`
 redirige a `.eu`. Ocho cosas que no se ven abriéndola:
 
 1. **Los libros viven en Workers KV** (binding `LIBRARY` en `wrangler.jsonc`),
-   un valor por libro (`book:<slug>`) con sus metadatos en la propia clave. R2
-   no está activado en la cuenta; KV admite 25 MiB por valor y la subida se
-   limita a 24 MB. Es eventualmente consistente: un libro nuevo tarda hasta un
-   minuto en verse en todas partes.
+   con sus metadatos en la propia clave `book:<slug>`. R2 no está activado en la
+   cuenta. KV admite 25 MiB por valor, así que **hasta 24 MB un libro es un solo
+   valor, y de ahí a 100 MB va partido**: el panel lo corta en trozos de 12 MiB
+   por caracteres UTF-8 enteros, los sube a `part:<slug>:<subida>:<n>`
+   (`PUT /library/api/books/<slug>/parts/<n>?upload=<id>`) y lo cierra con
+   `POST …/commit`, que comprueba que están todos, saca el índice y escribe
+   `book:<slug>` como un manifiesto minúsculo (`p` y `rev` en sus metadatos).
+   Hasta ese cierre el libro anterior sigue publicado. El lector une los trozos
+   al vuelo (`joinParts`), sin `Content-Length` en la descarga. Quien lea
+   `book:<slug>` por su cuenta (wrangler, `library-translation.mjs`) tiene que
+   mirar antes `metadata.p`: si es mayor que 1, el texto está en los `part:`.
+   Las traducciones (`tr:`) siguen siendo un solo valor: tope de 24 MB. Es
+   eventualmente consistente: un libro nuevo tarda hasta un minuto en verse en
+   todas partes.
 2. **`library/` son plantillas, no páginas.** `worker/library.js` las pide al
    binding de assets y rellena sus marcadores; ninguna URL bajo `/library` llega
    a los assets tal cual. Por eso `serve-local.py` no la sirve: hace falta el

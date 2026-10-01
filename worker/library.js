@@ -108,8 +108,23 @@ const MAX_SLUG_LENGTH = 80;
 /** Segmentos que son rutas del propio módulo o plantillas, no libros. */
 const RESERVED_SLUGS = new Set(['api', 'index', 'reader', 'book', 'download']);
 
-/** KV admite 25 MiB por valor; se deja margen. */
-export const MAX_BOOK_BYTES = 24 * 1024 * 1024;
+/**
+ * KV admite 25 MiB por valor; se deja margen. Es lo que cabe en una sola
+ * clave: un libro, si es pequeño, o cada trozo de uno grande. También tiene
+ * que caber, descodificado, en la memoria del Worker.
+ */
+export const MAX_PART_BYTES = 24 * 1024 * 1024;
+
+/**
+ * Un libro mayor que `MAX_PART_BYTES` se guarda partido en varios valores
+ * (`part:<slug>:<subida>:<n>`). `book:<slug>` pasa a ser un manifiesto
+ * minúsculo cuyos metadatos llevan `p` (trozos) y `rev` (la subida), y el
+ * lector los une al servirlo. Los libros de un solo valor no cambian.
+ */
+export const MAX_BOOK_BYTES = 100 * 1024 * 1024;
+const MAX_BOOK_PARTS = 32;
+const PART_KEY_PREFIX = 'part:';
+const UPLOAD_ID = /^[a-z0-9]{8,32}$/;
 
 const MAX_TITLE_LENGTH = 160;
 const MAX_DESCRIPTION_LENGTH = 400;
@@ -302,11 +317,11 @@ export function documentLanguage(text) {
  * renombrado), en UTF-8 válido —el Worker lo sirve como `charset=utf-8`, y un
  * documento en otra codificación saldría ilegible— y con forma de documento.
  */
-export function inspectHtmlUpload(bytes) {
+export function inspectHtmlUpload(bytes, { first = true } = {}) {
     if (!bytes || bytes.byteLength === 0) {
         throw new LibraryError('The file is empty.', 'library_file_empty');
     }
-    if (bytes.byteLength > MAX_BOOK_BYTES) {
+    if (bytes.byteLength > MAX_PART_BYTES) {
         throw new LibraryError('The file is larger than the library allows.', 'library_file_too_large', 413);
     }
     const view = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
@@ -319,10 +334,11 @@ export function inspectHtmlUpload(bytes) {
     } catch {
         throw new LibraryError('The HTML file must be saved as UTF-8.', 'library_not_utf8', 415);
     }
-    if (!looksLikeHtmlDocument(text)) {
+    // Solo el primer trozo de un libro partido empieza como un documento.
+    if (first && !looksLikeHtmlDocument(text)) {
         throw new LibraryError('Only HTML documents can be published.', 'library_not_html', 415);
     }
-    return { lang: documentLanguage(text), text };
+    return { lang: first ? documentLanguage(text) : '', text };
 }
 
 /** Nombre de fichero seguro para `Content-Disposition`. */
@@ -341,7 +357,7 @@ function contentDisposition(filename) {
  * Los metadatos que se guardan en KV, recortando la descripción (y en último
  * caso el título) hasta que caben en el límite de la clave.
  */
-export function bookMetadata({ title, description, lang, size, file, uploadedAt, translations = [] }) {
+export function bookMetadata({ title, description, lang, size, file, uploadedAt, translations = [], parts = 1, rev = '' }) {
     const metadata = {
         v: 1,
         title: cleanText(title, MAX_TITLE_LENGTH),
@@ -351,6 +367,11 @@ export function bookMetadata({ title, description, lang, size, file, uploadedAt,
         file: cleanText(file, MAX_FILENAME_LENGTH),
         uploadedAt
     };
+    // Un libro partido dice cuántos trozos tiene y de qué subida son.
+    if (parts > 1 && UPLOAD_ID.test(rev)) {
+        metadata.p = parts;
+        metadata.rev = rev;
+    }
     // Las traducciones guardadas van en los metadatos para que el índice
     // pueda mostrar sus etiquetas sin leer nada más que el catálogo.
     const tr = translations.filter(language => TRANSLATION_LANGUAGES.includes(language));
@@ -457,16 +478,28 @@ function metaContent(head, names) {
  */
 export function extractBookInfo(html) {
     const text = String(html ?? '');
-    const headEnd = text.search(/<\/head\s*>/i);
-    const head = text.slice(0, headEnd === -1 ? 64 * 1024 : Math.min(headEnd, 256 * 1024));
     const found = [];
+    scanHeadings(text, found);
+    return buildBookInfo(headOf(text), found);
+}
+
+function headOf(text) {
+    const headEnd = text.search(/<\/head\s*>/i);
+    return text.slice(0, headEnd === -1 ? 64 * 1024 : Math.min(headEnd, 256 * 1024));
+}
+
+/** Añade a `found` los h1–h3 de `text`, sin pasar del tope de todo el libro. */
+function scanHeadings(text, found) {
     const pattern = /<h([1-3])\b([^>]*)>([\s\S]*?)<\/h\1\s*>/gi;
     let match;
-    while ((match = pattern.exec(text)) && found.length < MAX_OUTLINE_ENTRIES * 2) {
+    while (found.length < MAX_OUTLINE_ENTRIES * 2 && (match = pattern.exec(text))) {
         const title = textOf(match[3], MAX_HEADING_LENGTH);
         if (title.length < 2) continue;
         found.push({ l: Number(match[1]), t: title, id: headingAnchor(text, match.index, match[2]) });
     }
+}
+
+function buildBookInfo(head, found) {
     const counts = new Map();
     for (const entry of found) {
         const key = entry.t.toLowerCase();
@@ -478,6 +511,99 @@ export function extractBookInfo(html) {
         description: metaContent(head, ['description']),
         outline: found.filter(entry => counts.get(entry.t.toLowerCase()) === 1).slice(0, MAX_OUTLINE_ENTRIES)
     };
+}
+
+// ── Libros partidos ───────────────────────────────────────────────────────────
+
+function partKey(slug, rev, index) {
+    return `${PART_KEY_PREFIX}${slug}:${rev}:${index}`;
+}
+
+/** Cuántos valores de KV forman el libro: 1 salvo que sea uno partido. */
+function partCount(metadata) {
+    const parts = Number(metadata && metadata.p);
+    return Number.isInteger(parts) && parts > 1 && parts <= MAX_BOOK_PARTS && UPLOAD_ID.test(String(metadata.rev || ''))
+        ? parts
+        : 1;
+}
+
+/**
+ * Los trozos de un libro como un solo flujo. Se lee uno a uno, a medida que el
+ * cliente pide bytes: el libro entero nunca está en la memoria del Worker.
+ */
+function joinParts(kv, slug, rev, count) {
+    let index = 0;
+    let reader = null;
+    return new ReadableStream({
+        async pull(controller) {
+            for (;;) {
+                if (!reader) {
+                    if (index >= count) { controller.close(); return; }
+                    const part = await kv.getWithMetadata(partKey(slug, rev, index), { type: 'stream' });
+                    if (!part || !part.value) {
+                        controller.error(new Error(`Part ${index} of ${slug} is missing.`));
+                        return;
+                    }
+                    index += 1;
+                    reader = part.value.getReader();
+                }
+                const { done, value } = await reader.read();
+                if (done) { reader = null; continue; }
+                controller.enqueue(value);
+                return;
+            }
+        },
+        cancel(reason) {
+            return reader ? reader.cancel(reason) : undefined;
+        }
+    });
+}
+
+/**
+ * Lee los trozos de una subida, de uno en uno, y saca de ellos lo mismo que
+ * `extractBookInfo` de un libro entero: idioma, índice y tamaño. También es lo
+ * que comprueba que no falta ninguno antes de publicar.
+ */
+async function readParts(kv, slug, rev, count) {
+    const found = [];
+    let head = '';
+    let lang = '';
+    let size = 0;
+    for (let index = 0; index < count; index += 1) {
+        const part = await kv.getWithMetadata(partKey(slug, rev, index));
+        if (!part || part.value === null || part.value === undefined) {
+            throw new LibraryError(`Part ${index + 1} of ${count} was not received.`, 'library_part_missing', 409);
+        }
+        if (index === 0) {
+            head = headOf(part.value);
+            lang = documentLanguage(part.value);
+        }
+        scanHeadings(part.value, found);
+        size += Number(part.metadata && part.metadata.size) || 0;
+    }
+    return { info: buildBookInfo(head, found), lang, size };
+}
+
+/**
+ * Borra los trozos de un libro: todos, o todos menos los de la subida `keepRev`
+ * (que también limpia las subidas que se quedaron a medias).
+ */
+async function forgetParts(kv, slug, keepRev = '') {
+    const prefix = `${PART_KEY_PREFIX}${slug}:`;
+    try {
+        let cursor;
+        do {
+            const page = await kv.list({ prefix, cursor });
+            for (const key of page.keys) {
+                if (keepRev && key.name.startsWith(`${prefix}${keepRev}:`)) continue;
+                await kv.delete(key.name);
+            }
+            cursor = page.list_complete ? undefined : page.cursor;
+        } while (cursor);
+    } catch (error) {
+        // Sobran unos bytes en KV, nada más: no debe estropear la publicación.
+        console.warn('[library] could not clean the book parts:', error);
+    }
 }
 
 // ── Inyección en el libro ─────────────────────────────────────────────────────
@@ -935,35 +1061,55 @@ function announce(ctx, url, urls) {
     ctx.waitUntil(notifyIndexNow(urls));
 }
 
-async function publishBook(request, env, url, slug, ctx) {
-    await requireAdmin(request, env);
-    const kv = store(env);
-
-    const contentType = (request.headers.get('Content-Type') || '').toLowerCase();
-    if (!contentType.startsWith('text/html')) {
-        throw new LibraryError('Only HTML documents can be published.', 'library_not_html', 415);
-    }
-    const meta = readUploadMeta(request);
+/** El título y el nombre de fichero que acompañan a una subida, ya comprobados. */
+function readBookDetails(meta) {
     const file = cleanText(meta.filename, MAX_FILENAME_LENGTH);
     if (!/\.html?$/i.test(file)) {
         throw new LibraryError('Only .html files can be published.', 'library_not_html', 415);
     }
     const title = cleanText(meta.title, MAX_TITLE_LENGTH);
     if (!title) throw new LibraryError('The book needs a title.', 'library_title_missing');
+    return { file, title };
+}
 
-    const declared = Number(request.headers.get('Content-Length'));
-    if (Number.isFinite(declared) && declared > MAX_BOOK_BYTES) {
-        throw new LibraryError('The file is larger than the library allows.', 'library_file_too_large', 413);
-    }
-    const bytes = new Uint8Array(await request.arrayBuffer());
-    const { lang, text } = inspectHtmlUpload(bytes);
-
-    const key = BOOK_KEY_PREFIX + slug;
+/** Si el slug ya es de un libro, y si la subida pidió reemplazarlo. */
+async function requireFreeOrReplace(kv, key, meta) {
     const existing = await kv.list({ prefix: key });
     const exists = existing.keys.some(entry => entry.name === key);
     if (exists && meta.replace !== true) {
         throw new LibraryError('A book already uses that address.', 'library_slug_taken', 409);
     }
+    return exists;
+}
+
+function requireHtmlBody(request) {
+    const contentType = (request.headers.get('Content-Type') || '').toLowerCase();
+    if (!contentType.startsWith('text/html')) {
+        throw new LibraryError('Only HTML documents can be published.', 'library_not_html', 415);
+    }
+}
+
+function requireDeclaredSize(request, limit) {
+    const declared = Number(request.headers.get('Content-Length'));
+    if (Number.isFinite(declared) && declared > limit) {
+        throw new LibraryError('The file is larger than the library allows.', 'library_file_too_large', 413);
+    }
+}
+
+async function publishBook(request, env, url, slug, ctx) {
+    await requireAdmin(request, env);
+    const kv = store(env);
+
+    requireHtmlBody(request);
+    const meta = readUploadMeta(request);
+    const { file, title } = readBookDetails(meta);
+
+    requireDeclaredSize(request, MAX_PART_BYTES);
+    const bytes = new Uint8Array(await request.arrayBuffer());
+    const { lang, text } = inspectHtmlUpload(bytes);
+
+    const key = BOOK_KEY_PREFIX + slug;
+    const exists = await requireFreeOrReplace(kv, key, meta);
 
     const metadata = bookMetadata({
         title,
@@ -974,9 +1120,88 @@ async function publishBook(request, env, url, slug, ctx) {
         uploadedAt: new Date().toISOString()
     });
     await kv.put(key, bytes, { metadata });
+    // Si era un libro partido, sus trozos ya no son de nadie.
+    if (exists) await forgetParts(kv, slug);
     // Las traducciones eran de la versión anterior: con el texto nuevo sobran.
     await forgetTranslations(kv, slug);
     await kv.put(INFO_KEY_PREFIX + slug, JSON.stringify(extractBookInfo(text)));
+    await forgetCatalog(url.origin);
+    announce(ctx, url, [bookUrl(slug), `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`]);
+    return json(request, { book: publicBook(slug, metadata), replaced: exists }, exists ? 200 : 201);
+}
+
+/**
+ * Un trozo de un libro grande. El navegador parte el fichero en UTF-8 por
+ * caracteres enteros, así que cada trozo se valida por su cuenta; el libro no
+ * existe hasta que `commitBook` lo cierra, y hasta entonces el anterior (si
+ * lo hay) sigue sirviéndose.
+ */
+async function stageBookPart(request, env, url, slug, index) {
+    await requireAdmin(request, env);
+    const kv = store(env);
+
+    requireHtmlBody(request);
+    const rev = url.searchParams.get('upload') || '';
+    if (!UPLOAD_ID.test(rev)) throw new LibraryError('The upload id is not valid.', 'library_upload_invalid');
+    if (index >= MAX_BOOK_PARTS) {
+        throw new LibraryError('The file is larger than the library allows.', 'library_file_too_large', 413);
+    }
+    requireDeclaredSize(request, MAX_PART_BYTES);
+    const bytes = new Uint8Array(await request.arrayBuffer());
+    inspectHtmlUpload(bytes, { first: index === 0 });
+
+    await kv.put(partKey(slug, rev, index), bytes, { metadata: { size: bytes.byteLength } });
+    return json(request, { part: index, bytes: bytes.byteLength }, 201);
+}
+
+/**
+ * Cierra una subida por trozos: comprueba que están todos, saca el índice y
+ * escribe `book:<slug>`, que es lo que hace que el libro aparezca. Hasta ese
+ * momento nada del libro anterior se toca.
+ */
+async function commitBook(request, env, url, slug, ctx) {
+    await requireAdmin(request, env);
+    const kv = store(env);
+
+    let meta;
+    try {
+        meta = await request.json();
+    } catch {
+        throw new LibraryError('The book details could not be read.', 'library_meta_invalid');
+    }
+    if (!meta || typeof meta !== 'object') throw new LibraryError('The book details could not be read.', 'library_meta_invalid');
+    const rev = String(meta.upload || '');
+    const parts = meta.parts;
+    if (!UPLOAD_ID.test(rev) || !Number.isInteger(parts) || parts < 2 || parts > MAX_BOOK_PARTS) {
+        throw new LibraryError('The upload is not valid.', 'library_upload_invalid');
+    }
+    const { file, title } = readBookDetails(meta);
+
+    const key = BOOK_KEY_PREFIX + slug;
+    const exists = await requireFreeOrReplace(kv, key, meta);
+
+    const { info, lang, size } = await readParts(kv, slug, rev, parts);
+    if (size > MAX_BOOK_BYTES) {
+        throw new LibraryError('The file is larger than the library allows.', 'library_file_too_large', 413);
+    }
+    if (Number.isFinite(meta.size) && meta.size !== size) {
+        throw new LibraryError('The parts do not add up to the file that was chosen.', 'library_parts_mismatch', 409);
+    }
+
+    const metadata = bookMetadata({
+        title,
+        description: meta.description,
+        lang,
+        size,
+        file,
+        uploadedAt: new Date().toISOString(),
+        parts,
+        rev
+    });
+    await kv.put(key, JSON.stringify({ parts, rev, size }), { metadata });
+    await forgetParts(kv, slug, rev);
+    await forgetTranslations(kv, slug);
+    await kv.put(INFO_KEY_PREFIX + slug, JSON.stringify(info));
     await forgetCatalog(url.origin);
     announce(ctx, url, [bookUrl(slug), `${LIBRARY_ORIGIN}${LIBRARY_PREFIX}`]);
     return json(request, { book: publicBook(slug, metadata), replaced: exists }, exists ? 200 : 201);
@@ -997,6 +1222,7 @@ async function removeBook(request, env, url, slug, ctx) {
         throw new LibraryError('That book is not in the library.', 'library_book_missing', 404);
     }
     await kv.delete(key);
+    await forgetParts(kv, slug);
     await forgetTranslations(kv, slug);
     await kv.delete(INFO_KEY_PREFIX + slug);
     await forgetCatalog(url.origin);
@@ -1044,7 +1270,7 @@ export async function createProposal(request, env) {
     if (!message) throw new LibraryError('Message is required.', 'message_required', 400);
     if (message.length > 5000) throw new LibraryError('Message is too long.', 'message_too_long', 400);
 
-    if (file && file.size > MAX_BOOK_BYTES) {
+    if (file && file.size > MAX_PART_BYTES) {
         throw new LibraryError('The attached file exceeds the 24 MB limit.', 'file_too_large', 400);
     }
 
@@ -1168,11 +1394,20 @@ async function handleApi(request, env, url, rest, ctx) {
             if (request.method === 'DELETE') return await deleteProposal(request, env, id);
             return methodNotAllowed(request, 'PATCH, DELETE');
         }
-        const match = /^books\/([^/]+)$/.exec(rest);
+        const match = /^books\/([^/]+)(?:\/(parts\/\d{1,3}|commit))?$/.exec(rest);
         if (!match) return notFound(request);
         const slug = match[1];
         if (!isValidSlug(slug)) {
             throw new LibraryError('The web address may only use lowercase letters, numbers and hyphens.', 'library_slug_invalid');
+        }
+        // Un libro grande llega partido: `parts/<n>` por cada trozo y `commit` al final.
+        if (match[2] === 'commit') {
+            if (request.method !== 'POST') return methodNotAllowed(request, 'POST');
+            return await commitBook(request, env, url, slug, ctx);
+        }
+        if (match[2]) {
+            if (request.method !== 'PUT') return methodNotAllowed(request, 'PUT');
+            return await stageBookPart(request, env, url, slug, Number(match[2].slice('parts/'.length)));
         }
         if (request.method === 'PUT') return await publishBook(request, env, url, slug, ctx);
         if (request.method === 'DELETE') return await removeBook(request, env, url, slug, ctx);
@@ -1422,9 +1657,14 @@ async function bookInfo(env, slug) {
             if (info && info.v === INFO_VERSION) return info;
         }
         const previous = stored ? JSON.parse(stored) : null;
-        const html = await kv.get(BOOK_KEY_PREFIX + slug);
-        if (!html) return empty;
-        const info = extractBookInfo(html);
+        const book = await kv.getWithMetadata(BOOK_KEY_PREFIX + slug);
+        if (!book || !book.value) return empty;
+        const metadata = book.metadata || {};
+        const count = partCount(metadata);
+        // En un libro partido, el valor de `book:` es solo el manifiesto.
+        const info = count > 1
+            ? (await readParts(kv, slug, metadata.rev, count)).info
+            : extractBookInfo(book.value);
         if (previous && Array.isArray(previous.translations)) info.translations = previous.translations;
         await kv.put(INFO_KEY_PREFIX + slug, JSON.stringify(info));
         return info;
@@ -1542,6 +1782,8 @@ async function serveBookFile(request, env, slug, { download, language = null }) 
     const found = await kv.getWithMetadata(key, { type: 'stream' });
     if (!found || !found.value) return notFound(request);
     const metadata = found.metadata || {};
+    // Las traducciones son siempre un solo valor; el original puede ir partido.
+    const parts = language ? 1 : partCount(metadata);
     const headers = baseHeaders({
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'no-cache, max-age=0, must-revalidate',
@@ -1552,7 +1794,8 @@ async function serveBookFile(request, env, slug, { download, language = null }) 
         headers.set('Content-Security-Policy', DOWNLOAD_CSP);
         const filename = downloadFilename(metadata.file, slug);
         headers.set('Content-Disposition', contentDisposition(language ? filename.replace(/(\.html?)$/i, `.${language}$1`) : filename));
-        if (metadata.size) headers.set('Content-Length', String(metadata.size));
+        // Un libro partido se une al vuelo y el navegador no sabrá el total: va por trozos.
+        if (metadata.size && parts === 1) headers.set('Content-Length', String(metadata.size));
     } else {
         headers.set('Content-Security-Policy', BOOK_CSP);
         // Esta URL suelta no se indexa (no lleva ni la cabecera de Elysium ni
@@ -1567,7 +1810,12 @@ async function serveBookFile(request, env, slug, { download, language = null }) 
         await found.value.cancel();
         return new Response(null, { status: 200, headers });
     }
-    const body = download ? found.value : injectBeforeHeadClose(found.value, BOOK_HELPER);
+    let source = found.value;
+    if (parts > 1) {
+        await found.value.cancel();
+        source = joinParts(kv, slug, metadata.rev, parts);
+    }
+    const body = download ? source : injectBeforeHeadClose(source, BOOK_HELPER);
     return new Response(body, { status: 200, headers });
 }
 
