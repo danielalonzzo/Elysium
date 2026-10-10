@@ -59,6 +59,43 @@
 
     <!-- Favicon -->
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <!-- Structured data: this case study and the client website Elysium built -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://elysiumdr.com/pt/case-moyra#webpage",
+          "url": "https://elysiumdr.com/pt/case-moyra",
+          "name": "Caso: Moyra — Elysium λ Development & Research",
+          "description": "Elysium λ Case Study - Moyra Food Studio. Comida artesanal, takeaway e encomendas online na Costa Rica.",
+          "inLanguage": "pt-PT",
+          "about": {
+            "@id": "https://moyracr.com/#website"
+          },
+          "publisher": {
+            "@id": "https://elysiumdr.eu/#organization"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://moyracr.com/#website",
+          "name": "Moyra Food Studio",
+          "url": "https://moyracr.com/",
+          "creator": {
+            "@id": "https://elysiumdr.eu/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://elysiumdr.eu/#organization",
+          "name": "Elysium λ Development & Research",
+          "url": "https://elysiumdr.eu"
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body>

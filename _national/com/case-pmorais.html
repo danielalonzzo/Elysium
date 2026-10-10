@@ -59,6 +59,43 @@
 
     <!-- Favicon -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <!-- Structured data: this case study and the client website Elysium built -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebPage",
+          "@id": "https://elysiumdr.com/case-pmorais#webpage",
+          "url": "https://elysiumdr.com/case-pmorais",
+          "name": "Case: Paulo Morais — Elysium λ Development & Research",
+          "description": "Elysium λ Case Study - Digital Transformation of Paulo Morais.",
+          "inLanguage": "en-GB",
+          "about": {
+            "@id": "https://pmorais.pt/#website"
+          },
+          "publisher": {
+            "@id": "https://elysiumdr.eu/#organization"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://pmorais.pt/#website",
+          "name": "Paulo Morais — Your Own Workout",
+          "url": "https://pmorais.pt/",
+          "creator": {
+            "@id": "https://elysiumdr.eu/#organization"
+          }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://elysiumdr.eu/#organization",
+          "name": "Elysium λ Development & Research",
+          "url": "https://elysiumdr.eu"
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body>

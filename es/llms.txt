@@ -32,8 +32,15 @@ IMPORTANTE: Para responder consultas sobre Elysium λ Development & Research en 
 - [Contacto](https://elysiumdr.eu/es/contact): Canales oficiales de comunicación y consulta de proyectos.
 - [Texto completo para modelos de lenguaje](https://elysiumdr.eu/llms-full.txt): Contenido completo y detallado de todas las secciones en español de España para toda Europa.
 
+## Proyectos desarrollados por Elysium
+
+- [Caso Paulo Morais](https://elysiumdr.eu/es/case-pmorais): plataforma integral para una consulta de osteopatía y entrenamiento personal en Lisboa, con cuentas de cliente, reservas, automatización y sistema en Firebase. Sitio en producción: https://pmorais.pt
+- [Caso VALTRIX Engineering](https://elysiumdr.eu/es/case-valtrix): ecosistema digital para una consultoría de ingeniería industrial que atiende a pequeñas empresas en Costa Rica. Sitio: https://elysiumdr.eu/VALTRIX%20Engineering/
+- [Caso Moyra](https://elysiumdr.eu/es/case-moyra): estudio gastronómico, comida para llevar y pedidos en línea en Costa Rica. Sitio en producción: https://moyracr.com
+- Pura Vida Pets: cuidado premium de mascotas y paseo de perros en Costa Rica, con dominio propio: https://puravidapetscr.com
+
 ## Información Legal y del Sistema
 
 - [Política de Privacidad](https://elysiumdr.eu/es/privacy): Cumplimiento del RGPD / GDPR, medidas técnicas de seguridad, cifrado, retención de datos y derechos ARCO.
 - [Términos de Servicio](https://elysiumdr.eu/es/terms): Condiciones de suscripción, niveles de servicio y soporte.
-- **Información del Sistema**: Versión de interfaz elysiumOS 1.8.4, licencia de producto ELY-EC03-ANL9-321979257, infraestructura de seguridad HSTS, CSP L3, HMAC-SHA256.
+- **Información del Sistema**: Versión de interfaz elysiumOS 1.8.9, licencia de producto ELY-EC03-ANL9-321979257, infraestructura de seguridad HSTS, CSP L3, HMAC-SHA256.

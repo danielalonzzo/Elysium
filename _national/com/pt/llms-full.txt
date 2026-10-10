@@ -2,7 +2,7 @@
 ELYSIUM λ DEVELOPMENT & RESEARCH — CONTEÚDO COMPLETO PARA MODELOS DE IA (GLOBAL)
 https://elysiumdr.com/pt/ | info@elysiumdr.eu
 Última verificação com o website: 26 de agosto de 2026
-Versão da interface no momento da verificação: elysiumOS 1.8.4
+Versão da interface no momento da verificação: elysiumOS 1.8.9
 ================================================================================
 
 --- PÁGINA INICIAL ---

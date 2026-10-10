@@ -8,7 +8,7 @@
 
 1. Project Overview
    - Project Name: Elysium λ Development & Research
-   - Client / Organisation: Elysium Development & Research
+   - Client / Organisation: Elysium λ Development & Research
    - Delivery Date: March 2026 (Continuous Development)
    - Site Version: 1.2.0
    - Author / Developer Studio: Daniel Morales / Elysium λ
@@ -151,7 +151,7 @@
 
 1. Descripción General del Proyecto
    - Nombre del Proyecto: Elysium λ Development & Research
-   - Cliente / Organización: Elysium Development & Research
+   - Cliente / Organización: Elysium λ Development & Research
    - Fecha de Entrega: Marzo 2026 (Desarrollo Continuo)
    - Versión del Sitio: 1.2.0
    - Autor / Estudio: Daniel Morales / Elysium λ
@@ -266,7 +266,7 @@
 
 1. Visão Geral do Projeto
    - Nome do Projeto: Elysium λ Development & Research
-   - Cliente / Organização: Elysium Development & Research
+   - Cliente / Organização: Elysium λ Development & Research
    - Data de Entrega: Março 2026 (Desenvolvimento Contínuo)
    - Versão do Site: 1.2.0
    - Autor / Estúdio: Daniel Morales / Elysium λ
