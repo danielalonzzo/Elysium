@@ -258,13 +258,17 @@ su nombre, y `portfolio.html` los enlaza:
 | `VALTRIX Engineering/` | `/VALTRIX Engineering/` | la propia carpeta |
 | `proyecto/` | `/proyecto/` | la propia carpeta |
 | `Demo-arbol/` | `/Demo-arbol/` | `Prototipos/Demo-arbol/` |
+| `Vet-Dr-Valladares/` | `/Vet-Dr-Valladares/` | `Prototipos/Vet-Dr-Valladares/clinica/` |
 
 Las cuatro primeras son HTML plano: la carpeta es a la vez el proyecto y el
 sitio, y se trabaja directamente ahí.
 
-La última es **producto compilado**. Editarla a mano no sirve de nada, se pierde
-en la siguiente publicación: `Demo-arbol/` la genera entera
-`scripts/publish-demo-arbol.sh` desde `Prototipos/Demo-arbol/` (Next 16).
+Las dos últimas son **producto compilado**. Editarlas a mano no sirve de nada,
+se pierde en la siguiente publicación: `Demo-arbol/` la genera entera
+`scripts/publish-demo-arbol.sh` desde `Prototipos/Demo-arbol/` (Next 16), y
+`Vet-Dr-Valladares/` la genera `scripts/publish-vet-dr-valladares.sh` desde
+`Prototipos/Vet-Dr-Valladares/clinica/`. Esta última no la enlaza el portafolio:
+solo la tarjeta de Prototipos del CRM.
 
 **`Gestor-Patrimonios/` no es un subsitio: es una app.** Es Elysium
 Patrimonio, el gestor financiero que nació de un encargo de Jared: una PWA en
@@ -430,6 +434,29 @@ despliegue**, porque si no se serviría en `elysiumdr.eu/Prototipos/`:
   contenido a cualquier otro cliente. No metas ahí datos de nadie real; hay una
   prueba en `tests/rendered-html.test.mjs` que falla si vuelve a colarse una
   marca de cliente en el HTML.
+- `Vet-Dr-Valladares/` — el prototipo de la Clínica Veterinaria Dr. Luis
+  Valladares (Heredia), una clínica real: **el material es suyo, no
+  ficticio**. Es una app vinext (Next 16) que nació en ChatGPT Sites, donde
+  sigue publicada en privado con inicio de sesión de ChatGPT, base D1 y API.
+  Elysium sirve otra compilación de la misma fuente, **estática y sin
+  servidor**, en `/Vet-Dr-Valladares/`. Lo que no se ve abriéndola:
+  1. **Dos compilaciones, una variable.** `NEXT_PUBLIC_STATIC_SITE=1` (con
+     `NEXT_PUBLIC_BASE_PATH`) la pone el script; sin ella sale la de ChatGPT
+     Sites, igual que antes. Las páginas con sesión tienen dos ficheros:
+     `page.live.tsx` y `page.static.tsx`, y `pageExtensions` elige.
+  2. **Ninguna ruta se escribe con `/` a secas**: pasa por `url()` de
+     `src/core/config.ts`, que le antepone la carpeta. Se usa `assetPrefix` y no
+     `basePath` porque el prerender de vinext 1.0.0-beta.5 da 404 en las rutas
+     dinámicas con `basePath`. El script falla si queda un `href`/`src` sin
+     prefijo.
+  3. **Sin servidor:** portal, CRM y citas abren en modo demostración con datos
+     ficticios, y los formularios dejan el mensaje listo en WhatsApp. No
+     registra service worker y su «Buscar actualización» solo borra sus
+     cachés (`valladares-*`): el origen es el de Elysium y se llevaría las de
+     Elysium Patrimonio.
+  4. Su CSP y su `noindex` van en `_headers`; está fuera del MCP y del sitemap.
+  5. Traía un git propio; se retiró y su historial está en
+     `λ/_git-backup/Vet-Dr-Valladares.bundle`.
 - `Elysium Games CR/`, `Ideas/` — documentos y grabaciones, no son webs. Las
   grabaciones (`*.mov`) están fuera de git: sin git-lfs, un vídeo se queda para
   siempre en el historial aunque luego se borre.

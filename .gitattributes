@@ -7,3 +7,5 @@
 # `git diff` vuelque HTML minificado y chunks con hash cada vez que se recompila.
 Demo-arbol/** linguist-generated=true
 Demo-arbol/** -diff
+Vet-Dr-Valladares/** linguist-generated=true
+Vet-Dr-Valladares/** -diff

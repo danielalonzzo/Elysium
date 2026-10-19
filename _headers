@@ -221,6 +221,21 @@
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';
   X-Robots-Tag: noindex, nofollow
 
+# «Vet-Dr-Valladares/» es el prototipo de la Clínica Veterinaria Dr. Luis
+# Valladares, compilado como HTML estático (scripts/publish-vet-dr-valladares.sh).
+# No carga nada de fuera. Necesita `'unsafe-inline'` en scripts por el payload de
+# React que vinext escribe en línea, y `blob:` en imágenes y `connect-src` porque
+# three.js saca las texturas de los modelos .glb a URLs blob. Es material de un
+# cliente que aún no lo ha publicado: no se indexa (también lleva la meta) ni se
+# ofrece a modelos. No va en el `Disallow` de robots.txt: así el buscador puede
+# leer el noindex.
+/Vet-Dr-Valladares/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' blob: data:; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';
+  ! Content-Signal
+  Content-Signal: search=no, ai-input=no, ai-train=no
+  X-Robots-Tag: noindex, nofollow
+
 # «Titulos/» son los diplomas que enlaza /daniel-morales. Se publican a
 # propósito —el perfil no vale de nada sin poder abrirlos— pero llevan el
 # número de cédula, así que no deben aparecer sueltos en Google: quien los ve

@@ -428,6 +428,9 @@ export const ADMIN_COPY = {
             johnnyOverlay: 'Visit Dr. Johnny Piedra',
             johnnyDesc: 'Advanced urology and minimally invasive surgery. Specialist medical care in Costa Rica.',
             johnnyAlt: 'Dr. Johnny Piedra preview',
+            valladaresOverlay: 'Visit the Dr. Luis Valladares clinic',
+            valladaresDesc: 'Veterinary clinic in Heredia: care check-up, symptom guide, 3D emblem, online booking, client portal and clinic CRM.',
+            valladaresAlt: 'Dr. Luis Valladares Veterinary Clinic preview',
             arbolOverlay: 'View Demo-arbol',
             arbolDesc: 'Content-free demo: cinematic 3D scroll, store, header and dock ready to take on a client brand.'
         },
@@ -998,6 +1001,9 @@ export const ADMIN_COPY = {
             johnnyOverlay: 'Visitar Dr. Johnny Piedra',
             johnnyDesc: 'Urología avanzada y cirugía mínimamente invasiva. Atención médica especializada en Costa Rica.',
             johnnyAlt: 'Vista previa de Dr. Johnny Piedra',
+            valladaresOverlay: 'Visitar la clínica Dr. Luis Valladares',
+            valladaresDesc: 'Clínica veterinaria en Heredia: diagnóstico de cuidado, orientador de síntomas, emblema en 3D, agenda en línea, área de clientes y CRM de la clínica.',
+            valladaresAlt: 'Vista previa de la Clínica Veterinaria Dr. Luis Valladares',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sin contenido: scroll cinemático en 3D, tienda, cabecera y dock listos para recibir la marca de un cliente.'
         },
@@ -1568,6 +1574,9 @@ export const ADMIN_COPY = {
             johnnyOverlay: 'Visitar Dr. Johnny Piedra',
             johnnyDesc: 'Urologia avançada e cirurgia minimamente invasiva. Cuidados médicos especializados na Costa Rica.',
             johnnyAlt: 'Pré-visualização de Dr. Johnny Piedra',
+            valladaresOverlay: 'Visitar a clínica Dr. Luis Valladares',
+            valladaresDesc: 'Clínica veterinária em Heredia: diagnóstico de cuidados, orientador de sintomas, emblema em 3D, marcações online, área de clientes e CRM da clínica.',
+            valladaresAlt: 'Pré-visualização da Clínica Veterinária Dr. Luis Valladares',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sem conteúdo: scroll cinemático em 3D, loja, cabeçalho e dock prontos para receber a marca de um cliente.'
         },

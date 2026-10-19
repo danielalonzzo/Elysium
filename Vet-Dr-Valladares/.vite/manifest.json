@@ -1,0 +1,507 @@
+{
+  "_GLTFLoader-Dt2qmwvx.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/GLTFLoader-Dt2qmwvx.js",
+    "name": "GLTFLoader"
+  },
+  "_Icon-CVmfdrTh.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/Icon-CVmfdrTh.js",
+    "name": "Icon",
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_framework-CiX2xJcq.js"
+    ]
+  },
+  "_arrow-left-DsdDmS7d.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/arrow-left-DsdDmS7d.js",
+    "name": "arrow-left",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_arrow-right-DSD4beY1.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/arrow-right-DSD4beY1.js",
+    "name": "arrow-right",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_arrow-up-right-C1axf5Li.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/arrow-up-right-C1axf5Li.js",
+    "name": "arrow-up-right",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_calendar-days-CSm9KWA-.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/calendar-days-CSm9KWA-.js",
+    "name": "calendar-days",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_check-Chwp_b_s.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/check-Chwp_b_s.js",
+    "name": "check",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_chevron-right-BVSpULxU.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/chevron-right-BVSpULxU.js",
+    "name": "chevron-right",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_clipboard-list-Ciccwn7Q.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/clipboard-list-Ciccwn7Q.js",
+    "name": "clipboard-list",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_config-D3lrjoE9.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/config-D3lrjoE9.js",
+    "name": "config"
+  },
+  "_createLucideIcon-OT6gm0M0.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/createLucideIcon-OT6gm0M0.js",
+    "name": "createLucideIcon",
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_Icon-CVmfdrTh.js",
+      "_framework-CiX2xJcq.js"
+    ]
+  },
+  "_dog-hMuSJzhu.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/dog-hMuSJzhu.js",
+    "name": "dog",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_framework-CiX2xJcq.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/framework-CiX2xJcq.js",
+    "name": "framework",
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js"
+    ]
+  },
+  "_heart-pulse-i430XpyF.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/heart-pulse-i430XpyF.js",
+    "name": "heart-pulse",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_magicMouse-B_QwZa5X.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/magicMouse-B_QwZa5X.js",
+    "name": "magicMouse"
+  },
+  "_mail-BGMNXCKF.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/mail-BGMNXCKF.js",
+    "name": "mail",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_menu-C6pn0nTk.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/menu-C6pn0nTk.js",
+    "name": "menu",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_message-circle-UlHh1YwW.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/message-circle-UlHh1YwW.js",
+    "name": "message-circle",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_navigation-errors-CD_HoYnP.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/navigation-errors-CD_HoYnP.js",
+    "name": "navigation-errors",
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_framework-CiX2xJcq.js"
+    ]
+  },
+  "_paw-print-GiRJ0nn8.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/paw-print-GiRJ0nn8.js",
+    "name": "paw-print",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_phone-DejWW6nI.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/phone-DejWW6nI.js",
+    "name": "phone",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_rolldown-runtime-ZxuJ9RTx.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/rolldown-runtime-ZxuJ9RTx.js",
+    "name": "rolldown-runtime"
+  },
+  "_rotate-ccw-r4jkrntz.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/rotate-ccw-r4jkrntz.js",
+    "name": "rotate-ccw",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_scissors-cVwX_yi0.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/scissors-cVwX_yi0.js",
+    "name": "scissors",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_send-Dki8O9zh.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/send-Dki8O9zh.js",
+    "name": "send",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_sparkles-D8bIHS9t.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/sparkles-D8bIHS9t.js",
+    "name": "sparkles",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_stethoscope-C9U5l7_l.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/stethoscope-C9U5l7_l.js",
+    "name": "stethoscope",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_triangle-alert-xZj6smhJ.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/triangle-alert-xZj6smhJ.js",
+    "name": "triangle-alert",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_users-Mj78jbAk.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/users-Mj78jbAk.js",
+    "name": "users",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_x-BLNZ5wrF.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/x-BLNZ5wrF.js",
+    "name": "x",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/app-route-prefetch-policy-BXa_VY8y.js",
+    "name": "app-route-prefetch-policy",
+    "src": "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "virtual:vinext-app-browser-entry"
+    ]
+  },
+  "node_modules/vinext/dist/shims/layout-segment-context.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/layout-segment-context-BpEMHkva.js",
+    "name": "layout-segment-context",
+    "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "virtual:vinext-app-browser-entry",
+      "_framework-CiX2xJcq.js",
+      "_navigation-errors-CD_HoYnP.js"
+    ]
+  },
+  "node_modules/vinext/dist/shims/streamed-icons.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/streamed-icons-D0agYWMF.js",
+    "name": "streamed-icons",
+    "src": "node_modules/vinext/dist/shims/streamed-icons.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_framework-CiX2xJcq.js"
+    ]
+  },
+  "src/features/booking/Booking.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/Booking-CeqgZpJc.js",
+    "name": "Booking",
+    "src": "src/features/booking/Booking.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_arrow-left-DsdDmS7d.js",
+      "_calendar-days-CSm9KWA-.js",
+      "_check-Chwp_b_s.js",
+      "_chevron-right-BVSpULxU.js",
+      "_paw-print-GiRJ0nn8.js",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js"
+    ]
+  },
+  "src/features/crm/ClinicApp.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/ClinicApp-BLMoeubc.js",
+    "name": "ClinicApp",
+    "src": "src/features/crm/ClinicApp.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_calendar-days-CSm9KWA-.js",
+      "_chevron-right-BVSpULxU.js",
+      "_mail-BGMNXCKF.js",
+      "_menu-C6pn0nTk.js",
+      "_paw-print-GiRJ0nn8.js",
+      "_stethoscope-C9U5l7_l.js",
+      "_users-Mj78jbAk.js",
+      "_x-BLNZ5wrF.js",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js"
+    ]
+  },
+  "src/ui/CareDiagnostic.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/CareDiagnostic-CzwA7Z8O.js",
+    "name": "CareDiagnostic",
+    "src": "src/ui/CareDiagnostic.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_arrow-left-DsdDmS7d.js",
+      "_arrow-right-DSD4beY1.js",
+      "_calendar-days-CSm9KWA-.js",
+      "_dog-hMuSJzhu.js",
+      "_check-Chwp_b_s.js",
+      "_heart-pulse-i430XpyF.js",
+      "_clipboard-list-Ciccwn7Q.js",
+      "_send-Dki8O9zh.js",
+      "_message-circle-UlHh1YwW.js",
+      "_paw-print-GiRJ0nn8.js",
+      "_rotate-ccw-r4jkrntz.js",
+      "_sparkles-D8bIHS9t.js",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js",
+      "src/ui/fx.tsx"
+    ]
+  },
+  "src/ui/ContactForm.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/ContactForm-qYcGE4oq.js",
+    "name": "ContactForm",
+    "src": "src/ui/ContactForm.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_dog-hMuSJzhu.js",
+      "_heart-pulse-i430XpyF.js",
+      "_send-Dki8O9zh.js",
+      "_mail-BGMNXCKF.js",
+      "_message-circle-UlHh1YwW.js",
+      "_paw-print-GiRJ0nn8.js",
+      "_phone-DejWW6nI.js",
+      "_scissors-cVwX_yi0.js",
+      "_rotate-ccw-r4jkrntz.js",
+      "_stethoscope-C9U5l7_l.js",
+      "_triangle-alert-xZj6smhJ.js",
+      "_users-Mj78jbAk.js",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js",
+      "src/ui/fx.tsx"
+    ]
+  },
+  "src/ui/HeroLogo.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroLogo-bcr2NUay.js",
+    "name": "HeroLogo",
+    "src": "src/ui/HeroLogo.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "virtual:vinext-app-browser-entry",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js",
+      "src/ui/fx.tsx"
+    ],
+    "dynamicImports": [
+      "src/ui/heroLogoEngine.js"
+    ]
+  },
+  "src/ui/HeroMood.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroMood-DMCL0abt.js",
+    "name": "HeroMood",
+    "src": "src/ui/HeroMood.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_arrow-right-DSD4beY1.js",
+      "_calendar-days-CSm9KWA-.js",
+      "_clipboard-list-Ciccwn7Q.js",
+      "_scissors-cVwX_yi0.js",
+      "_stethoscope-C9U5l7_l.js",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js"
+    ]
+  },
+  "src/ui/MagicMouse.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/MagicMouse-DVDhEoj9.js",
+    "name": "MagicMouse",
+    "src": "src/ui/MagicMouse.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_framework-CiX2xJcq.js",
+      "_magicMouse-B_QwZa5X.js"
+    ]
+  },
+  "src/ui/MythQuiz.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/MythQuiz-DvtyDfTD.js",
+    "name": "MythQuiz",
+    "src": "src/ui/MythQuiz.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_check-Chwp_b_s.js",
+      "_rotate-ccw-r4jkrntz.js",
+      "_sparkles-D8bIHS9t.js",
+      "_x-BLNZ5wrF.js",
+      "_framework-CiX2xJcq.js",
+      "src/ui/fx.tsx"
+    ]
+  },
+  "src/ui/PetAgeCalculator.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/PetAgeCalculator-FDk0UaIT.js",
+    "name": "PetAgeCalculator",
+    "src": "src/ui/PetAgeCalculator.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_arrow-up-right-C1axf5Li.js",
+      "_dog-hMuSJzhu.js",
+      "_framework-CiX2xJcq.js"
+    ]
+  },
+  "src/ui/Reveal.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/Reveal-BTTiFcH-.js",
+    "name": "Reveal",
+    "src": "src/ui/Reveal.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_framework-CiX2xJcq.js"
+    ]
+  },
+  "src/ui/SiteShell.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/SiteShell-DtCmMkoJ.js",
+    "name": "SiteShell",
+    "src": "src/ui/SiteShell.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_arrow-up-right-C1axf5Li.js",
+      "_calendar-days-CSm9KWA-.js",
+      "_mail-BGMNXCKF.js",
+      "_menu-C6pn0nTk.js",
+      "_message-circle-UlHh1YwW.js",
+      "_phone-DejWW6nI.js",
+      "_x-BLNZ5wrF.js",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js",
+      "_magicMouse-B_QwZa5X.js"
+    ],
+    "dynamicImports": [
+      "src/ui/mascotEngine.js"
+    ]
+  },
+  "src/ui/SymptomGuide.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/SymptomGuide-BxBIFUKf.js",
+    "name": "SymptomGuide",
+    "src": "src/ui/SymptomGuide.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_arrow-left-DsdDmS7d.js",
+      "_arrow-right-DSD4beY1.js",
+      "_heart-pulse-i430XpyF.js",
+      "_message-circle-UlHh1YwW.js",
+      "_rotate-ccw-r4jkrntz.js",
+      "_stethoscope-C9U5l7_l.js",
+      "_triangle-alert-xZj6smhJ.js",
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js"
+    ]
+  },
+  "src/ui/fx.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/fx-BujbuBK6.js",
+    "name": "fx",
+    "src": "src/ui/fx.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_framework-CiX2xJcq.js",
+      "_config-D3lrjoE9.js"
+    ]
+  },
+  "src/ui/heroLogoEngine.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/heroLogoEngine-CsCuA4bR.js",
+    "name": "heroLogoEngine",
+    "src": "src/ui/heroLogoEngine.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_GLTFLoader-Dt2qmwvx.js",
+      "_config-D3lrjoE9.js"
+    ]
+  },
+  "src/ui/mascotEngine.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/mascotEngine--DlJE38x.js",
+    "name": "mascotEngine",
+    "src": "src/ui/mascotEngine.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_GLTFLoader-Dt2qmwvx.js",
+      "_config-D3lrjoE9.js"
+    ]
+  },
+  "virtual:vinext-app-browser-entry": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/index-DGYOID_a.js",
+    "name": "index",
+    "src": "virtual:vinext-app-browser-entry",
+    "isEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_framework-CiX2xJcq.js",
+      "_navigation-errors-CD_HoYnP.js"
+    ],
+    "dynamicImports": [
+      "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
+      "virtual:vinext-app-browser-entry",
+      "node_modules/vinext/dist/shims/layout-segment-context.js",
+      "_Icon-CVmfdrTh.js",
+      "src/ui/ContactForm.tsx",
+      "src/ui/PetAgeCalculator.tsx",
+      "src/ui/SymptomGuide.tsx",
+      "src/ui/HeroMood.tsx",
+      "src/ui/CareDiagnostic.tsx",
+      "src/ui/fx.tsx",
+      "src/ui/Reveal.tsx",
+      "src/ui/MagicMouse.tsx",
+      "src/ui/HeroLogo.tsx",
+      "node_modules/vinext/dist/shims/streamed-icons.js",
+      "src/ui/SiteShell.tsx",
+      "src/features/booking/Booking.tsx",
+      "src/ui/MythQuiz.tsx",
+      "src/features/crm/ClinicApp.tsx"
+    ]
+  }
+}

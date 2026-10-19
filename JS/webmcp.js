@@ -45,7 +45,7 @@
         }
     };
 
-    const PRIVATE = /^\/(admin|profiles|onboarding|seed-licenses|auth-action|api\/|Titulos\/|Demo-arbol\/|\.)/;
+    const PRIVATE = /^\/(admin|profiles|onboarding|seed-licenses|auth-action|api\/|Titulos\/|Demo-arbol\/|Vet-Dr-Valladares\b|\.)/;
 
     let corpus = null;
     async function siteCorpus(signal) {

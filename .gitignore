@@ -26,6 +26,16 @@ node_modules/
 # y lo que se versiona es la carpeta ya publicada en la raíz.
 Prototipos/Demo-arbol/out/
 Prototipos/Selva y Sal/dist/
+Prototipos/Vet-Dr-Valladares/clinica/dist/
+# La clínica veterinaria trae además lo que deja su propio ciclo de trabajo:
+# el estado de vinext y de Sites, las cachés de TypeScript, las copias de
+# seguridad automáticas de Blender (`.blend1`) y los duplicados que siembra
+# iCloud al chocar dos versiones (`archivo 2.tsx`).
+Prototipos/Vet-Dr-Valladares/clinica/.vinext/
+Prototipos/Vet-Dr-Valladares/clinica/.sites-runtime/
+Prototipos/Vet-Dr-Valladares/**/*.tsbuildinfo
+Prototipos/Vet-Dr-Valladares/**/*.blend1
+Prototipos/Vet-Dr-Valladares/**/* 2.*
 # `build/` NO se ignora: no es salida de compilación, es el plugin de Vite
 # que empaqueta la configuración de hosting. Ignorarlo lo sacó de git y dejó
 # el build roto hasta que se recuperó del historial.

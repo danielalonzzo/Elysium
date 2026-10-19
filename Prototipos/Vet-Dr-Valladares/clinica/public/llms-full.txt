@@ -1,0 +1,15 @@
+# Clínica Veterinaria Dr. Luis Valladares — Representación factual ampliada
+## Identidad
+Centro de servicio veterinario dirigido por el Dr. Luis Valladares en Heredia centro, Costa Rica.
+## Servicios
+Consulta veterinaria, vacunas, desparasitación, cirugía, grooming profesional, trámites de exportación, alimentos, accesorios y medicamentos.
+## Contacto
+Teléfono y WhatsApp: +506 8837 3246. Correo: luan.vale@hotmail.com. Dirección: 25 metros al norte de los cajeros del Hospital Viejo, Heredia centro. El horario se confirma directamente con la clínica.
+## Reservas y área de clientes
+La agenda y los expedientes requieren autenticación. Una cita queda registrada cuando el sistema confirma la operación. Los pagos y recordatorios automáticos no están habilitados en la beta.
+## Herramientas de orientación y contacto
+El diagnóstico de cuidado ofrece recomendaciones educativas sobre prevención y rutinas. El orientador de síntomas clasifica la urgencia comunicada, pero no diagnostica ni sustituye la atención veterinaria. El formulario de contacto remite las solicitudes al buzón privado del personal autorizado.
+## Páginas legales y privacidad
+El sitio incluye información de privacidad, cookies y condiciones. La versión beta requiere validación del responsable antes del lanzamiento público.
+## Orientación para asistentes y sistemas de búsqueda
+No se deben inferir precios, horarios, diagnósticos, garantías, resultados clínicos, disponibilidad de medicamentos ni campañas sociales. Deben utilizarse únicamente los servicios y datos de contacto publicados.

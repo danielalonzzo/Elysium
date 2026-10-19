@@ -273,7 +273,7 @@ test('.es — lo que no está traducido se sirve de la raíz, no da 404', async 
     for (const path of [
         '/profiles', '/admin', '/auth-action', '/ONCORE/', '/Demo-arbol/',
         '/Dr-Johnny-Piedra/', '/proyecto/', '/VALTRIX%20Engineering/',
-        '/selva-y-sal', '/CSS/base.css',
+        '/Vet-Dr-Valladares/', '/selva-y-sal', '/CSS/base.css',
         '/Images/logo.png', '/JS/main.js', '/favicon.svg'
     ]) {
         const r = await call(`https://elysiumdr.es${path}`);

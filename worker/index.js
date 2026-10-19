@@ -674,15 +674,16 @@ const MCP_PROTOCOL_VERSION = '2025-06-18';
 /**
  * Lo que no se entrega aunque esté servido: el portal, el CRM y el onboarding
  * (páginas de sesión, sin contenido útil fuera de ella), los diplomas —que
- * llevan el número de cédula y por eso están en `noindex`—, «Demo-arbol», que
- * también lo está, Elysium Patrimonio (`/Gestor-Patrimonios/`, una app
+ * llevan el número de cédula y por eso están en `noindex`—, «Demo-arbol» y el
+ * prototipo de la clínica veterinaria (`/Vet-Dr-Valladares/`, material de un
+ * cliente), que también lo están, Elysium Patrimonio (`/Gestor-Patrimonios/`, una app
  * privada con licencia), la biblioteca (`/library`: pública e indexable, pero
  * sus libros son de terceros y no se entregan enteros a un agente) y
  * cualquier cosa bajo `/api` o `/.well-known`.
  */
 const MCP_PRIVATE = [
     /^\/admin\b/, /^\/profiles\b/, /^\/onboarding\b/, /^\/seed-licenses\b/,
-    /^\/auth-action\b/, /^\/Titulos\//, /^\/Demo-arbol\//, /^\/Gestor-Patrimonios\b/,
+    /^\/auth-action\b/, /^\/Titulos\//, /^\/Demo-arbol\//, /^\/Vet-Dr-Valladares\b/, /^\/Gestor-Patrimonios\b/,
     /^\/library(?:\.html)?(?:\/|$)/i, /^\/api\//, /^\/\./
 ];
 
