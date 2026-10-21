@@ -1,6 +1,6 @@
 {
-  "_GLTFLoader-Dt2qmwvx.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/GLTFLoader-Dt2qmwvx.js",
+  "_GLTFLoader-2ncblJXH.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/GLTFLoader-2ncblJXH.js",
     "name": "GLTFLoader"
   },
   "_Icon-CVmfdrTh.js": {
@@ -39,6 +39,15 @@
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
+  "_cart-FlEcWfY3.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/cart-FlEcWfY3.js",
+    "name": "cart",
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_framework-CiX2xJcq.js"
+    ]
+  },
   "_check-Chwp_b_s.js": {
     "file": "Vet-Dr-Valladares/_next/static/chunks/check-Chwp_b_s.js",
     "name": "check",
@@ -60,8 +69,8 @@
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_config-D3lrjoE9.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/config-D3lrjoE9.js",
+  "_config-CKZ_a3JK.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/config-CKZ_a3JK.js",
     "name": "config"
   },
   "_createLucideIcon-OT6gm0M0.js": {
@@ -94,8 +103,8 @@
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_magicMouse-B_QwZa5X.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/magicMouse-B_QwZa5X.js",
+  "_magicMouse-Cpzj53Z3.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/magicMouse-Cpzj53Z3.js",
     "name": "magicMouse"
   },
   "_mail-BGMNXCKF.js": {
@@ -105,15 +114,15 @@
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_menu-C6pn0nTk.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/menu-C6pn0nTk.js",
+  "_menu-ARVzhPJc.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/menu-ARVzhPJc.js",
     "name": "menu",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_message-circle-UlHh1YwW.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/message-circle-UlHh1YwW.js",
+  "_message-circle-ByxzMIC2.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/message-circle-ByxzMIC2.js",
     "name": "message-circle",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
@@ -127,16 +136,23 @@
       "_framework-CiX2xJcq.js"
     ]
   },
-  "_paw-print-GiRJ0nn8.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/paw-print-GiRJ0nn8.js",
+  "_paw-print-D8sYTYmn.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/paw-print-D8sYTYmn.js",
     "name": "paw-print",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_phone-DejWW6nI.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/phone-DejWW6nI.js",
+  "_phone-BbKxURHd.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/phone-BbKxURHd.js",
     "name": "phone",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_plus-BHa0G5I5.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/plus-BHa0G5I5.js",
+    "name": "plus",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
@@ -145,15 +161,15 @@
     "file": "Vet-Dr-Valladares/_next/static/chunks/rolldown-runtime-ZxuJ9RTx.js",
     "name": "rolldown-runtime"
   },
-  "_rotate-ccw-r4jkrntz.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/rotate-ccw-r4jkrntz.js",
+  "_rotate-ccw-Djp8nS5i.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/rotate-ccw-Djp8nS5i.js",
     "name": "rotate-ccw",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_scissors-cVwX_yi0.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/scissors-cVwX_yi0.js",
+  "_scissors-DF1hBQbu.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/scissors-DF1hBQbu.js",
     "name": "scissors",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
@@ -166,43 +182,50 @@
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_sparkles-D8bIHS9t.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/sparkles-D8bIHS9t.js",
+  "_shopping-bag-Kn2o06yF.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/shopping-bag-Kn2o06yF.js",
+    "name": "shopping-bag",
+    "imports": [
+      "_createLucideIcon-OT6gm0M0.js"
+    ]
+  },
+  "_sparkles-B8XHId59.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/sparkles-B8XHId59.js",
     "name": "sparkles",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_stethoscope-C9U5l7_l.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/stethoscope-C9U5l7_l.js",
+  "_stethoscope-Cb6gjLsV.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/stethoscope-Cb6gjLsV.js",
     "name": "stethoscope",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_triangle-alert-xZj6smhJ.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/triangle-alert-xZj6smhJ.js",
+  "_triangle-alert-DILpNgEY.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/triangle-alert-DILpNgEY.js",
     "name": "triangle-alert",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_users-Mj78jbAk.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/users-Mj78jbAk.js",
+  "_users-BotaZCho.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/users-BotaZCho.js",
     "name": "users",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
-  "_x-BLNZ5wrF.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/x-BLNZ5wrF.js",
+  "_x-BMHP0557.js": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/x-BMHP0557.js",
     "name": "x",
     "imports": [
       "_createLucideIcon-OT6gm0M0.js"
     ]
   },
   "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/app-route-prefetch-policy-BXa_VY8y.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/app-route-prefetch-policy-Ch9O4wSa.js",
     "name": "app-route-prefetch-policy",
     "src": "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
     "isDynamicEntry": true,
@@ -211,7 +234,7 @@
     ]
   },
   "node_modules/vinext/dist/shims/layout-segment-context.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/layout-segment-context-BpEMHkva.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/layout-segment-context-CXdFlqcL.js",
     "name": "layout-segment-context",
     "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
     "isDynamicEntry": true,
@@ -233,7 +256,7 @@
     ]
   },
   "src/features/booking/Booking.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/Booking-CeqgZpJc.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/Booking-acb0K8jn.js",
     "name": "Booking",
     "src": "src/features/booking/Booking.tsx",
     "isDynamicEntry": true,
@@ -243,13 +266,13 @@
       "_calendar-days-CSm9KWA-.js",
       "_check-Chwp_b_s.js",
       "_chevron-right-BVSpULxU.js",
-      "_paw-print-GiRJ0nn8.js",
+      "_paw-print-D8sYTYmn.js",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js"
+      "_config-CKZ_a3JK.js"
     ]
   },
   "src/features/crm/ClinicApp.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/ClinicApp-BLMoeubc.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/ClinicApp-Ca9j7-jI.js",
     "name": "ClinicApp",
     "src": "src/features/crm/ClinicApp.tsx",
     "isDynamicEntry": true,
@@ -260,17 +283,18 @@
       "_calendar-days-CSm9KWA-.js",
       "_chevron-right-BVSpULxU.js",
       "_mail-BGMNXCKF.js",
-      "_menu-C6pn0nTk.js",
-      "_paw-print-GiRJ0nn8.js",
-      "_stethoscope-C9U5l7_l.js",
-      "_users-Mj78jbAk.js",
-      "_x-BLNZ5wrF.js",
+      "_menu-ARVzhPJc.js",
+      "_paw-print-D8sYTYmn.js",
+      "_plus-BHa0G5I5.js",
+      "_stethoscope-Cb6gjLsV.js",
+      "_users-BotaZCho.js",
+      "_x-BMHP0557.js",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js"
+      "_config-CKZ_a3JK.js"
     ]
   },
   "src/ui/CareDiagnostic.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/CareDiagnostic-CzwA7Z8O.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/CareDiagnostic-CWCqBNIY.js",
     "name": "CareDiagnostic",
     "src": "src/ui/CareDiagnostic.tsx",
     "isDynamicEntry": true,
@@ -285,17 +309,17 @@
       "_heart-pulse-i430XpyF.js",
       "_clipboard-list-Ciccwn7Q.js",
       "_send-Dki8O9zh.js",
-      "_message-circle-UlHh1YwW.js",
-      "_paw-print-GiRJ0nn8.js",
-      "_rotate-ccw-r4jkrntz.js",
-      "_sparkles-D8bIHS9t.js",
+      "_message-circle-ByxzMIC2.js",
+      "_paw-print-D8sYTYmn.js",
+      "_rotate-ccw-Djp8nS5i.js",
+      "_sparkles-B8XHId59.js",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js",
+      "_config-CKZ_a3JK.js",
       "src/ui/fx.tsx"
     ]
   },
   "src/ui/ContactForm.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/ContactForm-qYcGE4oq.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/ContactForm-fFfCmEKg.js",
     "name": "ContactForm",
     "src": "src/ui/ContactForm.tsx",
     "isDynamicEntry": true,
@@ -306,21 +330,22 @@
       "_heart-pulse-i430XpyF.js",
       "_send-Dki8O9zh.js",
       "_mail-BGMNXCKF.js",
-      "_message-circle-UlHh1YwW.js",
-      "_paw-print-GiRJ0nn8.js",
-      "_phone-DejWW6nI.js",
-      "_scissors-cVwX_yi0.js",
-      "_rotate-ccw-r4jkrntz.js",
-      "_stethoscope-C9U5l7_l.js",
-      "_triangle-alert-xZj6smhJ.js",
-      "_users-Mj78jbAk.js",
+      "_message-circle-ByxzMIC2.js",
+      "_paw-print-D8sYTYmn.js",
+      "_phone-BbKxURHd.js",
+      "_scissors-DF1hBQbu.js",
+      "_rotate-ccw-Djp8nS5i.js",
+      "_shopping-bag-Kn2o06yF.js",
+      "_stethoscope-Cb6gjLsV.js",
+      "_triangle-alert-DILpNgEY.js",
+      "_users-BotaZCho.js",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js",
+      "_config-CKZ_a3JK.js",
       "src/ui/fx.tsx"
     ]
   },
   "src/ui/HeroLogo.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroLogo-bcr2NUay.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroLogo-B7je1TLe.js",
     "name": "HeroLogo",
     "src": "src/ui/HeroLogo.tsx",
     "isDynamicEntry": true,
@@ -328,7 +353,7 @@
       "_rolldown-runtime-ZxuJ9RTx.js",
       "virtual:vinext-app-browser-entry",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js",
+      "_config-CKZ_a3JK.js",
       "src/ui/fx.tsx"
     ],
     "dynamicImports": [
@@ -336,7 +361,7 @@
     ]
   },
   "src/ui/HeroMood.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroMood-DMCL0abt.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroMood-COzfETZ5.js",
     "name": "HeroMood",
     "src": "src/ui/HeroMood.tsx",
     "isDynamicEntry": true,
@@ -345,40 +370,40 @@
       "_arrow-right-DSD4beY1.js",
       "_calendar-days-CSm9KWA-.js",
       "_clipboard-list-Ciccwn7Q.js",
-      "_scissors-cVwX_yi0.js",
-      "_stethoscope-C9U5l7_l.js",
+      "_scissors-DF1hBQbu.js",
+      "_stethoscope-Cb6gjLsV.js",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js"
+      "_config-CKZ_a3JK.js"
     ]
   },
   "src/ui/MagicMouse.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/MagicMouse-DVDhEoj9.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/MagicMouse-D-3l2kbG.js",
     "name": "MagicMouse",
     "src": "src/ui/MagicMouse.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-ZxuJ9RTx.js",
       "_framework-CiX2xJcq.js",
-      "_magicMouse-B_QwZa5X.js"
+      "_magicMouse-Cpzj53Z3.js"
     ]
   },
   "src/ui/MythQuiz.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/MythQuiz-DvtyDfTD.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/MythQuiz-DbS2lW6W.js",
     "name": "MythQuiz",
     "src": "src/ui/MythQuiz.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-ZxuJ9RTx.js",
       "_check-Chwp_b_s.js",
-      "_rotate-ccw-r4jkrntz.js",
-      "_sparkles-D8bIHS9t.js",
-      "_x-BLNZ5wrF.js",
+      "_rotate-ccw-Djp8nS5i.js",
+      "_sparkles-B8XHId59.js",
+      "_x-BMHP0557.js",
       "_framework-CiX2xJcq.js",
       "src/ui/fx.tsx"
     ]
   },
   "src/ui/PetAgeCalculator.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/PetAgeCalculator-FDk0UaIT.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/PetAgeCalculator-BKTrTkm2.js",
     "name": "PetAgeCalculator",
     "src": "src/ui/PetAgeCalculator.tsx",
     "isDynamicEntry": true,
@@ -391,7 +416,7 @@
     ]
   },
   "src/ui/Reveal.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/Reveal-BTTiFcH-.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/Reveal-D5DsHkd8.js",
     "name": "Reveal",
     "src": "src/ui/Reveal.tsx",
     "isDynamicEntry": true,
@@ -400,8 +425,31 @@
       "_framework-CiX2xJcq.js"
     ]
   },
+  "src/ui/Shop.tsx": {
+    "file": "Vet-Dr-Valladares/_next/static/chunks/Shop-Be00ftdZ.js",
+    "name": "Shop",
+    "src": "src/ui/Shop.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-ZxuJ9RTx.js",
+      "_createLucideIcon-OT6gm0M0.js",
+      "_arrow-up-right-C1axf5Li.js",
+      "_calendar-days-CSm9KWA-.js",
+      "_check-Chwp_b_s.js",
+      "_cart-FlEcWfY3.js",
+      "_message-circle-ByxzMIC2.js",
+      "_plus-BHa0G5I5.js",
+      "_shopping-bag-Kn2o06yF.js",
+      "_sparkles-B8XHId59.js",
+      "_stethoscope-Cb6gjLsV.js",
+      "_x-BMHP0557.js",
+      "_framework-CiX2xJcq.js",
+      "_config-CKZ_a3JK.js",
+      "src/ui/fx.tsx"
+    ]
+  },
   "src/ui/SiteShell.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/SiteShell-DtCmMkoJ.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/SiteShell-BGRExlZ6.js",
     "name": "SiteShell",
     "src": "src/ui/SiteShell.tsx",
     "isDynamicEntry": true,
@@ -412,20 +460,22 @@
       "_arrow-up-right-C1axf5Li.js",
       "_calendar-days-CSm9KWA-.js",
       "_mail-BGMNXCKF.js",
-      "_menu-C6pn0nTk.js",
-      "_message-circle-UlHh1YwW.js",
-      "_phone-DejWW6nI.js",
-      "_x-BLNZ5wrF.js",
+      "_cart-FlEcWfY3.js",
+      "_menu-ARVzhPJc.js",
+      "_message-circle-ByxzMIC2.js",
+      "_phone-BbKxURHd.js",
+      "_shopping-bag-Kn2o06yF.js",
+      "_x-BMHP0557.js",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js",
-      "_magicMouse-B_QwZa5X.js"
+      "_config-CKZ_a3JK.js",
+      "_magicMouse-Cpzj53Z3.js"
     ],
     "dynamicImports": [
       "src/ui/mascotEngine.js"
     ]
   },
   "src/ui/SymptomGuide.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/SymptomGuide-BxBIFUKf.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/SymptomGuide-DDm3GrFx.js",
     "name": "SymptomGuide",
     "src": "src/ui/SymptomGuide.tsx",
     "isDynamicEntry": true,
@@ -435,46 +485,46 @@
       "_arrow-left-DsdDmS7d.js",
       "_arrow-right-DSD4beY1.js",
       "_heart-pulse-i430XpyF.js",
-      "_message-circle-UlHh1YwW.js",
-      "_rotate-ccw-r4jkrntz.js",
-      "_stethoscope-C9U5l7_l.js",
-      "_triangle-alert-xZj6smhJ.js",
+      "_message-circle-ByxzMIC2.js",
+      "_rotate-ccw-Djp8nS5i.js",
+      "_stethoscope-Cb6gjLsV.js",
+      "_triangle-alert-DILpNgEY.js",
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js"
+      "_config-CKZ_a3JK.js"
     ]
   },
   "src/ui/fx.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/fx-BujbuBK6.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/fx-BxwVtPbH.js",
     "name": "fx",
     "src": "src/ui/fx.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_framework-CiX2xJcq.js",
-      "_config-D3lrjoE9.js"
+      "_config-CKZ_a3JK.js"
     ]
   },
   "src/ui/heroLogoEngine.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/heroLogoEngine-CsCuA4bR.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/heroLogoEngine-DhhgF97P.js",
     "name": "heroLogoEngine",
     "src": "src/ui/heroLogoEngine.js",
     "isDynamicEntry": true,
     "imports": [
-      "_GLTFLoader-Dt2qmwvx.js",
-      "_config-D3lrjoE9.js"
+      "_GLTFLoader-2ncblJXH.js",
+      "_config-CKZ_a3JK.js"
     ]
   },
   "src/ui/mascotEngine.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/mascotEngine--DlJE38x.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/mascotEngine-D7lWyCt-.js",
     "name": "mascotEngine",
     "src": "src/ui/mascotEngine.js",
     "isDynamicEntry": true,
     "imports": [
-      "_GLTFLoader-Dt2qmwvx.js",
-      "_config-D3lrjoE9.js"
+      "_GLTFLoader-2ncblJXH.js",
+      "_config-CKZ_a3JK.js"
     ]
   },
   "virtual:vinext-app-browser-entry": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/index-DGYOID_a.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/index-CJTzpdGJ.js",
     "name": "index",
     "src": "virtual:vinext-app-browser-entry",
     "isEntry": true,
@@ -490,6 +540,7 @@
       "_Icon-CVmfdrTh.js",
       "src/ui/ContactForm.tsx",
       "src/ui/PetAgeCalculator.tsx",
+      "src/ui/Shop.tsx",
       "src/ui/SymptomGuide.tsx",
       "src/ui/HeroMood.tsx",
       "src/ui/CareDiagnostic.tsx",

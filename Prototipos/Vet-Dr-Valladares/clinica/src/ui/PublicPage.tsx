@@ -8,6 +8,7 @@ import PetAgeCalculator from './PetAgeCalculator';
 import MythQuiz from './MythQuiz';
 import HeroMood from './HeroMood';
 import HeroLogo from './HeroLogo';
+import Shop from './Shop';
 import {FloatingPaws} from './fx';
 import {services,WHATSAPP,MAP,PHONE,ORIGIN,STATIC_SITE,url} from '../core/config';
 const icons:any={Stethoscope,Scissors,HeartPulse,Plane,ShoppingBag};
@@ -15,7 +16,7 @@ export default function PublicPage({slug='',en=false}:{slug?:string,en?:boolean}
  const t=(es:string,english:string)=>en?english:es,p=url(en?'/en':''),service=services.find(s=>s.id===slug),home=!slug;
  const origin=ORIGIN;
  const schema={"@context":"https://schema.org","@graph":[{"@type":"VeterinaryCare","@id":origin+'/#clinic',name:'Clínica Veterinaria Dr. Luis Valladares',url:origin,telephone:'+50688373246',email:'luan.vale@hotmail.com',image:origin+'/images/og-home.jpg',address:{"@type":"PostalAddress",streetAddress:'25 metros al norte de los cajeros del Hospital Viejo',addressLocality:'Heredia',addressCountry:'CR'}},{"@type":"WebSite","@id":origin+'/#website',url:origin,name:'Clínica Veterinaria Dr. Luis Valladares',inLanguage:['es-CR','en']}]};
- return <SiteShell en={en}><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}}/><main id="main">{home?<Home t={t} p={p} en={en}/>:<Page slug={slug} service={service} t={t} p={p} en={en}/>}</main></SiteShell>;
+ return <SiteShell en={en}><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(schema)}}/><main id="main">{home?<Home t={t} p={p} en={en}/>:slug==='tienda'?<Shop en={en}/>:<Page slug={slug} service={service} t={t} p={p} en={en}/>}</main></SiteShell>;
 }
 function Home({t,p,en}:any){
  const strip=en?['Veterinary medicine','Prevention and vaccinations','Professional grooming','Surgery','Travelling with pets','Veterinary shop','Care check-up']:['Medicina veterinaria','Prevención y vacunas','Grooming profesional','Cirugía','Viajes con mascotas','Tienda veterinaria','Diagnóstico de cuidado'];
