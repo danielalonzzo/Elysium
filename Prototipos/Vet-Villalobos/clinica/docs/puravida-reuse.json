@@ -1,0 +1,50 @@
+[
+  {
+    "source": "src/core/mascot.js",
+    "target": "src/core/mascot.js",
+    "source_sha256": "d3b9b2b6e87b0a5230ff3f8735742014dc36192a1cd96ceddf91d7550a00baac",
+    "adapted": false
+  },
+  {
+    "source": "src/core/seasonalEffects.js",
+    "target": "src/core/seasonalEffects.js",
+    "source_sha256": "75b5b0370a65c63bb6658836a36b7929877898754070c74e6ad1fce29dde24a7",
+    "adapted": false
+  },
+  {
+    "source": "src/core/time.js",
+    "target": "src/core/time.js",
+    "source_sha256": "b42f6c7403c976eb328b902411edbb612dff261a0237418b6b0bc34d658bc42f",
+    "adapted": false
+  },
+  {
+    "source": "src/core/mascot.test.js",
+    "target": "src/core/mascot.test.js",
+    "source_sha256": "a5eb0db458c84e959b35f1986697c29889eb544dc7bc39c72c597e63290e2814",
+    "adapted": false
+  },
+  {
+    "source": "src/crm/components/SectionTabs.jsx",
+    "target": "src/features/crm/components/SectionTabs.jsx",
+    "source_sha256": "52063371fef35a546ec7f45e4b357c1ab12207f0e84e21a52d7da94595618085",
+    "adapted": false
+  },
+  {
+    "source": "src/crm/components/ui.jsx",
+    "target": "src/features/crm/components/ui.jsx",
+    "source_sha256": "42085c4782f827608ca4a0d708ac7f286cd4054e2bcd454440a22e43c697e94d",
+    "adapted": true
+  },
+  {
+    "source": "src/components/Mascot/mascotEngine.js",
+    "target": "src/ui/mascotEngine.js",
+    "source_sha256": "84cc1c458d0fcbc78cbbb6d4dd19faee37b7d562ed1c18630d480df52fa69a0d",
+    "adapted": true
+  },
+  {
+    "source": "scripts/mascot/build_mascot.py",
+    "target": "scripts/mascot/build_mascot.py",
+    "adapted": true,
+    "note": "Rebuilt as a tricolor beagle for Valladares, then as a black-and-white border collie with tipped ears for Villalobos."
+  }
+]

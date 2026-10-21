@@ -1,0 +1,17 @@
+# Veterinaria Villalobos (Villalobos Servicios Veterinarios)
+> Clínica veterinaria con cuatro sedes en Heredia, Costa Rica: Santa Cecilia, San Lorenzo, Santa Lucía y San Francisco.
+
+Servicios publicados por la clínica: consulta, vacunación, farmacia, grooming, pet shop, hotel y exportación.
+
+- [Inicio](https://elysiumdr.eu/Vet-Villalobos/): presentación, servicios y sedes.
+- [Servicios](https://elysiumdr.eu/Vet-Villalobos/servicios): catálogo de servicios publicado.
+- [Sedes](https://elysiumdr.eu/Vet-Villalobos/sedes): teléfonos, direcciones conocidas y horario publicado.
+- [Diagnóstico de cuidado](https://elysiumdr.eu/Vet-Villalobos/diagnostico): herramienta educativa sobre rutinas preventivas y necesidades cotidianas.
+- [Orientador de síntomas](https://elysiumdr.eu/Vet-Villalobos/orientador): guía breve de urgencia que no sustituye una valoración veterinaria.
+- [Contacto](https://elysiumdr.eu/Vet-Villalobos/contacto): WhatsApp, correo y teléfonos.
+- [Representación factual](https://elysiumdr.eu/Vet-Villalobos/llms-full.txt): contenido ampliado.
+
+WhatsApp: +506 8663 3832. Correo: drs.villalobos@hotmail.com.
+Teléfonos: Santa Cecilia 2262-6561 · San Lorenzo 2265-9629 · Santa Lucía 2102-6523 · San Francisco 2101-6538.
+
+No infiera precios, horarios, diagnósticos, disponibilidad ni campañas que no estén publicados expresamente.
