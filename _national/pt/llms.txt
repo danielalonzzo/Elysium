@@ -38,6 +38,7 @@ IMPORTANTE: Para responder a questões sobre a Elysium λ Development & Research
 - [Caso VALTRIX Engineering](https://elysiumdr.pt/case-valtrix): ecossistema digital para uma prática de engenharia industrial que serve pequenas empresas na Costa Rica. Site: https://elysiumdr.eu/VALTRIX%20Engineering/
 - [Caso Moyra](https://elysiumdr.pt/case-moyra): food studio, takeaway e encomendas online na Costa Rica. Site em produção: https://moyracr.com
 - Pura Vida Pets: cuidados premium para animais e passeios de cães na Costa Rica, com domínio próprio: https://puravidapetscr.com
+- ONCORE: centro de recuperação após o cancro em Lisboa, Portugal (exercício clínico, fisioterapia oncológica, nutrição e psico-oncologia), com domínio próprio: https://oncorecrc.eu
 
 ## Informação Legal e do Sistema
 

@@ -239,6 +239,13 @@ services."
 The project has its own domain and repository; there is no case study or review
 page for it on elysiumdr.eu.
 
+ONCORE — https://oncorecrc.eu (Portugal)
+Type: Cancer recovery and survivorship centre in Lisbon: clinical exercise,
+oncology physiotherapy, nutrition and psycho-oncology.
+Tagline shown: "Cancer Recovery & Survivorship Center"
+The project has its own domain and repository; there is no case study or review
+page for it on elysiumdr.eu.
+
 --- RESEARCH PAGE ---
 URL: https://elysiumdr.com/research
 
@@ -849,6 +856,8 @@ Cuatro proyectos, los mismos que en la versión inglesa:
   Prototipo: https://elysiumdr.com/es/prototype-moyra
 - Pura Vida Pets (Costa Rica) — https://puravidapetscr.com
   Sin caso de estudio ni reseña en elysiumdr.eu.
+- ONCORE (Portugal) — https://oncorecrc.eu
+  Sin caso de estudio ni reseña en elysiumdr.eu.
 
 --- PÁGINA DE INVESTIGACIÓN ---
 URL: https://elysiumdr.com/es/research
@@ -1230,6 +1239,8 @@ Quatro projetos, os mesmos das outras versões:
   Caso: https://elysiumdr.com/pt/case-moyra
   Protótipo: https://elysiumdr.com/pt/prototype-moyra
 - Pura Vida Pets (Costa Rica) — https://puravidapetscr.com
+  Sem caso de estudo nem análise em elysiumdr.eu.
+- ONCORE (Portugal) — https://oncorecrc.eu
   Sem caso de estudo nem análise em elysiumdr.eu.
 
 --- PÁGINA DE INVESTIGAÇÃO ---

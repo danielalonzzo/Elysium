@@ -196,6 +196,8 @@ Quatro projetos, os mesmos das outras versões:
   Protótipo: https://elysiumdr.eu/pt/prototype-moyra
 - Pura Vida Pets (Costa Rica) — https://puravidapetscr.com
   Sem caso de estudo nem análise em elysiumdr.eu.
+- ONCORE (Portugal) — https://oncorecrc.eu
+  Sem caso de estudo nem análise em elysiumdr.eu.
 
 --- PÁGINA DE INVESTIGAÇÃO ---
 URL: https://elysiumdr.eu/pt/research

@@ -68,6 +68,7 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - [VALTRIX Engineering case study](https://elysiumdr.eu/case-valtrix): Digital ecosystem for an industrial-engineering practice serving small businesses in Costa Rica. Site: https://elysiumdr.eu/VALTRIX%20Engineering/
 - [Moyra case study](https://elysiumdr.eu/case-moyra): Food-studio, takeaway and online-ordering project in Costa Rica. Live site: https://moyracr.com
 - Pura Vida Pets: premium pet care and dog-walking services in Costa Rica, presented in the portfolio and hosted on its own domain, https://puravidapetscr.com. There is no case study or review page for it on elysiumdr.eu.
+- ONCORE: cancer recovery and survivorship centre in Lisbon, Portugal (clinical exercise, oncology physiotherapy, nutrition and psycho-oncology), presented in the portfolio and hosted on its own domain, https://oncorecrc.eu. There is no case study or review page for it on elysiumdr.eu.
 - Prototypes: [Paulo Morais](https://elysiumdr.eu/prototype-pmorais) · [VALTRIX](https://elysiumdr.eu/prototype-valtrix) · [Moyra](https://elysiumdr.eu/prototype-moyra)
 - [XML sitemap](https://elysiumdr.eu/sitemap.xml): Index of the principal public URLs and their language variants.
 

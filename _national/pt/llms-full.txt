@@ -129,6 +129,7 @@ Projetos de referência:
 2. VALTRIX Engineering (https://elysiumdr.eu/VALTRIX%20Engineering/): Ecossistema digital para engenharia industrial e melhoria contínua de processos.
 3. Moyra (https://moyracr.com): Plataforma para atelier gastronómico com pedidos e catálogo digital.
 4. Pura Vida Pets (https://puravidapetscr.com): Plataforma especializada em serviços de bem-estar animal.
+5. ONCORE (https://oncorecrc.eu): Centro de recuperação após o cancro em Lisboa: exercício clínico, fisioterapia oncológica, nutrição e psico-oncologia.
 
 ================================================================================
 SECÇÃO 5 — SEGURANÇA, PRIVACIDADE E ESPECIFICAÇÕES TÉCNICAS
