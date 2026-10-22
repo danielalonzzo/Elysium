@@ -355,7 +355,7 @@ test('.com — las URL se canonizan como en .eu', async () => {
 });
 
 test('.com — lo que no está traducido sale de los assets compartidos', async () => {
-    for (const path of ['/ONCORE/', '/profiles', '/CSS/components.css', '/Images/Optimized/flag-cr-64.webp', '/VALTRIX%20Engineering/']) {
+    for (const path of ['/Dr-Johnny-Piedra/', '/profiles', '/CSS/components.css', '/Images/Optimized/flag-cr-64.webp', '/VALTRIX%20Engineering/']) {
         const r = await call(`${COM}${path}`);
         assert.equal(r.status, 200, path);
         assert.equal(r.asset, path, path);

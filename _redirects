@@ -10,6 +10,13 @@
 /puravidapets      https://puravidapetscr.com/   301
 /puravidapets/*    https://puravidapetscr.com/   301
 
+# ONCORE dejó de ser un prototipo: repositorio en `λ/ONCORE/` y dominio propio.
+# Aquí se conserva la ruta, porque ONCORE tiene páginas propias (portada en
+# inglés, políticas) y su `_redirects` ya resuelve las URL antiguas como
+# `/index-en` o `/privacy-policy.html`.
+/ONCORE            https://oncorecrc.eu/          301
+/ONCORE/*          https://oncorecrc.eu/:splat    301
+
 # El portal se unificó en una sola página con traducciones dinámicas. Mantener
 # estas URLs evita pantallas vacías desde marcadores y enlaces antiguos.
 /es/profiles       /profiles?lang=es   308

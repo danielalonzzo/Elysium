@@ -768,7 +768,7 @@ function pageLanguage(path) {
 
 /** Las páginas del portafolio: la raíz, las traducciones y las bases nacionales. */
 function portfolioPages() {
-    const skip = /^(?:Prototipos|Demo-arbol|Vet-Dr-Valladares|VALTRIX Engineering|ONCORE|Dr-Johnny-Piedra|proyecto|Gestor-Patrimonios|CV|Titulos|node_modules|backend|\.)/;
+    const skip = /^(?:Prototipos|Demo-arbol|Vet-Dr-Valladares|VALTRIX Engineering|Dr-Johnny-Piedra|proyecto|Gestor-Patrimonios|CV|Titulos|node_modules|backend|\.)/;
     return readdirSync(ROOT, { recursive: true })
         .map(String)
         .filter(path => path.endsWith('.html') && !skip.test(path) && !/(?:^|\/)(?:node_modules|_comercial|[^/]+\.nosync)\//.test(path));

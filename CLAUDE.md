@@ -6,8 +6,8 @@
 envuelva el sitio: lo que ves en la raíz es lo que hay en `elysiumdr.eu`. De ahí
 salen las dos cosas que más desconciertan:
 
-1. **El nombre de una carpeta de la raíz es su URL.** `ONCORE/` se ve en
-   `elysiumdr.eu/ONCORE/`. No se puede renombrar sin cambiar la dirección
+1. **El nombre de una carpeta de la raíz es su URL.** `Dr-Johnny-Piedra/` se ve
+   en `elysiumdr.eu/Dr-Johnny-Piedra/`. No se puede renombrar sin cambiar la dirección
    pública, y el portafolio la enlaza.
 2. **Todo lo que no deba ser público hay que excluirlo a mano**, en las tres
    listas de despliegue: `firebase.json` (`hosting.ignore`), `.assetsignore`
@@ -223,14 +223,15 @@ Cuatro cosas que hay que saber antes de tocarlo:
 Todo vive dentro de este repositorio, con un único git. Un proyecto solo sale de
 aquí cuando hay contrato y pasa a ser un negocio real: entonces se lleva su
 propio repositorio y su propio dominio (así salió `Moyra/`, que hoy está en
-`λ/Moyra/`, y así salió Pura Vida Pets, que hoy está en
-`λ/Pura Vida Pets/puravidapetscr/` y se publica en `puravidapetscr.com`).
+`λ/Moyra/`; así salió Pura Vida Pets, que hoy está en
+`λ/Pura Vida Pets/puravidapetscr/` y se publica en `puravidapetscr.com`, y así
+salió ONCORE, que hoy está en `λ/ONCORE/` y se publica en `oncorecrc.eu`).
 
 Dentro, el reparto lo decide una sola pregunta: **¿esto es una página?**
 
 ```
 Elysium/
-├── ONCORE/          ← sitios: la carpeta ES la URL, se sirven tal cual
+├── Dr-Johnny-Piedra/ ← sitios: la carpeta ES la URL, se sirven tal cual
 ├── Demo-arbol/
 ├── …
 └── Prototipos/      ← lo que NO es una página: fuentes sin compilar,
@@ -253,14 +254,13 @@ su nombre, y `portfolio.html` los enlaza:
 
 | Carpeta | URL | Se edita en |
 |---|---|---|
-| `ONCORE/` | `/ONCORE/` | la propia carpeta |
 | `Dr-Johnny-Piedra/` | `/Dr-Johnny-Piedra/` | la propia carpeta |
 | `VALTRIX Engineering/` | `/VALTRIX Engineering/` | la propia carpeta |
 | `proyecto/` | `/proyecto/` | la propia carpeta |
 | `Demo-arbol/` | `/Demo-arbol/` | `Prototipos/Demo-arbol/` |
 | `Vet-Dr-Valladares/` | `/Vet-Dr-Valladares/` | `Prototipos/Vet-Dr-Valladares/clinica/` |
 
-Las cuatro primeras son HTML plano: la carpeta es a la vez el proyecto y el
+Las tres primeras son HTML plano: la carpeta es a la vez el proyecto y el
 sitio, y se trabaja directamente ahí.
 
 Las dos últimas son **producto compilado**. Editarlas a mano no sirve de nada,
@@ -397,6 +397,11 @@ código está en `λ/Pura Vida Pets/puravidapetscr/`, con git propio
 (`github.com/danielalonzzo/puravidapets`) y dominio propio. En Elysium ya no
 queda ni `puravidapets/` ni `Prototipos/puravidapets/`; `portfolio.html` solo
 enlaza a `https://puravidapetscr.com`, igual que hace con Moyra.
+
+**ONCORE tampoco vive ya aquí.** Dejó de ser un prototipo y salió con su historial
+de git a `λ/ONCORE/`, con dominio propio (`oncorecrc.eu`) servido por su propio
+Worker. `_redirects` lleva con 301 `/ONCORE/*` a la misma ruta en
+`https://oncorecrc.eu/`, porque la URL vieja estaba enlazada e indexada.
 
 **Lo propio de Elysium, que no son páginas:**
 

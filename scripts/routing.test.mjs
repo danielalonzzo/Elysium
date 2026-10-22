@@ -271,7 +271,7 @@ test('.es — todas las páginas nacionales salen de la base privada española',
 
 test('.es — lo que no está traducido se sirve de la raíz, no da 404', async () => {
     for (const path of [
-        '/profiles', '/admin', '/auth-action', '/ONCORE/', '/Demo-arbol/',
+        '/profiles', '/admin', '/auth-action', '/Demo-arbol/',
         '/Dr-Johnny-Piedra/', '/proyecto/', '/VALTRIX%20Engineering/',
         '/Vet-Dr-Valladares/', '/selva-y-sal', '/CSS/base.css',
         '/Images/logo.png', '/JS/main.js', '/favicon.svg'
@@ -369,7 +369,7 @@ test('.pt — todas las páginas nacionales salen de la base privada portuguesa'
 
 test('.pt — las páginas compartidas siguen en la raíz', async () => {
     assert.equal((await call('https://elysiumdr.pt/profiles')).asset, '/profiles');
-    assert.equal((await call('https://elysiumdr.pt/ONCORE/')).asset, '/ONCORE/');
+    assert.equal((await call('https://elysiumdr.pt/Dr-Johnny-Piedra/')).asset, '/Dr-Johnny-Piedra/');
 });
 
 test('.pt — un prefijo español conserva ruta e idioma dentro de Portugal', async () => {

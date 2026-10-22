@@ -140,7 +140,7 @@ const NATIONAL_ASSET_BASES = new Map([
  *
  * Es la pieza que arregla el fallo que traían los dominios nacionales: antes se
  * anteponía el idioma a **cualquier** ruta, así que todo lo que no está
- * traducido —`/profiles`, `/admin`, los subsitios `/ONCORE/`, `/Demo-arbol/`,
+ * traducido —`/profiles`, `/admin`, los subsitios `/Dr-Johnny-Piedra/`, `/Demo-arbol/`,
  * `/VALTRIX Engineering/`…— pedía un fichero inexistente y daba 404. `/profiles`
  * y `/admin` era peor todavía: la regla de `_redirects` los devolvía a la misma
  * URL y el navegador se quedaba en un bucle de redirecciones.
