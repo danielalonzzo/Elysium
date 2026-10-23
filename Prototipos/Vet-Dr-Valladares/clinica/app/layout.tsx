@@ -13,8 +13,8 @@ export const metadata: Metadata = {
   authors: [{ name: "Clínica Veterinaria Dr. Luis Valladares" }],
   robots: { index: indexable, follow: indexable, googleBot: { index: indexable, follow: indexable, "max-snippet": -1, "max-image-preview": "large", "max-video-preview": -1 } },
   alternates: { canonical: origin + "/", languages: { "es-CR": origin + "/", en: `${origin}/en`, "x-default": origin + "/" } },
-  openGraph: { type: "website", locale: "es_CR", siteName: "Clínica Veterinaria Dr. Luis Valladares", title: "Cuidado veterinario en Heredia", description: "Medicina, prevención, cirugía y bienestar para su mascota.", images: [{ url: origin + "/images/og-home.jpg", width: 1200, height: 630, alt: "Clínica Veterinaria Dr. Luis Valladares" }] },
-  twitter: { card: "summary_large_image", title: "Clínica Veterinaria Dr. Luis Valladares", description: "Cuidado veterinario en Heredia, Costa Rica.", images: [origin + "/images/og-home.jpg"] },
+  openGraph: { type: "website", locale: "es_CR", siteName: "Clínica Veterinaria Dr. Luis Valladares", title: "Clínica Veterinaria Dr. Luis Valladares", description: "Medicina, prevención, cirugía y bienestar para su mascota.", images: [{ url: origin + "/images/og-clinica.jpg", width: 1200, height: 630, alt: "Clínica Veterinaria Dr. Luis Valladares" }] },
+  twitter: { card: "summary_large_image", title: "Clínica Veterinaria Dr. Luis Valladares", description: "Cuidado veterinario en Heredia, Costa Rica.", images: [origin + "/images/og-clinica.jpg"] },
   manifest: url("/manifest.webmanifest"),
   icons: { icon: [{ url: url("/favicon.svg"), type: "image/svg+xml" }, { url: url("/favicon-32.png"), sizes: "32x32" }], apple: url("/apple-touch-icon.png") },
 };

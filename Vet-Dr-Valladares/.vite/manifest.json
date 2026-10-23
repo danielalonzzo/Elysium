@@ -225,7 +225,7 @@
     ]
   },
   "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/app-route-prefetch-policy-Ch9O4wSa.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/app-route-prefetch-policy-DSRSWmSA.js",
     "name": "app-route-prefetch-policy",
     "src": "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
     "isDynamicEntry": true,
@@ -234,7 +234,7 @@
     ]
   },
   "node_modules/vinext/dist/shims/layout-segment-context.js": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/layout-segment-context-CXdFlqcL.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/layout-segment-context-Coicca8c.js",
     "name": "layout-segment-context",
     "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
     "isDynamicEntry": true,
@@ -272,7 +272,7 @@
     ]
   },
   "src/features/crm/ClinicApp.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/ClinicApp-Ca9j7-jI.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/ClinicApp-DoUXOx8d.js",
     "name": "ClinicApp",
     "src": "src/features/crm/ClinicApp.tsx",
     "isDynamicEntry": true,
@@ -345,7 +345,7 @@
     ]
   },
   "src/ui/HeroLogo.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroLogo-B7je1TLe.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/HeroLogo-CeHwL8Xj.js",
     "name": "HeroLogo",
     "src": "src/ui/HeroLogo.tsx",
     "isDynamicEntry": true,
@@ -449,7 +449,7 @@
     ]
   },
   "src/ui/SiteShell.tsx": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/SiteShell-BGRExlZ6.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/SiteShell-B5-e0UGy.js",
     "name": "SiteShell",
     "src": "src/ui/SiteShell.tsx",
     "isDynamicEntry": true,
@@ -524,7 +524,7 @@
     ]
   },
   "virtual:vinext-app-browser-entry": {
-    "file": "Vet-Dr-Valladares/_next/static/chunks/index-CJTzpdGJ.js",
+    "file": "Vet-Dr-Valladares/_next/static/chunks/index-BY24o4mb.js",
     "name": "index",
     "src": "virtual:vinext-app-browser-entry",
     "isEntry": true,
