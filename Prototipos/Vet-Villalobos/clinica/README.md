@@ -1,10 +1,15 @@
 # Veterinaria Villalobos — prototipo
 
-Duplicado del prototipo de la Clínica Veterinaria Dr. Luis Valladares
-(`Prototipos/Vet-Dr-Valladares/clinica/`) adaptado a Villalobos Servicios
+Nació como duplicado del prototipo de la Clínica Veterinaria Dr. Luis Valladares
+(`Prototipos/Vet-Dr-Valladares/clinica/`) para Villalobos Servicios
 Veterinarios: cuatro sedes en Heredia (Santa Cecilia, San Lorenzo, Santa Lucía y
 San Francisco), WhatsApp +506 8663 3832, drs.villalobos@hotmail.com. **El
 material es de la clínica real**, como en Valladares; no es una marca ficticia.
+
+**Las dos clínicas son vecinas y competidoras: no pueden parecerse.** En octubre
+de 2026 Villalobos se rediseñó entera como casa premium de cuatro sedes. Lo que
+la separa de Valladares (crema, verde y azul, Georgia, tarjetas de colores,
+píldoras, dock central) es deliberado; no se copia nada de allá sin rehacerlo.
 
 Lo que no se ve abriéndolo:
 
@@ -18,17 +23,37 @@ Lo que no se ve abriéndolo:
    que iCloud no la sincronice lleva el atributo
    `xattr -w 'com.apple.fileprovider.ignore#P' 1 node_modules`. Tras un
    `npm ci` que la borre y la vuelva a crear, hay que ponérselo otra vez.
-3. **Emblema y mascota salen de Blender**, como en Valladares:
-   `npm run logo3d:build` calca las dos siluetas de `public/images/logo-full.jpg`
-   (disco, aro y paneles rojo y grafito) y `npm run mascot:build` genera el border
-   collie de la dock. Los `.py` están en el `.gitignore` de Elysium: se añaden con
-   `git add -f`.
-4. **Compilación estática para Elysium:**
+3. **La identidad vive en `app/villalobos.css`**, que va después de
+   `globals.css` (la base heredada de Valladares, que aún usan herramientas,
+   agenda y paneles). Noir y porcelana con el rojo y el grafito de los paneles
+   del emblema; Cormorant Garamond y Jost, como las dos líneas del rótulo de su
+   unidad móvil, autoalojadas en `app/fonts/` (licencia OFL) porque la CSP de
+   Elysium no deja cargar nada de fuera; curvas contenidas (`--radius` y sus
+   hermanas). El emblema en vector es `src/ui/Emblem.tsx`, sacado del trazado
+   de `public/favicon.svg`.
+4. **Emblema 3D y mascota salen de Blender**: `npm run logo3d:build` calca las
+   dos siluetas de `public/images/logo-full.jpg` y `npm run mascot:build` genera
+   la mascota: un Maine Coon gris atigrado (el gato del panel rojo del logo) que
+   vive sobre el botón de atención directa y le da la vuelta como a un planeta
+   (`src/ui/mascotEngine.js`; la rutina, en `src/core/mascot.js`). Sus gestos son
+   de gato: asearse, perseguirse la cola, acechar y saltar, estirarse; nada de
+   necesidades. Una prueba cruza lo que pide la rutina con las animaciones que
+   graba el script. En el móvil el botón es un círculo y el gato se queda encima.
+   Los `.py` están en el `.gitignore` de Elysium: se añaden con `git add -f`.
+5. **El cursor es de la casa** (`src/core/magicMouse.ts`, decisiones puras en
+   `cursor.mjs`): punto y aro en fusión «diferencia», que sobre lo que tenga
+   `data-cursor="Ver"` se vuelve un disco rojo con la acción. Viene encendido y
+   se apaga en Ajustes; no sale en pantallas táctiles ni con movimiento reducido.
+6. **El service worker solo se registra en producción** y sirve las páginas
+   desde la red (la caché, solo sin conexión). Antes servía primero lo cacheado:
+   tras el rediseño, las páginas viejas pedían componentes que ya no existen. Si
+   se vuelve a cambiar la estructura, sube `CACHE` en `public/sw.js`.
+7. **Compilación estática para Elysium:**
    `NEXT_PUBLIC_STATIC_SITE=1 NEXT_PUBLIC_BASE_PATH=/Vet-Villalobos npm run build`.
    Igual que en Valladares, portal, CRM y citas abren en modo demostración y los
    formularios dejan el mensaje listo en WhatsApp. Todavía no hay script de
    publicación ni carpeta `/Vet-Villalobos/` en la raíz del sitio.
-5. **En local**, el servidor de desarrollo va en el puerto 5174
+8. **En local**, el servidor de desarrollo va en el puerto 5174
    (`.claude/launch.json`), para no chocar con el de Valladares en el 5173.
 
 ---

@@ -1,10 +1,11 @@
 /**
- * Motor 3D de la mascota de la dock.
+ * Motor 3D de la mascota: el Maine Coon gris que vive sobre el botón de
+ * atención directa.
  *
  * Este módulo es el único que importa three.js, y se pide con `import()` fuera
- * del arranque (ver `DockMascot.jsx`): el paquete de entrada no lo lleva.
+ * del arranque (ver `Mascot.tsx`): el paquete de entrada no lo lleva.
  *
- * La dock es el planeta del perrito. Puede caminar por todo el contorno de la
+ * El botón es el planeta del gato. Puede caminar por todo el contorno de la
  * pastilla (el tramo de arriba, las dos curvas y el tramo de abajo, boca
  * abajo) con la gravedad siempre hacia ella: su «arriba» es la normal del
  * contorno en el punto donde pisa. El recorrido se mide en píxeles de
@@ -14,20 +15,19 @@
  *
  * Qué más hace:
  * - Carga el GLB que genera `scripts/mascot/build_mascot.py` (modelo, esqueleto,
- *   18 animaciones y utilería) y lo pinta con sombreado de caricatura.
- * - Dibuja el trazo negro del logo como casco invertido en el sombreador,
- *   reutilizando la geometría: por eso el GLB no lo trae.
+ *   16 animaciones y los dos platos) y lo pinta con sombreado de caricatura.
+ * - Dibuja el trazo negro como casco invertido en el sombreador, reutilizando
+ *   la geometría: por eso el GLB no lo trae.
  * - Ejecuta los pasos que decide el director de `core/mascot.js`.
- * - Mantiene sobre el perro un botón invisible que recibe el toque y el teclado,
+ * - Mantiene sobre el gato un botón invisible que recibe el toque y el teclado,
  *   porque el lienzo deja pasar los clics para no tapar la página.
- * - Solo anima mientras la dock está a la vista y la pestaña activa.
+ * - Solo anima mientras el botón está a la vista y la pestaña activa.
  *
- * Con `ground: 'line'` el planeta se aplana: el suelo es una línea recta (la
- * del pie de la barra lateral de los paneles, o el borde de la barra inferior
- * en el móvil). Es la misma pastilla con radio cero, así que todo lo demás
- * funciona igual; lo único que cambia es que el director no pide vueltas
- * (`flattenLaps`) y que el tamaño del perro lo fija `dogPx`, porque una línea
- * no tiene alto del que sacarlo.
+ * Con `ground: 'line'` el planeta se aplana: el suelo es una línea recta. Es la
+ * misma pastilla con radio cero, así que todo lo demás funciona igual; lo único
+ * que cambia es que el director no pide vueltas (`flattenLaps`). En el móvil el
+ * botón es un círculo demasiado pequeño para darle la vuelta: ahí sigue siendo
+ * pastilla, para que pise su borde, pero sin vueltas (`laps: false`).
  */
 
 import {
@@ -51,13 +51,12 @@ import {
   Shape,
   ShapeGeometry,
   SkinnedMesh,
-  SphereGeometry,
   Vector3,
   WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { url } from '../core/config';
-const modelUrl = url('/mascot/villalobos-collie.glb');
+const modelUrl = url('/mascot/villalobos-coon.glb');
 import {
   TRAVEL_CLIPS,
   createDirector,
@@ -70,15 +69,15 @@ import {
   wrap,
 } from '../core/mascot.js';
 
-/** Altura del perro hasta la punta de la oreja, en unidades del modelo. */
-export const DOG_HEIGHT = 1.02;
+/** Altura del gato hasta el mechón de la oreja, en unidades del modelo. */
+export const MASCOT_HEIGHT = 1.02;
 /**
- * Alto del perro frente al alto de la dock: unas siete décimas. Acompaña a la
+ * Alto del gato frente al alto del botón: unas siete décimas. Acompaña a la
  * pastilla sin competir con ella ni tapar lo que hay detrás.
  */
-const DOG_TO_DOCK = 0.69;
+const MASCOT_TO_DOCK = 0.69;
 /**
- * Rumbo del perro sobre el suelo, en radianes: 0 es de perfil avanzando en el
+ * Rumbo del gato sobre el suelo, en radianes: 0 es de perfil avanzando en el
  * sentido del reloj, π/2 es de frente a quien mira y π de perfil al revés.
  * Al caminar se gira un poco hacia la pantalla para que se le vea la cara.
  */
@@ -98,13 +97,11 @@ const OUTLINE_PX = 1;
 /** Cuánto se hunden las patas en el canto de la pastilla, para que pise y no flote. */
 const SINK_PX = 3;
 
-const LIMP_TAIL = new Set(['pee', 'poop', 'scratch', 'play_dead', 'sleep']);
 /**
- * Trucos que ponen la cabeza boca abajo o contra el suelo. La copa del sombrero
- * de bruja es alta y va rígida en la cabeza: ahí se clavaría en la dock, así que
- * se lo quita al empezar y se lo vuelve a poner al acabar.
+ * Gestos que colocan la cola ellos mismos (sentado la enrosca al costado,
+ * dormido lo rodea): ahí el vaivén de `wag` baja a un susurro.
  */
-const HATLESS = new Set(['roll', 'backflip', 'play_dead']);
+const LIMP_TAIL = new Set(['sit', 'wave', 'beg', 'eat', 'drink', 'groom', 'sleep']);
 const TRAVEL = new Set(TRAVEL_CLIPS);
 const LOOKING = new Set(['idle', 'sit', 'wave', 'beg']);
 const Z = new Vector3(0, 0, 1);
@@ -138,11 +135,7 @@ export function outlineMaterial(width) {
   return material;
 }
 
-/**
- * Viste el GLB con el sombreado de caricatura y le cuelga el trazo del logo a
- * cada malla. Lo comparten la dock y el perro gigante de los diez toques
- * (`rampage.js`), que carga su propia copia del modelo.
- */
+/** Viste el GLB con el sombreado de caricatura y le cuelga el trazo a cada malla. */
 export function dressModel(root, { toon, flat, outline, disposables }) {
   // Primero se recogen las mallas y luego se tocan: el trazo se cuelga como
   // hijo de cada una, y dentro del mismo `traverse` se visitaría a sí mismo.
@@ -150,7 +143,7 @@ export function dressModel(root, { toon, flat, outline, disposables }) {
   root.traverse((node) => { if (node.isMesh) meshes.push(node); });
   meshes.forEach((node) => {
     node.geometry.computeVertexNormals();
-    const isDetail = node.material.name === 'PVP_Detail';
+    const isDetail = node.material.name === 'Mascot_Detail';
     node.material.dispose();
     node.material = isDetail ? flat : toon;
     node.frustumCulled = false;
@@ -193,17 +186,16 @@ function sparkleGeometry() {
 }
 
 /**
- * Crea la mascota dentro de `container`, que rodea la dock con el mismo margen
+ * Crea la mascota dentro de `container`, que rodea el botón con el mismo margen
  * por los cuatro lados. `dock` es la pastilla y `button` el botón invisible
- * que recibe los toques. `calm` la deja quieta (movimiento reducido),
- * `festive` le pone el chonete del Mes Patrio y `halloween`, el traje de
- * calabaza y el sombrero de bruja de octubre.
+ * que recibe los toques. `calm` la deja quieta (movimiento reducido) y
+ * `laps: false` le quita las vueltas al botón (el círculo del móvil).
  *
  * Devuelve el control al momento; el modelo llega después (`ready`). Si el
  * navegador no tiene WebGL, lanza, y quien llama se queda sin mascota.
  */
 export function createMascot({
-  container, dock, button, onReady, calm = false, festive = false, halloween = false, ground = 'pill', dogPx = null,
+  container, dock, button, onReady, calm = false, ground = 'pill', laps = ground !== 'line', mascotPx = null,
 }) {
   const onLine = ground === 'line';
   const renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
@@ -225,19 +217,19 @@ export function createMascot({
   const outline = outlineMaterial(outlineWidth);
   const disposables = [renderer, gradientMap, toon, flat, outline];
 
-  const dog = new Group();
-  dog.visible = false;
-  scene.add(dog);
+  const cat = new Group();
+  cat.visible = false;
+  scene.add(cat);
 
   // ── Estado ──────────────────────────────────────────────────────────────
-  const director = createDirector({ calm, laps: !onLine });
+  const director = createDirector({ calm, laps });
   const tmp = new Vector3();
   const basis = new Matrix4();
   const axisX = new Vector3();
   const forward = new Vector3();
   const here = { point: new Vector3(), normal: new Vector3(), tangent: new Vector3() };
   const there = { point: new Vector3(), normal: new Vector3(), tangent: new Vector3() };
-  let unitsPerPx = DOG_HEIGHT / 42;
+  let unitsPerPx = MASCOT_HEIGHT / 42;
   let pill = pillShape(233, 62);
   let size = { w: 0, h: 0 };
   let lastTime = 0;
@@ -256,15 +248,6 @@ export function createMascot({
   const props = {};
   let kibble = null;
   let water = null;
-  let puddleMaterial = null;
-  let hat = null;
-  let wearingHat = false;
-  let costume = null;
-  let witchHat = null;
-  let wearingCostume = false;
-  let hatless = false;
-  let puff = 1;
-  const PUFF = {};
 
   let queue = [];
   let step = null;
@@ -279,9 +262,6 @@ export function createMascot({
   const look = { yaw: 0, pitch: 0 };
   let pointer = null;
   let lastGreetCheck = 0;
-  let puddleTimer = -1;
-  let dripTimer = 0;
-  let dustTimer = 0;
   let zeeTimer = 0;
   const tweens = [];
   const particles = [];
@@ -331,19 +311,19 @@ export function createMascot({
 
     const dockW = dock.offsetWidth || w / 2;
     const dockH = dock.offsetHeight || 60;
-    unitsPerPx = DOG_HEIGHT / (dogPx || MathUtils.clamp(dockH * DOG_TO_DOCK, 34, 46));
+    unitsPerPx = MASCOT_HEIGHT / (mascotPx || MathUtils.clamp(dockH * MASCOT_TO_DOCK, 34, 46));
     // En pantallas de densidad 1 un trazo de 1 px se deshace con el suavizado y
     // queda a trozos: ahí se engorda hasta 1,5 px.
     outlineWidth.value = Math.max(OUTLINE_PX, 1.5 / renderer.getPixelRatio()) * unitsPerPx;
 
     // La pastilla: dos tramos rectos de 2a y dos semicírculos de radio r. Si
-    // cambia de tamaño, el perro conserva la fracción de vuelta en la que iba.
+    // cambia de tamaño, el gato conserva la fracción de vuelta en la que iba.
     const fraction = s / pill.length;
     pill = pillShape(dockW, onLine ? 0 : dockH);
     s = fraction * pill.length;
 
-    // Cámara de frente, sin inclinación: el suelo del perrito es el contorno de
-    // la pastilla, que está en el plano de la pantalla.
+    // Cámara de frente, sin inclinación: el suelo del gato es el contorno de la
+    // pastilla, que está en el plano de la pantalla.
     camera.aspect = w / h;
     camera.position.set(0, 0, (h * unitsPerPx) / (2 * Math.tan(MathUtils.degToRad(FOV / 2))));
     camera.lookAt(0, 0, 0);
@@ -360,21 +340,12 @@ export function createMascot({
     const root = gltf.scene;
     dressModel(root, { toon, flat, outline, disposables });
 
-    const rig = root.getObjectByName('PVP_Rig');
-    dog.add(rig);
+    const rig = root.getObjectByName('Mascot_Rig');
+    cat.add(rig);
     ['root', 'head', 'hips', 'tail_3', 'ear_L', 'ear_R', 'paw_FL', 'paw_FR', 'paw_HL', 'paw_HR'].forEach((name) => {
       bones[name] = rig.getObjectByName(name);
     });
     headRest = bones.head.quaternion.clone();
-    // El chonete viene colgado del hueso de la cabeza: la sigue solo.
-    hat = rig.getObjectByName('acc_chonete');
-    if (hat) hat.visible = false;
-    // El traje de calabaza lleva los huesos del cuerpo: se dobla con él solo.
-    costume = rig.getObjectByName('acc_halloween');
-    if (costume) costume.visible = false;
-    // El sombrero de bruja va con el traje y, como el chonete, en la cabeza.
-    witchHat = rig.getObjectByName('acc_witch_hat');
-    if (witchHat) witchHat.visible = false;
 
     const group = (names) => {
       const holder = new Group();
@@ -385,14 +356,8 @@ export function createMascot({
     };
     props.food = group(['prop_food_bowl', 'prop_kibble']);
     props.water = group(['prop_water_bowl', 'prop_water']);
-    props.puddle = group(['prop_puddle']);
-    props.poop = group(['prop_poop']);
     kibble = props.food.getObjectByName('prop_kibble');
     water = props.water.getObjectByName('prop_water');
-    puddleMaterial = flat.clone();
-    puddleMaterial.transparent = true;
-    props.puddle.getObjectByName('prop_puddle').material = puddleMaterial;
-    disposables.push(puddleMaterial);
 
     mixer = new AnimationMixer(rig);
     gltf.animations.forEach((clip) => { actions[clip.name] = mixer.clipAction(clip); });
@@ -402,10 +367,8 @@ export function createMascot({
     actions.wag?.play();
 
     loaded = true;
-    setFestive(festive);
-    setHalloween(halloween);
-    dog.visible = true;
-    dog.scale.setScalar(0.001);
+    cat.visible = true;
+    cat.scale.setScalar(0.001);
     queue = director.greet(0);
     layout();
     onReady?.();
@@ -434,13 +397,13 @@ export function createMascot({
   }
 
   /**
-   * Coloca utilería en el suelo, a una distancia del perro dada en sus propios
+   * Coloca utilería en el suelo, a una distancia del gato dada en sus propios
    * ejes: `side` hacia su izquierda y `ahead` hacia delante. Sobre el suelo
    * local, sus ejes son la tangente del contorno y la profundidad (Z); al
    * convertir, lo que va por la tangente se vuelve a proyectar sobre el
    * contorno, para que en las curvas el plato también quede apoyado.
    *
-   * `ang` es el rumbo con el que el perro va a hacer el paso, no el que tiene
+   * `ang` es el rumbo con el que el gato va a hacer el paso, no el que tiene
    * ahora: al empezar a beber puede venir aún de frente (tras un truco o un
    * saludo) y terminar de girarse ya con el plato puesto. Con el rumbo de ese
    * instante, el plato quedaba detrás de la cola y bebía del aire.
@@ -451,61 +414,6 @@ export function createMascot({
     surface(s + along / unitsPerPx, there);
     holder.position.copy(there.point).addScaledVector(Z, depth);
     orient(holder, there, FACE);
-  }
-
-  /** Pone o quita un sombrero, con un saltito para que se note el cambio. */
-  function popHat(object, value) {
-    if (value) {
-      object.visible = true;
-      object.scale.setScalar(0.001);
-      tween(object, 0.45, (u) => object.scale.setScalar(Math.max(0.001, backOut(u))));
-    } else {
-      tween(object, 0.25, (u) => object.scale.setScalar(Math.max(0.001, 1 - ease(u))), () => { object.visible = false; });
-    }
-  }
-
-  function setFestive(value) {
-    festive = value;
-    if (!hat || value === wearingHat) return;
-    wearingHat = value;
-    popHat(hat, value);
-  }
-
-  /** El sombrero de bruja se ve si va disfrazado y no está en un truco boca abajo. */
-  function dressWitchHat() {
-    if (!witchHat) return;
-    witchHat.visible = wearingCostume && !hatless;
-    witchHat.scale.setScalar(1);
-  }
-
-  /**
-   * Pone o quita el disfraz de Halloween: traje de calabaza y sombrero de
-   * bruja. El traje no crece como el chonete: es una malla con esqueleto y su
-   * escala no cuenta, la coloca el esqueleto. El cambio va dentro de un soplo
-   * de destellos, con un respingo de todo el perro.
-   */
-  function setHalloween(value) {
-    halloween = value;
-    if ((!costume && !witchHat) || value === wearingCostume) return;
-    wearingCostume = value;
-    if (!running || entrance < 1) {
-      if (costume) costume.visible = value;
-      dressWitchHat();
-      return;
-    }
-    poof();
-    tween(PUFF, 0.4, (u) => {
-      puff = 1 + 0.14 * Math.sin(Math.PI * u);
-      if (u >= 0.5 && costume) costume.visible = wearingCostume;
-      if (u >= 0.5 && witchHat?.visible !== (wearingCostume && !hatless)) dressWitchHat();
-    }, () => { puff = 1; });
-  }
-
-  /** Se quita el sombrero de bruja para los trucos boca abajo (`HATLESS`). */
-  function tipWitchHat(off) {
-    if (off === hatless) return;
-    hatless = off;
-    if (witchHat && wearingCostume) popHat(witchHat, !off);
   }
 
   function showProp(holder) {
@@ -523,14 +431,12 @@ export function createMascot({
   // Cada una cae hacia el planeta desde donde nació: la gravedad es la normal
   // del contorno en ese punto, no el «abajo» de la pantalla.
   const particleGeometries = {
-    drop: new SphereGeometry(0.016, 6, 4),
-    dust: new SphereGeometry(0.035, 7, 5),
     heart: heartGeometry().scale(1.6, 1.6, 1),
     sparkle: sparkleGeometry().scale(1.4, 1.4, 1),
     zee: zeeGeometry().scale(2, 2, 1),
   };
-  const particleColors = { drop: 0xf2d23c, dust: 0xe9d7ba, heart: 0xe75582, sparkle: 0xffc83d, zee: 0x5a92cd };
-  const FLOATING = new Set(['heart', 'sparkle', 'zee']);
+  // El rojo del panel del gato, champán y plata: los colores de la casa.
+  const particleColors = { heart: 0xd81e24, sparkle: 0xe6c48a, zee: 0xa9aeb7 };
   Object.values(particleGeometries).forEach((g) => disposables.push(g));
 
   function emit(kind, position, velocity, life, where) {
@@ -561,22 +467,12 @@ export function createMascot({
       p.age += dt;
       const u = p.age / p.life;
       if (u >= 1) { p.alive = false; p.mesh.visible = false; return; }
-      if (p.kind === 'drop') p.velocity.addScaledVector(p.up, -4 * dt);
-      if (p.kind === 'dust') p.velocity.multiplyScalar(1 - 2.5 * dt);
       p.mesh.position.addScaledVector(p.velocity, dt);
-      if (p.kind === 'drop' && tmp.copy(p.mesh.position).sub(p.ground).dot(p.up) < 0.006) {
-        p.alive = false;
-        p.mesh.visible = false;
-        return;
-      }
-      if (FLOATING.has(p.kind)) {
-        const wobble = { sparkle: p.spin * p.age, heart: Math.sin(p.age * 6) * 0.25, zee: Math.sin(p.age * 3) * 0.3 }[p.kind];
-        p.mesh.quaternion.copy(camera.quaternion);
-        p.mesh.rotateZ(p.roll + wobble);
-      }
-      const grow = p.kind === 'dust' ? 0.6 + u * 1.4 : p.kind === 'drop' ? 1 : backOut(Math.min(1, u * 4));
-      p.mesh.scale.setScalar(grow);
-      p.mesh.material.opacity = p.kind === 'drop' ? 1 : 1 - ease((u - 0.55) / 0.45);
+      const wobble = { sparkle: p.spin * p.age, heart: Math.sin(p.age * 6) * 0.25, zee: Math.sin(p.age * 3) * 0.3 }[p.kind];
+      p.mesh.quaternion.copy(camera.quaternion);
+      p.mesh.rotateZ(p.roll + wobble);
+      p.mesh.scale.setScalar(backOut(Math.min(1, u * 4)));
+      p.mesh.material.opacity = 1 - ease((u - 0.55) / 0.45);
     });
   }
 
@@ -589,17 +485,6 @@ export function createMascot({
     }
   }
 
-  /** Destellos alrededor del cuerpo, como el truco de un mago. */
-  function poof() {
-    bones.hips.getWorldPosition(tmp);
-    for (let i = 0; i < 9; i += 1) {
-      const a = (Math.PI * 2 * i) / 9;
-      const origin = tmp.clone().addScaledVector(here.tangent, Math.cos(a) * 0.3).addScaledVector(here.normal, 0.2 + Math.sin(a) * 0.25);
-      const velocity = here.tangent.clone().multiplyScalar(Math.cos(a) * 0.5).addScaledVector(here.normal, 0.25 + Math.sin(a) * 0.35);
-      emit('sparkle', origin, velocity, 0.7, here);
-    }
-  }
-
   /** Las «Z» salen de la cabeza y suben hacia fuera del planeta, meciéndose. */
   function snore() {
     const lean = Math.cos(heading) >= 0 ? 1 : -1;
@@ -609,102 +494,30 @@ export function createMascot({
     emit('zee', origin, velocity, 2.2, here);
   }
 
-  function sparkles(holder) {
-    surface(holder.userData.s ?? s, there);
-    for (let i = 0; i < 7; i += 1) {
-      const a = (Math.PI * 2 * i) / 7;
-      const origin = holder.position.clone().addScaledVector(there.normal, 0.06);
-      const velocity = there.tangent.clone().multiplyScalar(Math.cos(a) * 0.45).addScaledVector(there.normal, 0.3 + Math.sin(a) * 0.22);
-      emit('sparkle', origin, velocity, 0.7, there);
-    }
-  }
-
   /** Lo que hace la utilería mientras dura el paso. */
-  function propFrame(dt, progress) {
-    switch (step.prop) {
-      case 'food':
-        kibble.scale.setScalar(Math.max(0.05, 1 - 0.85 * ease(progress)));
-        break;
-      case 'water':
-        water.position.y = 0.04 - 0.014 * ease(progress);
-        break;
-      case 'puddle': {
-        const grow = ease((progress - 0.12) / 0.6);
-        props.puddle.scale.set(Math.max(0.001, grow), 1, Math.max(0.001, grow));
-        dripTimer -= dt;
-        if (progress > 0.08 && progress < 0.82 && dripTimer <= 0) {
-          dripTimer = 0.045;
-          const origin = dog.localToWorld(new Vector3(0.07, 0.19, -0.2));
-          const velocity = new Vector3(0.55, 0.3, -0.04).applyQuaternion(dog.quaternion);
-          emit('drop', origin, velocity, 0.6, here);
-        }
-        break;
-      }
-      case 'poop':
-        if (step.clip === 'poop') {
-          const grow = ease((progress - 0.35) / 0.5);
-          props.poop.scale.set(Math.max(0.001, grow), Math.max(0.001, grow * (1 + 0.15 * Math.sin(progress * 30))), Math.max(0.001, grow));
-        } else {
-          dustTimer -= dt;
-          if (dustTimer <= 0 && progress < 0.8) {
-            dustTimer = 0.1;
-            const origin = dog.localToWorld(new Vector3((Math.random() - 0.5) * 0.2, 0.03, -0.32));
-            const velocity = new Vector3((Math.random() - 0.5) * 0.4, 0.25, -0.5).applyQuaternion(dog.quaternion);
-            emit('dust', origin, velocity, 0.7, here);
-          }
-          if (step.vanish && progress >= 0.8 && props.poop.visible && !step.vanished) {
-            step.vanished = true;
-            sparkles(props.poop);
-            hideProp(props.poop);
-          }
-        }
-        break;
-      default:
-    }
+  function propFrame(progress) {
+    if (step.prop === 'food') kibble.scale.setScalar(Math.max(0.05, 1 - 0.85 * ease(progress)));
+    if (step.prop === 'water') water.position.y = 0.04 - 0.014 * ease(progress);
   }
 
   function beginProp() {
     const ang = step.face ? FACE : sideHeading;
-    switch (step.prop) {
-      case 'food':
-        kibble.scale.setScalar(1);
-        placeNear(props.food, 0, 0.66, ang);
-        showProp(props.food);
-        break;
-      case 'water':
-        water.position.y = 0.04;
-        placeNear(props.water, 0, 0.7, ang);
-        showProp(props.water);
-        break;
-      case 'puddle':
-        puddleTimer = -1;
-        puddleMaterial.opacity = 0.85;
-        placeNear(props.puddle, 0.17, -0.22, ang);
-        props.puddle.visible = true;
-        props.puddle.scale.set(0.001, 1, 0.001);
-        break;
-      case 'poop':
-        if (!props.poop.visible) {
-          placeNear(props.poop, 0, -0.52, ang);
-          props.poop.userData.s = s - (0.52 * Math.cos(ang)) / unitsPerPx;
-          props.poop.visible = true;
-          props.poop.scale.setScalar(0.001);
-        }
-        break;
-      default:
+    if (step.prop === 'food') {
+      kibble.scale.setScalar(1);
+      placeNear(props.food, 0, 0.58, ang);
+      showProp(props.food);
+    }
+    if (step.prop === 'water') {
+      water.position.y = 0.04;
+      placeNear(props.water, 0, 0.6, ang);
+      showProp(props.water);
     }
   }
 
-  /** Al terminar o interrumpirse un paso, la utilería no puede quedarse colgada. */
-  function endProp(interrupted) {
-    if (!step?.prop) return;
-    if (step.prop === 'food') hideProp(props.food);
-    if (step.prop === 'water') hideProp(props.water);
-    if (step.prop === 'puddle') puddleTimer = 3.5;
-    if (step.prop === 'poop' && (interrupted || step.vanish) && props.poop.visible) {
-      if (!step.vanished) sparkles(props.poop);
-      hideProp(props.poop);
-    }
+  /** Al terminar o interrumpirse un paso, el plato no puede quedarse colgado. */
+  function endProp() {
+    if (step?.prop === 'food') hideProp(props.food);
+    if (step?.prop === 'water') hideProp(props.water);
   }
 
   // ── Pasos ───────────────────────────────────────────────────────────────
@@ -720,7 +533,6 @@ export function createMascot({
     step = { ...next };
     stepTime = 0;
     stepDone = false;
-    tipWitchHat(HATLESS.has(step.clip));
     if (TRAVEL.has(step.clip)) {
       step.remaining = travelDistance(s, step, pill, EDGE_PX);
       if (Math.abs(step.remaining) < 1) { stepDone = true; return; }
@@ -732,10 +544,10 @@ export function createMascot({
     beginProp();
   }
 
-  function endStep(interrupted = false) {
+  function endStep() {
     if (!step) return;
-    endProp(interrupted);
-    if (step.trick && !interrupted) {
+    endProp();
+    if (step.trick && stepDone) {
       hearts();
       mood = 1;
     }
@@ -779,7 +591,7 @@ export function createMascot({
         zeeTimer -= dt;
         if (zeeTimer <= 0 && stepTime > 1) { zeeTimer = 1.1; snore(); }
       }
-      if (step.prop) propFrame(dt, stepTime / step.seconds);
+      if (step.prop) propFrame(stepTime / step.seconds);
       if (stepTime >= step.seconds) stepDone = true;
     } else if (step.once) {
       const clip = actions[step.clip]?.getClip();
@@ -789,41 +601,12 @@ export function createMascot({
     if (stepDone) endStep();
   }
 
-  /**
-   * Un toque de racha de los diez (ver `createTapStreak`): se planta donde
-   * esté, de frente y pidiendo otro, con un respingo en cada toque.
-   */
-  function cheer() {
-    if (!loaded) return;
-    mood = 1;
-    endStep(true);
-    pendingTrick = null;
-    queue = director.cheer();
-    tween(PUFF, 0.24, (u) => { puff = 1 + 0.12 * Math.sin(Math.PI * u); }, () => { puff = 1; });
-  }
-
-  /**
-   * Dónde está el perro en la ventana: el punto entre sus patas, en píxeles
-   * de la pantalla, y su alto. El perro gigante nace ahí mismo.
-   */
-  function pose() {
-    if (!loaded) return null;
-    const rect = container.getBoundingClientRect();
-    tmp.copy(dog.position).project(camera);
-    return {
-      x: rect.left + ((tmp.x + 1) / 2) * size.w,
-      y: rect.top + ((1 - tmp.y) / 2) * size.h,
-      px: (DOG_HEIGHT / unitsPerPx) * dog.scale.x,
-      upright: here.normal.y > 0.5,
-    };
-  }
-
   function tap() {
     if (!loaded) return;
     const answer = director.tap(step, Boolean(pendingTrick), elapsed);
     mood = 1;
     if (answer.mode === 'interrupt') {
-      endStep(true);
+      endStep();
       pendingTrick = null;
       queue = answer.steps;
     } else if (answer.mode === 'queue') {
@@ -842,7 +625,7 @@ export function createMascot({
     if (!near) return;
     const greeting = director.maybeGreet(elapsed, step);
     if (greeting) {
-      endStep(true);
+      endStep();
       queue = greeting;
     }
   }
@@ -860,7 +643,7 @@ export function createMascot({
       bones.head.getWorldPosition(tmp);
       const dx = px - tmp.x;
       const dy = py - tmp.y;
-      axisX.setFromMatrixColumn(dog.matrixWorld, 0).normalize();
+      axisX.setFromMatrixColumn(cat.matrixWorld, 0).normalize();
       const reach = 240 * unitsPerPx;
       wantYaw = MathUtils.clamp((dx * axisX.x + dy * axisX.y) / reach, -1, 1) * 0.6;
       wantPitch = -MathUtils.clamp((dx * here.normal.x + dy * here.normal.y) / reach, -1, 1) * 0.35;
@@ -870,7 +653,7 @@ export function createMascot({
     look.pitch += (wantPitch - look.pitch) * k;
   }
 
-  // ── Botón sobre el perro ────────────────────────────────────────────────
+  // ── Botón sobre el gato ────────────────────────────────────────────────
   const hitPoints = ['head', 'ear_L', 'ear_R', 'paw_FL', 'paw_FR', 'paw_HL', 'paw_HR', 'tail_3', 'hips'];
   let hitRect = '';
   function updateHitArea() {
@@ -923,21 +706,16 @@ export function createMascot({
     }
 
     surface(s, here);
-    dog.position.copy(here.point).addScaledVector(here.normal, -SINK_PX * unitsPerPx);
-    orient(dog, here, heading);
+    cat.position.copy(here.point).addScaledVector(here.normal, -SINK_PX * unitsPerPx);
+    orient(cat, here, heading);
     entrance = Math.min(1, entrance + dt / 0.45);
-    dog.scale.setScalar(Math.max(0.001, backOut(entrance) * puff));
+    cat.scale.setScalar(Math.max(0.001, backOut(entrance)));
 
     for (let i = tweens.length - 1; i >= 0; i -= 1) {
       const tw = tweens[i];
       tw.t += dt;
       tw.fn(Math.min(1, tw.t / tw.duration));
       if (tw.t >= tw.duration) { tweens.splice(i, 1); tw.done?.(); }
-    }
-    if (puddleTimer >= 0) {
-      puddleTimer -= dt;
-      if (puddleTimer < 1.5) puddleMaterial.opacity = 0.85 * Math.max(0, puddleTimer / 1.5);
-      if (puddleTimer <= 0) { props.puddle.visible = false; puddleTimer = -1; }
     }
     updateParticles(dt);
 
@@ -968,10 +746,6 @@ export function createMascot({
   const api = {
     ready,
     trick: tap,
-    cheer,
-    pose,
-    setFestive,
-    setHalloween,
     setActive(value) {
       active = value;
       if (active) start();
@@ -991,24 +765,23 @@ export function createMascot({
   };
 
   // Solo en desarrollo: forzar una rutina desde la consola para revisarla,
-  // p. ej. `__pvpMascot.run('poop')`, o llevar al perro a un punto de la vuelta
-  // con `__pvpMascot.goTo(0.5)` (0 es el centro de arriba; 0,5, abajo).
+  // p. ej. `__villalobosMascot.run('groom')`, o llevar al gato a un punto de la
+  // vuelta con `__villalobosMascot.goTo(0.5)` (0 es el centro de arriba; 0,5, abajo).
   if (import.meta.env?.DEV) {
-    window.__pvpMascot = {
+    window.__villalobosMascot = {
       ...api,
       run(clip) {
         const steps = {
           eat: [{ clip: 'eat', seconds: 4, prop: 'food' }],
           drink: [{ clip: 'drink', seconds: 3, prop: 'water' }],
-          pee: [{ clip: 'pee', seconds: 2.6, prop: 'puddle' }],
-          poop: [{ clip: 'poop', seconds: 2.8, prop: 'poop' }, { clip: 'scratch', seconds: 1.6, prop: 'poop', vanish: true }],
+          groom: [{ clip: 'groom', seconds: 4 }],
           wave: [{ clip: 'wave', seconds: 2.4, face: true }],
           sit: [{ clip: 'sit', seconds: 4 }],
           sleep: [{ clip: 'sleep', seconds: 10 }],
           wander: [{ clip: 'walk', laps: 1 }],
           zoomies: [{ clip: 'run', laps: 1, trick: true }],
         }[clip] || [{ clip, once: !['beg', 'idle'].includes(clip), seconds: ['beg', 'idle'].includes(clip) ? 3 : undefined, face: true, trick: true }];
-        endStep(true);
+        endStep();
         queue = [...(onLine ? flattenLaps(steps) : steps), { clip: 'idle', seconds: 30 }];
       },
       goTo(fraction) { s = fraction * pill.length; },

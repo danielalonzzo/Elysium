@@ -19,7 +19,7 @@ export default function SedesIndex({en = false}: {en?: boolean}) {
           <p><Clock3 size={15}/>{hours || t('Horario: consúltelo directamente con la sede.', 'Opening hours: please check with the clinic.')}</p>
         </div>
         <div className="sede-links">
-          <a className="sede-phone" href={tel(s.phone)} aria-label={t('Llamar a ', 'Call ') + s.name + ', ' + s.phone}>{s.phone}</a>
+          <a className="sede-phone" href={tel(s.phone)} data-cursor={t('Llamar', 'Call')} aria-label={t('Llamar a ', 'Call ') + s.name + ', ' + s.phone}>{s.phone}</a>
           <a className="text-link" href={s.map} target="_blank" rel="noopener noreferrer">{address ? t('Cómo llegar', 'Directions') : t('Buscar en Maps', 'Find on Maps')}<ArrowUpRight/></a>
         </div>
       </article>;

@@ -1,32 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
   MASCOT_NEEDS,
   MASCOT_TRICKS,
-  RAMPAGE_TAPS,
-  STREAK_GAP,
-  STREAK_HINT_FROM,
   TOP_REACH,
   TRAVEL_CLIPS,
   createDirector,
-  createTapStreak,
   flattenLaps,
   homeStep,
   isOnTop,
-  mascotHiddenInPortal,
-  mascotHiddenOnPath,
   needsHome,
   nextTrick,
   pickNeed,
   pillShape,
   travelDistance,
   trickSteps,
-  wearsChonete,
-  wearsHalloweenCostume,
   wrap,
 } from './mascot.js';
-import { DEFAULT_SEASONAL_CONFIG, SEASONAL_THEMES } from './seasonalEffects.js';
 
 /** Aleatorio reproducible (LCG) para recorrer muchas rutinas sin depender de la suerte. */
 function seeded(seed = 7) {
@@ -45,6 +37,30 @@ function run(director, seconds = 3000, every = 4) {
   }
   return steps;
 }
+
+// Las animaciones que graba el script de Blender, leídas de su lista `ACTIONS`.
+const BAKED = new Set([...readFileSync(new URL('../../scripts/mascot/build_mascot.py', import.meta.url), 'utf8')
+  .matchAll(/^\s+\('(\w+)', \d+, act_\w+,/gm)].map((match) => match[1]));
+
+test('todo lo que el director puede pedir existe en el modelo', () => {
+  const asked = new Set([...TRAVEL_CLIPS, ...MASCOT_NEEDS, 'idle', 'sit', 'wave', 'sleep', 'wag']);
+  MASCOT_TRICKS.forEach((trick) => trickSteps(trick, seeded(1)).forEach((step) => asked.add(step.clip)));
+  const director = createDirector({ random: seeded(6) });
+  run(director, 6000).forEach((step) => asked.add(step.clip));
+  for (let now = 0; now < 200; now += 2) director.tap({ clip: 'idle' }, false, now).steps.forEach((step) => asked.add(step.clip));
+  asked.forEach((clip) => assert.ok(BAKED.has(clip), `el modelo no trae la animación «${clip}»`));
+});
+
+test('es un gato: ningún gesto del perro de antes', () => {
+  const steps = run(createDirector({ random: seeded(13) }), 8000);
+  const clips = new Set(steps.map((step) => step.clip));
+  ['pee', 'poop', 'scratch', 'backflip', 'play_dead'].forEach((clip) => {
+    assert.ok(!clips.has(clip), `pide «${clip}»`);
+    assert.ok(!BAKED.has(clip), `el modelo aún trae «${clip}»`);
+  });
+  assert.ok(steps.some((step) => step.prop === 'food') && steps.some((step) => step.prop === 'water'));
+  assert.ok(steps.every((step) => !step.prop || ['food', 'water'].includes(step.prop)), 'solo usa los dos platos');
+});
 
 test('nextTrick nunca repite el truco anterior y los recorre todos', () => {
   const random = seeded(3);
@@ -74,24 +90,36 @@ test('pickNeed nunca encadena dos veces la misma necesidad', () => {
   assert.equal(seen.size, MASCOT_NEEDS.length);
 });
 
-test('el director reparte necesidades con enfriamiento y sin repetir', () => {
-  const steps = run(createDirector({ random: seeded(5) }), 2000);
-  const needs = steps.filter((step) => MASCOT_NEEDS.includes(step.clip));
-  assert.ok(needs.length > 10);
-  for (let i = 1; i < needs.length; i += 1) {
-    assert.notEqual(needs[i].clip, needs[i - 1].clip);
-    assert.ok(needs[i].now - needs[i - 1].now >= 22, `necesidad a los ${needs[i].now - needs[i - 1].now} s de la anterior`);
+test('el director reparte necesidades con enfriamiento', () => {
+  const director = createDirector({ random: seeded(5) });
+  const starts = [];
+  for (let now = 0; now < 2000; now += 4) {
+    const steps = director.nextBeat(now);
+    if (MASCOT_NEEDS.includes(steps[0].clip)) starts.push({ clip: steps[0].clip, now });
+  }
+  assert.ok(starts.length > 10);
+  for (let i = 1; i < starts.length; i += 1) {
+    assert.notEqual(starts[i].clip, starts[i - 1].clip);
+    assert.ok(starts[i].now - starts[i - 1].now >= 22, `necesidad a los ${starts[i].now - starts[i - 1].now} s de la anterior`);
   }
 });
 
-// La dock de escritorio: 233 × 62 px.
-const pill = pillShape(233, 62);
+test('después de comer, a veces se lava la cara y a veces se duerme', () => {
+  const steps = run(createDirector({ random: seeded(12) }), 6000);
+  const meals = steps.map((step, i) => (step.clip === 'eat' ? steps.slice(i + 1, i + 4).map((s) => s.clip) : null)).filter(Boolean);
+  assert.ok(meals.some((after) => after.includes('groom')), 'algún aseo después de comer');
+  assert.ok(meals.some((after) => after.includes('sleep')), 'alguna siesta con la panza llena');
+  assert.ok(steps.filter((step) => step.clip === 'sleep').length > 5);
+});
+
+// El botón de atención directa en escritorio: unos 214 × 52 px.
+const pill = pillShape(214, 52);
 
 test('la pastilla: dos tramos rectos y dos semicírculos', () => {
-  assert.equal(pill.r, 31);
-  assert.equal(pill.a, 85.5);
-  assert.ok(Math.abs(pill.length - (4 * 85.5 + 2 * Math.PI * 31)) < 1e-9);
-  assert.equal(pillShape(40, 60).a, 0, 'una pastilla más alta que ancha es un círculo');
+  assert.equal(pill.r, 26);
+  assert.equal(pill.a, 81);
+  assert.ok(Math.abs(pill.length - (4 * 81 + 2 * Math.PI * 26)) < 1e-9);
+  assert.equal(pillShape(52, 52).a, 0, 'el botón del móvil es un círculo');
 });
 
 test('isOnTop distingue el tramo de arriba del resto del contorno', () => {
@@ -137,12 +165,12 @@ test('los paseos cotidianos se quedan en el tramo de arriba', () => {
   assert.ok(walks.some(({ to }) => to > 0) && walks.some(({ to }) => to < 0));
 });
 
-test('dormir, comer y las necesidades piden estar arriba; viajar y los trucos no', () => {
-  for (const clip of ['sleep', 'eat', 'drink', 'pee', 'poop', 'scratch', 'sit', 'idle', 'wave']) {
+test('dormir, comer y asearse piden estar arriba; viajar y los trucos no', () => {
+  for (const clip of ['sleep', 'eat', 'drink', 'groom', 'sit', 'idle', 'wave']) {
     assert.ok(needsHome({ clip }), clip);
   }
   TRAVEL_CLIPS.forEach((clip) => assert.ok(!needsHome({ clip, laps: 1 }), clip));
-  assert.ok(!needsHome({ clip: 'roll', trick: true }));
+  assert.ok(!needsHome({ clip: 'pounce', trick: true }));
 });
 
 test('la carrera loca es uno de los trucos: una vuelta corriendo', () => {
@@ -166,31 +194,9 @@ test('después de un toque, le entra la energía y sale corriendo', () => {
   assert.ok(calmBaseline < 40, `${calmBaseline} de 200 corren sin motivo`);
 });
 
-test('duerme la siesta de vez en cuando, y a veces después de comer', () => {
-  const steps = run(createDirector({ random: seeded(12) }), 4000);
-  const naps = steps.filter((step) => step.clip === 'sleep');
-  assert.ok(naps.length > 5);
-  const afterMeal = steps.some((step, i) => step.clip === 'sleep' && steps[i - 2]?.clip === 'eat');
-  assert.ok(afterMeal, 'alguna siesta llega con la panza llena');
-});
-
-test('hacer caca termina rascando y haciendo desaparecer la caca', () => {
-  const director = createDirector({ random: seeded(1) });
-  let steps = [];
-  for (let now = 6; now < 5000 && !steps.some((step) => step.clip === 'poop'); now += 40) {
-    steps = director.nextBeat(now);
-  }
-  const poop = steps.findIndex((step) => step.clip === 'poop');
-  assert.ok(poop >= 0, 'la rutina de caca aparece');
-  assert.deepEqual(
-    { clip: steps[poop + 1].clip, vanish: steps[poop + 1].vanish, prop: steps[poop + 1].prop },
-    { clip: 'scratch', vanish: true, prop: 'poop' },
-  );
-});
-
 test('un toque interrumpe cualquier rutina, incluida una necesidad', () => {
   const director = createDirector({ random: seeded(9) });
-  for (const clip of ['walk', 'idle', 'sit', 'eat', 'pee', 'poop', 'scratch']) {
+  for (const clip of ['walk', 'idle', 'sit', 'eat', 'drink', 'groom']) {
     const answer = director.tap({ clip });
     assert.equal(answer.mode, 'interrupt', clip);
     assert.ok(answer.steps[0].trick);
@@ -217,7 +223,7 @@ test('los saludos espontáneos respetan su enfriamiento y no cortan una necesida
   assert.ok(director.maybeGreet(40, { clip: 'walk' }));
 });
 
-test('con movimiento reducido el perrito sigue ahí, pero quieto y sin necesidades', () => {
+test('con movimiento reducido el gato sigue ahí, pero quieto y sin necesidades', () => {
   const director = createDirector({ random: seeded(4), calm: true });
   const steps = [...director.greet(0), ...run(director)];
   assert.ok(steps.length > 100);
@@ -233,37 +239,7 @@ test('con movimiento reducido, tocarlo responde con un saludo y nunca con un tru
   assert.equal(director.tap(answer.steps[0]).mode, 'ignore');
 });
 
-const septiembre = new Date('2026-09-18T18:00:00Z');
-const octubre = new Date('2026-10-02T18:00:00Z');
-
-test('en el Mes Patrio lleva chonete, y fuera de septiembre no', () => {
-  assert.equal(wearsChonete(DEFAULT_SEASONAL_CONFIG, septiembre), true);
-  assert.equal(wearsChonete(DEFAULT_SEASONAL_CONFIG, octubre), false);
-  assert.equal(wearsChonete(DEFAULT_SEASONAL_CONFIG, new Date('2026-08-31T18:00:00Z')), false);
-});
-
-test('el chonete sigue al interruptor del logo y a la temporada del CRM', () => {
-  const sinChonete = { ...DEFAULT_SEASONAL_CONFIG, features: { ...DEFAULT_SEASONAL_CONFIG.features, logoChonete: false } };
-  assert.equal(wearsChonete(sinChonete, septiembre), false);
-  assert.equal(wearsChonete({ ...DEFAULT_SEASONAL_CONFIG, enabled: false }, septiembre), false);
-  assert.equal(wearsChonete({ ...DEFAULT_SEASONAL_CONFIG, activeTheme: SEASONAL_THEMES.NAVIDAD }, septiembre), false);
-  assert.equal(wearsChonete({ ...DEFAULT_SEASONAL_CONFIG, forceAlwaysActive: true }, octubre), true);
-  assert.equal(wearsChonete(null, septiembre), false);
-});
-
-test('el traje de calabaza se viste solo con Halloween activo', () => {
-  const halloween = {
-    ...DEFAULT_SEASONAL_CONFIG,
-    activeTheme: SEASONAL_THEMES.HALLOWEEN,
-    dateRange: { startMonth: 10, startDay: 1, endMonth: 10, endDay: 31 },
-  };
-  assert.equal(wearsHalloweenCostume(halloween, octubre), true);
-  assert.equal(wearsHalloweenCostume(halloween, septiembre), false);
-  assert.equal(wearsHalloweenCostume({ ...halloween, features: { ...halloween.features, logoChonete: false } }, octubre), true);
-  assert.equal(wearsHalloweenCostume({ ...halloween, enabled: false }, octubre), false);
-});
-
-// ── Suelo recto: la línea de la barra lateral y la barra inferior ─────────
+// ── Suelo recto: el círculo del móvil ─────────────────────────────────────
 
 test('en suelo recto cada vuelta es ir a una punta y volver, con el mismo paso', () => {
   assert.deepEqual(flattenLaps([{ clip: 'run', laps: 1, trick: true }, { clip: 'idle', seconds: 1 }]), [
@@ -276,7 +252,7 @@ test('en suelo recto cada vuelta es ir a una punta y volver, con el mismo paso',
   assert.deepEqual(back.map((step) => step.to), [-TOP_REACH, TOP_REACH, -TOP_REACH, TOP_REACH]);
 });
 
-test('sobre una línea el perrito nunca da la vuelta por debajo, ni al tocarlo', () => {
+test('sobre una línea el gato nunca da la vuelta por debajo, ni al tocarlo', () => {
   const random = seeded(11);
   const director = createDirector({ random, laps: false });
   const steps = run(director);
@@ -290,76 +266,7 @@ test('sobre una línea el perrito nunca da la vuelta por debajo, ni al tocarlo',
   });
 });
 
-test('la pastilla de la dock conserva sus vueltas', () => {
+test('la pastilla del escritorio conserva sus vueltas', () => {
   const steps = run(createDirector({ random: seeded(11) }));
-  assert.ok(steps.some((step) => step.laps), 'en la dock sigue dando la vuelta');
-});
-
-test('el perrito no sale en la mensajería ni en los paseos en vivo, y sí en el resto de los paneles', () => {
-  ['/crm/mensajes', '/walker/mensajes', '/crm/paseos-en-vivo', '/walker/paseo', '/en/crm/mensajes'].forEach((path) => {
-    assert.equal(mascotHiddenOnPath(path), true, `${path} lo oculta`);
-  });
-  ['/crm', '/crm/agenda', '/crm/clientes', '/crm/respuestas', '/walker', '/walker/agenda', '/walker/historial', '/crm/mensajes-viejos']
-    .forEach((path) => {
-      assert.equal(mascotHiddenOnPath(path), false, `${path} lo deja`);
-    });
-});
-
-test('en el portal lo ocultan los mensajes y el seguimiento de un paseo en curso', () => {
-  assert.equal(mascotHiddenInPortal('mensajes', false), true);
-  assert.equal(mascotHiddenInPortal('mis_citas', true), true);
-  // «Mis citas» sin paseo en vivo es una lista como cualquier otra.
-  assert.equal(mascotHiddenInPortal('mis_citas', false), false);
-  assert.equal(mascotHiddenInPortal('mi_plan', true), false);
-  assert.equal(mascotHiddenInPortal('agendar', false), false);
-});
-
-test('diez toques seguidos sueltan al perro gigante, con la cuenta a la vista desde el primero', () => {
-  assert.equal(STREAK_HINT_FROM, 1);
-  const streak = createTapStreak();
-  const answers = Array.from({ length: RAMPAGE_TAPS }, (_, i) => streak.tap(i * 0.5));
-  assert.deepEqual(
-    answers.slice(0, -1).map((answer) => answer.remaining),
-    [9, 8, 7, 6, 5, 4, 3, 2, 1],
-    'cuenta atrás de lo que falta',
-  );
-  assert.ok(answers.slice(0, -1).every((answer) => answer.hint && !answer.done));
-  const last = answers[answers.length - 1];
-  assert.equal(last.done, true);
-  assert.equal(last.hint, false, 'al llegar, la cuenta desaparece');
-  // Y vuelve a empezar de cero: el undécimo toque es un toque normal.
-  assert.equal(streak.tap(RAMPAGE_TAPS * 0.5).count, 1);
-});
-
-test('si se deja de tocar, la cuenta vuelve a cero', () => {
-  const streak = createTapStreak();
-  for (let i = 0; i < 6; i += 1) streak.tap(i * 0.4);
-  const late = streak.tap(5 * 0.4 + STREAK_GAP + 0.01);
-  assert.equal(late.count, 1);
-  assert.equal(late.remaining, RAMPAGE_TAPS - 1, 'la cuenta empieza otra vez desde arriba');
-  // Justo en el límite todavía cuenta.
-  const edge = createTapStreak();
-  edge.tap(0);
-  assert.equal(edge.tap(STREAK_GAP).count, 2);
-});
-
-test('en la racha el perro se planta de frente pidiendo otro, sin salir corriendo', () => {
-  const steps = createDirector({ random: seeded(5) }).cheer();
-  assert.equal(steps[0].clip, 'beg');
-  assert.equal(steps[0].face, true);
-  assert.equal(steps[0].trick, true, 'pide donde está, sin volver antes a casa');
-  assert.ok(steps[0].seconds > STREAK_GAP, 'no se cansa de pedir antes de que se acabe el plazo del siguiente toque');
-  assert.ok(steps.every((step) => !TRAVEL_CLIPS.includes(step.clip)));
-});
-
-test('la racha le quita la energía del primer toque: al acabar no sale corriendo', () => {
-  // Con el mismo azar, el que solo recibió el toque sale a la carrera loca y el
-  // que además recibió la racha se queda paseando.
-  const excited = createDirector({ random: () => 0.1 });
-  const calmed = createDirector({ random: () => 0.1 });
-  excited.tap(null, false, 0);
-  calmed.tap(null, false, 0);
-  calmed.cheer();
-  assert.equal(excited.nextBeat(1)[0].clip, 'run');
-  assert.equal(calmed.nextBeat(1)[0].clip, 'walk');
+  assert.ok(steps.some((step) => step.laps), 'en el botón sigue dando la vuelta');
 });

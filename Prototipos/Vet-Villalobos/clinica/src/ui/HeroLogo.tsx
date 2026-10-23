@@ -47,7 +47,7 @@ export default function HeroLogo({en=false}:{en?:boolean}){
  useEffect(()=>{onPick.current=wake});
  const hovered=ANIMALS.find(a=>a.id===hover);
  const kicker=hovered?`${en?hovered.en:hovered.es} · ${en?hovered.enTitle:hovered.esTitle}`:woken.length===ANIMALS.length?(en?'Tap either animal again':'Vuelva a tocar cualquiera de los dos'):(en?'Touch the cat and the dog':'Toque al gato y al perro');
- return <div className={'hero-logo-scene emblem-vitrine'+(ready?' is-ready':'')}>
+ return <div className={'hero-logo-scene emblem-vitrine'+(ready?' is-ready':'')} data-cursor={hovered?(en?'Touch':'Tocar'):undefined}>
   <canvas ref={canvas} className="emblem-canvas" aria-hidden="true"/>
   {!ready&&!failed&&<div className="emblem-loading" aria-hidden="true"><i/></div>}
   {/* eslint-disable-next-line @next/next/no-img-element -- respaldo sin WebGL: el logotipo plano tal cual */}

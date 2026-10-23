@@ -1,16 +1,17 @@
 /**
- * La mascota de la dock: qué hace en cada momento y por dónde anda.
+ * La mascota del botón de atención directa: qué hace en cada momento y por
+ * dónde anda.
  *
- * El perrito es parte de la dock: está siempre que ella está, también en
- * festividades. Aquí no hay nada de three.js ni del DOM, a propósito. El motor
- * 3D (`components/Mascot/mascotEngine.js`) solo sabe reproducir pasos; lo que
- * decide la rutina vive en este módulo para poder probarlo con `node --test`.
+ * Es el gato del panel rojo del logo, hecho Maine Coon gris (lo modela
+ * `scripts/mascot/build_mascot.py`). Aquí no hay nada de three.js ni del DOM, a
+ * propósito: el motor 3D (`ui/mascotEngine.js`) solo sabe reproducir pasos; lo
+ * que decide la rutina vive en este módulo para poder probarlo con `node --test`.
  *
- * La dock es su planeta: puede caminar por todo el contorno de la pastilla con
+ * El botón es su planeta: puede caminar por todo el contorno de la pastilla con
  * la gravedad hacia ella, pero su casa es el tramo de arriba. Ahí duerme, come,
- * bebe, hace sus necesidades y se sienta. Solo da la vuelta por debajo en tres
- * casos: cuando le entra la energía y sale corriendo (sobre todo después de que
- * lo toquen), cuando se aburre y pasea alrededor, o en un truco.
+ * bebe, se asea y se sienta. Solo da la vuelta por debajo en tres casos: cuando
+ * le entra la energía y sale corriendo (sobre todo después de que lo toquen),
+ * cuando se aburre y pasea alrededor, o en un truco.
  *
  * Un paso es un objeto plano:
  *
@@ -18,7 +19,7 @@
  *   { clip: 'walk', laps: -1 }                una vuelta entera paseando, al revés
  *   { clip: 'run', laps: 2 }                  dos vueltas corriendo
  *   { clip: 'sit', seconds: 5 }               pose en bucle durante un tiempo
- *   { clip: 'eat', seconds: 4, prop: 'food' } necesidad, con su utilería
+ *   { clip: 'eat', seconds: 4, prop: 'food' } necesidad, con su plato
  *   { clip: 'roll', once: true, face: true }  truco: una pasada, de frente
  *
  * Las vueltas son siempre enteras, así que todo viaje termina arriba. Y si algo
@@ -26,10 +27,10 @@
  * de cualquier paso que no sea un viaje o un truco (`needsHome`).
  */
 
-import { SEASONAL_THEMES, isSeasonActive } from './seasonalEffects.js';
-
-export const MASCOT_TRICKS = Object.freeze(['roll', 'backflip', 'spin', 'play_dead', 'beg', 'jump', 'zoomies']);
-export const MASCOT_NEEDS = Object.freeze(['eat', 'drink', 'pee', 'poop']);
+/** Gestos de gato: rodar, acechar y saltar, perseguirse la cola, estirarse, erguirse, brincar y la carrera loca. */
+export const MASCOT_TRICKS = Object.freeze(['roll', 'pounce', 'spin', 'stretch', 'beg', 'jump', 'zoomies']);
+/** Lo que hace por su cuenta en casa. Asearse ocupa el sitio de las necesidades del perro de antes. */
+export const MASCOT_NEEDS = Object.freeze(['eat', 'drink', 'groom']);
 export const TRAVEL_CLIPS = Object.freeze(['walk', 'run']);
 
 /** Cuánto duran los trucos que se repiten en bucle; los demás duran su clip. */
@@ -82,10 +83,8 @@ export function travelDistance(s, step, pill, margin = 0) {
 export const needsHome = (step) => !step.trick && !TRAVEL_CLIPS.includes(step.clip);
 
 // ── Suelo recto ────────────────────────────────────────────────────────────
-// En los paneles (CRM, paseador y portal) el perrito no vive en una pastilla
-// sino sobre una línea: la que separa la navegación del pie de la barra
-// lateral, o el borde de arriba de la barra inferior en el móvil. Ahí no hay
-// contorno al que dar la vuelta, y por debajo de la línea hay botones.
+// En el móvil el botón es un círculo pequeño: el gato vive sobre una línea, la
+// de arriba del círculo, y no le da la vuelta.
 
 /**
  * Cambia cada vuelta por ir hasta una punta y volver, con el mismo paso y el
@@ -110,93 +109,7 @@ export function homeStep(s, pill) {
   return { clip: 'walk', to: wrap(s, pill.length) < pill.length / 2 ? 0.7 : -0.7 };
 }
 
-// ── Vestuario ──────────────────────────────────────────────────────────────
-
-/**
- * En el Mes Patrio el perrito lleva chonete, igual que el logo. Lo gobierna el
- * mismo interruptor del CRM (`logoChonete`): el perrito es el logo con patas, y
- * dos sombreros con interruptores distintos acabarían descuadrados.
- */
-export function wearsChonete(config, now = new Date()) {
-  return Boolean(
-    config
-    && isSeasonActive(config, now)
-    && config.activeTheme === SEASONAL_THEMES.MES_PATRIO
-    && config.features?.logoChonete,
-  );
-}
-
-/**
- * En Halloween el perrito va disfrazado de calabaza: un traje con gajos, tallo
- * y cuello de hojas, cosido al cuerpo en el modelo, y el sombrero de bruja del
- * logo de octubre. Lo decide solo el tema de temporada del CRM; no tiene
- * interruptor propio, igual que el logotipo de octubre (`seasonalLogo`).
- */
-export function wearsHalloweenCostume(config, now = new Date()) {
-  return Boolean(
-    config
-    && isSeasonActive(config, now)
-    && config.activeTheme === SEASONAL_THEMES.HALLOWEEN,
-  );
-}
-
-// ── Dónde no sale ──────────────────────────────────────────────────────────
-
-/**
- * Pantallas de los paneles donde el perrito no aparece: la mensajería y los
- * paseos en vivo. Ahí lo que importa es la caja de escribir o el botón de
- * cerrar el paseo, y el perro (y el hueco que abre sobre la barra inferior)
- * solo estorba.
- */
-export function mascotHiddenOnPath(pathname) {
-  const path = String(pathname || '').replace(/^\/en(?=\/|$)/, '');
-  return /^\/(crm|walker)\/(mensajes|paseos-en-vivo|paseo)(\/|$)/.test(path);
-}
-
-/** Lo mismo para el portal del cliente, donde las pantallas son pestañas y no rutas. */
-export function mascotHiddenInPortal(activeTab, hasLiveWalk = false) {
-  return activeTab === 'mensajes' || (activeTab === 'mis_citas' && Boolean(hasLiveWalk));
-}
-
 // ── Trucos ─────────────────────────────────────────────────────────────────
-
-// ── Los diez toques ────────────────────────────────────────────────────────
-// El secreto del perrito: quien lo toca diez veces seguidas lo despierta en
-// grande (`components/Mascot/rampage.js`). Desde el primer toque aparece sobre
-// su cabeza la cuenta de lo que falta. El primero le saca un truco, como
-// siempre; desde el segundo se queda quieto, de frente, pidiendo el siguiente:
-// corriendo no habría quien le atinara diez veces.
-
-/** Toques seguidos que despiertan al perro gigante. */
-export const RAMPAGE_TAPS = 10;
-/** Desde qué toque se ve la cuenta: desde el primero, lo pidió el negocio (12/10/2026). */
-export const STREAK_HINT_FROM = 1;
-/** Segundos que pueden pasar entre dos toques sin que la cuenta vuelva a cero. */
-export const STREAK_GAP = 1.6;
-
-/**
- * Cuenta los toques seguidos. `tap(now)` (en segundos) dice cuántos lleva,
- * cuántos faltan, si toca enseñar la cuenta y si ya llegó a la meta; al
- * llegar, la cuenta vuelve a cero sola.
- */
-export function createTapStreak({ goal = RAMPAGE_TAPS, gap = STREAK_GAP, hintFrom = STREAK_HINT_FROM } = {}) {
-  let count = 0;
-  let last = -Infinity;
-  return {
-    tap(now) {
-      count = now - last <= gap ? count + 1 : 1;
-      last = now;
-      const done = count >= goal;
-      const answer = { count, remaining: Math.max(0, goal - count), hint: !done && count >= hintFrom, done };
-      if (done) this.reset();
-      return answer;
-    },
-    reset() {
-      count = 0;
-      last = -Infinity;
-    },
-  };
-}
 
 /** Un truco distinto del anterior, para que tocar dos veces siempre sorprenda. */
 export function nextTrick(last = null, random = Math.random) {
@@ -220,20 +133,15 @@ function needSteps(need, random) {
   switch (need) {
     case 'eat': {
       const steps = [{ clip: 'eat', seconds: between(random, 3.4, 4.6), prop: 'food' }, { clip: 'idle', seconds: 1.2 }];
-      // Con la panza llena, a veces cae una siesta.
+      // Después de comer, un gato se lava la cara; y a veces cae una siesta.
+      if (random() < 0.45) steps.push({ clip: 'groom', seconds: between(random, 3, 4) });
       if (random() < 0.35) steps.push({ clip: 'sleep', seconds: between(random, 7, 11) });
       return steps;
     }
     case 'drink':
       return [{ clip: 'drink', seconds: between(random, 2.6, 3.4), prop: 'water' }, { clip: 'idle', seconds: 1.2 }];
-    case 'pee':
-      return [{ clip: 'pee', seconds: 2.6, prop: 'puddle' }, { clip: 'idle', seconds: 0.8 }];
-    case 'poop':
-      return [
-        { clip: 'poop', seconds: 2.8, prop: 'poop' },
-        { clip: 'scratch', seconds: 1.6, prop: 'poop', vanish: true },
-        { clip: 'idle', seconds: 1 },
-      ];
+    case 'groom':
+      return [{ clip: 'groom', seconds: between(random, 3.2, 4.4) }, { clip: 'idle', seconds: 1 }];
     default:
       return [];
   }
@@ -241,13 +149,13 @@ function needSteps(need, random) {
 
 /**
  * Elige la siguiente necesidad sin repetir la última. Después de comer lo
- * natural es beber, y después de beber, el pipí: esos encadenamientos pesan
+ * natural es beber, y después de beber, asearse: esos encadenamientos pesan
  * más, pero nunca son obligatorios.
  */
 export function pickNeed(last = null, random = Math.random) {
-  const weights = { eat: 3, drink: 3, pee: 2, poop: 1.5 };
+  const weights = { eat: 3, drink: 3, groom: 2.5 };
   if (last === 'eat') weights.drink += 4;
-  if (last === 'drink') weights.pee += 3;
+  if (last === 'drink') weights.groom += 2;
   const pool = MASCOT_NEEDS.filter((need) => need !== last);
   const total = pool.reduce((sum, need) => sum + weights[need], 0);
   let roll = random() * total;
@@ -274,12 +182,12 @@ const zoomies = (random) => [
  * El director: decide la rutina cuando la cola se vacía, responde al toque
  * y concede o niega los saludos espontáneos. `now` va en segundos.
  *
- * `calm` es para quien pidió reducir el movimiento: el perrito sigue en la
- * dock, pero no pasea ni hace sus necesidades; se sienta o duerme, y al
- * tocarlo responde con un saludo corto en vez de una voltereta.
+ * `calm` es para quien pidió reducir el movimiento: el gato sigue en el botón,
+ * pero no pasea ni come; se sienta o duerme, y al tocarlo responde con un
+ * saludo corto en vez de un truco.
  *
- * `laps: false` es el suelo recto de los paneles: la rutina es la misma, pero
- * cada vuelta sale ya convertida en idas y venidas (`flattenLaps`).
+ * `laps: false` es el suelo recto del móvil: la rutina es la misma, pero cada
+ * vuelta sale ya convertida en idas y venidas (`flattenLaps`).
  */
 export function createDirector({ random = Math.random, calm = false, laps = true } = {}) {
   const ground = laps ? (steps) => steps : flattenLaps;
@@ -329,7 +237,7 @@ export function createDirector({ random = Math.random, calm = false, laps = true
         return needSteps(need, random);
       }
       const roll = random();
-      if (roll < 0.45) return [stroll(random, x), { clip: 'idle', seconds: between(random, 1.6, 3.4) }];
+      if (roll < 0.42) return [stroll(random, x), { clip: 'idle', seconds: between(random, 1.6, 3.4) }];
       if (roll < 0.6) return [{ clip: 'sit', seconds: between(random, 3.5, 6.5) }];
       if (roll < 0.72 && now >= napReadyAt) {
         napReadyAt = now + NAP_COOLDOWN;
@@ -362,16 +270,6 @@ export function createDirector({ random = Math.random, calm = false, laps = true
       }
       lastTrick = nextTrick(lastTrick, random);
       return { mode: 'interrupt', steps: ground(trickSteps(lastTrick, random)) };
-    },
-
-    /**
-     * Un toque de racha (ver `createTapStreak`): en vez de otro truco, se queda
-     * donde está, de frente y pidiendo el siguiente. Se le quita la energía del
-     * primer toque para que no salga corriendo en mitad de la cuenta.
-     */
-    cheer() {
-      excitedUntil = -Infinity;
-      return [{ clip: 'beg', seconds: STREAK_GAP + 0.8, face: true, trick: true }, { clip: 'idle', seconds: 1.2, face: true }];
     },
   };
 }

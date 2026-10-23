@@ -322,7 +322,7 @@ input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--acce
 .diagnostic-copy li b{display:inline;width:auto;height:auto;border-radius:0;background:none;font:italic 400 18px/1.2 var(--display);letter-spacing:0;color:var(--rouge-light)}
 
 /* Pie: la llamada, las sedes, el índice y el rótulo a todo lo ancho */
-.colophon{position:relative;overflow:hidden;padding:0 var(--gutter) 28px;background:var(--noir);color:var(--on-noir)}
+.colophon{position:relative;overflow:hidden;padding:0 var(--gutter) 140px;background:var(--noir);color:var(--on-noir)}
 .colophon-call{display:grid;grid-template-columns:1fr auto;align-items:end;gap:30px 60px;padding:clamp(80px,9vw,130px) 0 clamp(50px,6vw,80px);border-bottom:1px solid var(--noir-line)}
 .colophon-call .eyebrow{grid-column:1/-1}
 .colophon-call>div{display:flex;flex-wrap:wrap;gap:14px}
@@ -351,12 +351,12 @@ input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--acce
 .colophon-base .version{position:static;display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid rgba(244,240,234,.18);border-radius:var(--radius);background:none;color:inherit;font-size:10px}
 
 /* Atención directa: un botón discreto en lugar de la dock */
-.concierge{position:fixed;right:clamp(14px,2vw,28px);bottom:clamp(14px,2vw,28px);z-index:1500}
+.concierge{position:fixed;right:44px;bottom:44px;z-index:1500}
 .concierge-toggle{position:relative;z-index:2;display:inline-flex;align-items:center;gap:12px;height:52px;padding:0 22px 0 16px;border:1px solid rgba(244,240,234,.16);border-radius:999px;background:rgba(14,13,13,.92);color:var(--on-noir);font:500 10.5px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;cursor:pointer;box-shadow:0 18px 50px rgba(0,0,0,.3);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:transform .4s var(--ease)}
 .concierge-toggle:hover{transform:translateY(-2px)}
 .concierge-toggle .emblem{width:20px;height:22px}
 .concierge-outside{position:fixed;inset:0;z-index:1;border:0;background:rgba(10,9,9,.32);cursor:default}
-.concierge-panel{position:absolute;right:0;bottom:66px;z-index:2;display:grid;width:min(370px,calc(100vw - 28px));padding:26px;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.28);animation:conciergeIn .45s var(--ease-out)}
+.concierge-panel{position:absolute;right:0;bottom:104px;z-index:2;display:grid;width:min(370px,calc(100vw - 28px));padding:26px;background:var(--paper);color:var(--ink);border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.28);animation:conciergeIn .45s var(--ease-out)}
 .concierge-panel header{display:grid;gap:10px;margin-bottom:14px}
 .concierge-panel header strong{font:400 31px/1.05 var(--display)}
 .concierge-main{display:grid;grid-template-columns:22px 1fr 16px;align-items:center;gap:14px;padding:15px 0;border-top:1px solid var(--line);transition:color .3s}
@@ -498,6 +498,59 @@ input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--acce
 .sede-picker button,.slot-list button{border:1px solid var(--line-strong);background:transparent;font:500 12.5px/1.2 var(--sans)}
 .sede-picker button.selected,.slot-list button.selected{background:var(--ink);border-color:var(--ink);color:var(--cream)}
 
+/* El gato del botón (ver ui/Mascot.tsx y ui/mascotEngine.js). Su lienzo rodea
+   el botón con el mismo margen por los cuatro lados y deja pasar los clics;
+   solo el botón invisible que el motor coloca sobre el gato los recibe. El
+   botón queda por encima del lienzo: así el gato «pisa» su borde. */
+.concierge-dock{position:relative}
+.concierge-toggle{z-index:2}
+.mascot-stage{position:absolute;inset:-64px;z-index:1;pointer-events:none}
+.mascot-stage canvas{display:block;width:100%;height:100%;opacity:0;transition:opacity .6s var(--ease)}
+.mascot-stage.is-ready canvas{opacity:1}
+.mascot-hit{position:absolute;left:0;top:0;width:0;height:0;padding:0;border:0;border-radius:40%;background:transparent;pointer-events:auto;cursor:pointer}
+.mascot-hit:focus-visible{outline:1px solid var(--rouge-light);outline-offset:2px}
+
+/* El cursor de la casa (ver core/magicMouse.ts). Punto y aro en blanco con
+   fusión «diferencia»: casi negros sobre la porcelana, blancos sobre el noir. */
+html.vl-cursor-on,html.vl-cursor-on *{cursor:none!important}
+html.vl-cursor-on :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=submit]),textarea,select,[contenteditable=true]){cursor:auto!important}
+.vl-cursor{position:fixed;inset:0 auto auto 0;width:0;height:0;margin:0;padding:0;border:0;background:none;overflow:visible;pointer-events:none;z-index:2147483647;opacity:0;transition:opacity .35s;will-change:transform}
+.vl-cursor:popover-open{inset:0 auto auto 0;width:0;height:0;margin:0;padding:0;border:0;background:none;overflow:visible}
+html.vl-cursor-in .vl-cursor{opacity:1}
+html[data-cursor-mode=text] .vl-cursor{opacity:0}
+.vl-cursor-ring,.vl-cursor-dot{mix-blend-mode:difference}
+.vl-cursor i{position:absolute;left:0;top:0;display:block;border-radius:50%;transform:translate(-50%,-50%) scale(var(--s,1));transition:transform .55s var(--ease-out),background-color .35s,border-color .35s}
+.vl-cursor-ring i{width:34px;height:34px;border:1px solid #fff}
+.vl-cursor-dot i{width:6px;height:6px;background:#fff;transition-duration:.25s}
+html[data-cursor-mode=link] .vl-cursor-ring i{--s:1.65;background:rgba(255,255,255,.08)}
+html[data-cursor-mode=link] .vl-cursor-dot i,html[data-cursor-mode=label] .vl-cursor-dot i,html[data-cursor-mode=label] .vl-cursor-ring i,html[data-cursor-mode=button] .vl-cursor-dot i,html[data-cursor-mode=button] .vl-cursor-ring i{--s:0}
+html.vl-cursor-down .vl-cursor-ring i{--s:.8}
+html.vl-cursor-down[data-cursor-mode=link] .vl-cursor-ring i{--s:1.35}
+.vl-cursor-tag i{display:grid;place-items:center;width:84px;height:84px;background:var(--accent);box-shadow:0 18px 44px color-mix(in srgb,var(--accent) 30%,transparent);--s:0}
+.vl-cursor-tag span{margin-right:-.22em;color:#fff;font:500 10px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+html[data-cursor-mode=label] .vl-cursor-tag i{--s:1}
+html.vl-cursor-down[data-cursor-mode=label] .vl-cursor-tag i{--s:.9}
+.button{transition:background .4s var(--ease),border-color .4s var(--ease),color .4s var(--ease),transform .5s var(--ease-out)}
+
+/* Curvas de la casa: suaves y contenidas, nunca de burbuja. Cuatro medidas:
+   10 px para lo diminuto, 14 px para botones y campos, 22 px para tarjetas e
+   imágenes y 28 px para los paneles grandes. */
+:root{--r-xs:10px;--r-sm:12px;--radius:14px;--r-md:18px;--r-lg:22px;--r-xl:28px}
+.button,.drawer-foot .button{border-radius:var(--radius)}
+.button.small,.masthead-actions .button.small{border-radius:var(--r-sm)}
+.masthead .language{border-radius:var(--r-xs)}
+.colophon-base .version{border-radius:999px}
+.atelier-grid{border:1px solid var(--line);border-radius:var(--r-xl);overflow:hidden}
+.chronicle img,.framed,.concierge-panel,.modal,.privacy-card,.overture .emblem-card,.guide-card,.age-card,.kpi-grid article,.app-panel,.pet-card,.entry-modal{border-radius:var(--r-lg)}
+.about-plate,.booking-card,.contact-form,.diag-shell,.booking-form{border-radius:var(--r-xl)}
+.framed img{border-radius:var(--r-sm)}
+.chronicle figcaption{border-top-right-radius:var(--r-lg)}
+.myth-face,.diag-reco,.age-stage,.diag-send,.diag-tips article,.guide-note{border-radius:var(--r-md)}
+.chip-row button,.answer-grid button,.diag-options button,.diag-scale button,.diag-other,.age-sizes button,.myth-buttons button,.sede-picker button,.slot-list button,.concierge-panel li a,.diag-feedback,.urgent-note,.form-status,.diag-soon,.diag-badge,.myth-verdict,.app-sidebar nav button,.app-primary,.app-feedback,.entry-fields input,.entry-fields select,.entry-fields textarea,.booking-form select,.booking-form input{border-radius:var(--r-sm)}
+.age-toggle{border-radius:var(--radius);overflow:hidden}
+.age-toggle button{border-radius:0}
+.diag-progress i,.guide-card header i,.age-track span{border-radius:2px}
+
 /* Pantallas medianas y móviles */
 @media(max-width:1500px){.network-bar>span{display:none}.network-bar ul{margin-right:auto}}
 @media(max-width:1180px){.network-bar ul{display:none}.network-bar>span{display:block}.colophon-grid{grid-template-columns:repeat(3,1fr)}}
@@ -570,10 +623,11 @@ input[type=checkbox],input[type=radio],input[type=range]{accent-color:var(--acce
  .colophon-sedes{grid-template-columns:1fr}
  .colophon-sedes li,.colophon-sedes li+li{padding:24px 0;border-left:0;border-top:1px solid var(--noir-line)}
  .colophon-sedes li:first-child{border-top:0}
- .colophon{padding-bottom:96px}
+ .colophon{padding-bottom:124px}
  .rendezvous .sede-phones{grid-template-columns:1fr 1fr}
+ .concierge{right:16px;bottom:16px}
  .concierge-toggle{width:52px;padding:0;justify-content:center}
  .concierge-toggle span{display:none}
- .privacy-card{bottom:82px}
+ .privacy-card{bottom:124px}
  .drawer-sedes{grid-template-columns:1fr}
 }
