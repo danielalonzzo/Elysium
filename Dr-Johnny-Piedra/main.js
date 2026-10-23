@@ -1,240 +1,128 @@
-// Loading Screen Logic
-window.addEventListener('load', () => {
-    const loadingScreen = document.getElementById('loading-screen');
-    // Ensure the loading screen is visible for at least 1.5 seconds as requested
-    setTimeout(() => {
-        loadingScreen.style.opacity = '0';
-        setTimeout(() => {
-            loadingScreen.style.visibility = 'hidden';
-        }, 500); // Wait for transition to finish
-    }, 1500);
-});
+/**
+ * Dr. Johnny Piedra Aguilera — comportamiento del sitio.
+ *
+ * Mejora progresiva: sin JavaScript la página se lee, se navega y permite
+ * pedir cita igual. Este módulo solo añade el menú móvil, el filete de la
+ * cabecera al desplazarse, la entrada suave de las secciones, la barra de
+ * acciones del móvil y el service worker.
+ */
 
-// Floating Action Button Logic
-const fabToggle = document.getElementById('fab-toggle');
-const fabContainer = document.querySelector('.fab-container');
+const desktopNavigation = window.matchMedia('(min-width: 75rem)');
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-fabToggle.addEventListener('click', () => {
-    fabContainer.classList.toggle('active');
-    fabToggle.classList.toggle('active');
-});
+/** Menú móvil: abre y cierra el panel, bloquea el fondo y devuelve el foco. */
+function initMenu() {
+  const header = document.querySelector('[data-header]');
+  const toggle = header?.querySelector('[data-menu-toggle]');
+  const menu = toggle && document.getElementById(toggle.getAttribute('aria-controls'));
+  if (!menu) return;
 
-// Theme Toggler
-const btnTheme = document.getElementById('btn-theme');
-const body = document.body;
+  const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
 
-btnTheme.addEventListener('click', () => {
-    body.classList.toggle('dark-theme');
-    body.classList.toggle('light-theme');
-    
-    // Update icon
-    const icon = btnTheme.querySelector('i');
-    if (body.classList.contains('dark-theme')) {
-        icon.classList.replace('ph-moon', 'ph-sun');
-    } else {
-        icon.classList.replace('ph-sun', 'ph-moon');
-    }
-});
+  const setOpen = (open) => {
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    header.toggleAttribute('data-menu-open', open);
+    document.documentElement.classList.toggle('has-menu-open', open);
+  };
 
-// Language Translation Dictionary
-const translations = {
-    es: {
-        agendar_cta: "Agendar Consulta",
-        hero_title: "Urología Avanzada,<br>Dr. Johnny Piedra",
-        hero_subtitle: "Especialista en Urología y Cirugía mini-invasiva. Università di Milano, Italia. Más de 15 años de experiencia.",
-        slogan: '"Urología de Confianza, Todo en un Solo Lugar"',
-        especialidades_title: "Especialidades Médicas",
-        esp_urologia: "Urología Avanzada",
-        esp_medicina: "Medicina General",
-        esp_pediatria: "Pediatría",
-        esp_nutricion: "Nutrición",
-        esp_urgencias: "Urgencias",
-        procedimientos_title: "Procedimientos Clave",
-        proc_prostata: "Cirugía de crecimiento de próstata (mini-invasiva)",
-        proc_vasectomia: "Vasectomía (sin bisturí)",
-        proc_vasectomia_desc: '<i class="ph ph-thumbs-up"></i> Control a los dos meses',
-        proc_laser: "Cirugías Láser/mini-invasiva y Testiculares",
-        proc_infecciones: "Infecciones Urinarias",
-        why_title: "Somos su Centro Médico de Confianza",
-        why_desc: "Ofrecemos atención integral liderada por el Dr. Piedra. Más de 15 años de experiencia garantizan procedimientos seguros y la mejor tecnología médica disponible.",
-        servicios_title: "Servicios Adicionales",
-        serv_farmacia: "Farmacia On-site",
-        serv_farmacia_desc: "Con entrega a domicilio",
-        serv_laboratorio: "Laboratorio Clínico",
-        serv_laboratorio_desc: "Servicio integrado",
-        serv_camara: "Cámara Hiperbárica",
-        serv_camara_desc: "Alianza estratégica",
-        corp_title: "Medicina de Empresa",
-        corp_desc: "Su aliado corporativo en salud. Ofrecemos pruebas pre-empleo, control de doping, campañas de salud corporativas, atención de urgencias y charlas médicas.",
-        seguros_title: "Convenios y Seguros Médicos",
-        seguros_nota: "Atendemos pacientes con o sin seguro médico.",
-        contacto_title: "Contacto",
-        form_name: "Nombre",
-        form_email: "Email",
-        form_message: "Mensaje",
-        form_submit: "Enviar",
-        footer_rights: "Todos los derechos reservados."
-    },
-    en: {
-        agendar_cta: "Book Appointment",
-        hero_title: "Advanced Urology,<br>Dr. Johnny Piedra",
-        hero_subtitle: "Specialist in Urology and Minimally Invasive Surgery. Università di Milano, Italy. Over 15 years of experience.",
-        slogan: '"Trusted Urology, Everything in One Place"',
-        especialidades_title: "Medical Specialties",
-        esp_urologia: "Advanced Urology",
-        esp_medicina: "General Medicine",
-        esp_pediatria: "Pediatrics",
-        esp_nutricion: "Nutrition",
-        esp_urgencias: "Emergencies",
-        procedimientos_title: "Key Procedures",
-        proc_prostata: "Prostate Enlargement Surgery (Minimally Invasive)",
-        proc_vasectomia: "No-Scalpel Vasectomy",
-        proc_vasectomia_desc: '<i class="ph ph-thumbs-up"></i> Follow-up at two months',
-        proc_laser: "Laser/Minimally Invasive and Testicular Surgeries",
-        proc_infecciones: "Urinary Tract Infections",
-        why_title: "Your Trusted Medical Center",
-        why_desc: "We offer comprehensive care led by Dr. Piedra. Over 15 years of experience guarantee safe procedures and the best available medical technology.",
-        servicios_title: "Additional Services",
-        serv_farmacia: "On-site Pharmacy",
-        serv_farmacia_desc: "With home delivery",
-        serv_laboratorio: "Clinical Laboratory",
-        serv_laboratorio_desc: "Integrated service",
-        serv_camara: "Hyperbaric Chamber",
-        serv_camara_desc: "Strategic alliance",
-        corp_title: "Corporate Medicine",
-        corp_desc: "Your corporate health ally. We offer pre-employment testing, doping control, corporate health campaigns, emergency care, and medical talks.",
-        seguros_title: "Agreements and Health Insurances",
-        seguros_nota: "We attend patients with or without health insurance.",
-        contacto_title: "Contact",
-        form_name: "Name",
-        form_email: "Email",
-        form_message: "Message",
-        form_submit: "Send",
-        footer_rights: "All rights reserved."
-    }
-};
+  toggle.addEventListener('click', () => setOpen(!isOpen()));
 
-let currentLang = 'es';
-const btnTranslate = document.getElementById('btn-translate');
+  menu.addEventListener('click', (event) => {
+    if (event.target.closest('a')) setOpen(false);
+  });
 
-btnTranslate.addEventListener('click', () => {
-    currentLang = currentLang === 'es' ? 'en' : 'es';
-    
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[currentLang][key]) {
-            el.innerHTML = translations[currentLang][key];
-        }
-    });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !isOpen()) return;
+    setOpen(false);
+    toggle.focus();
+  });
 
-    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-        const key = el.getAttribute('data-i18n-ph');
-        if (translations[currentLang][key]) {
-            el.setAttribute('placeholder', translations[currentLang][key]);
-        }
-    });
-});
-
-// PWA Logic
-let deferredPrompt;
-const btnPwa = document.getElementById('btn-pwa');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
-btnPwa.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            console.log('User accepted the install prompt');
-        }
-        deferredPrompt = null;
-    } else {
-        alert(currentLang === 'es' ? "La aplicación ya está instalada o no está soportada en este navegador." : "The app is already installed or not supported in this browser.");
-    }
-});
-
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').then((registration) => {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, (err) => {
-            console.log('ServiceWorker registration failed: ', err);
-        });
-    });
+  desktopNavigation.addEventListener('change', () => setOpen(false));
 }
 
-// Metallic shine effect on scroll for brand-name
-const brandName = document.querySelector('.brand-name');
-if (brandName) {
-    window.addEventListener('scroll', () => {
-        const scrollPercent = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-        // Shift background position vertically to simulate realistic horizon reflection
-        brandName.style.backgroundPosition = `center ${scrollPercent}%`;
-    });
+/** Cabecera: muestra su filete inferior en cuanto la página se desplaza. */
+function initHeaderState() {
+  const header = document.querySelector('[data-header]');
+  if (!header) return;
+
+  const update = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+  update();
+  window.addEventListener('scroll', update, { passive: true });
 }
 
-// Lightbox Modal Logic
-const lightbox = document.getElementById('lightbox-modal');
-const lightboxImg = document.getElementById('lightbox-img');
-const lightboxCaption = document.getElementById('lightbox-caption');
-const lightboxClose = document.querySelector('.lightbox-close');
+/**
+ * Revelado al desplazarse. Solo se marca lo que aún está fuera de la pantalla:
+ * así nada de lo que ya se ve desaparece y vuelve a aparecer al cargar.
+ */
+function initReveal() {
+  if (reducedMotion.matches || !('IntersectionObserver' in window)) return;
 
-// Open lightbox on card click
-document.querySelectorAll('.proc-card').forEach(card => {
-    card.addEventListener('click', () => {
-        const img = card.querySelector('img');
-        const title = card.querySelector('h3');
-        if (img) {
-            lightboxImg.src = img.src;
-            lightboxImg.alt = img.alt;
-            if (title) {
-                lightboxCaption.textContent = title.textContent;
-                lightboxCaption.style.display = 'block';
-            } else {
-                lightboxCaption.style.display = 'none';
-            }
-            
-            lightbox.style.display = 'flex';
-            // Force reflow to ensure the transition plays smoothly
-            lightbox.offsetHeight;
-            lightbox.classList.add('active');
-            document.body.classList.add('lightbox-open');
-        }
-    });
-});
+  const pending = [...document.querySelectorAll('[data-reveal]')]
+    .filter((element) => element.getBoundingClientRect().top > window.innerHeight);
 
-// Close lightbox function
-const closeLightbox = () => {
-    lightbox.classList.remove('active');
-    document.body.classList.remove('lightbox-open');
-    setTimeout(() => {
-        if (!lightbox.classList.contains('active')) {
-            lightbox.style.display = 'none';
-        }
-    }, 400); // Matches the transition duration
-};
-
-// Close events
-if (lightboxClose) {
-    lightboxClose.addEventListener('click', closeLightbox);
-}
-if (lightbox) {
-    lightbox.addEventListener('click', (e) => {
-        // Close if clicked on the background, close button, or modal overlay area
-        if (e.target === lightbox || e.target.classList.contains('lightbox-content-container')) {
-            closeLightbox();
-        }
-    });
-}
-
-// Close on Escape key press
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && lightbox && lightbox.classList.contains('active')) {
-        closeLightbox();
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.remove('is-pending');
+      observer.unobserve(entry.target);
     }
-});
+  }, { rootMargin: '0px 0px -8% 0px' });
+
+  for (const element of pending) {
+    element.classList.add('is-pending');
+    observer.observe(element);
+  }
+}
+
+/**
+ * Barra de acciones del móvil: visible solo entre la portada y el contacto,
+ * donde no hay ya un botón de cita a la vista. Oculta, queda inerte para que
+ * sus enlaces no reciban el foco.
+ */
+function initActionBar() {
+  const bar = document.querySelector('[data-action-bar]');
+  const landmarks = ['.hero', '#contacto', '.site-footer']
+    .map((selector) => document.querySelector(selector))
+    .filter(Boolean);
+  if (!bar || !('IntersectionObserver' in window)) return;
+
+  const onScreen = new Set();
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) onScreen.add(entry.target);
+      else onScreen.delete(entry.target);
+    }
+    const visible = onScreen.size === 0;
+    bar.classList.toggle('is-visible', visible);
+    bar.inert = !visible;
+  });
+
+  bar.inert = true;
+  bar.hidden = false;
+  landmarks.forEach((landmark) => observer.observe(landmark));
+}
+
+/** Año del pie: el HTML trae uno escrito para que nunca quede vacío. */
+function setCurrentYear() {
+  const year = String(new Date().getFullYear());
+  document.querySelectorAll('[data-current-year]').forEach((element) => {
+    element.textContent = year;
+  });
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((error) => {
+      console.warn('No se pudo registrar el service worker:', error);
+    });
+  });
+}
+
+initMenu();
+initHeaderState();
+initReveal();
+initActionBar();
+setCurrentYear();
+registerServiceWorker();
