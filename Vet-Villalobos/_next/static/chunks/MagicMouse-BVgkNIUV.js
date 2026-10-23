@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-D3QLCtA2.js";import{i as t}from"./framework-CsuD4dOr.js";import{t as n}from"./magicMouse-B8BzONwR.js";var r=e(t(),1);function i(){return(0,r.useEffect)(()=>{n()},[]),null}export{i as default};

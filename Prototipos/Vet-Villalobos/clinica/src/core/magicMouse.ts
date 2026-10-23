@@ -292,12 +292,14 @@ function injectStyles(): void {
   document.head.appendChild(style);
 }
 
+// En Villalobos la patita viene apagada: la interfaz se queda con el cursor del
+// sistema y quien la quiera la enciende en Ajustes.
 export function readPreference(): boolean {
-  if (typeof localStorage === 'undefined') return true;
+  if (typeof localStorage === 'undefined') return false;
   try {
-    return localStorage.getItem(PREF_KEY) !== '0';
+    return localStorage.getItem(PREF_KEY) === '1';
   } catch {
-    return true;
+    return false;
   }
 }
 

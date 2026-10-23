@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import MagicMouse from "@/src/ui/MagicMouse";
 import { ORIGIN as origin, STATIC_SITE, url } from "@/src/core/config";
 import "./globals.css";
+import "./villalobos.css";
 
 // La copia de elysiumdr.eu/Vet-Villalobos/ es un prototipo: no se indexa.
 const indexable = !STATIC_SITE;
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   icons: { icon: [{ url: url("/favicon.svg"), type: "image/svg+xml" }, { url: url("/favicon-32.png"), sizes: "32x32" }], apple: url("/apple-touch-icon.png") },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#b60000" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#0e0d0d" };
 
 export default function RootLayout({
   children,

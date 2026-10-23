@@ -428,6 +428,9 @@ export const ADMIN_COPY = {
             valladaresOverlay: 'Visit the Dr. Luis Valladares clinic',
             valladaresDesc: 'Veterinary clinic in Heredia: care check-up, symptom guide, 3D emblem, online booking, client portal and clinic CRM.',
             valladaresAlt: 'Dr. Luis Valladares Veterinary Clinic preview',
+            villalobosOverlay: 'Visit Veterinaria Villalobos',
+            villalobosDesc: 'Four veterinary clinics in Heredia: consultations, vaccinations, grooming, pet hotel, pharmacy and pet export.',
+            villalobosAlt: 'Veterinaria Villalobos preview',
             arbolOverlay: 'View Demo-arbol',
             arbolDesc: 'Content-free demo: cinematic 3D scroll, store, header and dock ready to take on a client brand.'
         },
@@ -998,6 +1001,9 @@ export const ADMIN_COPY = {
             valladaresOverlay: 'Visitar la clínica Dr. Luis Valladares',
             valladaresDesc: 'Clínica veterinaria en Heredia: diagnóstico de cuidado, orientador de síntomas, emblema en 3D, agenda en línea, área de clientes y CRM de la clínica.',
             valladaresAlt: 'Vista previa de la Clínica Veterinaria Dr. Luis Valladares',
+            villalobosOverlay: 'Visitar Veterinaria Villalobos',
+            villalobosDesc: 'Cuatro sedes veterinarias en Heredia: consulta, vacunación, grooming, hotel, farmacia y exportación de mascotas.',
+            villalobosAlt: 'Vista previa de Veterinaria Villalobos',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sin contenido: scroll cinemático en 3D, tienda, cabecera y dock listos para recibir la marca de un cliente.'
         },
@@ -1568,6 +1574,9 @@ export const ADMIN_COPY = {
             valladaresOverlay: 'Visitar a clínica Dr. Luis Valladares',
             valladaresDesc: 'Clínica veterinária em Heredia: diagnóstico de cuidados, orientador de sintomas, emblema em 3D, marcações online, área de clientes e CRM da clínica.',
             valladaresAlt: 'Pré-visualização da Clínica Veterinária Dr. Luis Valladares',
+            villalobosOverlay: 'Visitar a Veterinária Villalobos',
+            villalobosDesc: 'Quatro clínicas veterinárias em Heredia: consultas, vacinação, grooming, hotel, farmácia e exportação de animais de companhia.',
+            villalobosAlt: 'Pré-visualização da Veterinária Villalobos',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sem conteúdo: scroll cinemático em 3D, loja, cabeçalho e dock prontos para receber a marca de um cliente.'
         },

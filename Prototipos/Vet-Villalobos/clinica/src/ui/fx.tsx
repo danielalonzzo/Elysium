@@ -4,7 +4,7 @@ import {url} from '../core/config';
  * Efectos compartidos de la parte pública: el sonido del sistema y la lluvia de
  * patitas con la que se celebra terminar algo (un diagnóstico, un mensaje).
  *
- * El sonido respeta el ajuste de la dock (`ely-audio-muted`, silenciado por
+ * El sonido respeta el ajuste del sistema (`ely-audio-muted`, silenciado por
  * defecto) y su volumen. Las patitas son CSS puro y se congelan con
  * `prefers-reduced-motion`.
  */
@@ -74,20 +74,4 @@ const BURST = Array.from({length: 16}, (_, i) => ({
 export function PawBurst() {
   return <div className="paw-burst" aria-hidden="true">{BURST.map((p, i) =>
     <span key={i} style={{'--a': `${p.angle}deg`, '--d': `${p.distance}px`, '--s': `${p.size}px`, '--delay': `${p.delay}ms`, '--spin': `${p.spin}deg`} as React.CSSProperties}><PawPrint/></span>)}</div>;
-}
-
-// Patitas que flotan por detrás de una sección oscura. Recorridos en porcentaje
-// del contenedor, con duraciones que no son múltiplos entre sí: la figura tarda
-// minutos en repetirse y nunca se lee como un bucle (idea de Pura Vida Pets).
-const FLOAT = [
-  {x: 6, y: 18, size: 70, tx: 22, ty: 30, dx: 26, dy: 19, r: -22, o: .1},
-  {x: 90, y: 22, size: 56, tx: -28, ty: 40, dx: 31, dy: 23, r: 18, o: .09},
-  {x: 28, y: 82, size: 88, tx: 30, ty: -34, dx: 37, dy: 27, r: 34, o: .07},
-  {x: 70, y: 86, size: 62, tx: -24, ty: -40, dx: 29, dy: 21, r: -12, o: .1},
-  {x: 48, y: 8, size: 46, tx: 20, ty: 36, dx: 34, dy: 25, r: 6, o: .12},
-  {x: 84, y: 60, size: 78, tx: -30, ty: -24, dx: 39, dy: 29, r: -38, o: .06},
-];
-export function FloatingPaws() {
-  return <div className="floating-paws" aria-hidden="true">{FLOAT.map((p, i) =>
-    <span key={i} style={{'--x': p.x, '--y': p.y, '--size': `${p.size}px`, '--tx': p.tx, '--ty': p.ty, '--dx': `${p.dx}s`, '--dy': `${p.dy}s`, '--r': `${p.r}deg`, '--o': p.o, '--delay': `${-i * 4}s`} as React.CSSProperties}><i><PawPrint/></i></span>)}</div>;
 }

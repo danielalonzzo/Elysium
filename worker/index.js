@@ -683,7 +683,7 @@ const MCP_PROTOCOL_VERSION = '2025-06-18';
  */
 const MCP_PRIVATE = [
     /^\/admin\b/, /^\/profiles\b/, /^\/onboarding\b/, /^\/seed-licenses\b/,
-    /^\/auth-action\b/, /^\/Titulos\//, /^\/Demo-arbol\//, /^\/Vet-Dr-Valladares\b/, /^\/Gestor-Patrimonios\b/,
+    /^\/auth-action\b/, /^\/Titulos\//, /^\/Demo-arbol\//, /^\/Vet-Dr-Valladares\b/, /^\/Vet-Villalobos\b/, /^\/Gestor-Patrimonios\b/,
     /^\/library(?:\.html)?(?:\/|$)/i, /^\/api\//, /^\/\./
 ];
 
