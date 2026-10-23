@@ -1,4 +1,8 @@
 {
+  "_GLTFLoader-UiqQof5U.js": {
+    "file": "Vet-Villalobos/_next/static/chunks/GLTFLoader-UiqQof5U.js",
+    "name": "GLTFLoader"
+  },
   "_Icon-CFbjRRr0.js": {
     "file": "Vet-Villalobos/_next/static/chunks/Icon-CFbjRRr0.js",
     "name": "Icon",
@@ -91,8 +95,8 @@
       "_createLucideIcon-BMc-d-Fa.js"
     ]
   },
-  "_magicMouse-B8BzONwR.js": {
-    "file": "Vet-Villalobos/_next/static/chunks/magicMouse-B8BzONwR.js",
+  "_magicMouse-Bq8-Bwb0.js": {
+    "file": "Vet-Villalobos/_next/static/chunks/magicMouse-Bq8-Bwb0.js",
     "name": "magicMouse"
   },
   "_mail-Dv8xMKXQ.js": {
@@ -185,7 +189,7 @@
     ]
   },
   "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js": {
-    "file": "Vet-Villalobos/_next/static/chunks/app-route-prefetch-policy-BGf8rzuC.js",
+    "file": "Vet-Villalobos/_next/static/chunks/app-route-prefetch-policy-B1IMH_8u.js",
     "name": "app-route-prefetch-policy",
     "src": "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
     "isDynamicEntry": true,
@@ -194,7 +198,7 @@
     ]
   },
   "node_modules/vinext/dist/shims/layout-segment-context.js": {
-    "file": "Vet-Villalobos/_next/static/chunks/layout-segment-context-CrhAYWmI.js",
+    "file": "Vet-Villalobos/_next/static/chunks/layout-segment-context-CKpxM1mI.js",
     "name": "layout-segment-context",
     "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
     "isDynamicEntry": true,
@@ -232,7 +236,7 @@
     ]
   },
   "src/features/crm/ClinicApp.tsx": {
-    "file": "Vet-Villalobos/_next/static/chunks/ClinicApp-fCXLvBvv.js",
+    "file": "Vet-Villalobos/_next/static/chunks/ClinicApp-Bfs_vX0S.js",
     "name": "ClinicApp",
     "src": "src/features/crm/ClinicApp.tsx",
     "isDynamicEntry": true,
@@ -299,7 +303,7 @@
     ]
   },
   "src/ui/HeroLogo.tsx": {
-    "file": "Vet-Villalobos/_next/static/chunks/HeroLogo-837oWhx2.js",
+    "file": "Vet-Villalobos/_next/static/chunks/HeroLogo-PNNPwXBW.js",
     "name": "HeroLogo",
     "src": "src/ui/HeroLogo.tsx",
     "isDynamicEntry": true,
@@ -315,14 +319,14 @@
     ]
   },
   "src/ui/MagicMouse.tsx": {
-    "file": "Vet-Villalobos/_next/static/chunks/MagicMouse-BVgkNIUV.js",
+    "file": "Vet-Villalobos/_next/static/chunks/MagicMouse-CpVsJZ_J.js",
     "name": "MagicMouse",
     "src": "src/ui/MagicMouse.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-D3QLCtA2.js",
       "_framework-CsuD4dOr.js",
-      "_magicMouse-B8BzONwR.js"
+      "_magicMouse-Bq8-Bwb0.js"
     ]
   },
   "src/ui/MythQuiz.tsx": {
@@ -364,12 +368,13 @@
     ]
   },
   "src/ui/SiteShell.tsx": {
-    "file": "Vet-Villalobos/_next/static/chunks/SiteShell-25k5jpdc.js",
+    "file": "Vet-Villalobos/_next/static/chunks/SiteShell-DECuEYOM.js",
     "name": "SiteShell",
     "src": "src/ui/SiteShell.tsx",
     "isDynamicEntry": true,
     "imports": [
       "_rolldown-runtime-D3QLCtA2.js",
+      "virtual:vinext-app-browser-entry",
       "_createLucideIcon-BMc-d-Fa.js",
       "_arrow-up-right-CS95k67Q.js",
       "_calendar-days-TDaPn_9k.js",
@@ -380,7 +385,10 @@
       "_x--O_LhX47.js",
       "_framework-CsuD4dOr.js",
       "_config-mFBWJ3Q7.js",
-      "_magicMouse-B8BzONwR.js"
+      "_magicMouse-Bq8-Bwb0.js"
+    ],
+    "dynamicImports": [
+      "src/ui/mascotEngine.js"
     ]
   },
   "src/ui/SymptomGuide.tsx": {
@@ -403,16 +411,27 @@
     ]
   },
   "src/ui/heroLogoEngine.js": {
-    "file": "Vet-Villalobos/_next/static/chunks/heroLogoEngine-V44C2kMw.js",
+    "file": "Vet-Villalobos/_next/static/chunks/heroLogoEngine-CqE6vg4c.js",
     "name": "heroLogoEngine",
     "src": "src/ui/heroLogoEngine.js",
     "isDynamicEntry": true,
     "imports": [
+      "_GLTFLoader-UiqQof5U.js",
+      "_config-mFBWJ3Q7.js"
+    ]
+  },
+  "src/ui/mascotEngine.js": {
+    "file": "Vet-Villalobos/_next/static/chunks/mascotEngine-C652NR-5.js",
+    "name": "mascotEngine",
+    "src": "src/ui/mascotEngine.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_GLTFLoader-UiqQof5U.js",
       "_config-mFBWJ3Q7.js"
     ]
   },
   "virtual:vinext-app-browser-entry": {
-    "file": "Vet-Villalobos/_next/static/chunks/index-hwu8a1GU.js",
+    "file": "Vet-Villalobos/_next/static/chunks/index-sp_-IU_4.js",
     "name": "index",
     "src": "virtual:vinext-app-browser-entry",
     "isEntry": true,

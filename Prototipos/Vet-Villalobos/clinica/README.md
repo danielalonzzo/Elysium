@@ -51,8 +51,10 @@ Lo que no se ve abriéndolo:
 7. **Compilación estática para Elysium:**
    `NEXT_PUBLIC_STATIC_SITE=1 NEXT_PUBLIC_BASE_PATH=/Vet-Villalobos npm run build`.
    Igual que en Valladares, portal, CRM y citas abren en modo demostración y los
-   formularios dejan el mensaje listo en WhatsApp. Todavía no hay script de
-   publicación ni carpeta `/Vet-Villalobos/` en la raíz del sitio.
+   formularios dejan el mensaje listo en WhatsApp. Lo publica
+   `scripts/publish-vet-villalobos.sh` (en la raíz de Elysium) en la carpeta
+   `Vet-Villalobos/`: **un cambio aquí no se ve en elysiumdr.eu hasta volver a
+   ejecutarlo, hacer commit de esa carpeta y push.**
 8. **En local**, el servidor de desarrollo va en el puerto 5174
    (`.claude/launch.json`), para no chocar con el de Valladares en el 5173.
 
