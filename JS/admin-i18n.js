@@ -431,6 +431,9 @@ export const ADMIN_COPY = {
             villalobosOverlay: 'Visit Veterinaria Villalobos',
             villalobosDesc: 'Four veterinary clinics in Heredia: consultations, vaccinations, grooming, pet hotel, pharmacy and pet export.',
             villalobosAlt: 'Veterinaria Villalobos preview',
+            novavetOverlay: 'Visit Novavet',
+            novavetDesc: 'Veterinary practice and animal health store in Bragança, with appointments, client portal and clinic CRM demo.',
+            novavetAlt: 'Novavet preview',
             arbolOverlay: 'View Demo-arbol',
             arbolDesc: 'Content-free demo: cinematic 3D scroll, store, header and dock ready to take on a client brand.'
         },
@@ -1004,6 +1007,9 @@ export const ADMIN_COPY = {
             villalobosOverlay: 'Visitar Veterinaria Villalobos',
             villalobosDesc: 'Cuatro sedes veterinarias en Heredia: consulta, vacunación, grooming, hotel, farmacia y exportación de mascotas.',
             villalobosAlt: 'Vista previa de Veterinaria Villalobos',
+            novavetOverlay: 'Visitar Novavet',
+            novavetDesc: 'Consultorio veterinario y tienda de salud animal en Bragança, con citas, portal de clientes y demo de CRM clínico.',
+            novavetAlt: 'Vista previa de Novavet',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sin contenido: scroll cinemático en 3D, tienda, cabecera y dock listos para recibir la marca de un cliente.'
         },
@@ -1577,6 +1583,9 @@ export const ADMIN_COPY = {
             villalobosOverlay: 'Visitar a Veterinária Villalobos',
             villalobosDesc: 'Quatro clínicas veterinárias em Heredia: consultas, vacinação, grooming, hotel, farmácia e exportação de animais de companhia.',
             villalobosAlt: 'Pré-visualização da Veterinária Villalobos',
+            novavetOverlay: 'Visitar a Novavet',
+            novavetDesc: 'Consultório veterinário e loja de saúde animal em Bragança, com marcações, portal de clientes e demonstração do CRM clínico.',
+            novavetAlt: 'Pré-visualização da Novavet',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sem conteúdo: scroll cinemático em 3D, loja, cabeçalho e dock prontos para receber a marca de um cliente.'
         },

@@ -1,0 +1,4 @@
+const CACHE="valladares-v5";const CORE=["/","/servicios","/diagnostico","/orientador","/contacto","/images/logo.jpg","/favicon.svg"];
+self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE))));
+self.addEventListener("activate",event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key))))));
+self.addEventListener("fetch",event=>{if(event.request.method!=="GET"||new URL(event.request.url).pathname.startsWith("/api/"))return;event.respondWith(caches.match(event.request).then(cached=>{const fresh=fetch(event.request).then(response=>{if(response.ok&&response.type==="basic")caches.open(CACHE).then(cache=>cache.put(event.request,response.clone()));return response;}).catch(()=>cached);return cached||fresh;}));});
