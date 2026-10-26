@@ -1,1 +1,0 @@
-var e=`/Vet-Dr-Valladares`,t=t=>e+t;``+e;var n=`+506 8837 3246`,r=`https://wa.me/50688373246`,i=`https://maps.app.goo.gl/cUorkV3ua8drz4vw7`;export{t as i,n,r,i as t};

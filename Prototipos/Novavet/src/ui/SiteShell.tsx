@@ -38,9 +38,8 @@ export default function SiteShell({children, en = false}: {children: React.React
 
   useEffect(() => {
     setVersion(document.querySelector('meta[name="app-version"]')?.getAttribute('content') || 'NOVAVET OS 1.0.0 PT');
-    const mode = localStorage.getItem('theme_mode') || 'auto';
-    const hour = Number(new Intl.DateTimeFormat('en', {hour: 'numeric', hour12: false, timeZone: 'Europe/Lisbon'}).format(new Date()));
-    const value = mode === 'auto' ? (hour >= 7 && hour < 20 ? 'light' : 'dark') : mode;
+    // Modo claro sempre; só muda se a pessoa escolher o escuro nas preferências.
+    const value = localStorage.getItem('theme_mode') === 'dark' ? 'dark' : 'light';
     setTheme(value);
     document.documentElement.dataset.theme = value;
     setMuted(localStorage.getItem('ely-audio-muted') !== '0');

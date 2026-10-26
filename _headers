@@ -283,10 +283,13 @@
   Content-Signal: search=no, ai-input=no, ai-train=no
   X-Robots-Tag: noindex, nofollow
 
-# Prototipo Novavet: export estático sin indexación.
+# Prototipo Novavet: export estático sin indexación. El final de la portada
+# incrusta el mapa de Google: `maps.google.com/maps?…&output=embed` responde 301
+# hacia `www.google.com/maps/embed`, y `frame-src` comprueba también el destino
+# de la redirección, así que van los dos hosts. Con `'none'` la caja salía vacía.
 /novavet/*
   ! Content-Security-Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self'; connect-src 'self' blob: data:; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; media-src 'self'; connect-src 'self' blob: data:; worker-src 'self' blob:; frame-src https://maps.google.com https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';
   ! Content-Signal
   Content-Signal: search=no, ai-input=no, ai-train=no
   X-Robots-Tag: noindex, nofollow

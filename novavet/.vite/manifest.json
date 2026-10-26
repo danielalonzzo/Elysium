@@ -1,6 +1,6 @@
 {
   "../Vet-Dr-Valladares/clinica/node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js": {
-    "file": "novavet/_next/static/chunks/app-route-prefetch-policy-BMsZa6z-.js",
+    "file": "novavet/_next/static/chunks/app-route-prefetch-policy-C6CV13gC.js",
     "name": "app-route-prefetch-policy",
     "src": "../Vet-Dr-Valladares/clinica/node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
     "isDynamicEntry": true,
@@ -9,7 +9,7 @@
     ]
   },
   "../Vet-Dr-Valladares/clinica/node_modules/vinext/dist/shims/layout-segment-context.js": {
-    "file": "novavet/_next/static/chunks/layout-segment-context-DiuMpG3f.js",
+    "file": "novavet/_next/static/chunks/layout-segment-context-BQevwsQs.js",
     "name": "layout-segment-context",
     "src": "../Vet-Dr-Valladares/clinica/node_modules/vinext/dist/shims/layout-segment-context.js",
     "isDynamicEntry": true,
@@ -92,7 +92,7 @@
     ]
   },
   "src/features/crm/ClinicApp.tsx": {
-    "file": "novavet/_next/static/chunks/ClinicApp-WZATudtr.js",
+    "file": "novavet/_next/static/chunks/ClinicApp-DswGjThY.js",
     "name": "ClinicApp",
     "src": "src/features/crm/ClinicApp.tsx",
     "isDynamicEntry": true,
@@ -116,7 +116,7 @@
     ]
   },
   "src/ui/PublicPage.tsx": {
-    "file": "novavet/_next/static/chunks/PublicPage-BDva0Rik.js",
+    "file": "novavet/_next/static/chunks/PublicPage-CG1vKGDV.js",
     "name": "PublicPage",
     "src": "src/ui/PublicPage.tsx",
     "isDynamicEntry": true,
@@ -129,7 +129,7 @@
     ]
   },
   "virtual:vinext-app-browser-entry": {
-    "file": "novavet/_next/static/chunks/index-BSrGWaBG.js",
+    "file": "novavet/_next/static/chunks/index-7AtFfyZl.js",
     "name": "index",
     "src": "virtual:vinext-app-browser-entry",
     "isEntry": true,

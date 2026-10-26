@@ -189,7 +189,7 @@
     ]
   },
   "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js": {
-    "file": "Vet-Villalobos/_next/static/chunks/app-route-prefetch-policy-C9TpPSxP.js",
+    "file": "Vet-Villalobos/_next/static/chunks/app-route-prefetch-policy-CAkSpkjJ.js",
     "name": "app-route-prefetch-policy",
     "src": "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
     "isDynamicEntry": true,
@@ -198,7 +198,7 @@
     ]
   },
   "node_modules/vinext/dist/shims/layout-segment-context.js": {
-    "file": "Vet-Villalobos/_next/static/chunks/layout-segment-context-B-EiFiZk.js",
+    "file": "Vet-Villalobos/_next/static/chunks/layout-segment-context-CylIQF-w.js",
     "name": "layout-segment-context",
     "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
     "isDynamicEntry": true,
@@ -236,7 +236,7 @@
     ]
   },
   "src/features/crm/ClinicApp.tsx": {
-    "file": "Vet-Villalobos/_next/static/chunks/ClinicApp-YE336p0H.js",
+    "file": "Vet-Villalobos/_next/static/chunks/ClinicApp-BLkSIB5_.js",
     "name": "ClinicApp",
     "src": "src/features/crm/ClinicApp.tsx",
     "isDynamicEntry": true,
@@ -303,7 +303,7 @@
     ]
   },
   "src/ui/HeroLogo.tsx": {
-    "file": "Vet-Villalobos/_next/static/chunks/HeroLogo-p7Q941D5.js",
+    "file": "Vet-Villalobos/_next/static/chunks/HeroLogo-C5NRi4BD.js",
     "name": "HeroLogo",
     "src": "src/ui/HeroLogo.tsx",
     "isDynamicEntry": true,
@@ -368,7 +368,7 @@
     ]
   },
   "src/ui/SiteShell.tsx": {
-    "file": "Vet-Villalobos/_next/static/chunks/SiteShell-N1OJID-f.js",
+    "file": "Vet-Villalobos/_next/static/chunks/SiteShell-fhn0I2au.js",
     "name": "SiteShell",
     "src": "src/ui/SiteShell.tsx",
     "isDynamicEntry": true,
@@ -431,7 +431,7 @@
     ]
   },
   "virtual:vinext-app-browser-entry": {
-    "file": "Vet-Villalobos/_next/static/chunks/index-C-eCyBau.js",
+    "file": "Vet-Villalobos/_next/static/chunks/index-CCh7MLH5.js",
     "name": "index",
     "src": "virtual:vinext-app-browser-entry",
     "isEntry": true,
