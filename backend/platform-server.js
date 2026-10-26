@@ -938,6 +938,9 @@ async function sendEmail(payload, idempotencyKey, transportImpl = null) {
     const info = await transport.sendMail({
       from: payload.from,
       to: payload.to,
+      // Nodemailer pone CC en la cabecera y CCO sólo en el sobre SMTP.
+      cc: payload.cc?.length ? payload.cc : undefined,
+      bcc: payload.bcc?.length ? payload.bcc : undefined,
       subject: payload.subject,
       html: payload.html,
       text: payload.text,
@@ -1809,6 +1812,8 @@ const MAIL_MAX_ATTACHMENTS = 10;
 const MAIL_MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
 const MAIL_MAX_TOTAL_ATTACHMENT_BYTES = 12 * 1024 * 1024;
 const MAIL_MAX_HTML_BYTES = 1024 * 1024;
+/** Tope de direcciones por mensaje, sumando Para, CC y CCO. */
+const MAIL_MAX_RECIPIENTS = 20;
 
 /** `daniel.morales@elysiumdr.eu` → `DANIEL_MORALES`, el sufijo de sus variables. */
 function senderEnvSuffix(address) {
@@ -1988,6 +1993,56 @@ class MailValidationError extends Error {
   }
 }
 
+/**
+ * Para, CC y CCO de un correo del CRM, y cómo se reparte.
+ *
+ * Hay dos formas de enviar a varias personas y no son intercambiables:
+ * - `individual`: cada dirección de «Para» recibe su propio mensaje y no ve a
+ *   las demás. Es lo que hacía el CRM antes de tener CC, y sigue siendo lo que
+ *   se usa si el navegador no dice otra cosa, para que un envío a varios
+ *   clientes no exponga sus direcciones entre sí.
+ * - `group`: un único mensaje con todos en «Para» y «CC», como en cualquier
+ *   cliente de correo. CCO viaja sólo en el sobre SMTP.
+ *
+ * CC y CCO exigen `group` cuando hay más de un «Para»: copiar a alguien en un
+ * envío individual le haría llegar un mensaje por cada destinatario. Con un
+ * solo «Para» los dos modos son el mismo mensaje, y se trata como `group`.
+ */
+function normalizeCrmMailRecipients({ to, cc, bcc, mode } = {}) {
+  const list = (value, field) => {
+    const raw = value == null || value === '' ? [] : (Array.isArray(value) ? value : [value]);
+    const normalized = raw.map(normalizedEmail);
+    if (normalized.some(address => !address)) {
+      throw new MailValidationError(`Every ${field} address must be valid.`, `${field}_invalid`);
+    }
+    return [...new Set(normalized)];
+  };
+
+  const recipients = list(to, 'to');
+  if (!recipients.length) {
+    throw new MailValidationError('A valid recipient is required.', 'to_invalid');
+  }
+  // Una dirección que ya va en «Para» no se repite en copia, ni la de CC en CCO.
+  const copies = list(cc, 'cc').filter(address => !recipients.includes(address));
+  const blind = list(bcc, 'bcc').filter(address => !recipients.includes(address) && !copies.includes(address));
+
+  if (recipients.length + copies.length + blind.length > MAIL_MAX_RECIPIENTS) {
+    throw new MailValidationError(
+      `Up to ${MAIL_MAX_RECIPIENTS} recipients per message, counting CC and BCC.`, 'to_too_many');
+  }
+
+  const requested = mode == null || mode === '' ? 'individual' : String(mode);
+  if (!['individual', 'group'].includes(requested)) {
+    throw new MailValidationError('Unknown delivery mode.', 'mode_invalid');
+  }
+  if (requested === 'individual' && recipients.length > 1 && (copies.length || blind.length)) {
+    throw new MailValidationError(
+      'CC and BCC need a single group message when there are several recipients.', 'copies_need_group');
+  }
+  const deliveryMode = recipients.length === 1 ? 'group' : requested;
+  return { recipients, cc: copies, bcc: blind, mode: deliveryMode };
+}
+
 function validateMailAttachments(rawAttachments) {
   if (rawAttachments == null) return [];
   if (!Array.isArray(rawAttachments)) {
@@ -2051,11 +2106,16 @@ function crmMailIdempotencyKey(request) {
   return value;
 }
 
-function crmMailFingerprint({ actorUid, from, recipients, replyTo, subject, html, attachments }) {
+function crmMailFingerprint({
+  actorUid, from, recipients, cc = [], bcc = [], mode = 'individual', replyTo, subject, html, attachments
+}) {
   return crypto.createHash('sha256').update(JSON.stringify({
     actorUid,
     from,
     recipients,
+    cc,
+    bcc,
+    mode,
     replyTo: replyTo || null,
     subject,
     htmlSha256: crypto.createHash('sha256').update(html).digest('hex'),
@@ -2075,7 +2135,9 @@ function crmMailDeliveryRef(actorUid, idempotencyKey) {
   return db.collection('crm_mail_deliveries').doc(documentId);
 }
 
-async function claimCrmMailDelivery({ actorUid, actorEmail, idempotencyKey, fingerprint, from, recipients }) {
+async function claimCrmMailDelivery({
+  actorUid, actorEmail, idempotencyKey, fingerprint, from, recipients, cc = [], bcc = [], mode = 'individual'
+}) {
   const reference = crmMailDeliveryRef(actorUid, idempotencyKey);
   const nowMillis = Date.now();
   return db.runTransaction(async transaction => {
@@ -2103,6 +2165,9 @@ async function claimCrmMailDelivery({ actorUid, actorEmail, idempotencyKey, fing
       actorEmail,
       from,
       recipients,
+      cc,
+      bcc,
+      mode,
       status: 'sending',
       attemptId,
       deliveries,
@@ -2157,25 +2222,27 @@ const CRM_RECEIPT_EXCERPT_CHARS = 900;
 const CRM_RECEIPT_COPY = {
   en: {
     eyebrow: 'CRM DELIVERY RECEIPT', title: 'Email sent successfully', intro: 'The recipient server accepted this message.',
-    actor: 'Sent by', from: 'From', to: 'To', subject: 'Subject', date: 'Accepted at', files: 'Attachments',
+    actor: 'Sent by', from: 'From', to: 'To', cc: 'Cc', bcc: 'Bcc', subject: 'Subject', date: 'Accepted at', files: 'Attachments',
     copy: 'Plain-text copy of the sent message', none: 'No attachments', htmlAttachment: 'The original HTML is attached as a safe text file.',
     subjectPrefix: 'Delivery confirmation'
   },
   es: {
     eyebrow: 'CONFIRMACIÓN DEL CRM', title: 'Correo enviado correctamente', intro: 'El servidor del destinatario aceptó este mensaje.',
-    actor: 'Enviado por', from: 'De', to: 'Para', subject: 'Asunto', date: 'Aceptado el', files: 'Adjuntos',
+    actor: 'Enviado por', from: 'De', to: 'Para', cc: 'CC', bcc: 'CCO', subject: 'Asunto', date: 'Aceptado el', files: 'Adjuntos',
     copy: 'Copia en texto del correo enviado', none: 'Sin adjuntos', htmlAttachment: 'El HTML original va adjunto como archivo de texto seguro.',
     subjectPrefix: 'Confirmación de envío'
   },
   pt: {
     eyebrow: 'CONFIRMAÇÃO DO CRM', title: 'Email enviado com sucesso', intro: 'O servidor do destinatário aceitou esta mensagem.',
-    actor: 'Enviado por', from: 'De', to: 'Para', subject: 'Assunto', date: 'Aceite em', files: 'Anexos',
+    actor: 'Enviado por', from: 'De', to: 'Para', cc: 'Cc', bcc: 'Bcc', subject: 'Assunto', date: 'Aceite em', files: 'Anexos',
     copy: 'Cópia em texto do email enviado', none: 'Sem anexos', htmlAttachment: 'O HTML original segue anexo como ficheiro de texto seguro.',
     subjectPrefix: 'Confirmação de envio'
   }
 };
 
-function crmMailReceiptPayload({ sender, actorEmail, recipients, subject, html, text, attachments, sentAt, locale }) {
+function crmMailReceiptPayload({
+  sender, actorEmail, recipients, cc = [], bcc = [], subject, html, text, attachments, sentAt, locale
+}) {
   const copy = CRM_RECEIPT_COPY[normalizedLocale(locale)] || CRM_RECEIPT_COPY.es;
   const attachmentSummary = attachments.length
     ? attachments.map(item => `${escapeHtml(item.filename)} · ${humanFileSize(item.bytes)}`).join('<br>')
@@ -2196,6 +2263,8 @@ function crmMailReceiptPayload({ sender, actorEmail, recipients, subject, html, 
       ${row(copy.actor, escapeHtml(actorEmail || '—'))}
       ${row(copy.from, escapeHtml(sender.address))}
       ${row(copy.to, escapeHtml(recipients.join(', ')))}
+      ${cc.length ? row(copy.cc, escapeHtml(cc.join(', '))) : ''}
+      ${bcc.length ? row(copy.bcc, escapeHtml(bcc.join(', '))) : ''}
       ${row(copy.subject, escapeHtml(subject))}
       ${row(copy.date, escapeHtml(readableTimestamp(sentAt, locale)))}
       ${row(copy.files, attachmentSummary)}
@@ -2211,7 +2280,10 @@ function crmMailReceiptPayload({ sender, actorEmail, recipients, subject, html, 
     subject: `${copy.subjectPrefix} · ${subject}`.slice(0, 250),
     html: emailTheme(content, `${copy.subjectPrefix}: ${subject}`),
     text: [copy.title, `${copy.actor}: ${actorEmail || '—'}`, `${copy.from}: ${sender.address}`,
-      `${copy.to}: ${recipients.join(', ')}`, `${copy.subject}: ${subject}`,
+      `${copy.to}: ${recipients.join(', ')}`,
+      ...(cc.length ? [`${copy.cc}: ${cc.join(', ')}`] : []),
+      ...(bcc.length ? [`${copy.bcc}: ${bcc.join(', ')}`] : []),
+      `${copy.subject}: ${subject}`,
       `${copy.date}: ${readableTimestamp(sentAt, locale)}`,
       `${copy.files}: ${attachments.length ? attachments.map(item => `${item.filename} (${humanFileSize(item.bytes)})`).join(', ') : copy.none}`,
       '', copy.copy, excerpt].join('\n'),
@@ -2227,7 +2299,10 @@ app.get('/api/mail/senders', requireFirebaseUser, requireFirebaseAdmin, (_reques
   response.json({
     senders: mailSenders().map(({ address, name, ready, envSuffix }) => ({
       address, name, ready, envSuffix
-    }))
+    })),
+    // El CRM sólo ofrece CC, CCO y el envío en grupo si el servicio lo anuncia:
+    // una versión anterior los ignoraría sin dar error.
+    capabilities: { copies: true }
   });
 });
 
@@ -2255,15 +2330,7 @@ app.post(
         });
       }
 
-      const rawRecipients = Array.isArray(body.to) ? body.to : [body.to];
-      const normalizedRecipients = rawRecipients.map(normalizedEmail);
-      if (!rawRecipients.length || normalizedRecipients.some(address => !address)) {
-        return response.status(400).json({ error: 'A valid recipient is required.', code: 'to_invalid' });
-      }
-      const recipients = [...new Set(normalizedRecipients)];
-      if (recipients.length > 20) {
-        return response.status(400).json({ error: 'Up to 20 recipients per message.', code: 'to_too_many' });
-      }
+      const { recipients, cc, bcc, mode } = normalizeCrmMailRecipients(body);
 
       const subject = String(body.subject || '').trim().slice(0, 250);
       if (!subject) {
@@ -2290,6 +2357,9 @@ app.post(
         actorUid: request.firebaseUser.uid,
         from: sender.address,
         recipients,
+        cc,
+        bcc,
+        mode,
         replyTo,
         subject,
         html,
@@ -2301,7 +2371,10 @@ app.post(
         idempotencyKey,
         fingerprint,
         from: sender.address,
-        recipients
+        recipients,
+        cc,
+        bcc,
+        mode
       });
       deliveryClaim = claim;
       if (claim.kind === 'replay') {
@@ -2311,7 +2384,12 @@ app.post(
           idempotent: true,
           messageId: previous[0]?.messageId || null,
           messageIds: previous.map(item => item.messageId),
-          recipients: previous.map(item => item.recipient),
+          recipients: Array.isArray(claim.delivery.recipients)
+            ? claim.delivery.recipients
+            : previous.map(item => item.recipient),
+          cc: claim.delivery.cc || [],
+          bcc: claim.delivery.bcc || [],
+          mode: claim.delivery.mode || 'individual',
           adminReceiptStatus: claim.delivery.adminReceiptStatus || 'unknown'
         });
       }
@@ -2319,8 +2397,16 @@ app.post(
       const transport = transportForSender(sender);
       const previousDeliveries = Array.isArray(claim.delivery.deliveries) ? claim.delivery.deliveries : [];
       const deliveredByRecipient = new Map(previousDeliveries.map(item => [item.recipient, item]));
-      for (const [index, recipient] of recipients.entries()) {
-        if (deliveredByRecipient.has(recipient)) continue;
+      // Cada unidad es un mensaje SMTP. En grupo hay una sola, con todos en la
+      // cabecera, y se apunta como `recipient: 'group'`; uno a uno, una por
+      // dirección, como siempre.
+      const units = mode === 'group'
+        ? [{ key: 'group', to: recipients, cc, bcc, messageKey: `${idempotencyKey}-group` }]
+        : recipients.map((recipient, index) => ({
+          key: recipient, to: [recipient], cc: [], bcc: [], messageKey: `${idempotencyKey}-recipient-${index + 1}`
+        }));
+      for (const unit of units) {
+        if (deliveredByRecipient.has(unit.key)) continue;
         // The lease is renewed before every external SMTP call. A batch may
         // contain 20 recipients, so a single fixed lease would expire while a
         // valid request was still working and allow a concurrent retry to send
@@ -2328,21 +2414,23 @@ app.post(
         await updateCrmMailClaim(claim, {});
         const sent = await sendEmail({
           from: `${sender.name} <${sender.address}>`,
-          to: [recipient],
+          to: unit.to,
+          cc: unit.cc,
+          bcc: unit.bcc,
           subject,
           html: sealedHtml,
           text,
           replyTo: replyTo || undefined,
           attachments
-        }, `${idempotencyKey}-recipient-${index + 1}`, transport);
-        const delivery = { recipient, messageId: sent.id };
-        deliveredByRecipient.set(recipient, delivery);
+        }, unit.messageKey, transport);
+        const delivery = { recipient: unit.key, messageId: sent.id };
+        deliveredByRecipient.set(unit.key, delivery);
         await updateCrmMailClaim(claim, {
           deliveries: FieldValue.arrayUnion(delivery)
         });
       }
 
-      const deliveries = recipients.map(recipient => deliveredByRecipient.get(recipient)).filter(Boolean);
+      const deliveries = units.map(unit => deliveredByRecipient.get(unit.key)).filter(Boolean);
       const sentAt = new Date();
       let adminReceiptStatus = claim.delivery.adminReceiptStatus === 'sent' ? 'sent' : 'not_configured';
       let adminReceiptMessageId = claim.delivery.adminReceiptMessageId || null;
@@ -2353,6 +2441,8 @@ app.post(
             sender,
             actorEmail: request.firebaseUser.email,
             recipients,
+            cc,
+            bcc,
             subject,
             html,
             text,
@@ -2392,6 +2482,9 @@ app.post(
         actor: request.firebaseUser.email,
         from: sender.address,
         to: recipients,
+        cc,
+        bcc,
+        mode,
         subject,
         attachments: attachments.length,
         messageIds: deliveries.map(item => item.messageId),
@@ -2404,6 +2497,9 @@ app.post(
         messageId: deliveries[0]?.messageId || null,
         messageIds: deliveries.map(item => item.messageId),
         recipients,
+        cc,
+        bcc,
+        mode,
         adminReceiptStatus
       });
     } catch (error) {
@@ -2476,6 +2572,7 @@ module.exports = {
   buildMeetingEmail,
   buildMeetingAdminEmail,
   emailTheme,
+  normalizeCrmMailRecipients,
   withElysiumSeal,
   elysiumSealAttachment,
   adminNotificationEmail,

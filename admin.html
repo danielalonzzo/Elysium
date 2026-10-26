@@ -25,7 +25,7 @@
     <!-- The admin CRM shares the customer portal's design system: the shell,
          cards, tables, buttons and chips all come from this stylesheet. -->
     <link rel="stylesheet" href="CSS/customer-portal.css?v=2026082609">
-    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026082612">
+    <link rel="stylesheet" href="CSS/admin-portal.css?v=2026102601">
     <link rel="stylesheet" href="CSS/admin-research.css?v=2026082601">
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -594,82 +594,183 @@
                             <span class="agenda-eyebrow" id="mail-compose-eyebrow" data-i18n-dynamic="admin.js:applyTranslations">New message</span>
                             <h2 id="mail-compose-title" data-i18n-dynamic="admin.js:applyTranslations">Compose</h2>
                         </div>
-                        <span class="mail-secure-chip"><span aria-hidden="true"></span><span id="mail-secure-label" data-i18n-dynamic="admin.js:applyTranslations">Secure SMTP</span></span>
+                        <div class="mail-heading-tools">
+                            <span class="mail-draft-state" id="mail-draft-state" aria-live="polite" data-i18n-dynamic="admin.js:saveMailDraft"></span>
+                            <span class="mail-secure-chip"><span aria-hidden="true"></span><span id="mail-secure-label" data-i18n-dynamic="admin.js:applyTranslations">Secure SMTP</span></span>
+                        </div>
                     </div>
 
                     <form id="mail-compose-form" class="mail-compose-form" novalidate>
-                        <div class="meeting-form-grid mail-fields-grid">
-                            <label class="meeting-field">
-                                <span id="mail-label-from" data-i18n-dynamic="admin.js:applyTranslations">From</span>
-                                <select id="mail-sender" name="sender" required>
-                                    <option value="" data-i18n-dynamic="admin.js:loadMailSenders">Loading mailboxes…</option>
-                                </select>
-                                <small id="mail-sender-hint" class="mail-hint" aria-live="polite" data-i18n-dynamic="admin.js:loadMailSenders"></small>
-                            </label>
+                        <!-- Sobre del mensaje: filas como en un cliente de correo. -->
+                        <div class="mail-envelope">
+                            <div class="mail-row mail-row-from">
+                                <span class="mail-row-label" id="mail-label-from" data-i18n-dynamic="admin.js:applyTranslations">From</span>
+                                <div class="mail-sender-picker" id="mail-sender-picker">
+                                    <button type="button" class="mail-sender-trigger" id="mail-sender-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="mail-sender-list" aria-labelledby="mail-label-from mail-sender-name">
+                                        <span class="mail-avatar" id="mail-sender-avatar" aria-hidden="true" translate="no">λ</span>
+                                        <span class="mail-sender-text">
+                                            <strong id="mail-sender-name" data-i18n-dynamic="admin.js:renderMailSenderPicker">Loading mailboxes…</strong>
+                                            <small id="mail-sender-address" translate="no"></small>
+                                        </span>
+                                        <svg class="mail-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
+                                    </button>
+                                    <ul class="mail-sender-list" id="mail-sender-list" role="listbox" tabindex="-1" aria-labelledby="mail-label-from" hidden data-i18n-dynamic="admin.js:renderMailSenderPicker"></ul>
+                                    <!-- El <select> sigue siendo el valor del formulario; el
+                                         selector de arriba sólo lo pinta y lo cambia. -->
+                                    <select id="mail-sender" name="sender" required hidden tabindex="-1" aria-hidden="true">
+                                        <option value="" data-i18n-dynamic="admin.js:loadMailSenders">Loading mailboxes…</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <small id="mail-sender-hint" class="mail-hint mail-row-hint" aria-live="polite" data-i18n-dynamic="admin.js:loadMailSenders"></small>
 
-                            <label class="meeting-field">
-                                <span id="mail-label-reply" data-i18n-dynamic="admin.js:applyTranslations">Reply-To (optional)</span>
-                                <input id="mail-reply-to" name="replyTo" type="email" autocomplete="email" translate="no" placeholder="reply@elysiumdr.eu">
-                            </label>
+                            <div class="mail-row mail-row-to">
+                                <label class="mail-row-label" for="mail-recipient" id="mail-label-to" data-i18n-dynamic="admin.js:applyTranslations">To</label>
+                                <div class="mail-chip-field" data-mail-field="to">
+                                    <ul class="mail-chips" id="mail-to-chips" aria-live="polite"></ul>
+                                    <input id="mail-recipient" name="recipient" type="text" autocomplete="off" spellcheck="false" translate="no" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mail-suggest-to" placeholder="client@example.com">
+                                    <ul class="mail-suggest" id="mail-suggest-to" role="listbox" hidden></ul>
+                                </div>
+                                <div class="mail-row-toggles">
+                                    <button type="button" class="mail-reveal" id="mail-cc-toggle" data-mail-reveal="cc" aria-expanded="false" aria-controls="mail-row-cc" data-i18n-dynamic="admin.js:applyTranslations">Cc</button>
+                                    <button type="button" class="mail-reveal" id="mail-bcc-toggle" data-mail-reveal="bcc" aria-expanded="false" aria-controls="mail-row-bcc" data-i18n-dynamic="admin.js:applyTranslations">Bcc</button>
+                                    <button type="button" class="mail-reveal" id="mail-reply-toggle" data-mail-reveal="reply" aria-expanded="false" aria-controls="mail-row-reply" data-i18n-dynamic="admin.js:applyTranslations">Reply-To</button>
+                                </div>
+                            </div>
 
-                            <label class="meeting-field meeting-field-wide">
-                                <span id="mail-label-to" data-i18n-dynamic="admin.js:applyTranslations">To</span>
-                                <input id="mail-recipient" name="recipient" type="text" required autocomplete="off" list="mail-client-emails" translate="no" placeholder="client@example.com">
-                                <datalist id="mail-client-emails"></datalist>
-                                <small class="mail-hint" id="mail-to-hint" data-i18n-dynamic="admin.js:applyTranslations">Separate several recipients with commas.</small>
-                            </label>
+                            <div class="mail-row" id="mail-row-cc" hidden>
+                                <label class="mail-row-label" for="mail-cc" id="mail-label-cc" data-i18n-dynamic="admin.js:applyTranslations">Cc</label>
+                                <div class="mail-chip-field" data-mail-field="cc">
+                                    <ul class="mail-chips" id="mail-cc-chips" aria-live="polite"></ul>
+                                    <input id="mail-cc" name="cc" type="text" autocomplete="off" spellcheck="false" translate="no" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mail-suggest-cc">
+                                    <ul class="mail-suggest" id="mail-suggest-cc" role="listbox" hidden></ul>
+                                </div>
+                                <button type="button" class="mail-row-close" data-mail-hide="cc" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Remove Cc">×</button>
+                            </div>
 
-                            <label class="meeting-field meeting-field-wide">
-                                <span id="mail-label-subject" data-i18n-dynamic="admin.js:applyTranslations">Subject</span>
-                                <input id="mail-subject" name="subject" type="text" maxlength="250" autocomplete="off" required data-i18n-dynamic="admin.js:applyTranslations" placeholder="A clear subject for this message">
-                            </label>
+                            <div class="mail-row" id="mail-row-bcc" hidden>
+                                <label class="mail-row-label" for="mail-bcc" id="mail-label-bcc" data-i18n-dynamic="admin.js:applyTranslations">Bcc</label>
+                                <div class="mail-chip-field" data-mail-field="bcc">
+                                    <ul class="mail-chips" id="mail-bcc-chips" aria-live="polite"></ul>
+                                    <input id="mail-bcc" name="bcc" type="text" autocomplete="off" spellcheck="false" translate="no" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="mail-suggest-bcc">
+                                    <ul class="mail-suggest" id="mail-suggest-bcc" role="listbox" hidden></ul>
+                                </div>
+                                <button type="button" class="mail-row-close" data-mail-hide="bcc" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Remove Bcc">×</button>
+                            </div>
+
+                            <div class="mail-row" id="mail-row-reply" hidden>
+                                <label class="mail-row-label" for="mail-reply-to" id="mail-label-reply" data-i18n-dynamic="admin.js:applyTranslations">Reply-To</label>
+                                <input class="mail-row-input" id="mail-reply-to" name="replyTo" type="email" autocomplete="email" spellcheck="false" translate="no" placeholder="reply@elysiumdr.eu">
+                                <button type="button" class="mail-row-close" data-mail-hide="reply" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Remove Reply-To">×</button>
+                            </div>
+
+                            <div class="mail-row mail-row-subject">
+                                <label class="mail-row-label" for="mail-subject" id="mail-label-subject" data-i18n-dynamic="admin.js:applyTranslations">Subject</label>
+                                <input class="mail-row-input" id="mail-subject" name="subject" type="text" maxlength="250" autocomplete="off" required data-i18n-dynamic="admin.js:applyTranslations" placeholder="A clear subject for this message">
+                                <span class="mail-counter" id="mail-subject-count" aria-hidden="true" translate="no">0/250</span>
+                            </div>
                         </div>
 
-                        <div class="mail-asset-grid">
-                            <section class="mail-asset-card" aria-labelledby="mail-label-body">
-                                <div class="mail-asset-copy">
-                                    <span class="mail-asset-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3.75h7.6L19 8.15v12.1H7z"/><path d="M14.5 3.75v4.5H19M9.7 12h6.6M9.7 15.2h6.6"/></svg>
-                                    </span>
-                                    <div>
-                                        <strong id="mail-label-body" data-i18n-dynamic="admin.js:applyTranslations">HTML template</strong>
-                                        <p id="mail-body-hint" data-i18n-dynamic="admin.js:applyTranslations">Upload the finished email; its preview appears beside the form.</p>
-                                    </div>
-                                </div>
-                                <input id="mail-template" name="template" type="file" accept=".html,.htm,text/html" required hidden>
-                                <button class="mail-asset-action" id="mail-template-trigger" type="button">
-                                    <span id="mail-import-text" data-i18n-dynamic="admin.js:applyTranslations">Choose .html</span>
-                                </button>
-                                <div id="mail-template-summary" class="mail-selected-file" hidden>
-                                    <span class="mail-selected-file-name" id="mail-file-name"></span>
-                                    <button type="button" id="mail-remove-template-btn" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Remove HTML template">×</button>
-                                </div>
-                            </section>
+                        <!-- Varios «Para»: un mensaje para cada uno o uno solo para todos. -->
+                        <div class="mail-delivery" id="mail-delivery" hidden>
+                            <span class="mail-delivery-label" id="mail-delivery-label" data-i18n-dynamic="admin.js:applyTranslations">Delivery</span>
+                            <div class="mail-segmented" role="radiogroup" aria-labelledby="mail-delivery-label">
+                                <button type="button" role="radio" aria-checked="true" data-mail-delivery="individual" id="mail-delivery-individual" data-i18n-dynamic="admin.js:applyTranslations">One by one</button>
+                                <button type="button" role="radio" aria-checked="false" data-mail-delivery="group" id="mail-delivery-group" data-i18n-dynamic="admin.js:applyTranslations">As a group</button>
+                            </div>
+                            <small class="mail-hint" id="mail-delivery-hint" data-i18n-dynamic="admin.js:syncMailDelivery"></small>
+                        </div>
 
-                            <section class="mail-asset-card" id="mail-attachment-zone" aria-labelledby="mail-label-attachments">
-                                <div class="mail-asset-copy">
-                                    <span class="mail-asset-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m8.2 12.5 5.9-5.9a3 3 0 0 1 4.2 4.2l-7.2 7.3a4.5 4.5 0 0 1-6.4-6.4l7.4-7.4"/><path d="m10.3 10.4-4 4a2.1 2.1 0 0 0 3 3l6.8-6.8"/></svg>
-                                    </span>
-                                    <div>
-                                        <strong id="mail-label-attachments" data-i18n-dynamic="admin.js:applyTranslations">Attachments</strong>
-                                        <p id="mail-attachments-hint" data-i18n-dynamic="admin.js:applyTranslations">Up to 10 files, 8 MB each and 12 MB total.</p>
+                        <!-- Cuerpo: escrito aquí o importado como plantilla HTML. -->
+                        <div class="mail-body-block">
+                            <div class="mail-body-head">
+                                <div class="mail-segmented mail-body-tabs" role="tablist" aria-label="Message body" id="mail-body-tabs" data-i18n-dynamic="admin.js:applyTranslations">
+                                    <button type="button" role="tab" id="mail-tab-write" aria-selected="true" aria-controls="mail-write-pane" data-mail-body="write" data-i18n-dynamic="admin.js:applyTranslations">
+                                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="m16.9 4.6 2.5 2.5M4 20l1-4.2L16.2 4.6a1.8 1.8 0 0 1 2.5 0l.7.7a1.8 1.8 0 0 1 0 2.5L8.2 19 4 20Z"/></svg>
+                                        <span id="mail-tab-write-label" data-i18n-dynamic="admin.js:applyTranslations">Write</span>
+                                    </button>
+                                    <button type="button" role="tab" id="mail-tab-template" aria-selected="false" aria-controls="mail-template-pane" data-mail-body="template" data-i18n-dynamic="admin.js:applyTranslations">
+                                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3.75h7.6L19 8.15v12.1H7z"/><path d="M14.5 3.75v4.5H19M9.7 12h6.6M9.7 15.2h6.6"/></svg>
+                                        <span id="mail-tab-template-label" data-i18n-dynamic="admin.js:applyTranslations">HTML template</span>
+                                    </button>
+                                </div>
+                                <label class="mail-letter-lang" id="mail-letter-lang-field">
+                                    <span id="mail-letter-lang-label" data-i18n-dynamic="admin.js:applyTranslations">Email language</span>
+                                    <select id="mail-letter-lang" name="letterLang">
+                                        <!-- Cada idioma en su propio nombre: no se traduce. -->
+                                        <option value="es-CR" translate="no">Español · Costa Rica</option>
+                                        <option value="es-ES" translate="no">Español · España</option>
+                                        <option value="pt-PT" translate="no">Português · Portugal</option>
+                                        <option value="en" translate="no">English</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <div class="mail-write-pane" id="mail-write-pane" role="tabpanel" aria-labelledby="mail-tab-write">
+                                <textarea id="mail-body-text" name="bodyText" rows="11" data-i18n-dynamic="admin.js:applyTranslations" placeholder="Dear Ms Rivera,&#10;&#10;Write the message here. Leave a blank line between paragraphs."></textarea>
+                                <div class="mail-write-foot">
+                                    <label class="mail-switch">
+                                        <input type="checkbox" id="mail-signature" checked>
+                                        <span class="mail-switch-track" aria-hidden="true"></span>
+                                        <span id="mail-signature-label" data-i18n-dynamic="admin.js:renderMailSignatureLabel">Add the sender's signature</span>
+                                    </label>
+                                    <small class="mail-hint" id="mail-format-hint" data-i18n-dynamic="admin.js:applyTranslations">**bold** · lines starting with “- ” become a list · links are detected</small>
+                                </div>
+                            </div>
+
+                            <div class="mail-template-pane" id="mail-template-pane" role="tabpanel" aria-labelledby="mail-tab-template" hidden>
+                                <section class="mail-asset-card mail-template-drop" aria-labelledby="mail-label-body">
+                                    <div class="mail-asset-copy">
+                                        <span class="mail-asset-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3.75h7.6L19 8.15v12.1H7z"/><path d="M14.5 3.75v4.5H19M9.7 12h6.6M9.7 15.2h6.6"/></svg>
+                                        </span>
+                                        <div>
+                                            <strong id="mail-label-body" data-i18n-dynamic="admin.js:applyTranslations">HTML template</strong>
+                                            <p id="mail-body-hint" data-i18n-dynamic="admin.js:applyTranslations">Drop the finished email here or choose it; its preview appears beside the form.</p>
+                                        </div>
                                     </div>
+                                    <input id="mail-template" name="template" type="file" accept=".html,.htm,text/html" hidden>
+                                    <button class="mail-asset-action" id="mail-template-trigger" type="button">
+                                        <span id="mail-import-text" data-i18n-dynamic="admin.js:applyTranslations">Choose .html</span>
+                                    </button>
+                                    <div id="mail-template-summary" class="mail-selected-file" hidden>
+                                        <span class="mail-selected-file-name" id="mail-file-name" translate="no"></span>
+                                        <button type="button" id="mail-remove-template-btn" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Remove HTML template">×</button>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+
+                        <section class="mail-attachments" id="mail-attachment-zone" aria-labelledby="mail-label-attachments">
+                            <div class="mail-attachments-head">
+                                <span class="mail-asset-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m8.2 12.5 5.9-5.9a3 3 0 0 1 4.2 4.2l-7.2 7.3a4.5 4.5 0 0 1-6.4-6.4l7.4-7.4"/><path d="m10.3 10.4-4 4a2.1 2.1 0 0 0 3 3l6.8-6.8"/></svg>
+                                </span>
+                                <div class="mail-attachments-copy">
+                                    <strong id="mail-label-attachments" data-i18n-dynamic="admin.js:applyTranslations">Attachments</strong>
+                                    <p id="mail-attachments-hint" data-i18n-dynamic="admin.js:applyTranslations">Drop files here · up to 10 files, 8 MB each and 12 MB in total.</p>
                                 </div>
                                 <input id="mail-attachments" name="attachments" type="file" multiple hidden>
                                 <button class="mail-asset-action" id="mail-attachment-trigger" type="button">
                                     <span id="mail-attachment-action" data-i18n-dynamic="admin.js:applyTranslations">Add files</span>
                                 </button>
-                                <ul id="mail-attachment-list" class="mail-attachment-list" aria-live="polite"></ul>
-                            </section>
-                        </div>
+                            </div>
+                            <div class="mail-attachment-meter" id="mail-attachment-meter" hidden><span id="mail-attachment-meter-bar"></span></div>
+                            <ul id="mail-attachment-list" class="mail-attachment-list" aria-live="polite"></ul>
+                        </section>
 
                         <div class="meeting-form-footer mail-compose-footer">
-                            <p id="mail-form-message" class="meeting-form-message" aria-live="polite" data-i18n-dynamic="admin.js:setMailMessage"></p>
-                            <button id="mail-send-btn" class="btn btn-primary mail-send-button" type="submit">
-                                <span id="mail-send-text" data-i18n-dynamic="admin.js:applyTranslations">Send</span>
-                                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.3 3.1A59.8 59.8 0 0 1 21.5 12 59.8 59.8 0 0 1 3.3 20.9L6 12Zm0 0h7.5"/></svg>
-                            </button>
+                            <div class="mail-footer-status">
+                                <p id="mail-form-message" class="meeting-form-message" aria-live="polite" data-i18n-dynamic="admin.js:setMailMessage"></p>
+                                <small class="mail-summary" id="mail-summary" data-i18n-dynamic="admin.js:renderMailSummary"></small>
+                            </div>
+                            <div class="mail-footer-actions">
+                                <button id="mail-discard-btn" class="mail-discard" type="button" data-i18n-dynamic="admin.js:applyTranslations">Discard</button>
+                                <button id="mail-send-btn" class="btn btn-primary mail-send-button" type="submit" data-i18n-dynamic="admin.js:applyTranslations" title="⌘ + Enter">
+                                    <span id="mail-send-text" data-i18n-dynamic="admin.js:applyTranslations">Send</span>
+                                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.3 3.1A59.8 59.8 0 0 1 21.5 12 59.8 59.8 0 0 1 3.3 20.9L6 12Zm0 0h7.5"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </article>
@@ -685,14 +786,35 @@
                                  para poder editar el documento desde aquí, y sin
                                  scripts ninguna plantilla importada se ejecuta. -->
                             <button type="button" id="mail-edit-toggle" class="mail-edit-toggle" aria-pressed="false" hidden data-i18n-dynamic="admin.js:syncMailEditAvailability">Edit text</button>
+                            <div class="mail-device-toggle" role="group" aria-labelledby="mail-preview-title">
+                                <button type="button" class="is-active" data-mail-device="desktop" aria-pressed="true" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Desktop">
+                                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="12" rx="1.8"/><path stroke-linecap="round" d="M9 20h6M12 16.5V20"/></svg>
+                                </button>
+                                <button type="button" data-mail-device="mobile" aria-pressed="false" data-i18n-dynamic="admin.js:applyTranslations" aria-label="Mobile">
+                                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="3" width="10" height="18" rx="2.2"/><path stroke-linecap="round" d="M11 18h2"/></svg>
+                                </button>
+                            </div>
                             <span id="mail-preview-badge" class="mail-preview-badge" data-i18n-dynamic="admin.js:applyTranslations">No template</span>
                         </div>
                     </div>
+
+                    <!-- Cabecera tal y como la ve quien lo recibe en su bandeja. -->
+                    <div class="mail-inbox-head" id="mail-inbox-head">
+                        <strong class="mail-inbox-subject" id="mail-inbox-subject" data-i18n-dynamic="admin.js:renderMailInboxHead">(no subject)</strong>
+                        <div class="mail-inbox-meta">
+                            <span class="mail-avatar" id="mail-inbox-avatar" aria-hidden="true" translate="no">λ</span>
+                            <div>
+                                <p class="mail-inbox-from" translate="no"><strong id="mail-inbox-name"></strong> <span id="mail-inbox-address"></span></p>
+                                <p class="mail-inbox-to" id="mail-inbox-to" data-i18n-dynamic="admin.js:renderMailInboxHead"></p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mail-preview-stage" id="mail-live-preview-container">
                         <div class="mail-preview-empty" id="mail-preview-empty">
-                            <span aria-hidden="true">λ</span>
+                            <span aria-hidden="true" translate="no">λ</span>
                             <strong id="mail-preview-empty-title" data-i18n-dynamic="admin.js:applyTranslations">Your message will appear here</strong>
-                            <p id="mail-preview-empty-copy" data-i18n-dynamic="admin.js:applyTranslations">Choose an HTML template to inspect it before sending.</p>
+                            <p id="mail-preview-empty-copy" data-i18n-dynamic="admin.js:applyTranslations">Write the message or choose an HTML template to inspect it before sending.</p>
                         </div>
                         <iframe id="mail-live-preview-frame" data-i18n-dynamic="admin.js:applyTranslations" title="Email preview" sandbox="allow-same-origin" hidden></iframe>
                     </div>
@@ -709,10 +831,13 @@
                     <h2 id="mail-confirm-title" data-i18n-dynamic="admin.js:applyTranslations">Send this email?</h2>
                     <p id="mail-confirm-copy" data-i18n-dynamic="admin.js:applyTranslations">Review the real delivery details before continuing.</p>
                     <dl class="mail-confirm-summary">
-                        <div><dt id="mail-confirm-from-label" data-i18n-dynamic="admin.js:applyTranslations">From</dt><dd id="mail-confirm-from"></dd></div>
-                        <div><dt id="mail-confirm-to-label" data-i18n-dynamic="admin.js:applyTranslations">To</dt><dd id="mail-confirm-to"></dd></div>
-                        <div><dt id="mail-confirm-subject-label" data-i18n-dynamic="admin.js:applyTranslations">Subject</dt><dd id="mail-confirm-subject"></dd></div>
-                        <div><dt id="mail-confirm-files-label" data-i18n-dynamic="admin.js:applyTranslations">Attachments</dt><dd id="mail-confirm-files"></dd></div>
+                        <div><dt id="mail-confirm-from-label" data-i18n-dynamic="admin.js:applyTranslations">From</dt><dd id="mail-confirm-from" translate="no"></dd></div>
+                        <div><dt id="mail-confirm-to-label" data-i18n-dynamic="admin.js:applyTranslations">To</dt><dd id="mail-confirm-to" translate="no"></dd></div>
+                        <div id="mail-confirm-cc-row" hidden><dt id="mail-confirm-cc-label" data-i18n-dynamic="admin.js:applyTranslations">Cc</dt><dd id="mail-confirm-cc" translate="no"></dd></div>
+                        <div id="mail-confirm-bcc-row" hidden><dt id="mail-confirm-bcc-label" data-i18n-dynamic="admin.js:applyTranslations">Bcc</dt><dd id="mail-confirm-bcc" translate="no"></dd></div>
+                        <div id="mail-confirm-mode-row" hidden><dt id="mail-confirm-mode-label" data-i18n-dynamic="admin.js:applyTranslations">Delivery</dt><dd id="mail-confirm-mode" data-i18n-dynamic="admin.js:confirmMailDelivery"></dd></div>
+                        <div><dt id="mail-confirm-subject-label" data-i18n-dynamic="admin.js:applyTranslations">Subject</dt><dd id="mail-confirm-subject" translate="no"></dd></div>
+                        <div><dt id="mail-confirm-files-label" data-i18n-dynamic="admin.js:applyTranslations">Attachments</dt><dd id="mail-confirm-files" data-i18n-dynamic="admin.js:confirmMailDelivery"></dd></div>
                     </dl>
                     <div class="mail-confirm-actions">
                         <button class="btn btn-secondary" id="mail-confirm-cancel" data-i18n-dynamic="admin.js:applyTranslations" type="button">Cancel</button>
@@ -1247,7 +1372,7 @@
          Served under /api on this same origin; set window.ELYSIUM_API_URL
          instead if it ever moves to its own host (and add it to connect-src). -->
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
-    <script type="module" src="JS/admin.js?v=2026082612"></script>
+    <script type="module" src="JS/admin.js?v=2026102601"></script>
     <script type="module" src="JS/admin-research.js?v=2026082602"></script>
     <script defer src="JS/version-modal.js"></script>
 </body>

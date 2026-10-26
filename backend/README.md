@@ -9,8 +9,8 @@ Servicio de confianza de Elysium. Hace seis cosas:
    y lo envía con la marca de Elysium, con respuestas neutras y limitación de
    intentos para no revelar si una cuenta existe.
 3. **Correo profesional del CRM.** Permite elegir únicamente buzones SMTP
-   configurados, enviar adjuntos, deduplicar reintentos y mandar al administrador
-   un recibo separado de cada correo aceptado.
+   configurados, enviar con CC y CCO, adjuntos, deduplicar reintentos y mandar
+   al administrador un recibo separado de cada correo aceptado.
 4. **Consultas de proyecto.** Valida y limita el formulario público antes de
    escribirlo con el Admin SDK; el navegador no tiene escritura directa sobre
    `prospects`.
@@ -50,7 +50,7 @@ Ver `.env.example`. Las que no tienen valor por defecto sensato:
 |---|---|
 | `SMTP_HOST` / `SMTP_PORT` | Servidor de IONOS. 465 abre TLS directo, 587 sube con STARTTLS. |
 | `SMTP_USER` / `SMTP_PASSWORD` | Buzón de la empresa. La contraseña va en Secret Manager, nunca como variable en claro. |
-| `SMTP_USER_<SUFIJO>` / `SMTP_PASSWORD_<SUFIJO>` | Credenciales de cada buzón adicional del CRM; por ejemplo, el sufijo de `daniel.morales@…` es `DANIEL_MORALES`. |
+| `SMTP_USER_<SUFIJO>` / `SMTP_PASSWORD_<SUFIJO>` | Credenciales de cada buzón adicional del CRM; por ejemplo, el sufijo de `daniel.morales@…` es `DANIEL_MORALES`. Se dan de alta con `scripts/add-crm-mailbox.sh` (ver abajo). |
 | `MEETING_FROM_EMAIL` | Remitente. Debe ser el buzón autenticado o un alias suyo: IONOS rechaza enviar como una dirección ajena. |
 | `PASSWORD_RESET_FROM_EMAIL` | Remitente del correo de contraseña. Si falta, usa el anterior. Mismo límite de propiedad. |
 | `CRM_MAIL_SENDERS` | Lista cerrada `Nombre <correo>` de remitentes visibles en el compositor. |
@@ -78,6 +78,30 @@ variable en claro. Las demás pueden quedarse como variables normales.
   codificado a mano.
 
 Siempre exige `email_verified`.
+
+## Buzones del CRM
+
+La sección Correo ofrece `info@`, `daniel.morales@`, `daniel.avila@` y
+`social.media@`. IONOS sólo deja enviar como el buzón autenticado, así que cada
+uno lleva su contraseña en Secret Manager (`elysium-smtp-password-<buzón>`). Un
+buzón nuevo, o una contraseña cambiada, se da de alta con:
+
+```bash
+scripts/add-crm-mailbox.sh daniel.avila@elysiumdr.eu "Daniel Ávila"
+```
+
+Pide la contraseña sin mostrarla, comprueba que IONOS la acepta, la guarda en
+Secret Manager, da acceso a la cuenta de servicio y actualiza
+`CRM_MAIL_SENDERS` y las variables del buzón. No despliega código.
+
+`POST /api/mail/send` admite `cc`, `bcc` y `mode`. Con varios «Para», `mode:
+'individual'` (lo que se usa si no se indica) manda un correo a cada uno, sin
+que vean a los demás; `'group'` manda uno solo con todos en la cabecera. CC y
+CCO exigen `group`: en un envío individual le llegaría a la copia un mensaje
+por destinatario. CCO va sólo en el sobre SMTP. Entre las tres listas, como
+mucho 20 direcciones. `GET /api/mail/senders` anuncia `capabilities.copies`, y
+el CRM sólo ofrece CC y CCO cuando lo ve: así, si el CRM se publica antes que
+este servicio, no hay copias que se pierdan en silencio.
 
 ## Correo de reuniones
 

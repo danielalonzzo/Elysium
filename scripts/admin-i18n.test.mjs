@@ -207,7 +207,8 @@ const SHARED_TERMS = {
         'detail.plan', 'detail.planHosting'                      // nombre de plan
     ]),
     translations: new Set([
-        'table_plan', 'no', 'tab_onboarding'
+        'table_plan', 'no', 'tab_onboarding',
+        'mail.labelCc', 'mail.labelBcc', 'mail.confirmCc', 'mail.confirmBcc'   // «Cc»/«Bcc» en pt
     ]),
     AGENDA_COPY: new Set([
         'nav', 'title',                                          // «Agenda»

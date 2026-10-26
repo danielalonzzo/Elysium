@@ -48,6 +48,7 @@ const {
   crmMailIdempotencyKey,
   crmMailFingerprint,
   crmMailReceiptPayload,
+  normalizeCrmMailRecipients,
   passwordResetEmail,
   passwordResetEmailConfigured,
   passwordResetContinueUrl,
@@ -533,6 +534,84 @@ test('CRM idempotency keys and fingerprints are stable and content-bound', () =>
   assert.equal(crmMailFingerprint(message), crmMailFingerprint({ ...message }));
   assert.notEqual(crmMailFingerprint(message), crmMailFingerprint({ ...message, subject: 'Different' }));
   assert.notEqual(crmMailFingerprint(message), crmMailFingerprint({ ...message, html: '<p>Changed</p>' }));
+});
+
+test('CRM recipients: CC and BCC are deduplicated and need a group message', () => {
+  // Una sola dirección en «Para»: los dos modos son el mismo mensaje.
+  assert.deepEqual(
+    normalizeCrmMailRecipients({ to: ' Ana@Example.com ', cc: ['jo@example.com', 'ANA@example.com'], bcc: 'jo@example.com' }),
+    { recipients: ['ana@example.com'], cc: ['jo@example.com'], bcc: [], mode: 'group' });
+
+  // Sin modo explícito, varios «Para» salen uno a uno, como antes de existir CC.
+  assert.equal(normalizeCrmMailRecipients({ to: ['a@example.com', 'b@example.com'] }).mode, 'individual');
+  assert.equal(
+    normalizeCrmMailRecipients({ to: ['a@example.com', 'b@example.com'], cc: ['c@example.com'], mode: 'group' }).mode,
+    'group');
+
+  // Copiar a alguien en un envío individual le mandaría un mensaje por destinatario.
+  assert.throws(
+    () => normalizeCrmMailRecipients({ to: ['a@example.com', 'b@example.com'], bcc: ['c@example.com'] }),
+    error => error instanceof MailValidationError && error.code === 'copies_need_group');
+
+  assert.throws(() => normalizeCrmMailRecipients({ to: [] }), error => error.code === 'to_invalid');
+  assert.throws(() => normalizeCrmMailRecipients({ to: 'a@example.com', cc: ['nope'] }), error => error.code === 'cc_invalid');
+  assert.throws(() => normalizeCrmMailRecipients({ to: 'a@example.com', bcc: 'x@' }), error => error.code === 'bcc_invalid');
+  assert.throws(() => normalizeCrmMailRecipients({ to: 'a@example.com', mode: 'broadcast' }), error => error.code === 'mode_invalid');
+
+  // El tope cuenta las tres listas juntas.
+  const many = count => Array.from({ length: count }, (_, index) => `p${index}@example.com`);
+  assert.equal(normalizeCrmMailRecipients({ to: many(1), cc: many(20).slice(1) }).cc.length, 19);
+  assert.throws(
+    () => normalizeCrmMailRecipients({ to: ['solo@example.com'], cc: many(10), bcc: many(20).slice(10).concat('extra@example.com') }),
+    error => error.code === 'to_too_many');
+});
+
+test('CC goes in the header and BCC only in the SMTP envelope', async () => {
+  let captured = null;
+  const transport = { sendMail: async message => { captured = message; return { messageId: message.messageId, rejected: [] }; } };
+  await sendEmail({
+    from: 'Elysium <info@elysiumdr.eu>', to: ['ana@example.com'], cc: ['jo@example.com'], bcc: ['archivo@example.com'],
+    subject: 'Hola', html: '<p>Hola</p>', text: 'Hola'
+  }, 'crm-key-group', transport);
+  assert.deepEqual(captured.to, ['ana@example.com']);
+  assert.deepEqual(captured.cc, ['jo@example.com']);
+  assert.deepEqual(captured.bcc, ['archivo@example.com']);
+
+  // Sin copias no se mandan listas vacías a Nodemailer.
+  await sendEmail({ from: 'Elysium <info@elysiumdr.eu>', to: ['ana@example.com'], subject: 'Hola', html: '<p>Hola</p>' },
+    'crm-key-single', transport);
+  assert.equal(captured.cc, undefined);
+  assert.equal(captured.bcc, undefined);
+});
+
+test('the fingerprint and the receipt account for CC and BCC', () => {
+  const message = {
+    actorUid: 'admin-1', from: 'info@elysiumdr.eu', recipients: ['one@example.com'],
+    replyTo: null, subject: 'Proposal', html: '<p>Hello</p>', attachments: []
+  };
+  assert.notEqual(crmMailFingerprint(message), crmMailFingerprint({ ...message, cc: ['two@example.com'] }));
+  assert.notEqual(crmMailFingerprint(message), crmMailFingerprint({ ...message, bcc: ['two@example.com'] }));
+  assert.notEqual(crmMailFingerprint(message), crmMailFingerprint({ ...message, mode: 'group' }));
+
+  const payload = crmMailReceiptPayload({
+    sender: { name: 'Daniel Ávila', address: 'daniel.avila@elysiumdr.eu' },
+    actorEmail: 'admin@example.com',
+    recipients: ['client@example.com'],
+    cc: ['partner@example.com'],
+    bcc: ['archive@example.com'],
+    subject: 'Asunto', html: '<p>Hola</p>', text: 'Hola', attachments: [],
+    sentAt: new Date('2026-10-26T12:00:00.000Z'), locale: 'es'
+  });
+  assert.match(payload.html, />CC<\/td>[\s\S]*partner@example\.com/);
+  assert.match(payload.html, />CCO<\/td>[\s\S]*archive@example\.com/);
+  assert.match(payload.text, /^CC: partner@example\.com$/m);
+
+  const plain = crmMailReceiptPayload({ ...{
+    sender: { name: 'Elysium', address: 'info@elysiumdr.eu' }, actorEmail: 'a@example.com',
+    recipients: ['client@example.com'], subject: 'S', html: '<p>x</p>', text: 'x', attachments: [],
+    sentAt: new Date('2026-10-26T12:00:00.000Z'), locale: 'es'
+  } });
+  assert.doesNotMatch(plain.html, />CCO?<\/td>/);
 });
 
 test('the separate administrator receipt escapes content and preserves a safe copy', () => {

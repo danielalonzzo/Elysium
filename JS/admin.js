@@ -1264,33 +1264,58 @@ const translations = {
             title: "Mail",
             desc: "Compose and send email from the Elysium mailboxes.",
             composeEyebrow: "New message", composeTitle: "Compose",
-            labelFrom: "From", labelReply: "Reply-To (optional)", labelTo: "To",
+            labelFrom: "From", labelReply: "Reply-To", labelTo: "To", labelCc: "Cc", labelBcc: "Bcc",
             labelSubject: "Subject", labelBody: "HTML template", labelAttachments: "Attachments",
-            toHint: "Separate several recipients with commas. The list suggests clients on file.",
-            bodyHint: "Upload the finished email; its preview appears beside the form.",
-            attachmentsHint: "Up to 10 files, 8 MB each and 12 MB in total.",
+            removeCc: "Remove Cc", removeBcc: "Remove Bcc", removeReply: "Remove Reply-To",
+            removeRecipient: address => `Remove ${address}`,
+            bodyHint: "Drop the finished email here or choose it; its preview appears beside the form.",
+            attachmentsHint: "Drop files here · up to 10 files, 8 MB each and 12 MB in total.",
             importText: "Choose .html", addFiles: "Add files", sendText: "Send",
-            loadingSenders: "Loading mailboxes…", subjectPlaceholder: "A clear subject for this message",
+            sendShortcut: "Send (⌘/Ctrl + Enter)",
+            loadingSenders: "Loading mailboxes…", noSenders: "No mailbox available",
+            subjectPlaceholder: "A clear subject for this message",
             removeTemplate: "Remove HTML template", previewFrameTitle: "Email preview",
             secureLabel: "Secure SMTP", previewEyebrow: "Recipient view", previewTitle: "Email preview",
-            noTemplate: "No template", readyTemplate: "Ready",
+            noTemplate: "No template", readyTemplate: "Ready", liveBadge: "Live",
             previewEmptyTitle: "Your message will appear here",
-            previewEmptyCopy: "Choose an HTML template to inspect it before sending.",
+            previewEmptyCopy: "Write the message or choose an HTML template to inspect it before sending.",
+            deviceDesktop: "Desktop view", deviceMobile: "Mobile view",
+            noSubject: "(no subject)", noRecipients: "No recipients yet",
+            inboxTo: (to, cc) => `to ${to}${cc ? ` · cc ${cc}` : ''}`,
+            bodyTabs: "Message body", tabWrite: "Write", tabTemplate: "HTML template",
+            letterLang: "Email language",
+            bodyPlaceholder: "Dear Ms Rivera,\n\nWrite the message here. Leave a blank line between paragraphs.",
+            signatureLabel: name => `Sign as ${name}`,
+            signatureLabelEmpty: "Add the sender's signature",
+            formatHint: "**bold** · lines starting with “- ” become a list · links are detected automatically",
+            deliveryLabel: "Delivery", deliveryIndividual: "One by one", deliveryGroup: "As a group",
+            deliveryIndividualHint: count => `Each of the ${count} recipients gets their own email and does not see the others.`,
+            deliveryGroupHint: "A single email: everyone sees who is in To and Cc.",
+            deliveryCopiesHint: "Cc and Bcc need a single email for everyone.",
+            discard: "Discard", discardConfirm: "Discard draft?", discarded: "Draft discarded.",
+            draftSaved: "Draft saved", draftRestored: "Draft restored",
+            recipientsCount: count => count === 1 ? "1 recipient" : `${count} recipients`,
             confirmEyebrow: "Final check", confirmTitle: "Send this email?",
             confirmCopy: "Review the real delivery details before continuing.",
             confirmCancel: "Cancel", confirmAction: "Send email",
-            confirmFrom: "From", confirmTo: "To", confirmSubject: "Subject", confirmFiles: "Attachments",
+            confirmFrom: "From", confirmTo: "To", confirmCc: "Cc", confirmBcc: "Bcc", confirmMode: "Delivery",
+            confirmSubject: "Subject", confirmFiles: "Attachments",
+            confirmModeIndividual: count => `One email per recipient (${count})`,
+            confirmModeGroup: "A single email for everyone",
             attachmentsCount: count => count === 1 ? "1 file" : `${count} files`,
+            noAttachments: "None",
             senderRequired: "Choose a sender.",
             senderNotReady: "no credentials",
             senderMissingCredentials: (list, suffix) =>
                 `${list} cannot send yet: set SMTP_USER_${suffix} and SMTP_PASSWORD_${suffix} on the service.`,
             recipientRequired: "Enter at least one recipient.",
             recipientInvalid: "Every recipient must be a valid email address.",
-            recipientLimit: "A message can have at most 20 recipients.",
+            invalidAddress: address => `${address} is not a valid address.`,
+            recipientLimit: "A message can have at most 20 recipients, counting Cc and Bcc.",
             replyInvalid: "Reply-To must be a valid email address.",
             subjectRequired: "A subject is required.",
             templateRequired: "Choose an HTML template.",
+            bodyRequired: "Write the message before sending it.",
             editText: "Edit text", editDone: "Done editing",
             editHint: "Click any text in the preview to correct it. The changes go out with the message.",
             htmlTooLarge: max => `The HTML template must stay under ${max}.`,
@@ -1498,33 +1523,58 @@ const translations = {
             title: "Correo",
             desc: "Redacta y envía correo desde los buzones de Elysium.",
             composeEyebrow: "Mensaje nuevo", composeTitle: "Redactar",
-            labelFrom: "De", labelReply: "Responder a (opcional)", labelTo: "Para",
+            labelFrom: "De", labelReply: "Responder a", labelTo: "Para", labelCc: "CC", labelBcc: "CCO",
             labelSubject: "Asunto", labelBody: "Plantilla HTML", labelAttachments: "Adjuntos",
-            toHint: "Separa varios destinatarios con comas. La lista sugiere los clientes registrados.",
-            bodyHint: "Sube el correo terminado; la vista previa aparece junto al formulario.",
-            attachmentsHint: "Hasta 10 archivos, 8 MB cada uno y 12 MB en total.",
+            removeCc: "Quitar CC", removeBcc: "Quitar CCO", removeReply: "Quitar «Responder a»",
+            removeRecipient: address => `Quitar ${address}`,
+            bodyHint: "Suelta aquí el correo terminado o elígelo; la vista previa aparece junto al formulario.",
+            attachmentsHint: "Suelta aquí los archivos · hasta 10, de 8 MB cada uno y 12 MB en total.",
             importText: "Elegir .html", addFiles: "Añadir archivos", sendText: "Enviar",
-            loadingSenders: "Cargando buzones…", subjectPlaceholder: "Un asunto claro para este mensaje",
+            sendShortcut: "Enviar (⌘/Ctrl + Intro)",
+            loadingSenders: "Cargando buzones…", noSenders: "No hay ningún buzón disponible",
+            subjectPlaceholder: "Un asunto claro para este mensaje",
             removeTemplate: "Quitar plantilla HTML", previewFrameTitle: "Vista previa del correo",
             secureLabel: "SMTP seguro", previewEyebrow: "Vista del destinatario", previewTitle: "Vista previa del correo",
-            noTemplate: "Sin plantilla", readyTemplate: "Lista",
+            noTemplate: "Sin plantilla", readyTemplate: "Lista", liveBadge: "En directo",
             previewEmptyTitle: "Tu mensaje aparecerá aquí",
-            previewEmptyCopy: "Elige una plantilla HTML para revisarla antes de enviarla.",
+            previewEmptyCopy: "Escribe el mensaje o elige una plantilla HTML para revisarlo antes de enviarlo.",
+            deviceDesktop: "Vista de escritorio", deviceMobile: "Vista de móvil",
+            noSubject: "(sin asunto)", noRecipients: "Todavía sin destinatarios",
+            inboxTo: (to, cc) => `para ${to}${cc ? ` · cc ${cc}` : ''}`,
+            bodyTabs: "Cuerpo del mensaje", tabWrite: "Escribir", tabTemplate: "Plantilla HTML",
+            letterLang: "Idioma del correo",
+            bodyPlaceholder: "Estimada Sra. Rivera:\n\nEscribe aquí el mensaje. Deja una línea en blanco entre párrafos.",
+            signatureLabel: name => `Firmar como ${name}`,
+            signatureLabelEmpty: "Añadir la firma del remitente",
+            formatHint: "**negrita** · las líneas que empiezan por «- » forman una lista · los enlaces se detectan solos",
+            deliveryLabel: "Envío", deliveryIndividual: "Uno a uno", deliveryGroup: "En grupo",
+            deliveryIndividualHint: count => `Cada uno de los ${count} destinatarios recibe su propio correo y no ve a los demás.`,
+            deliveryGroupHint: "Un único correo: todos ven quién va en «Para» y en CC.",
+            deliveryCopiesHint: "CC y CCO necesitan un único correo para todos.",
+            discard: "Descartar", discardConfirm: "¿Descartar el borrador?", discarded: "Borrador descartado.",
+            draftSaved: "Borrador guardado", draftRestored: "Borrador recuperado",
+            recipientsCount: count => count === 1 ? "1 destinatario" : `${count} destinatarios`,
             confirmEyebrow: "Revisión final", confirmTitle: "¿Enviar este correo?",
             confirmCopy: "Comprueba los datos reales de entrega antes de continuar.",
             confirmCancel: "Cancelar", confirmAction: "Enviar correo",
-            confirmFrom: "De", confirmTo: "Para", confirmSubject: "Asunto", confirmFiles: "Adjuntos",
+            confirmFrom: "De", confirmTo: "Para", confirmCc: "CC", confirmBcc: "CCO", confirmMode: "Envío",
+            confirmSubject: "Asunto", confirmFiles: "Adjuntos",
+            confirmModeIndividual: count => `Un correo por destinatario (${count})`,
+            confirmModeGroup: "Un único correo para todos",
             attachmentsCount: count => count === 1 ? "1 archivo" : `${count} archivos`,
+            noAttachments: "Ninguno",
             senderRequired: "Elige un remitente.",
             senderNotReady: "sin credenciales",
             senderMissingCredentials: (list, suffix) =>
                 `${list} todavía no puede enviar: configura SMTP_USER_${suffix} y SMTP_PASSWORD_${suffix} en el servicio.`,
             recipientRequired: "Indica al menos un destinatario.",
             recipientInvalid: "Todos los destinatarios deben ser correos válidos.",
-            recipientLimit: "Un mensaje puede tener como máximo 20 destinatarios.",
+            invalidAddress: address => `${address} no es una dirección válida.`,
+            recipientLimit: "Un mensaje puede tener como máximo 20 destinatarios, contando CC y CCO.",
             replyInvalid: "El correo de respuesta no es válido.",
             subjectRequired: "Hace falta un asunto.",
             templateRequired: "Elige una plantilla HTML.",
+            bodyRequired: "Escribe el mensaje antes de enviarlo.",
             editText: "Editar texto", editDone: "Terminar edición",
             editHint: "Pulsa sobre cualquier texto de la vista previa para corregirlo. Los cambios salen con el correo.",
             htmlTooLarge: max => `La plantilla HTML debe pesar menos de ${max}.`,
@@ -1731,33 +1781,58 @@ const translations = {
             title: "Correio",
             desc: "Redija e envie correio a partir das caixas da Elysium.",
             composeEyebrow: "Nova mensagem", composeTitle: "Redigir",
-            labelFrom: "De", labelReply: "Responder a (opcional)", labelTo: "Para",
+            labelFrom: "De", labelReply: "Responder a", labelTo: "Para", labelCc: "Cc", labelBcc: "Bcc",
             labelSubject: "Assunto", labelBody: "Modelo HTML", labelAttachments: "Anexos",
-            toHint: "Separe vários destinatários com vírgulas. A lista sugere os clientes registados.",
-            bodyHint: "Carregue o email terminado; a pré-visualização aparece junto ao formulário.",
-            attachmentsHint: "Até 10 ficheiros, 8 MB cada e 12 MB no total.",
+            removeCc: "Remover Cc", removeBcc: "Remover Bcc", removeReply: "Remover «Responder a»",
+            removeRecipient: address => `Remover ${address}`,
+            bodyHint: "Largue aqui o email terminado ou escolha-o; a pré-visualização aparece junto ao formulário.",
+            attachmentsHint: "Largue aqui os ficheiros · até 10, de 8 MB cada e 12 MB no total.",
             importText: "Escolher .html", addFiles: "Adicionar ficheiros", sendText: "Enviar",
-            loadingSenders: "A carregar caixas…", subjectPlaceholder: "Um assunto claro para esta mensagem",
+            sendShortcut: "Enviar (⌘/Ctrl + Enter)",
+            loadingSenders: "A carregar caixas…", noSenders: "Nenhuma caixa disponível",
+            subjectPlaceholder: "Um assunto claro para esta mensagem",
             removeTemplate: "Remover modelo HTML", previewFrameTitle: "Pré-visualização do email",
             secureLabel: "SMTP seguro", previewEyebrow: "Vista do destinatário", previewTitle: "Pré-visualização do email",
-            noTemplate: "Sem modelo", readyTemplate: "Pronto",
+            noTemplate: "Sem modelo", readyTemplate: "Pronto", liveBadge: "Em direto",
             previewEmptyTitle: "A sua mensagem aparecerá aqui",
-            previewEmptyCopy: "Escolha um modelo HTML para o rever antes de enviar.",
+            previewEmptyCopy: "Escreva a mensagem ou escolha um modelo HTML para a rever antes de enviar.",
+            deviceDesktop: "Vista de computador", deviceMobile: "Vista de telemóvel",
+            noSubject: "(sem assunto)", noRecipients: "Ainda sem destinatários",
+            inboxTo: (to, cc) => `para ${to}${cc ? ` · cc ${cc}` : ''}`,
+            bodyTabs: "Corpo da mensagem", tabWrite: "Escrever", tabTemplate: "Modelo HTML",
+            letterLang: "Idioma do email",
+            bodyPlaceholder: "Exma. Senhora Dra. Rivera,\n\nEscreva aqui a mensagem. Deixe uma linha em branco entre parágrafos.",
+            signatureLabel: name => `Assinar como ${name}`,
+            signatureLabelEmpty: "Adicionar a assinatura do remetente",
+            formatHint: "**negrito** · as linhas que começam por «- » formam uma lista · as ligações são detetadas automaticamente",
+            deliveryLabel: "Envio", deliveryIndividual: "Um a um", deliveryGroup: "Em grupo",
+            deliveryIndividualHint: count => `Cada um dos ${count} destinatários recebe o seu próprio email e não vê os outros.`,
+            deliveryGroupHint: "Um único email: todos veem quem está em «Para» e em Cc.",
+            deliveryCopiesHint: "Cc e Bcc precisam de um único email para todos.",
+            discard: "Descartar", discardConfirm: "Descartar o rascunho?", discarded: "Rascunho descartado.",
+            draftSaved: "Rascunho guardado", draftRestored: "Rascunho recuperado",
+            recipientsCount: count => count === 1 ? "1 destinatário" : `${count} destinatários`,
             confirmEyebrow: "Revisão final", confirmTitle: "Enviar este email?",
             confirmCopy: "Confirme os dados reais de entrega antes de continuar.",
             confirmCancel: "Cancelar", confirmAction: "Enviar email",
-            confirmFrom: "De", confirmTo: "Para", confirmSubject: "Assunto", confirmFiles: "Anexos",
+            confirmFrom: "De", confirmTo: "Para", confirmCc: "Cc", confirmBcc: "Bcc", confirmMode: "Envio",
+            confirmSubject: "Assunto", confirmFiles: "Anexos",
+            confirmModeIndividual: count => `Um email por destinatário (${count})`,
+            confirmModeGroup: "Um único email para todos",
             attachmentsCount: count => count === 1 ? "1 ficheiro" : `${count} ficheiros`,
+            noAttachments: "Nenhum",
             senderRequired: "Escolha um remetente.",
             senderNotReady: "sem credenciais",
             senderMissingCredentials: (list, suffix) =>
                 `${list} ainda não pode enviar: configure SMTP_USER_${suffix} e SMTP_PASSWORD_${suffix} no serviço.`,
             recipientRequired: "Indique pelo menos um destinatário.",
             recipientInvalid: "Todos os destinatários devem ser emails válidos.",
-            recipientLimit: "Uma mensagem pode ter no máximo 20 destinatários.",
+            invalidAddress: address => `${address} não é um endereço válido.`,
+            recipientLimit: "Uma mensagem pode ter no máximo 20 destinatários, contando Cc e Bcc.",
             replyInvalid: "O email de resposta não é válido.",
             subjectRequired: "É necessário um assunto.",
             templateRequired: "Escolha um modelo HTML.",
+            bodyRequired: "Escreva a mensagem antes de a enviar.",
             editText: "Editar texto", editDone: "Terminar edição",
             editHint: "Toque em qualquer texto da pré-visualização para o corrigir. As alterações seguem com o email.",
             htmlTooLarge: max => `O modelo HTML deve ter menos de ${max}.`,
@@ -3440,25 +3515,40 @@ function applyTranslations() {
         'mail-label-from': mailCopy.labelFrom,
         'mail-label-reply': mailCopy.labelReply,
         'mail-label-to': mailCopy.labelTo,
+        'mail-label-cc': mailCopy.labelCc,
+        'mail-label-bcc': mailCopy.labelBcc,
+        'mail-cc-toggle': mailCopy.labelCc,
+        'mail-bcc-toggle': mailCopy.labelBcc,
+        'mail-reply-toggle': mailCopy.labelReply,
         'mail-label-subject': mailCopy.labelSubject,
         'mail-label-body': mailCopy.labelBody,
         'mail-label-attachments': mailCopy.labelAttachments,
-        'mail-to-hint': mailCopy.toHint,
         'mail-body-hint': mailCopy.bodyHint,
         'mail-attachments-hint': mailCopy.attachmentsHint,
         'mail-import-text': mailCopy.importText,
         'mail-attachment-action': mailCopy.addFiles,
         'mail-send-text': mailCopy.sendText,
         'mail-secure-label': mailCopy.secureLabel,
+        'mail-delivery-label': mailCopy.deliveryLabel,
+        'mail-delivery-individual': mailCopy.deliveryIndividual,
+        'mail-delivery-group': mailCopy.deliveryGroup,
+        'mail-tab-write-label': mailCopy.tabWrite,
+        'mail-tab-template-label': mailCopy.tabTemplate,
+        'mail-letter-lang-label': mailCopy.letterLang,
+        'mail-format-hint': mailCopy.formatHint,
         'mail-preview-eyebrow': mailCopy.previewEyebrow,
         'mail-preview-title': mailCopy.previewTitle,
         'mail-preview-empty-title': mailCopy.previewEmptyTitle,
         'mail-preview-empty-copy': mailCopy.previewEmptyCopy,
+        'mail-edit-hint': mailCopy.editHint,
         'mail-confirm-eyebrow': mailCopy.confirmEyebrow,
         'mail-confirm-title': mailCopy.confirmTitle,
         'mail-confirm-copy': mailCopy.confirmCopy,
         'mail-confirm-from-label': mailCopy.confirmFrom,
         'mail-confirm-to-label': mailCopy.confirmTo,
+        'mail-confirm-cc-label': mailCopy.confirmCc,
+        'mail-confirm-bcc-label': mailCopy.confirmBcc,
+        'mail-confirm-mode-label': mailCopy.confirmMode,
         'mail-confirm-subject-label': mailCopy.confirmSubject,
         'mail-confirm-files-label': mailCopy.confirmFiles,
         'mail-confirm-cancel': mailCopy.confirmCancel,
@@ -3466,24 +3556,9 @@ function applyTranslations() {
     };
     for (const [id, value] of Object.entries(mailLabels)) {
         const element = document.getElementById(id);
-        if (element && value) element.textContent = value;
+        if (element) element.textContent = value;
     }
-    const mailSubject = document.getElementById('mail-subject');
-    if (mailSubject) mailSubject.placeholder = mailCopy.subjectPlaceholder;
-    const removeTemplate = document.getElementById('mail-remove-template-btn');
-    if (removeTemplate) removeTemplate.setAttribute('aria-label', mailCopy.removeTemplate);
-    const previewFrame = document.getElementById('mail-live-preview-frame');
-    if (previewFrame) previewFrame.title = mailCopy.previewFrameTitle;
-    const senderSelect = document.getElementById('mail-sender');
-    if (senderSelect?.options.length === 1 && !senderSelect.value) {
-        senderSelect.options[0].textContent = mailCopy.loadingSenders;
-    }
-    const previewBadge = document.getElementById('mail-preview-badge');
-    if (previewBadge) previewBadge.textContent = _mailTemplateHtml ? mailCopy.readyTemplate : mailCopy.noTemplate;
-    const editHint = document.getElementById('mail-edit-hint');
-    if (editHint) editHint.textContent = mailCopy.editHint;
-    syncMailEditAvailability();
-    if (_mailInitialized) renderMailAttachments();
+    applyMailTranslations();
 
     // Logout button has SVG + span — only update the span
     const logoutSpan = document.querySelector('#logoutBtn span');
@@ -8441,10 +8516,16 @@ function exportReportsCsv() {
    Redacción de correo desde el CRM.
 
    El envío va contra `POST /api/mail/send` del servicio de plataforma, el mismo
-   que agenda las reuniones y el mismo que posee el buzón de IONOS del que salen
-   `info@` y `daniel.morales@`. No pasa por Cloud Functions: la función que había
-   enviaba por Resend, que no está configurado, y no comprobaba que quien la
-   llamaba fuese administrador.
+   que agenda las reuniones y el mismo que posee los buzones de IONOS de los que
+   sale el correo. No pasa por Cloud Functions: la función que había enviaba por
+   Resend, que no está configurado, y no comprobaba que quien la llamaba fuese
+   administrador.
+
+   El cuerpo se escribe aquí («Escribir», que lo maqueta con el mismo diseño que
+   las plantillas de `Estandares/CORREOS`) o se importa ya terminado como HTML.
+   Para, CC y CCO son listas de fichas; con varios «Para» se elige si cada uno
+   recibe su propio correo o si va uno solo para todos, y CC/CCO obligan a lo
+   segundo, igual que exige el servidor.
 
    Los límites de tamaño se repiten aquí y en el servidor a propósito. Los de
    aquí son cortesía —avisan antes de subir doce megas—; los que mandan son los
@@ -8457,6 +8538,10 @@ const MAIL_MAX_ATTACHMENT_BYTES = 8 * 1024 * 1024;
 const MAIL_MAX_TOTAL_ATTACHMENT_BYTES = 12 * 1024 * 1024;
 const MAIL_MAX_HTML_BYTES = 1024 * 1024;
 const MAIL_MAX_RECIPIENTS = 20;
+const MAIL_DRAFT_STORAGE_KEY = 'elysium-crm-mail-draft';
+const MAIL_SENDER_STORAGE_KEY = 'elysium-crm-mail-sender';
+const MAIL_RECIPIENT_FIELDS = ['to', 'cc', 'bcc'];
+const MAIL_RECIPIENT_INPUTS = { to: 'mail-recipient', cc: 'mail-cc', bcc: 'mail-bcc' };
 
 let _mailSenders = [];
 let _mailInitialized = false;
@@ -8466,6 +8551,18 @@ let _mailAttachments = [];
 let _mailConfirmResolve = null;
 let _mailPendingKey = '';
 let _mailPendingFingerprint = '';
+let _mailBodyMode = 'write';
+let _mailDelivery = 'individual';
+let _mailPreviewTimer = 0;
+let _mailDraftTimer = 0;
+let _mailDraftStateTimer = 0;
+let _mailDiscardTimer = 0;
+// El borrador no se guarda mientras se está restaurando: pisaría el aviso.
+let _mailDraftReady = false;
+// Lo anuncia el servicio en /api/mail/senders. Una versión anterior ignoraría
+// CC y CCO sin dar error, así que sin el anuncio no se ofrecen.
+let _mailSupportsCopies = true;
+const _mailRecipients = { to: [], cc: [], bcc: [] };
 
 function mailText() {
     const t = translations[currentLang] || translations.en;
@@ -8495,7 +8592,120 @@ function fileToBase64(file) {
     });
 }
 
+function validMailAddress(value) {
+    return /^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[^\s@<>(),;:"]+$/.test(String(value || '').trim());
+}
+
 /* ── Remitentes ── */
+
+function selectedMailSender() {
+    const address = document.getElementById('mail-sender')?.value || '';
+    return _mailSenders.find(sender => sender.address === address) || null;
+}
+
+/** Iniciales para el avatar; los buzones de la empresa llevan el λ. */
+function mailSenderInitials(sender) {
+    const words = String(sender?.name || '').split(/\s+/)
+        .filter(word => word && word.toLowerCase() !== 'elysium');
+    if (!words.length) return 'λ';
+    return words.slice(0, 2).map(word => word.charAt(0)).join('').toLocaleUpperCase();
+}
+
+/** Un tono estable por dirección, para distinguir los buzones de un vistazo. */
+function mailSenderTone(address) {
+    let hash = 0;
+    for (const character of String(address || '')) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+    return String(hash % 5);
+}
+
+function paintMailAvatar(element, sender) {
+    if (!element) return;
+    element.textContent = sender ? mailSenderInitials(sender) : 'λ';
+    element.dataset.tone = sender ? mailSenderTone(sender.address) : '';
+}
+
+function renderMailSenderPicker() {
+    const c = mailText();
+    const sender = selectedMailSender();
+    const trigger = document.getElementById('mail-sender-trigger');
+    const name = document.getElementById('mail-sender-name');
+    const address = document.getElementById('mail-sender-address');
+    const list = document.getElementById('mail-sender-list');
+    if (!trigger || !list) return;
+
+    paintMailAvatar(document.getElementById('mail-sender-avatar'), sender);
+    if (name) {
+        name.textContent = sender
+            ? sender.name
+            : (_mailSenders.length ? c.senderRequired : (_mailInitialized ? c.noSenders : c.loadingSenders));
+    }
+    if (address) address.textContent = sender?.address || '';
+    trigger.disabled = !_mailSenders.some(item => item.ready);
+
+    list.innerHTML = _mailSenders.map((item, index) => {
+        const selected = item.address === sender?.address;
+        return `<li role="option" id="mail-sender-option-${index}" class="mail-sender-option${selected ? ' is-selected' : ''}"`
+            + ` data-address="${esc(item.address)}" aria-selected="${selected}"${item.ready ? '' : ' aria-disabled="true"'}>`
+            + `<span class="mail-avatar" data-tone="${mailSenderTone(item.address)}" aria-hidden="true">${esc(mailSenderInitials(item))}</span>`
+            + `<span class="mail-sender-text"><strong>${esc(item.name)}</strong><small>${esc(item.address)}</small></span>`
+            + (item.ready
+                ? `<svg class="mail-sender-check" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></svg>`
+                : `<span class="mail-sender-flag">${esc(c.senderNotReady)}</span>`)
+            + '</li>';
+    }).join('');
+
+    renderMailSignatureLabel();
+    renderMailInboxHead();
+}
+
+function mailSenderOptions() {
+    return [...document.querySelectorAll('#mail-sender-list .mail-sender-option:not([aria-disabled="true"])')];
+}
+
+function setActiveMailSenderOption(option) {
+    const list = document.getElementById('mail-sender-list');
+    if (!list) return;
+    list.querySelectorAll('.mail-sender-option.is-active').forEach(item => item.classList.remove('is-active'));
+    if (option) {
+        option.classList.add('is-active');
+        list.setAttribute('aria-activedescendant', option.id);
+        option.scrollIntoView({ block: 'nearest' });
+    } else {
+        list.removeAttribute('aria-activedescendant');
+    }
+}
+
+function openMailSenderList() {
+    const trigger = document.getElementById('mail-sender-trigger');
+    const list = document.getElementById('mail-sender-list');
+    if (!trigger || !list || trigger.disabled) return;
+    list.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    const options = mailSenderOptions();
+    setActiveMailSenderOption(options.find(option => option.classList.contains('is-selected')) || options[0]);
+    list.focus();
+}
+
+function closeMailSenderList({ focusTrigger = false } = {}) {
+    const trigger = document.getElementById('mail-sender-trigger');
+    const list = document.getElementById('mail-sender-list');
+    if (!list || list.hidden) return;
+    list.hidden = true;
+    trigger?.setAttribute('aria-expanded', 'false');
+    if (focusTrigger) trigger?.focus();
+}
+
+function chooseMailSender(address) {
+    const select = document.getElementById('mail-sender');
+    const sender = _mailSenders.find(item => item.address === address);
+    if (!select || !sender?.ready) return;
+    select.value = address;
+    try { localStorage.setItem(MAIL_SENDER_STORAGE_KEY, address); } catch {}
+    resetMailIdempotency();
+    renderMailSenderPicker();
+    scheduleMailPreview();
+    scheduleMailDraftSave();
+}
 
 async function loadMailSenders() {
     const select = document.getElementById('mail-sender');
@@ -8506,10 +8716,13 @@ async function loadMailSenders() {
     try {
         const result = await platformRequest('/api/mail/senders', { method: 'GET' });
         _mailSenders = Array.isArray(result.senders) ? result.senders : [];
+        _mailSupportsCopies = result.capabilities?.copies === true;
+        syncMailCapabilities();
     } catch (error) {
         logger.warn('Could not load the sender list:', error);
         _mailSenders = [];
         select.innerHTML = '';
+        renderMailSenderPicker();
         if (hint) {
             hint.textContent = error.code === 'api_not_configured' || error.code === 'api_timeout'
                 ? c.serviceDown
@@ -8520,20 +8733,25 @@ async function loadMailSenders() {
     }
 
     const previous = select.value;
-    select.innerHTML = _mailSenders.map(sender => {
-        const label = `${sender.name} <${sender.address}>`;
-        // Un remitente sin credenciales propias no puede enviar: se muestra
-        // deshabilitado en vez de dejar que IONOS rechace el mensaje después.
-        return `<option value="${esc(sender.address)}"${sender.ready ? '' : ' disabled'}>`
-            + `${esc(label)}${sender.ready ? '' : ` — ${esc(c.senderNotReady)}`}</option>`;
-    }).join('');
+    select.innerHTML = _mailSenders.map(sender =>
+        `<option value="${esc(sender.address)}"${sender.ready ? '' : ' disabled'}>${esc(`${sender.name} <${sender.address}>`)}</option>`
+    ).join('');
 
-    const firstReady = _mailSenders.find(sender => sender.ready);
-    select.value = _mailSenders.some(s => s.address === previous && s.ready)
-        ? previous
-        : (firstReady?.address || '');
+    // Por este orden: el que ya estaba elegido, el del borrador o la última
+    // vez, y si no el primero que pueda enviar.
+    let remembered = '';
+    try { remembered = localStorage.getItem(MAIL_SENDER_STORAGE_KEY) || ''; } catch {}
+    const usable = address => _mailSenders.some(sender => sender.address === address && sender.ready);
+    select.value = [previous, select.dataset.draftSender, remembered].find(usable)
+        || _mailSenders.find(sender => sender.ready)?.address
+        || '';
+    delete select.dataset.draftSender;
+    renderMailSenderPicker();
+    scheduleMailPreview();
 
     if (hint) {
+        // Un remitente sin credenciales propias no puede enviar: se muestra
+        // deshabilitado en vez de dejar que IONOS rechace el mensaje después.
         const blocked = _mailSenders.filter(sender => !sender.ready);
         hint.classList.toggle('is-warning', blocked.length > 0);
         hint.textContent = blocked.length
@@ -8542,84 +8760,528 @@ async function loadMailSenders() {
     }
 }
 
-/* ── Destinatarios sugeridos ── */
+/* ── Destinatarios ──────────────────────────────────────────────────────────
+   Cada campo es una lista de fichas. Se puede escribir y confirmar con Intro,
+   coma o tabulador, pegar varias direcciones de golpe (también en la forma
+   `Nombre <correo>`) o elegir uno de los clientes que sugiere la lista. */
 
-/**
- * Rellena el datalist con los correos de los clientes que ya tiene el CRM.
- * Los carga si hace falta: se puede entrar a Correo sin haber pasado por
- * Clientes ni por Agenda, y entonces la caché está vacía.
- */
-async function fillMailRecipientOptions() {
-    const list = document.getElementById('mail-client-emails');
-    if (!list) return;
-    try {
-        await ensureAgendaClients(_agendaLoadVersion);
-    } catch (error) {
-        logger.warn('Could not load clients for the recipient suggestions:', error);
-    }
+function mailClientDirectory() {
     const seen = new Set();
-    const options = [];
+    const directory = [];
     for (const client of (_allClients || [])) {
-        const email = String(client.email || '').trim();
-        if (!email || seen.has(email.toLowerCase())) continue;
-        seen.add(email.toLowerCase());
-        const label = client.company || client.name || '';
-        options.push(`<option value="${esc(email)}"${label ? ` label="${esc(label)}"` : ''}></option>`);
+        const email = String(client.email || '').trim().toLowerCase();
+        if (!email || seen.has(email)) continue;
+        seen.add(email);
+        directory.push({ email, label: client.company || client.name || '', name: client.name || '' });
     }
-    list.innerHTML = options.join('');
+    return directory;
 }
 
-/* ── Adjuntos ── */
+function mailContactLabel(address) {
+    const wanted = String(address || '').toLowerCase();
+    const client = (_allClients || []).find(item => String(item.email || '').trim().toLowerCase() === wanted);
+    return client ? (client.company || client.name || '') : '';
+}
 
-function renderMailAttachments() {
-    const list = document.getElementById('mail-attachment-list');
-    if (!list) return [];
+/** Saca direcciones de un texto pegado o tecleado. */
+function splitMailAddresses(raw) {
+    const addresses = [];
+    for (const piece of String(raw || '').split(/[,;\n]+/)) {
+        const bracketed = piece.match(/<([^<>\s]+)>/);
+        if (bracketed) {
+            addresses.push(bracketed[1]);
+            continue;
+        }
+        addresses.push(...piece.split(/\s+/).filter(Boolean));
+    }
+    return addresses.map(address => address.replace(/^mailto:/i, '').trim().toLowerCase()).filter(Boolean);
+}
+
+function addMailRecipients(field, raw) {
+    const list = _mailRecipients[field];
+    let added = false;
+    for (const address of splitMailAddresses(raw)) {
+        if (list.includes(address)) continue;
+        list.push(address);
+        added = true;
+    }
+    if (!added) return false;
+    afterMailRecipientsChange(field);
+    return true;
+}
+
+function removeMailRecipient(field, index) {
+    _mailRecipients[field].splice(index, 1);
+    afterMailRecipientsChange(field);
+}
+
+function afterMailRecipientsChange(field) {
+    resetMailIdempotency();
+    renderMailChips(field);
+    syncMailDelivery();
+    renderMailSummary();
+    renderMailInboxHead();
+    scheduleMailDraftSave();
+}
+
+function renderMailChips(field) {
+    const chips = document.getElementById(`mail-${field}-chips`);
+    if (!chips) return;
     const c = mailText();
-
-    const total = _mailAttachments.reduce((sum, file) => sum + file.size, 0);
-    list.innerHTML = _mailAttachments.map((file, index) => {
-        const oversize = file.size > MAIL_MAX_ATTACHMENT_BYTES;
-        return `<li${oversize ? ' class="is-oversize"' : ''}>`
-            + `<span class="mail-attachment-name" title="${esc(file.name)}">${esc(file.name)}</span>`
-            + `<span class="mail-attachment-size">${esc(formatBytes(file.size))}</span>`
-            + `<button class="mail-attachment-remove" type="button" data-mail-attachment-remove="${index}"`
-            + ` aria-label="${esc(`${c.confirmCancel}: ${file.name}`)}">×</button></li>`;
+    chips.innerHTML = _mailRecipients[field].map((address, index) => {
+        const valid = validMailAddress(address);
+        const label = valid ? mailContactLabel(address) : '';
+        return `<li class="mail-chip${valid ? '' : ' is-invalid'}" title="${esc(valid ? address : c.invalidAddress(address))}">`
+            + `<span class="mail-chip-text">${label ? `<strong>${esc(label)}</strong>` : ''}<span>${esc(address)}</span></span>`
+            + `<button type="button" data-mail-chip-remove="${field}:${index}" aria-label="${esc(c.removeRecipient(address))}">×</button></li>`;
     }).join('');
-
-    const problems = [];
-    if (_mailAttachments.length > MAIL_MAX_ATTACHMENTS) problems.push(c.tooManyFiles(MAIL_MAX_ATTACHMENTS));
-    if (_mailAttachments.some(file => file.size === 0)) {
-        const empty = _mailAttachments.find(file => file.size === 0);
-        problems.push(c.emptyFile(empty?.name || 'File'));
-    }
-    if (_mailAttachments.some(file => file.size > MAIL_MAX_ATTACHMENT_BYTES)) {
-        problems.push(c.fileTooLarge(formatBytes(MAIL_MAX_ATTACHMENT_BYTES)));
-    }
-    if (total > MAIL_MAX_TOTAL_ATTACHMENT_BYTES) {
-        problems.push(c.totalTooLarge(formatBytes(MAIL_MAX_TOTAL_ATTACHMENT_BYTES)));
-    }
-    return problems;
 }
 
-function validMailAddress(value) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim());
+/** Lo que quede escrito en un campo pasa a ficha, aunque no se haya confirmado. */
+function commitMailRecipientInput(field) {
+    const input = document.getElementById(MAIL_RECIPIENT_INPUTS[field]);
+    if (!input?.value.trim()) return;
+    addMailRecipients(field, input.value);
+    input.value = '';
+    closeMailSuggestions(field);
 }
 
-function resetMailIdempotency() {
-    _mailPendingKey = '';
-    _mailPendingFingerprint = '';
+function commitAllMailRecipientInputs() {
+    MAIL_RECIPIENT_FIELDS.forEach(commitMailRecipientInput);
 }
 
-function mailDraftFingerprint({ from, recipients, replyTo, subject }) {
-    return JSON.stringify({
-        from,
-        recipients,
-        replyTo,
-        subject,
-        html: [_mailTemplateFile?.name, _mailTemplateFile?.size, _mailTemplateFile?.lastModified],
-        attachments: _mailAttachments.map(file => [file.name, file.size, file.lastModified])
+/* Sugerencias: los clientes del CRM que coinciden con lo escrito. */
+
+function mailSuggestionsFor(field, query) {
+    const wanted = String(query || '').trim().toLowerCase();
+    if (!wanted) return [];
+    const taken = new Set(MAIL_RECIPIENT_FIELDS.flatMap(name => _mailRecipients[name]));
+    const plain = value => value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const needle = plain(wanted);
+    return mailClientDirectory()
+        .filter(entry => !taken.has(entry.email)
+            && (entry.email.includes(wanted) || plain(entry.label).includes(needle) || plain(entry.name).includes(needle)))
+        .slice(0, 6);
+}
+
+function renderMailSuggestions(field) {
+    const input = document.getElementById(MAIL_RECIPIENT_INPUTS[field]);
+    const box = document.getElementById(`mail-suggest-${field}`);
+    if (!input || !box) return;
+    const matches = mailSuggestionsFor(field, input.value);
+    if (!matches.length) {
+        closeMailSuggestions(field);
+        return;
+    }
+    box.innerHTML = matches.map((entry, index) =>
+        `<li role="option" id="mail-suggest-${field}-${index}" class="mail-suggest-option${index === 0 ? ' is-active' : ''}"`
+        + ` data-email="${esc(entry.email)}" aria-selected="${index === 0}">`
+        + `<span class="mail-avatar" data-tone="${mailSenderTone(entry.email)}" aria-hidden="true">${esc((entry.label || entry.email).charAt(0).toLocaleUpperCase())}</span>`
+        + `<span class="mail-sender-text"><strong>${esc(entry.label || entry.email)}</strong>${entry.label ? `<small>${esc(entry.email)}</small>` : ''}</span></li>`
+    ).join('');
+    box.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+    input.setAttribute('aria-activedescendant', `mail-suggest-${field}-0`);
+}
+
+function closeMailSuggestions(field) {
+    const input = document.getElementById(MAIL_RECIPIENT_INPUTS[field]);
+    const box = document.getElementById(`mail-suggest-${field}`);
+    if (box) {
+        box.hidden = true;
+        box.innerHTML = '';
+    }
+    input?.setAttribute('aria-expanded', 'false');
+    input?.removeAttribute('aria-activedescendant');
+}
+
+function moveMailSuggestion(field, step) {
+    const box = document.getElementById(`mail-suggest-${field}`);
+    const input = document.getElementById(MAIL_RECIPIENT_INPUTS[field]);
+    const options = [...(box?.querySelectorAll('.mail-suggest-option') || [])];
+    if (!options.length) return;
+    const current = options.findIndex(option => option.classList.contains('is-active'));
+    const next = options[(current + step + options.length) % options.length];
+    options.forEach(option => {
+        option.classList.toggle('is-active', option === next);
+        option.setAttribute('aria-selected', String(option === next));
+    });
+    input?.setAttribute('aria-activedescendant', next.id);
+    next.scrollIntoView({ block: 'nearest' });
+}
+
+function pickMailSuggestion(field, email) {
+    const input = document.getElementById(MAIL_RECIPIENT_INPUTS[field]);
+    addMailRecipients(field, email);
+    if (input) {
+        input.value = '';
+        input.focus();
+    }
+    closeMailSuggestions(field);
+}
+
+function wireMailRecipientField(field) {
+    const input = document.getElementById(MAIL_RECIPIENT_INPUTS[field]);
+    const box = document.getElementById(`mail-suggest-${field}`);
+    const container = input?.closest('.mail-chip-field');
+    if (!input) return;
+
+    container?.addEventListener('click', event => {
+        if (event.target === container || event.target.classList?.contains('mail-chips')) input.focus();
+    });
+    document.getElementById(`mail-${field}-chips`)?.addEventListener('click', event => {
+        const remove = event.target.closest('[data-mail-chip-remove]');
+        if (!remove) return;
+        removeMailRecipient(field, Number(remove.dataset.mailChipRemove.split(':')[1]));
+        input.focus();
+    });
+
+    input.addEventListener('keydown', event => {
+        const open = box && !box.hidden;
+        if (event.key === 'ArrowDown' && open) { event.preventDefault(); moveMailSuggestion(field, 1); return; }
+        if (event.key === 'ArrowUp' && open) { event.preventDefault(); moveMailSuggestion(field, -1); return; }
+        if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); closeMailSuggestions(field); return; }
+        if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) return;
+        if (event.key === 'Enter' || event.key === ',' || event.key === ';' || (event.key === 'Tab' && input.value.trim())) {
+            const active = open ? box.querySelector('.mail-suggest-option.is-active') : null;
+            if (active && event.key !== ',' && event.key !== ';') {
+                event.preventDefault();
+                pickMailSuggestion(field, active.dataset.email);
+                return;
+            }
+            if (input.value.trim()) {
+                event.preventDefault();
+                commitMailRecipientInput(field);
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+            }
+            return;
+        }
+        if (event.key === 'Backspace' && !input.value && _mailRecipients[field].length) {
+            removeMailRecipient(field, _mailRecipients[field].length - 1);
+        }
+    });
+    input.addEventListener('input', () => {
+        // Al pegar o escribir un separador, lo anterior ya es una dirección.
+        const value = input.value;
+        const lastSeparator = Math.max(value.lastIndexOf(','), value.lastIndexOf(';'), value.lastIndexOf('\n'));
+        if (lastSeparator >= 0) {
+            addMailRecipients(field, value.slice(0, lastSeparator));
+            input.value = value.slice(lastSeparator + 1).trimStart();
+        }
+        renderMailSuggestions(field);
+    });
+    input.addEventListener('paste', event => {
+        const text = event.clipboardData?.getData('text') || '';
+        if (!/@/.test(text) || !/[\s,;<]/.test(text.trim())) return;
+        event.preventDefault();
+        addMailRecipients(field, `${input.value} ${text}`);
+        input.value = '';
+        closeMailSuggestions(field);
+    });
+    input.addEventListener('blur', () => {
+        // Se deja un instante para que el clic en una sugerencia llegue antes.
+        setTimeout(() => {
+            if (document.activeElement !== input) commitMailRecipientInput(field);
+        }, 120);
+    });
+    box?.addEventListener('mousedown', event => {
+        const option = event.target.closest('.mail-suggest-option');
+        if (!option) return;
+        event.preventDefault();
+        pickMailSuggestion(field, option.dataset.email);
     });
 }
+
+/* Filas opcionales: CC, CCO y «Responder a». Cerrar una vacía su valor. */
+
+function setMailRowVisible(kind, visible, { focus = false } = {}) {
+    const row = document.getElementById(`mail-row-${kind}`);
+    const toggle = document.getElementById(`mail-${kind}-toggle`);
+    if (!row) return;
+    row.hidden = !visible;
+    if (toggle) {
+        toggle.hidden = visible;
+        toggle.setAttribute('aria-expanded', String(visible));
+    }
+    if (!visible) {
+        if (kind === 'reply') {
+            const reply = document.getElementById('mail-reply-to');
+            if (reply) reply.value = '';
+        } else if (_mailRecipients[kind]?.length) {
+            _mailRecipients[kind] = [];
+            afterMailRecipientsChange(kind);
+        }
+        const input = document.getElementById(kind === 'reply' ? 'mail-reply-to' : MAIL_RECIPIENT_INPUTS[kind]);
+        if (input) input.value = '';
+    }
+    if (visible && focus) document.getElementById(kind === 'reply' ? 'mail-reply-to' : MAIL_RECIPIENT_INPUTS[kind])?.focus();
+    syncMailDelivery();
+    scheduleMailDraftSave();
+}
+
+/** Sin soporte en el servicio, CC y CCO desaparecen, con lo que tuvieran. */
+function syncMailCapabilities() {
+    for (const kind of ['cc', 'bcc']) {
+        const row = document.getElementById(`mail-row-${kind}`);
+        const toggle = document.getElementById(`mail-${kind}-toggle`);
+        if (!_mailSupportsCopies && row && !row.hidden) setMailRowVisible(kind, false);
+        if (toggle) toggle.hidden = !_mailSupportsCopies || !row?.hidden;
+    }
+    syncMailDelivery();
+}
+
+/* ── Reparto: uno a uno o en grupo ── */
+
+function effectiveMailDelivery() {
+    if (_mailRecipients.to.length < 2) return 'group';
+    if (!_mailSupportsCopies) return 'individual';
+    if (_mailRecipients.cc.length || _mailRecipients.bcc.length) return 'group';
+    return _mailDelivery;
+}
+
+function syncMailDelivery() {
+    const block = document.getElementById('mail-delivery');
+    if (!block) return;
+    const c = mailText();
+    const count = _mailRecipients.to.length;
+    const copies = _mailRecipients.cc.length + _mailRecipients.bcc.length > 0;
+    const mode = effectiveMailDelivery();
+    block.hidden = count < 2 || !_mailSupportsCopies;
+    block.querySelectorAll('[data-mail-delivery]').forEach(button => {
+        const checked = button.dataset.mailDelivery === mode;
+        button.setAttribute('aria-checked', String(checked));
+        button.classList.toggle('is-active', checked);
+        button.disabled = copies && button.dataset.mailDelivery === 'individual';
+    });
+    const hint = document.getElementById('mail-delivery-hint');
+    if (hint) {
+        hint.textContent = copies
+            ? c.deliveryCopiesHint
+            : (mode === 'individual' ? c.deliveryIndividualHint(count) : c.deliveryGroupHint);
+    }
+}
+
+/* ── Cuerpo escrito ─────────────────────────────────────────────────────────
+   «Escribir» produce el mismo correo que las plantillas de
+   `Estandares/CORREOS`: cabecera λ ELYSIUM con la fecha, tarjeta blanca,
+   firma oscura y sello. Cada región lleva su dominio, como en las plantillas:
+   Costa Rica enlaza a elysiumdr.com/es/, Portugal a elysiumdr.pt. Y el correo
+   se ve siempre en claro, también en los clientes que fuerzan el modo oscuro. */
+
+const MAIL_LETTER_REGIONS = {
+    'es-CR': { lang: 'es', locale: 'es-CR', site: 'https://elysiumdr.com/es/', siteLabel: 'elysiumdr.com', place: '',
+        sealAlt: 'Sello Elysium', founder: 'Fundador y director', social: 'Redes sociales' },
+    'es-ES': { lang: 'es', locale: 'es-ES', site: 'https://elysiumdr.es/', siteLabel: 'elysiumdr.es', place: 'Bragança',
+        sealAlt: 'Sello Elysium', founder: 'Fundador y director', social: 'Redes sociales' },
+    'pt-PT': { lang: 'pt-PT', locale: 'pt-PT', site: 'https://elysiumdr.pt/', siteLabel: 'elysiumdr.pt', place: 'Bragança',
+        sealAlt: 'Selo Elysium', founder: 'Fundador e diretor', social: 'Redes sociais' },
+    en: { lang: 'en-GB', locale: 'en-GB', site: 'https://elysiumdr.eu/', siteLabel: 'elysiumdr.eu', place: '',
+        sealAlt: 'Elysium seal', founder: 'Founder and director', social: 'Social media' }
+};
+
+/* Quién firma cada buzón. Las personas llevan foto y su página; los buzones
+   de la empresa, el λ. Un buzón que no esté aquí firma como la empresa. */
+const MAIL_SIGNATURE_PROFILES = {
+    'daniel.morales@elysiumdr.eu': { role: 'founder', photo: 'https://elysiumdr.eu/Images/daniel-morales-correo.png', page: 'daniel-morales' },
+    'daniel.avila@elysiumdr.eu': { role: 'founder', photo: 'https://elysiumdr.eu/Images/daniel-morales-correo.png', page: 'daniel-morales' },
+    'social.media@elysiumdr.eu': { role: 'social' }
+};
+
+const MAIL_LETTER_COLORS = {
+    background: ['f6f4ef', 'ffffff', '080c15', '173e62'],
+    text: ['173e62', '18334b', '3f5566', '718596', '2997ff', 'ffffff', 'a9bccd', '6fb6ff', '41566b', '4f7188']
+};
+
+function defaultMailLetterRegion() {
+    return currentLang === 'pt' ? 'pt-PT' : currentLang === 'en' ? 'en' : 'es-CR';
+}
+
+function currentMailLetterRegion() {
+    const value = document.getElementById('mail-letter-lang')?.value;
+    return MAIL_LETTER_REGIONS[value] ? value : defaultMailLetterRegion();
+}
+
+/** Texto escapado con enlaces y **negrita**. */
+function mailInlineHtml(text) {
+    const link = 'color:#2997ff;text-decoration:none';
+    const linked = esc(text).replace(
+        /(https?:\/\/[^\s<]+[^\s<.,;:!?)\]»"'])|(www\.[^\s<]+[^\s<.,;:!?)\]»"'])|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g,
+        (match, url, www, email) => {
+            if (url) return `<a href="${url}" target="_blank" style="${link}" class="lc-2997ff">${url}</a>`;
+            if (www) return `<a href="https://${www}" target="_blank" style="${link}" class="lc-2997ff">${www}</a>`;
+            return `<a href="mailto:${email}" style="${link}" class="lc-2997ff">${email}</a>`;
+        });
+    return linked.replace(/\*\*([^*\n]+?)\*\*/g, '<strong style="color:#173e62;font-weight:700" class="lc-173e62">$1</strong>');
+}
+
+/** Bloques del texto: párrafos separados por una línea en blanco y listas «- ». */
+function mailTextBlocks(text) {
+    return String(text || '').replace(/\r\n?/g, '\n').split(/\n\s*\n/)
+        .map(block => block.replace(/^\n+|\s+$/g, ''))
+        .filter(block => block.trim())
+        .map(block => {
+            const lines = block.split('\n');
+            const bullet = /^\s*[-•*]\s+/;
+            return lines.every(line => bullet.test(line))
+                ? { type: 'list', items: lines.map(line => line.replace(bullet, '')) }
+                : { type: 'paragraph', lines };
+        });
+}
+
+function buildWrittenMailHtml() {
+    const text = document.getElementById('mail-body-text')?.value || '';
+    const sender = selectedMailSender() || { name: 'Elysium', address: 'info@elysiumdr.eu' };
+    const region = MAIL_LETTER_REGIONS[currentMailLetterRegion()];
+    const signed = document.getElementById('mail-signature')?.checked !== false;
+    const subject = document.getElementById('mail-subject')?.value.trim() || '';
+    const blocks = mailTextBlocks(text);
+
+    // Un saludo corto que acaba en coma o dos puntos va en el tono oscuro,
+    // como en las plantillas.
+    const first = blocks[0];
+    const greeting = first?.type === 'paragraph' && first.lines.length === 1
+        && first.lines[0].length <= 90 && /[,:]\s*$/.test(first.lines[0]);
+    const body = blocks.map((block, index) => {
+        const margin = index === 0 ? '0' : '16px 0 0';
+        if (block.type === 'list') {
+            return `<ul style="margin:${margin};padding:0 0 0 22px;color:#3f5566;font-size:16px;line-height:1.7" class="lc-3f5566">`
+                + block.items.map(item => `<li style="margin:4px 0 0">${mailInlineHtml(item)}</li>`).join('') + '</ul>';
+        }
+        const tone = index === 0 && greeting ? '173e62' : '3f5566';
+        return `<p style="margin:${margin};color:#${tone};font-size:16px;line-height:1.7" class="lc-${tone}">`
+            + block.lines.map(mailInlineHtml).join('<br>') + '</p>';
+    }).join('\n              ');
+
+    const preheaderSource = blocks.slice(greeting ? 1 : 0).find(block => block.type === 'paragraph');
+    const preheader = (preheaderSource?.lines.join(' ') || '').replace(/\*\*/g, '').slice(0, 140);
+
+    const date = new Intl.DateTimeFormat(region.locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+    const dateLine = region.place ? `${region.place}, ${date}` : date;
+
+    const profile = MAIL_SIGNATURE_PROFILES[sender.address] || {};
+    const role = profile.role === 'founder' ? `${region.founder} · ` : profile.role === 'social' ? `${region.social} · ` : '';
+    const page = profile.page ? `${region.site}${profile.page}` : region.site;
+    const portrait = profile.photo
+        ? `<a href="${esc(page)}" target="_blank" style="text-decoration:none"><img src="${esc(profile.photo)}" width="84" height="84" alt="${esc(sender.name)}" style="display:block;width:84px;height:84px;border:0;border-radius:50%"></a>`
+        : `<div style="width:72px;height:72px;border-radius:50%;background:#173e62;color:#6fb6ff;font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:72px;text-align:center" class="lb-173e62 lc-6fb6ff">λ</div>`;
+    const signature = signed ? `
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" bgcolor="#080c15" style="width:100%;margin-top:28px;background:#080c15;border-radius:22px" class="lb-080c15">
+                <tr>
+                  <td class="sign-photo" width="84" valign="middle" style="width:84px;padding:20px 0 20px 22px">${portrait}</td>
+                  <td class="sign-text" valign="middle" style="padding:20px 22px 20px 18px">
+                    <p style="margin:0;font-size:17px;font-weight:700;line-height:1.3;letter-spacing:-.01em"><a href="${esc(page)}" target="_blank" style="color:#ffffff;text-decoration:none" class="lc-ffffff">${esc(sender.name)}</a></p>
+                    <p style="margin:3px 0 0;color:#a9bccd;font-size:13px;line-height:1.5" class="lc-a9bccd">${esc(role)}Elysium λ Development &amp; Research</p>
+                    <p style="margin:8px 0 0;font-size:13px;line-height:1.5"><a href="${esc(region.site)}" target="_blank" style="color:#6fb6ff;text-decoration:none" class="lc-6fb6ff">${esc(region.siteLabel)}</a><span style="color:#41566b" class="lc-41566b">&nbsp; · &nbsp;</span><a href="mailto:${esc(sender.address)}" style="color:#6fb6ff;text-decoration:none" class="lc-6fb6ff">${esc(sender.address)}</a></p>
+                  </td>
+                </tr>
+              </table>` : '';
+
+    const darkGuard = [
+        ...MAIL_LETTER_COLORS.background.map(hex => `.lb-${hex} { background: #${hex} !important; background-color: #${hex} !important; }`),
+        ...MAIL_LETTER_COLORS.text.map(hex => `.lc-${hex} { color: #${hex} !important; -webkit-text-fill-color: #${hex} !important; }`)
+    ].join('\n      ');
+    const outlookGuard = [
+        ...MAIL_LETTER_COLORS.background.map(hex => `[data-ogsb] .lb-${hex}, .lb-${hex}[data-ogsb] { background-color: #${hex} !important; }`),
+        ...MAIL_LETTER_COLORS.text.map(hex => `[data-ogsc] .lc-${hex}, .lc-${hex}[data-ogsc] { color: #${hex} !important; }`)
+    ].join('\n    ');
+
+    return `<!doctype html>
+<html lang="${region.lang}" style="color-scheme:light only;background:#f6f4ef">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light">
+  <title>${esc(subject)}</title>
+  <style>
+    :root { color-scheme: light only; supported-color-schemes: light; }
+    body, table, td { color-scheme: light only !important; }
+    @media (max-width: 620px) {
+      .email-shell { padding: 18px 8px !important; }
+      .email-card { padding: 32px 22px !important; border-radius: 24px !important; }
+      .head-cell { display: block !important; width: 100% !important; text-align: left !important; }
+      .head-date { padding-top: 6px !important; }
+      .sign-photo { width: 64px !important; padding-left: 18px !important; }
+      .sign-photo img { width: 64px !important; height: 64px !important; }
+      .sign-text { padding-left: 14px !important; padding-right: 18px !important; }
+    }
+  </style>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      ${darkGuard}
+    }
+  </style>
+  <style>
+    ${outlookGuard}
+  </style>
+</head>
+<body bgcolor="#f6f4ef" style="margin:0;padding:0;background:#f6f4ef;color:#18334b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased" class="lb-f6f4ef lc-18334b">
+  ${preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all">${esc(preheader)}</div>` : ''}
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" bgcolor="#f6f4ef" class="email-shell lb-f6f4ef" style="width:100%;background:#f6f4ef;padding:44px 12px">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;max-width:640px">
+          <tr>
+            <td style="padding:0 12px 24px">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td class="head-cell lc-173e62" style="color:#173e62;font-size:22px;font-weight:700;letter-spacing:.08em"><span style="color:#2997ff" class="lc-2997ff">λ</span>&nbsp; ELYSIUM</td>
+                  <td class="head-cell head-date lc-718596" align="right" style="color:#718596;font-size:13px;text-align:right">${esc(dateLine)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td bgcolor="#ffffff" class="email-card lb-ffffff" style="background:#ffffff;border-radius:30px;padding:46px 44px;box-shadow:0 20px 60px rgba(33,65,88,.08)">
+              ${body}${signature}
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:30px 8px 0">
+              <img src="${MAIL_SEAL_PUBLIC_URL}" width="78" height="78" alt="${esc(region.sealAlt)}" style="display:block;width:78px;height:78px;margin:0 auto 12px;border:0">
+              <p style="margin:0;color:#718596;font-size:12px;line-height:1.65;text-align:center" class="lc-718596">Elysium λ Development &amp; Research${region.place ? ` · ${esc(region.place)}, Portugal` : ''}<br><a href="${esc(region.site)}" target="_blank" style="color:#4f7188;text-decoration:none" class="lc-4f7188">${esc(region.siteLabel)}</a></p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function renderMailSignatureLabel() {
+    const label = document.getElementById('mail-signature-label');
+    if (!label) return;
+    const sender = selectedMailSender();
+    label.textContent = sender ? mailText().signatureLabel(sender.name) : mailText().signatureLabelEmpty;
+}
+
+/* ── Modos del cuerpo ── */
+
+function setMailBodyMode(mode) {
+    if (!['write', 'template'].includes(mode)) return;
+    if (_mailEditing && mode !== 'template') setMailEditing(false);
+    _mailBodyMode = mode;
+    document.querySelectorAll('[data-mail-body]').forEach(tab => {
+        const selected = tab.dataset.mailBody === mode;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.classList.toggle('is-active', selected);
+        tab.tabIndex = selected ? 0 : -1;
+    });
+    const write = document.getElementById('mail-write-pane');
+    const template = document.getElementById('mail-template-pane');
+    const language = document.getElementById('mail-letter-lang-field');
+    if (write) write.hidden = mode !== 'write';
+    if (template) template.hidden = mode !== 'template';
+    if (language) language.hidden = mode !== 'write';
+    resetMailIdempotency();
+    refreshMailPreview();
+    scheduleMailDraftSave();
+}
+
+/* ── Previsualización ── */
 
 function mailSealPreviewUrl() {
     return `${window.location.origin}/Images/elysium-email-seal.svg`;
@@ -8640,6 +9302,7 @@ function withMailSealCid(html) {
    El compositor solo aceptaba la plantilla tal y como venía del archivo, así
    que una errata obligaba a corregir el HTML fuera y volver a importarlo. El
    marco se vuelve editable a demanda y lo que se envía se lee de vuelta de él.
+   Sólo con plantilla: el texto escrito se corrige en su propio campo.
 
    La sustitución del sello va en los dos sentidos: en pantalla `cid:` no se
    puede resolver y se cambia por la URL del sitio, y al recuperar el HTML hay
@@ -8656,8 +9319,9 @@ function mailPreviewDocument() {
     }
 }
 
-/** El HTML que se va a enviar: el editado si se tocó, si no el importado. */
+/** El HTML que se va a enviar: el escrito, el editado si se tocó, o el importado. */
 function currentMailHtml() {
+    if (_mailBodyMode === 'write') return withMailSealCid(buildWrittenMailHtml());
     const doc = mailPreviewDocument();
     if (!_mailEditing || !doc?.documentElement) return withMailSealCid(_mailTemplateHtml);
     return withMailSealCid(doc.documentElement.outerHTML);
@@ -8696,7 +9360,7 @@ function setMailEditing(enabled) {
 function syncMailEditAvailability() {
     const toggle = document.getElementById('mail-edit-toggle');
     const hint = document.getElementById('mail-edit-hint');
-    const available = Boolean(_mailTemplateHtml);
+    const available = _mailBodyMode === 'template' && Boolean(_mailTemplateHtml);
     if (toggle) {
         toggle.hidden = !available;
         toggle.textContent = _mailEditing ? mailText().editDone : mailText().editText;
@@ -8716,6 +9380,94 @@ function mailPreviewHtml(html) {
         ? preview.replace(/<\/body\s*>/i, `${seal}</body>`)
         : `${preview}${seal}`;
 }
+
+/** Pinta el marco conservando el desplazamiento: se repinta a cada tecla. */
+function showMailPreview(html) {
+    const frame = document.getElementById('mail-live-preview-frame');
+    const empty = document.getElementById('mail-preview-empty');
+    if (!frame) return;
+    if (!html) {
+        frame.srcdoc = '';
+        frame.hidden = true;
+        if (empty) empty.hidden = false;
+        return;
+    }
+    let scroll = 0;
+    try { scroll = frame.hidden ? 0 : (frame.contentWindow?.scrollY || 0); } catch {}
+    frame.addEventListener('load', () => {
+        try { if (scroll) frame.contentWindow?.scrollTo(0, scroll); } catch {}
+        syncMailEditAvailability();
+    }, { once: true });
+    frame.srcdoc = mailPreviewHtml(html);
+    frame.hidden = false;
+    if (empty) empty.hidden = true;
+}
+
+function refreshMailPreview() {
+    clearTimeout(_mailPreviewTimer);
+    const c = mailText();
+    const badge = document.getElementById('mail-preview-badge');
+    let state = '';
+    if (_mailBodyMode === 'write') {
+        const hasText = Boolean(document.getElementById('mail-body-text')?.value.trim());
+        showMailPreview(hasText ? buildWrittenMailHtml() : '');
+        state = hasText ? 'live' : '';
+    } else if (!_mailEditing) {
+        showMailPreview(_mailTemplateHtml);
+        state = _mailTemplateHtml ? 'ready' : '';
+    } else {
+        state = 'ready';
+    }
+    if (badge) {
+        badge.textContent = state === 'live' ? c.liveBadge : state === 'ready' ? c.readyTemplate : c.noTemplate;
+        badge.classList.toggle('is-ready', state === 'ready');
+        badge.classList.toggle('is-live', state === 'live');
+        badge.hidden = _mailBodyMode === 'write' && !state;
+    }
+    syncMailEditAvailability();
+    renderMailInboxHead();
+}
+
+function scheduleMailPreview() {
+    clearTimeout(_mailPreviewTimer);
+    _mailPreviewTimer = setTimeout(refreshMailPreview, 180);
+}
+
+/** La cabecera de la bandeja: remitente, destinatarios y asunto como se verán. */
+function renderMailInboxHead() {
+    const c = mailText();
+    const sender = selectedMailSender();
+    const subject = document.getElementById('mail-subject')?.value.trim();
+    const subjectElement = document.getElementById('mail-inbox-subject');
+    if (subjectElement) {
+        subjectElement.textContent = subject || c.noSubject;
+        subjectElement.classList.toggle('is-empty', !subject);
+    }
+    paintMailAvatar(document.getElementById('mail-inbox-avatar'), sender);
+    const name = document.getElementById('mail-inbox-name');
+    const address = document.getElementById('mail-inbox-address');
+    if (name) name.textContent = sender?.name || 'Elysium';
+    if (address) address.textContent = sender ? `<${sender.address}>` : '';
+    const to = document.getElementById('mail-inbox-to');
+    if (to) {
+        const shown = list => list.map(item => mailContactLabel(item) || item).join(', ');
+        to.textContent = _mailRecipients.to.length
+            ? c.inboxTo(shown(_mailRecipients.to), shown(_mailRecipients.cc))
+            : c.noRecipients;
+    }
+}
+
+function setMailDevice(device) {
+    const stage = document.getElementById('mail-live-preview-container');
+    stage?.classList.toggle('is-mobile', device === 'mobile');
+    document.querySelectorAll('[data-mail-device]').forEach(button => {
+        const active = button.dataset.mailDevice === device;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+}
+
+/* ── Plantilla importada ── */
 
 async function setMailTemplate(file) {
     const c = mailText();
@@ -8740,28 +9492,23 @@ async function setMailTemplate(file) {
         }
         _mailTemplateFile = file;
         _mailTemplateHtml = html;
+        _mailEditing = false;
         resetMailIdempotency();
 
         const summary = document.getElementById('mail-template-summary');
         const fileName = document.getElementById('mail-file-name');
-        const frame = document.getElementById('mail-live-preview-frame');
-        const empty = document.getElementById('mail-preview-empty');
-        const badge = document.getElementById('mail-preview-badge');
         if (fileName) fileName.textContent = file.name;
         if (summary) summary.hidden = false;
-        _mailEditing = false;
-        if (frame) {
-            frame.srcdoc = mailPreviewHtml(html);
-            frame.hidden = false;
-            // El documento del marco no existe hasta que termina de cargar.
-            frame.addEventListener('load', syncMailEditAvailability, { once: true });
+        // Una plantilla soltada lleva al modo plantilla aunque se estuviera escribiendo.
+        if (_mailBodyMode !== 'template') setMailBodyMode('template');
+        else refreshMailPreview();
+        // Si la plantilla trae <title> y el asunto está vacío, sirve de asunto.
+        const subject = document.getElementById('mail-subject');
+        const title = new DOMParser().parseFromString(html, 'text/html').title.trim();
+        if (subject && !subject.value.trim() && title) {
+            subject.value = title.slice(0, 250);
+            syncMailSubjectCounter();
         }
-        if (empty) empty.hidden = true;
-        if (badge) {
-            badge.textContent = c.readyTemplate;
-            badge.classList.add('is-ready');
-        }
-        syncMailEditAvailability();
         setMailMessage(c.imported(file.name), 'is-success');
     } catch (error) {
         logger.warn('Could not read the HTML template:', error);
@@ -8772,25 +9519,60 @@ async function setMailTemplate(file) {
 function clearMailTemplate() {
     _mailTemplateFile = null;
     _mailTemplateHtml = '';
+    _mailEditing = false;
     resetMailIdempotency();
     const input = document.getElementById('mail-template');
     const summary = document.getElementById('mail-template-summary');
-    const frame = document.getElementById('mail-live-preview-frame');
-    const empty = document.getElementById('mail-preview-empty');
-    const badge = document.getElementById('mail-preview-badge');
-    _mailEditing = false;
     if (input) input.value = '';
     if (summary) summary.hidden = true;
-    if (frame) {
-        frame.srcdoc = '';
-        frame.hidden = true;
+    refreshMailPreview();
+}
+
+/* ── Adjuntos ── */
+
+function mailAttachmentsTotal() {
+    return _mailAttachments.reduce((sum, file) => sum + file.size, 0);
+}
+
+function renderMailAttachments() {
+    const list = document.getElementById('mail-attachment-list');
+    if (!list) return [];
+    const c = mailText();
+
+    const total = mailAttachmentsTotal();
+    list.innerHTML = _mailAttachments.map((file, index) => {
+        const oversize = file.size > MAIL_MAX_ATTACHMENT_BYTES;
+        const extension = (file.name.match(/\.([a-z0-9]{1,4})$/i)?.[1] || '·').toUpperCase();
+        return `<li${oversize ? ' class="is-oversize"' : ''}>`
+            + `<span class="mail-attachment-type" aria-hidden="true">${esc(extension)}</span>`
+            + `<span class="mail-attachment-name" title="${esc(file.name)}">${esc(file.name)}</span>`
+            + `<span class="mail-attachment-size">${esc(formatBytes(file.size))}</span>`
+            + `<button class="mail-attachment-remove" type="button" data-mail-attachment-remove="${index}"`
+            + ` aria-label="${esc(c.removeRecipient(file.name))}">×</button></li>`;
+    }).join('');
+
+    const meter = document.getElementById('mail-attachment-meter');
+    const bar = document.getElementById('mail-attachment-meter-bar');
+    if (meter && bar) {
+        meter.hidden = !_mailAttachments.length;
+        bar.style.width = `${Math.min(100, (total / MAIL_MAX_TOTAL_ATTACHMENT_BYTES) * 100).toFixed(1)}%`;
+        meter.classList.toggle('is-over', total > MAIL_MAX_TOTAL_ATTACHMENT_BYTES);
     }
-    if (empty) empty.hidden = false;
-    if (badge) {
-        badge.textContent = mailText().noTemplate;
-        badge.classList.remove('is-ready');
+    renderMailSummary();
+
+    const problems = [];
+    if (_mailAttachments.length > MAIL_MAX_ATTACHMENTS) problems.push(c.tooManyFiles(MAIL_MAX_ATTACHMENTS));
+    if (_mailAttachments.some(file => file.size === 0)) {
+        const empty = _mailAttachments.find(file => file.size === 0);
+        problems.push(c.emptyFile(empty?.name || 'File'));
     }
-    syncMailEditAvailability();
+    if (_mailAttachments.some(file => file.size > MAIL_MAX_ATTACHMENT_BYTES)) {
+        problems.push(c.fileTooLarge(formatBytes(MAIL_MAX_ATTACHMENT_BYTES)));
+    }
+    if (total > MAIL_MAX_TOTAL_ATTACHMENT_BYTES) {
+        problems.push(c.totalTooLarge(formatBytes(MAIL_MAX_TOTAL_ATTACHMENT_BYTES)));
+    }
+    return problems;
 }
 
 function addMailAttachments(files) {
@@ -8806,20 +9588,209 @@ function addMailAttachments(files) {
     }
     resetMailIdempotency();
     const problems = renderMailAttachments();
-    const total = _mailAttachments.reduce((sum, file) => sum + file.size, 0);
     setMailMessage(
-        problems.join(' ') || `${mailText().attachmentsCount(_mailAttachments.length)} · ${formatBytes(total)}`,
+        problems.join(' ') || `${mailText().attachmentsCount(_mailAttachments.length)} · ${formatBytes(mailAttachmentsTotal())}`,
         problems.length ? 'is-error' : ''
     );
 }
 
-function parseMailRecipients(rawValue) {
+/* ── Resumen, asunto y borrador ── */
+
+function mailRecipientTotal() {
+    return new Set(MAIL_RECIPIENT_FIELDS.flatMap(field => _mailRecipients[field])).size;
+}
+
+function renderMailSummary() {
+    const summary = document.getElementById('mail-summary');
+    if (!summary) return;
     const c = mailText();
-    const raw = String(rawValue || '').split(/[,;\n]/).map(value => value.trim()).filter(Boolean);
-    if (!raw.length) return { error: c.recipientRequired, recipients: [] };
-    if (raw.length > MAIL_MAX_RECIPIENTS) return { error: c.recipientLimit, recipients: [] };
-    if (raw.some(value => !validMailAddress(value))) return { error: c.recipientInvalid, recipients: [] };
-    return { recipients: [...new Set(raw.map(value => value.toLowerCase()))], error: '' };
+    const parts = [c.recipientsCount(mailRecipientTotal())];
+    if (_mailAttachments.length) {
+        parts.push(`${c.attachmentsCount(_mailAttachments.length)} (${formatBytes(mailAttachmentsTotal())})`);
+    }
+    summary.textContent = parts.join(' · ');
+}
+
+function syncMailSubjectCounter() {
+    const subject = document.getElementById('mail-subject');
+    const counter = document.getElementById('mail-subject-count');
+    if (!subject || !counter) return;
+    counter.textContent = `${subject.value.length}/250`;
+    counter.classList.toggle('is-near', subject.value.length > 220);
+}
+
+/* El borrador vive en este navegador: un recargo o un cambio de sección no se
+   lleva lo escrito. No guarda la plantilla ni los adjuntos, que son archivos. */
+function mailDraftSnapshot() {
+    return {
+        sender: document.getElementById('mail-sender')?.value || '',
+        to: [..._mailRecipients.to],
+        cc: [..._mailRecipients.cc],
+        bcc: [..._mailRecipients.bcc],
+        replyTo: document.getElementById('mail-reply-to')?.value.trim() || '',
+        rows: ['cc', 'bcc', 'reply'].filter(kind => !document.getElementById(`mail-row-${kind}`)?.hidden),
+        subject: document.getElementById('mail-subject')?.value || '',
+        bodyMode: _mailBodyMode,
+        bodyText: document.getElementById('mail-body-text')?.value || '',
+        letterRegion: currentMailLetterRegion(),
+        signature: document.getElementById('mail-signature')?.checked !== false,
+        delivery: _mailDelivery
+    };
+}
+
+function saveMailDraft() {
+    clearTimeout(_mailDraftTimer);
+    const draft = mailDraftSnapshot();
+    const meaningful = draft.to.length || draft.cc.length || draft.bcc.length
+        || draft.subject.trim() || draft.bodyText.trim();
+    try {
+        if (meaningful) localStorage.setItem(MAIL_DRAFT_STORAGE_KEY, JSON.stringify({ ...draft, savedAt: Date.now() }));
+        else localStorage.removeItem(MAIL_DRAFT_STORAGE_KEY);
+    } catch {
+        return;
+    }
+    if (meaningful) flashMailDraftState(mailText().draftSaved);
+}
+
+function scheduleMailDraftSave() {
+    if (!_mailDraftReady) return;
+    clearTimeout(_mailDraftTimer);
+    _mailDraftTimer = setTimeout(saveMailDraft, 700);
+}
+
+function clearMailDraft() {
+    clearTimeout(_mailDraftTimer);
+    try { localStorage.removeItem(MAIL_DRAFT_STORAGE_KEY); } catch {}
+}
+
+function flashMailDraftState(text) {
+    const state = document.getElementById('mail-draft-state');
+    if (!state) return;
+    state.textContent = text;
+    state.classList.add('is-visible');
+    clearTimeout(_mailDraftStateTimer);
+    _mailDraftStateTimer = setTimeout(() => state.classList.remove('is-visible'), 2200);
+}
+
+function restoreMailDraft() {
+    let draft = null;
+    try { draft = JSON.parse(localStorage.getItem(MAIL_DRAFT_STORAGE_KEY) || 'null'); } catch {}
+    if (!draft || typeof draft !== 'object') return;
+    const text = value => typeof value === 'string' ? value : '';
+    for (const field of MAIL_RECIPIENT_FIELDS) {
+        _mailRecipients[field] = Array.isArray(draft[field]) ? draft[field].map(String).slice(0, MAIL_MAX_RECIPIENTS) : [];
+        renderMailChips(field);
+    }
+    const rows = new Set(Array.isArray(draft.rows) ? draft.rows : []);
+    if (_mailRecipients.cc.length) rows.add('cc');
+    if (_mailRecipients.bcc.length) rows.add('bcc');
+    if (text(draft.replyTo)) rows.add('reply');
+    for (const kind of ['cc', 'bcc', 'reply']) {
+        const row = document.getElementById(`mail-row-${kind}`);
+        const toggle = document.getElementById(`mail-${kind}-toggle`);
+        if (row) row.hidden = !rows.has(kind);
+        if (toggle) {
+            toggle.hidden = rows.has(kind);
+            toggle.setAttribute('aria-expanded', String(rows.has(kind)));
+        }
+    }
+    const set = (id, value) => { const element = document.getElementById(id); if (element) element.value = value; };
+    set('mail-reply-to', text(draft.replyTo));
+    set('mail-subject', text(draft.subject).slice(0, 250));
+    set('mail-body-text', text(draft.bodyText));
+    if (MAIL_LETTER_REGIONS[draft.letterRegion]) set('mail-letter-lang', draft.letterRegion);
+    const signature = document.getElementById('mail-signature');
+    if (signature) signature.checked = draft.signature !== false;
+    _mailDelivery = draft.delivery === 'group' ? 'group' : 'individual';
+    const select = document.getElementById('mail-sender');
+    if (select && draft.sender) select.dataset.draftSender = String(draft.sender);
+    if (draft.bodyMode === 'template') setMailBodyMode('template');
+    syncMailSubjectCounter();
+    syncMailDelivery();
+    renderMailSummary();
+    if (draft.to?.length || text(draft.subject).trim() || text(draft.bodyText).trim()) {
+        flashMailDraftState(mailText().draftRestored);
+    }
+}
+
+/** Deja el compositor vacío. Se conservan el remitente y el idioma de la carta. */
+function resetMailComposer() {
+    for (const field of MAIL_RECIPIENT_FIELDS) {
+        _mailRecipients[field] = [];
+        renderMailChips(field);
+        const input = document.getElementById(MAIL_RECIPIENT_INPUTS[field]);
+        if (input) input.value = '';
+        closeMailSuggestions(field);
+    }
+    for (const kind of ['cc', 'bcc', 'reply']) {
+        const row = document.getElementById(`mail-row-${kind}`);
+        const toggle = document.getElementById(`mail-${kind}-toggle`);
+        if (row) row.hidden = true;
+        if (toggle) {
+            toggle.hidden = false;
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    }
+    for (const id of ['mail-reply-to', 'mail-subject', 'mail-body-text']) {
+        const element = document.getElementById(id);
+        if (element) element.value = '';
+    }
+    _mailDelivery = 'individual';
+    _mailAttachments = [];
+    renderMailAttachments();
+    clearMailTemplate();
+    resetMailIdempotency();
+    syncMailSubjectCounter();
+    syncMailDelivery();
+    renderMailSummary();
+    refreshMailPreview();
+}
+
+function disarmMailDiscard() {
+    clearTimeout(_mailDiscardTimer);
+    _mailDiscardTimer = 0;
+    const button = document.getElementById('mail-discard-btn');
+    if (!button) return;
+    button.classList.remove('is-armed');
+    button.textContent = mailText().discard;
+}
+
+/** Descartar pide un segundo clic: un borrador largo no se pierde por un despiste. */
+function discardMailDraft() {
+    const button = document.getElementById('mail-discard-btn');
+    if (!_mailDiscardTimer) {
+        if (button) {
+            button.classList.add('is-armed');
+            button.textContent = mailText().discardConfirm;
+        }
+        _mailDiscardTimer = setTimeout(disarmMailDiscard, 3500);
+        return;
+    }
+    disarmMailDiscard();
+    resetMailComposer();
+    clearMailDraft();
+    setMailMessage(mailText().discarded);
+}
+
+/* ── Confirmación y envío ── */
+
+function resetMailIdempotency() {
+    _mailPendingKey = '';
+    _mailPendingFingerprint = '';
+}
+
+function mailDraftFingerprint({ from, recipients, cc, bcc, mode, replyTo, subject, html }) {
+    return JSON.stringify({
+        from,
+        recipients,
+        cc,
+        bcc,
+        mode,
+        replyTo,
+        subject,
+        html,
+        attachments: _mailAttachments.map(file => [file.name, file.size, file.lastModified])
+    });
 }
 
 function closeMailConfirmation(confirmed) {
@@ -8830,35 +9801,68 @@ function closeMailConfirmation(confirmed) {
     resolve?.(Boolean(confirmed));
 }
 
-function confirmMailDelivery({ from, recipients, subject }) {
+function confirmMailDelivery({ from, recipients, cc, bcc, mode, subject }) {
     const backdrop = document.getElementById('mail-confirm-backdrop');
     if (!backdrop) return Promise.resolve(false);
-    document.getElementById('mail-confirm-from').textContent = from;
+    const c = mailText();
+    const setRow = (key, value) => {
+        const row = document.getElementById(`mail-confirm-${key}-row`);
+        if (row) row.hidden = !value;
+        const cell = document.getElementById(`mail-confirm-${key}`);
+        if (cell) cell.textContent = value || '';
+    };
+    const sender = _mailSenders.find(item => item.address === from);
+    document.getElementById('mail-confirm-from').textContent = sender ? `${sender.name} <${sender.address}>` : from;
     document.getElementById('mail-confirm-to').textContent = recipients.join(', ');
+    setRow('cc', cc.join(', '));
+    setRow('bcc', bcc.join(', '));
+    setRow('mode', recipients.length > 1
+        ? (mode === 'individual' ? c.confirmModeIndividual(recipients.length) : c.confirmModeGroup)
+        : '');
     document.getElementById('mail-confirm-subject').textContent = subject;
-    document.getElementById('mail-confirm-files').textContent = mailText().attachmentsCount(_mailAttachments.length);
+    document.getElementById('mail-confirm-files').textContent = _mailAttachments.length
+        ? `${c.attachmentsCount(_mailAttachments.length)} · ${formatBytes(mailAttachmentsTotal())}`
+        : c.noAttachments;
     backdrop.hidden = false;
     document.getElementById('mail-confirm-cancel')?.focus();
     return new Promise(resolve => { _mailConfirmResolve = resolve; });
 }
 
-/* ── Envío ── */
-
 async function submitMailForm(event) {
     event.preventDefault();
     const c = mailText();
     const button = document.getElementById('mail-send-btn');
+    commitAllMailRecipientInputs();
+
     const from = document.getElementById('mail-sender')?.value || '';
-    const { recipients, error: recipientError } = parseMailRecipients(
-        document.getElementById('mail-recipient')?.value || '');
+    const recipients = [..._mailRecipients.to];
+    const cc = _mailRecipients.cc.filter(address => !recipients.includes(address));
+    const bcc = _mailRecipients.bcc.filter(address => !recipients.includes(address) && !cc.includes(address));
+    const mode = effectiveMailDelivery();
     const replyTo = document.getElementById('mail-reply-to')?.value.trim() || '';
     const subject = document.getElementById('mail-subject')?.value.trim() || '';
+    const invalid = [...recipients, ...cc, ...bcc].find(address => !validMailAddress(address));
 
     if (!from) return setMailMessage(c.senderRequired, 'is-error');
-    if (recipientError) return setMailMessage(recipientError, 'is-error');
+    if (!recipients.length) {
+        document.getElementById('mail-recipient')?.focus();
+        return setMailMessage(c.recipientRequired, 'is-error');
+    }
+    if (invalid) return setMailMessage(c.invalidAddress(invalid), 'is-error');
+    if (recipients.length + cc.length + bcc.length > MAIL_MAX_RECIPIENTS) return setMailMessage(c.recipientLimit, 'is-error');
     if (replyTo && !validMailAddress(replyTo)) return setMailMessage(c.replyInvalid, 'is-error');
-    if (!subject) return setMailMessage(c.subjectRequired, 'is-error');
-    if (!_mailTemplateFile || !_mailTemplateHtml.trim()) return setMailMessage(c.templateRequired, 'is-error');
+    if (!subject) {
+        document.getElementById('mail-subject')?.focus();
+        return setMailMessage(c.subjectRequired, 'is-error');
+    }
+    if (_mailBodyMode === 'write') {
+        if (!document.getElementById('mail-body-text')?.value.trim()) {
+            document.getElementById('mail-body-text')?.focus();
+            return setMailMessage(c.bodyRequired, 'is-error');
+        }
+    } else if (!_mailTemplateFile || !_mailTemplateHtml.trim()) {
+        return setMailMessage(c.templateRequired, 'is-error');
+    }
     // Se recogen las correcciones hechas sobre la previsualización antes de
     // validar el tamaño: lo que se valida tiene que ser lo que se envía.
     commitMailEdits();
@@ -8871,8 +9875,8 @@ async function submitMailForm(event) {
     if (attachmentProblems.length) return setMailMessage(attachmentProblems.join(' '), 'is-error');
 
     // Enviar como la empresa no se deshace: se confirma en un diálogo propio
-    // del CRM, con el destinatario real, el asunto y el número de adjuntos.
-    if (!await confirmMailDelivery({ from, recipients, subject })) return;
+    // del CRM, con los destinatarios reales, el asunto y los adjuntos.
+    if (!await confirmMailDelivery({ from, recipients, cc, bcc, mode, subject })) return;
 
     if (button) button.disabled = true;
     setMailMessage(c.sending);
@@ -8883,7 +9887,7 @@ async function submitMailForm(event) {
             contentType: file.type || 'application/octet-stream',
             content: await fileToBase64(file)
         })));
-        const fingerprint = mailDraftFingerprint({ from, recipients, replyTo, subject });
+        const fingerprint = mailDraftFingerprint({ from, recipients, cc, bcc, mode, replyTo, subject, html: messageHtml });
         if (!_mailPendingKey || _mailPendingFingerprint !== fingerprint) {
             _mailPendingKey = `elysium-crm-${crypto.randomUUID()}`;
             _mailPendingFingerprint = fingerprint;
@@ -8895,6 +9899,9 @@ async function submitMailForm(event) {
             body: {
                 from,
                 to: recipients,
+                cc,
+                bcc,
+                mode,
                 subject,
                 html: messageHtml,
                 locale: currentLang,
@@ -8903,20 +9910,15 @@ async function submitMailForm(event) {
             }
         });
 
-        // El asunto y el remitente se conservan para el siguiente correo; lo
-        // que pudiera causar un reenvío accidental sí se limpia.
-        const recipientInput = document.getElementById('mail-recipient');
-        if (recipientInput) recipientInput.value = '';
-        const replyInput = document.getElementById('mail-reply-to');
-        if (replyInput) replyInput.value = '';
-        _mailAttachments = [];
-        renderMailAttachments();
-        clearMailTemplate();
-        resetMailIdempotency();
+        // Un correo enviado no se queda en el compositor: así no hay reenvío
+        // accidental. Se conservan el remitente y el idioma de la carta.
+        resetMailComposer();
+        clearMailDraft();
 
-        const delivered = Array.isArray(result.recipients) && result.recipients.length
-            ? result.recipients.join(', ')
-            : recipients.join(', ');
+        const delivered = [
+            ...(Array.isArray(result.recipients) && result.recipients.length ? result.recipients : recipients),
+            ...(Array.isArray(result.cc) ? result.cc : cc)
+        ].join(', ');
         setMailMessage(
             result.adminReceiptStatus === 'failed' ? c.sentReceiptWarning(delivered) : c.sent(delivered),
             result.adminReceiptStatus === 'failed' ? 'is-warning' : 'is-success'
@@ -8933,6 +9935,40 @@ async function submitMailForm(event) {
     }
 }
 
+/** Textos que dependen del idioma del CRM y que no están en un id fijo. */
+function applyMailTranslations() {
+    const c = mailText();
+    const setAttribute = (selector, attribute, value) => {
+        document.querySelectorAll(selector).forEach(element => element.setAttribute(attribute, value));
+    };
+    const subject = document.getElementById('mail-subject');
+    if (subject) subject.placeholder = c.subjectPlaceholder;
+    const body = document.getElementById('mail-body-text');
+    if (body) body.placeholder = c.bodyPlaceholder;
+    setAttribute('#mail-remove-template-btn', 'aria-label', c.removeTemplate);
+    setAttribute('#mail-live-preview-frame', 'title', c.previewFrameTitle);
+    setAttribute('[data-mail-hide="cc"]', 'aria-label', c.removeCc);
+    setAttribute('[data-mail-hide="bcc"]', 'aria-label', c.removeBcc);
+    setAttribute('[data-mail-hide="reply"]', 'aria-label', c.removeReply);
+    setAttribute('#mail-body-tabs', 'aria-label', c.bodyTabs);
+    setAttribute('[data-mail-device="desktop"]', 'aria-label', c.deviceDesktop);
+    setAttribute('[data-mail-device="mobile"]', 'aria-label', c.deviceMobile);
+    setAttribute('[data-mail-device="desktop"]', 'title', c.deviceDesktop);
+    setAttribute('[data-mail-device="mobile"]', 'title', c.deviceMobile);
+    setAttribute('#mail-send-btn', 'title', c.sendShortcut);
+    const senderSelect = document.getElementById('mail-sender');
+    if (senderSelect?.options.length === 1 && !senderSelect.options[0].value) {
+        senderSelect.options[0].textContent = c.loadingSenders;
+    }
+    if (!_mailDiscardTimer) disarmMailDiscard();
+    renderMailSenderPicker();
+    MAIL_RECIPIENT_FIELDS.forEach(renderMailChips);
+    syncMailDelivery();
+    renderMailSummary();
+    refreshMailPreview();
+    if (_mailInitialized) renderMailAttachments();
+}
+
 /** Se llama una sola vez, desde `initDashboard`, ya con el usuario validado. */
 function initMailSection() {
     if (_mailInitialized) return;
@@ -8941,7 +9977,95 @@ function initMailSection() {
     _mailInitialized = true;
 
     form.addEventListener('submit', submitMailForm);
+    form.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+            event.preventDefault();
+            form.requestSubmit();
+        }
+    });
 
+    // Remitente.
+    const trigger = document.getElementById('mail-sender-trigger');
+    const senderList = document.getElementById('mail-sender-list');
+    trigger?.addEventListener('click', () => {
+        if (senderList?.hidden) openMailSenderList();
+        else closeMailSenderList();
+    });
+    trigger?.addEventListener('keydown', event => {
+        if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
+            event.preventDefault();
+            openMailSenderList();
+        }
+    });
+    senderList?.addEventListener('click', event => {
+        const option = event.target.closest('.mail-sender-option');
+        if (!option || option.getAttribute('aria-disabled') === 'true') return;
+        chooseMailSender(option.dataset.address);
+        closeMailSenderList({ focusTrigger: true });
+    });
+    senderList?.addEventListener('keydown', event => {
+        const options = mailSenderOptions();
+        const current = options.findIndex(option => option.classList.contains('is-active'));
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            const step = event.key === 'ArrowDown' ? 1 : -1;
+            setActiveMailSenderOption(options[(current + step + options.length) % options.length]);
+        } else if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            if (options[current]) chooseMailSender(options[current].dataset.address);
+            closeMailSenderList({ focusTrigger: true });
+        } else if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            closeMailSenderList({ focusTrigger: true });
+        } else if (event.key === 'Tab') {
+            closeMailSenderList();
+        }
+    });
+    document.addEventListener('click', event => {
+        if (!event.target.closest('#mail-sender-picker')) closeMailSenderList();
+    });
+
+    // Destinatarios y filas opcionales.
+    MAIL_RECIPIENT_FIELDS.forEach(wireMailRecipientField);
+    document.querySelectorAll('[data-mail-reveal]').forEach(button => {
+        button.addEventListener('click', () => setMailRowVisible(button.dataset.mailReveal, true, { focus: true }));
+    });
+    document.querySelectorAll('[data-mail-hide]').forEach(button => {
+        button.addEventListener('click', () => setMailRowVisible(button.dataset.mailHide, false));
+    });
+    document.querySelectorAll('[data-mail-delivery]').forEach(button => {
+        button.addEventListener('click', () => {
+            if (button.disabled) return;
+            _mailDelivery = button.dataset.mailDelivery === 'group' ? 'group' : 'individual';
+            resetMailIdempotency();
+            syncMailDelivery();
+            scheduleMailDraftSave();
+        });
+    });
+
+    // Asunto y cuerpo.
+    document.getElementById('mail-subject')?.addEventListener('input', () => {
+        syncMailSubjectCounter();
+        renderMailInboxHead();
+        if (_mailBodyMode === 'write') scheduleMailPreview();
+    });
+    document.getElementById('mail-body-text')?.addEventListener('input', scheduleMailPreview);
+    document.getElementById('mail-letter-lang')?.addEventListener('change', refreshMailPreview);
+    document.getElementById('mail-signature')?.addEventListener('change', refreshMailPreview);
+    const tabs = [...document.querySelectorAll('[data-mail-body]')];
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => setMailBodyMode(tab.dataset.mailBody));
+        tab.addEventListener('keydown', event => {
+            if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+            event.preventDefault();
+            const next = tabs[(tabs.indexOf(tab) + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+            setMailBodyMode(next.dataset.mailBody);
+            next.focus();
+        });
+    });
+
+    // Plantilla.
     const templateInput = document.getElementById('mail-template');
     const templateTrigger = document.getElementById('mail-template-trigger');
     const templateCard = templateTrigger?.closest('.mail-asset-card');
@@ -8950,6 +10074,7 @@ function initMailSection() {
     document.getElementById('mail-remove-template-btn')?.addEventListener('click', clearMailTemplate);
     document.getElementById('mail-edit-toggle')?.addEventListener('click', () => setMailEditing(!_mailEditing));
 
+    // Adjuntos.
     const attachmentInput = document.getElementById('mail-attachments');
     const attachmentTrigger = document.getElementById('mail-attachment-trigger');
     const attachmentZone = document.getElementById('mail-attachment-zone');
@@ -8984,6 +10109,16 @@ function initMailSection() {
     wireDropZone(templateCard, files => setMailTemplate(Array.from(files)[0]));
     wireDropZone(attachmentZone, addMailAttachments);
 
+    // Previsualización, pie y confirmación.
+    document.querySelectorAll('[data-mail-device]').forEach(button => {
+        button.addEventListener('click', () => setMailDevice(button.dataset.mailDevice));
+    });
+    document.getElementById('mail-discard-btn')?.addEventListener('click', discardMailDraft);
+    // La animación de entrada de `.portal-section` deja un `transform`, y eso
+    // convierte la sección en el marco del `position: fixed`: el diálogo se
+    // centraba en la sección, no en la pantalla, y se cortaba por arriba.
+    const confirmBackdrop = document.getElementById('mail-confirm-backdrop');
+    confirmBackdrop?.closest('.customer-portal')?.append(confirmBackdrop);
     document.getElementById('mail-confirm-cancel')?.addEventListener('click', () => closeMailConfirmation(false));
     document.getElementById('mail-confirm-send')?.addEventListener('click', () => closeMailConfirmation(true));
     document.getElementById('mail-confirm-backdrop')?.addEventListener('click', event => {
@@ -8994,13 +10129,33 @@ function initMailSection() {
             closeMailConfirmation(false);
         }
     });
-    form.addEventListener('input', resetMailIdempotency);
+    form.addEventListener('input', () => {
+        resetMailIdempotency();
+        scheduleMailDraftSave();
+    });
+    form.addEventListener('change', scheduleMailDraftSave);
+
+    const language = document.getElementById('mail-letter-lang');
+    if (language) language.value = defaultMailLetterRegion();
+    restoreMailDraft();
+    setMailBodyMode(_mailBodyMode);
+    syncMailSubjectCounter();
+    applyMailTranslations();
+    _mailDraftReady = true;
 }
 
 /** Datos que dependen de la red; se recargan cada vez que se abre la sección. */
 async function loadMailSection() {
     initMailSection();
-    fillMailRecipientOptions();  // asíncrona: rellena el datalist cuando pueda
+    // Asíncrona: carga los clientes para las sugerencias y repinta las fichas
+    // con su nombre en cuanto los tiene. Se puede entrar a Correo sin haber
+    // pasado por Clientes ni por Agenda, y entonces la caché está vacía.
+    ensureAgendaClients(_agendaLoadVersion)
+        .then(() => {
+            MAIL_RECIPIENT_FIELDS.forEach(renderMailChips);
+            renderMailInboxHead();
+        })
+        .catch(error => logger.warn('Could not load clients for the recipient suggestions:', error));
     loadMailSenders();
 }
 

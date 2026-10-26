@@ -2604,10 +2604,14 @@
     }
 }
 
-/* ─── Mail workspace v2 ───
-   Composer and preview use the same soft panels, spacing and controls as the
-   agenda. */
+/* ─── Mail workspace v3 ───
+   El compositor se lee como un cliente de correo: un «sobre» con De, Para,
+   CC, CCO y Asunto en filas, el cuerpo debajo y, al lado, el mensaje tal como
+   llegará a la bandeja. Mismos paneles y tokens que la agenda. */
 .customer-portal.is-admin .mail-workspace {
+    --mail-line: rgba(148, 163, 184, 0.14);
+    --mail-field: rgba(255, 255, 255, 0.028);
+    --mail-raised: #0f1a2c;
     display: grid;
     grid-template-columns: minmax(30rem, 1.05fr) minmax(24rem, 0.95fr);
     gap: 1.25rem;
@@ -2617,61 +2621,32 @@
 .customer-portal.is-admin .mail-compose-panel,
 .customer-portal.is-admin .mail-preview-panel {
     min-width: 0;
+}
+
+.customer-portal.is-admin .mail-preview-panel {
     position: sticky;
     top: 1.25rem;
 }
 
 .customer-portal.is-admin .mail-panel-heading {
-    margin-bottom: 1.25rem;
+    align-items: center;
+    margin-bottom: 1.1rem;
 }
 
-.customer-portal.is-admin .mail-secure-chip,
-/* Herramientas de la previsualización: el interruptor de edición junto a la
-   etiqueta de estado, en el encabezado del panel. */
+.customer-portal.is-admin .mail-heading-tools,
 .customer-portal.is-admin .mail-preview-tools {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.customer-portal.is-admin .mail-edit-toggle {
-    padding: 0.38rem 0.75rem;
-    border: 1px solid var(--portal-border);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.035);
-    color: var(--color-text-secondary, #a0a5b5);
-    font: inherit;
-    font-size: 0.66rem;
-    font-weight: 680;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
-}
-
-.customer-portal.is-admin .mail-edit-toggle:hover {
-    border-color: rgba(72, 180, 255, 0.34);
-    color: #cfe6fb;
-}
-
-.customer-portal.is-admin .mail-edit-toggle.is-active {
-    border-color: rgba(72, 180, 255, 0.45);
-    background: rgba(41, 151, 255, 0.16);
-    color: #9fd7ff;
-}
-
-.customer-portal.is-admin .mail-edit-hint {
-    margin: 0.7rem 0 0;
-    color: var(--color-text-muted, #76849a);
-    font-size: 0.72rem;
-    line-height: 1.5;
-}
-
+.customer-portal.is-admin .mail-secure-chip,
 .customer-portal.is-admin .mail-preview-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.42rem;
-    padding: 0.38rem 0.66rem;
-    border: 1px solid rgba(72, 180, 255, 0.2);
+    padding: 0.36rem 0.66rem;
+    border: 1px solid var(--portal-border);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.035);
     color: var(--color-text-muted, #76849a);
@@ -2679,7 +2654,10 @@
     font-weight: 680;
     letter-spacing: 0.025em;
     white-space: nowrap;
-    border-color: var(--portal-border);
+}
+
+.customer-portal.is-admin .mail-secure-chip {
+    color: #9fd9bd;
 }
 
 .customer-portal.is-admin .mail-secure-chip > span:first-child {
@@ -2690,39 +2668,713 @@
     box-shadow: 0 0 0 0.2rem rgba(64, 216, 150, 0.1);
 }
 
+.customer-portal.is-admin .mail-preview-badge[hidden] {
+    display: none;
+}
+
 .customer-portal.is-admin .mail-preview-badge.is-ready {
     border-color: rgba(64, 216, 150, 0.24);
     background: rgba(64, 216, 150, 0.08);
     color: #91e4bd;
 }
 
+.customer-portal.is-admin .mail-preview-badge.is-live {
+    border-color: rgba(41, 151, 255, 0.3);
+    background: rgba(41, 151, 255, 0.1);
+    color: #9fd7ff;
+}
+
+.customer-portal.is-admin .mail-preview-badge.is-live::before {
+    content: "";
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: #2997ff;
+    animation: mail-live-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes mail-live-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(41, 151, 255, 0.45); }
+    50%      { box-shadow: 0 0 0 0.28rem rgba(41, 151, 255, 0); }
+}
+
+.customer-portal.is-admin .mail-draft-state {
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.66rem;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.customer-portal.is-admin .mail-draft-state.is-visible {
+    opacity: 1;
+}
+
 .customer-portal.is-admin .mail-compose-form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-}
-
-.customer-portal.is-admin .mail-fields-grid {
-    margin: 0;
+    gap: 1rem;
 }
 
 .customer-portal.is-admin .mail-hint {
     display: block;
-    margin-top: 0.36rem;
     color: var(--color-text-muted, #76849a);
     font-size: 0.68rem;
     font-weight: 450;
     line-height: 1.45;
 }
 
+.customer-portal.is-admin .mail-hint:empty {
+    display: none;
+}
+
 .customer-portal.is-admin .mail-hint.is-warning {
     color: var(--portal-warning, #f4c95d);
 }
 
-.customer-portal.is-admin .mail-asset-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+/* Sobre --------------------------------------------------------------- */
+
+.customer-portal.is-admin .mail-envelope {
+    border: 1px solid var(--mail-line);
+    border-radius: 1.1rem;
+    background: var(--mail-field);
+}
+
+.customer-portal.is-admin .mail-row {
+    position: relative;
+    display: flex;
+    min-height: 3.1rem;
+    align-items: center;
     gap: 0.75rem;
+    padding: 0.4rem 0.85rem;
+    border-top: 1px solid var(--mail-line);
+    transition: background 160ms ease;
+}
+
+.customer-portal.is-admin .mail-envelope > .mail-row:first-child {
+    border-top: 0;
+}
+
+.customer-portal.is-admin .mail-row[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-row:focus-within {
+    background: rgba(41, 151, 255, 0.04);
+}
+
+.customer-portal.is-admin .mail-row:first-child:focus-within {
+    border-radius: 1.1rem 1.1rem 0 0;
+}
+
+.customer-portal.is-admin .mail-row:last-child:focus-within {
+    border-radius: 0 0 1.1rem 1.1rem;
+}
+
+.customer-portal.is-admin .mail-row-label {
+    flex: 0 0 5.2rem;
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+}
+
+.customer-portal.is-admin .mail-row-hint {
+    margin: 0;
+    padding: 0 0.85rem 0.6rem calc(0.85rem + 5.2rem + 0.75rem);
+}
+
+.customer-portal.is-admin .mail-row-input,
+.customer-portal.is-admin .mail-chip-field input {
+    min-width: 0;
+    flex: 1 1 auto;
+    padding: 0.45rem 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--color-text-primary, #e1e1e5);
+    font: inherit;
+    font-size: 0.86rem;
+}
+
+/* El foco lo marca la fila entera; el anillo global de los campos dibujaría
+   una caja dentro de ella. */
+.customer-portal.is-admin .mail-envelope .mail-row-input:focus,
+.customer-portal.is-admin .mail-envelope .mail-chip-field input:focus {
+    border: 0;
+    border-radius: 0;
+    outline: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.customer-portal.is-admin .mail-row-input::placeholder,
+.customer-portal.is-admin .mail-chip-field input::placeholder {
+    color: rgba(160, 165, 181, 0.55);
+}
+
+.customer-portal.is-admin .mail-row-subject .mail-row-input {
+    font-weight: 620;
+}
+
+.customer-portal.is-admin .mail-counter {
+    flex: 0 0 auto;
+    color: rgba(143, 156, 175, 0.6);
+    font-size: 0.64rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .mail-counter.is-near {
+    color: var(--portal-warning, #f4c95d);
+}
+
+.customer-portal.is-admin .mail-row-toggles {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-self: flex-start;
+    gap: 0.2rem;
+    margin-top: 0.35rem;
+}
+
+.customer-portal.is-admin .mail-reveal {
+    padding: 0.3rem 0.5rem;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: #8fb9e3;
+    font: inherit;
+    font-size: 0.7rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.customer-portal.is-admin .mail-reveal:hover,
+.customer-portal.is-admin .mail-reveal:focus-visible {
+    background: rgba(41, 151, 255, 0.1);
+    color: #cfe6fb;
+    outline: none;
+}
+
+.customer-portal.is-admin .mail-reveal[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-row-close {
+    display: grid;
+    width: 1.6rem;
+    height: 1.6rem;
+    flex: 0 0 auto;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-text-muted, #76849a);
+    font: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-row-close:hover,
+.customer-portal.is-admin .mail-row-close:focus-visible {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--color-text-primary, #e1e1e5);
+    outline: none;
+}
+
+/* Remitente ----------------------------------------------------------- */
+
+.customer-portal.is-admin .mail-sender-picker {
+    position: relative;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.customer-portal.is-admin .mail-sender-trigger {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.38rem 0.5rem 0.38rem 0.38rem;
+    border: 1px solid transparent;
+    border-radius: 0.85rem;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+}
+
+.customer-portal.is-admin .mail-sender-trigger:hover,
+.customer-portal.is-admin .mail-sender-trigger:focus-visible,
+.customer-portal.is-admin .mail-sender-trigger[aria-expanded="true"] {
+    border-color: var(--mail-line);
+    background: rgba(255, 255, 255, 0.04);
+    outline: none;
+}
+
+.customer-portal.is-admin .mail-sender-trigger:disabled {
+    cursor: default;
+    opacity: 0.7;
+}
+
+.customer-portal.is-admin .mail-sender-text {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.customer-portal.is-admin .mail-sender-text strong {
+    overflow: hidden;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 0.84rem;
+    font-weight: 680;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-sender-text small {
+    overflow: hidden;
+    color: var(--color-text-muted, #8f9caf);
+    font-size: 0.7rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-chevron {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    color: var(--color-text-muted, #76849a);
+    transition: transform 160ms ease;
+}
+
+.customer-portal.is-admin .mail-sender-trigger[aria-expanded="true"] .mail-chevron {
+    transform: rotate(180deg);
+}
+
+.customer-portal.is-admin .mail-sender-list,
+.customer-portal.is-admin .mail-suggest {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    right: 0;
+    max-height: 18rem;
+    margin: 0;
+    padding: 0.35rem;
+    overflow-y: auto;
+    border: 1px solid rgba(123, 179, 224, 0.2);
+    border-radius: 0.95rem;
+    background: var(--mail-raised);
+    box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.45);
+    list-style: none;
+    outline: none;
+}
+
+.customer-portal.is-admin .mail-sender-list[hidden],
+.customer-portal.is-admin .mail-suggest[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-sender-option,
+.customer-portal.is-admin .mail-suggest-option {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 0.55rem;
+    border-radius: 0.7rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-sender-option.is-active,
+.customer-portal.is-admin .mail-sender-option:hover,
+.customer-portal.is-admin .mail-suggest-option.is-active,
+.customer-portal.is-admin .mail-suggest-option:hover {
+    background: rgba(41, 151, 255, 0.12);
+}
+
+.customer-portal.is-admin .mail-sender-option[aria-disabled="true"] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.customer-portal.is-admin .mail-sender-option[aria-disabled="true"]:hover {
+    background: transparent;
+}
+
+.customer-portal.is-admin .mail-sender-check {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+    color: #6fb6ff;
+    opacity: 0;
+}
+
+.customer-portal.is-admin .mail-sender-option.is-selected .mail-sender-check {
+    opacity: 1;
+}
+
+.customer-portal.is-admin .mail-sender-flag {
+    flex: 0 0 auto;
+    padding: 0.18rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(244, 201, 93, 0.12);
+    color: var(--portal-warning, #f4c95d);
+    font-size: 0.6rem;
+    font-weight: 700;
+}
+
+/* Avatares: un tono por buzón o contacto. */
+.customer-portal.is-admin .mail-avatar {
+    display: grid;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    background: linear-gradient(140deg, #1d4f8a, #173e62);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    color: #e8f3ff;
+    font-size: 0.72rem;
+    font-weight: 760;
+    letter-spacing: 0.02em;
+}
+
+.customer-portal.is-admin .mail-avatar[data-tone="1"] { background: linear-gradient(140deg, #0f7a75, #0b4a52); }
+.customer-portal.is-admin .mail-avatar[data-tone="2"] { background: linear-gradient(140deg, #6046c9, #352a7a); }
+.customer-portal.is-admin .mail-avatar[data-tone="3"] { background: linear-gradient(140deg, #b7792a, #6d4515); }
+.customer-portal.is-admin .mail-avatar[data-tone="4"] { background: linear-gradient(140deg, #b2456e, #6a2240); }
+
+.customer-portal.is-admin .mail-suggest-option .mail-avatar {
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 0.66rem;
+}
+
+/* Destinatarios ------------------------------------------------------- */
+
+.customer-portal.is-admin .mail-chip-field {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0;
+    cursor: text;
+}
+
+.customer-portal.is-admin .mail-chips {
+    display: contents;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.customer-portal.is-admin .mail-chip-field input {
+    min-width: 9rem;
+}
+
+.customer-portal.is-admin .mail-chip {
+    display: inline-flex;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.22rem 0.22rem 0.22rem 0.6rem;
+    border: 1px solid rgba(72, 180, 255, 0.24);
+    border-radius: 999px;
+    background: rgba(41, 151, 255, 0.1);
+    color: #d7e9fa;
+    font-size: 0.74rem;
+    line-height: 1.3;
+    cursor: default;
+}
+
+.customer-portal.is-admin .mail-chip-text {
+    display: inline-flex;
+    min-width: 0;
+    gap: 0.35rem;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-chip-text strong {
+    font-weight: 680;
+}
+
+.customer-portal.is-admin .mail-chip-text strong + span {
+    overflow: hidden;
+    color: #8fb3d6;
+    text-overflow: ellipsis;
+}
+
+.customer-portal.is-admin .mail-chip button {
+    display: grid;
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: 0 0 auto;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #b8cde2;
+    font: inherit;
+    font-size: 0.8rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-chip button:hover {
+    background: rgba(255, 118, 118, 0.18);
+    color: #ffb4b4;
+}
+
+.customer-portal.is-admin .mail-chip.is-invalid {
+    border-color: rgba(255, 118, 118, 0.55);
+    background: rgba(255, 118, 118, 0.1);
+    color: #ffc2c2;
+}
+
+.customer-portal.is-admin .mail-suggest {
+    right: auto;
+    width: min(24rem, 100%);
+}
+
+/* Reparto ------------------------------------------------------------- */
+
+.customer-portal.is-admin .mail-delivery {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.85rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--mail-line);
+    border-radius: 0.95rem;
+    background: rgba(41, 151, 255, 0.035);
+}
+
+.customer-portal.is-admin .mail-delivery[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-delivery-label {
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.72rem;
+    font-weight: 650;
+}
+
+.customer-portal.is-admin .mail-delivery .mail-hint {
+    flex: 1 1 100%;
+}
+
+.customer-portal.is-admin .mail-segmented {
+    display: inline-flex;
+    gap: 0.2rem;
+    padding: 0.2rem;
+    border: 1px solid var(--mail-line);
+    border-radius: 0.8rem;
+    background: rgba(0, 0, 0, 0.18);
+}
+
+.customer-portal.is-admin .mail-segmented button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border: 0;
+    border-radius: 0.6rem;
+    background: transparent;
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 650;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.customer-portal.is-admin .mail-segmented button svg {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.customer-portal.is-admin .mail-segmented button:hover:not(:disabled) {
+    color: var(--color-text-primary, #e1e1e5);
+}
+
+.customer-portal.is-admin .mail-segmented button.is-active,
+.customer-portal.is-admin .mail-segmented button[aria-selected="true"] {
+    background: rgba(41, 151, 255, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(72, 180, 255, 0.28);
+    color: #dceeff;
+}
+
+.customer-portal.is-admin .mail-segmented button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.customer-portal.is-admin .mail-segmented button:focus-visible {
+    outline: 2px solid rgba(41, 151, 255, 0.6);
+    outline-offset: 1px;
+}
+
+/* Cuerpo -------------------------------------------------------------- */
+
+.customer-portal.is-admin .mail-body-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.customer-portal.is-admin .mail-body-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.customer-portal.is-admin .mail-letter-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.7rem;
+    font-weight: 650;
+}
+
+.customer-portal.is-admin .mail-letter-lang[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-letter-lang select {
+    padding: 0.42rem 1.9rem 0.42rem 0.7rem;
+    border: 1px solid var(--mail-line);
+    border-radius: 0.7rem;
+    outline: none;
+    background: rgba(255, 255, 255, 0.035) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238f9caf' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.55rem center / 0.85rem;
+    color: var(--color-text-primary, #e1e1e5);
+    color-scheme: dark;
+    font: inherit;
+    font-size: 0.74rem;
+    appearance: none;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-letter-lang select:focus {
+    border-color: rgba(41, 151, 255, 0.6);
+}
+
+.customer-portal.is-admin .mail-letter-lang select option {
+    background: #071022;
+    color: #f7f8fb;
+}
+
+.customer-portal.is-admin .mail-write-pane {
+    border: 1px solid var(--mail-line);
+    border-radius: 1.1rem;
+    background: var(--mail-field);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.customer-portal.is-admin .mail-write-pane:focus-within {
+    border-color: rgba(41, 151, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.08);
+}
+
+.customer-portal.is-admin .mail-write-pane[hidden],
+.customer-portal.is-admin .mail-template-pane[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-write-pane textarea {
+    display: block;
+    width: 100%;
+    min-height: 17rem;
+    padding: 1rem 1.05rem;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--color-text-primary, #e1e1e5);
+    font: inherit;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    resize: vertical;
+}
+
+.customer-portal.is-admin .mail-write-pane textarea::placeholder {
+    color: rgba(160, 165, 181, 0.5);
+}
+
+.customer-portal.is-admin .mail-write-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.65rem 1.05rem;
+    border-top: 1px solid var(--mail-line);
+}
+
+.customer-portal.is-admin .mail-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--color-text-secondary, #a0a5b5);
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-switch input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.customer-portal.is-admin .mail-switch-track {
+    position: relative;
+    width: 2rem;
+    height: 1.15rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    transition: background 160ms ease;
+}
+
+.customer-portal.is-admin .mail-switch-track::after {
+    content: "";
+    position: absolute;
+    top: 0.15rem;
+    left: 0.15rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 160ms ease;
+}
+
+.customer-portal.is-admin .mail-switch input:checked + .mail-switch-track {
+    background: #2997ff;
+}
+
+.customer-portal.is-admin .mail-switch input:checked + .mail-switch-track::after {
+    transform: translateX(0.85rem);
+}
+
+.customer-portal.is-admin .mail-switch input:focus-visible + .mail-switch-track {
+    outline: 2px solid rgba(41, 151, 255, 0.6);
+    outline-offset: 2px;
 }
 
 .customer-portal.is-admin .mail-asset-card {
@@ -2733,19 +3385,19 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem;
-    border: 1px solid var(--portal-border);
-    border-radius: 1rem;
+    padding: 1.1rem;
+    border: 1px dashed rgba(123, 179, 224, 0.26);
+    border-radius: 1.1rem;
     background:
         radial-gradient(circle at 100% 0, rgba(41, 151, 255, 0.08), transparent 42%),
         rgba(255, 255, 255, 0.024);
-    transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+    transition: border-color 180ms ease, background 180ms ease;
 }
 
-.customer-portal.is-admin .mail-asset-card.is-dragover {
-    border-color: rgba(41, 151, 255, 0.52);
+.customer-portal.is-admin .mail-asset-card.is-dragover,
+.customer-portal.is-admin .mail-attachments.is-dragover {
+    border-color: rgba(41, 151, 255, 0.62);
     background: rgba(41, 151, 255, 0.08);
-    transform: translateY(-1px);
 }
 
 .customer-portal.is-admin .mail-asset-copy {
@@ -2754,15 +3406,17 @@
     gap: 0.75rem;
 }
 
-.customer-portal.is-admin .mail-asset-copy strong {
+.customer-portal.is-admin .mail-asset-copy strong,
+.customer-portal.is-admin .mail-attachments-copy strong {
     display: block;
     color: var(--color-text-primary, #e1e1e5);
     font-size: 0.79rem;
     font-weight: 690;
 }
 
-.customer-portal.is-admin .mail-asset-copy p {
-    margin: 0.24rem 0 0;
+.customer-portal.is-admin .mail-asset-copy p,
+.customer-portal.is-admin .mail-attachments-copy p {
+    margin: 0.2rem 0 0;
     color: var(--color-text-muted, #76849a);
     font-size: 0.68rem;
     line-height: 1.48;
@@ -2781,19 +3435,21 @@
 }
 
 .customer-portal.is-admin .mail-asset-icon svg {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1.15rem;
+    height: 1.15rem;
 }
 
 .customer-portal.is-admin .mail-asset-action {
-    padding: 0.48rem 0.72rem;
+    flex: 0 0 auto;
+    padding: 0.48rem 0.8rem;
     border: 1px solid rgba(116, 174, 222, 0.24);
-    border-radius: 0.68rem;
+    border-radius: 0.7rem;
     background: rgba(255, 255, 255, 0.04);
     color: #c9d9e8;
     font: inherit;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 650;
+    white-space: nowrap;
     cursor: pointer;
     transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
 }
@@ -2826,7 +3482,7 @@
     flex: 1 1 auto;
     overflow: hidden;
     color: #bcebd5;
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 610;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2854,11 +3510,57 @@
     color: var(--portal-danger, #ff7676);
 }
 
-.customer-portal.is-admin .mail-attachment-list {
+/* Adjuntos ------------------------------------------------------------ */
+
+.customer-portal.is-admin .mail-attachments {
     display: flex;
-    width: 100%;
     flex-direction: column;
-    gap: 0.38rem;
+    gap: 0.7rem;
+    padding: 0.85rem;
+    border: 1px dashed rgba(123, 179, 224, 0.24);
+    border-radius: 1.1rem;
+    background: rgba(255, 255, 255, 0.018);
+    transition: border-color 180ms ease, background 180ms ease;
+}
+
+.customer-portal.is-admin .mail-attachments-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .mail-attachments-copy {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.customer-portal.is-admin .mail-attachment-meter {
+    height: 0.25rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.customer-portal.is-admin .mail-attachment-meter[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-attachment-meter span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #2997ff, #38d9ae);
+    transition: width 220ms ease;
+}
+
+.customer-portal.is-admin .mail-attachment-meter.is-over span {
+    background: var(--portal-danger, #ff7676);
+}
+
+.customer-portal.is-admin .mail-attachment-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 0.45rem;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -2870,19 +3572,34 @@
 
 .customer-portal.is-admin .mail-attachment-list li {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: 0.48rem;
-    padding: 0.44rem 0.5rem 0.44rem 0.62rem;
-    border: 1px solid var(--portal-border);
-    border-radius: 0.68rem;
-    background: rgba(0, 0, 0, 0.12);
+    gap: 0.55rem;
+    padding: 0.42rem 0.45rem 0.42rem 0.45rem;
+    border: 1px solid var(--mail-line);
+    border-radius: 0.75rem;
+    background: rgba(0, 0, 0, 0.14);
     color: var(--color-text-secondary, #a0a5b5);
-    font-size: 0.66rem;
+    font-size: 0.7rem;
+}
+
+.customer-portal.is-admin .mail-attachment-type {
+    display: grid;
+    min-width: 2.1rem;
+    height: 1.7rem;
+    padding: 0 0.3rem;
+    place-items: center;
+    border-radius: 0.45rem;
+    background: rgba(41, 151, 255, 0.12);
+    color: #8fcaff;
+    font-size: 0.56rem;
+    font-weight: 780;
+    letter-spacing: 0.04em;
 }
 
 .customer-portal.is-admin .mail-attachment-name {
     overflow: hidden;
+    color: #d5dfea;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -2897,19 +3614,76 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* Pie ----------------------------------------------------------------- */
+
 .customer-portal.is-admin .mail-compose-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     min-height: 3.25rem;
     margin-top: 0;
     padding-top: 1rem;
     border-top: 1px solid var(--portal-border);
 }
 
+.customer-portal.is-admin .mail-footer-status {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
 .customer-portal.is-admin .mail-compose-footer .meeting-form-message {
     margin: 0;
 }
 
+.customer-portal.is-admin .mail-compose-footer .meeting-form-message:empty {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-summary {
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .mail-footer-actions {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .mail-discard {
+    padding: 0.62rem 0.9rem;
+    border: 1px solid transparent;
+    border-radius: 0.8rem;
+    background: transparent;
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+}
+
+.customer-portal.is-admin .mail-discard:hover,
+.customer-portal.is-admin .mail-discard:focus-visible {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-primary, #e1e1e5);
+    outline: none;
+}
+
+.customer-portal.is-admin .mail-discard.is-armed {
+    border-color: rgba(255, 118, 118, 0.4);
+    background: rgba(255, 118, 118, 0.1);
+    color: #ffb0b0;
+}
+
 .customer-portal.is-admin .mail-send-button {
     display: inline-flex;
+    min-width: 8.5rem;
     align-items: center;
     justify-content: center;
     gap: 0.55rem;
@@ -2920,14 +3694,140 @@
     height: 1rem;
 }
 
+/* Previsualización ---------------------------------------------------- */
+
+.customer-portal.is-admin .mail-edit-toggle {
+    padding: 0.36rem 0.75rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.035);
+    color: var(--color-text-secondary, #a0a5b5);
+    font: inherit;
+    font-size: 0.66rem;
+    font-weight: 680;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+
+.customer-portal.is-admin .mail-edit-toggle:hover {
+    border-color: rgba(72, 180, 255, 0.34);
+    color: #cfe6fb;
+}
+
+.customer-portal.is-admin .mail-edit-toggle.is-active {
+    border-color: rgba(72, 180, 255, 0.45);
+    background: rgba(41, 151, 255, 0.16);
+    color: #9fd7ff;
+}
+
+.customer-portal.is-admin .mail-edit-toggle[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .mail-device-toggle {
+    display: inline-flex;
+    padding: 0.16rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.customer-portal.is-admin .mail-device-toggle button {
+    display: grid;
+    width: 1.75rem;
+    height: 1.55rem;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text-muted, #76849a);
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .mail-device-toggle button svg {
+    width: 0.95rem;
+    height: 0.95rem;
+}
+
+.customer-portal.is-admin .mail-device-toggle button.is-active {
+    background: rgba(41, 151, 255, 0.18);
+    color: #cfe6fb;
+}
+
+.customer-portal.is-admin .mail-edit-hint {
+    margin: 0.7rem 0 0;
+    color: var(--color-text-muted, #76849a);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .mail-inbox-head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid var(--mail-line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.customer-portal.is-admin .mail-inbox-subject {
+    overflow-wrap: anywhere;
+    color: var(--color-text-primary, #e1e1e5);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+}
+
+.customer-portal.is-admin .mail-inbox-subject.is-empty {
+    color: var(--color-text-muted, #76849a);
+    font-weight: 600;
+}
+
+.customer-portal.is-admin .mail-inbox-meta {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.customer-portal.is-admin .mail-inbox-meta > div {
+    min-width: 0;
+}
+
+.customer-portal.is-admin .mail-inbox-from,
+.customer-portal.is-admin .mail-inbox-to {
+    margin: 0;
+    overflow: hidden;
+    font-size: 0.74rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .mail-inbox-from strong {
+    color: var(--color-text-primary, #e1e1e5);
+    font-weight: 680;
+}
+
+.customer-portal.is-admin .mail-inbox-from span,
+.customer-portal.is-admin .mail-inbox-to {
+    color: var(--color-text-muted, #8f9caf);
+}
+
 .customer-portal.is-admin .mail-preview-stage {
     position: relative;
-    min-height: clamp(30rem, 64vh, 43rem);
+    min-height: clamp(30rem, 62vh, 42rem);
     overflow: hidden;
     border: 1px solid var(--portal-border);
     border-radius: 1rem;
     background: #f4f5f7;
     box-shadow: inset 0 0 0 0.4rem rgba(255, 255, 255, 0.24);
+    transition: background 200ms ease;
 }
 
 .customer-portal.is-admin .mail-preview-empty {
@@ -2940,6 +3840,10 @@
     justify-content: center;
     color: #667085;
     text-align: center;
+}
+
+.customer-portal.is-admin .mail-preview-empty[hidden] {
+    display: none;
 }
 
 .customer-portal.is-admin .mail-preview-empty > span {
@@ -2963,7 +3867,7 @@
 }
 
 .customer-portal.is-admin .mail-preview-empty p {
-    max-width: 18rem;
+    max-width: 19rem;
     margin: 0.42rem 0 0;
     font-size: 0.74rem;
     line-height: 1.55;
@@ -2975,12 +3879,38 @@
     width: 100%;
     height: 100%;
     border: 0;
-    background: #f7f4ee;
+    background: #f6f4ef;
+    transition: width 220ms ease, inset 220ms ease;
 }
 
 .customer-portal.is-admin .mail-preview-stage iframe[hidden] {
     display: none;
 }
+
+/* Vista de móvil: el mismo marco a 390 px, centrado como un teléfono. */
+.customer-portal.is-admin .mail-preview-stage.is-mobile {
+    background: #0a1220;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.customer-portal.is-admin .mail-preview-stage.is-mobile iframe {
+    inset: 0.9rem auto 0.9rem 50%;
+    width: min(390px, calc(100% - 1.8rem));
+    height: calc(100% - 1.8rem);
+    border-radius: 1.6rem;
+    box-shadow: 0 0 0 0.4rem #1c2638, 0 1.2rem 3rem rgba(0, 0, 0, 0.45);
+    transform: translateX(-50%);
+}
+
+.customer-portal.is-admin .mail-preview-stage.is-mobile .mail-preview-empty {
+    color: #8f9caf;
+}
+
+.customer-portal.is-admin .mail-preview-stage.is-mobile .mail-preview-empty strong {
+    color: #dfe7f1;
+}
+
+/* Confirmación -------------------------------------------------------- */
 
 .customer-portal.is-admin .mail-confirm-backdrop {
     position: fixed;
@@ -2999,7 +3929,9 @@
 }
 
 .customer-portal.is-admin .mail-confirm-dialog {
-    width: min(31rem, 100%);
+    width: min(32rem, 100%);
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
     padding: clamp(1.25rem, 4vw, 2rem);
     border: 1px solid rgba(123, 179, 224, 0.2);
     border-radius: 1.5rem;
@@ -3056,6 +3988,10 @@
     border-bottom: 1px solid var(--portal-border);
 }
 
+.customer-portal.is-admin .mail-confirm-summary > div[hidden] {
+    display: none;
+}
+
 .customer-portal.is-admin .mail-confirm-summary > div:last-child {
     border-bottom: 0;
 }
@@ -3080,6 +4016,11 @@
     gap: 0.65rem;
 }
 
+@media (prefers-reduced-motion: reduce) {
+    .customer-portal.is-admin .mail-preview-badge.is-live::before { animation: none; }
+    .customer-portal.is-admin .mail-preview-stage iframe { transition: none; }
+}
+
 @media (max-width: 1180px) {
     .customer-portal.is-admin .mail-workspace {
         grid-template-columns: minmax(0, 1fr);
@@ -3095,12 +4036,56 @@
 }
 
 @media (max-width: 720px) {
-    .customer-portal.is-admin .mail-asset-grid {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
     .customer-portal.is-admin .mail-panel-heading {
         align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .customer-portal.is-admin .mail-row {
+        flex-wrap: wrap;
+        gap: 0.25rem 0.6rem;
+        padding: 0.55rem 0.75rem;
+    }
+
+    .customer-portal.is-admin .mail-row-label {
+        flex-basis: auto;
+    }
+
+    .customer-portal.is-admin .mail-row-to .mail-chip-field {
+        flex-basis: 100%;
+        order: 3;
+    }
+
+    .customer-portal.is-admin .mail-row-to .mail-row-toggles {
+        margin: 0 0 0 auto;
+    }
+
+    .customer-portal.is-admin .mail-row-hint {
+        padding: 0 0.75rem 0.6rem;
+    }
+
+    .customer-portal.is-admin .mail-chip-field input {
+        min-width: 6rem;
+    }
+
+    .customer-portal.is-admin .mail-attachments-head {
+        flex-wrap: wrap;
+    }
+
+    .customer-portal.is-admin .mail-compose-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .customer-portal.is-admin .mail-footer-actions {
+        display: flex;
+        width: 100%;
+    }
+
+    .customer-portal.is-admin .mail-footer-actions .mail-send-button {
+        min-width: 0;
+        flex: 1 1 auto;
+        width: auto;
     }
 
     .customer-portal.is-admin .mail-preview-stage {
