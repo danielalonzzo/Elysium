@@ -8625,6 +8625,17 @@ function mailSealPreviewUrl() {
     return `${window.location.origin}/Images/elysium-email-seal.svg`;
 }
 
+/* Las plantillas de `Estandares/` traen el sello con su URL pública para que se
+   vea al abrirlas desde la carpeta; con `cid:` el navegador no lo encuentra. */
+const MAIL_SEAL_PUBLIC_URL = 'https://elysiumdr.eu/Images/elysium-email-seal.svg';
+
+/** Devuelve el sello a `cid:` venga como venga, para que el backend lo incruste. */
+function withMailSealCid(html) {
+    return String(html || '')
+        .replaceAll(mailSealPreviewUrl(), 'cid:elysium-email-seal')
+        .replaceAll(MAIL_SEAL_PUBLIC_URL, 'cid:elysium-email-seal');
+}
+
 /* ── Edición en la previsualización ──────────────────────────────────────────
    El compositor solo aceptaba la plantilla tal y como venía del archivo, así
    que una errata obligaba a corregir el HTML fuera y volver a importarlo. El
@@ -8648,9 +8659,8 @@ function mailPreviewDocument() {
 /** El HTML que se va a enviar: el editado si se tocó, si no el importado. */
 function currentMailHtml() {
     const doc = mailPreviewDocument();
-    if (!_mailEditing || !doc?.documentElement) return _mailTemplateHtml;
-    const edited = doc.documentElement.outerHTML;
-    return edited.replaceAll(mailSealPreviewUrl(), 'cid:elysium-email-seal');
+    if (!_mailEditing || !doc?.documentElement) return withMailSealCid(_mailTemplateHtml);
+    return withMailSealCid(doc.documentElement.outerHTML);
 }
 
 /** Vuelca lo editado a `_mailTemplateHtml` para no perderlo al alternar. */
@@ -8700,7 +8710,7 @@ function syncMailEditAvailability() {
 function mailPreviewHtml(html) {
     const sealUrl = mailSealPreviewUrl();
     let preview = String(html || '').replaceAll('cid:elysium-email-seal', sealUrl);
-    if (preview.includes(sealUrl)) return preview;
+    if (preview.includes(sealUrl) || preview.includes(MAIL_SEAL_PUBLIC_URL)) return preview;
     const seal = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-top:28px"><tr><td align="center" style="padding:24px 12px 8px"><img src="${sealUrl}" width="78" height="78" alt="Sello Elysium" style="display:block;width:78px;height:78px;margin:0 auto 10px;border:0"><p style="margin:0;color:#687c8d;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">Elysium λ Development &amp; Research</p></td></tr></table>`;
     return /<\/body\s*>/i.test(preview)
         ? preview.replace(/<\/body\s*>/i, `${seal}</body>`)
