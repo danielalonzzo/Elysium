@@ -709,10 +709,10 @@
                             <div class="mail-write-pane" id="mail-write-pane" role="tabpanel" aria-labelledby="mail-tab-write">
                                 <textarea id="mail-body-text" name="bodyText" rows="11" data-i18n-dynamic="admin.js:applyTranslations" placeholder="Dear Ms Rivera,&#10;&#10;Write the message here. Leave a blank line between paragraphs."></textarea>
                                 <div class="mail-write-foot">
-                                    <label class="mail-switch">
-                                        <input type="checkbox" id="mail-signature" checked>
-                                        <span class="mail-switch-track" aria-hidden="true"></span>
-                                        <span id="mail-signature-label" data-i18n-dynamic="admin.js:renderMailSignatureLabel">Add the sender's signature</span>
+                                    <label class="mail-letter-lang">
+                                        <span id="mail-signature-label" data-i18n-dynamic="admin.js:renderMailSignatureLabel">Signature</span>
+                                        <!-- Las opciones las escribe renderMailSignatureLabel(). -->
+                                        <select id="mail-signature" name="signature" data-i18n-dynamic="admin.js:renderMailSignatureLabel"></select>
                                     </label>
                                     <small class="mail-hint" id="mail-format-hint" data-i18n-dynamic="admin.js:applyTranslations">**bold** · lines starting with “- ” become a list · links are detected</small>
                                 </div>

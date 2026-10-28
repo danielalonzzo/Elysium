@@ -1285,8 +1285,8 @@ const translations = {
             bodyTabs: "Message body", tabWrite: "Write", tabTemplate: "HTML template",
             letterLang: "Email language",
             bodyPlaceholder: "Dear Ms Rivera,\n\nWrite the message here. Leave a blank line between paragraphs.",
-            signatureLabel: name => `Sign as ${name}`,
-            signatureLabelEmpty: "Add the sender's signature",
+            signatureLabel: "Signature", signatureNone: "No signature",
+            recentTag: "Recent",
             formatHint: "**bold** · lines starting with “- ” become a list · links are detected automatically",
             deliveryLabel: "Delivery", deliveryIndividual: "One by one", deliveryGroup: "As a group",
             deliveryIndividualHint: count => `Each of the ${count} recipients gets their own email and does not see the others.`,
@@ -1544,8 +1544,8 @@ const translations = {
             bodyTabs: "Cuerpo del mensaje", tabWrite: "Escribir", tabTemplate: "Plantilla HTML",
             letterLang: "Idioma del correo",
             bodyPlaceholder: "Estimada Sra. Rivera:\n\nEscribe aquí el mensaje. Deja una línea en blanco entre párrafos.",
-            signatureLabel: name => `Firmar como ${name}`,
-            signatureLabelEmpty: "Añadir la firma del remitente",
+            signatureLabel: "Firma", signatureNone: "Sin firma",
+            recentTag: "Reciente",
             formatHint: "**negrita** · las líneas que empiezan por «- » forman una lista · los enlaces se detectan solos",
             deliveryLabel: "Envío", deliveryIndividual: "Uno a uno", deliveryGroup: "En grupo",
             deliveryIndividualHint: count => `Cada uno de los ${count} destinatarios recibe su propio correo y no ve a los demás.`,
@@ -1802,8 +1802,8 @@ const translations = {
             bodyTabs: "Corpo da mensagem", tabWrite: "Escrever", tabTemplate: "Modelo HTML",
             letterLang: "Idioma do email",
             bodyPlaceholder: "Exma. Senhora Dra. Rivera,\n\nEscreva aqui a mensagem. Deixe uma linha em branco entre parágrafos.",
-            signatureLabel: name => `Assinar como ${name}`,
-            signatureLabelEmpty: "Adicionar a assinatura do remetente",
+            signatureLabel: "Assinatura", signatureNone: "Sem assinatura",
+            recentTag: "Recente",
             formatHint: "**negrito** · as linhas que começam por «- » formam uma lista · as ligações são detetadas automaticamente",
             deliveryLabel: "Envio", deliveryIndividual: "Um a um", deliveryGroup: "Em grupo",
             deliveryIndividualHint: count => `Cada um dos ${count} destinatários recebe o seu próprio email e não vê os outros.`,
@@ -8540,6 +8540,8 @@ const MAIL_MAX_HTML_BYTES = 1024 * 1024;
 const MAIL_MAX_RECIPIENTS = 20;
 const MAIL_DRAFT_STORAGE_KEY = 'elysium-crm-mail-draft';
 const MAIL_SENDER_STORAGE_KEY = 'elysium-crm-mail-sender';
+const MAIL_RECENT_STORAGE_KEY = 'elysium-crm-mail-recent';
+const MAIL_RECENT_LIMIT = 30;
 const MAIL_RECIPIENT_FIELDS = ['to', 'cc', 'bcc'];
 const MAIL_RECIPIENT_INPUTS = { to: 'mail-recipient', cc: 'mail-cc', bcc: 'mail-bcc' };
 
@@ -8850,18 +8852,43 @@ function commitAllMailRecipientInputs() {
     MAIL_RECIPIENT_FIELDS.forEach(commitMailRecipientInput);
 }
 
-/* Sugerencias: los clientes del CRM que coinciden con lo escrito. */
+/* Destinatarios recientes: cada envío correcto guarda sus direcciones en este
+   navegador, la última primero. Salen al entrar en el campo, antes de escribir,
+   y encabezan las sugerencias cuando coinciden con lo escrito. */
+
+function mailRecentAddresses() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(MAIL_RECENT_STORAGE_KEY) || '[]');
+        return Array.isArray(stored) ? stored.filter(validMailAddress) : [];
+    } catch {
+        return [];
+    }
+}
+
+function rememberMailRecipients(addresses) {
+    const fresh = [...new Set(addresses.map(address => String(address || '').trim().toLowerCase()))]
+        .filter(validMailAddress);
+    if (!fresh.length) return;
+    const merged = [...fresh, ...mailRecentAddresses().filter(address => !fresh.includes(address))];
+    try { localStorage.setItem(MAIL_RECENT_STORAGE_KEY, JSON.stringify(merged.slice(0, MAIL_RECENT_LIMIT))); } catch {}
+}
+
+/* Sugerencias: los recientes y los clientes del CRM que coinciden con lo escrito. */
 
 function mailSuggestionsFor(field, query) {
     const wanted = String(query || '').trim().toLowerCase();
-    if (!wanted) return [];
     const taken = new Set(MAIL_RECIPIENT_FIELDS.flatMap(name => _mailRecipients[name]));
     const plain = value => value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
     const needle = plain(wanted);
-    return mailClientDirectory()
-        .filter(entry => !taken.has(entry.email)
-            && (entry.email.includes(wanted) || plain(entry.label).includes(needle) || plain(entry.name).includes(needle)))
-        .slice(0, 6);
+    const recent = mailRecentAddresses()
+        .filter(email => !taken.has(email))
+        .map(email => ({ email, label: mailContactLabel(email), name: '', recent: true }));
+    if (!wanted) return recent.slice(0, 6);
+    const matches = entry => entry.email.includes(wanted) || plain(entry.label).includes(needle) || plain(entry.name).includes(needle);
+    const recentMatches = recent.filter(matches);
+    const shown = new Set(recentMatches.map(entry => entry.email));
+    const clients = mailClientDirectory().filter(entry => !taken.has(entry.email) && !shown.has(entry.email) && matches(entry));
+    return [...recentMatches, ...clients].slice(0, 6);
 }
 
 function renderMailSuggestions(field) {
@@ -8873,11 +8900,13 @@ function renderMailSuggestions(field) {
         closeMailSuggestions(field);
         return;
     }
+    const recentTag = mailText().recentTag;
     box.innerHTML = matches.map((entry, index) =>
         `<li role="option" id="mail-suggest-${field}-${index}" class="mail-suggest-option${index === 0 ? ' is-active' : ''}"`
         + ` data-email="${esc(entry.email)}" aria-selected="${index === 0}">`
         + `<span class="mail-avatar" data-tone="${mailSenderTone(entry.email)}" aria-hidden="true">${esc((entry.label || entry.email).charAt(0).toLocaleUpperCase())}</span>`
-        + `<span class="mail-sender-text"><strong>${esc(entry.label || entry.email)}</strong>${entry.label ? `<small>${esc(entry.email)}</small>` : ''}</span></li>`
+        + `<span class="mail-sender-text"><strong>${esc(entry.label || entry.email)}</strong>`
+        + `${entry.label || entry.recent ? `<small>${esc([entry.label ? entry.email : '', entry.recent ? recentTag : ''].filter(Boolean).join(' · '))}</small>` : ''}</span></li>`
     ).join('');
     box.hidden = false;
     input.setAttribute('aria-expanded', 'true');
@@ -8971,6 +9000,7 @@ function wireMailRecipientField(field) {
         }
         renderMailSuggestions(field);
     });
+    input.addEventListener('focus', () => renderMailSuggestions(field));
     input.addEventListener('paste', event => {
         const text = event.clipboardData?.getData('text') || '';
         if (!/@/.test(text) || !/[\s,;<]/.test(text.trim())) return;
@@ -9071,22 +9101,38 @@ function syncMailDelivery() {
 
 const MAIL_LETTER_REGIONS = {
     'es-CR': { lang: 'es', locale: 'es-CR', site: 'https://elysiumdr.com/es/', siteLabel: 'elysiumdr.com', place: '',
-        sealAlt: 'Sello Elysium', founder: 'Fundador y director', social: 'Redes sociales' },
+        sealAlt: 'Sello Elysium', founder: 'Fundador y director', social: 'Redes sociales',
+        info: 'Información', consultant: 'Consultoría' },
     'es-ES': { lang: 'es', locale: 'es-ES', site: 'https://elysiumdr.es/', siteLabel: 'elysiumdr.es', place: 'Bragança',
-        sealAlt: 'Sello Elysium', founder: 'Fundador y director', social: 'Redes sociales' },
+        sealAlt: 'Sello Elysium', founder: 'Fundador y director', social: 'Redes sociales',
+        info: 'Información', consultant: 'Consultoría' },
     'pt-PT': { lang: 'pt-PT', locale: 'pt-PT', site: 'https://elysiumdr.pt/', siteLabel: 'elysiumdr.pt', place: 'Bragança',
-        sealAlt: 'Selo Elysium', founder: 'Fundador e diretor', social: 'Redes sociais' },
+        sealAlt: 'Selo Elysium', founder: 'Fundador e diretor', social: 'Redes sociais',
+        info: 'Informações', consultant: 'Consultoria' },
     en: { lang: 'en-GB', locale: 'en-GB', site: 'https://elysiumdr.eu/', siteLabel: 'elysiumdr.eu', place: '',
-        sealAlt: 'Elysium seal', founder: 'Founder and director', social: 'Social media' }
+        sealAlt: 'Elysium seal', founder: 'Founder and director', social: 'Social media',
+        info: 'Information', consultant: 'Consulting' }
 };
 
-/* Quién firma cada buzón. Las personas llevan foto y su página; los buzones
-   de la empresa, el λ. Un buzón que no esté aquí firma como la empresa. */
-const MAIL_SIGNATURE_PROFILES = {
-    'daniel.morales@elysiumdr.eu': { role: 'founder', photo: 'https://elysiumdr.eu/Images/daniel-morales-correo.png', page: 'daniel-morales' },
-    'daniel.avila@elysiumdr.eu': { role: 'founder', photo: 'https://elysiumdr.eu/Images/daniel-morales-correo.png', page: 'daniel-morales' },
-    'social.media@elysiumdr.eu': { role: 'social' }
+/* Las firmas del selector «Sign as». Las de Daniel llevan su foto y su página;
+   las de la empresa, el sello oscuro, y su nombre es el del equipo en el idioma
+   de la carta. Al cambiar de remitente se elige la firma de ese buzón, salvo
+   que se haya escogido otra a mano. */
+const MAIL_SIGNATURE_PHOTO = 'https://elysiumdr.eu/Images/daniel-morales-correo.png';
+const MAIL_SIGNATURE_LOGO = 'https://elysiumdr.eu/Images/elysium-firma-logo.png';
+const MAIL_SIGNATURES = {
+    'daniel-morales': { label: 'Sign as Daniel Morales λ', name: 'Daniel Morales', address: 'daniel.morales@elysiumdr.eu', role: 'founder', photo: MAIL_SIGNATURE_PHOTO, page: 'daniel-morales' },
+    'daniel-avila': { label: 'Sign as Daniel Ávila λ', name: 'Daniel Ávila', address: 'daniel.avila@elysiumdr.eu', role: 'founder', photo: MAIL_SIGNATURE_PHOTO, page: 'daniel-morales' },
+    social: { label: 'Sign as Social Media λ', team: 'social', address: 'social.media@elysiumdr.eu' },
+    info: { label: 'Sign as Info λ', team: 'info', address: 'info@elysiumdr.eu' },
+    consultant: { label: 'Sign as Consultant λ', team: 'consultant', address: 'consultant@elysiumdr.eu' }
 };
+let _mailSignatureChosen = false;
+
+function mailSignatureForSender(address) {
+    const wanted = String(address || '').toLowerCase();
+    return Object.keys(MAIL_SIGNATURES).find(key => MAIL_SIGNATURES[key].address === wanted) || 'info';
+}
 
 const MAIL_LETTER_COLORS = {
     background: ['f6f4ef', 'ffffff', '080c15', '173e62'],
@@ -9133,7 +9179,8 @@ function buildWrittenMailHtml() {
     const text = document.getElementById('mail-body-text')?.value || '';
     const sender = selectedMailSender() || { name: 'Elysium', address: 'info@elysiumdr.eu' };
     const region = MAIL_LETTER_REGIONS[currentMailLetterRegion()];
-    const signed = document.getElementById('mail-signature')?.checked !== false;
+    const signatureKey = document.getElementById('mail-signature')?.value ?? mailSignatureForSender(sender.address);
+    const signer = MAIL_SIGNATURES[signatureKey] || null;
     const subject = document.getElementById('mail-subject')?.value.trim() || '';
     const blocks = mailTextBlocks(text);
 
@@ -9159,20 +9206,20 @@ function buildWrittenMailHtml() {
     const date = new Intl.DateTimeFormat(region.locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
     const dateLine = region.place ? `${region.place}, ${date}` : date;
 
-    const profile = MAIL_SIGNATURE_PROFILES[sender.address] || {};
-    const role = profile.role === 'founder' ? `${region.founder} · ` : profile.role === 'social' ? `${region.social} · ` : '';
-    const page = profile.page ? `${region.site}${profile.page}` : region.site;
-    const portrait = profile.photo
-        ? `<a href="${esc(page)}" target="_blank" style="text-decoration:none"><img src="${esc(profile.photo)}" width="84" height="84" alt="${esc(sender.name)}" style="display:block;width:84px;height:84px;border:0;border-radius:50%"></a>`
-        : `<div style="width:72px;height:72px;border-radius:50%;background:#173e62;color:#6fb6ff;font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:72px;text-align:center" class="lb-173e62 lc-6fb6ff">λ</div>`;
-    const signature = signed ? `
+    const signerName = signer ? (signer.name || region[signer.team]) : '';
+    const role = signer?.role === 'founder' ? `${region.founder} · ` : '';
+    const page = signer?.page ? `${region.site}${signer.page}` : region.site;
+    const portrait = signer
+        ? `<a href="${esc(page)}" target="_blank" style="text-decoration:none"><img src="${esc(signer.photo || MAIL_SIGNATURE_LOGO)}" width="84" height="84" alt="${esc(signerName)}" style="display:block;width:84px;height:84px;border:0;border-radius:50%"></a>`
+        : '';
+    const signature = signer ? `
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" bgcolor="#080c15" style="width:100%;margin-top:28px;background:#080c15;border-radius:22px" class="lb-080c15">
                 <tr>
                   <td class="sign-photo" width="84" valign="middle" style="width:84px;padding:20px 0 20px 22px">${portrait}</td>
                   <td class="sign-text" valign="middle" style="padding:20px 22px 20px 18px">
-                    <p style="margin:0;font-size:17px;font-weight:700;line-height:1.3;letter-spacing:-.01em"><a href="${esc(page)}" target="_blank" style="color:#ffffff;text-decoration:none" class="lc-ffffff">${esc(sender.name)}</a></p>
+                    <p style="margin:0;font-size:17px;font-weight:700;line-height:1.3;letter-spacing:-.01em"><a href="${esc(page)}" target="_blank" style="color:#ffffff;text-decoration:none" class="lc-ffffff">${esc(signerName)}</a></p>
                     <p style="margin:3px 0 0;color:#a9bccd;font-size:13px;line-height:1.5" class="lc-a9bccd">${esc(role)}Elysium λ Development &amp; Research</p>
-                    <p style="margin:8px 0 0;font-size:13px;line-height:1.5"><a href="${esc(region.site)}" target="_blank" style="color:#6fb6ff;text-decoration:none" class="lc-6fb6ff">${esc(region.siteLabel)}</a><span style="color:#41566b" class="lc-41566b">&nbsp; · &nbsp;</span><a href="mailto:${esc(sender.address)}" style="color:#6fb6ff;text-decoration:none" class="lc-6fb6ff">${esc(sender.address)}</a></p>
+                    <p style="margin:8px 0 0;font-size:13px;line-height:1.5"><a href="${esc(region.site)}" target="_blank" style="color:#6fb6ff;text-decoration:none" class="lc-6fb6ff">${esc(region.siteLabel)}</a><span style="color:#41566b" class="lc-41566b">&nbsp; · &nbsp;</span><a href="mailto:${esc(signer.address)}" style="color:#6fb6ff;text-decoration:none" class="lc-6fb6ff">${esc(signer.address)}</a></p>
                   </td>
                 </tr>
               </table>` : '';
@@ -9251,11 +9298,19 @@ function buildWrittenMailHtml() {
 </html>`;
 }
 
+/** Rellena el selector de firma y, si nadie lo tocó, sigue al remitente. */
 function renderMailSignatureLabel() {
+    const select = document.getElementById('mail-signature');
+    if (!select) return;
+    const c = mailText();
     const label = document.getElementById('mail-signature-label');
-    if (!label) return;
+    if (label) label.textContent = c.signatureLabel;
+    const current = select.value;
+    select.innerHTML = Object.entries(MAIL_SIGNATURES)
+        .map(([key, signature]) => `<option value="${key}" translate="no">${esc(signature.label)}</option>`).join('')
+        + `<option value="">${esc(c.signatureNone)}</option>`;
     const sender = selectedMailSender();
-    label.textContent = sender ? mailText().signatureLabel(sender.name) : mailText().signatureLabelEmpty;
+    select.value = _mailSignatureChosen ? current : mailSignatureForSender(sender?.address);
 }
 
 /* ── Modos del cuerpo ── */
@@ -9656,7 +9711,8 @@ function mailDraftSnapshot() {
         bodyMode: _mailBodyMode,
         bodyText: document.getElementById('mail-body-text')?.value || '',
         letterRegion: currentMailLetterRegion(),
-        signature: document.getElementById('mail-signature')?.checked !== false,
+        signature: document.getElementById('mail-signature')?.value ?? '',
+        signatureChosen: _mailSignatureChosen,
         delivery: _mailDelivery
     };
 }
@@ -9722,8 +9778,12 @@ function restoreMailDraft() {
     set('mail-subject', text(draft.subject).slice(0, 250));
     set('mail-body-text', text(draft.bodyText));
     if (MAIL_LETTER_REGIONS[draft.letterRegion]) set('mail-letter-lang', draft.letterRegion);
-    const signature = document.getElementById('mail-signature');
-    if (signature) signature.checked = draft.signature !== false;
+    // Los borradores antiguos guardaban un sí/no; esos siguen al remitente.
+    if (draft.signatureChosen && (draft.signature === '' || MAIL_SIGNATURES[draft.signature])) {
+        _mailSignatureChosen = true;
+        renderMailSignatureLabel();
+        set('mail-signature', draft.signature);
+    }
     _mailDelivery = draft.delivery === 'group' ? 'group' : 'individual';
     const select = document.getElementById('mail-sender');
     if (select && draft.sender) select.dataset.draftSender = String(draft.sender);
@@ -9933,6 +9993,7 @@ async function submitMailForm(event) {
             }
         });
 
+        rememberMailRecipients([...recipients, ...cc, ...bcc]);
         // Un correo enviado no se queda en el compositor: así no hay reenvío
         // accidental. Se conservan el remitente y el idioma de la carta.
         resetMailComposer();
@@ -9998,6 +10059,7 @@ function initMailSection() {
     const form = document.getElementById('mail-compose-form');
     if (!form) return;
     _mailInitialized = true;
+    renderMailSignatureLabel();
 
     form.addEventListener('submit', submitMailForm);
     form.addEventListener('keydown', event => {
@@ -10075,7 +10137,11 @@ function initMailSection() {
     });
     document.getElementById('mail-body-text')?.addEventListener('input', scheduleMailPreview);
     document.getElementById('mail-letter-lang')?.addEventListener('change', refreshMailPreview);
-    document.getElementById('mail-signature')?.addEventListener('change', refreshMailPreview);
+    document.getElementById('mail-signature')?.addEventListener('change', () => {
+        _mailSignatureChosen = true;
+        refreshMailPreview();
+        scheduleMailDraftSave();
+    });
     const tabs = [...document.querySelectorAll('[data-mail-body]')];
     tabs.forEach(tab => {
         tab.addEventListener('click', () => setMailBodyMode(tab.dataset.mailBody));
