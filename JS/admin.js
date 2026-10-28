@@ -9502,17 +9502,40 @@ async function setMailTemplate(file) {
         // Una plantilla soltada lleva al modo plantilla aunque se estuviera escribiendo.
         if (_mailBodyMode !== 'template') setMailBodyMode('template');
         else refreshMailPreview();
-        // Si la plantilla trae <title> y el asunto está vacío, sirve de asunto.
-        const subject = document.getElementById('mail-subject');
-        const title = new DOMParser().parseFromString(html, 'text/html').title.trim();
-        if (subject && !subject.value.trim() && title) {
-            subject.value = title.slice(0, 250);
-            syncMailSubjectCounter();
-        }
+        applyMailTemplateHeaders(new DOMParser().parseFromString(html, 'text/html'));
         setMailMessage(c.imported(file.name), 'is-success');
     } catch (error) {
         logger.warn('Could not read the HTML template:', error);
         setMailMessage(c.importError, 'is-error');
+    }
+}
+
+/* Las plantillas de `Estandares/CORREOS` declaran su destinatario y su asunto
+   en `<meta name="elysium-mail-to">` y `<meta name="elysium-mail-subject">`.
+   Lo que puso una plantilla se sustituye al cargar otra; lo que escribió la
+   persona a mano no se toca, para no cambiarle el destinatario sin avisar. */
+let _mailToFromTemplate = [];
+let _mailSubjectFromTemplate = '';
+
+function applyMailTemplateHeaders(doc) {
+    const meta = name => doc.querySelector(`meta[name="${name}"]`)?.getAttribute('content')?.trim() || '';
+
+    const subject = document.getElementById('mail-subject');
+    const wantedSubject = (meta('elysium-mail-subject') || doc.title.trim()).slice(0, 250);
+    const current = subject?.value.trim() || '';
+    if (subject && wantedSubject && (!current || current === _mailSubjectFromTemplate)) {
+        subject.value = wantedSubject;
+        _mailSubjectFromTemplate = wantedSubject;
+        syncMailSubjectCounter();
+    }
+
+    const wantedTo = splitMailAddresses(meta('elysium-mail-to'));
+    const to = _mailRecipients.to;
+    const onlyFromTemplate = to.every(address => _mailToFromTemplate.includes(address));
+    if (wantedTo.length && onlyFromTemplate) {
+        to.splice(0, to.length);
+        addMailRecipients('to', wantedTo.join(','));
+        _mailToFromTemplate = [...wantedTo];
     }
 }
 
