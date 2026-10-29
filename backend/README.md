@@ -27,6 +27,13 @@ administrador desde el CRM y viven en Firestore (`members.subscription`,
 `licenses`, `subscription_payments`). Hubo una integración con Stripe —checkout,
 portal de facturación y webhook firmado— y se retiró por completo.
 
+Tampoco se descargan videos ni se convierten PDF aquí. La sección Herramientas
+del CRM la atiende otro servicio, `elysium-tools`, que vive en
+[`tools/`](tools/README.md) con su propia imagen (yt-dlp, ffmpeg, Deno,
+pdf2docx), su propia memoria y su propio despliegue:
+una descarga grande no debe poder dejar sin memoria a este servicio mientras
+envía una confirmación. Las pruebas de `npm test` no lo incluyen; tiene las suyas.
+
 ## Despliegue
 
 Corre en Cloud Run, en `europe-west1`, como el servicio `elysium-billing` (el

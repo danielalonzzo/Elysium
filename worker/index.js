@@ -17,6 +17,9 @@
  *      de contraseña, recibe consultas públicas y firma el acceso privado a R2.
  *      Mantenerlo bajo el mismo origen evita CORS para la API; el PUT binario va
  *      directamente al endpoint R2 permitido por la CSP y el CORS del bucket.
+ *      `/api/tools/*` va a otro servicio, `elysium-tools` (`backend/tools/`):
+ *      las herramientas del CRM, que descargan vídeos con yt-dlp y necesitan
+ *      una máquina más grande que el correo y la agenda.
  *   4. Sirve la biblioteca `/library` (`library.js`): la única parte del
  *      sitio que no está en el repositorio, porque sus libros se suben desde
  *      el navegador y se guardan en Workers KV (binding `LIBRARY`).
@@ -25,15 +28,17 @@
  * auto-trailing-slash` intacto — de él dependen todas las URLs públicas.
  *
  * Configuración: la variable `ELYSIUM_API_ORIGIN` apunta al servicio
- * desplegado (por ejemplo `https://elysium-billing-xxxx.europe-west1.run.app`).
- * Sin ella, `/api/*` responde 503 con un código que el CRM sabe traducir a
- * «el servicio no está desplegado» en vez de dar un 404 mudo.
+ * desplegado (por ejemplo `https://elysium-billing-xxxx.europe-west1.run.app`),
+ * y `ELYSIUM_TOOLS_ORIGIN` a `elysium-tools`. Sin ellas, `/api/*` responde 503
+ * con un código (`api_not_configured`, `tools_not_configured`) que el CRM sabe
+ * traducir a «el servicio no está desplegado» en vez de dar un 404 mudo.
  */
 
 import { htmlToMarkdown, estimateTokens } from './html-to-markdown.js';
 import { handleLibrary, isLibraryPath, LIBRARY_ORIGIN, LIBRARY_PREFIX } from './library.js';
 
 const API_PREFIX = '/api/';
+const TOOLS_API_PREFIX = '/api/tools/';
 
 // ── Entrada: el reparto por país en elysiumdr.eu ──────────────────────────────
 
@@ -1213,13 +1218,16 @@ export default {
             return serveAsset(request, env);
         }
 
-        const origin = String(env.ELYSIUM_API_ORIGIN || '').trim().replace(/\/$/, '');
+        // Las herramientas del CRM tienen su propio servicio (ver arriba).
+        const tools = url.pathname === '/api/tools' || url.pathname.startsWith(TOOLS_API_PREFIX);
+        const origin = String((tools ? env.ELYSIUM_TOOLS_ORIGIN : env.ELYSIUM_API_ORIGIN) || '')
+            .trim()
+            .replace(/\/$/, '');
         if (!origin) {
             return Response.json(
-                {
-                    error: 'The Elysium platform service is not deployed.',
-                    code: 'api_not_configured'
-                },
+                tools
+                    ? { error: 'The Elysium tools service is not deployed.', code: 'tools_not_configured' }
+                    : { error: 'The Elysium platform service is not deployed.', code: 'api_not_configured' },
                 { status: 503, headers: { 'Cache-Control': 'no-store' } }
             );
         }
@@ -1227,7 +1235,9 @@ export default {
         const target = new URL(url.pathname + url.search, origin);
 
         // Se reenvía tal cual: el método, las cabeceras (Authorization,
-        // Idempotency-Key) y el cuerpo sin tocar.
+        // Idempotency-Key) y el cuerpo sin tocar. La respuesta tampoco se lee:
+        // el progreso de una descarga de vídeo llega línea a línea y la propia
+        // descarga puede pesar un giga.
         const upstream = new Request(target, request);
         upstream.headers.set('X-Forwarded-Host', url.host);
         upstream.headers.set('X-Forwarded-Proto', url.protocol.replace(':', ''));
@@ -1253,8 +1263,8 @@ export default {
         } catch (error) {
             return Response.json(
                 {
-                    error: 'The Elysium platform service did not answer.',
-                    code: 'api_unreachable',
+                    error: tools ? 'The Elysium tools service did not answer.' : 'The Elysium platform service did not answer.',
+                    code: tools ? 'tools_unreachable' : 'api_unreachable',
                     detail: String(error?.message || error)
                 },
                 { status: 502, headers: { 'Cache-Control': 'no-store' } }

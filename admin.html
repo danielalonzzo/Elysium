@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="CSS/customer-portal.css?v=2026082609">
     <link rel="stylesheet" href="CSS/admin-portal.css?v=2026102601">
     <link rel="stylesheet" href="CSS/admin-research.css?v=2026082601">
+    <link rel="stylesheet" href="CSS/admin-tools.css?v=2026102902">
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
@@ -152,6 +153,13 @@
                     <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
                 <span class="portal-nav-text" data-i18n="nav.licenses">Licenses</span>
+            </button>
+
+            <button type="button" class="portal-nav-item" data-target="tools" id="nav-tools">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                <span class="portal-nav-text" data-i18n="nav.tools">Tools</span>
             </button>
 
             <div class="portal-nav-label portal-nav-label-secondary" data-i18n="shell.groupDelivery">Delivery</div>
@@ -1166,6 +1174,117 @@
             </div>
         </section>
 
+        <!-- ─── TOOLS ──────────────────────────────────────────────
+             Utilidades del día a día. El descargador de videos lo atiende
+             `elysium-tools` (backend/tools/), un servicio de Cloud Run aparte
+             al que el Worker manda /api/tools/*; JS/admin-tools.js pinta la
+             sección con su propio diccionario. -->
+        <section id="tools" class="portal-section" aria-labelledby="tools-title">
+            <div class="portal-header">
+                <div>
+                    <span class="crm-section-eyebrow" translate="no">elysiumOS</span>
+                    <h1 id="tools-title" data-i18n-dynamic="admin-tools.js:applyCopy">Tools</h1>
+                    <p class="color-text-secondary" id="tools-description" data-i18n-dynamic="admin-tools.js:applyCopy">Everyday utilities for the team. Paste a link and get the video.</p>
+                </div>
+            </div>
+
+            <div class="tools-tabs" role="tablist" id="tools-tabs" data-i18n-dynamic="admin-tools.js:applyCopy" aria-label="Tools">
+                <button type="button" class="tools-tab is-active" role="tab" id="tools-tab-video" aria-selected="true" aria-controls="tools-panel-video">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="m17 10 5-3v10l-5-3"/></svg>
+                    <span id="tools-tab-video-label" data-i18n-dynamic="admin-tools.js:applyCopy">Video downloader</span>
+                </button>
+                <button type="button" class="tools-tab" role="tab" id="tools-tab-pdf" aria-selected="false" aria-controls="tools-panel-pdf" tabindex="-1">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+                    <span id="tools-tab-pdf-label" data-i18n-dynamic="admin-tools.js:applyCopy">PDF editor</span>
+                </button>
+            </div>
+
+            <div class="tools-panel" id="tools-panel-video" role="tabpanel" aria-labelledby="tools-tab-video">
+                <form class="tools-video-form" id="tools-video-form" novalidate>
+                    <label class="tools-url-label" for="tools-video-url" id="tools-video-url-label" data-i18n-dynamic="admin-tools.js:applyCopy">Video link</label>
+                    <div class="tools-url-field">
+                        <svg class="tools-url-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                        <input id="tools-video-url" name="url" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="4000" translate="no" placeholder="https://www.youtube.com/watch?v=…">
+                        <button type="button" class="tools-paste" id="tools-video-paste" data-i18n-dynamic="admin-tools.js:applyCopy">Paste</button>
+                        <button type="submit" class="btn btn-primary tools-find" id="tools-video-submit" data-i18n-dynamic="admin-tools.js:setFinding">Find video</button>
+                    </div>
+                    <p class="tools-platforms"><span translate="no">YouTube · TikTok · Instagram · X · Facebook · Vimeo · Reddit · LinkedIn</span> <span id="tools-video-platforms-more" data-i18n-dynamic="admin-tools.js:applyCopy">and 1,800+ more sites</span></p>
+                </form>
+
+                <div class="portal-alert is-warning" id="tools-service-alert" role="status" data-i18n-dynamic="admin-tools.js:renderService" hidden></div>
+                <div class="portal-alert is-error" id="tools-video-alert" role="alert" aria-live="polite" data-i18n-dynamic="admin-tools.js:showAlert" hidden></div>
+
+                <div class="tools-result" id="tools-video-result" data-i18n-dynamic="admin-tools.js:renderMedia" hidden></div>
+
+                <!-- Un div y no un <section>: el sitio público da 8rem de
+                     relleno a toda sección. -->
+                <div class="tools-jobs" id="tools-video-jobs" role="region" aria-labelledby="tools-video-jobs-title" hidden>
+                    <h2 id="tools-video-jobs-title" data-i18n-dynamic="admin-tools.js:applyCopy">Downloads</h2>
+                    <ol class="tools-job-list" id="tools-video-job-list" data-i18n-dynamic="admin-tools.js:paintJob"></ol>
+                </div>
+                <p class="portal-sr-only" id="tools-video-announcer" role="status" aria-live="polite" data-i18n-dynamic="admin-tools.js:announce"></p>
+
+                <p class="tools-footnote"><span id="tools-video-footnote" data-i18n-dynamic="admin-tools.js:applyCopy">Download only your own content or content you have permission to use.</span><span class="tools-engine" id="tools-video-engine" translate="no"></span></p>
+            </div>
+
+            <!-- Editor de PDF (JS/admin-pdf.js). Las páginas se editan en el
+                 navegador con pdf.js y pdf-lib (JS/vendor/); solo «Convertir a
+                 Word» envía el PDF a elysium-tools. -->
+            <div class="tools-panel" id="tools-panel-pdf" role="tabpanel" aria-labelledby="tools-tab-pdf" hidden>
+                <div class="pdf-start" id="pdf-start">
+                    <div class="pdf-drop">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6m-3 3 3-3 3 3"/></svg>
+                        <h2 id="pdf-drop-title" data-i18n-dynamic="admin-pdf.js:applyCopy">Drop your PDF files here</h2>
+                        <p id="pdf-drop-text" data-i18n-dynamic="admin-pdf.js:applyCopy">Reorder, rotate and delete pages, merge several PDFs or turn them into Word.</p>
+                        <label class="btn btn-primary pdf-choose" for="pdf-file-input"><span id="pdf-choose-label" data-i18n-dynamic="admin-pdf.js:applyCopy">Choose PDF files</span></label>
+                        <input type="file" id="pdf-file-input" accept="application/pdf,.pdf" multiple class="portal-sr-only">
+                        <p class="pdf-privacy" id="pdf-privacy" data-i18n-dynamic="admin-pdf.js:applyCopy">Pages are edited in this browser: the files do not leave your computer.</p>
+                    </div>
+                </div>
+
+                <div class="pdf-editor" id="pdf-editor" hidden>
+                    <div class="pdf-toolbar">
+                        <ul class="pdf-files" id="pdf-files" data-i18n-dynamic="admin-pdf.js:renderFiles"></ul>
+                        <div class="pdf-toolbar-actions">
+                            <label class="btn btn-secondary tools-btn-compact" for="pdf-add-input"><span id="pdf-add-label" data-i18n-dynamic="admin-pdf.js:applyCopy">+ Add PDF</span></label>
+                            <input type="file" id="pdf-add-input" accept="application/pdf,.pdf" multiple class="portal-sr-only">
+                            <button type="button" class="btn btn-secondary tools-btn-compact" id="pdf-undo" data-i18n-dynamic="admin-pdf.js:applyCopy">Undo</button>
+                            <button type="button" class="btn btn-secondary tools-btn-compact" id="pdf-reset" data-i18n-dynamic="admin-pdf.js:applyCopy">Start over</button>
+                        </div>
+                    </div>
+
+                    <div class="pdf-selection-bar">
+                        <p class="pdf-summary" id="pdf-summary" aria-live="polite" data-i18n-dynamic="admin-pdf.js:render"></p>
+                        <div class="pdf-selection-actions">
+                            <button type="button" class="crm-text-action" id="pdf-select-all" data-i18n-dynamic="admin-pdf.js:updateControls">Select all</button>
+                            <button type="button" class="btn btn-secondary tools-btn-compact" id="pdf-rotate-selected" data-i18n-dynamic="admin-pdf.js:applyCopy">Rotate</button>
+                            <button type="button" class="btn btn-secondary tools-btn-compact" id="pdf-delete-selected" data-i18n-dynamic="admin-pdf.js:applyCopy">Delete</button>
+                        </div>
+                    </div>
+                    <p class="pdf-hint" id="pdf-hint" data-i18n-dynamic="admin-pdf.js:applyCopy">Drag the pages to reorder them (on a phone, hold one and drag). Click to select; Shift-click selects a range.</p>
+
+                    <ol class="pdf-pages" id="pdf-pages" role="listbox" aria-multiselectable="true" data-i18n-dynamic="admin-pdf.js:applyCopy" aria-label="Pages of the document"></ol>
+
+                    <div class="pdf-export">
+                        <label class="pdf-name meeting-field"><span id="pdf-name-label" data-i18n-dynamic="admin-pdf.js:applyCopy">File name</span><input id="pdf-name" maxlength="120" autocomplete="off" spellcheck="false" translate="no"></label>
+                        <div class="pdf-export-actions">
+                            <button type="button" class="btn btn-primary" id="pdf-download" data-i18n-dynamic="admin-pdf.js:applyCopy">Download PDF</button>
+                            <button type="button" class="btn btn-secondary" id="pdf-extract" data-i18n-dynamic="admin-pdf.js:applyCopy">Download selected pages</button>
+                            <button type="button" class="btn btn-secondary" id="pdf-convert" data-i18n-dynamic="admin-pdf.js:applyCopy">Convert to Word</button>
+                        </div>
+                        <p class="pdf-word-note" id="pdf-word-note" data-i18n-dynamic="admin-pdf.js:applyCopy">Word (.docx) opens in Word, Pages and Google Docs. To convert, the PDF is sent to the Elysium tools service, which does not keep it.</p>
+                    </div>
+
+                    <p class="pdf-busy" id="pdf-busy" role="status" data-i18n-dynamic="admin-pdf.js:setBusy" hidden></p>
+                    <div class="pdf-status" id="pdf-status" data-i18n-dynamic="admin-pdf.js:renderConversion" hidden></div>
+                </div>
+
+                <div class="portal-alert is-error" id="pdf-alert" role="alert" aria-live="polite" data-i18n-dynamic="admin-pdf.js:showAlert" hidden></div>
+                <p class="pdf-dropping" id="pdf-dropping" aria-hidden="true" data-i18n-dynamic="admin-pdf.js:applyCopy">Drop the PDF files to add them</p>
+                <p class="portal-sr-only" id="pdf-announcer" role="status" aria-live="polite" data-i18n-dynamic="admin-pdf.js:announce"></p>
+            </div>
+        </section>
+
         <section id="client-profile" class="portal-section">
             <div id="detail-content">
                 <!-- Content injected by JS -->
@@ -1374,6 +1493,8 @@
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
     <script type="module" src="JS/admin.js?v=2026102601"></script>
     <script type="module" src="JS/admin-research.js?v=2026082602"></script>
+    <script type="module" src="JS/admin-tools.js?v=2026102902"></script>
+    <script type="module" src="JS/admin-pdf.js?v=2026102901"></script>
     <script defer src="JS/version-modal.js"></script>
 </body>
 </html>

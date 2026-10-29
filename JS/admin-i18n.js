@@ -45,7 +45,8 @@ export const ADMIN_COPY = {
             licenses: 'Licenses',
             prototypes: 'Secrets Prototypes',
             research: 'Research',
-            library: 'Library'
+            library: 'Library',
+            tools: 'Tools'
         },
         platform: {
             checking: 'Checking platform…',
@@ -621,7 +622,8 @@ export const ADMIN_COPY = {
             licenses: 'Licencias',
             prototypes: 'Prototipos Secretos',
             research: 'Research',
-            library: 'Biblioteca'
+            library: 'Biblioteca',
+            tools: 'Herramientas'
         },
         platform: {
             checking: 'Comprobando la plataforma…',
@@ -1197,7 +1199,8 @@ export const ADMIN_COPY = {
             licenses: 'Licenças',
             prototypes: 'Protótipos Secretos',
             research: 'Research',
-            library: 'Biblioteca'
+            library: 'Biblioteca',
+            tools: 'Ferramentas'
         },
         platform: {
             checking: 'A verificar a plataforma…',

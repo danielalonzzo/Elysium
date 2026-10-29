@@ -1,0 +1,1288 @@
+/* ==========================================================================
+   Elysium CRM — Herramientas (descargador de videos)
+   Extensión aislada del sistema de diseño del CRM: mismos tokens (--crm-*,
+   --portal-*) y los mismos .btn y .portal-alert que el resto del panel.
+   ========================================================================== */
+
+.customer-portal.is-admin #tools {
+    --tools-radius: 1rem;
+}
+
+/* Pestañas ---------------------------------------------------------------- */
+
+.customer-portal.is-admin .tools-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1.25rem;
+}
+
+.customer-portal.is-admin .tools-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.5rem 0.95rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--radius-pill, 9999px);
+    color: var(--crm-muted);
+    background: rgba(255, 255, 255, 0.02);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 650;
+    cursor: pointer;
+    transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.customer-portal.is-admin .tools-tab svg {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+}
+
+.customer-portal.is-admin .tools-tab.is-active {
+    border-color: rgba(47, 125, 246, 0.45);
+    color: var(--crm-text);
+    background: var(--crm-blue-soft);
+}
+
+.customer-portal.is-admin .tools-tab:disabled {
+    cursor: default;
+    opacity: 0.72;
+}
+
+/* Formulario del enlace --------------------------------------------------- */
+
+.customer-portal.is-admin .tools-video-form {
+    margin: 0 0 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--tools-radius);
+    background: linear-gradient(180deg, var(--crm-panel-raised), var(--crm-panel));
+    box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.18);
+}
+
+.customer-portal.is-admin .tools-url-label {
+    display: block;
+    margin: 0 0 0.6rem;
+    color: var(--crm-muted);
+    font-size: 0.68rem;
+    font-weight: 720;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .tools-url-field {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.35rem 0.35rem 0.9rem;
+    border: 1px solid var(--crm-line-strong);
+    border-radius: 0.9rem;
+    background: rgba(3, 7, 14, 0.55);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.customer-portal.is-admin .tools-url-field:focus-within {
+    border-color: rgba(47, 125, 246, 0.65);
+    box-shadow: 0 0 0 0.25rem rgba(47, 125, 246, 0.14);
+}
+
+.customer-portal.is-admin .tools-url-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: 0 0 auto;
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .tools-url-field input {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 2.6rem;
+    padding: 0;
+    border: 0;
+    outline: none;
+    color: var(--crm-text);
+    background: transparent;
+    font: inherit;
+    font-size: 0.95rem;
+}
+
+.customer-portal.is-admin .tools-url-field input::placeholder {
+    color: rgba(143, 156, 175, 0.6);
+}
+
+.customer-portal.is-admin .tools-url-field input:disabled {
+    cursor: not-allowed;
+}
+
+.customer-portal.is-admin .tools-paste {
+    flex: 0 0 auto;
+    min-height: 2.3rem;
+    padding: 0 0.8rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.65rem;
+    color: var(--crm-muted);
+    background: transparent;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .tools-paste:hover {
+    color: var(--crm-text);
+    border-color: var(--crm-line-strong);
+}
+
+.customer-portal.is-admin .tools-find {
+    flex: 0 0 auto;
+    border-radius: 0.65rem;
+}
+
+.customer-portal.is-admin .tools-platforms {
+    margin: 0.75rem 0 0;
+    color: var(--crm-muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .tools-platforms [translate="no"] {
+    color: #b8c3d3;
+}
+
+.customer-portal.is-admin #tools .portal-alert {
+    margin-bottom: 1.25rem;
+}
+
+.customer-portal.is-admin #tools .portal-alert p {
+    margin: 0;
+}
+
+.customer-portal.is-admin .tools-alert-detail {
+    margin-top: 0.5rem;
+    color: var(--crm-muted);
+    font-size: 0.72rem;
+}
+
+.customer-portal.is-admin .tools-alert-detail summary {
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .tools-alert-detail code {
+    display: block;
+    margin-top: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.55rem;
+    color: #c9d3e1;
+    background: rgba(0, 0, 0, 0.28);
+    font-size: 0.7rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* Tarjeta del video ------------------------------------------------------- */
+
+.customer-portal.is-admin .tools-media {
+    display: grid;
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    gap: 1.4rem;
+    margin: 0 0 1.5rem;
+    padding: 1.25rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--tools-radius);
+    background: var(--crm-panel);
+    box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.18);
+}
+
+.customer-portal.is-admin .tools-media-visual {
+    position: relative;
+    align-self: start;
+}
+
+.customer-portal.is-admin .tools-media-thumb,
+.customer-portal.is-admin .tools-job-thumb {
+    --platform: var(--crm-blue);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border-radius: 0.75rem;
+    color: var(--platform);
+    background:
+        radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--platform) 24%, transparent), transparent 62%),
+        #0a1019;
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.customer-portal.is-admin .tools-media-thumb img,
+.customer-portal.is-admin .tools-job-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.customer-portal.is-admin .tools-media-duration {
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    padding: 0.18rem 0.42rem;
+    border-radius: 0.4rem;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.72);
+    font-size: 0.7rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .tools-media-body {
+    min-width: 0;
+}
+
+.customer-portal.is-admin .tools-media-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.6rem;
+    margin: 0 0 0.45rem;
+    color: var(--crm-muted);
+    font-size: 0.74rem;
+}
+
+.customer-portal.is-admin .tools-platform {
+    --platform: var(--crm-blue);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--crm-text);
+    font-weight: 700;
+}
+
+.customer-portal.is-admin .tools-platform::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--platform);
+    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--platform) 18%, transparent);
+}
+
+.customer-portal.is-admin [data-platform="youtube"] { --platform: #ff4e45; }
+.customer-portal.is-admin [data-platform="tiktok"] { --platform: #25f4ee; }
+.customer-portal.is-admin [data-platform="instagram"] { --platform: #e1306c; }
+.customer-portal.is-admin [data-platform="facebook"] { --platform: #1877f2; }
+.customer-portal.is-admin [data-platform="x"],
+.customer-portal.is-admin [data-platform="threads"] { --platform: #e7e9ea; }
+.customer-portal.is-admin [data-platform="vimeo"] { --platform: #1ab7ea; }
+.customer-portal.is-admin [data-platform="reddit"] { --platform: #ff4500; }
+.customer-portal.is-admin [data-platform="linkedin"] { --platform: #0a66c2; }
+.customer-portal.is-admin [data-platform="pinterest"] { --platform: #e60023; }
+.customer-portal.is-admin [data-platform="twitch"] { --platform: #9146ff; }
+.customer-portal.is-admin [data-platform="soundcloud"] { --platform: #ff5500; }
+.customer-portal.is-admin [data-platform="snapchat"] { --platform: #fffc00; }
+
+.customer-portal.is-admin .tools-media-title {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: var(--crm-text);
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow-wrap: anywhere;
+}
+
+/* El foco llega aquí por código, para que un lector de pantalla lea el
+   resultado; no es un control y no lleva anillo. */
+.customer-portal.is-admin .tools-media-title:focus,
+.customer-portal.is-admin .tools-media-title:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.customer-portal.is-admin .tools-media-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin: 0.45rem 0 0;
+}
+
+.customer-portal.is-admin .tools-media-links .crm-text-action {
+    padding: 0;
+    text-decoration: none;
+}
+
+.customer-portal.is-admin .tools-options {
+    margin: 1.1rem 0 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .tools-options legend {
+    margin: 0 0 0.6rem;
+    padding: 0;
+    color: var(--crm-muted);
+    font-size: 0.68rem;
+    font-weight: 720;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .tools-option-group + .tools-option-group {
+    margin-top: 0.75rem;
+}
+
+.customer-portal.is-admin .tools-option-heading {
+    display: block;
+    margin: 0 0 0.4rem;
+    color: #b8c3d3;
+    font-size: 0.74rem;
+    font-weight: 650;
+}
+
+.customer-portal.is-admin .tools-option-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .tools-option {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 2.9rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.customer-portal.is-admin .tools-option:hover {
+    border-color: var(--crm-line-strong);
+}
+
+.customer-portal.is-admin .tools-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.customer-portal.is-admin .tools-option:has(input:checked) {
+    border-color: rgba(47, 125, 246, 0.7);
+    background: var(--crm-blue-soft);
+}
+
+.customer-portal.is-admin .tools-option.is-disabled {
+    border-color: var(--crm-line);
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.customer-portal.is-admin .tools-option small.tools-option-limit {
+    color: #f4c95d;
+}
+
+.customer-portal.is-admin .tools-option:has(input:focus-visible) {
+    box-shadow: 0 0 0 0.2rem rgba(47, 125, 246, 0.35);
+}
+
+.customer-portal.is-admin .tools-option-body {
+    display: grid;
+    gap: 0.1rem;
+}
+
+.customer-portal.is-admin .tools-option strong {
+    color: var(--crm-text);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.customer-portal.is-admin .tools-option small {
+    color: var(--crm-muted);
+    font-size: 0.68rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .tools-option em {
+    padding: 0.12rem 0.42rem;
+    border-radius: var(--radius-pill, 9999px);
+    color: var(--crm-mint);
+    background: rgba(56, 217, 174, 0.12);
+    font-size: 0.6rem;
+    font-style: normal;
+    font-weight: 760;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .tools-codec-note {
+    margin: 0.75rem 0 0;
+    color: #e9c46a;
+    font-size: 0.74rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .tools-media-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.1rem;
+}
+
+/* Lista o carrusel -------------------------------------------------------- */
+
+.customer-portal.is-admin .tools-playlist-intro {
+    margin: 0.6rem 0 0.75rem;
+    color: var(--crm-muted);
+    font-size: 0.8rem;
+}
+
+.customer-portal.is-admin .tools-entries {
+    display: grid;
+    gap: 0.4rem;
+    max-height: 24rem;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    list-style: none;
+}
+
+.customer-portal.is-admin .tools-entries li {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.45rem 0.5rem 0.45rem 0.75rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.7rem;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.customer-portal.is-admin .tools-entry-index,
+.customer-portal.is-admin .tools-entry-duration {
+    color: var(--crm-muted);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .tools-entry-title {
+    overflow: hidden;
+    color: var(--crm-text);
+    font-size: 0.82rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .tools-btn-compact {
+    min-height: 2.1rem;
+    padding: 0.42rem 0.85rem;
+    font-size: 0.74rem;
+    text-decoration: none;
+}
+
+/* Descargas --------------------------------------------------------------- */
+
+.customer-portal.is-admin .tools-jobs h2 {
+    margin: 0 0 0.75rem;
+    color: #dce4ef;
+    font-size: 1rem;
+    font-weight: 620;
+    letter-spacing: -0.02em;
+}
+
+.customer-portal.is-admin .tools-job-list {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.customer-portal.is-admin .tools-job {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.9rem;
+    background: var(--crm-panel);
+}
+
+.customer-portal.is-admin .tools-job-thumb {
+    border-radius: 0.55rem;
+    font-size: 1.3rem;
+}
+
+.customer-portal.is-admin .tools-job-body {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .tools-job-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .tools-job-title {
+    overflow: hidden;
+    color: var(--crm-text);
+    font-size: 0.85rem;
+    font-weight: 650;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .tools-job-option {
+    flex: 0 0 auto;
+    color: var(--crm-muted);
+    font-size: 0.7rem;
+    font-weight: 650;
+}
+
+.customer-portal.is-admin .tools-job-bar {
+    position: relative;
+    height: 0.35rem;
+    overflow: hidden;
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(148, 163, 184, 0.14);
+}
+
+.customer-portal.is-admin .tools-job-bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--crm-blue), #5fa8ff);
+    transition: width 240ms ease;
+}
+
+.customer-portal.is-admin .tools-job-bar.is-indeterminate span {
+    width: 35% !important;
+    animation: tools-indeterminate 1.3s ease-in-out infinite;
+}
+
+@keyframes tools-indeterminate {
+    from { transform: translateX(-110%); }
+    to { transform: translateX(300%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .customer-portal.is-admin .tools-job-bar.is-indeterminate span {
+        width: 100% !important;
+        opacity: 0.45;
+        animation: none;
+    }
+}
+
+.customer-portal.is-admin .tools-job-status {
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.74rem;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.45;
+}
+
+.customer-portal.is-admin .tools-job.is-ready .tools-job-status {
+    color: var(--crm-mint);
+}
+
+.customer-portal.is-admin .tools-job.is-error {
+    border-color: rgba(255, 118, 118, 0.28);
+}
+
+.customer-portal.is-admin .tools-job.is-error .tools-job-status {
+    color: #ffaaaa;
+}
+
+.customer-portal.is-admin .tools-job.is-cancelled .tools-job-status,
+.customer-portal.is-admin .tools-job.is-expired .tools-job-status {
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .tools-job.is-cancelled .tools-job-thumb,
+.customer-portal.is-admin .tools-job.is-expired .tools-job-thumb {
+    opacity: 0.55;
+}
+
+.customer-portal.is-admin .tools-job-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.customer-portal.is-admin .tools-job-remove {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    color: var(--crm-muted);
+    background: transparent;
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .tools-job-remove:hover {
+    color: var(--crm-text);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.customer-portal.is-admin .tools-footnote {
+    margin: 1.5rem 0 0;
+    color: var(--crm-muted);
+    font-size: 0.7rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .tools-engine {
+    margin-left: 0.35rem;
+    color: rgba(143, 156, 175, 0.7);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Móvil ------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+    .customer-portal.is-admin .tools-video-form,
+    .customer-portal.is-admin .tools-media {
+        padding: 1rem;
+    }
+
+    .customer-portal.is-admin .tools-url-field {
+        flex-wrap: wrap;
+        padding: 0.5rem;
+    }
+
+    .customer-portal.is-admin .tools-url-icon {
+        display: none;
+    }
+
+    .customer-portal.is-admin .tools-url-field input {
+        flex-basis: 100%;
+        padding: 0 0.35rem;
+    }
+
+    .customer-portal.is-admin .tools-paste,
+    .customer-portal.is-admin .tools-find {
+        flex: 1 1 0;
+        justify-content: center;
+    }
+
+    .customer-portal.is-admin .tools-media {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 1rem;
+    }
+
+    .customer-portal.is-admin .tools-option {
+        flex: 1 1 calc(50% - 0.5rem);
+    }
+
+    .customer-portal.is-admin .tools-media-actions .btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+
+    .customer-portal.is-admin .tools-entries li {
+        grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+    }
+
+    .customer-portal.is-admin .tools-entry-duration {
+        display: none;
+    }
+
+    .customer-portal.is-admin .tools-job {
+        grid-template-columns: 4.5rem minmax(0, 1fr);
+        gap: 0.75rem;
+    }
+
+    .customer-portal.is-admin .tools-job-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+}
+
+/* ==========================================================================
+   Editor de PDF (JS/admin-pdf.js)
+   ========================================================================== */
+
+.customer-portal.is-admin #tools-panel-pdf {
+    position: relative;
+}
+
+.customer-portal.is-admin .pdf-drop {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+    padding: clamp(2rem, 6vw, 3.5rem) 1.5rem;
+    border: 1.5px dashed var(--crm-line-strong);
+    border-radius: var(--tools-radius);
+    text-align: center;
+    background: linear-gradient(180deg, var(--crm-panel-raised), var(--crm-panel));
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.customer-portal.is-admin .pdf-drop > svg {
+    width: 2.6rem;
+    height: 2.6rem;
+    color: #6f9ff3;
+}
+
+.customer-portal.is-admin .pdf-drop h2 {
+    margin: 0.2rem 0 0;
+    color: var(--crm-text);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+}
+
+.customer-portal.is-admin .pdf-drop p {
+    max-width: 34rem;
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .pdf-choose {
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .pdf-drop .pdf-privacy {
+    font-size: 0.72rem;
+}
+
+.customer-portal.is-admin #tools-panel-pdf.is-dropping .pdf-drop,
+.customer-portal.is-admin #tools-panel-pdf.is-dropping .pdf-pages {
+    border-color: rgba(47, 125, 246, 0.7);
+    background: var(--crm-blue-soft);
+}
+
+.customer-portal.is-admin .pdf-dropping {
+    position: fixed;
+    left: 50%;
+    bottom: 2rem;
+    z-index: 30;
+    display: none;
+    margin: 0;
+    padding: 0.7rem 1.1rem;
+    border-radius: var(--radius-pill, 9999px);
+    color: #fff;
+    background: var(--crm-blue);
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.35);
+    font-size: 0.82rem;
+    font-weight: 650;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.customer-portal.is-admin #tools-panel-pdf.is-dropping .pdf-dropping {
+    display: block;
+}
+
+.customer-portal.is-admin .pdf-toolbar,
+.customer-portal.is-admin .pdf-selection-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .pdf-toolbar {
+    margin: 0 0 0.9rem;
+}
+
+.customer-portal.is-admin .pdf-toolbar-actions,
+.customer-portal.is-admin .pdf-selection-actions,
+.customer-portal.is-admin .pdf-export-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .pdf-toolbar-actions label {
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .pdf-files {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.customer-portal.is-admin .pdf-file {
+    --file-color: hsl(var(--file-hue, 214) 80% 64%);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+    padding: 0.3rem 0.35rem 0.3rem 0.35rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--radius-pill, 9999px);
+    background: var(--crm-panel);
+    font-size: 0.75rem;
+}
+
+.customer-portal.is-admin .pdf-file-letter {
+    display: grid;
+    width: 1.45rem;
+    height: 1.45rem;
+    place-items: center;
+    border-radius: 50%;
+    color: #07101d;
+    background: var(--file-color);
+    font-size: 0.68rem;
+    font-weight: 800;
+}
+
+.customer-portal.is-admin .pdf-file-name {
+    overflow: hidden;
+    max-width: 16rem;
+    color: var(--crm-text);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.customer-portal.is-admin .pdf-file-pages {
+    color: var(--crm-muted);
+}
+
+.customer-portal.is-admin .pdf-file-badge {
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-pill, 9999px);
+    color: #f4c95d;
+    background: rgba(244, 201, 93, 0.12);
+    font-size: 0.62rem;
+    font-weight: 760;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .pdf-file-remove,
+.customer-portal.is-admin .pdf-page-tools button {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    color: var(--crm-muted);
+    background: transparent;
+    font: inherit;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .pdf-file-remove {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    font-size: 1rem;
+}
+
+.customer-portal.is-admin .pdf-file-remove:hover {
+    color: var(--crm-text);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.customer-portal.is-admin .pdf-summary {
+    margin: 0;
+    color: #b8c3d3;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .pdf-hint {
+    margin: 0.5rem 0 0.9rem;
+    color: var(--crm-muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .pdf-pages {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.75rem, 1fr));
+    gap: 0.9rem;
+    margin: 0 0 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--tools-radius);
+    background: rgba(3, 7, 14, 0.35);
+    list-style: none;
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.customer-portal.is-admin .pdf-page {
+    --file-color: hsl(var(--file-hue, 214) 80% 64%);
+    position: relative;
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.55rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.8rem;
+    background: var(--crm-panel);
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    transition: border-color 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+}
+
+.customer-portal.is-admin .pdf-page:hover {
+    border-color: var(--crm-line-strong);
+}
+
+.customer-portal.is-admin .pdf-page:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(47, 125, 246, 0.45);
+}
+
+.customer-portal.is-admin .pdf-page.is-selected {
+    border-color: rgba(47, 125, 246, 0.85);
+    background: color-mix(in srgb, var(--crm-blue) 12%, var(--crm-panel));
+}
+
+.customer-portal.is-admin .pdf-page.is-dragging {
+    opacity: 0.35;
+}
+
+.customer-portal.is-admin .pdf-page.is-drop-before::before,
+.customer-portal.is-admin .pdf-page.is-drop-after::after {
+    content: '';
+    position: absolute;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    width: 0.22rem;
+    border-radius: var(--radius-pill, 9999px);
+    background: var(--crm-blue);
+    box-shadow: 0 0 0.6rem rgba(47, 125, 246, 0.8);
+}
+
+.customer-portal.is-admin .pdf-page.is-drop-before::before {
+    left: -0.6rem;
+}
+
+.customer-portal.is-admin .pdf-page.is-drop-after::after {
+    right: -0.6rem;
+}
+
+.customer-portal.is-admin .pdf-page-sheet {
+    display: grid;
+    aspect-ratio: 3 / 4;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 0.45rem;
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.customer-portal.is-admin .pdf-page-sheet canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: 0.2rem;
+    background: #fff;
+    box-shadow: 0 0.4rem 1rem rgba(0, 0, 0, 0.35);
+}
+
+.customer-portal.is-admin .pdf-page-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.customer-portal.is-admin .pdf-page-number {
+    color: var(--crm-text);
+    font-weight: 700;
+}
+
+.customer-portal.is-admin .pdf-page-source {
+    padding: 0.08rem 0.4rem;
+    border-radius: var(--radius-pill, 9999px);
+    color: var(--file-color);
+    background: color-mix(in srgb, var(--file-color) 14%, transparent);
+    font-size: 0.66rem;
+    font-weight: 700;
+}
+
+.customer-portal.is-admin .pdf-page-tools {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.2rem;
+    opacity: 0;
+    transition: opacity 140ms ease;
+}
+
+.customer-portal.is-admin .pdf-page:hover .pdf-page-tools,
+.customer-portal.is-admin .pdf-page:focus-within .pdf-page-tools,
+.customer-portal.is-admin .pdf-page.is-selected .pdf-page-tools {
+    opacity: 1;
+}
+
+.customer-portal.is-admin .pdf-page-tools button {
+    height: 1.75rem;
+    border-radius: 0.45rem;
+    font-size: 0.95rem;
+}
+
+.customer-portal.is-admin .pdf-page-tools button:hover,
+.customer-portal.is-admin .pdf-page-tools button:focus-visible {
+    color: var(--crm-text);
+    background: rgba(255, 255, 255, 0.08);
+    outline: none;
+}
+
+.customer-portal.is-admin .pdf-page-tools [data-page-action="delete"]:hover {
+    color: #ff9a9a;
+}
+
+.customer-portal.is-admin .pdf-page-check {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    display: grid;
+    width: 1.45rem;
+    height: 1.45rem;
+    place-items: center;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--crm-blue);
+    box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.35);
+    font-size: 0.78rem;
+    font-weight: 800;
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.customer-portal.is-admin .pdf-page.is-selected .pdf-page-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* La copia que sigue al puntero vive en <body>, fuera del portal. */
+.pdf-drag-ghost {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    display: grid;
+    gap: 0.45rem;
+    padding: 0.55rem;
+    border: 1px solid rgba(47, 125, 246, 0.85);
+    border-radius: 0.8rem;
+    background: #111927;
+    box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.5);
+    list-style: none;
+    pointer-events: none;
+    opacity: 0.95;
+    rotate: -2deg;
+}
+
+.pdf-drag-ghost .pdf-page-sheet {
+    display: grid;
+    aspect-ratio: 3 / 4;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 0.45rem;
+}
+
+.pdf-drag-ghost canvas {
+    max-width: 100%;
+    max-height: 100%;
+    background: #fff;
+}
+
+.pdf-drag-ghost .pdf-page-meta,
+.pdf-drag-ghost .pdf-page-tools,
+.pdf-drag-ghost .pdf-page-check {
+    display: none;
+}
+
+.pdf-drag-ghost[data-count]::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -0.6rem;
+    right: -0.6rem;
+    display: grid;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    place-items: center;
+    padding: 0 0.4rem;
+    border-radius: var(--radius-pill, 9999px);
+    color: #fff;
+    background: #2f7df6;
+    font: 700 0.75rem/1 Manrope, system-ui, sans-serif;
+}
+
+body.pdf-is-dragging,
+body.pdf-is-dragging * {
+    cursor: grabbing !important;
+    user-select: none;
+}
+
+.customer-portal.is-admin .pdf-export {
+    display: grid;
+    grid-template-columns: minmax(12rem, 22rem) minmax(0, 1fr);
+    align-items: end;
+    gap: 0.75rem 1.25rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--tools-radius);
+    background: linear-gradient(180deg, var(--crm-panel-raised), var(--crm-panel));
+}
+
+.customer-portal.is-admin .pdf-name {
+    margin: 0;
+}
+
+.customer-portal.is-admin .pdf-export-actions {
+    justify-content: flex-end;
+}
+
+.customer-portal.is-admin .pdf-word-note {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .pdf-busy {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1rem 0 0;
+    color: #b8c3d3;
+    font-size: 0.8rem;
+}
+
+.customer-portal.is-admin .pdf-busy::before {
+    content: '';
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-top-color: var(--crm-blue);
+    border-radius: 50%;
+    animation: pdf-spin 0.8s linear infinite;
+}
+
+@keyframes pdf-spin {
+    to { transform: rotate(360deg); }
+}
+
+.customer-portal.is-admin .pdf-status {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0 0;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.9rem;
+    background: var(--crm-panel);
+}
+
+.customer-portal.is-admin .pdf-status[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .pdf-status-body {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .pdf-status-title {
+    color: var(--crm-text);
+    font-size: 0.85rem;
+}
+
+.customer-portal.is-admin .pdf-status-text,
+.customer-portal.is-admin .pdf-status-warning {
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.75rem;
+    line-height: 1.45;
+}
+
+.customer-portal.is-admin .pdf-status-warning {
+    color: #e9c46a;
+}
+
+.customer-portal.is-admin .pdf-status.is-ready .pdf-status-text {
+    color: var(--crm-mint);
+}
+
+.customer-portal.is-admin .pdf-status.is-error {
+    border-color: rgba(255, 118, 118, 0.28);
+}
+
+.customer-portal.is-admin .pdf-status.is-error .pdf-status-text {
+    color: #ffaaaa;
+}
+
+.customer-portal.is-admin #pdf-alert {
+    margin: 1rem 0 0;
+}
+
+@media (hover: none) {
+    .customer-portal.is-admin .pdf-page-tools {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .customer-portal.is-admin .pdf-busy::before {
+        animation: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .customer-portal.is-admin .pdf-pages {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.7rem;
+        padding: 0.7rem;
+    }
+
+    .customer-portal.is-admin .pdf-export {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1rem;
+    }
+
+    .customer-portal.is-admin .pdf-export-actions .btn {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+
+    .customer-portal.is-admin .pdf-file-name {
+        max-width: 9rem;
+    }
+
+    .customer-portal.is-admin .pdf-status {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

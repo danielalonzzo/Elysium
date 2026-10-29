@@ -408,6 +408,30 @@ Worker. `_redirects` lleva con 301 `/ONCORE/*` a la misma ruta en
 - `backend/` — `elysium-platform`, el servicio que agenda las reuniones, envía
   sus correos y atiende la recuperación de contraseña. Las licencias las asigna
   el administrador desde el CRM.
+- `backend/tools/` — `elysium-tools`, **otro** servicio de Cloud Run: el de la
+  sección Herramientas del CRM. Descarga videos de YouTube, TikTok,
+  Instagram… con yt-dlp, ffmpeg y Deno (`JS/admin-tools.js` lo pinta) y pasa
+  PDF a Word con pdf2docx (`JS/admin-pdf.js`). El resto del editor de PDF
+  —ordenar, girar, quitar, unir— corre en el navegador con pdf.js y pdf-lib,
+  servidos desde `JS/vendor/` y no desde un CDN: el worker de pdf.js tiene que
+  ser del mismo origen, porque la CSP no admite workers `blob:`. El Worker le
+  manda `/api/tools/*` por `ELYSIUM_TOOLS_ORIGIN`, y sin esa variable responde
+  503 `tools_not_configured`. Cuatro cosas que no se ven:
+  1. **Se despliega con `--max-instances 1`.** El fichero terminado (un video,
+     un .docx) espera en el disco (= memoria) de la instancia hasta que el
+     navegador lo recoge por `GET /api/tools/files/<token>`; con dos
+     instancias, ese GET podría llegar a la que no lo tiene.
+  2. **Actualizar yt-dlp es volver a desplegar**: la imagen instala siempre la
+     última versión, y cuando una plataforma deja de funcionar es lo primero.
+     La versión en uso sale en el pie del descargador.
+  3. **Desde las IP de Google, YouTube pide «confirmar que no es un bot»**
+     (comprobado el 29/10/2026; TikTok e Instagram públicos sí funcionan): el
+     CRM lo dice con su código, y se resuelve con cookies de una cuenta
+     secundaria o un proxy (`YTDLP_COOKIES_FILE`, `YTDLP_PROXY`). El
+     despliegue, la cuenta de servicio y las variables están en
+     `backend/tools/README.md`.
+  4. **PyMuPDF, debajo de pdf2docx, es AGPL.** Vale para este uso interno; si
+     la conversión se abre a clientes o al público, hay que revisarlo antes.
 - `CV/` — los europass en EN/ES/PT.
 - `research/` — páginas de investigación propias.
 - `scripts/` — utilidades y el script de publicación.

@@ -691,6 +691,74 @@ test('/api/ no lo toca la localización: llega al backend desde cualquier domini
     }
 });
 
+// ── Las herramientas del CRM tienen su propio servicio ───────────────────────
+
+test('/api/tools/ va a elysium-tools y el resto de /api/ sigue en elysium-billing', async t => {
+    const upstream = [];
+    t.mock.method(globalThis, 'fetch', async request => {
+        upstream.push({ url: request.url, method: request.method, authorization: request.headers.get('Authorization') });
+        return new Response('{"ok":true}', { headers: { 'Content-Type': 'application/json' } });
+    });
+    const routed = { ...env, ELYSIUM_TOOLS_ORIGIN: 'https://tools.example.invalid/' };
+
+    await worker.fetch(new Request('https://elysiumdr.eu/api/tools/video/inspect?x=1', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer abc' },
+        body: '{"url":"https://youtu.be/x"}'
+    }), routed);
+    await worker.fetch(new Request('https://elysiumdr.eu/api/tools/video/files/tok'), routed);
+    await worker.fetch(new Request('https://elysiumdr.eu/api/capabilities'), routed);
+    // Solo el prefijo exacto: `/api/toolsx` no es de las herramientas.
+    await worker.fetch(new Request('https://elysiumdr.eu/api/toolsx'), routed);
+
+    assert.deepEqual(upstream, [
+        { url: 'https://tools.example.invalid/api/tools/video/inspect?x=1', method: 'POST', authorization: 'Bearer abc' },
+        { url: 'https://tools.example.invalid/api/tools/video/files/tok', method: 'GET', authorization: null },
+        { url: 'https://example.invalid/api/capabilities', method: 'GET', authorization: null },
+        { url: 'https://example.invalid/api/toolsx', method: 'GET', authorization: null }
+    ]);
+});
+
+test('/api/tools/ sin servicio desplegado responde 503 tools_not_configured', async t => {
+    const upstream = t.mock.method(globalThis, 'fetch', async () => new Response('{}'));
+    for (const origin of ['https://elysiumdr.eu', 'https://elysiumdr.es', 'https://elysiumdr.com']) {
+        const response = await worker.fetch(new Request(`${origin}/api/tools/capabilities`), env);
+        assert.equal(response.status, 503, origin);
+        assert.equal(response.headers.get('Cache-Control'), 'no-store', origin);
+        assert.equal((await response.json()).code, 'tools_not_configured', origin);
+    }
+    assert.equal(upstream.mock.callCount(), 0);
+});
+
+test('el proxy no lee la respuesta: el progreso de una descarga llega línea a línea', async t => {
+    let push;
+    const body = new ReadableStream({ start(controller) { push = controller; } });
+    t.mock.method(globalThis, 'fetch', async () => new Response(body, {
+        headers: { 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-store, no-transform' }
+    }));
+    const response = await worker.fetch(
+        new Request('https://elysiumdr.eu/api/tools/video/download', { method: 'POST', body: '{}' }),
+        { ...env, ELYSIUM_TOOLS_ORIGIN: 'https://tools.example.invalid' }
+    );
+    assert.equal(response.headers.get('Cache-Control'), 'no-store, no-transform');
+    const reader = response.body.getReader();
+    push.enqueue(new TextEncoder().encode('{"type":"accepted"}\n'));
+    // La primera línea llega antes de que el upstream termine.
+    assert.equal(new TextDecoder().decode((await reader.read()).value), '{"type":"accepted"}\n');
+    push.close();
+    assert.equal((await reader.read()).done, true);
+});
+
+test('un fallo de red hacia elysium-tools se distingue del de la API', async t => {
+    t.mock.method(globalThis, 'fetch', async () => { throw new Error('connection refused'); });
+    const response = await worker.fetch(
+        new Request('https://elysiumdr.eu/api/tools/video/inspect', { method: 'POST', body: '{}' }),
+        { ...env, ELYSIUM_TOOLS_ORIGIN: 'https://tools.example.invalid' }
+    );
+    assert.equal(response.status, 502);
+    assert.equal((await response.json()).code, 'tools_unreachable');
+});
+
 // ── Desafío OAuth de la API ─────────────────────────────────────────────────────
 
 test('los 401 de /api anuncian los metadatos OAuth del host público', async t => {

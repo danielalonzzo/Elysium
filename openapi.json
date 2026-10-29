@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Elysium platform API",
-    "version": "1.1.0",
-    "summary": "The service behind elysiumdr.eu: public Research and enquiries, password recovery, plus the authenticated CRM surface (meetings, mail, files).",
-    "description": "Public callers can read published Research notebooks and articles through `GET /api/research/...`, record a project enquiry through `POST /api/prospects`, and start password recovery through `POST /api/auth/password-reset`. Endpoints tagged `crm` need a Firebase ID token from an account with the administrator claim; those accounts are created by hand, there is no self-service registration. See https://elysiumdr.eu/auth.md.\n\nThe API is reached through the site's own origin (`https://elysiumdr.eu/api/...`, and likewise on `elysiumdr.es` and `elysiumdr.pt`); a Cloudflare Worker forwards it to the platform service, which is why no CORS preflight is needed from the site itself.",
+    "version": "1.2.0",
+    "summary": "The service behind elysiumdr.eu: public Research and enquiries, password recovery, plus the authenticated CRM surface (meetings, mail, files, tools).",
+    "description": "Public callers can read published Research notebooks and articles through `GET /api/research/...`, record a project enquiry through `POST /api/prospects`, and start password recovery through `POST /api/auth/password-reset`. Endpoints tagged `crm` need a Firebase ID token from an account with the administrator claim; those accounts are created by hand, there is no self-service registration. See https://elysiumdr.eu/auth.md.\n\nThe API is reached through the site's own origin (`https://elysiumdr.eu/api/...`, and likewise on `elysiumdr.es` and `elysiumdr.pt`); a Cloudflare Worker forwards it to the platform service, and `/api/tools/...` (the CRM tools: video downloads and PDF to Word) to a separate tools service, which is why no CORS preflight is needed from the site itself.",
     "contact": {
       "name": "Elysium λ Development & Research",
       "email": "info@elysiumdr.eu",
@@ -512,6 +512,97 @@
           "401": { "description": "Missing or invalid ID token." },
           "403": { "description": "The account has no administrator claim." },
           "404": { "description": "No such file." }
+        }
+      }
+    },
+    "/api/tools/health": {
+      "get": {
+        "tags": ["status"],
+        "summary": "Liveness of the tools service",
+        "operationId": "getToolsHealth",
+        "responses": {
+          "200": { "description": "The tools service is up." },
+          "503": { "description": "The tools service is not deployed (`tools_not_configured`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/tools/capabilities": {
+      "get": {
+        "tags": ["crm"],
+        "summary": "Download and conversion engines, with their limits",
+        "operationId": "getToolsCapabilities",
+        "security": [{ "firebaseIdToken": [] }],
+        "responses": {
+          "200": { "description": "yt-dlp, ffmpeg, pdf2docx and PyMuPDF versions, the size limits and whether cookies or a proxy are configured.", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "503": { "description": "The tools service is not deployed (`tools_not_configured`)." }
+        }
+      }
+    },
+    "/api/tools/video/inspect": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Analyse a video link",
+        "description": "Returns title, author, duration, a `data:` thumbnail and the qualities that can be requested (`v1080`, `v720`…, `best`, `audio-mp3`, `audio-m4a`). A playlist or a multi-video post returns its entries instead. Links to private or local addresses are refused.",
+        "operationId": "inspectVideo",
+        "security": [{ "firebaseIdToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["url"], "properties": { "url": { "type": "string", "maxLength": 2048 } } } } } },
+        "responses": {
+          "200": { "description": "The video, or the entries of a playlist or post.", "content": { "application/json": { "schema": { "type": "object" } } } },
+          "400": { "description": "Invalid or private link (`url_invalid`, `url_private`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "422": { "description": "The platform refused or there is nothing to download (`unsupported`, `login_required`, `bot_check`, `private`, `unavailable`…).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/tools/video/download": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Download a video, reporting progress",
+        "description": "Streams newline-delimited JSON while it works: `accepted`, `queued`, `stage`, `progress` and `ping` events, then `ready` (with the file URL, name, size and expiry) or `error`. Closing the connection cancels the download.",
+        "operationId": "downloadVideo",
+        "security": [{ "firebaseIdToken": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["url", "option"], "properties": { "url": { "type": "string", "maxLength": 2048 }, "option": { "type": "string", "pattern": "^(?:v\\d{2,4}|best|audio-(?:mp3|m4a))$" }, "item": { "type": "integer", "minimum": 1, "maximum": 1000 } } } } } },
+        "responses": {
+          "200": { "description": "Progress events, one JSON object per line.", "content": { "application/x-ndjson": { "schema": { "type": "object" } } } },
+          "400": { "description": "Invalid link, option or item.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." }
+        }
+      }
+    },
+    "/api/tools/pdf/convert": {
+      "post": {
+        "tags": ["crm"],
+        "summary": "Convert a PDF to Word (.docx), reporting progress",
+        "description": "The body is the PDF itself (30 MB at most). Streams newline-delimited JSON while it works: `accepted`, `queued`, `stage`, `progress` (page by page), `warning` (`scanned` when the PDF has no text) and `ping` events, then `ready` (with the .docx URL, name, size and expiry) or `error`. The PDF is deleted as soon as the .docx exists; closing the connection cancels the conversion. Reordering, rotating, deleting and merging pages happen in the browser and never reach this API.",
+        "operationId": "convertPdfToWord",
+        "security": [{ "firebaseIdToken": [] }],
+        "parameters": [{ "name": "name", "in": "query", "required": false, "description": "File name for the .docx, without extension.", "schema": { "type": "string", "maxLength": 120 } }],
+        "requestBody": { "required": true, "content": { "application/pdf": { "schema": { "type": "string", "format": "binary", "maxLength": 30000000 } } } },
+        "responses": {
+          "200": { "description": "Progress events, one JSON object per line.", "content": { "application/x-ndjson": { "schema": { "type": "object" } } } },
+          "400": { "description": "Missing body or not a PDF (`pdf_required`, `pdf_invalid`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+          "401": { "description": "Missing or invalid ID token." },
+          "403": { "description": "The account has no administrator claim." },
+          "413": { "description": "The PDF is larger than 30 MB (`payload_too_large`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+        }
+      }
+    },
+    "/api/tools/files/{token}": {
+      "get": {
+        "tags": ["crm"],
+        "summary": "Fetch a finished file (a video or a .docx)",
+        "description": "The URL arrives in the `ready` event of a download or a conversion. Its random token is the only authorization, so the browser can save the file natively; it expires after 15 minutes.",
+        "operationId": "getToolFile",
+        "security": [],
+        "parameters": [{ "name": "token", "in": "path", "required": true, "schema": { "type": "string", "pattern": "^[A-Za-z0-9_-]{32}$" } }],
+        "responses": {
+          "200": { "description": "The file, as an attachment." },
+          "206": { "description": "Part of the file, for a ranged request." },
+          "410": { "description": "The file expired (`file_expired`).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
         }
       }
     }

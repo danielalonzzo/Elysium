@@ -3,7 +3,10 @@
   "compatibility_date": "2026-02-18",
   "main": "worker/index.js",
   "vars": {
-    "ELYSIUM_API_ORIGIN": "https://elysium-billing-2w6h4dekoa-ew.a.run.app"
+    "ELYSIUM_API_ORIGIN": "https://elysium-billing-2w6h4dekoa-ew.a.run.app",
+    // Las herramientas del CRM (backend/tools): descarga de videos y PDF a
+    // Word. El Worker le manda /api/tools/*; el resto de /api/* va arriba.
+    "ELYSIUM_TOOLS_ORIGIN": "https://elysium-tools-2w6h4dekoa-ew.a.run.app"
   },
   "assets": {
     "directory": ".",

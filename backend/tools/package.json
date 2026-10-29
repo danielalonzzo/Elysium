@@ -1,0 +1,19 @@
+{
+  "name": "elysium-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Herramientas del CRM de Elysium que necesitan servidor: descarga de videos (yt-dlp, ffmpeg) y conversión de PDF a Word (pdf2docx)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check workspace.js && node --check video.js && node --check video-routes.js && node --check pdf-routes.js && node --check server.test.js && node --check video.test.js && node --check pdf.test.js",
+    "test": "node --test server.test.js video.test.js pdf.test.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "firebase-admin": "^14.2.0"
+  }
+}

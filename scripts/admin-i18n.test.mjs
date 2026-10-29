@@ -1,5 +1,6 @@
 /**
- * Auditoría de idioma del CRM (`admin.html`, `JS/admin.js`, `JS/admin-research.js`).
+ * Auditoría de idioma del CRM (`admin.html`, `JS/admin.js`, `JS/admin-research.js`,
+ * `JS/admin-tools.js`, `JS/admin-pdf.js`).
  *
  * El panel se sirve en un solo HTML y cambia de idioma en el navegador. Eso
  * quiere decir que un rótulo nuevo se ve perfecto —en inglés— aunque nadie lo
@@ -14,7 +15,7 @@
  *   data-i18n-dynamic="qué"  → lo escribe el JS al pintar su vista
  *   translate="no"           → no se traduce (marcas, siglas, ejemplos, código)
  *
- * Y comprueba que los cuatro diccionarios tengan exactamente las mismas claves
+ * Y comprueba que los seis diccionarios tengan exactamente las mismas claves
  * en `en`, `es` y `pt`: una clave que sólo exista en inglés cae al inglés en
  * silencio, que es justo el fallo que se quiere impedir.
  *
@@ -30,6 +31,8 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const html = readFileSync(join(ROOT, 'admin.html'), 'utf8');
 const adminSource = readFileSync(join(ROOT, 'JS', 'admin.js'), 'utf8');
 const researchSource = readFileSync(join(ROOT, 'JS', 'admin-research.js'), 'utf8');
+const toolsSource = readFileSync(join(ROOT, 'JS', 'admin-tools.js'), 'utf8');
+const pdfSource = readFileSync(join(ROOT, 'JS', 'admin-pdf.js'), 'utf8');
 
 const { ADMIN_COPY, copyValue } = await import(join(ROOT, 'JS', 'admin-i18n.js'));
 
@@ -218,7 +221,11 @@ const SHARED_TERMS = {
     V2_LABELS: new Set([
         'email', 'sector', 'acc_hosting', 'acc_google', 'acc_meta', 'none'
     ]),
-    COPY: new Set()
+    COPY: new Set(),
+    TOOLS_COPY: new Set([
+        'videoGroup'                                             // «Video» en es-CR
+    ]),
+    PDF_COPY: new Set()
 };
 
 /** Aplana a pares `ruta → valor`, dejando fuera lo que no sea texto. */
@@ -270,6 +277,14 @@ test('COPY de admin-research.js declara las mismas claves en los tres idiomas', 
     assertParity('COPY', extractObject(researchSource, 'COPY'));
 });
 
+test('COPY de admin-tools.js declara las mismas claves en los tres idiomas', () => {
+    assertParity('TOOLS_COPY', extractObject(toolsSource, 'COPY'));
+});
+
+test('COPY de admin-pdf.js declara las mismas claves en los tres idiomas', () => {
+    assertParity('PDF_COPY', extractObject(pdfSource, 'COPY'));
+});
+
 test('ningún texto visible de admin.html se queda sin traductor', () => {
     const orphans = found.texts.map(item => `${item.path}: «${item.text}»`);
     assert.deepEqual(orphans, [], 'textos sin data-i18n, data-i18n-dynamic ni translate="no"');
@@ -311,7 +326,9 @@ test('ninguna traducción se quedó copiada del inglés', () => {
         translations: extractObject(adminSource, 'translations'),
         AGENDA_COPY: extractObject(adminSource, 'AGENDA_COPY'),
         V2_LABELS: extractObject(adminSource, 'V2_LABELS'),
-        COPY: extractObject(researchSource, 'COPY')
+        COPY: extractObject(researchSource, 'COPY'),
+        TOOLS_COPY: extractObject(toolsSource, 'COPY'),
+        PDF_COPY: extractObject(pdfSource, 'COPY')
     };
     const leftovers = Object.entries(dictionaries)
         .flatMap(([name, dictionary]) => untranslated(name, dictionary).map(item => `${name} — ${item}`));
