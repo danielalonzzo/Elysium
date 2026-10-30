@@ -259,6 +259,24 @@
 #   comprobantes, y `worker-src`/`manifest-src` para la PWA.
 # - El HTML, el service worker y el manifiesto se revalidan siempre (bloques
 #   aparte: si `Cache-Control` fuera en `/*` de la app se uniría con coma).
+# «tools/» es tools.elysiumdr.eu (worker/tools-site.js la sirve en la raíz
+# del subdominio; en elysiumdr.eu `/tools` redirige allí). Política propia:
+#
+# - Sin Google ni analítica: las páginas prometen «sin anuncios ni rastreo».
+# - Turnstile, la verificación de Cloudflare antes de cada operación, necesita
+#   challenges.cloudflare.com en `script-src` y `frame-src` (y se deja en
+#   `connect-src`). Sin eso el widget no carga y ninguna descarga sale.
+# - `style-src 'unsafe-inline'`: las barras de progreso de las herramientas
+#   llevan `style="width: …%"`. No hay ningún script en línea (el JSON-LD es un
+#   bloque de datos); pdf.js usa su worker desde /JS/vendor ('self').
+# - El `Link` general apunta a ficheros de elysiumdr.eu que este host no
+#   sirve: se cambia por los suyos.
+/tools/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://challenges.cloudflare.com; worker-src 'self'; frame-src https://challenges.cloudflare.com; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none';
+  ! Link
+  Link: </sitemap.xml>; rel="sitemap"; type="application/xml", </llms.txt>; rel="alternate"; type="text/plain", </catalog.json>; rel="describedby"; type="application/json"
+
 /Gestor-Patrimonios/*
   ! Content-Security-Policy
   Content-Security-Policy: default-src 'self'; script-src 'self' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob: https://firebasestorage.googleapis.com; media-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasestorage.app https://www.gstatic.com https://api.exchangerate-api.com; frame-src https://elysiumdr-eu.firebaseapp.com; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';

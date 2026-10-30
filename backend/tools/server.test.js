@@ -27,6 +27,7 @@ async function startServer(t, settings = {}, { lookup } = {}) {
   const workRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'elysium-tools-test-'));
   const thumbnails = [];
   const app = createApp({
+    publicGatewayKey: 'test-public-gateway-key-with-32-characters',
     verifyIdToken: async token => {
       if (!IDENTITIES[token]) throw new Error('invalid token');
       return IDENTITIES[token];
@@ -443,4 +444,114 @@ test('/capabilities también dice si hay motor para PDF', async t => {
   const { base } = await startServer(t, { python: path.join(os.tmpdir(), 'no-existe-python') });
   const { pdf } = await (await call(base, '/api/tools/capabilities', { method: 'GET' })).json();
   assert.deepEqual(pdf, { ready: false, pdf2docx: null, pymupdf: null, maxBytes: 30000000 });
+});
+
+/* ── Vía pública (tools.elysiumdr.eu) ───────────────────────────────────── */
+
+const PUBLIC_KEY = 'test-public-gateway-key-with-32-characters';
+const PUBLIC_HEADERS = { 'X-Elysium-Public-Key': PUBLIC_KEY, 'X-Elysium-Client-IP': '198.51.100.8' };
+
+function callPublic(base, pathname, { body, method = 'POST', ip, signal } = {}) {
+  return fetch(`${base}/api/tools/public${pathname}`, {
+    method,
+    headers: {
+      ...PUBLIC_HEADERS,
+      ...(ip ? { 'X-Elysium-Client-IP': ip } : {}),
+      ...(body !== undefined ? { 'Content-Type': 'application/json' } : {})
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    signal
+  });
+}
+
+test('vía pública: funciona sin Firebase y el CRM sigue cerrado', async t => {
+  const { base, thumbnails } = await startServer(t);
+  assert.equal((await fetch(`${base}/api/tools/public/capabilities`)).status, 403);
+  assert.equal((await fetch(`${base}/api/tools/capabilities`)).status, 401);
+  // La clave del público no abre el CRM.
+  assert.equal((await fetch(`${base}/api/tools/capabilities`, { headers: PUBLIC_HEADERS })).status, 401);
+
+  const capabilities = await (await callPublic(base, '/capabilities', { method: 'GET' })).json();
+  assert.deepEqual(capabilities.platforms, ['tiktok', 'instagram', 'facebook', 'pinterest', 'twitch', 'linkedin', 'snapchat', 'bluesky']);
+  assert.equal(capabilities.video.maxBytes, 250000000);
+  assert.deepEqual(capabilities.limits, { inspectionsPerHour: 30, downloadsPerHour: 10, conversionsPerHour: 10 });
+
+  const url = 'https://www.tiktok.com/@elysium/video/7300000000000000000';
+  const inspected = await callPublic(base, '/video/inspect', { body: { url } });
+  assert.equal(inspected.status, 200);
+  const media = await inspected.json();
+  assert.equal(media.title, 'Receta rápida #cocina');
+  // La miniatura no se pide: esa petición no pasaría por el proxy filtrado.
+  assert.equal(media.thumbnail, null);
+  assert.deepEqual(thumbnails, []);
+
+  const downloaded = await callPublic(base, '/video/download', { body: { url, option: media.options[0].id } });
+  const ready = (await readEvents(downloaded)).find(event => event.type === 'ready');
+  assert.ok(ready);
+  assert.equal((await fetch(base + ready.file.url)).status, 200);
+
+  const converted = await fetch(`${base}/api/tools/public/pdf/convert?name=public.pdf`, {
+    method: 'POST',
+    headers: { ...PUBLIC_HEADERS, 'Content-Type': 'application/pdf' },
+    body: Buffer.from('%PDF-1.4\npublic test')
+  });
+  const docx = (await readEvents(converted)).find(event => event.type === 'ready');
+  assert.ok(docx);
+  assert.match(docx.file.name, /public\.docx$/);
+});
+
+test('vía pública: sin la clave de la pasarela o sin IP no entra nadie', async t => {
+  const { base } = await startServer(t);
+  const wrong = await fetch(`${base}/api/tools/public/capabilities`, { headers: { ...PUBLIC_HEADERS, 'X-Elysium-Public-Key': 'x'.repeat(PUBLIC_KEY.length) } });
+  assert.equal(wrong.status, 403);
+  assert.equal((await wrong.json()).code, 'gateway_required');
+  const noIp = await fetch(`${base}/api/tools/public/capabilities`, { headers: { 'X-Elysium-Public-Key': PUBLIC_KEY } });
+  assert.equal(noIp.status, 403);
+  assert.equal((await callPublic(base, '/video/cancel', { body: {} })).status, 404);
+  assert.equal((await callPublic(base, '/video/inspect', { method: 'GET' })).status, 404);
+});
+
+test('vía pública: solo las plataformas comprobadas; YouTube, «próximamente»', async t => {
+  const { base } = await startServer(t);
+  const unsupported = await callPublic(base, '/video/inspect', { body: { url: 'https://example.com/file.mp4' } });
+  assert.equal(unsupported.status, 400);
+  assert.equal((await unsupported.json()).code, 'unsupported');
+  for (const url of ['https://vimeo.com/76979871', 'https://soundcloud.com/a/b', 'https://www.tiktok.com:8443/@a/video/1']) {
+    assert.equal((await (await callPublic(base, '/video/inspect', { body: { url } })).json()).code, 'unsupported', url);
+  }
+  const youtube = await callPublic(base, '/video/inspect', { body: { url: 'https://www.youtube.com/watch?v=abc123def45' } });
+  assert.equal(youtube.status, 400);
+  assert.deepEqual(await youtube.json(), { code: 'coming_soon', platform: 'YouTube' });
+  const shortLink = await callPublic(base, '/video/inspect', { body: { url: 'https://pin.it/abc123' } });
+  assert.deepEqual(await shortLink.json(), { code: 'short_link', platform: 'Pinterest' });
+  const pinterest = await callPublic(base, '/video/inspect', { body: { url: 'https://www.pinterest.es/pin/664281013778109217/' } });
+  assert.equal(pinterest.status, 200);
+});
+
+test('vía pública: límite por hora y visitante; una IPv6 cuenta por su /64', async t => {
+  const { base } = await startServer(t);
+  const body = { url: 'https://example.com/file.mp4' };
+  for (let i = 0; i < 30; i += 1) await (await callPublic(base, '/video/inspect', { body, ip: '2001:db8:1:2::1' })).text();
+  const limited = await callPublic(base, '/video/inspect', { body, ip: '2001:db8:1:2:aaaa::9' });
+  assert.equal(limited.status, 429);
+  assert.equal((await limited.json()).code, 'limit_reached');
+  assert.ok(Number(limited.headers.get('Retry-After')) > 0);
+  assert.equal((await callPublic(base, '/video/inspect', { body, ip: '2001:db8:1:3::1' })).status, 400);
+  assert.equal((await callPublic(base, '/video/inspect', { body, ip: '198.51.100.9' })).status, 400);
+});
+
+test('vía pública: una descarga a la vez por visitante, pero puede seguir analizando', async t => {
+  const { base } = await startServer(t);
+  const controller = new AbortController();
+  const slow = await callPublic(base, '/video/download', { body: { url: 'https://www.tiktok.com/@a/video/slow', option: 'best' }, signal: controller.signal });
+  assert.equal(slow.status, 200);
+  const second = await callPublic(base, '/video/download', { body: { url: 'https://www.tiktok.com/@a/video/2', option: 'best' } });
+  assert.equal(second.status, 429);
+  assert.equal((await second.json()).code, 'busy');
+  const inspect = await callPublic(base, '/video/inspect', { body: { url: 'https://www.tiktok.com/@a/video/3' } });
+  assert.equal(inspect.status, 200);
+  // Otro visitante no espera al primero.
+  const other = await callPublic(base, '/video/inspect', { body: { url: 'https://www.tiktok.com/@a/video/4' }, ip: '198.51.100.20' });
+  assert.equal(other.status, 200);
+  controller.abort();
 });

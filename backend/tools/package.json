@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check workspace.js && node --check video.js && node --check video-routes.js && node --check pdf-routes.js && node --check server.test.js && node --check video.test.js && node --check pdf.test.js",
-    "test": "node --test server.test.js video.test.js pdf.test.js"
+    "check": "node --check server.js && node --check workspace.js && node --check video.js && node --check video-routes.js && node --check pdf-routes.js && node --check server.test.js && node --check video.test.js && node --check pdf.test.js && node --check public-tools.js && node --check public-network.js && node --check public-network.test.js",
+    "test": "node --test server.test.js video.test.js pdf.test.js public-network.test.js"
   },
   "engines": {
     "node": ">=22"

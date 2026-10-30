@@ -2,9 +2,9 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Elysium platform API",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "summary": "The service behind elysiumdr.eu: public Research and enquiries, password recovery, plus the authenticated CRM surface (meetings, mail, files, tools).",
-    "description": "Public callers can read published Research notebooks and articles through `GET /api/research/...`, record a project enquiry through `POST /api/prospects`, and start password recovery through `POST /api/auth/password-reset`. Endpoints tagged `crm` need a Firebase ID token from an account with the administrator claim; those accounts are created by hand, there is no self-service registration. See https://elysiumdr.eu/auth.md.\n\nThe API is reached through the site's own origin (`https://elysiumdr.eu/api/...`, and likewise on `elysiumdr.es` and `elysiumdr.pt`); a Cloudflare Worker forwards it to the platform service, and `/api/tools/...` (the CRM tools: video downloads and PDF to Word) to a separate tools service, which is why no CORS preflight is needed from the site itself.",
+    "description": "Public callers can read published Research notebooks and articles through `GET /api/research/...`, record a project enquiry through `POST /api/prospects`, and start password recovery through `POST /api/auth/password-reset`. Endpoints tagged `crm` need a Firebase ID token from an account with the administrator claim; those accounts are created by hand, there is no self-service registration. See https://elysiumdr.eu/auth.md.\n\nThe API is reached through the site's own origin (`https://elysiumdr.eu/api/...`, and likewise on `elysiumdr.es` and `elysiumdr.pt`); a Cloudflare Worker forwards it to the platform service, and `/api/tools/...` (the CRM tools: video downloads and PDF to Word) to a separate tools service, which is why no CORS preflight is needed from the site itself.\n\nThe free public tools at https://tools.elysiumdr.eu (video downloader and PDF editor) are not part of this API: their endpoints exist only on that host, are meant for its own pages and require a Cloudflare Turnstile token for every operation. Language models can read https://tools.elysiumdr.eu/llms.txt instead.",
     "contact": {
       "name": "Elysium λ Development & Research",
       "email": "info@elysiumdr.eu",

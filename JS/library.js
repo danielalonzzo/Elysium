@@ -498,6 +498,10 @@
         document.querySelectorAll('[data-library-nav]').forEach(function (link) {
             link.setAttribute('href', localizedPath(link.getAttribute('data-library-nav')));
         });
+        // Las herramientas viven en su subdominio, con una carpeta por idioma.
+        document.querySelectorAll('[data-tools-home]').forEach(function (link) {
+            link.setAttribute('href', 'https://tools.elysiumdr.eu/' + (language === 'en' ? '' : language + '/'));
+        });
         document.querySelectorAll('.lang-switcher-menu [data-lang]').forEach(function (option) {
             var code = option.getAttribute('data-lang');
             option.setAttribute('href', '?lang=' + code);

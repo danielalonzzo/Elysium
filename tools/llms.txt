@@ -1,0 +1,72 @@
+# Elysium Tools
+
+> Free online tools by Elysium λ Development & Research, with no ads and no sign-up: a video downloader for public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky in every resolution the platform offers (MP4, MP3 or M4A), and a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word.
+
+- Price: free. No advertising, no subscriptions, no accounts and no analytics or advertising cookies.
+- Publisher: Elysium λ Development & Research (Bragança, Portugal), https://elysiumdr.eu/
+- Video downloader: public links from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky. Not available yet: YouTube (coming soon). Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.
+- Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.
+- Video limits: up to 250 MB per file; the file is deleted 15 minutes after it is ready.
+- PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to 200 MB per file. PDF to Word (.docx) runs on the Elysium server: up to 30 MB and 500 pages; the PDF is deleted as soon as the .docx exists and the .docx after 15 minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.
+- Fair-use limits per visitor and hour: 30 link checks, 10 video downloads and 10 Word conversions. Each operation is checked by Cloudflare Turnstile.
+- Languages: English, Spanish and European Portuguese.
+
+## Tools (English)
+
+- [Free online video downloader](https://tools.elysiumdr.eu/video-downloader/): Free online video downloader for TikTok, Instagram, Facebook, Pinterest, Twitch and more. Every available resolution up to 4K/8K, MP4, MP3 or M4A. No ads.
+- [Download TikTok videos without watermark](https://tools.elysiumdr.eu/tiktok-video-downloader/): Download TikTok videos without watermark in their original quality, as MP4 or as MP3/M4A audio. Free, no ads, no app and no sign-up.
+- [Download Instagram videos and Reels](https://tools.elysiumdr.eu/instagram-video-downloader/): Download Instagram Reels and videos from public posts in their original quality, including videos inside carousels. Free, no ads and no login.
+- [Download Facebook videos](https://tools.elysiumdr.eu/facebook-video-downloader/): Download public Facebook videos in every quality available, as MP4 or MP3/M4A audio. Free online Facebook video downloader with no ads and no login.
+- [Download Pinterest videos](https://tools.elysiumdr.eu/pinterest-video-downloader/): Download Pinterest video pins in their original resolution, up to 1080p when available, as MP4. Free, no ads, no Pinterest account needed.
+- [Download Twitch clips](https://tools.elysiumdr.eu/twitch-clip-downloader/): Download Twitch clips as MP4 in 1080p or the best quality available, or as MP3/M4A. Free online Twitch clip downloader, no ads and no login.
+- [Download LinkedIn videos](https://tools.elysiumdr.eu/linkedin-video-downloader/): Download videos from public LinkedIn posts as MP4, or keep the audio as MP3/M4A. Free, no ads, no LinkedIn login. Ideal for keeping your own posts.
+- [Free online PDF editor](https://tools.elysiumdr.eu/pdf-editor/): Merge PDFs, reorder, rotate and delete pages, extract a selection and convert PDF to Word. Pages are edited in your browser. Free, no ads, no watermark.
+- [Merge PDF files](https://tools.elysiumdr.eu/merge-pdf/): Combine several PDF files into one, in the order you choose. Your files are merged in your browser and never uploaded. Free, no ads, no watermark.
+- [Convert PDF to Word](https://tools.elysiumdr.eu/pdf-to-word/): Convert PDF to editable Word (.docx) with paragraphs, tables and images rebuilt. Opens in Word, Pages and Google Docs. Free, no ads, files deleted.
+- [Rotate PDF pages](https://tools.elysiumdr.eu/rotate-pdf/): Rotate one, several or all pages of a PDF by 90°, 180° or 270° and save the result. Done in your browser, no upload, no quality loss. Free, no ads.
+- [Delete pages from a PDF](https://tools.elysiumdr.eu/delete-pdf-pages/): Remove pages from a PDF and download the shorter document. Select the pages, delete them and undo if needed. Done in your browser, no upload. Free, no ads.
+- [Reorder the pages of a PDF](https://tools.elysiumdr.eu/organize-pdf/): Change the order of the pages of a PDF by dragging them, then save the new document. Works on computer and phone, in your browser, no upload. Free, no ads.
+- [Extract pages from a PDF](https://tools.elysiumdr.eu/extract-pdf-pages/): Select pages of a PDF and download them as a new file. Ideal for splitting a PDF or sending only part of it. In your browser, no upload. Free, no ads.
+- [Privacy and terms of use](https://tools.elysiumdr.eu/privacy-and-terms/): How Elysium Tools handles your links and files, what data is processed and the terms for using the free video downloader and PDF editor.
+
+## Herramientas (español)
+
+- [Descargar videos online gratis](https://tools.elysiumdr.eu/es/descargar-videos/): Descargador de videos gratis para TikTok, Instagram, Facebook, Pinterest, Twitch y más. Todas las resoluciones hasta 4K/8K, MP4, MP3 o M4A. Sin anuncios.
+- [Descargar videos de TikTok sin marca de agua](https://tools.elysiumdr.eu/es/descargar-videos-tiktok/): Descarga videos de TikTok sin marca de agua y en su calidad original, en MP4 o solo el audio en MP3/M4A. Gratis, sin anuncios, sin app y sin registro.
+- [Descargar videos y reels de Instagram](https://tools.elysiumdr.eu/es/descargar-videos-instagram/): Descarga reels y videos públicos de Instagram en su calidad original, también de carruseles. Gratis, sin anuncios y sin iniciar sesión.
+- [Descargar videos de Facebook](https://tools.elysiumdr.eu/es/descargar-videos-facebook/): Descarga videos públicos de Facebook en todas las calidades disponibles, en MP4 o el audio en MP3/M4A. Gratis, sin anuncios y sin iniciar sesión.
+- [Descargar videos de Pinterest](https://tools.elysiumdr.eu/es/descargar-videos-pinterest/): Descarga pines de video de Pinterest en su resolución original, hasta 1080p cuando existe, en MP4. Gratis, sin anuncios y sin cuenta de Pinterest.
+- [Descargar clips de Twitch](https://tools.elysiumdr.eu/es/descargar-clips-twitch/): Descarga clips de Twitch en MP4 a 1080p o en la mejor calidad disponible, o solo el audio en MP3/M4A. Gratis, sin anuncios y sin iniciar sesión.
+- [Descargar videos de LinkedIn](https://tools.elysiumdr.eu/es/descargar-videos-linkedin/): Descarga videos de publicaciones públicas de LinkedIn en MP4, o el audio en MP3/M4A. Gratis, sin anuncios y sin iniciar sesión.
+- [Editor de PDF online gratis](https://tools.elysiumdr.eu/es/editor-pdf/): Une PDF, ordena, gira, elimina y extrae páginas en tu navegador, y convierte PDF a Word. Gratis, sin anuncios ni marca de agua.
+- [Unir archivos PDF](https://tools.elysiumdr.eu/es/unir-pdf/): Combina varios archivos PDF en uno, en el orden que elijas. Se unen en tu navegador y nunca se suben. Gratis, sin anuncios y sin marca de agua.
+- [Convertir PDF a Word](https://tools.elysiumdr.eu/es/pdf-a-word/): Convierte PDF a Word (.docx) editable, con párrafos, tablas e imágenes. Se abre en Word, Pages y Google Docs. Gratis, sin anuncios; los archivos se borran.
+- [Girar páginas de un PDF](https://tools.elysiumdr.eu/es/girar-pdf/): Gira una, varias o todas las páginas de un PDF 90°, 180° o 270°. En tu navegador, sin subirlo y sin perder calidad. Gratis y sin anuncios.
+- [Eliminar páginas de un PDF](https://tools.elysiumdr.eu/es/eliminar-paginas-pdf/): Quita páginas de un PDF y descarga el documento más corto. Selecciona las páginas, elimínalas y deshaz si hace falta. En tu navegador, sin subirlo. Gratis.
+- [Ordenar las páginas de un PDF](https://tools.elysiumdr.eu/es/ordenar-paginas-pdf/): Cambia el orden de las páginas de un PDF arrastrándolas y guarda el documento nuevo, en tu navegador y sin subirlo. Gratis y sin anuncios.
+- [Extraer páginas de un PDF](https://tools.elysiumdr.eu/es/extraer-paginas-pdf/): Selecciona páginas de un PDF y descárgalas como un archivo nuevo. Ideal para dividir un PDF o enviar solo una parte. En tu navegador, sin subirlo. Gratis.
+- [Privacidad y condiciones de uso](https://tools.elysiumdr.eu/es/privacidad-y-condiciones/): Cómo trata Elysium Tools tus enlaces y archivos, qué datos se procesan y las condiciones de uso del descargador de videos y el editor de PDF gratis.
+
+## Ferramentas (português europeu)
+
+- [Descarregar vídeos online grátis](https://tools.elysiumdr.eu/pt/descarregar-videos/): Descarregador de vídeos grátis para TikTok, Instagram, Facebook, Pinterest, Twitch e mais. Todas as resoluções até 4K/8K, MP4, MP3 ou M4A. Sem anúncios.
+- [Descarregar vídeos do TikTok sem marca de água](https://tools.elysiumdr.eu/pt/descarregar-videos-tiktok/): Descarregue vídeos do TikTok sem marca de água e na qualidade original, em MP4 ou só o áudio em MP3/M4A. Grátis, sem anúncios, sem app e sem registo.
+- [Descarregar vídeos e reels do Instagram](https://tools.elysiumdr.eu/pt/descarregar-videos-instagram/): Descarregue reels e vídeos públicos do Instagram na qualidade original, também de carrosséis. Grátis, sem anúncios e sem iniciar sessão.
+- [Descarregar vídeos do Facebook](https://tools.elysiumdr.eu/pt/descarregar-videos-facebook/): Descarregue vídeos públicos do Facebook em todas as qualidades disponíveis, em MP4 ou o áudio em MP3/M4A. Grátis, sem anúncios e sem iniciar sessão.
+- [Descarregar vídeos do Pinterest](https://tools.elysiumdr.eu/pt/descarregar-videos-pinterest/): Descarregue pins de vídeo do Pinterest na resolução original, até 1080p quando existe, em MP4. Grátis, sem anúncios e sem conta do Pinterest.
+- [Descarregar clips da Twitch](https://tools.elysiumdr.eu/pt/descarregar-clips-twitch/): Descarregue clips da Twitch em MP4 a 1080p ou na melhor qualidade disponível, ou só o áudio em MP3/M4A. Grátis, sem anúncios e sem iniciar sessão.
+- [Descarregar vídeos do LinkedIn](https://tools.elysiumdr.eu/pt/descarregar-videos-linkedin/): Descarregue vídeos de publicações públicas do LinkedIn em MP4, ou o áudio em MP3/M4A. Grátis, sem anúncios e sem iniciar sessão.
+- [Editor de PDF online grátis](https://tools.elysiumdr.eu/pt/editor-pdf/): Junte PDF, ordene, rode, elimine e extraia páginas no seu navegador, e converta PDF para Word. Grátis, sem anúncios nem marca de água.
+- [Juntar ficheiros PDF](https://tools.elysiumdr.eu/pt/juntar-pdf/): Combine vários ficheiros PDF num só, pela ordem que escolher. São juntos no seu navegador e nunca são enviados. Grátis, sem anúncios e sem marca de água.
+- [Converter PDF para Word](https://tools.elysiumdr.eu/pt/pdf-para-word/): Converta PDF para Word (.docx) editável, com parágrafos, tabelas e imagens. Abre no Word, Pages e Google Docs. Grátis, sem anúncios; ficheiros apagados.
+- [Rodar páginas de um PDF](https://tools.elysiumdr.eu/pt/rodar-pdf/): Rode uma, várias ou todas as páginas de um PDF 90°, 180° ou 270°. No seu navegador, sem envio e sem perder qualidade. Grátis e sem anúncios.
+- [Eliminar páginas de um PDF](https://tools.elysiumdr.eu/pt/eliminar-paginas-pdf/): Retire páginas de um PDF e transfira o documento mais curto. Selecione as páginas, elimine-as e anule se for preciso. No seu navegador, sem envio. Grátis.
+- [Ordenar as páginas de um PDF](https://tools.elysiumdr.eu/pt/ordenar-paginas-pdf/): Mude a ordem das páginas de um PDF arrastando-as e guarde o documento novo. No computador e no telemóvel, no seu navegador, sem envio. Grátis e sem anúncios.
+- [Extrair páginas de um PDF](https://tools.elysiumdr.eu/pt/extrair-paginas-pdf/): Selecione páginas de um PDF e transfira-as como um ficheiro novo. Ideal para dividir um PDF ou enviar só uma parte. No seu navegador, sem envio. Grátis.
+- [Privacidade e condições de utilização](https://tools.elysiumdr.eu/pt/privacidade-e-condicoes/): Como a Elysium Tools trata as suas ligações e ficheiros, que dados processa e as condições de utilização do descarregador de vídeos e do editor de PDF.
+
+## Optional
+
+- [Full text of every page](https://tools.elysiumdr.eu/llms-full.txt)
+- [Machine-readable catalogue](https://tools.elysiumdr.eu/catalog.json)
+- [Elysium λ Development & Research](https://elysiumdr.eu/): the company behind the tools.

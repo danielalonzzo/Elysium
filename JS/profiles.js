@@ -162,6 +162,10 @@ function updateLocalizedLinks() {
     document.querySelectorAll('[data-localized-profile]').forEach(link => {
         link.href = localizedProfilePath();
     });
+    // Las herramientas viven en su subdominio, con una carpeta por idioma.
+    document.querySelectorAll('[data-tools-home]').forEach(link => {
+        link.href = `https://tools.elysiumdr.eu/${currentLang === 'en' ? '' : `${currentLang}/`}`;
+    });
 }
 
 const COPY = {

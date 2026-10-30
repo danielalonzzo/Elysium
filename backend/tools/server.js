@@ -24,6 +24,7 @@ const express = require('express');
 const { createWorkspace } = require('./workspace');
 const video = require('./video-routes');
 const pdf = require('./pdf-routes');
+const { createPublicTools } = require('./public-tools');
 
 const DEFAULT_ADMIN_EMAILS = 'daniel.morales@elysiumdr.eu';
 
@@ -57,6 +58,7 @@ function createApp({
   settings = {},
   lookup,
   fetchImpl,
+  publicGatewayKey = process.env.TOOLS_PUBLIC_GATEWAY_KEY || '',
   now = Date.now
 } = {}) {
   if (typeof verifyIdToken !== 'function') throw new TypeError('createApp needs verifyIdToken.');
@@ -95,16 +97,18 @@ function createApp({
     ...(fetchImpl ? { fetchImpl } : {})
   });
   const pdfTools = pdf.createPdfTools({ requireAdmin, workspace, settings, now });
+  const publicTools = createPublicTools({ workspace, settings, lookup, now, gatewayKey: publicGatewayKey });
   app.locals.workspace = workspace;
   app.locals.video = videoTools;
   app.locals.pdf = pdfTools;
   app.locals.close = async () => {
-    await Promise.all([videoTools.close(), pdfTools.close()]);
+    await Promise.all([videoTools.close(), pdfTools.close(), publicTools.close()]);
     await workspace.close();
   };
 
   // JSON compacto para todo menos /pdf/convert, que trae el PDF en crudo.
   app.use('/api/tools', express.json({ limit: '16kb' }));
+  app.use('/api/tools/public', publicTools.router);
 
   app.get(['/health', '/api/tools/health'], (_request, response) => {
     response.set('Cache-Control', 'no-store');

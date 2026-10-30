@@ -41,11 +41,18 @@ const PLATFORMS = Object.freeze([
   ['reddit', 'Reddit', ['reddit.com', 'redd.it']],
   ['linkedin', 'LinkedIn', ['linkedin.com']],
   ['threads', 'Threads', ['threads.net', 'threads.com']],
-  ['pinterest', 'Pinterest', ['pinterest.com', 'pin.it']],
+  // Pinterest sirve los pines con el dominio del país (pinterest.es, .pt…):
+  // los mismos que reconoce el extractor de yt-dlp.
+  ['pinterest', 'Pinterest', ['pinterest.com', 'pin.it', ...[
+    'at', 'be', 'ca', 'ch', 'cl', 'co', 'co.at', 'co.in', 'co.kr', 'co.nz', 'co.uk', 'com.au', 'com.bo',
+    'com.ec', 'com.mx', 'com.pe', 'com.py', 'com.uy', 'com.vn', 'de', 'dk', 'ec', 'es', 'fr', 'hu', 'id',
+    'ie', 'in', 'info', 'it', 'jp', 'kr', 'mx', 'nl', 'nz', 'pe', 'ph', 'pt', 'ru', 'th', 'tw', 'uk', 'vn'
+  ].map(tld => `pinterest.${tld}`)]],
   ['twitch', 'Twitch', ['twitch.tv']],
   ['dailymotion', 'Dailymotion', ['dailymotion.com', 'dai.ly']],
   ['soundcloud', 'SoundCloud', ['soundcloud.com']],
-  ['snapchat', 'Snapchat', ['snapchat.com']]
+  ['snapchat', 'Snapchat', ['snapchat.com']],
+  ['bluesky', 'Bluesky', ['bsky.app']]
 ]);
 
 // Nombres que nunca son un sitio público. Las IP literales se comprueban
@@ -188,6 +195,10 @@ function sharedArguments(settings = {}, cookiesPath = null) {
   }
   if (cookiesPath) args.push('--cookies', cookiesPath);
   if (settings.proxy) args.push('--proxy', settings.proxy);
+  // La vía pública (public-tools.js) no sigue enlaces a cualquier web —sin el
+  // extractor genérico— y descarga DASH y HLS con el descargador propio de
+  // yt-dlp: ffmpeg no pasaría por el proxy que filtra las redes privadas.
+  if (settings.publicOnly) args.push('--use-extractors', 'default,-generic', '--downloader', 'dash,m3u8:native');
   return args;
 }
 

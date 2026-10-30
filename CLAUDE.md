@@ -392,6 +392,55 @@ el del libro. Ocho cosas que no se ven abriéndola:
    coincidir con el fichero `/<clave>.txt` de la raíz. `Content-Signal` va con
    `ai-train=no`: los libros son de terceros y Elysium no puede autorizarlo.
 
+**`tools/` es tools.elysiumdr.eu (Elysium Tools), no una carpeta del sitio.**
+El descargador de videos y el editor de PDF del CRM, abiertos al público, gratis
+y sin anuncios, en un subdominio a propósito: un descargador público atrae
+avisos de copyright, y Google castiga al dominio entero que los acumula. La
+cabecera y el pie de todas las páginas lo enlazan («Tools», en el idioma de
+cada página). Siete cosas que no se ven abriéndolo:
+
+1. **Lo sirve el mismo Worker, por host** (`worker/tools-site.js`):
+   `tools.elysiumdr.eu/es/unir-pdf/` es `tools/es/unir-pdf/index.html`, y su
+   raíz tiene su propio robots.txt, sitemap, llms.txt y catalog.json (dentro de
+   `tools/`). En `.eu`, `.es`, `.pt` y `.com`, `/tools` redirige (301) a la
+   portada del subdominio en su idioma. El dominio tiene que estar asociado al
+   Worker, igual que `.com` (Settings → Domains & Routes → Custom domain).
+2. **`tools/` no se edita: lo genera `node scripts/build-tools.mjs`** desde
+   `scripts/tools/content.mjs` (`--check` para comprobar; `--og` rehace las
+   imágenes para redes de `Images/tools/` con Chrome). Saca el panel de cada
+   herramienta de `admin.html` y sus rótulos de los diccionarios de los
+   módulos, y escribe también el bloque «Elysium Tools» de los dieciséis
+   llms.txt del sitio (entre `<!-- BEGIN TOOLS -->` y `<!-- END TOOLS -->`).
+   Nunca borra: una página retirada se quita con `git rm`.
+3. **Las herramientas son los módulos del CRM**, no una copia:
+   `<body data-public-tools="true">` pone `JS/admin-tools.js` y `JS/admin-pdf.js`
+   en modo público, que carga `JS/tools-public.js` (Turnstile y los textos para
+   quien no tiene cuenta). Ese `await import()` hace que el módulo termine
+   después de DOMContentLoaded: en modo público arranca sin esperarlo, o no
+   arrancaría nunca. Un cambio en esos módulos afecta a los dos sitios.
+4. **La API pública solo existe en el subdominio**, y cada POST pasa por
+   Cloudflare Turnstile y por la comprobación del `Origin`. Necesita la
+   variable `TURNSTILE_SITE_KEY` (`wrangler.jsonc`) y dos secretos del Worker,
+   `TURNSTILE_SECRET_KEY` y `TOOLS_PUBLIC_GATEWAY_KEY` (este último, el mismo
+   que el de Cloud Run): sin cualquiera de ellos responde 503 y las páginas lo
+   dicen. Los límites y la red filtrada están en `backend/tools/README.md`.
+5. **Lo que se promete tiene que funcionar.** Las plataformas salieron de una
+   sonda desde Cloud Run y están en tres listas que tienen que coincidir
+   (`content.mjs`, `tools-public.js`, `backend/tools/public-tools.js`); los
+   límites que citan las páginas son los del servicio. YouTube sale como
+   «próximamente» hasta que el servicio tenga un proxy residencial. Lo vigila
+   `scripts/tools.test.mjs`, que además revisa el SEO de cada página (un `h1`,
+   canónica, `hreflang` recíprocos, datos estructurados con las mismas
+   preguntas que se ven) y el enrutado del Worker.
+6. **Fuera de las cuatro regiones.** Tres idiomas por carpeta (`/`, `/es/`,
+   `/pt/`) y ningún reparto por país ni por navegador. El español es neutro y
+   **de tú** (es una herramienta de consumo; el resto del sitio va de usted), y
+   escribe «video» sin tilde; el portugués es el europeo.
+7. **Su CSP es propia** (bloque `/tools/*` de `_headers`): sin Google y con
+   `challenges.cloudflare.com` para Turnstile. `serve-local.py` no sirve el
+   subdominio: para probarlo hace falta el Worker (un arnés que lo llame con
+   ese host); `scripts/tools.test.mjs` lo hace con assets de disco.
+
 **Pura Vida Pets ya no vive aquí.** Se firmó contrato y salió del repositorio: su
 código está en `λ/Pura Vida Pets/puravidapetscr/`, con git propio
 (`github.com/danielalonzzo/puravidapets`) y dominio propio. En Elysium ya no
@@ -430,8 +479,12 @@ Worker. `_redirects` lleva con 301 `/ONCORE/*` a la misma ruta en
      secundaria o un proxy (`YTDLP_COOKIES_FILE`, `YTDLP_PROXY`). El
      despliegue, la cuenta de servicio y las variables están en
      `backend/tools/README.md`.
-  4. **PyMuPDF, debajo de pdf2docx, es AGPL.** Vale para este uso interno; si
-     la conversión se abre a clientes o al público, hay que revisarlo antes.
+  4. **PyMuPDF, debajo de pdf2docx, es AGPL**, y desde el 30/10/2026 la
+     conversión es pública (tools.elysiumdr.eu). Se usa sin modificar, la página
+     de privacidad y condiciones del subdominio nombra cada componente con su
+     licencia y ofrece el código propio a quien lo pida. Si algún día se
+     parchea PyMuPDF, hay que publicar ese código antes de desplegar (detalle en
+     `backend/tools/README.md`).
 - `CV/` — los europass en EN/ES/PT.
 - `research/` — páginas de investigación propias.
 - `scripts/` — utilidades y el script de publicación.

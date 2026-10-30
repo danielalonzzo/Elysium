@@ -18,12 +18,15 @@
  * El texto sigue el patrón de `admin-research.js`: diccionario propio, idioma
  * de `<html lang>` y repintado con el evento `elysium:language` de `admin.js`.
  */
-import { auth } from './firebase-config.js';
+// En tools.elysiumdr.eu el mismo módulo trabaja sin sesión, con Turnstile y
+// textos para el público: ver `tools-public.js`. En el CRM no se carga.
+const PUBLIC = document.body.dataset.publicTools === 'true' ? await import('./tools-public.js') : null;
+const authReady = PUBLIC ? Promise.resolve(null) : import('./firebase-config.js').then(module => module.auth);
 
 const PDFJS_URL = '/JS/vendor/pdfjs-5.7.284/pdf.min.js';
 const PDFJS_WORKER_URL = '/JS/vendor/pdfjs-5.7.284/pdf.worker.min.js';
 const PDF_LIB_URL = '/JS/vendor/pdf-lib-1.17.1/pdf-lib.min.js';
-const CONVERT_URL = '/api/tools/pdf/convert';
+const CONVERT_URL = PUBLIC ? '/api/tools/public/pdf/convert' : '/api/tools/pdf/convert';
 const MAX_FILE_BYTES = 200 * 1000 * 1000;
 const CONVERT_MAX_BYTES = 30 * 1000 * 1000;
 const THUMB_WIDTH = 150;
@@ -267,6 +270,8 @@ const COPY = {
         }
     }
 };
+
+if (PUBLIC) PUBLIC.mergeCopy(COPY, PUBLIC.PDF_COPY);
 
 const state = {
     files: new Map(),
@@ -708,13 +713,19 @@ async function convertToWord() {
         if (bytes.byteLength > CONVERT_MAX_BYTES) {
             throw Object.assign(new Error('too large'), { code: 'convert_too_large' });
         }
-        const user = auth.currentUser;
-        if (!user) throw conversionError({ code: 'unauthenticated' }, 401);
-        const token = await user.getIdToken();
+        const headers = { 'Content-Type': 'application/pdf' };
+        if (PUBLIC) {
+            // Sin sesión: la conversión lleva su propio token de Turnstile.
+            headers['X-Turnstile-Token'] = await PUBLIC.humanToken({ signal: conversion.controller.signal });
+        } else {
+            const user = (await authReady)?.currentUser;
+            if (!user) throw conversionError({ code: 'unauthenticated' }, 401);
+            headers.Authorization = `Bearer ${await user.getIdToken()}`;
+        }
         const name = exportName();
         const response = await fetch(`${CONVERT_URL}?name=${encodeURIComponent(name)}`, {
             method: 'POST',
-            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/pdf' },
+            headers,
             body: new Blob([bytes], { type: 'application/pdf' }),
             cache: 'no-store',
             signal: conversion.controller.signal
@@ -1308,7 +1319,13 @@ function bindPdfUi() {
     document.addEventListener('elysium:language', () => queueMicrotask(applyCopy));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function start() {
     bindPdfUi();
     applyCopy();
-});
+}
+
+// En modo público el `await` del principio hace que el módulo acabe de
+// evaluarse después de DOMContentLoaded (el documento ya está leído): se
+// arranca sin esperarlo, o no arrancaría nunca.
+if (PUBLIC) start();
+else document.addEventListener('DOMContentLoaded', start);

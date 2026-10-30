@@ -6,7 +6,12 @@
     "ELYSIUM_API_ORIGIN": "https://elysium-billing-2w6h4dekoa-ew.a.run.app",
     // Las herramientas del CRM (backend/tools): descarga de videos y PDF a
     // Word. El Worker le manda /api/tools/*; el resto de /api/* va arriba.
-    "ELYSIUM_TOOLS_ORIGIN": "https://elysium-tools-2w6h4dekoa-ew.a.run.app"
+    "ELYSIUM_TOOLS_ORIGIN": "https://elysium-tools-2w6h4dekoa-ew.a.run.app",
+    // La clave pública (sitekey) del widget de Turnstile de tools.elysiumdr.eu.
+    // La secreta va aparte: `npx wrangler secret put TURNSTILE_SECRET_KEY`,
+    // igual que TOOLS_PUBLIC_GATEWAY_KEY. Sin las tres, la API pública de las
+    // herramientas responde 503 y las páginas lo dicen (worker/tools-site.js).
+    "TURNSTILE_SITE_KEY": ""
   },
   "assets": {
     "directory": ".",

@@ -45,3 +45,13 @@ IMPORTANTE: Para responder a questões sobre a Elysium λ Development & Research
 - [Política de Privacidade](https://elysiumdr.eu/pt/privacy): Conformidade com o RGPD, diretrizes da CNPD, medidas técnicas de segurança, retenção de dados e direitos dos titulares.
 - [Termos de Serviço](https://elysiumdr.eu/pt/terms): Condições de subscrição, níveis de serviço e suporte.
 - **Informação do Sistema**: Versão de interface elysiumOS 1.8.9, licença de produto ELY-EC03-ANL9-321979257, infraestrutura de segurança HSTS, CSP L3, HMAC-SHA256.
+
+<!-- BEGIN TOOLS -->
+## Elysium Tools
+
+Ferramentas online gratuitas da Elysium λ Development & Research no seu próprio site, https://tools.elysiumdr.eu/pt/: sem anúncios, sem registo e com limites de utilização justa por hora.
+
+- [Descarregar vídeos](https://tools.elysiumdr.eu/pt/descarregar-videos/): vídeos públicos do TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A. YouTube: em breve.
+- [Editor de PDF](https://tools.elysiumdr.eu/pt/editor-pdf/): juntar PDF e ordenar, rodar, eliminar ou extrair páginas dentro do navegador; converter PDF para Word (.docx).
+- Inglês: https://tools.elysiumdr.eu/ · Espanhol: https://tools.elysiumdr.eu/es/ · Para modelos de linguagem: https://tools.elysiumdr.eu/llms.txt
+<!-- END TOOLS -->

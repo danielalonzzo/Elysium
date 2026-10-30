@@ -1,0 +1,153 @@
+{
+  "name": "Elysium Tools",
+  "url": "https://tools.elysiumdr.eu/",
+  "description": "Free online video downloader and PDF editor, with no ads and no sign-up.",
+  "publisher": {
+    "name": "Elysium λ Development & Research",
+    "url": "https://elysiumdr.eu/"
+  },
+  "updated": "2026-10-30",
+  "price": "free",
+  "advertising": false,
+  "account": "not required",
+  "languages": [
+    "en-GB",
+    "es",
+    "pt-PT"
+  ],
+  "limits": {
+    "perVisitorPerHour": {
+      "linkChecks": 30,
+      "videoDownloads": 10,
+      "wordConversions": 10
+    },
+    "videoMaxMegabytes": 250,
+    "pdfEditMaxMegabytes": 200,
+    "pdfToWordMaxMegabytes": 30,
+    "pdfToWordMaxPages": 500,
+    "fileRetentionMinutes": 15
+  },
+  "tools": [
+    {
+      "id": "video-downloader",
+      "name": "Video downloader",
+      "urls": {
+        "en": "https://tools.elysiumdr.eu/video-downloader/",
+        "es": "https://tools.elysiumdr.eu/es/descargar-videos/",
+        "pt-PT": "https://tools.elysiumdr.eu/pt/descarregar-videos/"
+      },
+      "status": "available",
+      "processing": "server",
+      "platforms": {
+        "available": [
+          "TikTok",
+          "Instagram",
+          "Facebook",
+          "Pinterest",
+          "Twitch",
+          "LinkedIn",
+          "Snapchat",
+          "Bluesky"
+        ],
+        "comingSoon": [
+          "YouTube"
+        ]
+      },
+      "platformPages": {
+        "TikTok": {
+          "en": "https://tools.elysiumdr.eu/tiktok-video-downloader/",
+          "es": "https://tools.elysiumdr.eu/es/descargar-videos-tiktok/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/descarregar-videos-tiktok/"
+        },
+        "Instagram": {
+          "en": "https://tools.elysiumdr.eu/instagram-video-downloader/",
+          "es": "https://tools.elysiumdr.eu/es/descargar-videos-instagram/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/descarregar-videos-instagram/"
+        },
+        "Facebook": {
+          "en": "https://tools.elysiumdr.eu/facebook-video-downloader/",
+          "es": "https://tools.elysiumdr.eu/es/descargar-videos-facebook/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/descarregar-videos-facebook/"
+        },
+        "Pinterest": {
+          "en": "https://tools.elysiumdr.eu/pinterest-video-downloader/",
+          "es": "https://tools.elysiumdr.eu/es/descargar-videos-pinterest/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/descarregar-videos-pinterest/"
+        },
+        "Twitch": {
+          "en": "https://tools.elysiumdr.eu/twitch-clip-downloader/",
+          "es": "https://tools.elysiumdr.eu/es/descargar-clips-twitch/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/descarregar-clips-twitch/"
+        },
+        "LinkedIn": {
+          "en": "https://tools.elysiumdr.eu/linkedin-video-downloader/",
+          "es": "https://tools.elysiumdr.eu/es/descargar-videos-linkedin/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/descarregar-videos-linkedin/"
+        }
+      },
+      "formats": [
+        "MP4",
+        "MP3",
+        "M4A"
+      ],
+      "resolutions": "every resolution the platform publishes for the video, up to 4320p; no upscaling"
+    },
+    {
+      "id": "pdf-editor",
+      "name": "PDF editor",
+      "urls": {
+        "en": "https://tools.elysiumdr.eu/pdf-editor/",
+        "es": "https://tools.elysiumdr.eu/es/editor-pdf/",
+        "pt-PT": "https://tools.elysiumdr.eu/pt/editor-pdf/"
+      },
+      "status": "available",
+      "processing": "browser for page editing; server for PDF to Word",
+      "tasks": {
+        "Merge PDF": {
+          "en": "https://tools.elysiumdr.eu/merge-pdf/",
+          "es": "https://tools.elysiumdr.eu/es/unir-pdf/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/juntar-pdf/"
+        },
+        "PDF to Word": {
+          "en": "https://tools.elysiumdr.eu/pdf-to-word/",
+          "es": "https://tools.elysiumdr.eu/es/pdf-a-word/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/pdf-para-word/"
+        },
+        "Rotate PDF": {
+          "en": "https://tools.elysiumdr.eu/rotate-pdf/",
+          "es": "https://tools.elysiumdr.eu/es/girar-pdf/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/rodar-pdf/"
+        },
+        "Delete PDF pages": {
+          "en": "https://tools.elysiumdr.eu/delete-pdf-pages/",
+          "es": "https://tools.elysiumdr.eu/es/eliminar-paginas-pdf/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/eliminar-paginas-pdf/"
+        },
+        "Reorder PDF pages": {
+          "en": "https://tools.elysiumdr.eu/organize-pdf/",
+          "es": "https://tools.elysiumdr.eu/es/ordenar-paginas-pdf/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/ordenar-paginas-pdf/"
+        },
+        "Extract PDF pages": {
+          "en": "https://tools.elysiumdr.eu/extract-pdf-pages/",
+          "es": "https://tools.elysiumdr.eu/es/extraer-paginas-pdf/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/extrair-paginas-pdf/"
+        }
+      },
+      "outputs": [
+        "PDF",
+        "DOCX"
+      ]
+    }
+  ],
+  "documents": {
+    "llms": "https://tools.elysiumdr.eu/llms.txt",
+    "llmsFull": "https://tools.elysiumdr.eu/llms-full.txt",
+    "sitemap": "https://tools.elysiumdr.eu/sitemap.xml",
+    "privacyAndTerms": {
+      "en": "https://tools.elysiumdr.eu/privacy-and-terms/",
+      "es": "https://tools.elysiumdr.eu/es/privacidad-y-condiciones/",
+      "pt-PT": "https://tools.elysiumdr.eu/pt/privacidade-e-condicoes/"
+    }
+  }
+}

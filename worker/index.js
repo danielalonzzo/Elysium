@@ -36,6 +36,7 @@
 
 import { htmlToMarkdown, estimateTokens } from './html-to-markdown.js';
 import { handleLibrary, isLibraryPath, LIBRARY_ORIGIN, LIBRARY_PREFIX } from './library.js';
+import { handleToolsSite, toolsRedirectTarget, TOOLS_HOST } from './tools-site.js';
 
 const API_PREFIX = '/api/';
 const TOOLS_API_PREFIX = '/api/tools/';
@@ -978,8 +979,17 @@ export default {
             return redirect(`https://${host.slice(4)}${url.pathname}${url.search}`, 301);
         }
 
+        // Elysium Tools tiene su propio host, con sus páginas, su sitemap y su
+        // API pública (ver `tools-site.js`).
+        if (host === TOOLS_HOST) return handleToolsSite(request, env, url, { serveAsset });
+
         const nationalLanguage = LOCALIZED_HOSTS.get(host) || null;
         const isPublicHost = host === 'elysiumdr.eu' || Boolean(nationalLanguage);
+
+        // `/tools` en cualquier dominio de la empresa lleva al subdominio, en su
+        // idioma. Las páginas viven en `tools/` pero solo se sirven allí.
+        const toolsTarget = toolsRedirectTarget(url.pathname, nationalLanguage);
+        if (toolsTarget) return redirect(toolsTarget, 301);
 
         // Este prototipo administrativo solo existe como documento de trabajo
         // en español de Costa Rica. No se publica como si fuera una página
@@ -1220,6 +1230,11 @@ export default {
 
         // Las herramientas del CRM tienen su propio servicio (ver arriba).
         const tools = url.pathname === '/api/tools' || url.pathname.startsWith(TOOLS_API_PREFIX);
+        // La API pública de las herramientas solo existe en su host, detrás de
+        // Turnstile. Aquí no hay forma de llegar a ella.
+        if (url.pathname.startsWith('/api/tools/public/') || url.pathname === '/api/tools/public') {
+            return Response.json({ error: 'Not found.', code: 'not_found' }, { status: 404, headers: { 'Cache-Control': 'no-store' } });
+        }
         const origin = String((tools ? env.ELYSIUM_TOOLS_ORIGIN : env.ELYSIUM_API_ORIGIN) || '')
             .trim()
             .replace(/\/$/, '');
@@ -1239,6 +1254,11 @@ export default {
         // el progreso de una descarga de vídeo llega línea a línea y la propia
         // descarga puede pesar un giga.
         const upstream = new Request(target, request);
+        // Las cabeceras de la pasarela pública solo las pone `tools-site.js`;
+        // si llegan por aquí, son de fuera y se tiran.
+        for (const header of ['X-Elysium-Public-Key', 'X-Elysium-Client-IP', 'X-Turnstile-Token']) {
+            upstream.headers.delete(header);
+        }
         upstream.headers.set('X-Forwarded-Host', url.host);
         upstream.headers.set('X-Forwarded-Proto', url.protocol.replace(':', ''));
 

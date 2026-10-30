@@ -1426,3 +1426,13 @@ PRODHAB (Costa Rica).
 END OF FILE
 Elysium λ Development & Research | https://elysiumdr.com | info@elysiumdr.eu
 ================================================================================
+
+<!-- BEGIN TOOLS -->
+## Elysium Tools
+
+Free online tools by Elysium λ Development & Research on their own site, https://tools.elysiumdr.eu/: no ads, no sign-up, with fair-use limits per hour.
+
+- [Video downloader](https://tools.elysiumdr.eu/video-downloader/): public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, in every resolution the platform offers, as MP4, MP3 or M4A. YouTube: coming soon.
+- [PDF editor](https://tools.elysiumdr.eu/pdf-editor/): merge PDFs and reorder, rotate, delete or extract pages inside the browser; convert PDF to Word (.docx).
+- Spanish: https://tools.elysiumdr.eu/es/ · Portuguese: https://tools.elysiumdr.eu/pt/ · For language models: https://tools.elysiumdr.eu/llms.txt
+<!-- END TOOLS -->

@@ -9,3 +9,7 @@ Demo-arbol/** linguist-generated=true
 Demo-arbol/** -diff
 Vet-Dr-Valladares/** linguist-generated=true
 Vet-Dr-Valladares/** -diff
+
+# tools.elysiumdr.eu lo genera scripts/build-tools.mjs. Es HTML legible y sus
+# cambios conviene verlos al revisar, así que solo se marca como generado.
+tools/** linguist-generated=true

@@ -18,11 +18,13 @@
  * El texto sigue el patrón de `admin-research.js`: diccionario propio, idioma
  * de `<html lang>` y repintado con el evento `elysium:language` de `admin.js`.
  */
-import { auth } from './firebase-config.js';
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+// En tools.elysiumdr.eu el mismo módulo trabaja sin sesión, con Turnstile y
+// textos para el público: ver `tools-public.js`. En el CRM no se carga.
+const PUBLIC = document.body.dataset.publicTools === 'true' ? await import('./tools-public.js') : null;
+let auth = null;
 
 const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
-const TOOLS_API = '/api/tools';
+const TOOLS_API = PUBLIC ? '/api/tools/public' : '/api/tools';
 const INSPECT_TIMEOUT_MS = 90000;
 const SERVICE_RETRY_MS = 30000;
 const TAB_STORAGE_KEY = 'elysium_tools_tab';
@@ -308,7 +310,9 @@ const COPY = {
     }
 };
 
-let _authorized = false;
+if (PUBLIC) PUBLIC.mergeCopy(COPY, PUBLIC.VIDEO_COPY);
+
+let _authorized = Boolean(PUBLIC);
 let _service = 'unknown';
 let _serviceCheckedAt = 0;
 let _engine = null;
@@ -429,15 +433,18 @@ function errorInfo(error) {
 }
 
 async function toolsFetch(path, { method = 'POST', body, signal } = {}) {
-    const user = auth.currentUser;
-    if (!user) throw toolsError({ code: 'unauthenticated' }, 401);
-    const token = await user.getIdToken();
+    const headers = body ? { 'Content-Type': 'application/json' } : {};
+    if (PUBLIC) {
+        // Sin sesión: cada POST lleva su propio token de Turnstile.
+        if (method === 'POST') headers['X-Turnstile-Token'] = await PUBLIC.humanToken({ signal });
+    } else {
+        const user = auth?.currentUser;
+        if (!user) throw toolsError({ code: 'unauthenticated' }, 401);
+        headers.Authorization = `Bearer ${await user.getIdToken()}`;
+    }
     return fetch(`${TOOLS_API}${path}`, {
         method,
-        headers: {
-            Authorization: `Bearer ${token}`,
-            ...(body ? { 'Content-Type': 'application/json' } : {})
-        },
+        headers,
         body: body ? JSON.stringify(body) : undefined,
         cache: 'no-store',
         signal
@@ -451,7 +458,7 @@ async function checkService({ force = false } = {}) {
     try {
         const response = await toolsFetch('/capabilities', { method: 'GET' });
         const payload = await response.json().catch(() => ({}));
-        if (response.status === 503 && payload.code === 'tools_not_configured') {
+        if (response.status === 503 && ['tools_not_configured', 'public_tools_disabled'].includes(payload.code)) {
             _service = 'missing';
         } else if (!response.ok) {
             _service = 'error';
@@ -1107,7 +1114,7 @@ function bindToolsUi() {
     document.addEventListener('elysium:language', () => queueMicrotask(applyCopy));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+async function start() {
     bindToolsUi();
     applyCopy();
 
@@ -1117,8 +1124,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (section.classList.contains('active')) checkService();
     }).observe(section, { attributes: true, attributeFilter: ['class'] });
 
-    onAuthStateChanged(auth, async user => {
+    if (PUBLIC) {
+        PUBLIC.prepareOnUse(document.getElementById('tools-video-form'));
+        if (section.classList.contains('active')) checkService();
+        return;
+    }
+    const [config, firebase] = await Promise.all([import('./firebase-config.js'), import('https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js')]);
+    auth = config.auth;
+    firebase.onAuthStateChanged(auth, async user => {
         _authorized = await canUseTools(user);
         if (_authorized && section.classList.contains('active')) checkService();
     });
-});
+}
+
+// En modo público el `await` del principio hace que el módulo acabe de
+// evaluarse después de DOMContentLoaded (el documento ya está leído): se
+// arranca sin esperarlo, o no arrancaría nunca.
+if (PUBLIC) start();
+else document.addEventListener('DOMContentLoaded', start);

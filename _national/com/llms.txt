@@ -84,3 +84,13 @@ The site is machine-readable beyond this file, and every one of these is public 
 - [API catalog](https://elysiumdr.com/.well-known/api-catalog) (RFC 9727) and [OpenAPI 3.1 description](https://elysiumdr.com/openapi.json): the platform API. Two endpoints are open — `POST /api/prospects` records an enquiry, `POST /api/auth/password-reset` starts password recovery; the rest needs an administrator's Firebase ID token.
 - [auth.md](https://elysiumdr.com/auth.md) and [/.well-known/oauth-protected-resource](https://elysiumdr.com/.well-known/oauth-protected-resource): how to authenticate, and why there is no self-service registration — licences and accounts are issued by hand once a contract exists.
 - [robots.txt](https://elysiumdr.com/robots.txt) declares `Content-Signal: search=yes, ai-input=yes, ai-train=yes`. Training, retrieval and search are all welcome.
+
+<!-- BEGIN TOOLS -->
+## Elysium Tools
+
+Free online tools by Elysium λ Development & Research on their own site, https://tools.elysiumdr.eu/: no ads, no sign-up, with fair-use limits per hour.
+
+- [Video downloader](https://tools.elysiumdr.eu/video-downloader/): public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, in every resolution the platform offers, as MP4, MP3 or M4A. YouTube: coming soon.
+- [PDF editor](https://tools.elysiumdr.eu/pdf-editor/): merge PDFs and reorder, rotate, delete or extract pages inside the browser; convert PDF to Word (.docx).
+- Spanish: https://tools.elysiumdr.eu/es/ · Portuguese: https://tools.elysiumdr.eu/pt/ · For language models: https://tools.elysiumdr.eu/llms.txt
+<!-- END TOOLS -->

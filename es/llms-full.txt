@@ -383,3 +383,13 @@ automatizada (5 y 10 años); derechos; destinatarios y terceros; transferencias
 internacionales; medidas técnicas de seguridad; certificaciones de
 infraestructura heredadas de Google Cloud; cookies; obligatoriedad de los datos;
 y derecho a reclamar ante la CNPD (Portugal).
+
+<!-- BEGIN TOOLS -->
+## Elysium Tools
+
+Herramientas online gratuitas de Elysium λ Development & Research en su propio sitio, https://tools.elysiumdr.eu/es/: sin anuncios, sin registro y con límites de uso justo por hora.
+
+- [Descargar videos](https://tools.elysiumdr.eu/es/descargar-videos/): videos públicos de TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, en todas las resoluciones que ofrece la plataforma, en MP4, MP3 o M4A. YouTube: próximamente.
+- [Editor de PDF](https://tools.elysiumdr.eu/es/editor-pdf/): unir PDF y ordenar, girar, eliminar o extraer páginas dentro del navegador; convertir PDF a Word (.docx).
+- Inglés: https://tools.elysiumdr.eu/ · Portugués: https://tools.elysiumdr.eu/pt/ · Para modelos de lenguaje: https://tools.elysiumdr.eu/llms.txt
+<!-- END TOOLS -->

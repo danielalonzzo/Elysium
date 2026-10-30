@@ -101,6 +101,19 @@
         "List the canonical URLs of elysiumdr.eu",
         "Where is the Spanish version of the Elysium services page?"
       ]
+    },
+    {
+      "identifier": "urn:air:elysiumdr.eu:content:tools",
+      "displayName": "Elysium Tools",
+      "description": "Free online tools by Elysium on their own site, in English, Spanish and Portuguese, with no ads and no sign-up: a downloader for public videos from TikTok, Instagram, Facebook and other platforms, in every resolution the platform offers (MP4, MP3 or M4A), and a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word. Fair-use limits apply. Summary for language models: https://tools.elysiumdr.eu/llms.txt",
+      "type": "text/html",
+      "url": "https://tools.elysiumdr.eu/",
+      "representativeQueries": [
+        "Download a TikTok video without watermark for free",
+        "Download Instagram Reels without signing in",
+        "Merge PDF files online for free",
+        "Convert PDF to Word without registration"
+      ]
     }
   ]
 }

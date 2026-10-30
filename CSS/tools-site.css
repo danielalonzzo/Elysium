@@ -1,0 +1,891 @@
+/* ==========================================================================
+   Elysium Tools — tools.elysiumdr.eu
+   Las páginas las genera scripts/build-tools.mjs. Esta hoja es completa por sí
+   sola: no carga base.css ni el CRM. Las herramientas que lleva dentro son las
+   del CRM (CSS/admin-tools.css), que esperan los tokens --crm-* y --portal-*
+   y unos pocos componentes del portal (.btn, .portal-alert, .meeting-field…):
+   están al final, en «Lo que esperan las herramientas del CRM».
+   Las clases propias de estas páginas empiezan por ts- para no chocar con las
+   tools-* y pdf-* de admin-tools.css.
+   ========================================================================== */
+
+:root {
+    --ts-bg: #020410;
+    --ts-bg-raised: #060d1d;
+    --ts-surface: rgba(10, 18, 34, 0.78);
+    --ts-surface-solid: #0a1222;
+    --ts-line: rgba(148, 163, 184, 0.15);
+    --ts-line-strong: rgba(148, 163, 184, 0.28);
+    --ts-text: #e8ecf4;
+    --ts-muted: #a3adbd;
+    --ts-faint: #77839a;
+    --ts-accent: #2997ff;
+    --ts-accent-soft: rgba(41, 151, 255, 0.14);
+    --ts-mint: #38d9ae;
+    --ts-radius: 1.25rem;
+    --ts-gutter: clamp(1rem, 3vw, 2rem);
+    --ts-width: 68rem;
+    --ts-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --ts-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ts-text);
+    font-family: var(--ts-font);
+    font-size: 1rem;
+    line-height: 1.6;
+    background:
+        radial-gradient(circle at 85% -10%, rgba(41, 151, 255, 0.16), transparent 34rem),
+        radial-gradient(circle at 10% 105%, rgba(31, 77, 148, 0.14), transparent 40rem),
+        var(--ts-bg);
+    background-attachment: fixed;
+    overflow-wrap: break-word;
+}
+
+img,
+svg {
+    max-width: 100%;
+}
+
+a {
+    color: var(--ts-accent);
+    text-underline-offset: 0.2em;
+}
+
+a:hover {
+    color: #7cc0ff;
+}
+
+:focus-visible {
+    outline: 2px solid var(--ts-accent);
+    outline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+    margin: 0;
+    font-family: var(--ts-font-display);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+p {
+    margin: 0;
+}
+
+.tools-app [hidden] {
+    display: none !important;
+}
+
+.ts-container {
+    width: min(100% - 2 * var(--ts-gutter), var(--ts-width));
+    margin-inline: auto;
+}
+
+.ts-skip {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    color: #051025;
+    background: #fff;
+    font-weight: 650;
+    text-decoration: none;
+    transform: translateY(-200%);
+}
+
+.ts-skip:focus {
+    transform: none;
+}
+
+/* Cabecera --------------------------------------------------------------- */
+
+.ts-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid var(--ts-line);
+    background: rgba(2, 4, 16, 0.82);
+    backdrop-filter: saturate(1.4) blur(16px);
+    -webkit-backdrop-filter: saturate(1.4) blur(16px);
+}
+
+.ts-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    min-height: 3.75rem;
+}
+
+.ts-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--ts-text);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ts-brand:hover {
+    color: #fff;
+}
+
+.ts-brand-mark {
+    display: grid;
+    width: 1.9rem;
+    height: 1.9rem;
+    place-items: center;
+    border: 1px solid var(--ts-line-strong);
+    border-radius: 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 400;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+}
+
+.ts-nav {
+    display: flex;
+    gap: 0.25rem;
+    margin-inline-start: auto;
+}
+
+.ts-nav a,
+.ts-lang a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    color: var(--ts-muted);
+    font-size: 0.92rem;
+    font-weight: 560;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ts-nav a:hover,
+.ts-lang a:hover {
+    color: var(--ts-text);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ts-nav a[aria-current="page"],
+.ts-nav a.is-section {
+    color: var(--ts-text);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.ts-lang {
+    display: flex;
+    gap: 0.15rem;
+    padding: 0.2rem;
+    border: 1px solid var(--ts-line);
+    border-radius: 999px;
+}
+
+.ts-lang a {
+    min-height: 2rem;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.ts-lang a[aria-current="true"] {
+    color: #051025;
+    background: var(--ts-text);
+}
+
+@media (max-width: 720px) {
+    .ts-header-inner {
+        flex-wrap: wrap;
+        padding-block: 0.5rem;
+    }
+
+    .ts-lang {
+        margin-inline-start: auto;
+    }
+
+    .ts-nav {
+        order: 3;
+        width: 100%;
+        margin: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .ts-nav::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* Encabezado de la página ------------------------------------------------ */
+
+.ts-main {
+    padding-block: clamp(1.5rem, 4vw, 3rem) clamp(3rem, 7vw, 5rem);
+}
+
+.ts-breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    color: var(--ts-faint);
+    font-size: 0.85rem;
+    list-style: none;
+}
+
+.ts-breadcrumb li + li::before {
+    content: "/";
+    margin-inline-end: 0.35rem;
+    color: var(--ts-line-strong);
+}
+
+.ts-breadcrumb a {
+    color: var(--ts-muted);
+    text-decoration: none;
+}
+
+.ts-breadcrumb a:hover {
+    color: var(--ts-text);
+    text-decoration: underline;
+}
+
+.ts-hero {
+    max-width: 50rem;
+    margin-bottom: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.ts-hero-home {
+    max-width: 56rem;
+    margin-block: clamp(1rem, 5vw, 3rem) clamp(2rem, 5vw, 3rem);
+}
+
+.ts-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1.1rem;
+    padding: 0;
+    list-style: none;
+}
+
+.ts-badges li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem 0.3rem 0.6rem;
+    border: 1px solid rgba(56, 217, 174, 0.28);
+    border-radius: 999px;
+    color: #bdf3e3;
+    font-size: 0.8rem;
+    font-weight: 650;
+    background: rgba(56, 217, 174, 0.08);
+}
+
+.ts-badges svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    color: var(--ts-mint);
+}
+
+.ts-hero h1 {
+    font-size: clamp(2rem, 5.2vw, 3.25rem);
+    font-weight: 700;
+}
+
+.ts-hero-home h1 {
+    font-size: clamp(2.2rem, 6vw, 3.75rem);
+}
+
+.ts-lead {
+    margin-top: 1rem;
+    color: var(--ts-muted);
+    font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+    line-height: 1.6;
+}
+
+/* La herramienta --------------------------------------------------------- */
+
+.ts-workspace {
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+    padding: clamp(1rem, 3vw, 1.75rem);
+    border: 1px solid var(--ts-line);
+    border-radius: calc(var(--ts-radius) + 0.25rem);
+    background: var(--ts-surface);
+    box-shadow: 0 24px 70px rgba(0, 4, 18, 0.4);
+}
+
+.ts-noscript {
+    margin: -2rem 0 3rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(244, 201, 93, 0.35);
+    border-radius: 0.9rem;
+    color: #f4dfa6;
+    background: rgba(244, 201, 93, 0.07);
+}
+
+.tools-human-check:not(:empty) {
+    margin-top: 1rem;
+}
+
+/* Bloques de contenido --------------------------------------------------- */
+
+.ts-block {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+.ts-block > h2 {
+    margin-bottom: 1.25rem;
+    font-size: clamp(1.45rem, 3vw, 1.9rem);
+}
+
+.ts-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+}
+
+.ts-steps li {
+    position: relative;
+    padding: 1.25rem 1.25rem 1.25rem 3.75rem;
+    border: 1px solid var(--ts-line);
+    border-radius: var(--ts-radius);
+    color: var(--ts-muted);
+    background: rgba(255, 255, 255, 0.02);
+    counter-increment: step;
+}
+
+.ts-steps li::before {
+    content: counter(step);
+    position: absolute;
+    top: 1.15rem;
+    left: 1.1rem;
+    display: grid;
+    width: 1.85rem;
+    height: 1.85rem;
+    place-items: center;
+    border-radius: 50%;
+    color: #051025;
+    font-weight: 750;
+    font-size: 0.9rem;
+    background: var(--ts-text);
+}
+
+.ts-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+    gap: clamp(1.75rem, 4vw, 2.5rem) clamp(1.5rem, 4vw, 3rem);
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+}
+
+.ts-sections h2 {
+    margin-bottom: 0.65rem;
+    font-size: 1.3rem;
+}
+
+.ts-sections p,
+.ts-prose p {
+    color: var(--ts-muted);
+}
+
+.ts-prose {
+    max-width: 46rem;
+}
+
+.ts-prose section + section {
+    margin-top: 2.25rem;
+}
+
+.ts-prose h2 {
+    margin-bottom: 0.65rem;
+    font-size: 1.35rem;
+}
+
+.ts-prose p + p {
+    margin-top: 0.85rem;
+}
+
+/* Tarjetas --------------------------------------------------------------- */
+
+.ts-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15.5rem), 1fr));
+    gap: 0.85rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ts-card {
+    position: relative;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.15rem 1.25rem;
+    border: 1px solid var(--ts-line);
+    border-radius: var(--ts-radius);
+    color: var(--ts-text);
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.025);
+    transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+a.ts-card:hover {
+    color: var(--ts-text);
+    border-color: var(--ts-line-strong);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+.ts-card strong {
+    font-size: 1.02rem;
+}
+
+.ts-card span {
+    color: var(--ts-muted);
+    font-size: 0.9rem;
+}
+
+.ts-card-soon {
+    border-style: dashed;
+    opacity: 0.75;
+}
+
+.ts-card-soon em {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    padding: 0.1rem 0.55rem;
+    border: 1px solid var(--ts-line-strong);
+    border-radius: 999px;
+    color: var(--ts-muted);
+    font-size: 0.72rem;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.ts-tools {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ts-tool {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    border: 1px solid var(--ts-line);
+    border-radius: calc(var(--ts-radius) + 0.25rem);
+    background: var(--ts-surface);
+}
+
+.ts-tool-icon {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border-radius: 0.85rem;
+    color: var(--ts-accent);
+    background: var(--ts-accent-soft);
+}
+
+.ts-tool-icon svg {
+    width: 1.4rem;
+    height: 1.4rem;
+}
+
+.ts-tool h2 {
+    font-size: 1.35rem;
+}
+
+.ts-tool p {
+    flex: 1;
+    color: var(--ts-muted);
+}
+
+.ts-tool-future {
+    border-style: dashed;
+}
+
+.ts-tool-future .ts-tool-icon {
+    color: var(--ts-muted);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.ts-button {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid #fff;
+    border-radius: 999px;
+    color: #051025;
+    font-weight: 650;
+    text-decoration: none;
+    background: linear-gradient(135deg, #f4f5f8, #c9cad0);
+}
+
+.ts-button:hover {
+    color: #051025;
+    background: linear-gradient(135deg, #fff, #e1e1e5);
+    box-shadow: 0 0 24px rgba(225, 225, 229, 0.35);
+}
+
+.ts-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    color: var(--ts-muted);
+    font-size: 0.9rem;
+    list-style: none;
+}
+
+.ts-chips li {
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--ts-line);
+    border-radius: 999px;
+}
+
+/* Preguntas frecuentes --------------------------------------------------- */
+
+.ts-faq {
+    display: grid;
+    gap: 0.6rem;
+    max-width: 50rem;
+}
+
+.ts-faq details {
+    border: 1px solid var(--ts-line);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.ts-faq summary {
+    position: relative;
+    padding: 1rem 3rem 1rem 1.25rem;
+    font-weight: 620;
+    list-style: none;
+    cursor: pointer;
+}
+
+.ts-faq summary::-webkit-details-marker {
+    display: none;
+}
+
+.ts-faq summary::after {
+    content: "+";
+    position: absolute;
+    top: 50%;
+    right: 1.25rem;
+    color: var(--ts-muted);
+    font-size: 1.35rem;
+    font-weight: 300;
+    line-height: 1;
+    transform: translateY(-50%);
+}
+
+.ts-faq details[open] summary::after {
+    content: "−";
+}
+
+.ts-faq details p {
+    padding: 0 1.25rem 1.1rem;
+    color: var(--ts-muted);
+}
+
+.ts-note {
+    max-width: 50rem;
+    margin-top: 2.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--ts-line-strong);
+    color: var(--ts-faint);
+    font-size: 0.9rem;
+}
+
+/* Pie -------------------------------------------------------------------- */
+
+.ts-footer {
+    padding-block: clamp(2.5rem, 6vw, 3.5rem) 2rem;
+    border-top: 1px solid var(--ts-line);
+    color: var(--ts-muted);
+    font-size: 0.9rem;
+    background: rgba(2, 4, 16, 0.6);
+}
+
+.ts-footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: 2rem;
+}
+
+.ts-footer h2 {
+    margin-bottom: 0.75rem;
+    color: var(--ts-text);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.ts-footer ul {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ts-footer a {
+    color: var(--ts-muted);
+    text-decoration: none;
+}
+
+.ts-footer a:hover {
+    color: var(--ts-text);
+    text-decoration: underline;
+}
+
+.ts-footer-about p + p {
+    margin-top: 0.6rem;
+}
+
+.ts-footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--ts-line);
+    color: var(--ts-faint);
+    font-size: 0.82rem;
+}
+
+.ts-footer-bottom nav {
+    display: flex;
+    gap: 1rem;
+}
+
+/* 404 -------------------------------------------------------------------- */
+
+.ts-missing {
+    padding-block: clamp(2rem, 8vw, 5rem) 1rem;
+}
+
+.ts-missing .ts-cards {
+    margin-top: 2rem;
+}
+
+/* ==========================================================================
+   Lo que esperan las herramientas del CRM
+   CSS/admin-tools.css se escribió para vivir dentro de admin.html, bajo
+   .customer-portal.is-admin y con los tokens y componentes de
+   customer-portal.css y admin-portal.css. El <body> de estas páginas lleva
+   esas dos clases; aquí van los tokens y las piezas que usa, con los mismos
+   valores que en el CRM.
+   ========================================================================== */
+
+.tools-app {
+    --crm-panel: #0d131d;
+    --crm-panel-raised: #111927;
+    --crm-line: rgba(148, 163, 184, 0.13);
+    --crm-line-strong: rgba(148, 163, 184, 0.22);
+    --crm-text: #f4f7fb;
+    --crm-muted: #8f9caf;
+    --crm-blue: #2f7df6;
+    --crm-blue-soft: rgba(47, 125, 246, 0.14);
+    --crm-mint: #38d9ae;
+    --portal-border: rgba(225, 225, 229, 0.13);
+    --portal-success: #40d896;
+    --portal-warning: #f4c95d;
+    --portal-danger: #ff7676;
+    --portal-info: #2997ff;
+    --color-text-primary: #e1e1e5;
+    --color-text-secondary: #a0a5b5;
+    --radius-pill: 9999px;
+    --transition-fast: 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.tools-app .ts-workspace :where(button, input, select, textarea) {
+    font: inherit;
+}
+
+.tools-app .ts-workspace h2 {
+    letter-spacing: -0.01em;
+}
+
+.tools-app .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.46rem;
+    min-height: 2.65rem;
+    padding: 0.62rem 1rem;
+    border: 1px solid rgba(225, 225, 229, 0.2);
+    border-radius: var(--radius-pill);
+    color: var(--color-text-primary);
+    font-size: 0.8rem;
+    font-weight: 650;
+    line-height: 1.2;
+    text-decoration: none;
+    background: rgba(225, 225, 229, 0.05);
+    box-shadow: 0 7px 20px rgba(0, 4, 18, 0.18);
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tools-app .btn:hover {
+    border-color: rgba(225, 225, 229, 0.45);
+    background: rgba(225, 225, 229, 0.12);
+    transform: translateY(-1px);
+}
+
+.tools-app .btn:active {
+    transform: translateY(0);
+}
+
+.tools-app .btn-primary {
+    border-color: #fff;
+    color: #051025;
+    font-weight: 700;
+    background: linear-gradient(135deg, #e1e1e5, #c0c0c5);
+}
+
+.tools-app .btn-primary:hover {
+    color: #051025;
+    background: linear-gradient(135deg, #fff, #e1e1e5);
+    box-shadow: 0 0 25px rgba(225, 225, 229, 0.45), 0 0 50px rgba(41, 151, 255, 0.2);
+}
+
+.tools-app .btn svg {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+}
+
+.tools-app .btn:disabled,
+.tools-app .btn[aria-disabled="true"] {
+    opacity: 0.48;
+    cursor: not-allowed;
+    filter: saturate(0.45);
+    transform: none;
+}
+
+.tools-app .portal-alert {
+    --notice-color: var(--portal-info);
+    display: block;
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--notice-color) 30%, transparent);
+    border-radius: 0.95rem;
+    color: var(--color-text-primary);
+    background: color-mix(in srgb, var(--notice-color) 7%, rgba(7, 17, 37, 0.94));
+}
+
+.tools-app .portal-alert.is-warning {
+    --notice-color: var(--portal-warning);
+}
+
+.tools-app .portal-alert.is-error {
+    --notice-color: var(--portal-danger);
+}
+
+.tools-app .portal-sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.tools-app .meeting-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.tools-app .meeting-field > span {
+    color: var(--color-text-secondary);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0.045em;
+}
+
+.tools-app .meeting-field input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.72rem 0.8rem;
+    border: 1px solid var(--portal-border);
+    border-radius: 0.8rem;
+    outline: none;
+    color: var(--color-text-primary);
+    font-size: 0.84rem;
+    background: rgba(255, 255, 255, 0.035);
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tools-app .meeting-field input:focus {
+    border-color: rgba(41, 151, 255, 0.68);
+    background: rgba(41, 151, 255, 0.055);
+    box-shadow: 0 0 0 3px rgba(41, 151, 255, 0.1);
+}
+
+.tools-app .crm-text-action {
+    border: 0;
+    color: #6f9ff3;
+    font-size: 0.72rem;
+    background: transparent;
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

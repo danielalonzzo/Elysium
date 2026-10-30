@@ -36,7 +36,7 @@ COPY --from=deno /deno /usr/local/bin/deno
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --no-audit --no-fund
-COPY server.js workspace.js video.js video-routes.js pdf-routes.js pdf_to_docx.py ./
+COPY server.js workspace.js video.js video-routes.js pdf-routes.js pdf_to_docx.py public-tools.js public-network.js ./
 
 USER node
 CMD ["node", "server.js"]

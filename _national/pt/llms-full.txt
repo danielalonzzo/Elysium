@@ -142,3 +142,13 @@ ESPECIFICAÇÕES DO SISTEMA:
 - Diretiva de Privacidade: Diretiva ePrivacy · Gestão de Consentimento de Cookies v1.0
 - Infraestrutura de Segurança: Encriptação HSTS estrita, Content Security Policy L3 (CSP L3), autenticação HMAC-SHA256, Cloudflare Edge Network.
 - Enquadramento Legal: Conformidade rigorosa com o Regulamento Geral sobre a Proteção de Dados (RGPD UE 2016/679) e a legislação nacional aplicável em Portugal (CNPD).
+
+<!-- BEGIN TOOLS -->
+## Elysium Tools
+
+Ferramentas online gratuitas da Elysium λ Development & Research no seu próprio site, https://tools.elysiumdr.eu/pt/: sem anúncios, sem registo e com limites de utilização justa por hora.
+
+- [Descarregar vídeos](https://tools.elysiumdr.eu/pt/descarregar-videos/): vídeos públicos do TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A. YouTube: em breve.
+- [Editor de PDF](https://tools.elysiumdr.eu/pt/editor-pdf/): juntar PDF e ordenar, rodar, eliminar ou extrair páginas dentro do navegador; converter PDF para Word (.docx).
+- Inglês: https://tools.elysiumdr.eu/ · Espanhol: https://tools.elysiumdr.eu/es/ · Para modelos de linguagem: https://tools.elysiumdr.eu/llms.txt
+<!-- END TOOLS -->

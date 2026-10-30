@@ -1,0 +1,11 @@
+# Elysium Tools — tools.elysiumdr.eu
+# Generado por scripts/build-tools.mjs. Todo es público salvo la API.
+# Content-Signal (contentsignals.org): se puede indexar, citar y usar para
+# entrenar, igual que elysiumdr.eu.
+
+User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+Allow: /
+Disallow: /api/
+
+Sitemap: https://tools.elysiumdr.eu/sitemap.xml
