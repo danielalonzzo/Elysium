@@ -393,11 +393,11 @@ el del libro. Ocho cosas que no se ven abriéndola:
    `ai-train=no`: los libros son de terceros y Elysium no puede autorizarlo.
 
 **`tools/` es tools.elysiumdr.eu (Elysium Tools), no una carpeta del sitio.**
-El descargador de videos y el editor de PDF del CRM, abiertos al público, gratis
-y sin anuncios, en un subdominio a propósito: un descargador público atrae
-avisos de copyright, y Google castiga al dominio entero que los acumula. La
-cabecera y el pie de todas las páginas lo enlazan («Tools», en el idioma de
-cada página). Siete cosas que no se ven abriéndolo:
+El descargador de videos, el editor de PDF y «Documento de identidad» del CRM,
+abiertos al público, gratis y sin anuncios, en un subdominio a propósito: un
+descargador público atrae avisos de copyright, y Google castiga al dominio
+entero que los acumula. La cabecera y el pie de todas las páginas lo enlazan
+(«Tools», en el idioma de cada página). Ocho cosas que no se ven abriéndolo:
 
 1. **Lo sirve el mismo Worker, por host** (`worker/tools-site.js`):
    `tools.elysiumdr.eu/es/unir-pdf/` es `tools/es/unir-pdf/index.html`, y su
@@ -440,6 +440,25 @@ cada página). Siete cosas que no se ven abriéndolo:
    `challenges.cloudflare.com` para Turnstile. `serve-local.py` no sirve el
    subdominio: para probarlo hace falta el Worker (un arnés que lo llame con
    ese host); `scripts/tools.test.mjs` lo hace con assets de disco.
+8. **«Documento de identidad» no toca ningún servidor.** Es la segunda
+   herramienta de la pestaña PDF, en el CRM y en `/id-card-to-pdf/`,
+   `/es/cedula-dni-pdf/` y `/pt/cartao-de-cidadao-pdf/`: pone en una hoja A4 o
+   carta las dos caras de una cédula, un DNI o un Cartão de Cidadão, a tamaño
+   real. `JS/admin-pdf.js` lleva el selector entre el editor y ella;
+   `JS/admin-id-card.js`, la interfaz; `JS/id-card-scan.js`, la detección, sin
+   DOM. Las fotos no salen del navegador, y así lo promete la página de
+   privacidad: ni Turnstile ni `/api` (`scripts/id-card.test.mjs` falla si
+   aparece un `fetch`). La detección es clásica, no un modelo: bordes, Hough,
+   la proporción ID-1 deshaciendo la perspectiva con la focal de un teléfono y
+   un RANSAC por lado en la foto grande. Se ajustó con fotos sintéticas (85 %
+   casi perfectas) y falla con tarjetas cortadas por el borde de la foto,
+   tarjetas claras sobre un folio blanco y manteles a cuadros: para eso están
+   las esquinas a mano, con lupa, flechas y un ajuste al canto al soltarlas.
+   La misma prueba mide la precisión con fotos que fabrica ella: si un cambio
+   la empeora, falla. Sus textos van por clave (`data-idcard` en `admin.html`)
+   y los escriben igual `applyCopy()` y `build-tools.mjs`; una página con
+   `mode: 'idcard'` en `content.mjs` llega con la herramienta ya elegida. En el
+   CRM `img-src` no admite `blob:`, así que las fotos se pintan en `<canvas>`.
 
 **Pura Vida Pets ya no vive aquí.** Se firmó contrato y salió del repositorio: su
 código está en `λ/Pura Vida Pets/puravidapetscr/`, con git propio
@@ -461,7 +480,8 @@ Worker. `_redirects` lleva con 301 `/ONCORE/*` a la misma ruta en
   sección Herramientas del CRM. Descarga videos de YouTube, TikTok,
   Instagram… con yt-dlp, ffmpeg y Deno (`JS/admin-tools.js` lo pinta) y pasa
   PDF a Word con pdf2docx (`JS/admin-pdf.js`). El resto del editor de PDF
-  —ordenar, girar, quitar, unir— corre en el navegador con pdf.js y pdf-lib,
+  —ordenar, girar, quitar, unir, y el documento de identidad— corre en el
+  navegador con pdf.js y pdf-lib,
   servidos desde `JS/vendor/` y no desde un CDN: el worker de pdf.js tiene que
   ser del mismo origen, porque la CSP no admite workers `blob:`. El Worker le
   manda `/api/tools/*` por `ELYSIUM_TOOLS_ORIGIN`, y sin esa variable responde

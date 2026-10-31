@@ -1,12 +1,12 @@
 {
   "name": "Elysium Tools",
   "url": "https://tools.elysiumdr.eu/",
-  "description": "Free online video downloader and PDF editor, with no ads and no sign-up.",
+  "description": "Free online video downloader, PDF editor and ID card to PDF tool, with no ads and no sign-up.",
   "publisher": {
     "name": "Elysium λ Development & Research",
     "url": "https://elysiumdr.eu/"
   },
-  "updated": "2026-10-30",
+  "updated": "2026-10-31",
   "price": "free",
   "advertising": false,
   "account": "not required",
@@ -132,11 +132,44 @@
           "en": "https://tools.elysiumdr.eu/extract-pdf-pages/",
           "es": "https://tools.elysiumdr.eu/es/extraer-paginas-pdf/",
           "pt-PT": "https://tools.elysiumdr.eu/pt/extrair-paginas-pdf/"
+        },
+        "ID card to PDF": {
+          "en": "https://tools.elysiumdr.eu/id-card-to-pdf/",
+          "es": "https://tools.elysiumdr.eu/es/cedula-dni-pdf/",
+          "pt-PT": "https://tools.elysiumdr.eu/pt/cartao-de-cidadao-pdf/"
         }
       },
       "outputs": [
         "PDF",
         "DOCX"
+      ]
+    },
+    {
+      "id": "id-card-to-pdf",
+      "name": "ID card to PDF",
+      "urls": {
+        "en": "https://tools.elysiumdr.eu/id-card-to-pdf/",
+        "es": "https://tools.elysiumdr.eu/es/cedula-dni-pdf/",
+        "pt-PT": "https://tools.elysiumdr.eu/pt/cartao-de-cidadao-pdf/"
+      },
+      "status": "available",
+      "processing": "browser only; the photos are never uploaded",
+      "inputs": [
+        "JPEG",
+        "PNG",
+        "HEIC",
+        "WebP"
+      ],
+      "documents": "ID-1 cards (85.6 × 54 mm): national identity cards, residence permits, driving licences",
+      "outputs": [
+        "PDF"
+      ],
+      "options": [
+        "A4 or Letter",
+        "real size or 1.5×",
+        "colour or black and white",
+        "light correction",
+        "watermark"
       ]
     }
   ],

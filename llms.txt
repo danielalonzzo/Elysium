@@ -92,5 +92,6 @@ Free online tools by Elysium λ Development & Research on their own site, https:
 
 - [Video downloader](https://tools.elysiumdr.eu/video-downloader/): public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, in every resolution the platform offers, as MP4, MP3 or M4A. YouTube: coming soon.
 - [PDF editor](https://tools.elysiumdr.eu/pdf-editor/): merge PDFs and reorder, rotate, delete or extract pages inside the browser; convert PDF to Word (.docx).
+- [ID card to PDF](https://tools.elysiumdr.eu/id-card-to-pdf/): both sides of an ID card, straightened and at real size on one PDF page, without uploading the photos.
 - Spanish: https://tools.elysiumdr.eu/es/ · Portuguese: https://tools.elysiumdr.eu/pt/ · For language models: https://tools.elysiumdr.eu/llms.txt
 <!-- END TOOLS -->

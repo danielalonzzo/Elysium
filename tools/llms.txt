@@ -1,6 +1,6 @@
 # Elysium Tools
 
-> Free online tools by Elysium λ Development & Research, with no ads and no sign-up: a video downloader for public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky in every resolution the platform offers (MP4, MP3 or M4A), and a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word.
+> Free online tools by Elysium λ Development & Research, with no ads and no sign-up: a video downloader for public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
 
 - Price: free. No advertising, no subscriptions, no accounts and no analytics or advertising cookies.
 - Publisher: Elysium λ Development & Research (Bragança, Portugal), https://elysiumdr.eu/
@@ -8,6 +8,7 @@
 - Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.
 - Video limits: up to 250 MB per file; the file is deleted 15 minutes after it is ready.
 - PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to 200 MB per file. PDF to Word (.docx) runs on the Elysium server: up to 30 MB and 500 pages; the PDF is deleted as soon as the .docx exists and the .docx after 15 minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.
+- ID card to PDF: photos of the front and back of an identity card, residence permit or driving licence are detected, straightened and cut out from the background, and both sides are placed at real size (ID-1, 85.6 × 54 mm) or 1.5× on one A4 or Letter page, with an optional watermark. Everything runs in the browser: the photos are never uploaded.
 - Fair-use limits per visitor and hour: 30 link checks, 10 video downloads and 10 Word conversions. Each operation is checked by Cloudflare Turnstile.
 - Languages: English, Spanish and European Portuguese.
 
@@ -27,6 +28,7 @@
 - [Delete pages from a PDF](https://tools.elysiumdr.eu/delete-pdf-pages/): Remove pages from a PDF and download the shorter document. Select the pages, delete them and undo if needed. Done in your browser, no upload. Free, no ads.
 - [Reorder the pages of a PDF](https://tools.elysiumdr.eu/organize-pdf/): Change the order of the pages of a PDF by dragging them, then save the new document. Works on computer and phone, in your browser, no upload. Free, no ads.
 - [Extract pages from a PDF](https://tools.elysiumdr.eu/extract-pdf-pages/): Select pages of a PDF and download them as a new file. Ideal for splitting a PDF or sending only part of it. In your browser, no upload. Free, no ads.
+- [ID card to PDF, both sides on one page](https://tools.elysiumdr.eu/id-card-to-pdf/): Turn photos of the front and back of your ID card into one clean PDF page at real size. Edges found and straightened in your browser. Free.
 - [Privacy and terms of use](https://tools.elysiumdr.eu/privacy-and-terms/): How Elysium Tools handles your links and files, what data is processed and the terms for using the free video downloader and PDF editor.
 
 ## Herramientas (español)
@@ -45,6 +47,7 @@
 - [Eliminar páginas de un PDF](https://tools.elysiumdr.eu/es/eliminar-paginas-pdf/): Quita páginas de un PDF y descarga el documento más corto. Selecciona las páginas, elimínalas y deshaz si hace falta. En tu navegador, sin subirlo. Gratis.
 - [Ordenar las páginas de un PDF](https://tools.elysiumdr.eu/es/ordenar-paginas-pdf/): Cambia el orden de las páginas de un PDF arrastrándolas y guarda el documento nuevo, en tu navegador y sin subirlo. Gratis y sin anuncios.
 - [Extraer páginas de un PDF](https://tools.elysiumdr.eu/es/extraer-paginas-pdf/): Selecciona páginas de un PDF y descárgalas como un archivo nuevo. Ideal para dividir un PDF o enviar solo una parte. En tu navegador, sin subirlo. Gratis.
+- [Cédula o DNI a PDF, las dos caras en una hoja](https://tools.elysiumdr.eu/es/cedula-dni-pdf/): Convierte las fotos del frente y el reverso de tu cédula o DNI en un PDF limpio, a tamaño real y en una sola hoja. Todo en tu navegador. Gratis.
 - [Privacidad y condiciones de uso](https://tools.elysiumdr.eu/es/privacidad-y-condiciones/): Cómo trata Elysium Tools tus enlaces y archivos, qué datos se procesan y las condiciones de uso del descargador de videos y el editor de PDF gratis.
 
 ## Ferramentas (português europeu)
@@ -63,6 +66,7 @@
 - [Eliminar páginas de um PDF](https://tools.elysiumdr.eu/pt/eliminar-paginas-pdf/): Retire páginas de um PDF e transfira o documento mais curto. Selecione as páginas, elimine-as e anule se for preciso. No seu navegador, sem envio. Grátis.
 - [Ordenar as páginas de um PDF](https://tools.elysiumdr.eu/pt/ordenar-paginas-pdf/): Mude a ordem das páginas de um PDF arrastando-as e guarde o documento novo. No computador e no telemóvel, no seu navegador, sem envio. Grátis e sem anúncios.
 - [Extrair páginas de um PDF](https://tools.elysiumdr.eu/pt/extrair-paginas-pdf/): Selecione páginas de um PDF e transfira-as como um ficheiro novo. Ideal para dividir um PDF ou enviar só uma parte. No seu navegador, sem envio. Grátis.
+- [Cartão de Cidadão em PDF, frente e verso numa folha](https://tools.elysiumdr.eu/pt/cartao-de-cidadao-pdf/): Converta as fotografias da frente e do verso do seu Cartão de Cidadão num PDF limpo, em tamanho real e numa só folha. Tudo no navegador. Grátis.
 - [Privacidade e condições de utilização](https://tools.elysiumdr.eu/pt/privacidade-e-condicoes/): Como a Elysium Tools trata as suas ligações e ficheiros, que dados processa e as condições de utilização do descarregador de vídeos e do editor de PDF.
 
 ## Optional

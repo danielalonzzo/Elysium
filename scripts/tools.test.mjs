@@ -186,7 +186,8 @@ test('los enlaces internos llevan a páginas o recursos que existen', () => {
 });
 
 test('las páginas en español y portugués no se quedan con rótulos en inglés', () => {
-    const english = ['Video link', 'Find video', 'Drop your PDF files here', 'Choose PDF files', 'Convert to Word', 'Download PDF', 'aria-label="Breadcrumb"'];
+    const english = ['Video link', 'Find video', 'Drop your PDF files here', 'Choose PDF files', 'Convert to Word', 'Download PDF', 'aria-label="Breadcrumb"',
+        'Drop the photo of the front here', 'Both sides of your ID on one page', 'aria-label="PDF tools"'];
     for (const file of PAGES.filter(path => /^tools\/(es|pt)\//.test(path))) {
         for (const text of english) assert.ok(!FILES.get(file).includes(text), `${file}: «${text}»`);
     }

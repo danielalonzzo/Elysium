@@ -1,0 +1,4065 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Elysium λ Institute - Paquete 16 Semanas</title>
+<style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 40px; }
+    h1 { color: #1e3a8a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 60px; }
+    h2 { color: #2563eb; margin-top: 40px; }
+    h3 { color: #334155; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
+    th { background-color: #f1f5f9; }
+    pre { background-color: #1e293b; color: #f8fafc; padding: 15px; border-radius: 6px; overflow-x: auto; }
+    blockquote { background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 10px 20px; margin: 20px 0; }
+    .cover { text-align: center; margin-bottom: 80px; padding: 60px; background: #1e293b; color: white; border-radius: 8px; }
+    .cover h1 { border: none; color: white; margin-top: 0; }
+
+    @page {
+        size: A4;
+        margin: 20mm 15mm 20mm 15mm;
+    }
+    @media print {
+        body {
+            max-width: 100% !important;
+            padding: 0 !important;
+            color: #1e293b;
+            font-size: 10.5pt;
+        }
+        .cover {
+            page-break-after: always;
+            margin-bottom: 0 !important;
+            padding: 100px 40px !important;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        h1, h2, h3 {
+            page-break-after: avoid;
+        }
+        table {
+            page-break-inside: auto;
+            font-size: 9.5pt;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        thead {
+            display: table-header-group;
+        }
+        pre, blockquote {
+            page-break-inside: avoid;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        th {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+
+</style>
+</head>
+<body>
+    <div class="cover">
+        <h1>Elysium λ Institute</h1>
+        <p>Paquete Fundacional Consolidado</p>
+        <p>Edición Definitiva · 16 Semanas (v3.1)</p>
+    </div>
+    
+    <h1>Elysium λ Institute of Development &amp; Research</h1>
+<h3>Paquete Fundacional · v3.0.0 · Agosto 2026</h3>
+<blockquote>
+<p><em>Abstrahere, aedificare, probare.</em> Abstraer, construir, demostrar.</p>
+</blockquote>
+<p><strong>Qué es, en una frase.</strong> Un programa de <strong>extensión social gratuito</strong> de cuatro
+meses que enseña <strong>programación, herramientas modernas de inteligencia artificial y
+emprendimiento</strong> a diez personas, para que salgan con la estructura base de su propio
+emprendimiento digital funcionando.</p>
+<p><strong>Qué forma.</strong> No programadores. <strong>Arquitectos de infraestructura digital asistida por
+IA</strong>: personas que saben lo suficiente de programación para leer, juzgar y corregir lo
+que un agente les entrega; lo suficiente de datos para decidir la estructura; y lo
+suficiente de negocio para lanzarlo. El código lo escribe en gran parte la máquina; la
+arquitectura, el criterio y la responsabilidad son de la persona.</p>
+<blockquote>
+<p><strong>Cómo NO se nombra.</strong> Nunca «curso de IA» (Carta, art. 18 bis). La IA es la
+herramienta, no el objeto. Y nunca «saldrás siendo desarrollador»: el D2 §3.3
+declara con precisión lo que el egresado no es.</p>
+</blockquote>
+<hr />
+<h2>Los documentos</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Cód.</th>
+<th>Documento</th>
+<th>Qué responde</th>
+<th>Fichero</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>D0</strong></td>
+<td><strong>Carta Constitutiva</strong></td>
+<td>Qué es el Instituto, qué principios lo rigen, quién manda, qué derechos hay</td>
+<td><a href="ELYSIUM-INSTITUTE-CHARTER.md"><code>ELYSIUM-INSTITUTE-CHARTER.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>D1</strong></td>
+<td><strong>Modelo Académico</strong></td>
+<td>Por qué se enseña así, con su evidencia, y cómo se regula la IA</td>
+<td><a href="ELYSIUM-ACADEMIC-MODEL.md"><code>ELYSIUM-ACADEMIC-MODEL.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>D2</strong></td>
+<td><strong>Plan de Estudios</strong></td>
+<td>Qué se enseña: 32 resultados con su <strong>nivel de logro declarado</strong></td>
+<td><a href="ELYSIUM-CURRICULUM.md"><code>ELYSIUM-CURRICULUM.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>D3</strong></td>
+<td><strong>Reglamento de Evaluación</strong></td>
+<td>Cómo se mide, con qué rúbricas y qué umbrales objetivos</td>
+<td><a href="ELYSIUM-ASSESSMENT.md"><code>ELYSIUM-ASSESSMENT.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>D4</strong></td>
+<td><strong>Syllabus del Programa</strong></td>
+<td>Las 16 semanas, minuto a minuto</td>
+<td><a href="ELYSIUM-SYLLABUS.md"><code>ELYSIUM-SYLLABUS.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>D7</strong></td>
+<td><strong>Contexto, Horario y Operación</strong></td>
+<td>A quién sirve, a qué hora, qué cuesta y quién lo paga</td>
+<td><a href="ELYSIUM-MARKET-STUDY.md"><code>ELYSIUM-MARKET-STUDY.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>D8</strong></td>
+<td><strong>Investigación del Profesorado</strong></td>
+<td>El estudio que conduce y firma la Dirección, con carga cero para el aula</td>
+<td><a href="ELYSIUM-RESEARCH-PROTOCOL.md"><code>ELYSIUM-RESEARCH-PROTOCOL.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>D9</strong></td>
+<td><strong>Trabajo Final de Graduación</strong></td>
+<td>De la idea de la semana 1 al emprendimiento de la semana 16</td>
+<td><a href="ELYSIUM-TFG-PROTOCOL.md"><code>ELYSIUM-TFG-PROTOCOL.md</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;">—</td>
+<td>Modelo horario</td>
+<td>El programa que resuelve la franja óptima para el mundo hispano</td>
+<td><a href="horario.py"><code>horario.py</code></a></td>
+</tr>
+<tr>
+<td style="text-align: center;">—</td>
+<td><strong>Archivo</strong></td>
+<td>Material de la versión de 48 semanas, <strong>sin valor normativo</strong></td>
+<td><a href="archivo/README.md"><code>archivo/</code></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Jerarquía.</strong> En caso de contradicción prevalece el documento de menor número
+(Carta, art. 68). <a href="../ELYSIUM-STANDARDS.md"><code>ELYSIUM-STANDARDS.md</code></a> y
+<a href="../ELYSIUM-PROTOTYPING.md"><code>ELYSIUM-PROTOTYPING.md</code></a> son fuente técnica vinculante
+para el contenido de la enseñanza y ceden ante la Carta en materia académica.</p>
+<hr />
+<h2>El programa en una página</h2>
+<p><strong>16 semanas</strong> · sábados y domingos, <strong>15:00–17:00 UTC</strong> · <strong>una sola aula de 10 a 15
+personas</strong> · <strong>gratuito en su totalidad</strong> · sin experiencia previa exigida.</p>
+<pre><code class="language-text">        MÓDULO 0 · seis semanas antes · asíncrono, sin docente, sin nota (25 h)
+        Lógica de programación · herramientas · primer HTML · idea de negocio
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  NIVEL I · Semanas 1–5 · Fundamentos                           IA: N1 → N2  │
+│  Web, semántica y accesibilidad · CSS y responsividad · JavaScript · DOM     │
+│  Fundamentos teóricos de los modelos de lenguaje: tokens, contexto, sesgo    │
+│  → Página propia accesible y desplegada                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  NIVEL II · Semanas 6–10 · Agentes y datos                          IA: N3  │
+│  Dirección de agentes en el editor · depuración · asincronía y datos         │
+│  Modelado documental (a N0) · operaciones · panel · reglas · despliegue      │
+│  → Plataforma dinámica con datos, panel y compuerta de calidad              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  NIVEL III · Semanas 11–15 · Cierre y emprendimiento           IA: N3 → N4  │
+│  S11 acceso y roles · S12 la transacción y el agente supervisado             │
+│  S13 modelo de negocio · S14 marca, redes y captación · S15 legal y auditoría│
+│  → Emprendimiento digital listo para lanzar                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  SEMANA 16 · Demo Day el sábado · sustentación técnica el domingo            │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Las cuatro horas y las otras cuatro.</strong> El Instituto <strong>imparte cuatro horas de
+clase</strong>. El estudiante <strong>dedica otras cuatro por su cuenta</strong>, y no son opcionales: sin
+ellas no existe la Transferencia dominical, que es lo que convierte quince
+laboratorios en un emprendimiento.</p>
+<p><strong>Evaluación</strong> · 40 % continua · 30 % proyecto · 30 % hito final y sustentación. Más
+cuatro requisitos de tipo apto o no apto que no promedian: asistencia del 80 %,
+Defensa Aleatoria de Autoría superada, Auditoría Técnica sin hallazgos críticos y
+declaración de uso de IA completa.</p>
+<hr />
+<h2>Las nueve decisiones que definen este Instituto</h2>
+<ol>
+<li><strong>Forma arquitectos, no programadores.</strong> El perfil de egreso es especificar,
+   dirigir, auditar y responder por un sistema construido con agentes (D2 §3). Es un
+   perfil escaso en 2026 y distinto del de desarrollador.</li>
+<li><strong>La Defensa Aleatoria de Autoría es el muro de carga.</strong> Cuando la mayor parte del
+   código lo escribe un agente, es el único mecanismo que separa a un arquitecto de
+   alguien que no entiende su propio proyecto. Diez minutos, sin aviso, sin
+   asistencia. <strong>Si se relaja, el modelo entero se cae</strong> (D1 §6.1 bis).</li>
+<li><strong>La Escalera de IA no restringe: cualifica.</strong> N1 y N2 en las cinco primeras
+   semanas existen para habilitar el uso a fondo, no para impedirlo. El diseño del
+   modelo de datos permanece siempre en <strong>N0</strong>.</li>
+<li><strong>Es gratuito, y eso es su naturaleza, no un descuento.</strong> Nadie paga nada (Carta,
+   art. 2 bis). Se admiten donaciones bajo el régimen del art. 63 ter, que prohíbe
+   expresamente las de estudiantes y candidatos.</li>
+<li><strong>Diez personas, una sola aula, por decisión permanente</strong> (Carta, art. 41). Todo lo
+   anterior deja de funcionar a mayor escala.</li>
+<li><strong>El horario es 15:00–17:00 UTC, anclado a UTC todo el año.</strong> Resultado de un
+   modelo de utilidad ponderada sobre catorce husos (D7, Parte IV).</li>
+<li><strong>El año académico es el año natural.</strong> Segundo sábado de enero a tercer sábado de
+   diciembre. El Módulo 0 ocupa las seis semanas previas.</li>
+<li><strong>El certificado distingue dominado de introducido</strong> (D2 §5.9). 22 resultados se
+   dominan y 10 sólo se introducen, y decirlo es una obligación del art. 9.</li>
+<li><strong>La investigación la hace el profesorado, no los estudiantes.</strong> Carga cero para el
+   aula: veinte minutos en todo el programa (D8). Se promete <strong>publicar el preprint</strong> y
+   <strong>enviar</strong> a revista, nunca que la acepten.</li>
+</ol>
+<hr />
+<h2>Calendario</h2>
+<h3>Generación Piloto · Λ00 · semanas 1 a 8</h3>
+<table>
+<thead>
+<tr>
+<th>Hito</th>
+<th>Fecha</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arranque</td>
+<td>sábado <strong>12 de septiembre de 2026</strong></td>
+</tr>
+<tr>
+<td>Cierre</td>
+<td>domingo <strong>1 de noviembre de 2026</strong></td>
+</tr>
+<tr>
+<td>Corrección de materiales y convocatoria</td>
+<td>noviembre y diciembre de 2026</td>
+</tr>
+</tbody>
+</table>
+<p>Cinco o seis personas por invitación, sin certificado y sin investigación. <strong>Todo 2026
+se dedica a preparar el programa</strong> (Carta, disp. trans. 3.ª).</p>
+<h3>Generación I · Λ01</h3>
+<table>
+<thead>
+<tr>
+<th>Hito</th>
+<th>Fecha</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Convocatoria abierta</td>
+<td>septiembre de 2026</td>
+</tr>
+<tr>
+<td>Resolución motivada a todas las personas candidatas</td>
+<td>noviembre de 2026</td>
+</tr>
+<tr>
+<td><strong>Módulo 0</strong></td>
+<td>28-XI-2026 → 8-I-2027</td>
+</tr>
+<tr>
+<td><strong>Arranque · Nivel I</strong></td>
+<td>sábado <strong>9 de enero de 2027</strong></td>
+</tr>
+<tr>
+<td>Nivel II</td>
+<td>13 de febrero de 2027</td>
+</tr>
+<tr>
+<td>Receso de Semana Santa</td>
+<td>27 y 28 de marzo de 2027</td>
+</tr>
+<tr>
+<td>Nivel III</td>
+<td>20 de marzo de 2027</td>
+</tr>
+<tr>
+<td><strong>Demo Day y sustentación</strong></td>
+<td><strong>1 y 2 de mayo de 2027</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Antes de abrir la convocatoria</h2>
+<pre><code class="language-text">JURÍDICO Y REPUTACIONAL
+□ Revisión legal del término «instituto» y del texto del certificado ← lo más urgente
+□ Asesoría fiscal ANTES de abrir cualquier vía de donación (Carta, art. 63 ter)
+□ Declaración del art. 8 visible en web, convocatoria y certificado
+□ Ninguna pieza de difusión dice «curso de IA» ni promete empleo (arts. 18 y 18 bis)
+□ Certificado que distingue resultados dominados de introducidos (D2 §5.9)
+
+GOBIERNO Y CONFLICTO DE INTERÉS
+□ Miembro externo del Comité de Ética, sin relación económica con la empresa
+□ Auditor externo de defensas identificado y presupuestado
+□ Protocolo del art. 63 bis operativo: ninguna oferta comercial a estudiantes en curso
+
+ACADÉMICO
+□ Módulo 0 construido y probado de principio a fin
+□ Repositorio `elysium-lab` con los 15 laboratorios y su arnés de pruebas
+□ Micro-guías MG01–MG15 escritas antes del arranque
+□ Prueba de Disposición λ redactada y pilotada
+□ Rúbrica de selección publicada ANTES de abrir la convocatoria
+□ Preinscripción del protocolo de investigación (D8 §8), antes del primer dato
+
+OPERATIVO
+□ Coste de las 16 semanas provisionado íntegro antes de convocar
+□ Umbral mínimo de apertura: 6 estudiantes, o se aplaza un año
+□ Difusión dirigida a organizaciones de base, no sólo a comunidades de desarrollo
+□ Devolución motivada al 100 % de las personas no admitidas
+</code></pre>
+<hr />
+<p><em>Elysium λ Development &amp; Research · Bragança, Portugal · San José, Costa Rica</em>
+<em><a href="https://elysiumdr.eu">elysiumdr.eu</a></em></p>
+    <h1>Elysium λ Institute — Syllabus del Programa</h1>
+<h3>v3.0.0 · Agosto 2026 · Documento D4 del paquete fundacional</h3>
+<h3>Programación · Herramientas de IA · Emprendimiento · 16 semanas</h3>
+<blockquote>
+<p><strong>Cómo leer este documento.</strong> Es el contrato semanal completo del programa. La
+Parte I identifica el cuatrimestre y explica el Módulo 0. La Parte II detalla las
+dieciséis semanas, minuto a minuto, agrupadas en tres niveles de cinco semanas más
+la semana de defensa. La Parte III administra el cuatrimestre.</p>
+<p><strong>Sustituye</strong> a los antiguos D4, D5 y D6, que quedan en <a href="archivo/"><code>archivo/</code></a>
+como material de referencia sin valor normativo.</p>
+<p><strong>Regla de congelación</strong> (Carta, Anexo B). No se modifica durante el cuatrimestre
+en curso salvo corrección de errata, que se anota en §11.</p>
+<p>Se subordina a la Carta (D0), al Modelo Académico (D1), al Plan de Estudios (D2) y
+al Reglamento de Evaluación (D3).</p>
+</blockquote>
+<hr />
+<h1>PARTE I · IDENTIFICACIÓN Y REGLAS</h1>
+<h2>1 · Ficha del programa</h2>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Denominación</strong></td>
+<td>Arquitectura de Infraestructura Digital Asistida por IA y Emprendimiento</td>
+</tr>
+<tr>
+<td><strong>Estructura</strong></td>
+<td><strong>16 semanas</strong> · 15 lectivas + 1 de defensa · tres niveles de cinco semanas</td>
+</tr>
+<tr>
+<td><strong>Regla de arranque</strong></td>
+<td>Segundo sábado de enero (Carta, disp. trans. 2.ª)</td>
+</tr>
+<tr>
+<td><strong>Fechas · Generación I (Λ01)</strong></td>
+<td>9 de enero de 2027 → 2 de mayo de 2027</td>
+</tr>
+<tr>
+<td><strong>Receso</strong></td>
+<td>27 y 28 de marzo de 2027 (Semana Santa)</td>
+</tr>
+<tr>
+<td><strong>Horario</strong></td>
+<td>Sábado y domingo, <strong>15:00–17:00 UTC</strong></td>
+</tr>
+<tr>
+<td><strong>Aula</strong></td>
+<td>Máximo 15 estudiantes · 10 ideal · una sola por generación</td>
+</tr>
+<tr>
+<td><strong>Coste</strong></td>
+<td><strong>Ninguno</strong> (Carta, art. 2 bis)</td>
+</tr>
+<tr>
+<td><strong>Carga</strong></td>
+<td><strong>4 h de clase + 4 h de estudio autónomo</strong> por semana · 128 h</td>
+</tr>
+<tr>
+<td><strong>Preparación previa</strong></td>
+<td><strong>Módulo 0</strong>, asíncrono y autodirigido, unas 25 h (§3)</td>
+</tr>
+<tr>
+<td><strong>Nivel de IA</strong></td>
+<td>N1 (S1–S4) → N2 (S5) → <strong>N3 (S6–S11)</strong> → N4 (S12–S15) · <strong>N0</strong> siempre en quices, DAA, defensa y diseño de datos</td>
+</tr>
+<tr>
+<td><strong>Entregable final</strong></td>
+<td>Plataforma web propia con datos en la nube, acceso autenticado y agenda, desplegada y auditada</td>
+</tr>
+<tr>
+<td><strong>Investigación del estudiante</strong></td>
+<td><strong>Ninguna.</strong> Carga cero (D8 §1)</td>
+</tr>
+</tbody>
+</table>
+<h2>2 · Objetivo del programa</h2>
+<p>Al terminar la semana 16, la persona graduada tiene <strong>publicada y en producción la
+estructura base de su propio emprendimiento digital</strong>: la plataforma funcionando, la
+marca, la presencia en redes y el modelo de negocio formulado.</p>
+<p><strong>No la construyó sola: la dirigió.</strong> Buena parte del código lo escribieron agentes
+de inteligencia artificial bajo su especificación. Lo que sí es enteramente suyo es la
+arquitectura, el modelo de datos, las decisiones y la responsabilidad, y puede
+demostrarlo explicando y modificando cualquier bloque en vivo, sin asistencia. Ése es
+el perfil que el programa forma y que el certificado acredita (D2 §3).</p>
+<h2>3 · Módulo 0 · Preparación asíncrona</h2>
+<blockquote>
+<p><strong>Por qué existe.</strong> El programa recorre en quince semanas lo que antes ocupaba
+cuarenta y ocho. Eso sólo es posible si la semana 1 no empieza desde cero absoluto.
+El Módulo 0 no es un filtro ni un requisito de admisión encubierto: es <strong>gratuito,
+autodirigido, sin docente y sin nota</strong>, y su única función es que todo el aula
+llegue con la misma base mínima. Quien lo complete, entra; nadie queda fuera por no
+haber programado antes, que es lo que el art. 16 de la Carta protege.</p>
+</blockquote>
+<p><strong>Cuándo.</strong> Las seis semanas anteriores al arranque. Para la Generación I, del
+<strong>28 de noviembre de 2026 al 8 de enero de 2027</strong>.</p>
+<p><strong>Carga.</strong> Unas 25 horas totales, al ritmo de cada persona. No hay sesiones en vivo.</p>
+<p><strong>Contenido y punto de control.</strong></p>
+<pre><code class="language-text">□ Bloque 1 · Lógica (10 h)
+  Variables, tipos, condicionales, bucles y funciones, en un entorno guiado
+  con verificación automática. Punto de control: 20 ejercicios resueltos.
+
+□ Bloque 2 · Herramientas (6 h)
+  Terminal básica, sistema de archivos, cuenta de GitHub, primer repositorio,
+  primer commit, apertura de un Codespace.
+
+□ Bloque 3 · Primer HTML (5 h)
+  Un documento válido, con estructura mínima, publicado en una URL propia.
+
+□ Bloque 4 · Preparación del proyecto (4 h)
+  Nota de una página: «el negocio que quiero construir». No vinculante.
+
+□ ADMINISTRATIVO
+  Lectura de la Carta, Partes I y II · Firma del Compromiso λ
+  Consentimiento de investigación (D8, Anexo I), voluntario y revocable
+  Ficha de zona horaria y prueba de audio, vídeo y compartición de pantalla
+</code></pre>
+<p><strong>Acompañamiento.</strong> Un canal asíncrono de dudas con respuesta en 48 horas
+laborables, y <strong>una sesión opcional de una hora</strong> a mitad del módulo para quien se
+atasque. No cuenta como docencia del programa.</p>
+<p><strong>Si alguien no lo completa.</strong> No pierde la plaza. Se le ofrece incorporarse a la
+generación siguiente, o entrar asumiendo por escrito que arrancará en desventaja.
+La decisión es suya, no del Instituto.</p>
+<h2>4 · Los tres niveles</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Nivel</th>
+<th style="text-align: center;">Semanas</th>
+<th>Título</th>
+<th>Cierra con</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>I</strong></td>
+<td style="text-align: center;">1–5</td>
+<td>Fundamentos de construcción web accesible</td>
+<td>Página propia accesible y desplegada</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>II</strong></td>
+<td style="text-align: center;">6–10</td>
+<td>Programación asistida por agentes y datos en la nube</td>
+<td>Plataforma dinámica con datos y panel</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>III</strong></td>
+<td style="text-align: center;">11–15</td>
+<td>Cierre del proyecto y emprendimiento</td>
+<td>Emprendimiento digital listo para lanzar</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>—</strong></td>
+<td style="text-align: center;">16</td>
+<td><strong>Demo Day y sustentación</strong></td>
+<td>Graduación</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Los niveles no son certificables por separado.</strong> Son la estructura interna de un
+único programa. Quien abandone en la semana 7 no recibe un «certificado de Nivel I»:
+recibe, si lo solicita, una constancia de participación que declara las semanas
+cursadas y ningún resultado de aprendizaje acreditado.</p>
+<h2>5 · Cómo se lee cada semana</h2>
+<pre><code class="language-text">### Semana NN · Título
+&gt; RA · Nivel de IA · Andamiaje · Entregable
+
+Sábado · Antes (30 min)       trabajo previo obligatorio
+Sábado · Durante (120 min)    20' apertura · 60' modelado en vivo · 40' pares
+Sábado · Después (30 min)     quiz con 3 ítems de recuperación espaciada
+Domingo · Antes (30 min)      entorno listo + predicción escrita
+Domingo · Durante (120 min)   15' predicción · 90' código · 15' validación
+Domingo · Después (60-90 min) Transferencia al proyecto propio
+Criterio de aceptación        qué debe cumplirse para aprobar
+</code></pre>
+<hr />
+<h1>PARTE II · LAS DIECISÉIS SEMANAS</h1>
+<h2>NIVEL I · Fundamentos de construcción web accesible · Semanas 1 a 5</h2>
+<h3>Semana 01 · La web como sistema, el DOM y el entorno</h3>
+<blockquote>
+<p><strong>RA</strong> RA-A1 · RA-F1 <strong>·</strong> <strong>IA</strong> N1 <strong>·</strong> <strong>Andamiaje</strong> A1 <strong>·</strong> <strong>Entrega</strong> <code>L01</code></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Micro-guía <em>«Qué ocurre cuando escribo una dirección y
+pulso Intro»</em>. Tres predicciones escritas: ¿quién guarda el archivo que veo?, ¿el
+navegador recibe la página ya dibujada?, ¿qué diferencia hay entre lo que escribí y
+lo que el navegador tiene en memoria?</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Apertura con las tres predicciones erróneas más frecuentes, y
+  puesta en común de cómo fue el Módulo 0.
+- <code>00:20–01:20</code> · Modelado en vivo: recorrido completo de una petición y construcción
+  del árbol del documento. Se modifica un nodo en directo desde las herramientas del
+  navegador para mostrar que el DOM y el archivo HTML no son la misma cosa.
+- <code>01:20–02:00</code> · Instrucción entre pares: <em>si edito el DOM desde el navegador y
+  recargo, ¿por qué desaparece mi cambio?</em></p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q01</code>, sin ítems espaciados.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Abrir el Codespace de <code>elysium-lab</code>. Leer el HTML de
+partida <strong>sin ejecutarlo</strong> y escribir la predicción de qué se verá.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Contraste predicción / realidad.
+- <code>00:15–01:45</code> · Documento HTML válido y publicado: estructura, metadatos, <code>lang</code>,
+  título; <code>git add</code>, <code>commit</code>, <code>push</code>; publicación estática y comprobación de la URL.
+- <code>01:45–02:00</code> · Validación con el validador del W3C y prueba desde el teléfono.</p>
+<p><strong>Domingo · Después.</strong> <code>T01</code> · Repositorio personal del proyecto con un <code>README</code> que
+declara en cinco líneas qué negocio va a construir, para quién y qué problema resuelve.</p>
+<p><strong>Criterio de aceptación.</strong> Documento válido y desplegado en URL pública; repositorio
+creado; al menos tres <em>commits</em> con mensajes comprensibles.</p>
+<hr />
+<h3>Semana 02 · Semántica, accesibilidad y formularios</h3>
+<blockquote>
+<p><strong>RA</strong> RA-A1 · RA-A4 <strong>·</strong> <strong>IA</strong> N1 <strong>·</strong> <strong>Andamiaje</strong> A1 <strong>·</strong> <strong>Entrega</strong> <code>L02</code> <strong>·</strong> <strong>COMPUERTA G1</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Micro-guía <em>«Un <code>div</code> no significa nada»</em>. Predicción:
+¿cómo sabe un lector de pantalla que un bloque es la navegación principal?</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Apertura y dudas.
+- <code>00:20–01:20</code> · Modelado con <strong>demostración comparativa</strong>: la misma página con
+  contenedores genéricos y con elementos semánticos, recorridas ambas con lector de
+  pantalla en directo. Árbol de accesibilidad. Los cuatro principios de WCAG, el
+  nivel <strong>AA de WCAG 2.2</strong>, y por qué desde el 28 de junio de 2025 esto es exigible
+  en la Unión Europea: Directiva (UE) 2019/882 y norma EN 301 549. Formularios
+  accesibles: etiqueta programática, agrupaciones, ayuda asociada, error anunciado.
+- <code>01:20–02:00</code> · Instrucción entre pares: <em>¿cuál de estas cuatro maquetaciones de
+  formulario es accesible y por qué las otras tres no?</em></p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q02</code> · espaciado: S01.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Instalar <code>axe DevTools</code>. Predecir cuántas violaciones
+encontrará en el código de partida y de qué tipo.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Predicción y primera ejecución de <code>axe</code>.
+- <code>00:15–01:45</code> · Esqueleto semántico completo (regiones, jerarquía de encabezados
+  sin saltos, listas reales) y formulario de contacto accesible.
+- <code>01:45–02:00</code> · Validación: cero violaciones serias o críticas; recorrido íntegro
+  por teclado sin trampa de foco.</p>
+<p><strong>Domingo · Después.</strong> <code>T02</code> · Esqueleto semántico del proyecto propio con su
+formulario, auditado.</p>
+<blockquote>
+<h3>⚑ Compuerta G1 · Carta de Anteproyecto</h3>
+<p><strong>Vence:</strong> domingo de la semana 2, 23:59 UTC. <strong>Bloquea todas las Transferencias
+posteriores</strong>, porque sin proyecto definido no hay destino para lo que se aprende.
+Dos páginas según la plantilla del D9, Anexo I: nicho, cliente concreto con nombre
+y contexto, problema, propuesta de valor en una frase, tres competidores, y qué
+hará la plataforma que hoy no ocurre.</p>
+</blockquote>
+<p><strong>Criterio de aceptación.</strong> Cero violaciones serias o críticas; todo control con
+etiqueta programática; G1 aprobada.</p>
+<hr />
+<h3>Semana 03 · CSS: cascada, tokens y diseño responsivo</h3>
+<blockquote>
+<p><strong>RA</strong> RA-A2 · RA-A3 <strong>·</strong> <strong>IA</strong> N1 <strong>·</strong> <strong>Andamiaje</strong> A2 <strong>·</strong> <strong>Entrega</strong> <code>L03</code></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Micro-guía <em>«Por qué su regla CSS no se aplica»</em>.
+Predicción sobre tres pares de selectores en conflicto.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Apertura.
+- <code>00:20–01:20</code> · Modelado: origen y orden de la cascada, herencia, cálculo de
+  especificidad, modelo de caja, unidades relativas, y <strong>propiedades personalizadas
+  como sistema de diseño</strong>. Después, en el mismo bloque: enfoque <em>mobile-first</em>,
+  consultas de medio ascendentes, ejes de Flexbox, áreas de Grid, y tipografía fluida
+  con <code>clamp()</code>. Se muestra <code>!important</code> como antipatrón y por qué siempre se paga.
+- <code>01:20–02:00</code> · Instrucción entre pares: <em>dadas estas cuatro reglas en conflicto,
+  ¿qué color tendrá el elemento?</em> y <em>¿esto es Flexbox o Grid?</em></p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q03</code> · espaciado: S02, S01.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Señalar las tres reglas de la hoja de partida que
+<strong>no</strong> surtirán efecto.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Predicción y contraste.
+- <code>00:15–01:45</code> · Sistema de tokens (color, escala tipográfica, espaciado, radios) y
+  maquetación responsiva completa, con cabecera móvil primero operable por teclado y
+  cierre con <code>Escape</code>. Reconstruye <strong>F02 · Header Mobile-First</strong> del estándar.
+- <code>01:45–02:00</code> · Validación en 320, 768, 1440 y 2560 px, sin desbordamiento
+  horizontal; contraste ≥ 4.5:1; cero valores de color fuera del sistema de tokens.</p>
+<p><strong>Domingo · Después.</strong> <code>T03</code> · Tokens y responsividad aplicados al proyecto propio.</p>
+<p><strong>Criterio de aceptación.</strong> Sin desplazamiento horizontal en ningún ancho; texto
+legible al 200 % de zoom; cero <code>!important</code>.</p>
+<hr />
+<h3>Semana 04 · JavaScript: datos, decisiones, repetición y funciones</h3>
+<blockquote>
+<p><strong>RA</strong> RA-B1 · RA-B2 <strong>·</strong> <strong>IA</strong> N1 <strong>·</strong> <strong>Andamiaje</strong> A2 <strong>·</strong> <strong>Entrega</strong> <code>L04</code> <strong>·</strong> <strong>Fracaso productivo</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> <strong>Fracaso productivo dirigido</strong>: resolver ocho
+comparaciones (<code>0 == ''</code>, <code>[] == false</code>, <code>NaN === NaN</code>…) y anotar la predicción. Se
+entrega el acierto y el error. Nadie corrige nada todavía.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Apertura sobre los patrones de error del grupo, sin nombres.
+- <code>00:20–01:20</code> · Modelado: tipos primitivos y de referencia; <code>const</code> y <code>let</code>;
+  coerción e igualdad estricta; mutabilidad y copia; arreglos y objetos.
+  Condicionales y cláusulas de guarda frente al anidamiento profundo. Iteración con
+  <code>for…of</code> y transformación con <code>map</code>, <code>filter</code> y <code>reduce</code>. Funciones con retorno
+  explícito, funciones puras y módulos ES.
+- <code>01:20–02:00</code> · Instrucción entre pares con <strong>problemas de Parsons</strong>: ordenar los
+  bloques de una función de filtrado y otra de agregación.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q04</code> · espaciado: S03, S02.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Preparar el arnés de pruebas (<code>npm install</code>) y predecir
+la salida del código de partida.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Predicción y contraste.
+- <code>00:15–01:45</code> · Modelado del dominio del negocio en JavaScript (servicios con
+  nombre, precio, duración, disponibilidad) y las funciones que operan sobre él,
+  organizadas en módulos. Se hace pasar cada prueba una a una.
+- <code>01:45–02:00</code> · Validación: <code>npm test</code> en verde; ninguna función supera 25 líneas.</p>
+<p><strong>Domingo · Después.</strong> <code>T04</code> · Datos reales del negocio propio modelados en un módulo.</p>
+<p><strong>Criterio de aceptación.</strong> Pruebas en verde; sin <code>var</code>; sin comparación laxa salvo
+justificación escrita.</p>
+<hr />
+<h3>Semana 05 · DOM, eventos y anatomía de un modelo de lenguaje</h3>
+<blockquote>
+<p><strong>RA</strong> RA-B3 · RA-E1 · RA-E3 <strong>·</strong> <strong>IA</strong> N2 <strong>·</strong> <strong>Andamiaje</strong> A3 <strong>·</strong> <strong>Entrega</strong> <code>L05</code> <strong>·</strong> <strong>Hito de nivel I</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Dos tareas. Primera: segmentar a mano en «unidades
+mínimas» tres frases en español, una con tildes y otra con emoji, y predecir cuántas
+contará el modelo. Segunda: provocar deliberadamente <strong>dos respuestas falsas</strong> en un
+modelo de uso libre sobre un tema que domine, y guardar las transcripciones.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Contraste de las segmentaciones con el conteo real y puesta en
+  común de las falsedades recogidas.
+- <code>00:20–01:20</code> · Modelado conceptual: qué es un modelo de lenguaje grande y qué
+  significa predecir el siguiente token; el mecanismo de atención explicado sin
+  álgebra; ventana de contexto y su coste; por qué el modelo produce contenido falso
+  con seguridad aparente; sesgo en los datos y en la alineación; y la lista de casos
+  en los que <strong>no debe usarse</strong>: decisiones jurídicas, médicas, financieras, y todo
+  aquello cuyo error no se detecta sin ser ya experto.
+- <code>01:20–02:00</code> · Instrucción entre pares con casos de decisión profesional real.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q05</code> · espaciado: S04, S02.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Predicción sobre el comportamiento del formulario de
+partida al enviarlo vacío.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Predicción y contraste.
+- <code>00:15–01:45</code> · API del DOM y eventos: <code>querySelector</code>, <code>addEventListener</code>, el
+  objeto del evento, <code>preventDefault</code>. Validación de formulario en cliente con
+  mensajes asociados al control, anuncio en región activa y foco al primer error.
+  Renderizado de una lista de datos al DOM con su estado vacío resuelto.
+- <code>01:45–02:00</code> · Validación: prueba con teclado y con lector de pantalla.</p>
+<p><strong>Domingo · Después.</strong> <code>T05</code> · Validación accesible y catálogo renderizado desde
+datos en el proyecto propio. <strong>Cierre del Nivel I.</strong></p>
+<p><strong>Criterio de aceptación.</strong> Un error de validación es percibido por alguien que
+navega sólo con teclado y lector de pantalla, sin ver la pantalla. Ningún dato del
+catálogo escrito literalmente en el HTML.</p>
+<hr />
+<h2>NIVEL II · Programación asistida por agentes y datos · Semanas 6 a 10</h2>
+<blockquote>
+<p><strong>Se abre el nivel N3.</strong> A partir de aquí se permite dirigir un <strong>agente dentro del
+editor</strong> en tareas de varios pasos. Lo que no se abre es el agente que actúa fuera
+del editor. La frontera y su porqué están en el D1 §6.2. El diseño del modelo de
+datos (semana 8) permanece en <strong>N0</strong>.</p>
+</blockquote>
+<h3>Semana 06 · Instrucción técnica, agentes en el editor y depuración</h3>
+<blockquote>
+<p><strong>RA</strong> RA-E4 · RA-B6 <strong>·</strong> <strong>IA</strong> N3, salvo el diagnóstico que baja a N2 <strong>·</strong> <strong>Andamiaje</strong> A3 <strong>·</strong> <strong>Entrega</strong> <code>L06</code></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Dos tareas. Pedir a un modelo la misma función de tres
+maneras (vaga, detallada, con ejemplo y restricciones) y guardar las salidas.
+Recibir cinco trazas de error y escribir qué cree que ocurrió, sin ejecutar nada.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Comparación de las tres salidas: la variabilidad depende más de la
+  instrucción que del modelo. Contraste de hipótesis sobre las trazas.
+- <code>00:20–01:20</code> · Modelado: anatomía de una instrucción técnica útil; por qué pedir
+  opciones con sus compromisos en vez de una solución. Después, depuración: leer una
+  traza de abajo arriba, distinguir síntoma de origen, el depurador, y el método
+  <strong>hipótesis → experimento → confirmación → sólo entonces, cambio</strong>. Se advierte
+  sobre las tasas de aceptación acrítica documentadas en novatos, entre el 10 % y el
+  53 %, como aviso sobre la propia conducta.
+- <code>01:20–02:00</code> · Depuración en directo de un fallo aportado por un estudiante.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q06</code> · espaciado: S05, S03.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Configurar el asistente en el editor y escribir el
+<strong>guion metacognitivo</strong> de la primera consulta prevista (D1 §6.4).</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Predicción: ¿qué parte hará bien el modelo y cuál mal?
+- <code>00:15–01:45</code> · Dos mitades. Generación asistida de un componente accesible con
+  criterios dados de antemano, con la regla de leer en voz alta al par cada línea
+  antes de aceptarla. Y reparación de tres defectos en código ajeno con <strong>bitácora de
+  depuración</strong> obligatoria: hipótesis previa, prueba, resultado, conclusión. Aquí se
+  permite pedir al modelo que <strong>interprete</strong> el error, nunca que lo arregle.
+- <code>01:45–02:00</code> · Validación: pruebas en verde, <code>axe</code> limpio, <code>AI-USE.md</code> con el
+  apartado de rechazos relleno y bitácora con tres entradas.</p>
+<p><strong>Domingo · Después.</strong> <code>T06</code> · Un componente del proyecto generado con asistencia y
+un fallo real depurado con bitácora.</p>
+<p><strong>Criterio de aceptación.</strong> El apartado <em>qué rechacé y por qué</em> contiene al menos
+tres rechazos justificados. La bitácora contiene la hipótesis <strong>antes</strong> del arreglo;
+si se escribió después, el historial de Git lo delata.</p>
+<hr />
+<h3>Semana 07 · Asincronía, HTTP y consumo de datos</h3>
+<blockquote>
+<p><strong>RA</strong> RA-B4 · RA-C1 <strong>·</strong> <strong>IA</strong> N3 <strong>·</strong> <strong>Andamiaje</strong> A3 <strong>·</strong> <strong>Entrega</strong> <code>L07</code> <strong>·</strong> <strong>Fracaso productivo</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> <strong>Fracaso productivo</strong>: ordenar la salida esperada de un
+fragmento con <code>console.log</code>, <code>setTimeout(…, 0)</code> y una promesa resuelta. Casi nadie
+acierta, y ése es el objetivo.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Contraste. Se cuentan los aciertos en voz alta y se dice que ser
+  pocos es lo normal.
+- <code>00:20–01:20</code> · Modelado: un solo hilo, la pila, la cola de tareas y el bucle de
+  eventos dibujado en pantalla; la promesa y sus tres estados; <code>async</code>/<code>await</code> como
+  azúcar sobre lo mismo; <code>try</code>/<code>catch</code>. Después, HTTP: métodos, familias de códigos
+  de estado, cabeceras, intercambio entre orígenes, <code>fetch</code>, y la trampa clásica de
+  que <code>fetch</code> <strong>no rechaza</strong> ante un 404. JSON y su capa de transformación.
+- <code>01:20–02:00</code> · Instrucción entre pares con fragmentos de orden de ejecución no
+  obvio y con códigos de estado en escenarios reales.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q07</code> · espaciado: S06, S04.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Predecir qué devolverá la petición de partida y qué
+falla al recibir datos incompletos.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Predicción y contraste con una respuesta deliberadamente sucia.
+- <code>00:15–01:45</code> · Cliente HTTP encapsulado en módulo, con los <strong>cuatro estados de
+  interfaz</strong> implementados y anunciados: cargando, éxito, vacío y error. Capa de
+  transformación resistente a datos ausentes o con tipo inesperado.
+- <code>01:45–02:00</code> · Validación: la interfaz no se rompe con ninguno de los seis cuerpos
+  de respuesta defectuosos provistos; los cuatro estados se anuncian a lector de
+  pantalla.</p>
+<p><strong>Domingo · Después.</strong> <code>T07</code> · Los cuatro estados y la capa de datos en el proyecto.</p>
+<p><strong>Criterio de aceptación.</strong> Los cuatro estados existen y son accesibles. Una interfaz
+que sólo contempla el éxito no aprueba.</p>
+<hr />
+<h3>Semana 08 · Modelado de datos y base de datos en la nube</h3>
+<blockquote>
+<p><strong>RA</strong> RA-C2 · RA-C3 <strong>·</strong> <strong>IA</strong> <strong>N0 en el diseño</strong>, N3 en el código <strong>·</strong> <strong>Andamiaje</strong> A4 <strong>·</strong> <strong>Entrega</strong> <code>L08</code> <strong>·</strong> <strong>COMPUERTA G2</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Dibujar <strong>en papel</strong>, sin ayuda de ningún tipo, cómo
+guardaría los datos de su negocio. Fotografiar y entregar.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Se proyectan varios papeles anónimos y se comparan enfoques.
+- <code>00:20–01:20</code> · Modelado: entidad y relación; el modelo documental y por qué
+  invierte la regla; la pregunta que gobierna todo el diseño, que no es <em>cómo son mis
+  datos</em> sino <strong>cómo los voy a consultar</strong>; desnormalización deliberada y su coste de
+  escritura; colección, documento, subcolección; índices; y el modelo de facturación
+  por operación, con la advertencia de que un bucle mal escrito genera una factura.
+- <code>01:20–02:00</code> · Taller: cada pareja rediseña el esquema del otro para una consulta
+  nueva que no estaba prevista.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q08</code> · espaciado: S07, S05.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Listar las ocho consultas que su aplicación necesitará.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Revisión cruzada de las listas de consultas.
+- <code>00:15–01:45</code> · Creación de las colecciones del esquema aprobado, carga de datos de
+  prueba, primera lectura desde la aplicación y primera suscripción en tiempo real
+  con dos pestañas abiertas.
+- <code>01:45–02:00</code> · Validación: la lectura funciona, la suscripción se cancela al
+  desmontar, y no hay claves sensibles en el repositorio.</p>
+<p><strong>Domingo · Después.</strong> <code>T08</code> · Colecciones del proyecto propio creadas y pobladas.</p>
+<blockquote>
+<h3>⚑ Compuerta G2 · Modelo de datos aprobado</h3>
+<p><strong>Vence:</strong> domingo de la semana 8. <strong>Bloquea el hito final.</strong> Esquema con cada
+colección y sus campos tipados, las ocho consultas previstas y la <strong>justificación
+escrita de cada desnormalización</strong>. Se defiende oralmente a nivel <strong>N0</strong>: la
+arquitectura de datos no se delega. Rúbrica en D9 §11.4.</p>
+</blockquote>
+<p><strong>Criterio de aceptación.</strong> Cada decisión de desnormalización tiene una consulta que
+la justifica. Un esquema bonito sin consultas que lo motiven no aprueba.</p>
+<hr />
+<h3>Semana 09 · Operaciones sobre datos y panel de administración</h3>
+<blockquote>
+<p><strong>RA</strong> RA-C3 · RA-A1 <strong>·</strong> <strong>IA</strong> N3 <strong>·</strong> <strong>Andamiaje</strong> A4 <strong>·</strong> <strong>Entrega</strong> <code>L09</code></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Micro-guía <em>«De un formulario accesible a un documento
+en la nube»</em>. Buscar tres interfaces reales con confirmación de borrado y evaluar
+cuál protege mejor de un error.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Apertura con los ejemplos.
+- <code>00:20–01:20</code> · Modelado: el recorrido del dato desde el control del formulario
+  hasta el documento persistido; validación en cliente frente a validación en
+  servidor y por qué la primera nunca basta; marcas de tiempo del servidor;
+  idempotencia y el problema del doble envío; actualización parcial frente a
+  sustitución; borrado físico frente a lógico; y el diseño accesible de la
+  confirmación destructiva, con foco atrapado y devuelto.
+- <code>01:20–02:00</code> · Instrucción entre pares: <em>¿qué pasa si el usuario pulsa enviar dos
+  veces?</em> y <em>¿qué ocurre con dos escrituras simultáneas?</em></p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q09</code> · espaciado: S08, S06.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Predecir qué ocurre al enviar el formulario sin
+conexión y boceto del panel propio.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Predicción y contraste en modo sin red.
+- <code>00:15–01:45</code> · Inserción desde el formulario accesible con bloqueo del doble envío
+  y confirmación anunciada; y <strong>panel de administración en tiempo real</strong>: tabla
+  accesible con encabezados asociados, edición, borrado con confirmación y deshacer,
+  filtros y contador de pendientes. Equivalente reducido de <strong>F18</strong> y <strong>F25</strong>.
+- <code>01:45–02:00</code> · Validación: la llegada de un dato nuevo mientras se lee la tabla no
+  desplaza el contenido ni roba el foco; todo operable sólo con teclado.</p>
+<p><strong>Domingo · Después.</strong> <code>T09</code> · Formulario conectado y panel del proyecto propio.</p>
+<p><strong>Criterio de aceptación.</strong> El doble envío no duplica. La confirmación se percibe sin
+ver la pantalla.</p>
+<hr />
+<h3>Semana 10 · Reglas de seguridad y despliegue con compuerta</h3>
+<blockquote>
+<p><strong>RA</strong> RA-D1 · RA-C4 · RA-F1 <strong>·</strong> <strong>IA</strong> <strong>N0 en el diseño de reglas</strong> <strong>·</strong> <strong>Andamiaje</strong> A4 <strong>·</strong> <strong>Entrega</strong> <code>L10</code> <strong>·</strong> <strong>Hito de nivel II</strong> <strong>·</strong> <strong>Fracaso productivo</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> <strong>Fracaso productivo</strong>: se entrega la URL de una
+aplicación de práctica del Instituto con reglas abiertas. Intentar leer y modificar
+datos que no deberían ser accesibles, y documentar lo conseguido. Es un entorno del
+Instituto y nada más.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Puesta en común de lo que cada quien logró leer y borrar. Ver la
+  propia base de datos vaciada por un compañero no lo produce ninguna diapositiva.
+- <code>00:20–01:20</code> · Modelado: el cliente <strong>nunca</strong> es de confianza; el lenguaje de
+  reglas; denegación por defecto; validación de forma en la propia regla; por qué
+  ocultar la interfaz no protege el dato; y la <strong>batería de casos negativos</strong> como
+  única prueba aceptable. Después: ramas, revisión de código, formato de mensaje de
+  la casa, versionado Elysium, e <strong>integración continua que bloquea la publicación</strong>
+  cuando los umbrales no se cumplen, según el flujo <code>qa-lighthouse.yml</code> del estándar.
+  Secretos y variables de entorno: una clave en el historial ya está comprometida.
+- <code>01:20–02:00</code> · Escritura colectiva de reglas, atacadas en directo por el docente.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q10</code> · espaciado: S09, S07.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Escribir ocho casos negativos: ocho cosas que <strong>nadie</strong>
+debería poder hacer.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Revisión cruzada de los casos negativos entre parejas.
+- <code>00:15–01:45</code> · Reglas del proyecto con batería automatizada en el emulador local,
+  y despliegue continuo con compuerta activa. Se provoca a propósito un fallo de
+  accesibilidad para <strong>ver el bloqueo funcionar</strong>, se corrige y se publica.
+- <code>01:45–02:00</code> · Validación: los ocho casos negativos fallan, los cuatro positivos
+  pasan, y existe evidencia de una publicación bloqueada y luego corregida.</p>
+<p><strong>Domingo · Después.</strong> <code>T10</code> · Reglas, batería y despliegue del proyecto propio.
+<strong>Cierre del Nivel II.</strong></p>
+<p><strong>Criterio de aceptación.</strong> <strong>Cero casos negativos que pasen.</strong> Uno solo que pase es
+hallazgo crítico y no aprueba.</p>
+<hr />
+<h2>NIVEL III · Cierre del proyecto y emprendimiento · Semanas 11 a 15</h2>
+<blockquote>
+<p><strong>El cambio de peso de este nivel.</strong> Las dos primeras semanas cierran la plataforma
+dirigiendo agentes; las tres últimas construyen el emprendimiento. No es un nivel
+técnico con un apéndice de negocio: son dos bloques del mismo tamaño. Quien termine
+con una plataforma impecable y sin saber a quién se la va a vender no ha terminado
+el programa.</p>
+</blockquote>
+<h3>Semana 11 · Identidad, roles y acceso, dirigiendo al agente</h3>
+<blockquote>
+<p><strong>RA</strong> RA-D2 · RA-D3 · RA-E4 <strong>·</strong> <strong>IA</strong> N3 <strong>·</strong> <strong>Andamiaje</strong> A5 <strong>·</strong> <strong>Entrega</strong> <code>L11</code></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Micro-guía <em>«Autenticar no es autorizar»</em>. Intentar
+acceder a la ruta privada de la aplicación de práctica sin haber iniciado sesión.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Puesta en común: quién consiguió entrar y por qué.
+- <code>00:20–01:20</code> · Modelado: identidad, autenticación y autorización como tres cosas
+  distintas; por qué las contraseñas nunca se almacenan; el testigo firmado y su
+  caducidad; control de acceso por roles y mínimo privilegio; y la regla central, que
+  <strong>ocultar el botón no protege la ruta</strong>, porque la protección vive en la regla de
+  datos. Cabeceras de seguridad de la plataforma (<strong>F07 · Security Core</strong>).
+- <code>01:20–02:00</code> · Instrucción entre pares sobre matrices de permisos, y <strong>taller de
+  especificación</strong>: cómo se le encarga a un agente que implemente esta matriz, y qué
+  hay que comprobar en lo que devuelva.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q11</code> · espaciado: S10, S08.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Escribir la matriz de permisos del proyecto propio.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Revisión cruzada de matrices.
+- <code>00:15–01:45</code> · Implementación <strong>dirigida al agente</strong> del registro, inicio y cierre
+  de sesión, área privada y área de administración, con reglas que reflejan la matriz.
+  El estudiante especifica, el agente construye, el estudiante <strong>revisa línea a línea
+  y corrige</strong>. Regla del laboratorio: todo lo aceptado se explica al par.
+- <code>01:45–02:00</code> · Validación: casos negativos de acceso por rol incorrecto, todos
+  rechazados; los mensajes de error no permiten enumerar cuentas; <code>AI-USE.md</code> con
+  rechazos justificados.</p>
+<p><strong>Domingo · Después.</strong> <code>T11</code> · Acceso autenticado y roles en el proyecto propio.</p>
+<p><strong>Criterio de aceptación.</strong> Un cliente autenticado no puede leer ni un documento del
+área de administración, comprobado <strong>desde la consola</strong> y no sólo desde la interfaz.</p>
+<hr />
+<h3>Semana 12 · La transacción del negocio y el agente supervisado</h3>
+<blockquote>
+<p><strong>RA</strong> RA-B2 · RA-A4 · RA-C5 · RA-E5 <strong>·</strong> <strong>IA</strong> <strong>N4</strong> <strong>·</strong> <strong>Andamiaje</strong> A5 <strong>·</strong> <strong>Entrega</strong> <code>L12</code> <strong>·</strong> <strong>DAA ventana 3</strong> <strong>·</strong> <strong>Fracaso productivo</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> <strong>Fracaso productivo</strong>: escribir la función que decide si
+dos reservas se solapan. Y completar una compra o una reserva en dos sitios reales
+<strong>usando sólo el teclado</strong>, anotando dónde falla cada uno.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Se proyectan varias soluciones y se rompen con casos límite:
+  reservas contiguas, de duración cero, que cruzan la medianoche.
+- <code>00:20–01:20</code> · Modelado en dos mitades. <strong>La transacción:</strong> tiempo universal frente
+  a hora local, el algoritmo correcto de solapamiento, condiciones de carrera, y el
+  patrón de rejilla accesible con navegación por flechas (<strong>F24</strong>). <strong>El agente en el
+  servidor:</strong> qué distingue al agente que escribe en su editor del que <strong>actúa por sí
+  mismo</strong> sobre sistemas reales; carta de límites; qué exige confirmación humana; qué
+  se registra; y el análisis previo del peor fallo posible.
+- <code>01:20–02:00</code> · Instrucción entre pares: <em>¿qué es lo peor que puede hacer este
+  agente si el modelo se equivoca?</em></p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q12</code> · espaciado: S11, S09.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Reglas de disponibilidad del propio negocio y <strong>carta de
+límites</strong> del propio agente.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Revisión cruzada de las cartas de límites.
+- <code>00:15–01:45</code> · La transacción del negocio construida con dirección del agente:
+  reserva, pedido o alta, con impedimento del doble apunte. Y una función de servidor
+  que, ante una transacción nueva, genera con un modelo un <strong>borrador de respuesta que
+  queda pendiente de aprobación humana</strong>, con bitácora de entrada, salida y decisión.
+- <code>01:45–02:00</code> · Validación: <strong>una transacción completa realizada sólo con teclado y
+  lector de pantalla</strong>; cero envíos automáticos sin aprobación.</p>
+<p><strong>Domingo · Después.</strong> <code>T12</code> · Transacción operativa y agente supervisado en el
+proyecto propio. <strong>Congelación de funcionalidad: a partir de aquí no se añaden
+funciones nuevas.</strong></p>
+<p><strong>Criterio de aceptación.</strong> Una persona ciega completa la transacción de principio a
+fin. <strong>Cero envíos automáticos sin revisión humana</strong>: un agente que puede enviar solo
+es hallazgo crítico.</p>
+<hr />
+<h3>Semana 13 · Emprendimiento I · el negocio detrás de la plataforma</h3>
+<blockquote>
+<p><strong>RA</strong> RA-G1 <strong>·</strong> <strong>IA</strong> N4 <strong>·</strong> <strong>Andamiaje</strong> A5 <strong>·</strong> <strong>Entrega</strong> <code>L13</code></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Releer la Carta de Anteproyecto de la semana 2 y anotar
+<strong>qué ha resultado ser falso</strong>. Hablar con una persona que podría ser cliente y
+apuntar textualmente tres frases suyas.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Puesta en común: qué supuesto se cayó. Casi todos se caen, y decirlo
+  en público es la lección.
+- <code>00:20–01:20</code> · Modelado: lienzo Lean para micronegocios; segmento, problema,
+  propuesta única, canales, ingresos y costes; identificación del <strong>supuesto más
+  peligroso</strong> y diseño del experimento más barato que puede refutarlo; economía
+  unitaria mínima, con coste de adquisición, valor del cliente y punto de equilibrio;
+  y cómo se fija un precio sin adivinar.
+- <code>01:20–02:00</code> · Taller por pares: cada persona <strong>ataca</strong> el lienzo del otro.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q13</code> · espaciado: S12, S10.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Formular por escrito el supuesto más peligroso del
+propio negocio.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Revisión de supuestos.
+- <code>00:15–01:45</code> · Lienzo completo, economía unitaria con números propios, y <strong>el
+  experimento de validación lanzado de verdad</strong>: encuesta, conversaciones con cinco
+  clientes potenciales o página de captación publicada.
+- <code>01:45–02:00</code> · Presentación de dos minutos por persona.</p>
+<p><strong>Domingo · Después.</strong> <code>T13</code> · Lienzo, precios y experimento en marcha.</p>
+<p><strong>Criterio de aceptación.</strong> El experimento tiene un <strong>criterio numérico</strong> que, de no
+alcanzarse, obliga a cambiar el modelo. Sin ese criterio no es un experimento, es una
+ilusión con formulario.</p>
+<hr />
+<h3>Semana 14 · Emprendimiento II · marca, redes y captación</h3>
+<blockquote>
+<p><strong>RA</strong> RA-G2 · RA-A5 <strong>·</strong> <strong>IA</strong> N4 <strong>·</strong> <strong>Andamiaje</strong> A5 <strong>·</strong> <strong>Entrega</strong> <code>L14</code></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Elegir tres marcas del propio sector y describir en una
+frase qué promete cada una. Buscar el propio negocio en un buscador y en un asistente
+conversacional, y anotar qué aparece.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Apertura con los hallazgos.
+- <code>00:20–01:20</code> · Modelado en tres bloques. <strong>Marca:</strong> identidad mínima viable,
+  nombre, paleta ya validada por contraste, voz y tono, y la promesa de marca
+  entendida como restricción de producto y no como adorno. <strong>Redes y contenido:</strong> qué
+  red sirve a qué negocio y cuál no sirve a ninguno; ritmo sostenible de publicación
+  para una persona sola; contenido que capta frente a contenido que entretiene; y la
+  advertencia de que una red social es infraestructura alquilada, mientras la
+  plataforma propia es infraestructura poseída. <strong>Descubrimiento técnico:</strong> metadatos,
+  datos estructurados, mapa del sitio, previsualización enriquecida y ficheros de
+  contexto para asistentes (<strong>F19 · Discovery Core</strong>, <strong>F20 · SEO</strong>).
+- <code>01:20–02:00</code> · Crítica de marca entre pares con prueba ciega de promesas.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q14</code> · espaciado: S13, S11.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Escribir la promesa de marca en una sola frase y las
+diez consultas por las que quiere que le encuentren.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Prueba ciega de promesas entre pares.
+- <code>00:15–01:45</code> · Manual de marca de una página; reescritura de todos los textos de la
+  plataforma conforme a la voz definida; perfiles sociales creados y coherentes; plan
+  de contenido de ocho semanas realista para una persona sola; y metadatos, datos
+  estructurados y previsualización configurados.
+- <code>01:45–02:00</code> · Validación con herramienta de resultados enriquecidos y revisión de
+  coherencia entre marca, interfaz y promesa.</p>
+<p><strong>Domingo · Después.</strong> <code>T14</code> · Marca, presencia y descubrimiento del proyecto propio.</p>
+<p><strong>Criterio de aceptación.</strong> La promesa de marca, la interfaz y los perfiles sociales
+dicen lo mismo. El plan de contenido es sostenible por una sola persona: si exige
+publicar a diario, se rechaza por irreal.</p>
+<hr />
+<h3>Semana 15 · Cumplimiento, auditoría final y memoria</h3>
+<blockquote>
+<p><strong>RA</strong> RA-D4 · RA-G3 · RA-F2 · RA-F3 <strong>·</strong> <strong>IA</strong> N4 <strong>·</strong> <strong>Entrega</strong> <code>L15</code> <strong>·</strong> <strong>COMPUERTA G3</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes (30 min).</strong> Inventariar <strong>todos</strong> los datos personales que su
+plataforma recoge, campo por campo. Ejecutar la Auditoría Técnica Elysium completa y
+<strong>predecir la puntuación</strong> antes de mirar el informe.</p>
+<p><strong>Sábado · Durante (120 min).</strong>
+- <code>00:00–00:20</code> · Contraste entre puntuación esperada y obtenida, y puesta en común de
+  los datos personales que nadie había contado, que casi siempre son las direcciones
+  IP y los registros de acceso.
+- <code>00:20–01:20</code> · Modelado: qué es un dato personal y cuál es sensible; bases legales;
+  minimización y plazo de conservación; derechos de la persona interesada;
+  consentimiento previo de cookies (<strong>F08</strong>); el Reglamento (UE) 2016/679 junto a la
+  Ley n.º 8968; y la ruta de formalización comercial, que se entrega como documento de
+  referencia por jurisdicción. Después, lectura del informe de auditoría y orden de
+  remediación por severidad.
+- <code>01:20–02:00</code> · <strong>Ataque cruzado autorizado</strong>: cada estudiante intenta vulnerar la
+  plataforma de otro, con consentimiento escrito previo y dentro del entorno del
+  Instituto. Todo hallazgo se comunica en privado antes de comentarse.</p>
+<p><strong>Sábado · Después (30 min).</strong> <code>Q15</code> · recuperación acumulativa de todo el programa.</p>
+<p><strong>Domingo · Antes (30 min).</strong> Plan de remediación priorizado y borrador del registro
+de actividades de tratamiento.</p>
+<p><strong>Domingo · Durante (120 min).</strong>
+- <code>00:00–00:15</code> · Validación del plan con el docente.
+- <code>00:15–01:30</code> · Expediente legal publicado (política de privacidad, aviso legal,
+  términos y consentimiento de cookies), remediación de todo hallazgo crítico y mayor
+  con un caso negativo por vector, y reauditoría.
+- <code>01:30–02:00</code> · Cierre de la memoria y primer ensayo cronometrado del pitch.</p>
+<p><strong>Domingo · Después.</strong> <code>T15</code> · Proyecto sin hallazgos críticos, expediente publicado y
+memoria definitiva.</p>
+<blockquote>
+<h3>⚑ Compuerta G3 · Auditoría Técnica final y cumplimiento</h3>
+<p><strong>Vence:</strong> domingo de la semana 15. <strong>Bloquea la defensa.</strong> ATE-A, ATE-P, ATE-S,
+ATE-C, ATE-Q y ATE-D <strong>sin hallazgos críticos</strong>.</p>
+</blockquote>
+<p><strong>Criterio de aceptación.</strong> Cada hallazgo tiene un caso negativo que lo impide en el
+futuro. Una política de privacidad que menciona funcionalidades que la plataforma no
+tiene se devuelve: es una declaración falsa.</p>
+<blockquote>
+<p><strong>Límite declarado.</strong> Este bloque enseña a navegar el procedimiento y a saber qué
+preguntar. <strong>No es asesoramiento jurídico ni fiscal</strong>, y así consta en el material y
+en el certificado.</p>
+</blockquote>
+<hr />
+<h2>SEMANA 16 · Demo Day y sustentación</h2>
+<blockquote>
+<p><strong>RA</strong> RA-G4 <strong>·</strong> <strong>IA</strong> <strong>N0 estricto</strong> <strong>·</strong> <strong>Entrega</strong> <code>H</code> <strong>·</strong> <strong>Presencia obligatoria</strong></p>
+</blockquote>
+<p><strong>Sábado · Antes.</strong> Comprobación técnica: plataforma en producción, URL accesible,
+guion listo, entorno de presentación probado.</p>
+<p><strong>Sábado · Durante (120 min) · DEMO DAY.</strong> Sesión pública, retransmitida, grabada y
+subtitulada, con invitados externos. Cada estudiante presenta <strong>7 minutos</strong> con
+demostración en vivo de la plataforma funcionando. Sin diapositivas de relleno.</p>
+<p><strong>Domingo · Durante (120 min) · SUSTENTACIÓN TÉCNICA.</strong> En salas paralelas, ante
+panel de tres personas con <strong>al menos un auditor externo al Instituto</strong> (Carta,
+art. 23):</p>
+<table>
+<thead>
+<tr>
+<th>Fase</th>
+<th style="text-align: center;">Duración</th>
+<th>Contenido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exposición técnica</td>
+<td style="text-align: center;">10 min</td>
+<td>Arquitectura, decisiones y alternativas descartadas</td>
+</tr>
+<tr>
+<td><strong>Defensa de autoría final</strong></td>
+<td style="text-align: center;">10 min</td>
+<td>Modificación de código en vivo, a nivel <strong>N0</strong></td>
+</tr>
+<tr>
+<td>Preguntas del panel</td>
+<td style="text-align: center;">15 min</td>
+<td>Técnicas, de negocio y de cumplimiento</td>
+</tr>
+<tr>
+<td>Deliberación</td>
+<td style="text-align: center;">5 min</td>
+<td>A puerta cerrada</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Domingo · Cierre.</strong> Acto de graduación: certificados, menciones (D3 §3.1) y
+publicación de los proyectos en la galería de la generación.</p>
+<blockquote>
+<h3>⚑ Hito H · Graduación</h3>
+<p>Plataforma en producción con datos en la nube, autenticación y roles, agenda
+operativa, agente supervisado y cobro en modo de prueba; expediente de cumplimiento
+publicado; memoria técnica; y sustentación superada.</p>
+</blockquote>
+<hr />
+<h1>PARTE III · ADMINISTRACIÓN</h1>
+<h2>6 · Mapa de evaluación</h2>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th style="text-align: center;">Peso</th>
+<th>Instrumentos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A · Continua</strong></td>
+<td style="text-align: center;">40 %</td>
+<td><code>Q01</code>–<code>Q15</code> (12 mejores) 15 % · <code>L01</code>–<code>L15</code> 25 %</td>
+</tr>
+<tr>
+<td><strong>B · Proyecto</strong></td>
+<td style="text-align: center;">30 %</td>
+<td><code>T01</code>–<code>T15</code> 12 % · G1 (5 %) + G2 (7 %) + G3 (6 %) 18 %</td>
+</tr>
+<tr>
+<td><strong>C · Hito final</strong></td>
+<td style="text-align: center;">30 %</td>
+<td>ATE apta + producto y memoria 60 % + sustentación 40 %</td>
+</tr>
+<tr>
+<td><strong>Apto / no apto</strong></td>
+<td style="text-align: center;">—</td>
+<td><strong>3 DAA mínimo</strong>, una por nivel · asistencia ≥ 80 % · <code>AI-USE.md</code> completo</td>
+</tr>
+</tbody>
+</table>
+<h2>7 · Calendario de la Generación I</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Semana</th>
+<th>Sábado</th>
+<th style="text-align: center;">Nivel</th>
+<th>Marca</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">—</td>
+<td>28-XI-2026 → 8-I-2027</td>
+<td style="text-align: center;">—</td>
+<td><strong>Módulo 0</strong> asíncrono</td>
+</tr>
+<tr>
+<td style="text-align: center;">01</td>
+<td>9-I-2027</td>
+<td style="text-align: center;">I</td>
+<td>Arranque</td>
+</tr>
+<tr>
+<td style="text-align: center;">02</td>
+<td>16-I-2027</td>
+<td style="text-align: center;">I</td>
+<td><strong>G1 · Anteproyecto</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">03</td>
+<td>23-I-2027</td>
+<td style="text-align: center;">I</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">04</td>
+<td>30-I-2027</td>
+<td style="text-align: center;">I</td>
+<td><strong>DAA ventana 1</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">05</td>
+<td>6-II-2027</td>
+<td style="text-align: center;">I</td>
+<td>Cierre del Nivel I</td>
+</tr>
+<tr>
+<td style="text-align: center;">06</td>
+<td>13-II-2027</td>
+<td style="text-align: center;">II</td>
+<td>Apertura de <strong>N3</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">07</td>
+<td>20-II-2027</td>
+<td style="text-align: center;">II</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align: center;">08</td>
+<td>27-II-2027</td>
+<td style="text-align: center;">II</td>
+<td><strong>G2 · Modelo de datos</strong> (defensa a N0)</td>
+</tr>
+<tr>
+<td style="text-align: center;">09</td>
+<td>6-III-2027</td>
+<td style="text-align: center;">II</td>
+<td><strong>DAA ventana 2</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td>13-III-2027</td>
+<td style="text-align: center;">II</td>
+<td>Cierre del Nivel II · EE. UU. y Cuba cambian de hora el domingo</td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td>20-III-2027</td>
+<td style="text-align: center;">III</td>
+<td>Acceso y roles dirigiendo al agente</td>
+</tr>
+<tr>
+<td style="text-align: center;">—</td>
+<td><strong>27-III-2027</strong></td>
+<td style="text-align: center;">—</td>
+<td><strong>RECESO de Semana Santa</strong> · Europa cambia de hora el domingo</td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td>3-IV-2027</td>
+<td style="text-align: center;">III</td>
+<td>Apertura de <strong>N4</strong> · <strong>DAA ventana 3</strong> · congelación de funcionalidad · Chile cambia de hora el domingo</td>
+</tr>
+<tr>
+<td style="text-align: center;">13</td>
+<td>10-IV-2027</td>
+<td style="text-align: center;">III</td>
+<td>Emprendimiento I</td>
+</tr>
+<tr>
+<td style="text-align: center;">14</td>
+<td>17-IV-2027</td>
+<td style="text-align: center;">III</td>
+<td>Emprendimiento II</td>
+</tr>
+<tr>
+<td style="text-align: center;">15</td>
+<td>24-IV-2027</td>
+<td style="text-align: center;">III</td>
+<td><strong>G3 · Auditoría final y cumplimiento</strong> · cierre de reintentos</td>
+</tr>
+<tr>
+<td style="text-align: center;">16</td>
+<td>1-V-2027</td>
+<td style="text-align: center;">—</td>
+<td><strong>DEMO DAY y SUSTENTACIÓN</strong> · presencia obligatoria</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Aviso de cambio de hora.</strong> El horario está anclado a <strong>15:00 UTC</strong>, de modo que
+nada cambia nunca para América Latina continental. El cambio europeo de primavera
+cae <strong>dentro del receso</strong>. Se anuncia por escrito la semana previa, siempre.</p>
+<h2>8 · Ciclo anual de la convocatoria</h2>
+<table>
+<thead>
+<tr>
+<th>Mes</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Septiembre</td>
+<td>Publicación de la convocatoria, la rúbrica de selección y el número de plazas</td>
+</tr>
+<tr>
+<td>Octubre</td>
+<td>Dos sesiones informativas en directo, en la franja de 15:00 UTC</td>
+</tr>
+<tr>
+<td>Primera semana de noviembre</td>
+<td>Cierre de solicitudes y Prueba de Disposición λ</td>
+</tr>
+<tr>
+<td>Noviembre</td>
+<td>Entrevistas de 20 minutos y resolución motivada a <strong>todas</strong> las personas candidatas</td>
+</tr>
+<tr>
+<td>28 de noviembre a 8 de enero</td>
+<td><strong>Módulo 0</strong></td>
+</tr>
+<tr>
+<td>Segundo sábado de enero</td>
+<td>Arranque</td>
+</tr>
+</tbody>
+</table>
+<h2>9 · Qué <strong>no</strong> cabe en dieciséis semanas</h2>
+<p>Se declara aquí para que nadie lo descubra en la semana 9, y para que ninguna pieza
+de difusión lo insinúe:</p>
+<ul>
+<li><strong>No</strong> se estudian marcos de trabajo de JavaScript ni preprocesadores de CSS.</li>
+<li><strong>No</strong> se alcanza dominio en optimización profunda de Core Web Vitals: se audita y
+  se remedia con guía, no se domina.</li>
+<li><strong>No</strong> se escriben pruebas propias desde cero: se ejecutan y se leen las provistas.</li>
+<li><strong>No</strong> hay estructura multiidioma ni multidivisa, ni aplicación instalable.</li>
+<li><strong>No</strong> hay investigación científica a cargo del estudiante (D8 §1).</li>
+<li><strong>No</strong> se imparte asesoría jurídica, fiscal ni contable.</li>
+</ul>
+<p>La lista completa de qué queda <strong>dominado</strong> y qué queda <strong>introducido</strong>, resultado por
+resultado, está en el D2 §5 y se transcribe en el certificado.</p>
+<h2>10 · Contrato de expectativas del docente</h2>
+<p>Publicar la micro-guía del sábado con 72 horas de antelación; devolver toda
+calificación en 7 días con los tres campos obligatorios; grabar y subtitular las 32
+sesiones; <strong>no tocar nunca el teclado del estudiante</strong>; convocar tres Defensas
+Aleatorias de Autoría por estudiante; asegurar la presencia del auditor externo en la
+sustentación, cuya ausencia obliga a aplazar y no a celebrar sin él; y anotar en §11
+cualquier semana en la que menos del 60 % alcance el criterio en primer intento, que
+se considerará defectuosa <strong>por diseño</strong> y no por el grupo (D1 §9).</p>
+<h2>11 · Registro de erratas y de semanas defectuosas</h2>
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Semana</th>
+<th>Naturaleza</th>
+<th>Corrección aplicada</th>
+<th>Efecto sobre notas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>(vacío al inicio de la generación)</em></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Elysium λ Institute of Development &amp; Research · D4 · «Abstrahere, aedificare, probare.»</em></p>
+    <h1>Elysium λ Institute — Plan de Estudios</h1>
+<h3>v1.0.0 · Agosto 2026 · Documento D2 del paquete fundacional</h3>
+<h3>Programa: Arquitectura de Infraestructura Digital Asistida por IA y Emprendimiento</h3>
+<blockquote>
+<p><strong>Cómo leer este documento.</strong> Aquí está el <strong>qué</strong> se enseña, ordenado y
+trazable. La Parte I identifica el programa y sus perfiles. La Parte II declara
+los 32 resultados de aprendizaje, que son el contrato: nada se evalúa si no está
+aquí, y nada está aquí sin instrumento que lo mida, <strong>con su nivel de logro
+declarado</strong> (§5.9). La Parte III es el mapa de las 16 semanas y sus dependencias. La Parte IV justifica el conjunto tecnológico
+elegido y lo enlaza con el estándar técnico de la empresa. La Parte V documenta
+las decisiones de diseño curricular, incluidas las correcciones que se hicieron
+al borrador inicial y por qué.</p>
+<p>Se subordina a la Carta (D0) y al Modelo Académico (D1). Detalla en el syllabus
+único (D4).</p>
+</blockquote>
+<hr />
+<h1>PARTE I · IDENTIFICACIÓN</h1>
+<h2>1 · Ficha del programa</h2>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Denominación</strong></td>
+<td>Arquitectura de Infraestructura Digital Asistida por IA y Emprendimiento</td>
+</tr>
+<tr>
+<td><strong>Institución</strong></td>
+<td>Elysium λ Institute of Development &amp; Research</td>
+</tr>
+<tr>
+<td><strong>Modalidad</strong></td>
+<td>Telemática síncrona con trabajo asíncrono estructurado</td>
+</tr>
+<tr>
+<td><strong>Lengua de docencia</strong></td>
+<td>Español</td>
+</tr>
+<tr>
+<td><strong>Lengua del código</strong></td>
+<td>Inglés (identificadores, comentarios, mensajes de <em>commit</em>)</td>
+</tr>
+<tr>
+<td><strong>Duración</strong></td>
+<td><strong>16 semanas</strong> · 15 lectivas + 1 de defensa · tres niveles de cinco semanas</td>
+</tr>
+<tr>
+<td><strong>Preparación previa</strong></td>
+<td>Módulo 0 asíncrono de unas 25 h (Carta, art. 38 bis)</td>
+</tr>
+<tr>
+<td><strong>Régimen</strong></td>
+<td>Sábado y domingo, 2 h síncronas cada día · 15:00–17:00 UTC</td>
+</tr>
+<tr>
+<td><strong>Carga total</strong></td>
+<td><strong>173 h</strong> de trabajo del estudiante (ver §7)</td>
+</tr>
+<tr>
+<td><strong>Equivalencia estimada</strong></td>
+<td>6 a 7 ECTS · descriptores de nivel 4 del MEC/EQF</td>
+</tr>
+<tr>
+<td><strong>Tamaño de aula</strong></td>
+<td><strong>Máximo 15 estudiantes · 10 como número ideal · una sola aula por generación</strong></td>
+</tr>
+<tr>
+<td><strong>Coste para el estudiante</strong></td>
+<td><strong>Ninguno.</strong> Formación gratuita en su totalidad (Carta, art. 2 bis)</td>
+</tr>
+<tr>
+<td><strong>Credencial</strong></td>
+<td>Certificado privado de formación profesional (Carta, art. 8)</td>
+</tr>
+<tr>
+<td><strong>Requisito previo de programación</strong></td>
+<td>Ninguno</td>
+</tr>
+</tbody>
+</table>
+<h2>2 · Perfil de ingreso</h2>
+<p>Persona de 16 años o más, hispanohablante de nivel B2 o superior, con ordenador
+propio y conexión estable, <strong>sin experiencia previa exigida en programación</strong>, que
+dispone de ocho horas semanales sostenidas durante cuatro meses, más unas 25 horas
+de preparación previa en el Módulo 0, y que tiene o busca una idea de negocio propia, por pequeña que sea, sobre la que construir.</p>
+<p>El programa está diseñado específicamente para tres situaciones:</p>
+<ul>
+<li>Quien trabaja de lunes a viernes y no puede abandonar su empleo para formarse.</li>
+<li>Quien vive fuera de los centros urbanos donde existe oferta presencial.</li>
+<li>Quien ya tiene un micronegocio y necesita construir su propia infraestructura
+  en lugar de alquilarla.</li>
+</ul>
+<h2>3 · Perfil de egreso</h2>
+<blockquote>
+<p><strong>Lo que este programa forma, dicho sin rodeos.</strong> No forma programadores expertos.
+Forma <strong>arquitectos de infraestructura digital asistida por IA</strong>: personas capaces
+de <strong>especificar, dirigir, auditar y responder</strong> por un sistema construido en gran
+medida con agentes de inteligencia artificial, y de llevarlo al mercado.</p>
+</blockquote>
+<p>Es un perfil profesional distinto del de desarrollador, y conviene no confundirlos.
+El desarrollador escribe el código. El arquitecto <strong>decide qué debe existir, con qué
+estructura de datos, bajo qué restricciones, y comprueba que lo entregado las
+cumple</strong>. En 2026 ese segundo perfil es escaso y el primero abunda.</p>
+<h3>3.1 · Las cuatro capacidades del egresado</h3>
+<table>
+<thead>
+<tr>
+<th>Capacidad</th>
+<th>Qué significa en concreto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Leer y juzgar</strong></td>
+<td>Entiende el código que un agente le entrega lo suficiente para detectar cuándo está mal, cuándo es innecesariamente complejo y cuándo hace algo que nadie pidió. No lo escribe desde cero, pero <strong>no lo acepta a ciegas</strong>.</td>
+</tr>
+<tr>
+<td><strong>Decidir la estructura</strong></td>
+<td>Diseña el modelo de datos y las reglas de acceso <strong>sin asistencia</strong> (nivel N0), porque son las decisiones que un agente no puede tomar por él sin comprometer todo lo demás.</td>
+</tr>
+<tr>
+<td><strong>Dirigir y auditar</strong></td>
+<td>Especifica tareas a agentes avanzados, revisa lo devuelto línea a línea, declara qué aceptó y qué rechazó, y somete el resultado a umbrales objetivos de accesibilidad, rendimiento y seguridad.</td>
+</tr>
+<tr>
+<td><strong>Lanzar</strong></td>
+<td>Tiene la plataforma en producción, la marca, la presencia en redes, el cumplimiento legal básico y un modelo de negocio formulado.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 · Qué sabe hacer, en términos verificables</h3>
+<ol>
+<li>Construye interfaces conformes a <strong>WCAG 2.2 nivel AA</strong> y lo comprueba con
+   herramienta automática y con prueba manual de teclado y lector de pantalla.</li>
+<li><strong>Lee, modifica y corrige</strong> JavaScript ES6+ y explica en vivo qué hace cada bloque
+   de su proyecto, sin asistencia de ningún tipo.</li>
+<li><strong>Diseña</strong> un modelo de datos documental y sus reglas de seguridad, y demuestra que
+   funcionan con una batería de casos negativos.</li>
+<li><strong>Dirige agentes de IA avanzados</strong> en el editor para construir, refactorizar y
+   documentar, declarando por escrito cada aceptación y cada rechazo.</li>
+<li>Despliega de forma continua con una <strong>compuerta de calidad bloqueante</strong>.</li>
+<li>Formula un modelo de negocio, una identidad de marca y una presencia digital, y
+   los sostiene ante un panel.</li>
+<li>Cumple los requisitos básicos de <strong>RGPD</strong> y <strong>Ley n.º 8968</strong> para los datos que su
+   plataforma trata.</li>
+<li>Distingue con precisión qué domina y qué sólo conoce, porque su certificado lo
+   declara (§5.9) y su defensa lo comprobó.</li>
+</ol>
+<h3>3.3 · Lo que el egresado <strong>no</strong> es</h3>
+<p>No es desarrollador profesional contratable como tal. No escribe pruebas
+automatizadas desde cero. No domina ningún marco de trabajo. No optimiza rendimiento
+a nivel experto. No es asesor jurídico ni fiscal. <strong>Ninguna pieza de difusión puede
+insinuar lo contrario</strong> (Carta, art. 18).</p>
+<h2>4 · Referencia a marcos de competencias</h2>
+<p>El programa se describe, sin reclamar reconocimiento formal (Carta, art. 8), en
+términos de los marcos siguientes, para facilitar el reconocimiento futuro:</p>
+<table>
+<thead>
+<tr>
+<th>Marco</th>
+<th>Uso en este plan</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MEC/EQF</strong></td>
+<td>Los resultados de aprendizaje se redactan con los descriptores de conocimientos, destrezas y responsabilidad/autonomía de los niveles 4 y 5.</td>
+</tr>
+<tr>
+<td><strong>e-CF (EN 16234-1)</strong></td>
+<td>Correspondencia con A.6 Diseño de aplicaciones, B.1 Desarrollo, B.3 Pruebas, B.5 Producción de documentación, D.11 Identificación de necesidades, E.8 Gestión de la seguridad de la información.</td>
+</tr>
+<tr>
+<td><strong>DigComp 2.2</strong></td>
+<td>Áreas 3 (creación de contenidos digitales) y 4 (seguridad), con el añadido explícito de alfabetización en IA.</td>
+</tr>
+<tr>
+<td><strong>Microcredenciales UE</strong></td>
+<td>Formato del certificado conforme a la Recomendación del Consejo de 16-VI-2022.</td>
+</tr>
+<tr>
+<td><strong>EN 301 549 / Directiva (UE) 2019/882</strong></td>
+<td>Norma técnica de referencia para todo el hilo de accesibilidad.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>PARTE II · RESULTADOS DE APRENDIZAJE</h1>
+<h2>5 · Catálogo de los 32 resultados</h2>
+<p>Notación: <code>RA-&lt;Dominio&gt;&lt;n&gt;</code>. La columna <strong>Nivel</strong> indica el verbo cognitivo más
+alto exigido según la taxonomía SOLO (U = uniestructural, M = multiestructural,
+R = relacional, A = abstracto ampliado).</p>
+<h3>Dominio A · Interfaz accesible y rendimiento</h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Resultado de aprendizaje</th>
+<th style="text-align: center;">SOLO</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RA-A1</strong></td>
+<td>Construir documentos HTML5 semánticos cuyo árbol de accesibilidad refleje fielmente la estructura de la información, y justificar la elección de cada elemento frente a alternativas.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">1–5</td>
+</tr>
+<tr>
+<td><strong>RA-A2</strong></td>
+<td>Aplicar CSS3 mediante un sistema de propiedades personalizadas, con cascada controlada y especificidad justificada, evitando la anulación por fuerza bruta.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">1–5</td>
+</tr>
+<tr>
+<td><strong>RA-A3</strong></td>
+<td>Producir interfaces responsivas con enfoque <em>mobile-first</em> operables sin pérdida de contenido ni funcionalidad entre 320 px y 2560 px.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">1–5</td>
+</tr>
+<tr>
+<td><strong>RA-A4</strong></td>
+<td>Verificar y corregir la conformidad WCAG 2.2 nivel AA combinando análisis automático, recorrido por teclado y prueba con lector de pantalla, y distinguir qué criterios la herramienta automática <strong>no</strong> puede detectar.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">2–15</td>
+</tr>
+<tr>
+<td><strong>RA-A5</strong></td>
+<td>Diagnosticar y optimizar las métricas de Core Web Vitals hasta los umbrales de la Auditoría Técnica Elysium, identificando la causa raíz de cada regresión.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">15</td>
+</tr>
+</tbody>
+</table>
+<h3>Dominio B · Lógica, lenguaje y estructura de programas</h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Resultado de aprendizaje</th>
+<th style="text-align: center;">SOLO</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RA-B1</strong></td>
+<td>Modelar información con los tipos primitivos y compuestos de JavaScript ES6+, y razonar correctamente sobre coerción, igualdad, alcance y mutabilidad.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">1–5</td>
+</tr>
+<tr>
+<td><strong>RA-B2</strong></td>
+<td>Expresar algoritmos mediante control de flujo, iteración y funciones, y argumentar su corrección con casos límite antes de ejecutarlos.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">1–5</td>
+</tr>
+<tr>
+<td><strong>RA-B3</strong></td>
+<td>Manipular el DOM y gestionar eventos con la API estándar de la plataforma, sin bibliotecas intermedias.</td>
+<td style="text-align: center;">M</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>RA-B4</strong></td>
+<td>Programar operaciones asíncronas con promesas y <code>async</code>/<code>await</code>, y explicar el orden de ejecución resultante del bucle de eventos.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">6–10</td>
+</tr>
+<tr>
+<td><strong>RA-B5</strong></td>
+<td>Organizar el código en módulos con contratos explícitos y cubrirlo con pruebas automatizadas que fallen ante la regresión.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">6–10</td>
+</tr>
+<tr>
+<td><strong>RA-B6</strong></td>
+<td>Leer una traza de error, formular una hipótesis causal, y confirmarla o refutarla con el depurador antes de modificar una sola línea.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">6</td>
+</tr>
+</tbody>
+</table>
+<h3>Dominio C · Datos, servicios y despliegue</h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Resultado de aprendizaje</th>
+<th style="text-align: center;">SOLO</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RA-C1</strong></td>
+<td>Consumir servicios HTTP con la Fetch API, gestionando de forma explícita los estados de carga, éxito, vacío y error.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">6–10</td>
+</tr>
+<tr>
+<td><strong>RA-C2</strong></td>
+<td>Diseñar un modelo de datos documental justificando cada decisión de desnormalización en función de los patrones de consulta previstos.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td><strong>RA-C3</strong></td>
+<td>Implementar operaciones de creación, lectura, actualización y borrado contra un servicio de base de datos en la nube, incluida la sincronización en tiempo real.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">6–10</td>
+</tr>
+<tr>
+<td><strong>RA-C4</strong></td>
+<td>Establecer despliegue continuo desde el repositorio con una compuerta de calidad que bloquee la publicación cuando los umbrales no se cumplen.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">6–10</td>
+</tr>
+<tr>
+<td><strong>RA-C5</strong></td>
+<td>Implementar lógica de servidor en funciones sin servidor para aquello que, por seguridad o por coste, no puede residir en el cliente, y explicar el criterio de frontera.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">13</td>
+</tr>
+</tbody>
+</table>
+<h3>Dominio D · Seguridad, privacidad y cumplimiento</h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Resultado de aprendizaje</th>
+<th style="text-align: center;">SOLO</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RA-D1</strong></td>
+<td>Escribir reglas de seguridad de datos que denieguen por defecto, y demostrar su corrección con una batería de <strong>casos negativos</strong> que deben fallar.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td><strong>RA-D2</strong></td>
+<td>Implementar autenticación y control de acceso basado en roles, distinguiendo autenticación de autorización y sesión de identidad.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">11–14</td>
+</tr>
+<tr>
+<td><strong>RA-D3</strong></td>
+<td>Aplicar las políticas de seguridad de la plataforma web (CSP, HSTS, control de orígenes) y explicar qué ataque previene cada una.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">11–14</td>
+</tr>
+<tr>
+<td><strong>RA-D4</strong></td>
+<td>Diseñar el tratamiento de datos personales declarando base legal, minimización, plazo de retención y vía de ejercicio de derechos, conforme al RGPD y a la Ley n.º 8968.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">13</td>
+</tr>
+</tbody>
+</table>
+<h3>Dominio E · Inteligencia artificial</h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Resultado de aprendizaje</th>
+<th style="text-align: center;">SOLO</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RA-E1</strong></td>
+<td>Explicar la anatomía funcional de un modelo de lenguaje grande: tokenización, mecanismo de atención, ventana de contexto y coste de inferencia.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">1–5</td>
+</tr>
+<tr>
+<td><strong>RA-E2</strong></td>
+<td>Estimar de forma empírica el coste, la latencia y los límites de una integración concreta de modelo de lenguaje sobre datos reales.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>RA-E3</strong></td>
+<td>Detectar, documentar y mitigar alucinaciones y sesgos en salidas de modelos, y decidir de forma argumentada <strong>cuándo no debe usarse</strong> un modelo.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>RA-E4</strong></td>
+<td>Emplear asistentes y <strong>agentes generativos en el editor</strong> dentro de un nivel declarado, dirigiendo tareas de varios pasos y revisando y justificando por escrito cada aceptación y cada rechazo.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td><strong>RA-E5</strong></td>
+<td>Diseñar, desplegar y auditar un agente que <strong>actúe sobre sistemas reales</strong> desde el servidor, con supervisión humana registrada, carta de límites publicada y análisis previo de su peor fallo posible.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">13</td>
+</tr>
+</tbody>
+</table>
+<h3>Dominio F · Ingeniería, proceso y calidad</h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Resultado de aprendizaje</th>
+<th style="text-align: center;">SOLO</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RA-F1</strong></td>
+<td>Operar Git y GitHub con historial legible, versionado semántico Elysium y participación efectiva en revisión de código ajeno.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">1–10</td>
+</tr>
+<tr>
+<td><strong>RA-F2</strong></td>
+<td>Someter un artefacto propio a la Auditoría Técnica Elysium, interpretar sus hallazgos y remediarlos en orden de severidad.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">2–15</td>
+</tr>
+<tr>
+<td><strong>RA-F3</strong></td>
+<td>Escribir documentación técnica que permita a una persona ajena instalar, ejecutar, entender y mantener el proyecto sin preguntar nada al autor.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">14–15</td>
+</tr>
+</tbody>
+</table>
+<h3>Dominio G · Negocio, comunicación y ética profesional</h3>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Resultado de aprendizaje</th>
+<th style="text-align: center;">SOLO</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RA-G1</strong></td>
+<td>Formular una propuesta de valor y un modelo de negocio verificables para una micro o pequeña empresa, y revisarlos ante evidencia contraria.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">2–15</td>
+</tr>
+<tr>
+<td><strong>RA-G2</strong></td>
+<td>Producir identidad de marca, presencia en redes sociales y contenido persuasivo coherentes con la interfaz y con la promesa del negocio, y medir su efecto.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">13–14</td>
+</tr>
+<tr>
+<td><strong>RA-G3</strong></td>
+<td>Identificar y cumplir los requisitos legales, fiscales y de protección al consumidor de la puesta en marcha en su propia jurisdicción.</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">11–14</td>
+</tr>
+<tr>
+<td><strong>RA-G4</strong></td>
+<td>Sostener una defensa técnica y una presentación comercial ante un panel, respondiendo a preguntas adversas sin perder rigor.</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">13</td>
+</tr>
+</tbody>
+</table>
+<h3>Dominio H · Investigación · <strong>SUPRIMIDO</strong></h3>
+<p>Los cuatro resultados de aprendizaje del dominio de investigación (<code>RA-H1</code> a
+<code>RA-H4</code>) <strong>quedan suprimidos</strong> del plan de estudios al pasar el programa de 48 a 16
+semanas. Pedir producción científica evaluable a personas que llevan diez semanas
+programando, dentro de un presupuesto de 128 horas, habría sido injusto y habría
+producido mala ciencia.</p>
+<p>La investigación no desaparece del Instituto: <strong>cambia de sujeto</strong>. La conduce y la
+firma el profesorado, y los estudiantes participan como sujetos voluntarios y
+anónimos con una carga máxima de veinte minutos en todo el programa (Carta,
+art. 49 bis; D8 §1). No es un resultado de aprendizaje y no se evalúa.</p>
+<p><strong>El catálogo vigente tiene, por tanto, 32 resultados de aprendizaje</strong>, no 36.</p>
+<h2>5.9 · Clasificación por nivel de logro</h2>
+<blockquote>
+<p><strong>Por qué existe esta tabla.</strong> Los 32 resultados no se alcanzan todos a la misma
+profundidad en 128 horas. El artículo 9 de la Carta prohíbe certificar lo que no se
+demostró, de modo que el certificado debe distinguir entre lo que la persona
+<strong>dominó</strong> y lo que sólo se le <strong>introdujo</strong>. Esta tabla es la fuente de esa
+distinción y se transcribe literalmente en el certificado.</p>
+</blockquote>
+<p><strong>Dominado</strong> significa: practicado varias semanas, evaluado con artefacto propio,
+sometido a la Auditoría Técnica y defendible en la Defensa Aleatoria de Autoría.
+<strong>Introducido</strong> significa: visto, practicado una vez con andamiaje, y <strong>no
+certificado como competencia</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Nivel de logro</th>
+<th>Resultados de aprendizaje</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DOMINADO</strong> (22)</td>
+<td>RA-A1, RA-A2, RA-A3, RA-A4 · RA-B1, RA-B2, RA-B3, RA-B6 · RA-C1, RA-C2, RA-C3, RA-C4 · RA-D1, RA-D2 · RA-E1, RA-E3, RA-E4 · RA-F1, RA-F2 · <strong>RA-G1, RA-G2, RA-G4</strong></td>
+</tr>
+<tr>
+<td><strong>INTRODUCIDO</strong> (10)</td>
+<td>RA-A5 (optimización profunda de rendimiento) · RA-B4 (modelo del bucle de eventos) · RA-B5 (escribir pruebas propias) · RA-C5 (funciones de servidor) · RA-D3 (cabeceras de seguridad) · RA-D4 (tratamiento de datos personales) · RA-E2 (estimación de coste de inferencia) · RA-E5 (agentes que actúan sobre sistemas reales) · RA-F3 (documentación para terceros) · RA-G3 (ruta de formalización comercial)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regla de honestidad comercial.</strong> Ninguna pieza de difusión puede enumerar un
+resultado <em>introducido</em> sin esa etiqueta. Decir «aprenderás a escribir tus propias
+pruebas automatizadas» sería falso: en dieciséis semanas se aprende a <strong>ejecutarlas y
+leerlas</strong>, y eso es lo que se puede prometer.</p>
+<h2>6 · Matriz de alineamiento constructivo</h2>
+<p>Extracto normativo. Cada <code>RA</code> debe tener al menos una actividad y al menos un
+instrumento. Los números de semana remiten al syllabus único (D4). La columna
+<strong>Logro</strong> repite la clasificación del §5.9, porque es la que gobierna qué se puede
+escribir en el certificado.</p>
+<table>
+<thead>
+<tr>
+<th>RA</th>
+<th>Semanas donde se desarrolla</th>
+<th>Instrumento que lo mide</th>
+<th style="text-align: center;">Logro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RA-A1</td>
+<td>1, 2</td>
+<td>Batería <code>axe</code> + revisión del árbol de accesibilidad</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-A2</td>
+<td>3</td>
+<td>Revisión de código + prueba del sistema de tokens</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-A3</td>
+<td>3</td>
+<td>Prueba de viewport a 320, 768, 1440 y 2560 px</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-A4</td>
+<td>2, 5, 9, 12, 15</td>
+<td>ATE-A: cero violaciones + recorrido manual con lector de pantalla</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-A5</td>
+<td>14, 15</td>
+<td>ATE-P (Lighthouse ≥ 95, LCP, CLS, INP)</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-B1, RA-B2</td>
+<td>4</td>
+<td>Quices de Parsons + arnés de pruebas provisto</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-B3</td>
+<td>5</td>
+<td>Validación accesible y renderizado dinámico</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-B4</td>
+<td>7</td>
+<td>Prueba de orden de ejecución</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-B5</td>
+<td>4–15</td>
+<td>Ejecución e interpretación de las pruebas provistas</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-B6</td>
+<td>6</td>
+<td><strong>Bitácora de depuración con hipótesis previa</strong></td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-C1</td>
+<td>7</td>
+<td>Los cuatro estados de interfaz, anunciados</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-C2</td>
+<td>8</td>
+<td><strong>Compuerta G2 con defensa oral a N0</strong></td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-C3</td>
+<td>8, 9</td>
+<td>Operaciones completas + panel en tiempo real</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-C4</td>
+<td>10</td>
+<td>Evidencia de publicación bloqueada y corregida</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-C5</td>
+<td>12</td>
+<td>Función de servidor desplegada</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-D1</td>
+<td>10</td>
+<td><strong>Batería de casos negativos: cero que pasen</strong></td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-D2</td>
+<td>11</td>
+<td>Prueba de acceso no autorizado desde consola</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-D3</td>
+<td>11</td>
+<td>Cabeceras verificadas</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-D4</td>
+<td>15</td>
+<td>Registro de actividades de tratamiento (ATE-C)</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-E1, RA-E3</td>
+<td>5</td>
+<td>Quiz + informe de alucinaciones provocadas</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-E2</td>
+<td>5</td>
+<td>Estimación de contexto y coste</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-E4</td>
+<td>6–15</td>
+<td>Auditoría de <code>AI-USE.md</code> (rechazos justificados) + <strong>DAA</strong></td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-E5</td>
+<td>12</td>
+<td>Carta de límites + cero envíos sin aprobación</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-F1</td>
+<td>1, 10</td>
+<td>Historial de Git legible + revisión de pares</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-F2</td>
+<td>15</td>
+<td>Informe ATE con hallazgos remediados (<strong>G3</strong>)</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-F3</td>
+<td>15</td>
+<td><code>README</code> ejecutable por un tercero + memoria</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-G1</td>
+<td>2, 13</td>
+<td><strong>G1</strong> + lienzo con experimento de criterio numérico</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-G2</td>
+<td>14</td>
+<td>Manual de marca + perfiles + plan de contenido sostenible</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+<tr>
+<td>RA-G3</td>
+<td>15</td>
+<td>Ficha de ruta de formalización con fuentes oficiales</td>
+<td style="text-align: center;">Introducido</td>
+</tr>
+<tr>
+<td>RA-G4</td>
+<td>16</td>
+<td>Pitch en Demo Day + sustentación ante panel externo</td>
+<td style="text-align: center;">Dominado</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regla de lectura.</strong> Ningún <code>RA</code> aparece sin instrumento y ningún instrumento mide
+lo que ningún <code>RA</code> declara. Si una futura reforma del syllabus rompe esta
+correspondencia, el syllabus está mal, no la matriz.</p>
+<hr />
+<h1>PARTE III · MAPA CURRICULAR</h1>
+<h2>7 · Carga de trabajo</h2>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th style="text-align: right;">Por semana</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sesión síncrona sábado</td>
+<td style="text-align: right;">2,0 h</td>
+<td style="text-align: right;">32 h</td>
+</tr>
+<tr>
+<td>Sesión síncrona domingo</td>
+<td style="text-align: right;">2,0 h</td>
+<td style="text-align: right;">32 h</td>
+</tr>
+<tr>
+<td><em>Antes</em> del sábado (micro-guía y predicciones)</td>
+<td style="text-align: right;">0,5 h</td>
+<td style="text-align: right;">8 h</td>
+</tr>
+<tr>
+<td><em>Después</em> del sábado (quiz de recuperación)</td>
+<td style="text-align: right;">0,5 h</td>
+<td style="text-align: right;">8 h</td>
+</tr>
+<tr>
+<td><em>Antes</em> del domingo (entorno y predicción)</td>
+<td style="text-align: right;">0,5 h</td>
+<td style="text-align: right;">8 h</td>
+</tr>
+<tr>
+<td><em>Después</em> del domingo (Transferencia al proyecto)</td>
+<td style="text-align: right;">1,25 h</td>
+<td style="text-align: right;">20 h</td>
+</tr>
+<tr>
+<td>Revisión de código entre pares</td>
+<td style="text-align: right;">0,25 h</td>
+<td style="text-align: right;">4 h</td>
+</tr>
+<tr>
+<td><strong>Subtotal lectivo (16 semanas)</strong></td>
+<td style="text-align: right;"><strong>8,0 h</strong></td>
+<td style="text-align: right;"><strong>112 h</strong></td>
+</tr>
+<tr>
+<td>Compuertas y auditorías</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">16 h</td>
+</tr>
+<tr>
+<td>Memoria y preparación de la defensa</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">20 h</td>
+</tr>
+<tr>
+<td><strong>Subtotal del programa</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>148 h</strong></td>
+</tr>
+<tr>
+<td><strong>Módulo 0</strong> (seis semanas previas, asíncrono)</td>
+<td style="text-align: right;">~4 h</td>
+<td style="text-align: right;"><strong>25 h</strong></td>
+</tr>
+<tr>
+<td><strong>TOTAL</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>≈ 173 h</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Equivalencia: a razón de 25 a 30 horas de trabajo del estudiante por crédito, 173 h
+corresponden a <strong>6 o 7 ECTS estimados</strong>. La cifra se declara siempre como estimación
+de carga y nunca como crédito emitido (Carta, art. 8.2).</p>
+<blockquote>
+<p><strong>Lectura correcta de esta tabla.</strong> Las <strong>cuatro horas de clase</strong> son las dos filas
+superiores: es todo el tiempo que el Instituto imparte. Las otras cuatro las pone el
+estudiante y <strong>no son opcionales</strong>: sin ellas no hay predicción que discutir el
+sábado, no hay recuperación espaciada y no hay Transferencia dominical, que es lo
+que convierte quince laboratorios en una plataforma. El desglose y su justificación
+están en el D1 §4.1 bis.</p>
+</blockquote>
+<h2>8 · Los tres hilos y los tres niveles</h2>
+<pre><code class="language-text">                 NIVEL I              NIVEL II              NIVEL III        DEFENSA
+Semana:   01 02 03 04 05 | 06 07 08 09 10 | 11 12 13 14 15 |    16
+──────────────────────────────────────────────────────────────────────────────────
+α Interfaz    ████████████░░░░░░░░░░░░░░░░░░░░████░░░░████░░    ██
+  accesible   A1 A2 A3 A4                     A4              A4 A5
+
+β Lógica      ░░░░░░██████████████████████████████░░░░░░░░░░    ██
+  y datos     B1 B2 B3      B4 B6 C1 C2 C3 C4 D1  D2 C5
+
+γ IA          ░░░░░░░░░░██░░██████████████░░░░████░░░░░░░░░░    ░░
+              E1 E3          E4                  E5
+
+δ TFG         ██████████████████████████████████████████████    ██
+  (proyecto)  G1 en S02        G2 en S08          G3 en S15     Hito H
+
+ε Negocio     ░░██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░████░░    ██
+              G1 anteproyecto                        G1 G2 D4 G3
+</code></pre>
+<p><strong>Regla de entrelazado.</strong> Ningún hilo desaparece más de tres semanas seguidas. La
+compresión de 48 a 16 semanas hace que varios hilos convivan dentro de una misma
+sesión: la semana 5 mezcla DOM con anatomía de modelos de lenguaje, y la semana 14
+concentra negocio, cumplimiento y descubrimiento. Está declarado en el D4 y es
+deliberado, no un descuido de secuenciación.</p>
+<h2>9 · Grafo de dependencias duras</h2>
+<p>Una dependencia dura significa que la semana destino es <strong>inviable</strong> sin la origen.
+Estas son las que gobiernan cualquier reordenación futura del plan.</p>
+<table>
+<thead>
+<tr>
+<th>Origen</th>
+<th style="text-align: center;">→</th>
+<th>Destino</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Módulo 0</strong> (lógica)</td>
+<td style="text-align: center;">→</td>
+<td>S04 (JavaScript)</td>
+<td>Sin nociones previas de variable, condicional y bucle, la semana 4 es imposible al ritmo requerido. <strong>Es la dependencia que sostiene todo el programa.</strong></td>
+</tr>
+<tr>
+<td>S02 (semántica y formularios)</td>
+<td style="text-align: center;">→</td>
+<td>S09 (crear datos desde formulario)</td>
+<td>Sin formulario accesible no hay entrada de datos.</td>
+</tr>
+<tr>
+<td>S04 (lógica y funciones)</td>
+<td style="text-align: center;">→</td>
+<td>S05 (DOM y eventos)</td>
+<td>Los eventos manipulan estructuras que hay que saber recorrer.</td>
+</tr>
+<tr>
+<td>S05 (DOM)</td>
+<td style="text-align: center;">→</td>
+<td>S07 (renderizar respuestas)</td>
+<td>Nada que pintar sin API del DOM.</td>
+</tr>
+<tr>
+<td>S07 (asincronía)</td>
+<td style="text-align: center;">→</td>
+<td>S08 (base de datos en la nube)</td>
+<td><code>await</code> sin bucle de eventos entendido produce culto a la carga.</td>
+</tr>
+<tr>
+<td>S08 (modelado, N0)</td>
+<td style="text-align: center;">→</td>
+<td>S09 (operaciones sobre datos)</td>
+<td>Se modela en papel antes de crear colecciones.</td>
+</tr>
+<tr>
+<td>S09 (operaciones completas)</td>
+<td style="text-align: center;">→</td>
+<td>S10 (reglas de seguridad)</td>
+<td>No se escriben reglas sobre operaciones que no existen.</td>
+</tr>
+<tr>
+<td>S10 (reglas)</td>
+<td style="text-align: center;">→</td>
+<td>S11 (autenticación)</td>
+<td>La regla precede al usuario: primero se cierra, luego se abre.</td>
+</tr>
+<tr>
+<td>S12 (lógica de fechas)</td>
+<td style="text-align: center;">→</td>
+<td>S12 (interfaz de agenda)</td>
+<td>La colisión se resuelve antes de dibujarla. Ambas caen en la misma semana, y ése es el punto más tenso del calendario.</td>
+</tr>
+<tr>
+<td>S02 (<strong>G1 aprobada</strong>)</td>
+<td style="text-align: center;">→</td>
+<td>Toda Transferencia posterior</td>
+<td>Sin proyecto definido no hay destino para la transferencia.</td>
+</tr>
+</tbody>
+</table>
+<h2>10 · Distribución de hitos y compuertas</h2>
+<table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Hito</th>
+<th style="text-align: center;">Semana</th>
+<th>Qué se entrega</th>
+<th>Compuerta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>G1</strong></td>
+<td>Carta de Anteproyecto</td>
+<td style="text-align: center;"><strong>02</strong></td>
+<td>Nicho, cliente, problema, propuesta de valor</td>
+<td>Bloquea toda Transferencia posterior</td>
+</tr>
+<tr>
+<td>—</td>
+<td>Cierre del Nivel I</td>
+<td style="text-align: center;">05</td>
+<td>Página propia accesible y desplegada</td>
+<td>Formativo, no bloqueante</td>
+</tr>
+<tr>
+<td><strong>G2</strong></td>
+<td>Modelo de datos aprobado</td>
+<td style="text-align: center;"><strong>08</strong></td>
+<td>Esquema documental con sus consultas · <strong>defensa a N0</strong></td>
+<td>Bloquea el hito final</td>
+</tr>
+<tr>
+<td>—</td>
+<td>Cierre del Nivel II</td>
+<td style="text-align: center;">10</td>
+<td>Plataforma dinámica con datos, panel, reglas y despliegue</td>
+<td>Formativo, no bloqueante</td>
+</tr>
+<tr>
+<td><strong>G3</strong></td>
+<td>Auditoría Técnica final</td>
+<td style="text-align: center;"><strong>15</strong></td>
+<td>Informe ATE sin hallazgos críticos</td>
+<td>Bloquea la defensa</td>
+</tr>
+<tr>
+<td><strong>H</strong></td>
+<td><strong>Demo Day y sustentación</strong></td>
+<td style="text-align: center;"><strong>16</strong></td>
+<td>Plataforma transaccional + memoria + pitch</td>
+<td>Graduación</td>
+</tr>
+</tbody>
+</table>
+<p>Los cierres de nivel de las semanas 5 y 10 <strong>no son compuertas</strong>: son puntos de
+control formativos que producen retroalimentación y activan el protocolo de riesgo de
+abandono si procede (D1 §8.1). Convertirlos en bloqueantes en un programa de dieciséis
+semanas dejaría sin margen de recuperación a quien tropiece una vez.</p>
+<hr />
+<h1>PARTE IV · TECNOLOGÍA Y CANON TÉCNICO</h1>
+<h2>11 · Conjunto tecnológico y su justificación</h2>
+<table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Elección</th>
+<th>Por qué esta y no otra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Estructura</strong></td>
+<td>HTML5 semántico</td>
+<td>Es la capa de accesibilidad. No hay atajo.</td>
+</tr>
+<tr>
+<td><strong>Presentación</strong></td>
+<td>CSS3 con propiedades personalizadas, Flexbox y Grid</td>
+<td>Sin preprocesador ni marco de utilidades: se enseña la cascada, no a esquivarla.</td>
+</tr>
+<tr>
+<td><strong>Lógica</strong></td>
+<td>JavaScript ES6+ estándar</td>
+<td>Un marco resuelve problemas que el novato aún no tiene. Se aprende la plataforma; el marco se aprende después en dos semanas.</td>
+</tr>
+<tr>
+<td><strong>Entorno</strong></td>
+<td>GitHub Codespaces</td>
+<td>Elimina la desigualdad de máquinas y de conectividad. Todos programan en el mismo contenedor. Es la decisión que hace viable la equidad del art. 16.</td>
+</tr>
+<tr>
+<td><strong>Control de versiones</strong></td>
+<td>Git y GitHub</td>
+<td>Estándar del oficio y sustrato de la evaluación por artefacto.</td>
+</tr>
+<tr>
+<td><strong>Pruebas</strong></td>
+<td>Vitest (unidad) y Playwright (extremo a extremo)</td>
+<td>Ejecutables en Codespaces y en la compuerta de integración continua.</td>
+</tr>
+<tr>
+<td><strong>Datos</strong></td>
+<td>Firebase Cloud Firestore</td>
+<td>Capa gratuita suficiente, sincronización en tiempo real, y reglas de seguridad declarativas que <strong>enseñan</strong> el modelo de amenaza mejor que un ORM.</td>
+</tr>
+<tr>
+<td><strong>Identidad</strong></td>
+<td>Firebase Authentication</td>
+<td>Permite estudiar sesiones y testigos sin construir criptografía.</td>
+</tr>
+<tr>
+<td><strong>Servidor</strong></td>
+<td>Cloud Functions (Node.js)</td>
+<td>Frontera cliente/servidor explícita, que es el concepto a enseñar.</td>
+</tr>
+<tr>
+<td><strong>Despliegue</strong></td>
+<td>Cloudflare Pages o Netlify con acción de integración continua</td>
+<td>Compuerta de calidad bloqueante desde la semana 28.</td>
+</tr>
+<tr>
+<td><strong>Auditoría</strong></td>
+<td><code>axe-core</code>, Lighthouse CI, WebPageTest</td>
+<td>Umbrales objetivos, reproducibles y públicos.</td>
+</tr>
+<tr>
+<td><strong>IA</strong></td>
+<td>Modelos de capa gratuita y asistentes en el editor</td>
+<td>Se evita atar el currículo a un proveedor. Lo que se enseña es el criterio, no el producto.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regla de sustituibilidad.</strong> Ninguna elección de esta tabla es doctrinal. Si un
+proveedor cambia sus condiciones o desaparece, se sustituye sin tocar los
+resultados de aprendizaje, porque los <code>RA</code> están redactados sobre conceptos y no
+sobre productos. Esa es la razón de que digan «servicio de base de datos en la
+nube» y no «Firestore».</p>
+<h2>12 · Correspondencia con el estándar técnico de la empresa</h2>
+<p>El Instituto enseña, en versión simplificada y construida desde cero, el mismo
+catálogo de funciones que Elysium λ implementa en producción
+(<code>ELYSIUM-STANDARDS.md</code>, Parte II). El estudiante no recibe el código del núcleo:
+lo <strong>reconstruye</strong>, y al hacerlo entiende por qué el estándar es como es.</p>
+<table>
+<thead>
+<tr>
+<th>Función del estándar</th>
+<th style="text-align: center;">Semana</th>
+<th>Alcance en el Instituto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>F05</strong> Information System</td>
+<td style="text-align: center;">2</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td><strong>F02</strong> Header Mobile-First</td>
+<td style="text-align: center;">3</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td><strong>F13</strong> Dynamic Theme · <strong>F14</strong> Theme Switcher</td>
+<td style="text-align: center;">3</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td><strong>F03</strong> Scroll Reveal · <strong>F04</strong> Anchor Glide</td>
+<td style="text-align: center;">3</td>
+<td>Versión reducida</td>
+</tr>
+<tr>
+<td><strong>F01</strong> Loading Page · <strong>F10</strong> Elysium Signature</td>
+<td style="text-align: center;">3</td>
+<td>Versión propia del estudiante</td>
+</tr>
+<tr>
+<td><strong>F18</strong> Personalized CRM · <strong>F25</strong> Client Records</td>
+<td style="text-align: center;">9</td>
+<td>Versión reducida</td>
+</tr>
+<tr>
+<td><strong>F23</strong> Clean URLs · <strong>F06</strong> System Update</td>
+<td style="text-align: center;">10</td>
+<td>Conceptual + versionado</td>
+</tr>
+<tr>
+<td><strong>F07</strong> Security Core</td>
+<td style="text-align: center;">11</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td><strong>F24</strong> Smart Booking</td>
+<td style="text-align: center;">12</td>
+<td>Versión reducida</td>
+</tr>
+<tr>
+<td><strong>F26</strong> Online Payments</td>
+<td style="text-align: center;">12</td>
+<td>Sólo si el arquetipo lo requiere, en modo de prueba</td>
+</tr>
+<tr>
+<td><strong>F19</strong> Discovery Core · <strong>F20</strong> SEO</td>
+<td style="text-align: center;">14</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td><strong>F08</strong> Cookies Management</td>
+<td style="text-align: center;">15</td>
+<td>Completo</td>
+</tr>
+<tr>
+<td><strong>F15</strong> Multi-language · <strong>F16</strong> Multi-Currency · <strong>F17</strong> Web App Downloader · <strong>F22</strong> System Settings · <strong>F27</strong> Occupancy Reports</td>
+<td style="text-align: center;">—</td>
+<td><strong>Fuera de alcance.</strong> No caben en dieciséis semanas y se declaran como tales.</td>
+</tr>
+<tr>
+<td><strong>F11</strong> Efectos de Temporada · <strong>F12</strong> Magic Mouse</td>
+<td style="text-align: center;">—</td>
+<td><strong>Excluidas.</strong> Reservadas a código de producción de la empresa.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Advertencia de propiedad.</strong> El kit <code>elysium-core/</code> y su código no se distribuyen
+a los estudiantes. Lo que comparte el Instituto es la <strong>especificación funcional</strong>
+y los criterios de aceptación, no la implementación propietaria. El trabajo del
+estudiante es suyo (Carta, art. 57) y no incorpora código de la empresa.</p>
+<hr />
+<h1>PARTE V · DECISIONES DE DISEÑO CURRICULAR</h1>
+<h2>13 · Correcciones aplicadas al borrador inicial</h2>
+<blockquote>
+<p><strong>Nota de lectura.</strong> Esta sección es un <strong>registro histórico</strong>. Sus códigos de
+semana (<code>S04</code>, <code>C2·S09</code>…) pertenecen al diseño de 48 semanas y no corresponden a
+los del syllabus vigente. Se conserva sin reescribir porque su valor está en dejar
+constancia de qué se corrigió y por qué, no en localizar semanas. La correspondencia
+con el plan actual está en el §6 y en el §13 ter.</p>
+</blockquote>
+<p>El plan original del fundador fue el punto de partida y su estructura de tres
+cuatrimestres y de bloques semanales se conserva casi íntegra. Se aplicaron once
+correcciones, todas documentadas aquí para que puedan revertirse con conocimiento
+de causa.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Problema detectado en el borrador</th>
+<th>Corrección</th>
+<th>Fundamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td>La Transferencia dominical aplica lo aprendido «al proyecto de graduación» desde la semana 1, pero el proyecto se ideaba en la semana 13. Doce semanas de transferencia sin destino.</td>
+<td>El anteproyecto se define en las semanas 1–3 y se aprueba como compuerta <strong>G1 en la semana 3</strong>. Las antiguas semanas 13–16 pasan de <em>ideación</em> a <em>consolidación y construcción</em>.</td>
+<td>D1 §4.4</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Las semanas 9 a 12 de C1 eran teoría de IA sin programación: cuatro semanas de decaimiento de una destreza recién adquirida.</td>
+<td>Los sábados mantienen la teoría de IA íntegra; los domingos construyen <strong>instrumentos de IA en JavaScript y DOM</strong> (tokenizador, calculadora de coste, registro de alucinaciones, comparador de modelos).</td>
+<td>D1 §5.3</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>El plan cita <strong>WCAG 2.1</strong>.</td>
+<td>Se adopta <strong>WCAG 2.2 nivel AA</strong>, con mención expresa de EN 301 549 y de la Directiva (UE) 2019/882, aplicable desde el 28-VI-2025. Se enseña además que la versión de EN 301 549 que incorpora WCAG 2.2 se espera publicada en 2026, y qué implica el desfase normativo.</td>
+<td>Carta, art. 62</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Los formularios HTML no aparecían antes de C2·S09, donde ya se pedía insertar datos desde un formulario.</td>
+<td>Formularios accesibles (etiquetas, agrupaciones, mensajes de error, <code>aria-live</code>) se enseñan en <strong>S02 y S03</strong>.</td>
+<td>§9 dependencias</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>La manipulación del DOM no tenía semana propia pese a ser requisito de casi todo.</td>
+<td>Se introduce en <strong>S06</strong> con eventos, se consolida en S07–S08 y se aplica en S09–S12.</td>
+<td>§9 dependencias</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td>La evaluación menciona «tests automatizados» sin que el plan enseñara a escribirlos ni definiera el arnés.</td>
+<td>Cada laboratorio se entrega con una <strong>especificación de pruebas dada</strong> desde C1·S05; el estudiante escribe las suyas desde <strong>S05</strong> (RA-B5).</td>
+<td>D3 §6.1</td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td>Git aparecía en S12 (despliegue), pero se usaba desde la semana 1.</td>
+<td>Git básico en <strong>C1·S01</strong>; flujo profesional con ramas, revisión y versionado Elysium en <strong>S12</strong>.</td>
+<td>RA-F1</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td>No existía preparación previa al inicio: la semana 1 se iba en instalar cosas.</td>
+<td>Se añade la <strong>Semana 0</strong> de incorporación asíncrona (D4 §3), sin coste y sin evaluación.</td>
+<td>D1 §8</td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td>El artículo científico se anunciaba, pero ninguna semana producía datos para él.</td>
+<td>Se define la línea de investigación como <strong>auditoría de sitios de pymes hispanohablantes</strong>, que usa exactamente las destrezas del currículo, y se reparten seis compuertas de investigación a lo largo de las 48 semanas.</td>
+<td>D8</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td>El cobro en línea aparecía en la parrilla comercial de la empresa pero no en el plan de estudios, pese a ser el corazón de una plataforma transaccional.</td>
+<td>Se añade <strong>pagos en modo de prueba</strong> en S12, con tratamiento explícito de que no se manipulan datos de tarjeta.</td>
+<td>RA-C5, F26</td>
+</tr>
+<tr>
+<td><strong>11</strong></td>
+<td>El bloque de trámites era exclusivamente costarricense, en un programa dirigido a veinte países.</td>
+<td>S09 se reestructura como <strong>taller de investigación normativa guiada</strong>: cada estudiante documenta la ruta de su propia jurisdicción con una plantilla común, y se comparan en aula. Costa Rica y Portugal se usan como casos trabajados.</td>
+<td>Carta, art. 3</td>
+</tr>
+</tbody>
+</table>
+<h2>13 bis · Segunda revisión: el giro a acción social (agosto de 2026)</h2>
+<p>La versión 1.0.0 del paquete describía una escuela de pago con aulas de treinta
+personas. La dirección del Instituto rectificó esa premisa: <strong>el programa es
+gratuito, de un solo grupo pequeño, y arranca siempre en septiembre</strong>. Estas son las
+seis consecuencias curriculares de aquel giro.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Qué cambió</th>
+<th>Consecuencia en el plan de estudios</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>12</strong></td>
+<td><strong>Gratuidad total.</strong> Nadie paga nada, por ningún concepto.</td>
+<td>Desaparece toda referencia a precio, tramos, becas parciales y reembolso. La equidad ya no se logra con precios ajustados sino con gratuidad más selección motivada (Carta, arts. 2 bis, 16 y 64).</td>
+</tr>
+<tr>
+<td><strong>13</strong></td>
+<td><strong>Aula de 10 a 15, una sola por generación.</strong></td>
+<td>El límite pasa de restricción operativa a <strong>decisión de diseño</strong>: los tres mecanismos distintivos (defensa de autoría, tutoría por compuerta, retroalimentación en 7 días) sólo existen a esa escala. Se elimina la vía de crecimiento por aulas paralelas.</td>
+</tr>
+<tr>
+<td><strong>14</strong></td>
+<td><strong>Agentes de IA en el Nivel II.</strong></td>
+<td>Se redibuja la frontera N3/N4: el criterio ya no es si la herramienta se llama agente, sino <strong>si puede actuar fuera del editor</strong>. El agente que escribe en el repositorio es N3 y entra en el Nivel II; el que ejecuta en el servidor es N4 y espera al Nivel III. El diseño del modelo de datos (G4) y de las reglas (G5) permanece en <strong>N0</strong> aunque ocurra en C2. Ver D1 §6.2.</td>
+</tr>
+<tr>
+<td><strong>15</strong></td>
+<td><strong>El año académico coincide con el año natural.</strong></td>
+<td>El calendario deja de ser una fecha concreta y pasa a ser una <strong>regla anual</strong>: arranque el segundo sábado de enero, Demo Day el tercer sábado de diciembre. El programa se consolida en un único cuatrimestre intensivo de enero a mayo. <strong>Coste asumido:</strong> sólo caben dos fines de semana de receso, de modo que C2 y C3 se imparten en dieciséis fines de semana consecutivos cada uno.</td>
+</tr>
+<tr>
+<td><strong>16</strong></td>
+<td><strong>Generación piloto previa.</strong></td>
+<td>Se añade una cohorte Λ00 de 5 o 6 personas que cursa <strong>sólo las semanas 1 a 8</strong> entre el 12 de septiembre y el 1 de noviembre de 2026, sin certificado y sin investigación. Su función es someter a prueba los materiales de mayor riesgo, y los dos meses siguientes quedan reservados a corregirlos antes del arranque oficial del 9 de enero de 2027.</td>
+</tr>
+<tr>
+<td><strong>17</strong></td>
+<td><strong>El paper se «publica» al finalizar.</strong></td>
+<td>Se precisa el término: lo que se publica en la semana 16 es el <strong>preprint con identificador persistente</strong>, y simultáneamente se envía el manuscrito a revista. Prometer la aceptación editorial violaría el art. 18 de la Carta. Ver D8 §15.</td>
+</tr>
+</tbody>
+</table>
+<h2>13 ter · Tercera revisión: el paso a programa uni-cuatrimestral (agosto de 2026)</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Qué cambió</th>
+<th>Consecuencia en el plan de estudios</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>18</strong></td>
+<td><strong>De 48 semanas a 16</strong>, en tres niveles de cinco más una de defensa.</td>
+<td>La carga lectiva pasa de 384 h a 112 h. <strong>Todos los temas se conservan</strong>, pero no a la misma profundidad: 19 resultados quedan <strong>dominados</strong> y 13 <strong>introducidos</strong> (§5.9), y el certificado debe distinguirlos.</td>
+</tr>
+<tr>
+<td><strong>19</strong></td>
+<td><strong>Módulo 0 preparatorio</strong> de 25 h, asíncrono y gratuito.</td>
+<td>Es la única forma de mantener «sin experiencia previa exigida» y a la vez comprimir el temario. Se convierte en la dependencia dura que sostiene todo el programa (§9).</td>
+</tr>
+<tr>
+<td><strong>20</strong></td>
+<td><strong>La investigación sale del plan del estudiante.</strong></td>
+<td>Se suprime el dominio H completo. La línea pasa al profesorado con carga cero para el aula (D8). El catálogo baja de 36 a 32 resultados.</td>
+</tr>
+<tr>
+<td><strong>21</strong></td>
+<td><strong>Los niveles no son certificables por separado.</strong></td>
+<td>Evita que el programa se lea como tres productos y que alguien reclame acreditación por cinco semanas cursadas (Carta, arts. 42 y 48).</td>
+</tr>
+<tr>
+<td><strong>22</strong></td>
+<td><strong>Los cierres de nivel son formativos, no compuertas.</strong></td>
+<td>En dieciséis semanas, una compuerta bloqueante cada cinco dejaría sin margen a quien tropiece una vez. Sólo G1, G2 y G3 bloquean.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Lo que no cambió, ni siquiera ahora.</strong> El Ciclo λ, la Escalera de IA, la Defensa
+Aleatoria de Autoría, la Auditoría Técnica con umbrales objetivos, el principio de
+artefacto y la Transferencia dominical siguen intactos. Tres cambios de premisa
+(de pago a gratuito, de treinta a diez, de cuarenta y ocho semanas a dieciséis) no
+han obligado a tocar el núcleo pedagógico. Eso es un indicio razonable de que el
+núcleo estaba bien separado de la operación.</p>
+</blockquote>
+<h2>14 · Riesgos curriculares reconocidos</h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th style="text-align: center;">Probabilidad</th>
+<th>Mitigación prevista</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ocho horas semanales resultan insuficientes para novatos absolutos en el Nivel II.</td>
+<td style="text-align: center;">Media</td>
+<td>Reintento hasta el dominio; semanas 13 de cada cuatrimestre reservadas a consolidación; congelación de matrícula sin penalización.</td>
+</tr>
+<tr>
+<td>Dispersión de proyectos: hasta 15 dominios distintos que asesorar.</td>
+<td style="text-align: center;">Media</td>
+<td>El laboratorio usa dominio neutro común; sólo la Transferencia es individual. Catálogo de cinco arquetipos de negocio para encauzar la elección en G1. El aula pequeña reduce mucho este riesgo respecto al diseño original.</td>
+</tr>
+<tr>
+<td>Dependencia de un único proveedor de datos (Firebase).</td>
+<td style="text-align: center;">Media</td>
+<td>Regla de sustituibilidad (§11); los <code>RA</code> no nombran productos.</td>
+</tr>
+<tr>
+<td>El agente en el editor (N3) erosiona la autoría real ya en el Nivel II.</td>
+<td style="text-align: center;"><strong>Alta</strong></td>
+<td>Defensa Aleatoria de Autoría desde la semana 4; <code>AI-USE.md</code> con apartado de rechazos obligatorio; G2 a nivel N0 con defensa oral. Es el riesgo más serio de todo el programa y por eso lleva tres contrapesos y no uno.</td>
+</tr>
+<tr>
+<td>El nivel N4 de IA en el Nivel III erosiona la autoría real del trabajo final.</td>
+<td style="text-align: center;">Media</td>
+<td>Defensa Aleatoria de Autoría con frecuencia <strong>duplicada</strong> en el Nivel III; la defensa final es N0.</td>
+</tr>
+<tr>
+<td><strong>Todo el programa depende de una sola persona docente.</strong></td>
+<td style="text-align: center;"><strong>Alta</strong></td>
+<td>Grabación íntegra y materiales escritos completos; generación piloto Λ00 que prueba y documenta el material un año antes; tutores pares reclutados entre los pilotos; docente suplente identificado antes de la Generación I. <strong>No se mitiga con crecimiento</strong>: el aula pequeña es decisión de diseño (Carta, art. 41), no una limitación a superar.</td>
+</tr>
+</tbody>
+</table>
+<h2>15 · Bibliografía de fundamentación</h2>
+<p><strong>Diseño instruccional y evidencia educativa</strong></p>
+<ul>
+<li>van Alten, D., Phielix, C., Janssen, J., Kester, L. (2019). <em>Effects of flipping
+  the classroom on learning outcomes and satisfaction: A meta-analysis</em>.
+  Educational Research Review, 28.</li>
+<li>Dunlosky, J., Rawson, K., Marsh, E., Nathan, M., Willingham, D. (2013).
+  <em>Improving Students' Learning With Effective Learning Techniques</em>.
+  Psychological Science in the Public Interest, 14(1).</li>
+<li>Roediger, H., Karpicke, J. (2006). <em>Test-Enhanced Learning</em>.</li>
+<li>Collins, A., Brown, J. S., Newman, S. (1989). <em>Cognitive Apprenticeship</em>.</li>
+<li>Biggs, J. <em>Teaching for Quality Learning at University</em> (alineamiento constructivo).</li>
+<li>Hattie, J., Timperley, H. (2007). <em>The Power of Feedback</em>.</li>
+<li>Nicol, D., Macfarlane-Dick, D. (2006). <em>Formative assessment and self-regulated learning</em>.</li>
+<li>Garrison, D. R., Anderson, T., Archer, W. (2000). <em>Critical Inquiry in a
+  Text-Based Environment: Computer Conferencing in Higher Education</em>.</li>
+<li>Deci, E., Ryan, R. <em>Self-Determination Theory</em>.</li>
+<li>van Merriënboer, J., Kirschner, P. <em>Ten Steps to Complex Learning</em> (4C/ID).</li>
+<li>Kalyuga, S. y cols. (2003). <em>The Expertise Reversal Effect</em>.</li>
+<li>Kapur, M. <em>Productive Failure</em>.</li>
+<li>Bloom, B. (1984). <em>The 2 Sigma Problem</em>. (Citado con la reserva del D1 §2.9.)</li>
+</ul>
+<p><strong>Educación en programación</strong></p>
+<ul>
+<li>Sentance, S., Waite, J. <em>Teaching computer programming with PRIMM: a
+  sociocultural perspective</em>.</li>
+<li>ITiCSE 2022 Working Group. <em>Parsons Problems and Beyond</em>.</li>
+<li>Weinman, N., Fox, A., Hearst, M. (2021). <em>Improving Instruction of Programming
+  Patterns with Faded Parsons Problems</em>. CHI.</li>
+<li>Porter, L., Bailey Lee, B., Simon, B. <em>Peer Instruction in Computing</em>.</li>
+</ul>
+<p><strong>Inteligencia artificial generativa y aprendizaje</strong></p>
+<ul>
+<li>Prather, J. y cols. (2024). <em>The Widening Gap: The Benefits and Harms of
+  Generative AI for Novice Programmers</em>. ICER.</li>
+<li>Tankelevitch, L. y cols. <em>The Metacognitive Demands and Opportunities of
+  Generative AI</em>.</li>
+<li>Literatura 2025–2026 sobre deuda epistémica y guiones metacognitivos en
+  programación asistida (ver D8 §2 para la revisión completa y actualizada).</li>
+</ul>
+<p><strong>Marco normativo</strong></p>
+<ul>
+<li>Directiva (UE) 2019/882 (Acta Europea de Accesibilidad), aplicable desde el
+  28-VI-2025.</li>
+<li>EN 301 549 (norma armonizada de accesibilidad TIC).</li>
+<li>W3C, <em>Web Content Accessibility Guidelines 2.2</em>.</li>
+<li>Reglamento (UE) 2016/679 (RGPD); Lei n.º 58/2019 (Portugal); Ley n.º 8968
+  (Costa Rica).</li>
+<li>Recomendación del Consejo de 16-VI-2022 relativa a un enfoque europeo de las
+  microcredenciales.</li>
+</ul>
+<hr />
+<p><em>Elysium λ Institute of Development &amp; Research · D2 · «Abstrahere, aedificare, probare.»</em></p>
+    <h1>Elysium λ Institute — Estudio de Contexto, Horario y Operación</h1>
+<h3>v1.0.0 · Agosto 2026 · Documento D7 del paquete fundacional</h3>
+<blockquote>
+<p><strong>Cómo leer este documento.</strong> Es el documento operativo del Instituto. La Parte I
+delimita a quién sirve el programa. La Parte II analiza las alternativas que esa
+persona tiene y los modelos pedagógicos comparables. La Parte III fija el
+posicionamiento. La <strong>Parte IV resuelve el problema del horario</strong> con un modelo
+cuantitativo cuya especificación completa se incluye para que pueda replicarse o
+refutarse. La Parte V declara <strong>qué cuesta el programa y quién lo paga</strong>. La Parte
+VI trata la selección de estudiantes, los riesgos y los indicadores públicos.</p>
+<p><strong>Por qué ya no se llama estudio de mercado.</strong> El programa es gratuito (Carta,
+art. 2 bis): no hay clientes, no hay precio y no hay ingresos. Lo que sigue
+teniendo sentido es analizar <strong>qué alternativas tiene delante la persona a la que
+queremos llegar</strong>, porque de ahí se deduce a quién sirve este programa y a quién
+no. El fichero conserva su nombre <code>ELYSIUM-MARKET-STUDY.md</code> para no romper los
+enlaces del paquete.</p>
+<p><strong>Advertencia metodológica.</strong> Las cifras de tamaño de mercado proceden de
+informes comerciales de consultoras, que no publican su metodología completa y
+cuyas estimaciones varían entre sí en órdenes relevantes. Se usan como <strong>indicio
+de tendencia y no como dato</strong>. Las cifras de la competencia proceden de sus
+propias páginas públicas y, salvo cuando están auditadas por un tercero, se citan
+como <strong>afirmaciones del vendedor</strong>. Las únicas cifras que este documento presenta
+como propias son las del modelo horario (Parte IV) y las de coste (Parte V), y
+ambas incluyen sus supuestos.</p>
+</blockquote>
+<hr />
+<h1>PARTE I · A QUIÉN SIRVE EL PROGRAMA</h1>
+<h2>1 · Delimitación</h2>
+<p><strong>Población destinataria.</strong> Personas hispanohablantes de 16 años o más, residentes
+en cualquiera de los veintiún países de lengua española y en la diáspora, que buscan
+formación técnica en desarrollo web e inteligencia artificial, que <strong>no pueden o no
+quieren</strong> abandonar su empleo o sus estudios para hacerlo, y que <strong>no tienen a su
+alcance una vía equivalente</strong>. Este último requisito no es retórico: es el criterio
+que más pesa en la selección (§23.3).</p>
+<p><strong>Tamaño de la población de referencia.</strong> Alrededor de 600 millones de personas
+hablan español, de las cuales unos 500 millones lo tienen como lengua materna.
+Los mercados con mayor masa son México, Colombia, España, Argentina y Perú, a los
+que se añade la población hispanohablante de los Estados Unidos, de más de 40
+millones. El Instituto no persigue cuota alguna de esa población: atiende a diez
+personas por año. La magnitud sirve únicamente para dimensionar el problema que la
+convocatoria intenta abordar, y para recordar su desproporción.</p>
+<p><strong>Contexto sectorial.</strong> Los informes disponibles sitúan el mercado de tecnología
+educativa en América Latina en torno a los <strong>18.000 millones de dólares en 2025</strong>,
+con proyecciones de crecimiento anual compuesto de aproximadamente el <strong>12 %</strong> en la
+década siguiente. La cifra concreta importa menos que su dirección: la demanda de
+recualificación digital crece y la oferta en español de calidad no crece al mismo
+ritmo.</p>
+<h2>2 · Segmentación por barrera de acceso</h2>
+<p>La versión 1.0.0 de este documento segmentaba por capacidad de pago, para fijar
+precios por paridad de poder adquisitivo. Al ser el programa <strong>gratuito</strong>, esa
+segmentación pierde su función económica pero conserva otra: describe <strong>qué barrera
+queda en pie cuando se elimina el precio</strong>, y esa es exactamente la información que
+necesita el proceso de selección.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Grupo</th>
+<th>Países</th>
+<th>Barrera dominante una vez eliminado el precio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>A</strong></td>
+<td>España, Portugal, Puerto Rico, Uruguay, Chile, Costa Rica, Panamá, diáspora en EE. UU. y UE</td>
+<td><strong>Tiempo.</strong> Existen alternativas de pago accesibles; lo escaso es el hueco semanal. Aquí el diferencial del Instituto es el horario de fin de semana.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>B</strong></td>
+<td>México, Colombia, Argentina, Perú, Ecuador, República Dominicana, Paraguay</td>
+<td><strong>Coste de oportunidad.</strong> Hay oferta, pero cuesta varios meses de salario. El diferencial es la gratuidad combinada con no tener que dejar el empleo.</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>C</strong></td>
+<td>Bolivia, Guatemala, Honduras, El Salvador, Nicaragua, Venezuela, Cuba, Guinea Ecuatorial</td>
+<td><strong>Ausencia de oferta y de infraestructura.</strong> El diferencial es que el programa exista; la restricción real pasa a ser la conectividad y el equipo, que el art. 29.3 exige y el Instituto no puede suplir.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Límite reconocido con honestidad.</strong> El requisito de ordenador propio y conexión
+estable capaz de sostener videoconferencia excluye a una parte de la población del
+grupo C, que es precisamente la de mayor necesidad. El Instituto no puede
+resolverlo hoy y no finge lo contrario. Queda anotado como el primer objetivo de
+ampliación si alguna vez se obtiene financiación pública (§22).</p>
+</blockquote>
+<h2>3 · Los tres arquetipos de estudiante</h2>
+<p>Construidos a partir del perfil de ingreso del D2 §2. Cada uno tiene un motivo
+distinto para presentarse y un motivo distinto para abandonar. Las proporciones son
+previsiones de planificación sobre un aula de diez, no cupos: la rúbrica de
+selección del §23.3 no reserva plazas por arquetipo.</p>
+<h3>Arquetipo 1 · «La persona que ya trabaja» <em>(estimado: 50 % de la matrícula)</em></h3>
+<p>Entre 24 y 40 años, empleo de lunes a viernes fuera del sector tecnológico, ingreso
+estable pero no alto. Ha intentado aprender por su cuenta con vídeo y lo ha
+abandonado dos veces. <strong>Se presenta</strong> porque el fin de semana es el único hueco real
+que tiene y porque quiere terminar con algo que enseñar. <strong>Abandona</strong> cuando el trabajo
+se le complica y siente que ya no puede alcanzar al grupo.
+<em>Mecanismo λ que lo retiene:</em> reintento hasta el dominio, descarte de las cuatro
+peores notas, tres prórrogas sin justificación y congelación de matrícula sin coste.</p>
+<h3>Arquetipo 2 · «Quien ya tiene un micronegocio» <em>(estimado: 30 %)</em></h3>
+<p>Entre 28 y 50 años, autónomo o con una empresa de menos de cinco personas. Paga
+hoy por una web que no controla, o no tiene ninguna. <strong>Se presenta</strong> porque el
+proyecto de graduación <strong>es</strong> su plataforma: no viene a estudiar, viene a construir
+la infraestructura de su negocio y aprende por el camino. <strong>Abandona</strong> cuando el ritmo técnico
+supera su interés real por programar.
+<em>Mecanismo λ que lo retiene:</em> la Transferencia semanal, que produce avance visible
+en su propio negocio cada domingo.</p>
+<h3>Arquetipo 3 · «Quien estudia o acaba de terminar» <em>(estimado: 20 %)</em></h3>
+<p>Entre 16 y 24 años, estudiante de secundaria avanzada o de universidad, con tiempo
+pero sin dinero. <strong>Se presenta</strong> porque quiere una credencial con artefacto y una
+publicación con su nombre antes de terminar la carrera.
+<strong>Abandona</strong> cuando aparece una oportunidad laboral.
+<em>Mecanismo λ que lo retiene:</em> la coautoría del artículo científico, que no puede
+obtener en ningún otro programa comparable y que se pierde si abandona.</p>
+<hr />
+<h1>PARTE II · COMPETENCIA Y MODELOS COMPARABLES</h1>
+<h2>4 · Mapa competitivo</h2>
+<table>
+<thead>
+<tr>
+<th>Categoría</th>
+<th>Ejemplos</th>
+<th>Precio orientativo</th>
+<th>Modalidad</th>
+<th>Debilidad que Elysium λ explota</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bootcamps intensivos</strong></td>
+<td>4Geeks Academy, Le Wagon, Ironhack</td>
+<td>4.000–6.500 USD</td>
+<td>Inmersión, semanas completas</td>
+<td>Exigen dejar de trabajar. Precio inalcanzable en los tramos B y C.</td>
+</tr>
+<tr>
+<td><strong>Bootcamps con pago diferido</strong></td>
+<td>Henry y modelos de acuerdo de ingresos</td>
+<td>Porcentaje del salario futuro</td>
+<td>Intensivo remoto</td>
+<td>El compromiso financiero futuro asusta y la promesa de empleo es frágil.</td>
+</tr>
+<tr>
+<td><strong>Programas de impacto social</strong></td>
+<td>Laboratoria</td>
+<td>Subvencionado, pago tras empleo</td>
+<td>6 meses remoto</td>
+<td>Cupo limitado y foco demográfico específico. Reportó cerca de un <strong>79 %</strong> de inserción en 2024.</td>
+</tr>
+<tr>
+<td><strong>Plataformas de suscripción</strong></td>
+<td>Platzi, EDteam, Udemy</td>
+<td>10–40 USD al mes</td>
+<td>Vídeo bajo demanda</td>
+<td>Sin sincronía, sin cohorte, sin defensa de autoría. Tasas de terminación notoriamente bajas.</td>
+</tr>
+<tr>
+<td><strong>Gratuito de alta calidad</strong></td>
+<td>freeCodeCamp, The Odin Project, contenido de YouTube</td>
+<td>0</td>
+<td>Autodidacta</td>
+<td>Sin acompañamiento, sin credencial defendible, sin proyecto tutorizado.</td>
+</tr>
+<tr>
+<td><strong>Universidad tradicional</strong></td>
+<td>Grados y técnicos presenciales</td>
+<td>Muy variable</td>
+<td>2–5 años</td>
+<td>Lentitud, coste de oportunidad, currículos desfasados en IA aplicada.</td>
+</tr>
+<tr>
+<td><strong>Formación con fondos públicos</strong></td>
+<td>Programas del SEPE, IEFP, INA</td>
+<td>0 para el usuario</td>
+<td>Variable</td>
+<td>Acceso restringido por país y por situación laboral.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusión del mapa.</strong> El eje saturado es <em>intensivo caro</em> frente a <em>asíncrono
+barato</em>. El cuadrante <strong>vacío</strong> es el de <strong>alta intensidad docente en franja de fin
+de semana, gratuito, con cohorte muy pequeña y con artefacto propio como
+entregable</strong>. Ahí se sitúa Elysium λ, y conviene ser explícito sobre por qué está
+vacío: <strong>no es un hueco de mercado, es un hueco que sólo puede ocupar quien no
+busque rentabilidad</strong>. Diez personas por año con catorce horas semanales de docente
+no constituyen un negocio viable para nadie. Esa es a la vez la razón de que nadie
+lo haga y la razón de que el Instituto pueda hacerlo.</p>
+<h2>5 · Benchmarking de modelos pedagógicos</h2>
+<p>No de competidores comerciales, sino de <strong>modelos de aprendizaje</strong> cuyas piezas se
+han evaluado antes de adoptarlas o descartarlas.</p>
+<table>
+<thead>
+<tr>
+<th>Modelo</th>
+<th>Qué hace bien</th>
+<th>Por qué no se copia entero</th>
+<th>Qué se toma</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Aula invertida universitaria</strong></td>
+<td>Libera tiempo síncrono para práctica.</td>
+<td>Su efecto medio es pequeño y se anula si se recorta el tiempo presencial.</td>
+<td>Se invierte <strong>sin recortar</strong> y <strong>añadiendo cuestionarios</strong>, que son los dos moderadores con efecto (D1 §2.1).</td>
+</tr>
+<tr>
+<td><strong>Bootcamp de inmersión</strong></td>
+<td>Intensidad y cohorte fuerte.</td>
+<td>Excluye a quien trabaja.</td>
+<td>La cohorte cerrada y el ritmo común.</td>
+</tr>
+<tr>
+<td><strong>Aprendizaje basado en proyectos</strong></td>
+<td>Motivación y transferencia.</td>
+<td>Sin estructura produce lagunas conceptuales.</td>
+<td>Proyecto real <strong>más</strong> currículo secuenciado con dependencias duras (D2 §9).</td>
+</tr>
+<tr>
+<td><strong>Aprendizaje para el dominio</strong></td>
+<td>Nadie avanza con deuda conceptual.</td>
+<td>Descoordina a la cohorte si no hay fecha límite.</td>
+<td>Reintento con techo decreciente <strong>y</strong> fecha límite dura en la semana 15.</td>
+</tr>
+<tr>
+<td><strong>Instrucción entre pares</strong></td>
+<td>Reducción documentada del fracaso en cursos introductorios de informática.</td>
+<td>Requiere preguntas bien calibradas.</td>
+<td>Protocolo de doble voto con descarte de preguntas demasiado fáciles.</td>
+</tr>
+<tr>
+<td><strong>PRIMM</strong></td>
+<td>Resuelve el problema del novato que escribe sin saber leer.</td>
+<td>Pensado para aula escolar presencial.</td>
+<td>Predicción escrita obligatoria antes de toda ejecución.</td>
+</tr>
+<tr>
+<td><strong>Investigación de pregrado en el aula</strong></td>
+<td>Produce publicación real con estudiantes.</td>
+<td>Suele diluirse sin protocolo.</td>
+<td>Investigación generacional con seis compuertas y preinscripción (D8).</td>
+</tr>
+<tr>
+<td><strong>Cursos masivos abiertos</strong></td>
+<td>Alcance y coste marginal cero.</td>
+<td>Terminación muy baja y sin verificación de autoría.</td>
+<td>Nada de su modelo de entrega; sí su disciplina de materiales reutilizables.</td>
+</tr>
+<tr>
+<td><strong>Formación dual europea</strong></td>
+<td>Vínculo con el ejercicio real.</td>
+<td>Requiere empresa receptora.</td>
+<td>El docente debe estar en ejercicio profesional vigente (Carta, art. 34).</td>
+</tr>
+</tbody>
+</table>
+<h2>6 · La transparencia de resultados como diferencial</h2>
+<p>En el sector de los bootcamps existe desde 2016 un estándar voluntario de reporte
+de resultados, con plantillas comunes, publicación semestral y <strong>auditoría por un
+tercero</strong>. Su existencia demuestra dos cosas: que el sector tiene un problema
+reconocido de credibilidad en las cifras, y que hay una vía establecida para
+resolverlo.</p>
+<p>El art. 15 de la Carta obliga al Instituto a publicar sus propios indicadores con
+metodología declarada. Se recomienda ir más allá y <strong>adoptar voluntariamente el
+espíritu de ese estándar desde la Generación I</strong>, publicando matrícula, retención,
+graduación y resultado de auditoría con la misma plantilla en cada periodo. Es
+barato, es verificable y sitúa al Instituto en una posición que casi nadie ocupa en
+el mercado hispanohablante.</p>
+<p>Lo que el Instituto <strong>no</strong> hará, por el art. 18 de la Carta, es publicar tasas de
+inserción laboral que no pueda auditar ni prometer salarios.</p>
+<hr />
+<h1>PARTE III · POSICIONAMIENTO</h1>
+<h2>7 · La proposición en una frase</h2>
+<blockquote>
+<p><strong>Cuatro meses, dos días a la semana, gratis, para salir con tu emprendimiento
+digital montado: la plataforma funcionando, la marca, y el negocio pensado.</strong></p>
+<p>Programación, herramientas modernas de inteligencia artificial y emprendimiento.
+Diez plazas. Sin coste de ningún tipo. Sábados y domingos de 15:00 a 17:00 UTC.</p>
+</blockquote>
+<h3>7.1 · Cómo se nombra, y cómo no</h3>
+<p>El art. 18 bis de la Carta lo convierte en norma, y aquí está el motivo comercial.</p>
+<table>
+<thead>
+<tr>
+<th>Se dice</th>
+<th>No se dice</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>«Programación, IA y emprendimiento»</td>
+<td>«Curso de IA»</td>
+<td>Atraería a quien busca una moda y decepcionaría a quien quiere construir algo. Además sería falso: la IA es la herramienta, no el objeto.</td>
+</tr>
+<tr>
+<td>«Aprenderás a dirigir y auditar el código que escriben los agentes»</td>
+<td>«Aprenderás a programar»</td>
+<td>Es lo que de verdad ocurre, y es más difícil y más valioso que lo segundo.</td>
+</tr>
+<tr>
+<td>«Saldrás con la estructura base de tu emprendimiento»</td>
+<td>«Saldrás siendo desarrollador»</td>
+<td>El D2 §3.3 lo prohíbe expresamente.</td>
+</tr>
+<tr>
+<td>«Diez plazas, gratis, y hay que trabajar ocho horas por semana»</td>
+<td>«Formación gratuita y flexible»</td>
+<td>La exigencia declarada filtra mejor que cualquier prueba de admisión.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>El posicionamiento en una frase para uso interno:</strong> <em>no vendemos un curso de
+inteligencia artificial; damos bases técnicas, uso serio de herramientas modernas y el
+empujón para dar los primeros pasos de un negocio propio.</em></p>
+<h2>8 · Los siete diferenciadores defendibles</h2>
+<p>Un diferenciador es defendible si un competidor no puede copiarlo en un trimestre.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Diferenciador</th>
+<th>Por qué es difícil de copiar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><strong>El proyecto es un negocio real, no un ejercicio.</strong> Se define en la semana 2 y se construye durante catorce semanas, marca y modelo de negocio incluidos.</td>
+<td>Exige rediseñar el currículo entero alrededor de la Transferencia semanal.</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><strong>Forma arquitectos, no programadores.</strong> Enseña a especificar, dirigir y auditar agentes de IA, que es el perfil escaso en 2026, en lugar de competir por formar a quien escribe código a mano.</td>
+<td>Exige una posición pedagógica argumentada y un mecanismo de verificación de autoría que casi nadie tiene.</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>Defensa Aleatoria de Autoría</strong> en lugar de vigilancia algorítmica.</td>
+<td>Exige docentes que conozcan el código de cada estudiante. No escala por software.</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><strong>Escalera de IA declarada y auditada</strong>, ni prohibición ni barra libre.</td>
+<td>Exige una posición pedagógica argumentada y sostenida contra la moda.</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><strong>Auditoría Técnica con umbrales públicos</strong> alineada al Acta Europea de Accesibilidad.</td>
+<td>Exige que el propio instituto opere a ese nivel. Elysium λ ya lo hace con clientes.</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td><strong>Gratuidad total como acción social</strong>, sin tramos, sin becas parciales y sin versión reducida.</td>
+<td>No se copia: se decide. Exige renunciar por completo al ingreso y financiar el programa con otra actividad.</td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td><strong>Aula de diez personas por decisión, no por falta de demanda.</strong></td>
+<td>Es lo contrario de lo que hace un negocio educativo. Sostiene los seis anteriores, que a escala mayor dejarían de existir.</td>
+</tr>
+</tbody>
+</table>
+<h2>9 · Lo que el Instituto no ofrece, y lo dice</h2>
+<p>Para que la promesa sea creíble hay que decir dónde termina: no hay garantía de
+empleo, no hay bolsa de trabajo, no hay título oficial, no hay marcos de trabajo de
+moda como eje del currículo, y no hay ruta rápida.</p>
+<p>Y hay que decir con precisión qué son las cuatro horas: <strong>el Instituto imparte
+cuatro horas de clase a la semana, y el estudiante dedica otras cuatro por su
+cuenta</strong>. Son ocho horas semanales durante doce meses. Quien sólo pueda asistir a
+las clases y no estudiar entre ellas no debe presentarse, porque el método no
+funcionará para él y ocupará una de las diez plazas.</p>
+<p>Declarar todo esto en la convocatoria reduce el número de solicitudes y aumenta la
+retención, que es el intercambio correcto. En un programa gratuito lo es todavía
+más: la plaza que ocupa quien no va a terminar es la plaza que no ocupó otra
+persona.</p>
+<hr />
+<h1>PARTE IV · EL PROBLEMA DEL HORARIO</h1>
+<h2>10 · Planteamiento</h2>
+<p>Hay que elegir una franja de dos horas, sábado y domingo, que sirva
+simultáneamente a catorce husos horarios efectivos, desde Tijuana (UTC−8 o −7)
+hasta Guinea Ecuatorial (UTC+1), con un docente en Portugal. El fundador declaró
+que su propia conveniencia horaria no es una restricción y que la variable a
+optimizar es la del estudiantado. El problema se resuelve, por tanto, como una
+<strong>maximización de utilidad agregada ponderada</strong>.</p>
+<h2>11 · Modelo</h2>
+<p><strong>Variable de decisión.</strong> Hora UTC de inicio del bloque de dos horas, idéntica
+sábado y domingo, para no fragmentar el hábito.</p>
+<p><strong>Función de utilidad.</strong> A cada hora local se le asigna una utilidad pedagógica en
+el intervalo [0, 1], construida sobre tres componentes:</p>
+<ol>
+<li><strong>Curva base de disponibilidad y estado cognitivo en fin de semana.</strong> Nula antes
+   de las 06:00; ascendente hasta las 09:00; máxima de 09:00 a 12:00 y de 15:00 a
+   20:00; decreciente a partir de las 20:00; residual después de las 22:00.</li>
+<li><strong>Penalización por comida principal</strong>, con ventana propia por región cultural,
+   porque el almuerzo de fin de semana es un ritual familiar y no un hueco libre:
+   Iberia 14:00–16:00, México 14:00–16:00, Cono Sur 13:00–14:30, Andes 12:30–14:00,
+   Centroamérica y Caribe 12:00–13:30.</li>
+<li><strong>Penalización por tope social nocturno</strong>, distinto por región.</li>
+</ol>
+<p><strong>Ponderación.</strong> Se evalúan <strong>dos</strong> ponderaciones independientes para comprobar la
+robustez del resultado: (a) población hispanohablante por huso, y (b) demanda
+esperada de formación técnica en línea, que sobrepondera España, México, Colombia,
+Argentina, Perú y Chile. El resultado es idéntico en ambas, lo que es un indicio
+fuerte de que no depende de los supuestos de demanda.</p>
+<p><strong>Regímenes estacionales.</strong> Se evalúan por separado el invierno boreal
+(noviembre–marzo, Lisboa en UTC+0) y el verano boreal (abril–octubre, Lisboa en
+UTC+1), incorporando además los regímenes propios de Chile y de Cuba. Paraguay se
+modela en <strong>UTC−3 permanente</strong> conforme a la ley que eliminó el cambio estacional
+en 2024.</p>
+<p><strong>Especificación completa.</strong> El modelo es un programa de unas 120 líneas cuya
+implementación se conserva en el repositorio del Instituto. Se publica para que
+cualquiera pueda cambiar los supuestos y comprobar si el resultado cambia.</p>
+<h2>12 · Resultado</h2>
+<p>Barrido de todas las horas UTC candidatas, con paso de 30 minutos:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Inicio UTC</th>
+<th style="text-align: center;">Índice combinado</th>
+<th>Peor caso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">13:00</td>
+<td style="text-align: center;">0,751</td>
+<td>Tijuana 05:00 · inviable</td>
+</tr>
+<tr>
+<td style="text-align: center;">14:00</td>
+<td style="text-align: center;">0,915</td>
+<td>Tijuana 06:00 · muy malo</td>
+</tr>
+<tr>
+<td style="text-align: center;">14:30</td>
+<td style="text-align: center;">0,916</td>
+<td>Tijuana 06:30 · muy malo</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>15:00</strong></td>
+<td style="text-align: center;"><strong>0,924</strong></td>
+<td><strong>Tijuana 07:00 · aceptable</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">15:30</td>
+<td style="text-align: center;">0,908</td>
+<td>Tijuana 07:30</td>
+</tr>
+<tr>
+<td style="text-align: center;">16:00</td>
+<td style="text-align: center;">0,835</td>
+<td>Cono Sur 13:00–15:00 · comida</td>
+</tr>
+<tr>
+<td style="text-align: center;">17:00</td>
+<td style="text-align: center;">0,777</td>
+<td>Caribe y Andes en plena comida</td>
+</tr>
+<tr>
+<td style="text-align: center;">18:00</td>
+<td style="text-align: center;">0,806</td>
+<td>Centroamérica 12:00 · comida</td>
+</tr>
+<tr>
+<td style="text-align: center;">22:00</td>
+<td style="text-align: center;">0,837</td>
+<td>España 23:00–01:00 · inviable</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Óptimo: 15:00–17:00 UTC</strong>, con margen claro sobre las alternativas y con el
+mismo ganador bajo las dos ponderaciones y los dos regímenes estacionales.</p>
+<h2>13 · Decisión de anclaje: UTC fijo todo el año</h2>
+<p>Se compararon dos políticas:</p>
+<table>
+<thead>
+<tr>
+<th>Política</th>
+<th style="text-align: center;">Índice invierno</th>
+<th style="text-align: center;">Índice verano</th>
+<th style="text-align: center;">Media</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A · 15:00 UTC fijo</strong> (América Latina nunca cambia; Iberia se desplaza)</td>
+<td style="text-align: center;">0,928</td>
+<td style="text-align: center;">0,931</td>
+<td style="text-align: center;"><strong>0,929</strong></td>
+</tr>
+<tr>
+<td>B · 16:00 Lisboa fijo (Iberia estable; América Latina se desplaza)</td>
+<td style="text-align: center;">0,845</td>
+<td style="text-align: center;">0,931</td>
+<td style="text-align: center;">0,888</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Se adopta la política A.</strong> La razón es estructural: la mayor parte del mundo
+hispanohablante <strong>abolió el cambio de hora estacional</strong>, mientras que Portugal y
+España lo mantienen. Anclar a UTC hace que el desplazamiento lo absorban las dos
+únicas zonas que sí cambian de hora, y que además son las del docente. Es también
+la política más simple de comunicar: <em>la clase es siempre a las 15:00 UTC</em>.</p>
+<h2>14 · Tabla de conversión oficial</h2>
+<h3>14.1 · Invierno boreal · noviembre a marzo</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Huso</th>
+<th>Territorios</th>
+<th>Hora local</th>
+<th style="text-align: center;">Valoración</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">UTC−8</td>
+<td>Tijuana y Baja California, Pacífico de EE. UU.</td>
+<td>07:00–09:00</td>
+<td style="text-align: center;">Temprano</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−7</td>
+<td>Pacífico de México, Baja California Sur</td>
+<td>08:00–10:00</td>
+<td style="text-align: center;">Bien</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−6</td>
+<td><strong>México (centro), Guatemala, El Salvador, Honduras, Nicaragua, Costa Rica</strong></td>
+<td><strong>09:00–11:00</strong></td>
+<td style="text-align: center;"><strong>Óptimo</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−5</td>
+<td><strong>Colombia, Perú, Ecuador, Panamá, Cuba, Quintana Roo</strong></td>
+<td><strong>10:00–12:00</strong></td>
+<td style="text-align: center;"><strong>Óptimo</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−4</td>
+<td>Venezuela, Bolivia, República Dominicana, Puerto Rico</td>
+<td>11:00–13:00</td>
+<td style="text-align: center;">Muy bien</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−3</td>
+<td><strong>Argentina, Uruguay, Paraguay, Chile</strong></td>
+<td><strong>12:00–14:00</strong></td>
+<td style="text-align: center;">Aceptable · roza la comida</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC+0</td>
+<td><strong>Portugal (sede)</strong></td>
+<td><strong>15:00–17:00</strong></td>
+<td style="text-align: center;">Óptimo</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC+1</td>
+<td><strong>España</strong>, Guinea Ecuatorial</td>
+<td><strong>16:00–18:00</strong></td>
+<td style="text-align: center;">Óptimo</td>
+</tr>
+</tbody>
+</table>
+<h3>14.2 · Verano boreal · abril a octubre</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Huso</th>
+<th>Territorios</th>
+<th>Hora local</th>
+<th style="text-align: center;">Valoración</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">UTC−7</td>
+<td>Tijuana, Pacífico de México y de EE. UU.</td>
+<td>08:00–10:00</td>
+<td style="text-align: center;">Bien</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−6</td>
+<td><strong>México (centro) y Centroamérica</strong></td>
+<td><strong>09:00–11:00</strong></td>
+<td style="text-align: center;"><strong>Óptimo</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−5</td>
+<td><strong>Colombia, Perú, Ecuador, Panamá</strong></td>
+<td><strong>10:00–12:00</strong></td>
+<td style="text-align: center;"><strong>Óptimo</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−4</td>
+<td>Venezuela, Bolivia, Chile, Caribe</td>
+<td>11:00–13:00</td>
+<td style="text-align: center;">Muy bien</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC−3</td>
+<td><strong>Argentina, Uruguay, Paraguay</strong></td>
+<td><strong>12:00–14:00</strong></td>
+<td style="text-align: center;">Aceptable · roza la comida</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC+1</td>
+<td><strong>Portugal (sede)</strong></td>
+<td><strong>16:00–18:00</strong></td>
+<td style="text-align: center;">Óptimo</td>
+</tr>
+<tr>
+<td style="text-align: center;">UTC+2</td>
+<td><strong>España</strong>, Guinea Ecuatorial</td>
+<td><strong>17:00–19:00</strong></td>
+<td style="text-align: center;">Óptimo</td>
+</tr>
+</tbody>
+</table>
+<h2>15 · Los dos perjuicios reconocidos y su compensación</h2>
+<p>Ningún horario satisface a todos. El modelo identifica exactamente a quién
+perjudica y el Instituto lo compensa por diseño en lugar de ocultarlo.</p>
+<table>
+<thead>
+<tr>
+<th>Perjudicado</th>
+<th>Perjuicio</th>
+<th>Compensación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cono Sur</strong> (Argentina, Uruguay, Paraguay, Chile en verano austral)</td>
+<td>La franja 12:00–14:00 invade la comida familiar del fin de semana.</td>
+<td><strong>Asistencia diferida</strong> del art. 44.2 de la Carta, hasta el 25 % de las sesiones, con grabación y parte de sesión. Tutoría opcional los martes a las 22:00 UTC.</td>
+</tr>
+<tr>
+<td><strong>Pacífico norte</strong> (Tijuana, Baja California, diáspora en la costa oeste de EE. UU.)</td>
+<td>07:00–09:00 en invierno boreal es temprano.</td>
+<td>Mismo mecanismo de asistencia diferida. Además es la zona con menor peso de matrícula esperada, lo que hace el compromiso defendible.</td>
+</tr>
+</tbody>
+</table>
+<h2>16 · Transiciones de horario en el calendario de la Generación I</h2>
+<p>Se anuncian por escrito la semana previa. Con el anclaje a UTC, <strong>ninguna afecta a
+América Latina continental</strong>: sólo se desplaza el reloj de pared de quienes viven en
+un territorio que todavía cambia de hora.</p>
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th style="text-align: center;">Semana</th>
+<th>Qué ocurre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>14-III-2027</td>
+<td style="text-align: center;">10</td>
+<td>Estados Unidos y Cuba adelantan.</td>
+</tr>
+<tr>
+<td>28-III-2027</td>
+<td style="text-align: center;"><strong>receso</strong></td>
+<td>Europa adelanta. <strong>Cae en el receso de Semana Santa</strong>, sin efecto lectivo.</td>
+</tr>
+<tr>
+<td>4-IV-2027</td>
+<td style="text-align: center;">12</td>
+<td>Chile retrasa. Pasa de 12:00 a 11:00 local.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dos ventajas del año natural.</strong> La primera: el cambio europeo de primavera cae
+dentro del receso de Semana Santa, de modo que ninguna sesión se ve afectada por él.
+La segunda: el Demo Day del 18 y 19 de diciembre queda a siete semanas de la última
+transición, sin nota al pie. En el calendario de octubre que se estudió primero, la
+sustentación caía exactamente el día del cambio europeo, que era el error operativo
+más previsible de todo el programa.</p>
+<h2>17 · Calendario académico</h2>
+<h3>17.1 · La regla permanente</h3>
+<p><strong>El año académico coincide con el año natural</strong> (Carta, disp. trans. 2.ª). El cuatrimestre inicia el <strong>segundo sábado de enero</strong> y cierra en la <strong>primera semana de mayo</strong>. El calendario establece un único bloque intensivo que condensa el programa completo:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Cuatrimestre</th>
+<th>Meses</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>Único</strong></td>
+<td>enero a mayo</td>
+<td style="text-align: center;">1–16</td>
+</tr>
+</tbody>
+</table>
+<p><strong>El coste, dicho una vez y por escrito.</strong> Dieciséis semanas lectivas dentro del inicio del año dejan sitio para <strong>un fin de semana de receso</strong>, asignado a la Semana Santa. Los tres niveles se imparten de manera consecutiva. La salida, si
+resulta insostenible, está estudiada: adelantar el arranque al primer sábado de
+enero libera un tercer receso, a cambio de empezar el día siguiente al de Año Nuevo.</p>
+<h3>17.2 · Generación I (Λ01)</h3>
+<table>
+<thead>
+<tr>
+<th>Bloque</th>
+<th>Desde</th>
+<th>Hasta</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Módulo 0</strong> (asíncrono, sin docente)</td>
+<td>28-XI-2026</td>
+<td>8-I-2027</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td><strong>Nivel I</strong> · semanas 1–5</td>
+<td>9-I-2027</td>
+<td>7-II-2027</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>Nivel II</strong> · semanas 6–10</td>
+<td>13-II-2027</td>
+<td>14-III-2027</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td>Receso de Semana Santa</td>
+<td>27-III-2027</td>
+<td>28-III-2027</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td><strong>Nivel III</strong> · semanas 11–15</td>
+<td>20-III-2027</td>
+<td>25-IV-2027</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td><strong>Demo Day y sustentación</strong></td>
+<td><strong>1-V-2027</strong></td>
+<td><strong>2-V-2027</strong></td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+<p>Convocatoria en septiembre de 2026, resolución en noviembre, Módulo 0 en diciembre.</p>
+<h3>17.3 · Ciclo anual de la convocatoria</h3>
+<table>
+<thead>
+<tr>
+<th>Mes</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Septiembre</strong></td>
+<td>Publicación de la convocatoria, de la rúbrica de selección y del número de plazas</td>
+</tr>
+<tr>
+<td><strong>Octubre</strong></td>
+<td>Dos sesiones informativas en directo, en la franja de <strong>15:00 UTC</strong></td>
+</tr>
+<tr>
+<td><strong>Primera semana de noviembre</strong></td>
+<td>Cierre de solicitudes y Prueba de Disposición λ</td>
+</tr>
+<tr>
+<td><strong>Noviembre</strong></td>
+<td>Entrevistas de 20 minutos y <strong>resolución motivada a todas las personas candidatas</strong></td>
+</tr>
+<tr>
+<td><strong>28 de noviembre a 8 de enero</strong></td>
+<td><strong>Módulo 0</strong></td>
+</tr>
+<tr>
+<td><strong>Segundo sábado de enero</strong></td>
+<td>Arranque</td>
+</tr>
+</tbody>
+</table>
+<h3>17.4 · Generación Piloto (Λ00)</h3>
+<table>
+<thead>
+<tr>
+<th>Bloque</th>
+<th>Desde</th>
+<th>Hasta</th>
+<th style="text-align: center;">Semanas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Semanas 1 a 8 del programa</strong></td>
+<td>12-IX-2026</td>
+<td>1-XI-2026</td>
+<td style="text-align: center;">8 sin receso</td>
+</tr>
+<tr>
+<td>Corrección de materiales y convocatoria</td>
+<td>2-XI-2026</td>
+<td>8-I-2027</td>
+<td style="text-align: center;">—</td>
+</tr>
+</tbody>
+</table>
+<p>Cinco o seis personas por invitación directa, sin certificado y sin investigación
+(Carta, disp. trans. 3.ª). Cubre el Nivel I completo y las tres primeras semanas del
+Nivel II. <strong>El año 2026 se dedica íntegramente a preparar el programa.</strong></p>
+<h3>17.5 · La segunda generación anual, si se abre</h3>
+<p>El formato de dieciséis semanas permite una segunda cohorte de <strong>septiembre a
+diciembre</strong>, que el art. 41 no impide porque nunca habría dos aulas simultáneas. El
+Consejo Académico sólo debe abrirla si la carga de la primera lo permitió, y la
+decisión se toma con los datos de la Generación I sobre la mesa, no antes.</p>
+<hr />
+<hr />
+<h1>PARTE V · COSTE DEL PROGRAMA Y SU FINANCIACIÓN</h1>
+<blockquote>
+<p>Esta parte sustituye íntegramente a la estructura de precios de la versión 1.0.0.
+El programa es <strong>gratuito para el estudiante</strong> (Carta, art. 2 bis) y por tanto no
+tiene ingresos, no tiene facturación, no tiene reembolsos y no tiene régimen de
+impuesto indirecto sobre matrícula. Lo que sí tiene es <strong>coste</strong>, y el art. 63 de
+la Carta obliga a declararlo y publicarlo cada año.</p>
+</blockquote>
+<h2>18 · Qué significa exactamente «gratuito»</h2>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th>Quién lo paga</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docencia, materiales, evaluación, tutoría, auditoría, certificado</td>
+<td><strong>Elysium λ Development &amp; Research</strong></td>
+</tr>
+<tr>
+<td>Entorno de desarrollo en la nube durante el programa</td>
+<td><strong>Elysium λ Development &amp; Research</strong></td>
+</tr>
+<tr>
+<td>Alojamiento del proyecto durante 12 meses tras graduar</td>
+<td><strong>Elysium λ Development &amp; Research</strong></td>
+</tr>
+<tr>
+<td>Depósito de datos, código y preprint de la investigación</td>
+<td><strong>Elysium λ Development &amp; Research</strong></td>
+</tr>
+<tr>
+<td>Ordenador y conexión a internet del estudiante</td>
+<td>El estudiante (requisito de admisión, art. 29.3)</td>
+</tr>
+<tr>
+<td>Dominio propio del proyecto, si lo quiere</td>
+<td>El estudiante, opcionalmente y después de graduar</td>
+</tr>
+</tbody>
+</table>
+<p>No hay matrícula, mensualidad, cuota de examen, coste de materiales, ni «versión
+premium» de nada. No existe tampoco la figura de la beca parcial, porque no existe
+la figura del pago: <strong>todas las plazas son gratuitas y por tanto ninguna es una
+beca</strong>. La palabra correcta es acción social, no beca, y el paquete la usa así de
+forma deliberada.</p>
+<h2>19 · Coste monetario anual de una generación</h2>
+<p>Supuestos: un aula de doce personas, 16 semanas, una sola cohorte simultánea.</p>
+<table>
+<thead>
+<tr>
+<th>Concepto</th>
+<th style="text-align: right;">Importe por generación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plataforma de videoconferencia y aula virtual con subtitulado</td>
+<td style="text-align: right;">150 €</td>
+</tr>
+<tr>
+<td>Servicios en la nube para entornos de laboratorio y Módulo 0</td>
+<td style="text-align: right;">250 €</td>
+</tr>
+<tr>
+<td>Herramientas de auditoría y licencias de desarrollo</td>
+<td style="text-align: right;">400 €</td>
+</tr>
+<tr>
+<td><strong>Auditor externo de defensas</strong> (12 sustentaciones)</td>
+<td style="text-align: right;">600 €</td>
+</tr>
+<tr>
+<td><strong>Miembro externo del Comité de Ética</strong></td>
+<td style="text-align: right;">600 €</td>
+</tr>
+<tr>
+<td>Depósito de datos, código y preprint</td>
+<td style="text-align: right;">0 €</td>
+</tr>
+<tr>
+<td>Alojamiento de los proyectos graduados durante 12 meses</td>
+<td style="text-align: right;">250 €</td>
+</tr>
+<tr>
+<td><strong>Total en dinero</strong></td>
+<td style="text-align: right;"><strong>≈ 2 250 €</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Partida de riesgo declarada.</strong> Si la revista de destino exige tasa de publicación
+en acceso abierto, el importe puede oscilar entre <strong>0 y 2 000 €</strong> según el foro. El
+Instituto prioriza destinos sin tasa o con exención, y en el peor caso el preprint
+ya está publicado sin coste, de modo que el resultado científico está asegurado con
+independencia de esa partida (D8 §15).</p>
+<h2>20 · Coste en tiempo donado</h2>
+<p>Es la partida grande y la que suele omitirse en los proyectos de acción social. El
+art. 63.4 de la Carta obliga a declararla.</p>
+<table>
+<thead>
+<tr>
+<th>Actividad</th>
+<th style="text-align: right;">Horas por generación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docencia síncrona (32 sesiones de 2 h)</td>
+<td style="text-align: right;">64 h</td>
+</tr>
+<tr>
+<td>Preparación de sesiones y materiales (primera generación)</td>
+<td style="text-align: right;">110 h</td>
+</tr>
+<tr>
+<td>Retroalimentación escrita en 7 días, 12 estudiantes</td>
+<td style="text-align: right;">60 h</td>
+</tr>
+<tr>
+<td>Tutorías individuales (5 por estudiante)</td>
+<td style="text-align: right;">17 h</td>
+</tr>
+<tr>
+<td>Defensas Aleatorias de Autoría (4 por estudiante)</td>
+<td style="text-align: right;">8 h</td>
+</tr>
+<tr>
+<td>Auditorías técnicas y sustentaciones</td>
+<td style="text-align: right;">20 h</td>
+</tr>
+<tr>
+<td>Acompañamiento del Módulo 0</td>
+<td style="text-align: right;">12 h</td>
+</tr>
+<tr>
+<td><strong>Total del cuatrimestre</strong></td>
+<td style="text-align: right;"><strong>≈ 291 h ≈ 13 h por semana lectiva</strong></td>
+</tr>
+<tr>
+<td>Investigación del profesorado, <strong>fuera del periodo lectivo</strong> (D8 §8)</td>
+<td style="text-align: right;">90 h</td>
+</tr>
+<tr>
+<td><strong>Total anual con una generación</strong></td>
+<td style="text-align: right;"><strong>≈ 381 h</strong></td>
+</tr>
+</tbody>
+</table>
+<p>A partir de la segunda generación, la preparación de materiales cae en torno a un
+70 %, de modo que el cuatrimestre baja a unas <strong>215 h</strong>. La generación piloto Λ00
+existe precisamente para adelantar esa producción.</p>
+<p><strong>Lectura honesta.</strong> El paso de 48 a 16 semanas reduce la carga anual del fundador de
+unas 740 horas a unas 381, y concentra las 291 horas lectivas en cuatro meses en
+lugar de doce. Es la razón principal del cambio de formato, y las 90 horas de
+investigación caen deliberadamente en verano, fuera del aula. Cualquier decisión
+futura que amplíe el número de estudiantes o abra una segunda generación anual debe
+partir de esta tabla.</p>
+<h2>21 · Sostenibilidad y salvaguardas</h2>
+<p><strong>Fuente de financiación.</strong> La actividad comercial de Elysium λ Development &amp;
+Research. El programa se dimensiona para que su coste monetario sea marginal
+respecto a esa actividad, de modo que un mal trimestre comercial no obligue a
+interrumpir una generación en curso. <strong>Compromiso operativo:</strong> el coste de las 16 semanas se provisiona íntegro antes de abrir la convocatoria.</p>
+<p><strong>Las tres salvaguardas del art. 63.</strong> Se repiten aquí porque son la parte del
+diseño que más fácilmente se erosiona con el tiempo:</p>
+<ol>
+<li><strong>Ninguna plaza, calificación ni certificado</strong> se condiciona a la contratación de
+   servicios de la empresa.</li>
+<li><strong>Ninguna oferta comercial</strong> se dirige a un estudiante mientras lo sea, y al
+   graduado sólo después de emitido su certificado y nunca por quien lo evaluó
+   (art. 63 bis).</li>
+<li><strong>El marco muestral de la investigación no se usa como lista de prospectos</strong>
+   (D8 §13.1). Mil doscientas auditorías de pymes son mil doscientos clientes
+   potenciales, y confundir ambas cosas destruiría a la vez la credibilidad
+   científica y la del programa.</li>
+</ol>
+<p><strong>Patrocinio.</strong> Admisible sólo sin contrapartida y sin influencia sobre currículo,
+selección ni línea de investigación, y siempre declarado con su importe.</p>
+<h2>22 · Qué cambia respecto al reconocimiento oficial</h2>
+<p>La gratuidad modifica dos de los argumentos regulatorios de la versión anterior:</p>
+<table>
+<thead>
+<tr>
+<th>Asunto</th>
+<th>Antes (programa de pago)</th>
+<th>Ahora (acción social)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Exención de IVA por certificación DGERT</strong></td>
+<td>Argumento económico principal</td>
+<td><strong>Deja de aplicar.</strong> Sin ingresos no hay impuesto que eximir.</td>
+</tr>
+<tr>
+<td><strong>Certificación DGERT</strong></td>
+<td>Motivada por el ahorro fiscal</td>
+<td><strong>Sigue siendo prioritaria, por otro motivo</strong>: es requisito para acceder a financiación pública de formación, y esa financiación es exactamente lo que un programa gratuito necesita para sostenerse sin depender de un solo pagador privado.</td>
+</tr>
+<tr>
+<td><strong>Tributación indirecta transfronteriza</strong></td>
+<td>Riesgo alto, requería asesoría</td>
+<td><strong>Deja de aplicar</strong> al no haber venta de servicio.</td>
+</tr>
+<tr>
+<td><strong>Derecho de desistimiento del consumidor</strong></td>
+<td>14 días con reembolso</td>
+<td><strong>Deja de aplicar</strong> al no haber contrato oneroso. Se sustituye por la retirada libre del art. 65.</td>
+</tr>
+<tr>
+<td><strong>Uso del término «instituto» y del certificado</strong></td>
+<td>Riesgo alto</td>
+<td><strong>Riesgo alto e inalterado.</strong> La gratuidad no autoriza a describir como titulación lo que no lo es. Sigue siendo la revisión legal más urgente.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1>PARTE VI · SELECCIÓN, RIESGOS E INDICADORES</h1>
+<h2>23 · De embudo comercial a proceso de selección</h2>
+<p>Un programa gratuito de diez plazas no tiene embudo de captación: tiene <strong>un
+problema de justicia distributiva</strong>. La pregunta ya no es cómo conseguir treinta
+matrículas, sino cómo elegir diez personas entre muchas más de forma que la decisión
+resista el escrutinio de quien no fue elegido.</p>
+<h3>23.1 · Calendario de la convocatoria</h3>
+<p>El ciclo anual completo está en el §17.3. En resumen: convocatoria en septiembre,
+sesiones informativas en octubre, cierre y prueba en noviembre, resolución motivada
+en diciembre, arranque el segundo sábado de enero.</p>
+<h3>23.2 · Volumen previsto</h3>
+<p>Cifras de planificación, no promesas. Se revisarán con datos reales tras la primera
+convocatoria.</p>
+<table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th style="text-align: right;">Generación I (previsión)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Personas que ven la convocatoria</td>
+<td style="text-align: right;">5 000 – 15 000</td>
+</tr>
+<tr>
+<td>Solicitudes iniciadas</td>
+<td style="text-align: right;">150 – 400</td>
+</tr>
+<tr>
+<td>Solicitudes completas con Prueba de Disposición</td>
+<td style="text-align: right;">60 – 150</td>
+</tr>
+<tr>
+<td>Entrevistas realizadas</td>
+<td style="text-align: right;">25 – 35</td>
+</tr>
+<tr>
+<td><strong>Plazas ofrecidas</strong></td>
+<td style="text-align: right;"><strong>12</strong></td>
+</tr>
+<tr>
+<td><strong>Plazas ocupadas</strong></td>
+<td style="text-align: right;"><strong>10 – 12</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Se ofrecen doce plazas para un aula ideal de diez, previendo dos renuncias antes del
+arranque. Si se ocupan las quince del máximo, no se amplía: se cierra la
+convocatoria (Carta, art. 41).</p>
+<h3>23.3 · La rúbrica de selección</h3>
+<p>Pública desde la apertura de la convocatoria, y aplicada sin excepción.</p>
+<table>
+<thead>
+<tr>
+<th>Criterio</th>
+<th style="text-align: center;">Peso</th>
+<th>Qué se valora</th>
+<th>Qué <strong>no</strong> se valora</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Disposición demostrada</strong></td>
+<td style="text-align: center;">30 %</td>
+<td>Resultado en la Prueba de Disposición λ: razonamiento lógico y comprensión lectora técnica</td>
+<td>Conocer ya un lenguaje de programación</td>
+</tr>
+<tr>
+<td><strong>Viabilidad horaria real</strong></td>
+<td style="text-align: center;">25 %</td>
+<td>Que las 8 h semanales existan de verdad en su vida, no como buena intención</td>
+<td>Disponibilidad total; se busca a quien trabaja</td>
+</tr>
+<tr>
+<td><strong>Situación de acceso</strong></td>
+<td style="text-align: center;">25 %</td>
+<td>Distancia real que le separa de una oportunidad equivalente por otra vía: renta, geografía, cargas familiares, ausencia de red profesional</td>
+<td>La necesidad declarada sin contexto</td>
+</tr>
+<tr>
+<td><strong>Claridad del proyecto</strong></td>
+<td style="text-align: center;">20 %</td>
+<td>Que sepa qué quiere construir y para quién, aunque sea de forma imperfecta</td>
+<td>Que la idea sea brillante o novedosa</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regla explícita:</strong> el conocimiento previo de programación <strong>no puntúa</strong>. Puntuarlo
+convertiría un programa de acción social en un premio a quien ya tuvo oportunidades
+(Carta, art. 64.2).</p>
+<p><strong>Devolución obligatoria.</strong> Toda persona no admitida recibe la razón concreta de su
+no admisión y qué la haría admisible el año siguiente. Es la parte más costosa del
+proceso en tiempo y la que más define el carácter del Instituto.</p>
+<h2>24 · Difusión, por orden de retorno esperado</h2>
+<p>No es marketing: es alcanzar a quien la rúbrica del §23.3 quiere encontrar, que por
+definición es quien menos expuesto está a este tipo de convocatorias.</p>
+<ol>
+<li><strong>Organizaciones de base</strong>: asociaciones de personas autónomas, cooperativas,
+   entidades de inclusión digital, bibliotecas públicas y centros comunitarios de los
+   países objetivo. Es el canal que mejor correlaciona con el criterio de acceso.</li>
+<li><strong>Las instituciones asociadas</strong>, para difusión y sólo para difusión, con el límite
+   del art. 8.5 de la Carta: difundir no es avalar.</li>
+<li><strong>El propio sitio y el portafolio de Elysium λ</strong>, que demuestra en producción lo
+   que el programa enseña.</li>
+<li><strong>Contenido técnico en abierto</strong>: auditorías reales de accesibilidad publicadas con
+   su metodología, que además preparan la línea de investigación.</li>
+<li><strong>Comunidades hispanohablantes de desarrollo</strong>, útiles pero sesgadas hacia quien
+   ya está dentro del sector; se usan con conciencia de ese sesgo.</li>
+<li><strong>Referencia de graduados</strong>, operativa desde la Generación II.</li>
+</ol>
+<h2>25 · Riesgos</h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th style="text-align: center;">Prob.</th>
+<th style="text-align: center;">Impacto</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Todo el programa depende de una sola persona.</strong></td>
+<td style="text-align: center;">Alta</td>
+<td style="text-align: center;"><strong>Muy alto</strong></td>
+<td>Grabación íntegra; materiales escritos completos; generación piloto Λ00 que los prueba un año antes; tutores pares reclutados entre los pilotos; docente suplente identificado antes de enero de 2027.</td>
+</tr>
+<tr>
+<td>Las 13 h semanales donadas resultan insostenibles junto a la actividad comercial</td>
+<td style="text-align: center;"><strong>Media</strong></td>
+<td style="text-align: center;">Alto</td>
+<td>Aula de diez y no de treinta; una sola generación simultánea; materiales reutilizables desde Λ00; revisión de carga al cierre de cada cuatrimestre con facultad de reducir alcance antes que calidad.</td>
+</tr>
+<tr>
+<td>La gratuidad eleva el abandono por ausencia de compromiso económico</td>
+<td style="text-align: center;">Media</td>
+<td style="text-align: center;">Alto</td>
+<td>Las cuatro anclas no económicas del D1 §8.0 y la selección estricta del §23.3.</td>
+</tr>
+<tr>
+<td>Percepción de arbitrariedad en la selección</td>
+<td style="text-align: center;">Media</td>
+<td style="text-align: center;">Alto</td>
+<td>Rúbrica pública anterior a la convocatoria, devolución motivada individual, archivo de decisiones a disposición del Comité de Ética.</td>
+</tr>
+<tr>
+<td>Confusión con una titulación oficial</td>
+<td style="text-align: center;">Media</td>
+<td style="text-align: center;"><strong>Muy alto</strong></td>
+<td>Art. 8 de la Carta aplicado a web, convocatoria y certificado. Revisión legal previa.</td>
+</tr>
+<tr>
+<td>Conflicto de interés al convertir estudiantes en clientes</td>
+<td style="text-align: center;"><strong>Media</strong></td>
+<td style="text-align: center;"><strong>Muy alto</strong></td>
+<td>Art. 63 bis, auditado por el Comité de Ética cada generación. La gratuidad <strong>aumenta</strong> este riesgo en lugar de reducirlo, porque deja la conversión comercial como única vía de retorno imaginable.</td>
+</tr>
+<tr>
+<td>El artículo no se acepta en revista</td>
+<td style="text-align: center;">Media</td>
+<td style="text-align: center;">Bajo</td>
+<td>El compromiso es publicar <strong>preprint</strong> y <strong>enviar</strong>. El preprint con identificador persistente asegura el resultado.</td>
+</tr>
+<tr>
+<td>No se cubren las 10 plazas</td>
+<td style="text-align: center;">Baja</td>
+<td style="text-align: center;">Medio</td>
+<td>Umbral mínimo de apertura: <strong>6 estudiantes</strong>. Por debajo se aplaza un año y se comunica públicamente el motivo.</td>
+</tr>
+<tr>
+<td>Cambio de condiciones de un proveedor en la nube</td>
+<td style="text-align: center;">Media</td>
+<td style="text-align: center;">Medio</td>
+<td>Regla de sustituibilidad del D2 §11.</td>
+</tr>
+</tbody>
+</table>
+<h2>26 · Indicadores y metas de la Generación I</h2>
+<p>Se publican conforme al art. 15 de la Carta, con metodología declarada y sin
+cambiarla entre periodos. Las metas de retención son <strong>más altas</strong> que las de un
+programa de pago, porque la selección es más estricta y el grupo mucho más pequeño;
+si no se cumplen, la conclusión no será que los estudiantes fallaron.</p>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th style="text-align: center;">Meta Generación I</th>
+<th>Cómo se mide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plazas ocupadas al arranque</td>
+<td style="text-align: center;">≥ 10</td>
+<td>Compromisos λ firmados</td>
+</tr>
+<tr>
+<td>Retención al final del Nivel I</td>
+<td style="text-align: center;">≥ <strong>85 %</strong></td>
+<td>Matrícula activa en la semana 5</td>
+</tr>
+<tr>
+<td>Retención al final del Nivel II</td>
+<td style="text-align: center;">≥ <strong>75 %</strong></td>
+<td>Matrícula activa en la semana 10</td>
+</tr>
+<tr>
+<td>Graduación sobre plazas ocupadas</td>
+<td style="text-align: center;">≥ <strong>70 %</strong></td>
+<td>H3 superado</td>
+</tr>
+<tr>
+<td>Superación de la ATE en primer intento (H3)</td>
+<td style="text-align: center;">≥ 70 %</td>
+<td>Informe del Comité de Auditoría Técnica</td>
+</tr>
+<tr>
+<td>Proyectos en producción a los 6 meses de graduar</td>
+<td style="text-align: center;">≥ 60 %</td>
+<td>Comprobación de URL viva</td>
+</tr>
+<tr>
+<td>Coautoría acreditada</td>
+<td style="text-align: center;">≥ 90 % de los graduados</td>
+<td>Registro CRediT del preprint</td>
+</tr>
+<tr>
+<td>Preprint publicado con identificador persistente</td>
+<td style="text-align: center;"><strong>Sí / No</strong></td>
+<td>Binario, sin matices</td>
+</tr>
+<tr>
+<td>Satisfacción con el horario (ítem 8 de la encuesta)</td>
+<td style="text-align: center;">≥ 4,0 / 5</td>
+<td>Encuesta de percepción λ</td>
+</tr>
+<tr>
+<td><strong>Coste monetario por estudiante graduado</strong></td>
+<td style="text-align: center;">Publicado, sin meta</td>
+<td>Coste total ÷ graduados</td>
+</tr>
+<tr>
+<td><strong>Horas donadas por estudiante graduado</strong></td>
+<td style="text-align: center;">Publicado, sin meta</td>
+<td>Horas totales ÷ graduados</td>
+</tr>
+<tr>
+<td>Personas no admitidas que recibieron devolución motivada</td>
+<td style="text-align: center;"><strong>100 %</strong></td>
+<td>Registro de la convocatoria</td>
+</tr>
+</tbody>
+</table>
+<p>Los dos indicadores de coste se publican <strong>sin meta asociada</strong> de forma
+deliberada: su función no es optimizarse a la baja, sino hacer visible qué cuesta
+realmente formar a una persona de este modo. Un programa de acción social que
+persiguiera abaratar ese número acabaría recortando exactamente aquello que lo hace
+valioso.</p>
+<h2>27 · Fuentes</h2>
+<ul>
+<li>Informes de mercado de tecnología educativa en América Latina y a nivel global
+  (IMARC, Fortune Business Insights, Business Research Insights, 2025–2026). Usados
+  como indicio de tendencia, no como dato, por las razones de la advertencia inicial.</li>
+<li>Páginas públicas de precios y resultados de 4Geeks Academy, Le Wagon, Ironhack,
+  Platzi, Henry y Laboratoria, consultadas en agosto de 2026.</li>
+<li>Council on Integrity in Results Reporting: estándares de reporte y datos
+  publicados de escuelas miembro.</li>
+<li>DGERT (Portugal): requisitos y guía de certificación de entidades formadoras.</li>
+<li>Recomendación del Consejo de la UE de 16 de junio de 2022 sobre microcredenciales.</li>
+<li>Directiva (UE) 2019/882 y norma EN 301 549.</li>
+<li>Ley n.º 7354 de 2024 de Paraguay, que establece el huso UTC−3 permanente.</li>
+<li>Modelo horario propio: <code>horario.py</code>, conservado en el repositorio del Instituto
+  con sus supuestos y su barrido completo.</li>
+</ul>
+<hr />
+<p><em>Elysium λ Institute of Development &amp; Research · D7 · «Abstrahere, aedificare, probare.»</em></p>
+</body>
+</html>

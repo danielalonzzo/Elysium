@@ -49,7 +49,7 @@ export const PLATFORMS = [
 ];
 
 /** La fecha que se publica como `lastmod`. Se cambia al cambiar el contenido. */
-export const UPDATED = '2026-10-30';
+export const UPDATED = '2026-10-31';
 
 /** Nombre corto de cada página: menú, migas, pie y enlaces relacionados. */
 export const LABELS = {
@@ -62,6 +62,7 @@ export const LABELS = {
     'delete-pages': { en: 'Delete PDF pages', es: 'Eliminar páginas', pt: 'Eliminar páginas' },
     organize: { en: 'Reorder PDF pages', es: 'Ordenar páginas', pt: 'Ordenar páginas' },
     extract: { en: 'Extract PDF pages', es: 'Extraer páginas', pt: 'Extrair páginas' },
+    'id-card': { en: 'ID card to PDF', es: 'Cédula o DNI a PDF', pt: 'Cartão de Cidadão em PDF' },
     legal: { en: 'Privacy and terms', es: 'Privacidad y condiciones', pt: 'Privacidade e condições' }
 };
 
@@ -78,7 +79,8 @@ export const CARDS = {
     rotate: { en: 'Turn sideways or upside-down pages.', es: 'Endereza páginas de lado o al revés.', pt: 'Endireite páginas de lado ou ao contrário.' },
     'delete-pages': { en: 'Remove the pages you do not need.', es: 'Quita las páginas que sobran.', pt: 'Retire as páginas que sobram.' },
     organize: { en: 'Drag the pages into a new order.', es: 'Arrastra las páginas a un nuevo orden.', pt: 'Arraste as páginas para uma nova ordem.' },
-    extract: { en: 'Save a selection as a new PDF.', es: 'Guarda una selección como PDF nuevo.', pt: 'Guarde uma seleção como PDF novo.' }
+    extract: { en: 'Save a selection as a new PDF.', es: 'Guarda una selección como PDF nuevo.', pt: 'Guarde uma seleção como PDF novo.' },
+    'id-card': { en: 'Both sides of your ID on one page.', es: 'Las dos caras de tu documento en una hoja.', pt: 'As duas faces do documento numa folha.' }
 };
 
 /* ── Textos compartidos ──────────────────────────────────────────────────── */
@@ -198,6 +200,8 @@ export const UI = {
 
 /**
  * `tool`: qué herramienta lleva la página (`video`, `pdf` o ninguna).
+ * `mode`: en la pestaña PDF, `idcard` abre «Documento de identidad» en vez
+ * del editor.
  * `platform`: en las páginas de plataforma, su id en PLATFORMS; si deja de
  * estar disponible, la página no se genera.
  * `placeholder`: el ejemplo del campo de enlace.
@@ -214,7 +218,7 @@ export const PAGES = [
                 h1: 'Free online tools, with no ads and no sign-up',
                 lead: 'Save videos from TikTok, Instagram, Facebook and other platforms in every resolution they offer, and merge, reorder or convert your PDFs to Word. Everything is free and nothing gets in your way.',
                 cardVideo: 'Paste a link and choose the quality: from 360p up to 4K or 8K when the platform has it, or just the audio as MP3 or M4A.',
-                cardPdf: 'Merge PDFs, reorder, rotate or delete pages and extract the ones you need — inside your browser. Convert to Word when you need to edit the text.',
+                cardPdf: 'Merge PDFs, reorder, rotate or delete pages and extract the ones you need — inside your browser. Convert to Word when you need to edit the text, or put both sides of your ID card on one page.',
                 cardFuture: 'More everyday tools are on the way. Each one will appear here once it works and its limits are clear.',
                 future: 'More tools',
                 why: 'Why these tools are free',
@@ -234,7 +238,7 @@ export const PAGES = [
                 h1: 'Herramientas online gratis, sin anuncios ni registro',
                 lead: 'Guarda videos de TikTok, Instagram, Facebook y otras plataformas en todas las resoluciones que ofrecen, y une, ordena o convierte tus PDF a Word. Todo gratis y sin nada que te estorbe.',
                 cardVideo: 'Pega un enlace y elige la calidad: de 360p a 4K u 8K cuando la plataforma la tiene, o solo el audio en MP3 o M4A.',
-                cardPdf: 'Une PDF, ordena, gira o elimina páginas y extrae las que necesitas, dentro de tu navegador. Conviértelo a Word cuando tengas que editar el texto.',
+                cardPdf: 'Une PDF, ordena, gira o elimina páginas y extrae las que necesitas, dentro de tu navegador. Conviértelo a Word cuando tengas que editar el texto, o pon las dos caras de tu cédula en una hoja.',
                 cardFuture: 'Vienen más herramientas para el día a día. Cada una aparecerá aquí cuando funcione y sus límites estén claros.',
                 future: 'Más herramientas',
                 why: 'Por qué estas herramientas son gratis',
@@ -254,7 +258,7 @@ export const PAGES = [
                 h1: 'Ferramentas online grátis, sem anúncios nem registo',
                 lead: 'Guarde vídeos do TikTok, Instagram, Facebook e outras plataformas em todas as resoluções que oferecem, e junte, ordene ou converta os seus PDF para Word. Tudo grátis e sem nada pelo meio.',
                 cardVideo: 'Cole uma ligação e escolha a qualidade: de 360p a 4K ou 8K quando a plataforma a tem, ou só o áudio em MP3 ou M4A.',
-                cardPdf: 'Junte PDF, ordene, rode ou elimine páginas e extraia as que precisa, dentro do seu navegador. Converta para Word quando tiver de editar o texto.',
+                cardPdf: 'Junte PDF, ordene, rode ou elimine páginas e extraia as que precisa, dentro do seu navegador. Converta para Word quando tiver de editar o texto, ou ponha as duas faces do seu Cartão de Cidadão numa folha.',
                 cardFuture: 'Estão a caminho mais ferramentas para o dia a dia. Cada uma aparecerá aqui quando funcionar e os seus limites estiverem claros.',
                 future: 'Mais ferramentas',
                 why: 'Porque é que estas ferramentas são grátis',
@@ -1239,6 +1243,84 @@ export const PAGES = [
         }
     },
     {
+        id: 'id-card',
+        type: 'pdf-task',
+        tool: 'pdf',
+        mode: 'idcard',
+        slugs: { en: 'id-card-to-pdf', es: 'cedula-dni-pdf', pt: 'cartao-de-cidadao-pdf' },
+        copy: {
+            en: {
+                title: 'ID card to PDF: both sides on one page',
+                description: 'Turn photos of the front and back of your ID card into one clean PDF page at real size. Edges found and straightened in your browser. Free.',
+                h1: 'ID card to PDF, both sides on one page',
+                lead: 'Upload a photo of each side of your identity card, residence permit or driving licence. The card is found, straightened and cut out from the background, and both sides are placed at real size on a single white page — the way employers, banks and agencies ask for it.',
+                steps: [
+                    'Take or upload a photo of the front of the document, then one of the back. Any phone photo works: lay the card on a plain surface and shoot from above.',
+                    'Check the outline of each side. If an edge is off, drag the corners; a magnifier helps you place them exactly. Rotate a side if it came out upside down.',
+                    'Choose A4 or Letter, real or larger size, colour or black and white, add a watermark if you want, and download the PDF.'
+                ],
+                sections: [
+                    ['Like a scanner, not a cut-out', 'Instead of just removing the background, the tool finds the four edges of the card, corrects the perspective of the photo and gives it back its rounded corners, so the copy looks flat and sharp, like a scan. ID-1 cards (85.6 × 54 mm) — national identity cards, residence permits, driving licences — come out at their real size.'],
+                    ['Your document never leaves your device', 'Finding the card, straightening it and writing the PDF all happen inside your browser. The photos of your ID are not uploaded to any server, not even ours: with a document this sensitive, that matters.'],
+                    ['A watermark that protects the copy', 'Add a short text such as “Only for the job application at…” and it is printed across each side, so the copy cannot be reused for anything else.']
+                ],
+                faq: [
+                    ['Which documents does it work with?', 'Any card-sized document (ID-1, 85.6 × 54 mm): national identity cards such as the Costa Rican cédula, the Spanish DNI or the Portuguese Cartão de Cidadão, residence permits, driving licences and health cards.'],
+                    ['Will it print at the real size?', 'Yes. Print at 100 % (“Actual size”) and each side measures 85.6 × 54 mm on paper, like a photocopy. Choose “Larger” if it has to be easier to read.'],
+                    ['What if the edges are not found?', 'Drag the four corners onto the corners of the document. With a plain background, even light and the photo taken from above, it usually gets them right the first time.'],
+                    ['Are my photos uploaded?', 'No. Everything happens in your browser and nothing is sent to any server. Once the page has loaded, it even works offline.'],
+                    ['Is it free?', 'Yes, with no ads, no watermark of ours and no sign-up.']
+                ]
+            },
+            es: {
+                title: 'Cédula o DNI a PDF: las dos caras en una hoja',
+                description: 'Convierte las fotos del frente y el reverso de tu cédula o DNI en un PDF limpio, a tamaño real y en una sola hoja. Todo en tu navegador. Gratis.',
+                h1: 'Cédula o DNI a PDF, las dos caras en una hoja',
+                lead: 'Sube una foto de cada cara de tu cédula, DNI, tarjeta de residencia o licencia de conducir. El documento se detecta, se endereza y se recorta del fondo, y las dos caras quedan a tamaño real en una sola hoja blanca, como lo piden empresas, bancos e instituciones.',
+                steps: [
+                    'Toma o sube una foto del frente del documento y después una del reverso. Sirve cualquier foto del teléfono: apoya la tarjeta sobre una superficie lisa y dispara desde arriba.',
+                    'Revisa el contorno de cada cara. Si un borde no coincide, arrastra las esquinas; una lupa te ayuda a dejarlas en su sitio exacto. Gira una cara si quedó al revés.',
+                    'Elige A4 o carta, tamaño real o más grande, color o blanco y negro, añade una marca de agua si quieres y descarga el PDF.'
+                ],
+                sections: [
+                    ['Como un escáner, no como un recorte', 'En vez de solo quitar el fondo, la herramienta encuentra los cuatro bordes de la tarjeta, corrige la perspectiva de la foto y le devuelve sus esquinas redondeadas, así que la copia se ve plana y nítida, como escaneada. Las tarjetas ID-1 (85,6 × 54 mm), como cédulas, DNI, tarjetas de residencia y licencias de conducir, salen a su tamaño real.'],
+                    ['Tu documento no sale de tu dispositivo', 'Encontrar la tarjeta, enderezarla y escribir el PDF ocurre dentro de tu navegador. Las fotos de tu documento no se suben a ningún servidor, tampoco al nuestro: con un documento tan delicado, eso importa.'],
+                    ['Una marca de agua que protege la copia', 'Añade un texto corto como «Solo para la solicitud de empleo en…» y se imprime sobre cada cara, para que la copia no sirva para otro trámite.']
+                ],
+                faq: [
+                    ['¿Con qué documentos funciona?', 'Con cualquier documento del tamaño de una tarjeta (ID-1, 85,6 × 54 mm): cédulas de identidad como la de Costa Rica, el DNI español o el Cartão de Cidadão portugués, tarjetas de residencia, licencias de conducir y carnés de salud.'],
+                    ['¿Se imprime a tamaño real?', 'Sí. Imprime al 100 % («Tamaño real») y cada cara mide 85,6 × 54 mm en el papel, como una fotocopia. Elige «Más grande» si tiene que leerse mejor.'],
+                    ['¿Y si no encuentra los bordes?', 'Arrastra las cuatro esquinas a las puntas del documento. Con un fondo liso, luz pareja y la foto tomada desde arriba, suele acertar a la primera.'],
+                    ['¿Se suben mis fotos a algún servidor?', 'No. Todo ocurre en tu navegador y no se envía nada a ningún servidor. Una vez cargada la página, funciona incluso sin conexión.'],
+                    ['¿Es gratis?', 'Sí, sin anuncios, sin marcas de agua nuestras y sin registro.']
+                ]
+            },
+            pt: {
+                title: 'Cartão de Cidadão em PDF: frente e verso numa folha',
+                description: 'Converta as fotografias da frente e do verso do seu Cartão de Cidadão num PDF limpo, em tamanho real e numa só folha. Tudo no navegador. Grátis.',
+                h1: 'Cartão de Cidadão em PDF, frente e verso numa folha',
+                lead: 'Carregue uma fotografia de cada face do seu Cartão de Cidadão, título de residência ou carta de condução. O documento é detetado, endireitado e recortado do fundo, e as duas faces ficam em tamanho real numa única folha branca, como pedem empresas, bancos e serviços.',
+                steps: [
+                    'Tire ou carregue uma fotografia da frente do documento e depois uma do verso. Serve qualquer fotografia do telemóvel: pouse o cartão numa superfície lisa e fotografe de cima.',
+                    'Confirme o contorno de cada face. Se um bordo não coincidir, arraste os cantos; uma lupa ajuda a colocá-los no sítio exato. Rode uma face se ficou ao contrário.',
+                    'Escolha A4 ou Carta, tamanho real ou maior, cor ou preto e branco, acrescente uma marca de água se quiser e transfira o PDF.'
+                ],
+                sections: [
+                    ['Como um digitalizador, não um recorte', 'Em vez de apenas retirar o fundo, a ferramenta encontra os quatro bordos do cartão, corrige a perspetiva da fotografia e devolve-lhe os cantos arredondados, por isso a cópia fica plana e nítida, como digitalizada. Os cartões ID-1 (85,6 × 54 mm), como o Cartão de Cidadão, os títulos de residência e as cartas de condução, saem no tamanho real.'],
+                    ['O seu documento não sai do seu dispositivo', 'Encontrar o cartão, endireitá-lo e escrever o PDF acontece dentro do seu navegador. As fotografias do seu documento não são enviadas para nenhum servidor, nem para o nosso: com um documento tão sensível, isso importa.'],
+                    ['Uma marca de água que protege a cópia', 'Acrescente um texto curto como «Apenas para a candidatura de emprego na…» e é impresso sobre cada face, para que a cópia não sirva para outro fim.']
+                ],
+                faq: [
+                    ['Com que documentos funciona?', 'Com qualquer documento do tamanho de um cartão (ID-1, 85,6 × 54 mm): o Cartão de Cidadão, o DNI espanhol ou a cédula costa-riquenha, títulos de residência, cartas de condução e cartões de saúde.'],
+                    ['É impresso em tamanho real?', 'Sim. Imprima a 100 % («Tamanho real») e cada face mede 85,6 × 54 mm no papel, como uma fotocópia. Escolha «Maior» se tiver de se ler melhor.'],
+                    ['E se não encontrar os bordos?', 'Arraste os quatro cantos para as pontas do documento. Com um fundo liso, luz uniforme e a fotografia tirada de cima, costuma acertar à primeira.'],
+                    ['As minhas fotografias são enviadas para algum servidor?', 'Não. Tudo acontece no seu navegador e nada é enviado para nenhum servidor. Depois de a página carregar, funciona até sem ligação.'],
+                    ['É grátis?', 'Sim, sem anúncios, sem marcas de água nossas e sem registo.']
+                ]
+            }
+        }
+    },
+    {
         id: 'legal',
         type: 'legal',
         slugs: { en: 'privacy-and-terms', es: 'privacidad-y-condiciones', pt: 'privacidade-e-condicoes' },
@@ -1249,7 +1331,7 @@ export const PAGES = [
                 h1: 'Privacy and terms of use',
                 lead: 'Elysium Tools is run by Elysium λ Development & Research (NIF 321979257PT, Bragança, Portugal). This page explains what happens to your data and the rules for using the tools. Questions: info@elysiumdr.eu.',
                 sections: [
-                    ['What we process', 'To download a video, the server receives the link you paste, fetches the video from the platform and keeps the resulting file for {fileMinutes} minutes so your browser can save it; then it is deleted. To convert a PDF to Word, the server receives the edited PDF, deletes it as soon as the Word file exists and deletes the Word file after {fileMinutes} minutes. PDF pages edited in the browser (merge, reorder, rotate, delete, extract) never reach our servers.'],
+                    ['What we process', 'To download a video, the server receives the link you paste, fetches the video from the platform and keeps the resulting file for {fileMinutes} minutes so your browser can save it; then it is deleted. To convert a PDF to Word, the server receives the edited PDF, deletes it as soon as the Word file exists and deletes the Word file after {fileMinutes} minutes. PDF pages edited in the browser (merge, reorder, rotate, delete, extract) and the photos used in “ID card to PDF” never reach our servers.'],
                     ['IP address, limits and protection against abuse', 'To keep the service free and available, each operation is checked by Cloudflare Turnstile, which helps tell people from automated abuse, and counted against hourly limits. The limits use a one-way, keyed hash of your IP address that is kept in memory for one hour and never stored with your links or files. Cloudflare processes connection data as our infrastructure provider.'],
                     ['No ads, no tracking, no accounts', 'The tools have no advertising, no advertising or analytics cookies and no user accounts. We do not sell or share data. The legal basis for the processing described is your request to use the tool and our legitimate interest in preventing abuse (Article 6(1)(b) and (f) GDPR). You can exercise your rights of access, erasure, objection and the others in the GDPR by writing to info@elysiumdr.eu, and complain to the Portuguese data-protection authority (CNPD).'],
                     ['Acceptable use and copyright', 'Use the tools only with content you own or have permission to use, and respect the terms of each platform. Do not use the tools to infringe copyright or for automated bulk downloading. Rights holders can report misuse to info@elysiumdr.eu. The tools do not store or republish content.'],
@@ -1263,7 +1345,7 @@ export const PAGES = [
                 h1: 'Privacidad y condiciones de uso',
                 lead: 'Elysium Tools lo gestiona Elysium λ Development & Research (NIF 321979257PT, Bragança, Portugal). Esta página explica qué ocurre con tus datos y las reglas de uso de las herramientas. Dudas: info@elysiumdr.eu.',
                 sections: [
-                    ['Qué procesamos', 'Para descargar un video, el servidor recibe el enlace que pegas, obtiene el video de la plataforma y guarda el archivo resultante {fileMinutes} minutos para que tu navegador lo descargue; después se borra. Para convertir un PDF a Word, el servidor recibe el PDF editado, lo borra en cuanto existe el Word y borra el Word a los {fileMinutes} minutos. Las páginas de PDF que editas en el navegador (unir, ordenar, girar, eliminar, extraer) nunca llegan a nuestros servidores.'],
+                    ['Qué procesamos', 'Para descargar un video, el servidor recibe el enlace que pegas, obtiene el video de la plataforma y guarda el archivo resultante {fileMinutes} minutos para que tu navegador lo descargue; después se borra. Para convertir un PDF a Word, el servidor recibe el PDF editado, lo borra en cuanto existe el Word y borra el Word a los {fileMinutes} minutos. Las páginas de PDF que editas en el navegador (unir, ordenar, girar, eliminar, extraer) y las fotos de «Cédula o DNI a PDF» nunca llegan a nuestros servidores.'],
                     ['Dirección IP, límites y protección contra abusos', 'Para que el servicio siga siendo gratis y disponible, cada operación pasa por Cloudflare Turnstile, que ayuda a distinguir a las personas del abuso automatizado, y cuenta para los límites por hora. Los límites usan un resumen cifrado e irreversible de tu dirección IP que se guarda en memoria durante una hora y nunca junto a tus enlaces o archivos. Cloudflare trata los datos de conexión como proveedor de nuestra infraestructura.'],
                     ['Sin anuncios, sin rastreo, sin cuentas', 'Las herramientas no tienen publicidad, ni cookies publicitarias o de analítica, ni cuentas de usuario. No vendemos ni cedemos datos. La base legal del tratamiento descrito es tu solicitud de usar la herramienta y nuestro interés legítimo en evitar abusos (artículo 6.1.b y 6.1.f del RGPD). Puedes ejercer tus derechos de acceso, supresión, oposición y los demás del RGPD escribiendo a info@elysiumdr.eu, y reclamar ante la autoridad portuguesa de protección de datos (CNPD).'],
                     ['Uso aceptable y derechos de autor', 'Usa las herramientas solo con contenido propio o que tengas permiso para usar, y respeta las condiciones de cada plataforma. No las uses para infringir derechos de autor ni para descargas masivas automatizadas. Quien tenga derechos sobre un contenido puede comunicar un uso indebido a info@elysiumdr.eu. Las herramientas no almacenan ni republican contenido.'],
@@ -1277,7 +1359,7 @@ export const PAGES = [
                 h1: 'Privacidade e condições de utilização',
                 lead: 'A Elysium Tools é gerida pela Elysium λ Development & Research (NIF 321979257PT, Bragança, Portugal). Esta página explica o que acontece aos seus dados e as regras de utilização das ferramentas. Dúvidas: info@elysiumdr.eu.',
                 sections: [
-                    ['O que processamos', 'Para descarregar um vídeo, o servidor recebe a ligação que cola, obtém o vídeo da plataforma e guarda o ficheiro resultante {fileMinutes} minutos para o seu navegador o transferir; depois é apagado. Para converter um PDF para Word, o servidor recebe o PDF editado, apaga-o assim que o Word existe e apaga o Word ao fim de {fileMinutes} minutos. As páginas de PDF que edita no navegador (juntar, ordenar, rodar, eliminar, extrair) nunca chegam aos nossos servidores.'],
+                    ['O que processamos', 'Para descarregar um vídeo, o servidor recebe a ligação que cola, obtém o vídeo da plataforma e guarda o ficheiro resultante {fileMinutes} minutos para o seu navegador o transferir; depois é apagado. Para converter um PDF para Word, o servidor recebe o PDF editado, apaga-o assim que o Word existe e apaga o Word ao fim de {fileMinutes} minutos. As páginas de PDF que edita no navegador (juntar, ordenar, rodar, eliminar, extrair) e as fotografias de «Cartão de Cidadão em PDF» nunca chegam aos nossos servidores.'],
                     ['Endereço IP, limites e proteção contra abusos', 'Para o serviço continuar grátis e disponível, cada operação passa pelo Cloudflare Turnstile, que ajuda a distinguir as pessoas do abuso automatizado, e conta para os limites por hora. Os limites usam um resumo cifrado e irreversível do seu endereço IP, guardado em memória durante uma hora e nunca junto das suas ligações ou ficheiros. A Cloudflare trata os dados de ligação como fornecedora da nossa infraestrutura.'],
                     ['Sem anúncios, sem rastreio, sem contas', 'As ferramentas não têm publicidade, nem cookies publicitários ou de análise, nem contas de utilizador. Não vendemos nem cedemos dados. O fundamento jurídico do tratamento descrito é o seu pedido de utilizar a ferramenta e o nosso interesse legítimo em evitar abusos (artigo 6.º, n.º 1, alíneas b) e f), do RGPD). Pode exercer os seus direitos de acesso, apagamento, oposição e os restantes do RGPD escrevendo para info@elysiumdr.eu, e apresentar reclamação à CNPD.'],
                     ['Utilização aceitável e direitos de autor', 'Use as ferramentas apenas com conteúdo próprio ou que tenha autorização para usar, e respeite as condições de cada plataforma. Não as use para violar direitos de autor nem para descargas massivas automatizadas. Quem tenha direitos sobre um conteúdo pode comunicar uma utilização indevida para info@elysiumdr.eu. As ferramentas não armazenam nem republicam conteúdo.'],

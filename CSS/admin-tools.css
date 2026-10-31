@@ -1286,3 +1286,580 @@ body.pdf-is-dragging * {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+/* ==========================================================================
+   Las dos herramientas de la pestaña PDF (JS/admin-pdf.js)
+   ========================================================================== */
+
+.customer-portal.is-admin .pdf-modes {
+    display: inline-flex;
+    max-width: 100%;
+    gap: 0.25rem;
+    margin: 0 0 1.15rem;
+    padding: 0.25rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--radius-pill, 9999px);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.customer-portal.is-admin .pdf-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.3rem;
+    padding: 0.4rem 0.95rem;
+    border: 0;
+    border-radius: var(--radius-pill, 9999px);
+    color: var(--crm-muted);
+    background: transparent;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 650;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.customer-portal.is-admin .pdf-mode svg {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+}
+
+.customer-portal.is-admin .pdf-mode:hover {
+    color: var(--crm-text);
+}
+
+.customer-portal.is-admin .pdf-mode.is-active {
+    color: var(--crm-text);
+    background: var(--crm-blue-soft);
+    box-shadow: inset 0 0 0 1px rgba(47, 125, 246, 0.45);
+}
+
+.customer-portal.is-admin .pdf-mode:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(47, 125, 246, 0.45);
+}
+
+/* ==========================================================================
+   Documento de identidad (JS/admin-id-card.js)
+   ========================================================================== */
+
+.customer-portal.is-admin .idcard-intro h2 {
+    margin: 0 0 0.35rem;
+    color: var(--crm-text);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+}
+
+.customer-portal.is-admin .idcard-intro p {
+    max-width: 46rem;
+    margin: 0 0 1.25rem;
+    color: var(--crm-muted);
+    font-size: 0.85rem;
+    line-height: 1.55;
+}
+
+.customer-portal.is-admin .idcard-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(16rem, 1fr);
+    align-items: start;
+    gap: 1.25rem;
+}
+
+.customer-portal.is-admin .idcard-sides {
+    display: grid;
+    gap: 0.9rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .idcard-side {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--tools-radius);
+    background: linear-gradient(180deg, var(--crm-panel-raised), var(--crm-panel));
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.customer-portal.is-admin .idcard-side.is-dropping {
+    border-color: rgba(47, 125, 246, 0.7);
+    background: var(--crm-blue-soft);
+}
+
+.customer-portal.is-admin .idcard-side-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.6rem;
+    margin: 0 0 0.8rem;
+}
+
+.customer-portal.is-admin .idcard-step {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    color: #9cc1ff;
+    background: var(--crm-blue-soft);
+    font-size: 0.74rem;
+    font-weight: 760;
+}
+
+.customer-portal.is-admin .idcard-side.is-ready .idcard-step {
+    color: var(--crm-mint);
+    background: rgba(56, 217, 174, 0.13);
+}
+
+.customer-portal.is-admin .idcard-side-title {
+    margin: 0;
+    color: var(--crm-text);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.customer-portal.is-admin .idcard-side-state {
+    flex: 1 1 14rem;
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.74rem;
+    line-height: 1.45;
+    text-align: right;
+}
+
+.customer-portal.is-admin .idcard-side-state:empty {
+    display: none;
+}
+
+.customer-portal.is-admin .idcard-side-state.is-good {
+    color: var(--crm-mint);
+}
+
+.customer-portal.is-admin .idcard-side-state.is-warning {
+    color: #f4c95d;
+}
+
+.customer-portal.is-admin .idcard-drop {
+    display: grid;
+    justify-items: center;
+    gap: 0.55rem;
+    padding: 1.35rem 1rem 1.2rem;
+    border: 1.5px dashed var(--crm-line-strong);
+    border-radius: calc(var(--tools-radius) - 0.25rem);
+    color: var(--crm-muted);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 160ms ease, background 160ms ease;
+}
+
+.customer-portal.is-admin .idcard-drop[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .idcard-drop:hover {
+    border-color: rgba(47, 125, 246, 0.55);
+    background: rgba(47, 125, 246, 0.05);
+}
+
+.customer-portal.is-admin .idcard-side:has(input[type="file"]:focus-visible) .idcard-drop {
+    border-color: rgba(47, 125, 246, 0.8);
+    box-shadow: 0 0 0 0.2rem rgba(47, 125, 246, 0.3);
+}
+
+.customer-portal.is-admin .idcard-art {
+    width: 7.5rem;
+    height: auto;
+    color: #6f9ff3;
+}
+
+.customer-portal.is-admin .idcard-drop-text {
+    color: var(--crm-text);
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.customer-portal.is-admin .idcard-drop-hint {
+    max-width: 24rem;
+    font-size: 0.7rem;
+    line-height: 1.45;
+}
+
+.customer-portal.is-admin .idcard-stage {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.customer-portal.is-admin .idcard-stage[hidden] {
+    display: none;
+}
+
+/* La foto cabe en el ancho y en 21rem de alto, sin deformarse. */
+.customer-portal.is-admin .idcard-photo {
+    --photo-height: 21rem;
+    position: relative;
+    width: min(100%, calc(var(--photo-height) * var(--photo-aspect, 1.333)));
+    aspect-ratio: var(--photo-ratio, 4 / 3);
+    margin-inline: auto;
+    border-radius: 0.6rem;
+    background: #05080d;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.customer-portal.is-admin .idcard-photo.is-placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    max-height: var(--photo-height);
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0.03) 30%, rgba(255, 255, 255, 0.07) 50%, rgba(255, 255, 255, 0.03) 70%) 0 0 / 220% 100%, #070b12;
+    animation: idcard-shimmer 1.4s linear infinite;
+}
+
+@keyframes idcard-shimmer {
+    to { background-position: -220% 0, 0 0; }
+}
+
+.customer-portal.is-admin .idcard-spinner {
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-top-color: var(--crm-blue);
+    border-radius: 50%;
+    animation: pdf-spin 0.8s linear infinite;
+}
+
+.customer-portal.is-admin .idcard-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+}
+
+.customer-portal.is-admin .idcard-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+}
+
+.customer-portal.is-admin .idcard-shade {
+    fill: rgba(3, 6, 12, 0.58);
+    fill-rule: evenodd;
+}
+
+.customer-portal.is-admin .idcard-outline {
+    fill: none;
+    stroke: #5ea2ff;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.customer-portal.is-admin .idcard-handle {
+    position: absolute;
+    z-index: 2;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin: -0.65rem 0 0 -0.65rem;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: var(--crm-blue);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    cursor: grab;
+    touch-action: none;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+/* El dedo necesita más que el punto que se ve. */
+.customer-portal.is-admin .idcard-handle::before {
+    content: '';
+    position: absolute;
+    inset: -0.85rem;
+    border-radius: 50%;
+}
+
+.customer-portal.is-admin .idcard-handle:hover,
+.customer-portal.is-admin .idcard-handle.is-dragging {
+    transform: scale(1.18);
+}
+
+.customer-portal.is-admin .idcard-handle.is-dragging {
+    cursor: grabbing;
+}
+
+.customer-portal.is-admin .idcard-handle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(94, 162, 255, 0.55), 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.customer-portal.is-admin .idcard-loupe {
+    position: absolute;
+    z-index: 3;
+    width: 7rem;
+    height: 7rem;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+}
+
+.customer-portal.is-admin .idcard-loupe[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .idcard-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .idcard-tools .btn svg {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+
+.customer-portal.is-admin .idcard-swap {
+    justify-self: center;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.78rem;
+}
+
+.customer-portal.is-admin .idcard-tips {
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.74rem;
+    line-height: 1.5;
+}
+
+/* La hoja y lo que se descarga ------------------------------------------- */
+
+.customer-portal.is-admin .idcard-output {
+    position: sticky;
+    top: 1rem;
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+    padding: 1.1rem;
+    border: 1px solid var(--crm-line);
+    border-radius: var(--tools-radius);
+    background: linear-gradient(180deg, var(--crm-panel-raised), var(--crm-panel));
+}
+
+.customer-portal.is-admin .idcard-sheet-frame {
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    border-radius: 0.8rem;
+    background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.06), transparent 70%), rgba(255, 255, 255, 0.02);
+}
+
+.customer-portal.is-admin .idcard-sheet {
+    display: block;
+    width: min(100%, 15.5rem);
+    height: auto;
+    aspect-ratio: 595.28 / 841.89;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: 0 0.9rem 2rem rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.customer-portal.is-admin .idcard-summary {
+    margin: -0.4rem 0 0;
+    color: var(--crm-muted);
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+.customer-portal.is-admin .idcard-options {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.customer-portal.is-admin .idcard-option {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.customer-portal.is-admin .idcard-option-label {
+    color: var(--crm-muted);
+    font-size: 0.68rem;
+    font-weight: 720;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.customer-portal.is-admin .idcard-segmented {
+    display: flex;
+    gap: 0.2rem;
+    padding: 0.2rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.customer-portal.is-admin .idcard-segmented label {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .idcard-segmented input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.customer-portal.is-admin .idcard-segmented span {
+    display: block;
+    padding: 0.45rem 0.5rem;
+    border-radius: 0.55rem;
+    color: var(--crm-muted);
+    font-size: 0.76rem;
+    font-weight: 650;
+    text-align: center;
+    cursor: pointer;
+    transition: color 160ms ease, background 160ms ease;
+}
+
+.customer-portal.is-admin .idcard-segmented span:hover {
+    color: var(--crm-text);
+}
+
+.customer-portal.is-admin .idcard-segmented input:checked + span {
+    color: var(--crm-text);
+    background: var(--crm-blue-soft);
+    box-shadow: inset 0 0 0 1px rgba(47, 125, 246, 0.45);
+}
+
+.customer-portal.is-admin .idcard-segmented input:focus-visible + span {
+    box-shadow: 0 0 0 0.2rem rgba(47, 125, 246, 0.45);
+}
+
+.customer-portal.is-admin .idcard-check {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--crm-text);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .idcard-check input {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    accent-color: var(--crm-blue);
+}
+
+.customer-portal.is-admin .idcard-watermark,
+.customer-portal.is-admin .idcard-options .meeting-field {
+    margin: 0;
+}
+
+.customer-portal.is-admin .idcard-note {
+    margin: -0.45rem 0 0;
+    color: var(--crm-muted);
+    font-size: 0.7rem;
+    line-height: 1.45;
+}
+
+.customer-portal.is-admin .idcard-actions {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.customer-portal.is-admin .idcard-actions .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.customer-portal.is-admin .idcard-actions .crm-text-action {
+    justify-self: center;
+    padding: 0.3rem 0.6rem;
+}
+
+.customer-portal.is-admin .idcard-busy {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+    color: #b8c3d3;
+    font-size: 0.8rem;
+}
+
+.customer-portal.is-admin .idcard-busy[hidden] {
+    display: none;
+}
+
+.customer-portal.is-admin .idcard-busy::before {
+    content: '';
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 2px solid rgba(148, 163, 184, 0.3);
+    border-top-color: var(--crm-blue);
+    border-radius: 50%;
+    animation: pdf-spin 0.8s linear infinite;
+}
+
+.customer-portal.is-admin .idcard-privacy {
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.7rem;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.customer-portal.is-admin #idcard-alert {
+    margin: 1rem 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .customer-portal.is-admin .idcard-photo.is-placeholder,
+    .customer-portal.is-admin .idcard-spinner,
+    .customer-portal.is-admin .idcard-busy::before {
+        animation: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .customer-portal.is-admin .idcard-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .customer-portal.is-admin .idcard-output {
+        position: static;
+    }
+}
+
+@media (max-width: 760px) {
+    .customer-portal.is-admin .pdf-modes {
+        display: flex;
+    }
+
+    .customer-portal.is-admin .pdf-mode {
+        flex: 1 1 0;
+        justify-content: center;
+        padding-inline: 0.6rem;
+    }
+
+    .customer-portal.is-admin .idcard-side {
+        padding: 0.85rem;
+    }
+
+    .customer-portal.is-admin .idcard-photo {
+        --photo-height: 18rem;
+    }
+
+    .customer-portal.is-admin .idcard-side-state {
+        flex-basis: 100%;
+        text-align: left;
+    }
+}

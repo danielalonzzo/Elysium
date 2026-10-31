@@ -750,6 +750,11 @@ a.ts-card:hover {
     letter-spacing: -0.01em;
 }
 
+/* La página de la cédula ya lo explica en su titular. */
+.tools-app .ts-workspace[data-mode="idcard"] .idcard-intro {
+    display: none;
+}
+
 .tools-app .btn {
     position: relative;
     display: inline-flex;

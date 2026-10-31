@@ -150,5 +150,6 @@ Ferramentas online gratuitas da Elysium λ Development & Research no seu própri
 
 - [Descarregar vídeos](https://tools.elysiumdr.eu/pt/descarregar-videos/): vídeos públicos do TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A. YouTube: em breve.
 - [Editor de PDF](https://tools.elysiumdr.eu/pt/editor-pdf/): juntar PDF e ordenar, rodar, eliminar ou extrair páginas dentro do navegador; converter PDF para Word (.docx).
+- [Cartão de Cidadão em PDF](https://tools.elysiumdr.eu/pt/cartao-de-cidadao-pdf/): as duas faces de um Cartão de Cidadão, endireitadas e em tamanho real numa folha PDF, sem enviar as fotografias.
 - Inglês: https://tools.elysiumdr.eu/ · Espanhol: https://tools.elysiumdr.eu/es/ · Para modelos de linguagem: https://tools.elysiumdr.eu/llms.txt
 <!-- END TOOLS -->

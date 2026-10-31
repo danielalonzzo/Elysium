@@ -1,5 +1,5 @@
 'use client';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef, type ReactNode} from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -147,6 +147,39 @@ export default function PublicPage({slug = '', en = false}: {slug?: string; en?:
   );
 }
 
+// Native disclosure keeps every section accessible to touch and keyboard users.
+function MobileDisclosure({title, children}: {title: string; children: ReactNode}) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 650px)');
+    const revealHash = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1));
+      const target = id ? document.getElementById(id) : null;
+      if (target && ref.current?.contains(target)) {
+        ref.current.open = true;
+        requestAnimationFrame(() => target.scrollIntoView({block: 'start'}));
+      }
+    };
+    const adapt = () => {
+      if (ref.current) ref.current.open = !media.matches;
+      revealHash();
+    };
+    adapt();
+    media.addEventListener('change', adapt);
+    window.addEventListener('hashchange', revealHash);
+    return () => {
+      media.removeEventListener('change', adapt);
+      window.removeEventListener('hashchange', revealHash);
+    };
+  }, []);
+  return (
+    <details ref={ref} className="mobile-disclosure" open>
+      <summary>{title}<ChevronRight size={18} aria-hidden="true" /></summary>
+      <div>{children}</div>
+    </details>
+  );
+}
+
 function Home({t, p, en}: any) {
   const [status, setStatus] = useState(getBusinessStatus());
 
@@ -221,6 +254,11 @@ function Home({t, p, en}: any) {
 
   return (
     <>
+      <nav className="mobile-page-shortcuts" aria-label={t('Atalhos da página', 'Page shortcuts')}>
+        <a href="#consultorio">{t('Consultório', 'Clinic')}</a>
+        <a href={p + '/tienda'}>{t('Catálogo', 'Catalog')}</a>
+        <a href="#contacto">{t('Contactos e horário', 'Contact & hours')}</a>
+      </nav>
       {/* ── HERO CORPORATIVO: NOVAVET - O PARCEIRO CERTO ───────────────────── */}
       <section className="novavet-hero">
         <div className="novavet-hero-container">
@@ -345,6 +383,7 @@ function Home({t, p, en}: any) {
       </section>
 
       {/* ── OS TRÊS PILARES DE VALOR NOVAVET (EXTRATO OFICIAL NOVAVET.PT) ──── */}
+      <MobileDisclosure title={t('Apoio, stock e entregas', 'Support, stock & delivery')}>
       <Reveal>
         <section className="section novavet-pillars-section">
           <div className="novavet-section-header">
@@ -440,8 +479,10 @@ function Home({t, p, en}: any) {
           </div>
         </section>
       </Reveal>
+      </MobileDisclosure>
 
       {/* ── DR. LUÍS MANUEL MADUREIRA AFONSO & SOBRE A NOVAVET ──────────────── */}
+      <MobileDisclosure title={t('Sobre a Novavet e direção clínica', 'About Novavet & clinical director')}>
       <Reveal>
         <section className="section novavet-profile-section" id="sobre-nos">
           <div className="novavet-profile-grid">
@@ -522,6 +563,7 @@ function Home({t, p, en}: any) {
           </div>
         </section>
       </Reveal>
+      </MobileDisclosure>
 
       {/* ── CONSULTÓRIO MÉDICO-VETERINÁRIO EM BRAGANÇA ──────────────────────── */}
       <Reveal>
@@ -684,6 +726,7 @@ function Home({t, p, en}: any) {
       </Reveal>
 
       {/* ── BEMED: UNIDADE INDUSTRIAL EM BRAGANÇA (OFICIAL NOVAVET.PT) ──────── */}
+      <MobileDisclosure title={t('Bemed · Produção industrial', 'Bemed · Manufacturing')}>
       <Reveal>
         <section className="section novavet-bemed-section" id="bemed">
           <div className="novavet-bemed-grid">
@@ -742,6 +785,7 @@ function Home({t, p, en}: any) {
           </div>
         </section>
       </Reveal>
+      </MobileDisclosure>
 
       {/* ── CHAMADA PARA O CATÁLOGO & LOJA (DISTRIBUIÇÃO AGRO-PECUÁRIA & FARMACÊUTICA) ── */}
       <Reveal>
@@ -846,6 +890,7 @@ function Home({t, p, en}: any) {
       </Reveal>
 
       {/* ── ENTIDADES REGULADORAS OFICIAIS (OFICIAL NOVAVET.PT) ─────────────── */}
+      <MobileDisclosure title={t('Entidades reguladoras', 'Regulatory authorities')}>
       <Reveal>
         <section className="section novavet-regulatory-section" id="regulatorio">
           <div className="novavet-regulatory-header">
@@ -922,8 +967,10 @@ function Home({t, p, en}: any) {
           </div>
         </section>
       </Reveal>
+      </MobileDisclosure>
 
       {/* ── PROJETOS DE INOVAÇÃO & FUNDOS EUROPEUS (OFICIAL NOVAVET.PT) ─────── */}
+      <MobileDisclosure title={t('Projetos cofinanciados', 'Co-funded projects')}>
       <Reveal>
         <section className="section novavet-projects-section">
           <div className="novavet-projects-container">
@@ -965,6 +1012,7 @@ function Home({t, p, en}: any) {
           </div>
         </section>
       </Reveal>
+      </MobileDisclosure>
 
       {/* ── LOCALIZAÇÃO, MAPA & CONTACTOS EM BRAGANÇA ──────────────────────── */}
       <Reveal>
@@ -1049,6 +1097,7 @@ function Home({t, p, en}: any) {
               </div>
             </div>
 
+            <MobileDisclosure title={t('Enviar mensagem ou pedido', 'Send a message or request')}>
             <div className="novavet-contact-form-col">
               <div className="novavet-form-card">
                 <div className="novavet-form-head">
@@ -1059,6 +1108,7 @@ function Home({t, p, en}: any) {
                 <ContactForm en={en} />
               </div>
             </div>
+            </MobileDisclosure>
           </div>
 
           {/* MAPA GOOGLE EMBED INTEGRADO */}

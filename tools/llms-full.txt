@@ -8,6 +8,7 @@
 - Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.
 - Video limits: up to 250 MB per file; the file is deleted 15 minutes after it is ready.
 - PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to 200 MB per file. PDF to Word (.docx) runs on the Elysium server: up to 30 MB and 500 pages; the PDF is deleted as soon as the .docx exists and the .docx after 15 minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.
+- ID card to PDF: photos of the front and back of an identity card, residence permit or driving licence are detected, straightened and cut out from the background, and both sides are placed at real size (ID-1, 85.6 × 54 mm) or 1.5× on one A4 or Letter page, with an optional watermark. Everything runs in the browser: the photos are never uploaded.
 - Fair-use limits per visitor and hour: 30 link checks, 10 video downloads and 10 Word conversions. Each operation is checked by Cloudflare Turnstile.
 - Languages: English, Spanish and European Portuguese.
 
@@ -557,6 +558,47 @@ Not to edit them: merging, reordering, rotating, deleting and extracting pages h
 **Is it free?**
 Yes, with no ads, watermarks or sign-up. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
+## ID card to PDF, both sides on one page
+
+URL: https://tools.elysiumdr.eu/id-card-to-pdf/
+
+Upload a photo of each side of your identity card, residence permit or driving licence. The card is found, straightened and cut out from the background, and both sides are placed at real size on a single white page — the way employers, banks and agencies ask for it.
+
+### How it works
+
+1. Take or upload a photo of the front of the document, then one of the back. Any phone photo works: lay the card on a plain surface and shoot from above.
+2. Check the outline of each side. If an edge is off, drag the corners; a magnifier helps you place them exactly. Rotate a side if it came out upside down.
+3. Choose A4 or Letter, real or larger size, colour or black and white, add a watermark if you want, and download the PDF.
+
+### Like a scanner, not a cut-out
+
+Instead of just removing the background, the tool finds the four edges of the card, corrects the perspective of the photo and gives it back its rounded corners, so the copy looks flat and sharp, like a scan. ID-1 cards (85.6 × 54 mm) — national identity cards, residence permits, driving licences — come out at their real size.
+
+### Your document never leaves your device
+
+Finding the card, straightening it and writing the PDF all happen inside your browser. The photos of your ID are not uploaded to any server, not even ours: with a document this sensitive, that matters.
+
+### A watermark that protects the copy
+
+Add a short text such as “Only for the job application at…” and it is printed across each side, so the copy cannot be reused for anything else.
+
+### Frequently asked questions
+
+**Which documents does it work with?**
+Any card-sized document (ID-1, 85.6 × 54 mm): national identity cards such as the Costa Rican cédula, the Spanish DNI or the Portuguese Cartão de Cidadão, residence permits, driving licences and health cards.
+
+**Will it print at the real size?**
+Yes. Print at 100 % (“Actual size”) and each side measures 85.6 × 54 mm on paper, like a photocopy. Choose “Larger” if it has to be easier to read.
+
+**What if the edges are not found?**
+Drag the four corners onto the corners of the document. With a plain background, even light and the photo taken from above, it usually gets them right the first time.
+
+**Are my photos uploaded?**
+No. Everything happens in your browser and nothing is sent to any server. Once the page has loaded, it even works offline.
+
+**Is it free?**
+Yes, with no ads, no watermark of ours and no sign-up.
+
 ## Privacy and terms of use
 
 URL: https://tools.elysiumdr.eu/privacy-and-terms/
@@ -565,7 +607,7 @@ Elysium Tools is run by Elysium λ Development & Research (NIF 321979257PT, Brag
 
 ### What we process
 
-To download a video, the server receives the link you paste, fetches the video from the platform and keeps the resulting file for 15 minutes so your browser can save it; then it is deleted. To convert a PDF to Word, the server receives the edited PDF, deletes it as soon as the Word file exists and deletes the Word file after 15 minutes. PDF pages edited in the browser (merge, reorder, rotate, delete, extract) never reach our servers.
+To download a video, the server receives the link you paste, fetches the video from the platform and keeps the resulting file for 15 minutes so your browser can save it; then it is deleted. To convert a PDF to Word, the server receives the edited PDF, deletes it as soon as the Word file exists and deletes the Word file after 15 minutes. PDF pages edited in the browser (merge, reorder, rotate, delete, extract) and the photos used in “ID card to PDF” never reach our servers.
 
 ### IP address, limits and protection against abuse
 
@@ -1133,6 +1175,47 @@ Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre den
 **¿Es gratis?**
 Sí, sin anuncios, sin marcas de agua y sin registro. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
+## Cédula o DNI a PDF, las dos caras en una hoja
+
+URL: https://tools.elysiumdr.eu/es/cedula-dni-pdf/
+
+Sube una foto de cada cara de tu cédula, DNI, tarjeta de residencia o licencia de conducir. El documento se detecta, se endereza y se recorta del fondo, y las dos caras quedan a tamaño real en una sola hoja blanca, como lo piden empresas, bancos e instituciones.
+
+### Cómo funciona
+
+1. Toma o sube una foto del frente del documento y después una del reverso. Sirve cualquier foto del teléfono: apoya la tarjeta sobre una superficie lisa y dispara desde arriba.
+2. Revisa el contorno de cada cara. Si un borde no coincide, arrastra las esquinas; una lupa te ayuda a dejarlas en su sitio exacto. Gira una cara si quedó al revés.
+3. Elige A4 o carta, tamaño real o más grande, color o blanco y negro, añade una marca de agua si quieres y descarga el PDF.
+
+### Como un escáner, no como un recorte
+
+En vez de solo quitar el fondo, la herramienta encuentra los cuatro bordes de la tarjeta, corrige la perspectiva de la foto y le devuelve sus esquinas redondeadas, así que la copia se ve plana y nítida, como escaneada. Las tarjetas ID-1 (85,6 × 54 mm), como cédulas, DNI, tarjetas de residencia y licencias de conducir, salen a su tamaño real.
+
+### Tu documento no sale de tu dispositivo
+
+Encontrar la tarjeta, enderezarla y escribir el PDF ocurre dentro de tu navegador. Las fotos de tu documento no se suben a ningún servidor, tampoco al nuestro: con un documento tan delicado, eso importa.
+
+### Una marca de agua que protege la copia
+
+Añade un texto corto como «Solo para la solicitud de empleo en…» y se imprime sobre cada cara, para que la copia no sirva para otro trámite.
+
+### Preguntas frecuentes
+
+**¿Con qué documentos funciona?**
+Con cualquier documento del tamaño de una tarjeta (ID-1, 85,6 × 54 mm): cédulas de identidad como la de Costa Rica, el DNI español o el Cartão de Cidadão portugués, tarjetas de residencia, licencias de conducir y carnés de salud.
+
+**¿Se imprime a tamaño real?**
+Sí. Imprime al 100 % («Tamaño real») y cada cara mide 85,6 × 54 mm en el papel, como una fotocopia. Elige «Más grande» si tiene que leerse mejor.
+
+**¿Y si no encuentra los bordes?**
+Arrastra las cuatro esquinas a las puntas del documento. Con un fondo liso, luz pareja y la foto tomada desde arriba, suele acertar a la primera.
+
+**¿Se suben mis fotos a algún servidor?**
+No. Todo ocurre en tu navegador y no se envía nada a ningún servidor. Una vez cargada la página, funciona incluso sin conexión.
+
+**¿Es gratis?**
+Sí, sin anuncios, sin marcas de agua nuestras y sin registro.
+
 ## Privacidad y condiciones de uso
 
 URL: https://tools.elysiumdr.eu/es/privacidad-y-condiciones/
@@ -1141,7 +1224,7 @@ Elysium Tools lo gestiona Elysium λ Development & Research (NIF 321979257PT, Br
 
 ### Qué procesamos
 
-Para descargar un video, el servidor recibe el enlace que pegas, obtiene el video de la plataforma y guarda el archivo resultante 15 minutos para que tu navegador lo descargue; después se borra. Para convertir un PDF a Word, el servidor recibe el PDF editado, lo borra en cuanto existe el Word y borra el Word a los 15 minutos. Las páginas de PDF que editas en el navegador (unir, ordenar, girar, eliminar, extraer) nunca llegan a nuestros servidores.
+Para descargar un video, el servidor recibe el enlace que pegas, obtiene el video de la plataforma y guarda el archivo resultante 15 minutos para que tu navegador lo descargue; después se borra. Para convertir un PDF a Word, el servidor recibe el PDF editado, lo borra en cuanto existe el Word y borra el Word a los 15 minutos. Las páginas de PDF que editas en el navegador (unir, ordenar, girar, eliminar, extraer) y las fotos de «Cédula o DNI a PDF» nunca llegan a nuestros servidores.
 
 ### Dirección IP, límites y protección contra abusos
 
@@ -1709,6 +1792,47 @@ Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas aconte
 **É grátis?**
 Sim, sem anúncios, marcas de água nem registo. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
+## Cartão de Cidadão em PDF, frente e verso numa folha
+
+URL: https://tools.elysiumdr.eu/pt/cartao-de-cidadao-pdf/
+
+Carregue uma fotografia de cada face do seu Cartão de Cidadão, título de residência ou carta de condução. O documento é detetado, endireitado e recortado do fundo, e as duas faces ficam em tamanho real numa única folha branca, como pedem empresas, bancos e serviços.
+
+### Como funciona
+
+1. Tire ou carregue uma fotografia da frente do documento e depois uma do verso. Serve qualquer fotografia do telemóvel: pouse o cartão numa superfície lisa e fotografe de cima.
+2. Confirme o contorno de cada face. Se um bordo não coincidir, arraste os cantos; uma lupa ajuda a colocá-los no sítio exato. Rode uma face se ficou ao contrário.
+3. Escolha A4 ou Carta, tamanho real ou maior, cor ou preto e branco, acrescente uma marca de água se quiser e transfira o PDF.
+
+### Como um digitalizador, não um recorte
+
+Em vez de apenas retirar o fundo, a ferramenta encontra os quatro bordos do cartão, corrige a perspetiva da fotografia e devolve-lhe os cantos arredondados, por isso a cópia fica plana e nítida, como digitalizada. Os cartões ID-1 (85,6 × 54 mm), como o Cartão de Cidadão, os títulos de residência e as cartas de condução, saem no tamanho real.
+
+### O seu documento não sai do seu dispositivo
+
+Encontrar o cartão, endireitá-lo e escrever o PDF acontece dentro do seu navegador. As fotografias do seu documento não são enviadas para nenhum servidor, nem para o nosso: com um documento tão sensível, isso importa.
+
+### Uma marca de água que protege a cópia
+
+Acrescente um texto curto como «Apenas para a candidatura de emprego na…» e é impresso sobre cada face, para que a cópia não sirva para outro fim.
+
+### Perguntas frequentes
+
+**Com que documentos funciona?**
+Com qualquer documento do tamanho de um cartão (ID-1, 85,6 × 54 mm): o Cartão de Cidadão, o DNI espanhol ou a cédula costa-riquenha, títulos de residência, cartas de condução e cartões de saúde.
+
+**É impresso em tamanho real?**
+Sim. Imprima a 100 % («Tamanho real») e cada face mede 85,6 × 54 mm no papel, como uma fotocópia. Escolha «Maior» se tiver de se ler melhor.
+
+**E se não encontrar os bordos?**
+Arraste os quatro cantos para as pontas do documento. Com um fundo liso, luz uniforme e a fotografia tirada de cima, costuma acertar à primeira.
+
+**As minhas fotografias são enviadas para algum servidor?**
+Não. Tudo acontece no seu navegador e nada é enviado para nenhum servidor. Depois de a página carregar, funciona até sem ligação.
+
+**É grátis?**
+Sim, sem anúncios, sem marcas de água nossas e sem registo.
+
 ## Privacidade e condições de utilização
 
 URL: https://tools.elysiumdr.eu/pt/privacidade-e-condicoes/
@@ -1717,7 +1841,7 @@ A Elysium Tools é gerida pela Elysium λ Development & Research (NIF 321979257P
 
 ### O que processamos
 
-Para descarregar um vídeo, o servidor recebe a ligação que cola, obtém o vídeo da plataforma e guarda o ficheiro resultante 15 minutos para o seu navegador o transferir; depois é apagado. Para converter um PDF para Word, o servidor recebe o PDF editado, apaga-o assim que o Word existe e apaga o Word ao fim de 15 minutos. As páginas de PDF que edita no navegador (juntar, ordenar, rodar, eliminar, extrair) nunca chegam aos nossos servidores.
+Para descarregar um vídeo, o servidor recebe a ligação que cola, obtém o vídeo da plataforma e guarda o ficheiro resultante 15 minutos para o seu navegador o transferir; depois é apagado. Para converter um PDF para Word, o servidor recebe o PDF editado, apaga-o assim que o Word existe e apaga o Word ao fim de 15 minutos. As páginas de PDF que edita no navegador (juntar, ordenar, rodar, eliminar, extrair) e as fotografias de «Cartão de Cidadão em PDF» nunca chegam aos nossos servidores.
 
 ### Endereço IP, limites e proteção contra abusos
 

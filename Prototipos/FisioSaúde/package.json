@@ -1,0 +1,13 @@
+{
+  "name": "fisiosaude",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Protótipo FisioSaúde adaptado da estrutura estática Paulo Morais.",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "preview": "node scripts/serve.mjs dist"
+  }
+}

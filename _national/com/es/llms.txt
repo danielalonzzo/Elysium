@@ -53,5 +53,6 @@ Herramientas online gratuitas de Elysium λ Development & Research en su propio 
 
 - [Descargar videos](https://tools.elysiumdr.eu/es/descargar-videos/): videos públicos de TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, en todas las resoluciones que ofrece la plataforma, en MP4, MP3 o M4A. YouTube: próximamente.
 - [Editor de PDF](https://tools.elysiumdr.eu/es/editor-pdf/): unir PDF y ordenar, girar, eliminar o extraer páginas dentro del navegador; convertir PDF a Word (.docx).
+- [Cédula o DNI a PDF](https://tools.elysiumdr.eu/es/cedula-dni-pdf/): las dos caras de una cédula o un DNI, enderezadas y a tamaño real en una hoja PDF, sin subir las fotos.
 - Inglés: https://tools.elysiumdr.eu/ · Portugués: https://tools.elysiumdr.eu/pt/ · Para modelos de lenguaje: https://tools.elysiumdr.eu/llms.txt
 <!-- END TOOLS -->

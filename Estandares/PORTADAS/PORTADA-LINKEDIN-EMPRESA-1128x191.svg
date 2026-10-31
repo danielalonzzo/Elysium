@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1128 191"
+     width="1128" height="191">
+  <defs>
+    <radialGradient id="bg" cx="0.5000" cy="0.5000" r="0.7500">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9eff7"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1128" height="191" fill="url(#bg)"/>
+
+  <text x="562.63" y="118.89" font-size="109.80" fill="#2997ff"
+        font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">λ</text>
+
+  <text x="565.80" y="155.56" font-size="20.00" fill="#14456f"
+        font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" letter-spacing="0.18em" text-anchor="middle">ELYSIUM <tspan
+        font-family="Georgia, 'Times New Roman', serif" fill="#2997ff">λ</tspan> DEVELOPMENT &amp; RESEARCH</text>
+</svg>

@@ -17,11 +17,16 @@
  *
  * Las herramientas son las del CRM, no una copia: el panel se saca de
  * `admin.html` y lo mueven los mismos módulos (`JS/admin-tools.js`,
- * `JS/admin-pdf.js`) con `<body data-public-tools="true">`, que los pone en
- * modo público (`JS/tools-public.js`). Sus rótulos se escriben ya traducidos
- * desde el diccionario de cada módulo, para que la página tenga sentido antes
- * de ejecutar nada: es lo que leen los rastreadores que no ejecutan JS y la
+ * `JS/admin-pdf.js`, `JS/admin-id-card.js`) con
+ * `<body data-public-tools="true">`, que los pone en modo público
+ * (`JS/tools-public.js`). Sus rótulos se escriben ya traducidos desde el
+ * diccionario de cada módulo, para que la página tenga sentido antes de
+ * ejecutar nada: es lo que leen los rastreadores que no ejecutan JS y la
  * versión Markdown para agentes.
+ *
+ * La pestaña PDF lleva dos herramientas, el editor y «Documento de
+ * identidad». Una página con `mode: 'idcard'` llega ya con la segunda
+ * elegida.
  */
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -143,7 +148,8 @@ const PANELS = {
 
 const TEXT = {
     video: mergeCopy(sourceObject('JS/admin-tools.js', 'COPY'), VIDEO_COPY),
-    pdf: mergeCopy(sourceObject('JS/admin-pdf.js', 'COPY'), PDF_COPY)
+    pdf: mergeCopy(sourceObject('JS/admin-pdf.js', 'COPY'), PDF_COPY),
+    idcard: sourceObject('JS/admin-id-card.js', 'COPY')
 };
 
 // Lo que cada módulo escribe al arrancar, elemento a elemento.
@@ -172,7 +178,9 @@ const PANEL_TEXT = {
         'pdf-extract': 'extract',
         'pdf-convert': 'convert',
         'pdf-word-note': 'wordNote',
-        'pdf-dropping': 'dropping'
+        'pdf-dropping': 'dropping',
+        'pdf-mode-edit-label': 'modeEdit',
+        'pdf-mode-idcard-label': 'modeIdCard'
     }
 };
 
@@ -189,6 +197,30 @@ function replaceOnce(html, pattern, replacement, what) {
 function setText(html, id, text) {
     const pattern = new RegExp(`(<([a-z0-9]+)\\b[^>]*\\bid="${id}"[^>]*>)[^<]*(</\\2>)`);
     return replaceOnce(html, pattern, (match, open, tag, close) => `${open}${esc(text)}${close}`, `#${id}`);
+}
+
+/**
+ * Los textos de «Documento de identidad» van por clave, como los escribe
+ * `admin-id-card.js`: `data-idcard="clave"` en el contenido y
+ * `data-idcard-label` / `data-idcard-placeholder` en los atributos.
+ */
+function setKeyedText(html, text) {
+    const lookup = key => {
+        if (typeof text[key] !== 'string') throw new Error(`admin-id-card.js: no hay texto para «${key}»`);
+        return esc(text[key]);
+    };
+    return html
+        .replace(/(<([a-z0-9]+)\b[^>]*\bdata-idcard="([A-Za-z]+)"[^>]*>)[^<]*(<\/\2>)/g, (match, open, tag, key, close) => `${open}${lookup(key)}${close}`)
+        .replace(/<[^>]*\bdata-idcard-label="([A-Za-z]+)"[^>]*>/g, (tag, key) => tag.replace(/aria-label="[^"]*"/, `aria-label="${lookup(key)}"`))
+        .replace(/<[^>]*\bdata-idcard-placeholder="([A-Za-z]+)"[^>]*>/g, (tag, key) => tag.replace(/placeholder="[^"]*"/, `placeholder="${lookup(key)}"`));
+}
+
+/** La página de la cédula abre con su herramienta elegida, sin esperar al JS. */
+function chooseIdCardMode(html) {
+    html = replaceOnce(html, /<button type="button" class="pdf-mode is-active" role="tab" id="pdf-mode-edit" aria-selected="true"/, '<button type="button" class="pdf-mode" role="tab" id="pdf-mode-edit" aria-selected="false" tabindex="-1"', 'la pestaña del editor');
+    html = replaceOnce(html, /<button type="button" class="pdf-mode" role="tab" id="pdf-mode-idcard" aria-selected="false" aria-controls="idcard" tabindex="-1">/, '<button type="button" class="pdf-mode is-active" role="tab" id="pdf-mode-idcard" aria-selected="true" aria-controls="idcard">', 'la pestaña de la cédula');
+    html = replaceOnce(html, /(<div class="pdf-mode-panel" id="pdf-edit" role="tabpanel" aria-labelledby="pdf-mode-edit")>/, (match, open) => `${open} hidden>`, 'el panel del editor');
+    return replaceOnce(html, /(<div class="pdf-mode-panel idcard" id="idcard" role="tabpanel" aria-labelledby="pdf-mode-idcard") hidden>/, (match, open) => `${open}>`, 'el panel de la cédula');
 }
 
 /** El panel de `admin.html`, traducido y sin lo que solo tiene sentido en el CRM. */
@@ -208,7 +240,10 @@ function panelMarkup(tool, language, page) {
         html = replaceOnce(html, /\n( *)<\/form>/, (match, indent) => `${match}\n${indent}<div class="tools-human-check" id="tools-human-check"></div>`, 'el final del formulario');
     } else {
         html = replaceOnce(html, /aria-label="Pages of the document"/, `aria-label="${esc(text.pagesAria)}"`, 'la lista de páginas');
+        html = replaceOnce(html, /aria-label="PDF tools"/, `aria-label="${esc(text.modes)}"`, 'el selector de herramientas PDF');
         html = replaceOnce(html, /\n( *)(<div class="pdf-status" id="pdf-status")/, (match, indent, open) => `\n${indent}<div class="tools-human-check" id="tools-human-check"></div>\n${indent}${open}`, 'el estado de la conversión');
+        html = setKeyedText(html, TEXT.idcard[language]);
+        if (page.mode === 'idcard') html = chooseIdCardMode(html);
     }
     // La sangría es la de admin.html, que coincide con la de la página.
     return html.trimEnd();
@@ -450,7 +485,9 @@ function structuredData(page, language) {
 function faqEntries(page, language) {
     const copy = page.copy[language];
     const ui = UI[language];
-    const shared = page.tool === 'video' ? ui.sharedFaqVideo : page.tool === 'pdf' ? ui.sharedFaqPdf : [];
+    // Las comunes del PDF hablan de subir PDF y de pasar a Word: la página de
+    // la cédula responde a lo suyo en sus propias preguntas.
+    const shared = page.tool === 'video' ? ui.sharedFaqVideo : page.tool === 'pdf' && page.mode !== 'idcard' ? ui.sharedFaqPdf : [];
     return [...(copy.faq || []), ...shared];
 }
 
@@ -460,7 +497,8 @@ const ASSETS = {
     site: `/CSS/tools-site.css?v=${version('CSS/tools-site.css')}`,
     tools: `/CSS/admin-tools.css?v=${version('CSS/admin-tools.css')}`,
     video: `/JS/admin-tools.js?v=${version('JS/admin-tools.js')}`,
-    pdf: `/JS/admin-pdf.js?v=${version('JS/admin-pdf.js')}`
+    pdf: `/JS/admin-pdf.js?v=${version('JS/admin-pdf.js')}`,
+    idcard: `/JS/admin-id-card.js?v=${version('JS/admin-id-card.js')}`
 };
 
 function documentHtml({ language, page, title, description, body, indexable = true }) {
@@ -503,8 +541,11 @@ function documentHtml({ language, page, title, description, body, indexable = tr
         head.push(`<link rel="stylesheet" href="${ASSETS.tools}">`);
         head.push(`<link rel="modulepreload" href="/JS/tools-public.js">`);
     }
+    // La página de la cédula detecta en cuanto llega la primera foto.
+    if (page?.mode === 'idcard') head.push(`<link rel="modulepreload" href="/JS/id-card-scan.js">`);
     if (indexable) head.push(`<script type="application/ld+json">${structuredData(page, language)}</script>`);
-    const script = page?.tool ? `\n<script type="module" src="${ASSETS[page.tool]}"></script>` : '';
+    const scripts = page?.tool === 'pdf' ? [ASSETS.pdf, ASSETS.idcard] : page?.tool ? [ASSETS[page.tool]] : [];
+    const script = scripts.map(src => `\n<script type="module" src="${src}"></script>`).join('');
     return `<!doctype html>
 <html lang="${LOCALES[language]}">
 <head>
@@ -572,8 +613,11 @@ function block(id, title, inner) {
 }
 
 function workspace(page, language) {
+    // En la página de la cédula, el titular de la página ya dice lo que la
+    // introducción del panel: `data-mode` la esconde (CSS/tools-site.css).
+    const mode = page.mode ? ` data-mode="${page.mode}"` : '';
     return `
-        <div class="ts-workspace tools-workspace active" id="tools">
+        <div class="ts-workspace tools-workspace active" id="tools"${mode}>
             ${panelMarkup(page.tool, language, page)}
         </div>
         <noscript><p class="ts-noscript">${esc(UI[language].noscript)}</p></noscript>`;
@@ -702,6 +746,7 @@ function facts() {
         `- Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.`,
         `- Video limits: up to ${LIMITS.videoMaxMb} MB per file; the file is deleted ${LIMITS.fileMinutes} minutes after it is ready.`,
         `- PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to ${LIMITS.pdfEditMaxMb} MB per file. PDF to Word (.docx) runs on the Elysium server: up to ${LIMITS.pdfConvertMaxMb} MB and ${LIMITS.pdfConvertMaxPages} pages; the PDF is deleted as soon as the .docx exists and the .docx after ${LIMITS.fileMinutes} minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.`,
+        `- ID card to PDF: photos of the front and back of an identity card, residence permit or driving licence are detected, straightened and cut out from the background, and both sides are placed at real size (ID-1, 85.6 × 54 mm) or 1.5× on one A4 or Letter page, with an optional watermark. Everything runs in the browser: the photos are never uploaded.`,
         `- Fair-use limits per visitor and hour: ${LIMITS.inspectionsPerHour} link checks, ${LIMITS.downloadsPerHour} video downloads and ${LIMITS.conversionsPerHour} Word conversions. Each operation is checked by Cloudflare Turnstile.`,
         `- Languages: English, Spanish and European Portuguese.`
     ];
@@ -712,7 +757,7 @@ function llms() {
     const list = language => SITE_PAGES.filter(page => page.type !== 'home').map(page => entry(page, language)).join('\n');
     return `# ${BRAND}
 
-> Free online tools by ${PUBLISHER}, with no ads and no sign-up: a video downloader for public videos from ${PLATFORM_LIST.join(', ')} in every resolution the platform offers (MP4, MP3 or M4A), and a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word.
+> Free online tools by ${PUBLISHER}, with no ads and no sign-up: a video downloader for public videos from ${PLATFORM_LIST.join(', ')} in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
 
 ${facts().join('\n')}
 
@@ -766,7 +811,7 @@ function catalog() {
     return `${JSON.stringify({
         name: BRAND,
         url: `${ORIGIN}/`,
-        description: 'Free online video downloader and PDF editor, with no ads and no sign-up.',
+        description: 'Free online video downloader, PDF editor and ID card to PDF tool, with no ads and no sign-up.',
         publisher: { name: PUBLISHER, url: 'https://elysiumdr.eu/' },
         updated: UPDATED,
         price: 'free',
@@ -805,6 +850,17 @@ function catalog() {
                 processing: 'browser for page editing; server for PDF to Word',
                 tasks: Object.fromEntries(taskPages().map(page => [LABELS[page.id].en, urls(page)])),
                 outputs: ['PDF', 'DOCX']
+            },
+            {
+                id: 'id-card-to-pdf',
+                name: 'ID card to PDF',
+                urls: urls(byId('id-card')),
+                status: 'available',
+                processing: 'browser only; the photos are never uploaded',
+                inputs: ['JPEG', 'PNG', 'HEIC', 'WebP'],
+                documents: 'ID-1 cards (85.6 × 54 mm): national identity cards, residence permits, driving licences',
+                outputs: ['PDF'],
+                options: ['A4 or Letter', 'real size or 1.5×', 'colour or black and white', 'light correction', 'watermark']
             }
         ],
         documents: {
@@ -837,6 +893,7 @@ function mainLlmsBlock(language) {
     const list = new Intl.ListFormat(LOCALES[language], { type: 'conjunction' }).format(PLATFORM_LIST);
     const video = byId('video');
     const pdf = byId('pdf');
+    const idCard = byId('id-card');
     const home = urlFor(byId('home'), language);
     const others = LANGUAGES.filter(other => other !== language);
     const names = {
@@ -850,18 +907,21 @@ function mainLlmsBlock(language) {
             `Free online tools by ${PUBLISHER} on their own site, ${home}: no ads, no sign-up, with fair-use limits per hour.`,
             `- [${LABELS.video.en}](${urlFor(video, 'en')}): public videos from ${list}, in every resolution the platform offers, as MP4, MP3 or M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: coming soon.` : ''}`,
             `- [${LABELS.pdf.en}](${urlFor(pdf, 'en')}): merge PDFs and reorder, rotate, delete or extract pages inside the browser; convert PDF to Word (.docx).`,
+            `- [${LABELS['id-card'].en}](${urlFor(idCard, 'en')}): both sides of an ID card, straightened and at real size on one PDF page, without uploading the photos.`,
             `- ${languages} · For language models: ${ORIGIN}/llms.txt`
         ],
         es: [
             `Herramientas online gratuitas de ${PUBLISHER} en su propio sitio, ${home}: sin anuncios, sin registro y con límites de uso justo por hora.`,
             `- [${LABELS.video.es}](${urlFor(video, 'es')}): videos públicos de ${list}, en todas las resoluciones que ofrece la plataforma, en MP4, MP3 o M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: próximamente.` : ''}`,
             `- [${LABELS.pdf.es}](${urlFor(pdf, 'es')}): unir PDF y ordenar, girar, eliminar o extraer páginas dentro del navegador; convertir PDF a Word (.docx).`,
+            `- [${LABELS['id-card'].es}](${urlFor(idCard, 'es')}): las dos caras de una cédula o un DNI, enderezadas y a tamaño real en una hoja PDF, sin subir las fotos.`,
             `- ${languages} · Para modelos de lenguaje: ${ORIGIN}/llms.txt`
         ],
         pt: [
             `Ferramentas online gratuitas da ${PUBLISHER} no seu próprio site, ${home}: sem anúncios, sem registo e com limites de utilização justa por hora.`,
             `- [${LABELS.video.pt}](${urlFor(video, 'pt')}): vídeos públicos do ${list}, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: em breve.` : ''}`,
             `- [${LABELS.pdf.pt}](${urlFor(pdf, 'pt')}): juntar PDF e ordenar, rodar, eliminar ou extrair páginas dentro do navegador; converter PDF para Word (.docx).`,
+            `- [${LABELS['id-card'].pt}](${urlFor(idCard, 'pt')}): as duas faces de um Cartão de Cidadão, endireitadas e em tamanho real numa folha PDF, sem enviar as fotografias.`,
             `- ${languages} · Para modelos de linguagem: ${ORIGIN}/llms.txt`
         ]
     }[language];

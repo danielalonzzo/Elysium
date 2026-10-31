@@ -17,6 +17,11 @@
  *
  * El texto sigue el patrón de `admin-research.js`: diccionario propio, idioma
  * de `<html lang>` y repintado con el evento `elysium:language` de `admin.js`.
+ *
+ * La pestaña tiene dos herramientas y este módulo lleva el selector: el
+ * editor y «Documento de identidad» (`admin-id-card.js`), que junta las dos
+ * caras de una cédula en una hoja. Lo que esa herramienta quiera seguir
+ * editando llega con el evento `elysium:pdf-open` y se abre aquí.
  */
 // En tools.elysiumdr.eu el mismo módulo trabaja sin sesión, con Turnstile y
 // textos para el público: ver `tools-public.js`. En el CRM no se carga.
@@ -36,6 +41,9 @@ const LONG_PRESS_MS = 320;
 
 const COPY = {
     en: {
+        modes: 'PDF tools',
+        modeEdit: 'Edit PDF',
+        modeIdCard: 'ID card to PDF',
         dropTitle: 'Drop your PDF files here',
         dropText: 'Reorder, rotate and delete pages, merge several PDFs or turn them into Word.',
         choose: 'Choose PDF files',
@@ -114,6 +122,9 @@ const COPY = {
         }
     },
     es: {
+        modes: 'Herramientas de PDF',
+        modeEdit: 'Editar PDF',
+        modeIdCard: 'Documento de identidad',
         dropTitle: 'Suelta aquí tus PDF',
         dropText: 'Ordena, gira y elimina páginas, une varios PDF o pásalos a Word.',
         choose: 'Elegir archivos PDF',
@@ -192,6 +203,9 @@ const COPY = {
         }
     },
     pt: {
+        modes: 'Ferramentas de PDF',
+        modeEdit: 'Editar PDF',
+        modeIdCard: 'Documento de identificação',
         dropTitle: 'Largue aqui os seus PDF',
         dropText: 'Ordene, rode e elimine páginas, junte vários PDF ou converta-os para Word.',
         choose: 'Escolher ficheiros PDF',
@@ -281,7 +295,8 @@ const state = {
     busy: false,
     nameEdited: false,
     conversion: null,
-    alert: null
+    alert: null,
+    mode: 'edit'
 };
 const cards = new Map();
 let _pdfjs = null;
@@ -1162,6 +1177,59 @@ function onPointerUp(event) {
     if (!drag.moved) toggleSelection(drag.id, { range: event.shiftKey });
 }
 
+/* ── Las dos herramientas de la pestaña ──────────────────────────────────── */
+
+/**
+ * Cambia entre el editor (`edit`) y «Documento de identidad» (`idcard`). Es
+ * el patrón `tablist` de las pestañas de Herramientas, un nivel más abajo.
+ */
+function setMode(mode, { focus = false } = {}) {
+    const tabs = [...document.querySelectorAll('#pdf-modes [role="tab"]')];
+    const chosen = tabs.find(tab => tab.id === `pdf-mode-${mode}`) || tabs[0];
+    if (!chosen) return;
+    state.mode = chosen.id.replace('pdf-mode-', '');
+    tabs.forEach(tab => {
+        const active = tab === chosen;
+        tab.classList.toggle('is-active', active);
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        tab.tabIndex = active ? 0 : -1;
+        const panel = $(tab.getAttribute('aria-controls'));
+        if (panel) panel.hidden = !active;
+    });
+    $('tools-panel-pdf')?.setAttribute('data-pdf-mode', state.mode);
+    if (focus) chosen.focus();
+    document.dispatchEvent(new CustomEvent('elysium:pdf-mode', { detail: { mode: state.mode } }));
+}
+
+function bindModes() {
+    const list = $('pdf-modes');
+    if (!list) return;
+    list.addEventListener('click', event => {
+        const tab = event.target.closest('[role="tab"]');
+        if (tab) setMode(tab.id.replace('pdf-mode-', ''));
+    });
+    list.addEventListener('keydown', event => {
+        const tabs = [...list.querySelectorAll('[role="tab"]')];
+        const index = tabs.indexOf(document.activeElement);
+        if (index < 0) return;
+        const next = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: tabs.length - 1 }[event.key];
+        if (next === undefined) return;
+        event.preventDefault();
+        setMode(tabs[(next + tabs.length) % tabs.length].id.replace('pdf-mode-', ''), { focus: true });
+    });
+    // La página pública de la cédula ya llega con su herramienta elegida.
+    const initial = list.querySelector('[role="tab"][aria-selected="true"]');
+    setMode(initial ? initial.id.replace('pdf-mode-', '') : 'edit');
+    // Lo que otra herramienta quiere seguir editando: un PDF ya hecho.
+    document.addEventListener('elysium:pdf-open', event => {
+        const files = event.detail?.files;
+        if (!files?.length) return;
+        setMode('edit');
+        addFiles(files);
+        $('tools-panel-pdf')?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+}
+
 /* ── Texto y arranque ────────────────────────────────────────────────────── */
 
 function applyCopy() {
@@ -1182,13 +1250,16 @@ function applyCopy() {
         'pdf-extract': text.extract,
         'pdf-convert': text.convert,
         'pdf-word-note': text.wordNote,
-        'pdf-dropping': text.dropping
+        'pdf-dropping': text.dropping,
+        'pdf-mode-edit-label': text.modeEdit,
+        'pdf-mode-idcard-label': text.modeIdCard
     };
     for (const [id, value] of Object.entries(values)) {
         const element = $(id);
         if (element) element.textContent = value;
     }
     $('pdf-pages')?.setAttribute('aria-label', text.pagesAria);
+    $('pdf-modes')?.setAttribute('aria-label', text.modes);
     // Los botones de cada página llevan su texto dentro: se rehacen.
     cards.forEach(card => {
         const canvas = card.querySelector('canvas');
@@ -1218,7 +1289,9 @@ function bindPdfUi() {
 
     // Soltar PDF en cualquier punto del panel.
     let depth = 0;
-    const hasFiles = event => [...(event.dataTransfer?.types || [])].includes('Files');
+    // En «Documento de identidad» lo que se suelta son fotos, y las recoge
+    // `admin-id-card.js`.
+    const hasFiles = event => state.mode === 'edit' && [...(event.dataTransfer?.types || [])].includes('Files');
     panel.addEventListener('dragenter', event => {
         if (!hasFiles(event)) return;
         event.preventDefault();
@@ -1310,7 +1383,7 @@ function bindPdfUi() {
         }
     });
     panel.addEventListener('keydown', event => {
-        if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z' && !event.shiftKey && event.target.tagName !== 'INPUT') {
+        if (state.mode === 'edit' && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'z' && !event.shiftKey && event.target.tagName !== 'INPUT') {
             event.preventDefault();
             undo();
         }
@@ -1321,6 +1394,7 @@ function bindPdfUi() {
 
 function start() {
     bindPdfUi();
+    bindModes();
     applyCopy();
 }
 

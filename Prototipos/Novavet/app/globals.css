@@ -1853,3 +1853,108 @@ section[id], div[id] {
 }
 
 
+
+/* Compact mobile homepage; desktop keeps the full editorial sections. */
+.mobile-page-shortcuts { display: none; }
+.mobile-disclosure > summary { display: none; }
+@media (max-width: 650px) {
+  html { scroll-padding-top: 90px; }
+  .mobile-page-shortcuts {
+    display: flex; gap: 8px; padding: 16px 16px 0;
+    flex-wrap: wrap;
+  }
+  .mobile-page-shortcuts a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; padding: 8px 12px; border: 1px solid var(--line);
+    border-radius: 999px; font-size: 12px; font-weight: 700;
+    background: var(--paper);
+  }
+  .mobile-disclosure { margin: 0 16px; border-bottom: 1px solid var(--line); }
+  .mobile-disclosure > summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    min-height: 60px; padding: 16px 0; cursor: pointer; list-style: none;
+    font-size: 15px; font-weight: 700;
+  }
+  .mobile-disclosure > summary::-webkit-details-marker { display: none; }
+  .mobile-disclosure > summary svg { flex-shrink: 0; transition: transform .2s; }
+  .mobile-disclosure[open] > summary svg { transform: rotate(90deg); }
+  .mobile-disclosure > div > .reveal { opacity: 1; transform: none; }
+  .mobile-disclosure .section { margin: 0; padding: 20px 0 28px; border-radius: 0; }
+  .mobile-disclosure .novavet-profile-section,
+  .mobile-disclosure .novavet-bemed-section { padding: 24px 16px; border-radius: 16px; }
+  .novavet-hero { padding: 24px 16px 28px; }
+  .novavet-hero-container { gap: 24px; }
+  .novavet-hero-badge-wrap { gap: 6px; margin-bottom: 16px; }
+  .novavet-hero-lead { font-size: 15px; line-height: 1.55; margin-bottom: 20px; }
+  .novavet-metrics-grid { gap: 8px; margin-bottom: 20px; }
+  .novavet-metric-card { padding: 12px; }
+  .novavet-metric-card strong { font-size: 19px; }
+  .novavet-hero-actions { width: 100%; gap: 8px; }
+  .novavet-hero-actions .button { width: 100%; min-height: 46px; padding: 10px 16px; }
+  .novavet-hero-img-main { height: 200px; }
+  .novavet-showcase-overlay { padding: 16px; }
+  .novavet-showcase-overlay h3 { font-size: 18px; }
+  .novavet-floating-trust-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .novavet-trust-mini { padding: 10px; gap: 8px; }
+  .novavet-trust-mini svg { width: 20px; }
+  .novavet-trust-mini strong { font-size: 12px; }
+  .novavet-trust-mini span { font-size: 11px; }
+  .novavet-clinic-section, .novavet-divisions-section,
+  .novavet-contact-section { padding: 32px 16px; }
+  .novavet-section-header { margin-bottom: 22px; }
+  .novavet-section-header h2, .novavet-contact-info-col h2 { font-size: 30px; }
+  .novavet-section-header p { font-size: 14px; }
+  .novavet-clinic-grid { gap: 12px; }
+  .novavet-clinic-card { padding: 20px; }
+  .novavet-card-icon { width: 40px; height: 40px; margin-bottom: 12px; border-radius: 12px; }
+  .novavet-clinic-card h3 { font-size: 21px; }
+  .novavet-clinic-card p { margin-bottom: 12px; }
+  .novavet-card-bullets { gap: 5px; padding-top: 10px; }
+  .novavet-booking-cta-banner { margin-top: 18px; padding: 20px; gap: 16px; }
+  .novavet-booking-cta-banner h3 { font-size: 24px; }
+  .novavet-divisions-grid { grid-template-columns: 1fr; gap: 8px; }
+  .novavet-division-card { padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
+  .novavet-division-head { grid-column: 2; grid-row: 1 / 3; margin: 0; }
+  .novavet-div-badge { display: none; }
+  .novavet-div-title { font-size: 20px; }
+  .novavet-div-subtitle { font-size: 13px; margin: 0; }
+  .novavet-div-desc { grid-column: 1 / -1; margin: 4px 0 0; font-size: 13px; }
+  .novavet-moagem-banner { padding: 20px; gap: 12px; }
+  .novavet-catalog-cta-section { padding: 24px 16px; }
+  .novavet-catalog-cta-card { padding: 24px 20px; gap: 24px; }
+  .novavet-catalog-cta-content h2 { font-size: 30px; }
+  .novavet-catalog-preview-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .novavet-preview-item { padding: 10px 4px; min-width: 0; }
+  .novavet-preview-item img { height: 52px; }
+  .novavet-preview-item span { font-size: 10px; overflow-wrap: anywhere; }
+  .novavet-contact-grid { gap: 24px; }
+  .novavet-info-lines { gap: 14px; }
+  .novavet-form-card { padding: 20px 16px; }
+  .novavet-map-wrapper { margin-top: 24px; }
+  .novavet-map-wrapper iframe { height: 220px; }
+  .footer { padding: 32px 16px 110px; }
+  .footer-top { gap: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .mobile-disclosure > summary svg { transition: none; }
+}
+@media (max-width: 650px) {
+  .novavet-contact-grid > .mobile-disclosure { margin: 0; min-width: 0; }
+  .footer-top { grid-template-columns: repeat(2, minmax(0, 1fr)); font-size: 12px; }
+  .footer-top > div:first-child { grid-column: 1 / -1; }
+  .footer-top h2 { font-size: 28px; }
+  .footer-top h3 { font-size: 11px; }
+  .footer-top a { overflow-wrap: anywhere; }
+}
+@media (max-width: 360px) {
+  .header { gap: 8px; padding-left: 12px; }
+  .header-actions { gap: 6px; }
+  .brand { min-width: 0; gap: 6px; }
+  .brand small { display: none; }
+  .brand strong { font-size: 14px; }
+  .language { padding: 0 10px; }
+}
+@media (max-width: 360px) {
+  .brand > span { display: none; }
+}

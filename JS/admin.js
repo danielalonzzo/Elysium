@@ -3595,7 +3595,8 @@ function applyTranslations() {
 }
 
 async function initDashboard() {
-    const requestedTab = localStorage.getItem('elysium_admin_tab') || 'overview';
+    const linkedTab = new URLSearchParams(window.location.search).get('section');
+    const requestedTab = linkedTab === 'tools' ? 'tools' : localStorage.getItem('elysium_admin_tab') || 'overview';
     const savedTab = document.getElementById(requestedTab) ? requestedTab : 'overview';
 
     // Set dashboard date

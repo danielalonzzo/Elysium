@@ -1,0 +1,24 @@
+{
+  "mac": {
+    "name": "mac",
+    "width": 1000,
+    "height": 611,
+    "screen": {
+      "x": 91,
+      "y": 13,
+      "w": 819,
+      "h": 529
+    }
+  },
+  "iphone": {
+    "name": "iphone",
+    "width": 483,
+    "height": 1001,
+    "screen": {
+      "x": 18,
+      "y": 16,
+      "w": 446,
+      "h": 970
+    }
+  }
+}
