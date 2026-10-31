@@ -1863,3 +1863,7 @@ body.pdf-is-dragging * {
         text-align: left;
     }
 }
+
+.customer-portal.is-admin .tools-recovery { margin-top: .9rem; }
+.customer-portal.is-admin .tools-recovery-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .9rem; }
+.customer-portal.is-admin .tools-recovery-actions a { white-space: normal; text-align: center; text-decoration: none; }

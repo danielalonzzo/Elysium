@@ -136,7 +136,7 @@ Todas opcionales.
 | `TOOLS_MAX_ACTIVE_DOWNLOADS` | Descargas a la vez; el resto espera en cola. 2 por defecto. |
 | `TOOLS_STORAGE_BUDGET_MB` | Lo que puede esperar en disco a que el navegador lo recoja. 1500 por defecto. |
 | `YTDLP_COOKIES_FILE` | Ruta de un `cookies.txt` (formato Netscape). Ver abajo. |
-| `YTDLP_PROXY` | Proxy para yt-dlp, p. ej. uno residencial si YouTube bloquea la IP de Google. |
+| `YTDLP_PROXY` | Configuración de red opcional de yt-dlp para usos autorizados; no resuelve por sí sola un bloqueo de la plataforma. |
 | `YTDLP_JS_RUNTIMES` | Motor de JavaScript para YouTube. En la imagen, Deno; en local, `node`. |
 | `PDF_PYTHON` | El Python que tiene pdf2docx. En la imagen, `/opt/pdf/bin/python`. |
 | `TOOLS_MAX_PDF_MB` | Tamaño máximo de un PDF para convertir. 30 por defecto (Cloud Run no acepta cuerpos de más de 32 MiB). |
@@ -145,29 +145,19 @@ Todas opcionales.
 Con 4 GiB de memoria, dos descargas de 1 GB uniendo vídeo y audio a la vez
 rozan el límite. Si se suben los máximos, súbase también `--memory`.
 
-## Cuando una plataforma pide sesión
+## Cuando YouTube bloquea una solicitud
 
-Desde la IP de un centro de datos, YouTube a veces pide «confirmar que no es un
-bot», e Instagram o Vimeo piden iniciar sesión para algunos enlaces. El CRM lo
-dice con su código (`bot_check`, `login_required`). Hay dos salidas:
+`bot_check` significa que la plataforma rechazó una solicitud automatizada.
+No es un fallo del inicio de sesión de Elysium. El CRM muestra el motivo sin
+recomendar transferir cookies ni utilizar proxies para superar el bloqueo.
+Ofrece el vídeo en YouTube y los accesos oficiales a YouTube Studio, Google
+Takeout y las instrucciones para descargar vídeos del propio canal. Estos
+accesos no habilitan una descarga automática desde el servidor.
 
-- **Cookies** de una cuenta **secundaria** (nunca la personal: la plataforma
-  puede bloquearla). Exportarlas en formato Netscape desde una ventana privada
-  y cerrarla después, y guardarlas como secreto:
-
-  ```bash
-  gcloud secrets create elysium-tools-cookies --project elysiumdr-eu --data-file cookies.txt
-  gcloud secrets add-iam-policy-binding elysium-tools-cookies --project elysiumdr-eu \
-    --member serviceAccount:elysium-tools@elysiumdr-eu.iam.gserviceaccount.com \
-    --role roles/secretmanager.secretAccessor
-  gcloud run services update elysium-tools --region europe-west1 --project elysiumdr-eu \
-    --set-secrets /secrets/cookies.txt=elysium-tools-cookies:latest \
-    --update-env-vars YTDLP_COOKIES_FILE=/secrets/cookies.txt
-  ```
-
-  El secreto se monta de solo lectura; el servicio hace una copia por descarga
-  porque yt-dlp reescribe el fichero al terminar.
-- **Proxy** residencial en `YTDLP_PROXY`, si lo que bloquean es la IP.
+No hacen falta credenciales de YouTube dentro de Elysium para utilizar esos
+accesos. El inicio de sesión ocurre en las páginas oficiales de Google.
+`login_required` y `age_restricted` remiten a la plataforma original, con una
+cuenta autorizada. Las demás descargas y los límites existentes no cambian.
 
 ## Pruebas
 
@@ -233,7 +223,7 @@ Las rutas del CRM siguen detrás de `requireAdmin`. Quién llega y cómo:
 4. **Solo las plataformas comprobadas** (`PUBLIC_PLATFORMS`): TikTok,
    Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky. YouTube
    responde `coming_soon` (desde las IP de Google pide demostrar que no es un
-   bot; hará falta `YTDLP_PROXY` con un proxy residencial, y entonces moverlo a
+   bot. Solo se habilitará con una vía autorizada que se haya verificado; entonces se podrá mover a
    la lista). Los enlaces cortos `pin.it` responden `short_link`. Esa lista, la
    de `scripts/tools/content.mjs` (lo que prometen las páginas) y la de
    `JS/tools-public.js` (los mensajes) tienen que coincidir: lo comprueba

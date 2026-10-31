@@ -444,8 +444,9 @@ entero que los acumula. La cabecera y el pie de todas las páginas lo enlazan
 5. **Lo que se promete tiene que funcionar.** Las plataformas salieron de una
    sonda desde Cloud Run y están en tres listas que tienen que coincidir
    (`content.mjs`, `tools-public.js`, `backend/tools/public-tools.js`); los
-   límites que citan las páginas son los del servicio. YouTube sale como
-   «próximamente» hasta que el servicio tenga un proxy residencial. Lo vigila
+   límites que citan las páginas son los del servicio. YouTube no tiene descarga automática disponible. Si el CRM recibe
+   `bot_check`, ofrece accesos oficiales a YouTube Studio y Takeout para
+   vídeos propios, sin pedir cookies ni proponer eludir el bloqueo. Lo vigila
    `scripts/tools.test.mjs`, que además revisa el SEO de cada página (un `h1`,
    canónica, `hreflang` recíprocos, datos estructurados con las mismas
    preguntas que se ven) y el enrutado del Worker.

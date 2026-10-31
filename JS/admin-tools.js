@@ -18,8 +18,9 @@
  * El texto sigue el patrón de `admin-research.js`: diccionario propio, idioma
  * de `<html lang>` y repintado con el evento `elysium:language` de `admin.js`.
  */
-// En tools.elysiumdr.eu el mismo módulo trabaja sin sesión, con Turnstile y
-// textos para el público: ver `tools-public.js`. En el CRM no se carga.
+// En tools.elysiumdr.eu el Worker comprueba sesión y licencia; este módulo
+// añade Turnstile y textos de Tools mediante `tools-public.js`.
+import { videoRecovery } from './tools-video-recovery.js';
 const PUBLIC = document.body.dataset.publicTools === 'true' ? await import('./tools-public.js') : null;
 let auth = null;
 
@@ -101,11 +102,11 @@ const COPY = {
             option_invalid: 'Choose one of the offered qualities.',
             item_invalid: 'That video is not part of the post.',
             unsupported: 'This site is not supported.',
-            bot_check: ({ platform }) => `${platform} asked the server to prove it is not a bot. Try again later, or set up cookies or a proxy for the tools service.`,
-            age_restricted: 'The video is age-restricted: it needs a signed-in account (cookies) on the tools service.',
+            bot_check: ({ platform }) => `${platform} blocked this automated request with a bot check. This link cannot be downloaded by the service.`,
+            age_restricted: 'The video is age-restricted. Open it on the original platform with an authorized account.',
             private: 'The video is private.',
             geo_blocked: 'The video is not available in the server region.',
-            login_required: ({ platform }) => `${platform} asks for a signed-in account for this link. The post may be private, or the tools service needs cookies.`,
+            login_required: ({ platform }) => `${platform} requires an authorized account for this link. Open it on the original platform.`,
             rate_limited: 'The platform is limiting requests. Try again in a few minutes.',
             too_large: ({ size }) => `The file is larger than the ${size} limit. Choose a lower quality.`,
             live: 'Live streams can be downloaded once they end.',
@@ -193,11 +194,11 @@ const COPY = {
             option_invalid: 'Elige una de las calidades que se ofrecen.',
             item_invalid: 'Ese video no forma parte de la publicación.',
             unsupported: 'Este sitio no es compatible.',
-            bot_check: ({ platform }) => `${platform} pidió al servidor demostrar que no es un bot. Inténtalo más tarde o configura cookies o un proxy en el servicio de herramientas.`,
-            age_restricted: 'El video tiene restricción de edad: necesita una cuenta con sesión iniciada (cookies) en el servicio de herramientas.',
+            bot_check: ({ platform }) => `${platform} ha bloqueado esta solicitud automatizada con una comprobación contra bots. El servicio no puede descargar este enlace.`,
+            age_restricted: 'El video tiene restricción de edad. Ábrelo en la plataforma original con una cuenta autorizada.',
             private: 'El video es privado.',
             geo_blocked: 'El video no está disponible en la región del servidor.',
-            login_required: ({ platform }) => `${platform} pide una cuenta con sesión iniciada para este enlace. Puede que la publicación sea privada o que el servicio de herramientas necesite cookies.`,
+            login_required: ({ platform }) => `${platform} requiere una cuenta autorizada para este enlace. Ábrelo en la plataforma original.`,
             rate_limited: 'La plataforma está limitando las peticiones. Inténtalo en unos minutos.',
             too_large: ({ size }) => `El archivo supera el límite de ${size}. Elige una calidad menor.`,
             live: 'Las transmisiones en directo se pueden descargar cuando terminan.',
@@ -285,11 +286,11 @@ const COPY = {
             option_invalid: 'Escolha uma das qualidades disponíveis.',
             item_invalid: 'Esse vídeo não faz parte da publicação.',
             unsupported: 'Este site não é suportado.',
-            bot_check: ({ platform }) => `${platform} pediu ao servidor que provasse não ser um bot. Tente mais tarde ou configure cookies ou um proxy no serviço de ferramentas.`,
-            age_restricted: 'O vídeo tem restrição de idade: precisa de uma conta com sessão iniciada (cookies) no serviço de ferramentas.',
+            bot_check: ({ platform }) => `${platform} bloqueou este pedido automatizado com uma verificação contra bots. O serviço não consegue transferir esta ligação.`,
+            age_restricted: 'O vídeo tem restrição de idade. Abra-o na plataforma original com uma conta autorizada.',
             private: 'O vídeo é privado.',
             geo_blocked: 'O vídeo não está disponível na região do servidor.',
-            login_required: ({ platform }) => `${platform} exige uma conta com sessão iniciada para esta ligação. A publicação pode ser privada ou o serviço de ferramentas precisa de cookies.`,
+            login_required: ({ platform }) => `${platform} exige uma conta autorizada para esta ligação. Abra-a na plataforma original.`,
             rate_limited: 'A plataforma está a limitar os pedidos. Tente daqui a alguns minutos.',
             too_large: ({ size }) => `O ficheiro ultrapassa o limite de ${size}. Escolha uma qualidade inferior.`,
             live: 'As transmissões em direto podem ser transferidas quando terminarem.',
@@ -435,7 +436,7 @@ function errorInfo(error) {
 async function toolsFetch(path, { method = 'POST', body, signal } = {}) {
     const headers = body ? { 'Content-Type': 'application/json' } : {};
     if (PUBLIC) {
-        // Sin sesión: cada POST lleva su propio token de Turnstile.
+        // La sesión de Tools viaja en cookie HttpOnly; cada POST añade Turnstile.
         if (method === 'POST') headers['X-Turnstile-Token'] = await PUBLIC.humanToken({ signal });
     } else {
         const user = auth?.currentUser;
@@ -552,7 +553,7 @@ async function inspect(rawUrl, { parent = null } = {}) {
     } catch (error) {
         if (controller !== _inspecting) return;
         if (controller.signal.aborted && controller.signal.reason !== 'timeout') return;
-        showAlert(controller.signal.reason === 'timeout' ? { code: 'timeout' } : errorInfo(error));
+        showAlert(controller.signal.reason === 'timeout' ? { code: 'timeout' } : { ...errorInfo(error), sourceUrl: rawUrl });
     } finally {
         window.clearTimeout(timer);
         if (controller === _inspecting) {
@@ -595,14 +596,20 @@ function chooseEntry(index) {
 
 /* ── Pintar ──────────────────────────────────────────────────────────────── */
 
+function recoveryMarkup(error, sourceUrl) {
+    const recovery = videoRecovery(error, { sourceUrl, language: String(document.documentElement.lang || 'en').slice(0, 2) });
+    if (!recovery) return '';
+    return `<div class="tools-recovery"><p>${esc(recovery.explanation)}</p><div class="tools-recovery-actions">${recovery.links.map(link => `<a class="btn btn-secondary tools-btn-compact" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.label)} ↗</a>`).join('')}</div></div>`;
+}
+
 function showAlert(error) {
     _alert = error;
     const element = document.getElementById('tools-video-alert');
     if (!element) return;
-    const detail = error.detail
+    const detail = error.detail && error.code !== 'bot_check'
         ? `<details class="tools-alert-detail"><summary>${esc(copy().detail)}</summary><code translate="no">${esc(error.detail)}</code></details>`
         : '';
-    element.innerHTML = `<p>${esc(errorMessage(error))}</p>${detail}`;
+    element.innerHTML = `<p>${esc(errorMessage(error))}</p>${recoveryMarkup(error, error.sourceUrl)}${detail}`;
     element.hidden = false;
 }
 
@@ -755,7 +762,7 @@ function jobActions(job) {
         buttons.push(`<button type="button" class="btn btn-secondary tools-btn-compact" data-job-action="cancel">${esc(text.cancel)}</button>`);
     } else if (job.state === 'ready' && job.expiresAt > Date.now()) {
         buttons.push(`<a class="btn btn-primary tools-btn-compact" data-job-action="save" href="${esc(job.file.url)}" download="${esc(job.file.name)}">${esc(text.save)}</a>`);
-    } else {
+    } else if (job.error?.code !== 'bot_check') {
         buttons.push(`<button type="button" class="btn btn-secondary tools-btn-compact" data-job-action="retry">${esc(text.retry)}</button>`);
     }
     if (job.state !== 'running') {
@@ -769,7 +776,7 @@ function jobMarkup(job) {
     const running = job.state === 'running';
     const percent = running && job.stage === 'downloading' && Number.isFinite(job.progress?.percent) ? job.progress.percent : null;
     const indeterminate = running && percent === null;
-    const detail = job.state === 'error' && job.error?.detail
+    const detail = job.state === 'error' && job.error?.detail && job.error?.code !== 'bot_check'
         ? `<details class="tools-alert-detail"><summary>${esc(text.detail)}</summary><code translate="no">${esc(job.error.detail)}</code></details>`
         : '';
     return `${thumbnailMarkup(job.media, 'tools-job-thumb')}
@@ -780,6 +787,7 @@ function jobMarkup(job) {
             </div>
             ${running ? `<div class="tools-job-bar${indeterminate ? ' is-indeterminate' : ''}" role="progressbar" aria-label="${esc(text.progressAria(job.media.title || text.untitled))}" aria-valuemin="0" aria-valuemax="100"${percent === null ? '' : ` aria-valuenow="${Math.round(percent)}"`}><span style="width: ${percent === null ? 0 : percent}%"></span></div>` : ''}
             <p class="tools-job-status">${esc(jobStatus(job))}</p>
+            ${job.state === 'error' ? recoveryMarkup(job.error, job.media.url) : ''}
             ${detail}
         </div>
         <div class="tools-job-actions">${jobActions(job)}</div>`;

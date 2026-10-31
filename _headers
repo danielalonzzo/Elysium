@@ -159,6 +159,9 @@
 /JS/tools-account-copy.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
+/JS/tools-video-recovery.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 /JS/firebase-config.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
