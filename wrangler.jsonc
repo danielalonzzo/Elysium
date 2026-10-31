@@ -2,6 +2,13 @@
   "name": "elysium",
   "compatibility_date": "2026-02-18",
   "main": "worker/index.js",
+  "routes": [
+    { "pattern": "elysiumdr.eu", "custom_domain": true },
+    { "pattern": "elysiumdr.es", "custom_domain": true },
+    { "pattern": "elysiumdr.pt", "custom_domain": true },
+    { "pattern": "elysiumdr.com", "custom_domain": true },
+    { "pattern": "tools.elysiumdr.eu", "custom_domain": true }
+  ],
   "vars": {
     "ELYSIUM_API_ORIGIN": "https://elysium-billing-2w6h4dekoa-ew.a.run.app",
     // Las herramientas del CRM (backend/tools): descarga de videos y PDF a
@@ -11,7 +18,7 @@
     // La secreta va aparte: `npx wrangler secret put TURNSTILE_SECRET_KEY`,
     // igual que TOOLS_PUBLIC_GATEWAY_KEY. Sin las tres, la API pública de las
     // herramientas responde 503 y las páginas lo dicen (worker/tools-site.js).
-    "TURNSTILE_SITE_KEY": ""
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFuJVOjMkqKWIyRJ"
   },
   "assets": {
     "directory": ".",
