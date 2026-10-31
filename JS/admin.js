@@ -39,6 +39,7 @@ import {
     CURRENCY_SYMBOLS
 } from './elysium-domain.js';
 import { ADMIN_COPY, applyStaticCopy } from './admin-i18n.js';
+import { loadToolsLicenses } from './admin-tools-licenses.js';
 
 const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
 
@@ -3964,7 +3965,17 @@ function activityPresentation(type) {
 
 /** Rótulo del evento en el idioma activo; si no se conoce, el tipo en crudo. */
 function activityLabel(type, fallback = '') {
+    if (type.startsWith('tools_license_')) return toolsActivityLabel(type);
     return ui().feed.labels[type] || fallback || String(type || '').replaceAll('_', ' ');
+}
+
+function toolsActivityLabel(type) {
+    const names = {
+        en: { requested: 'Free Tools license requested', approve: 'Tools license approved', reject: 'Tools request rejected', suspend: 'Tools license suspended', reactivate: 'Tools license reactivated' },
+        es: { requested: 'Solicitud de licencia gratuita de Tools', approve: 'Licencia de Tools aprobada', reject: 'Solicitud de Tools rechazada', suspend: 'Licencia de Tools suspendida', reactivate: 'Licencia de Tools reactivada' },
+        pt: { requested: 'Pedido de licença gratuita de Tools', approve: 'Licença de Tools aprovada', reject: 'Pedido de Tools rejeitado', suspend: 'Licença de Tools suspensa', reactivate: 'Licença de Tools reativada' }
+    };
+    return (names[currentLang] || names.en)[type.slice('tools_license_'.length)] || 'Elysium Tools';
 }
 
 /**
@@ -3973,6 +3984,7 @@ function activityLabel(type, fallback = '') {
  * interpolarse en inglés dentro de la tabla.
  */
 function activitySubtitle(type, payload = {}, fallback = '') {
+    if (type.startsWith('tools_license_')) return toolsActivityLabel(type);
     const subs = ui().feed.subs;
     const kind = payload.type === 'call' ? ui().briefing.call : ui().briefing.meeting;
     switch (type) {
@@ -5490,6 +5502,10 @@ async function handlePatrimonioAction(event) {
 }
 
 async function loadLicenses() {
+    loadToolsLicenses({ auth, language: currentLang, onProfile: async uid => {
+        const profile = await getDoc(doc(db, 'members', uid));
+        if (profile.exists()) showClientDetail(uid, { id: uid, ...profile.data() });
+    } });
     loadPatrimonioAccess();
     const licensesList = document.getElementById('licenses-list');
     const summary = document.getElementById('licenses-summary');

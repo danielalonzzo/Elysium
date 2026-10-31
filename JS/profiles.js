@@ -1,4 +1,5 @@
 import { auth, db, hasPersistentCache } from './firebase-config.js';
+import { ACCOUNT_COPY as TOOLS_ACCOUNT_COPY } from './tools-account-copy.js';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -1273,6 +1274,7 @@ function renderOverviewSection() {
 
     section.innerHTML = `
         ${sectionHeader('overview', `${t.greeting}${name ? `, ${name.split(' ')[0]}` : ''}.`, t.overviewLead, `<a class="btn" href="mailto:info@elysiumdr.eu">${escapeHTML(t.support)}</a>`)}
+        ${currentUserData.toolsLicense ? `<div class="portal-alert"><strong>Elysium Tools · ${escapeHTML(TOOLS_ACCOUNT_COPY[currentLang]?.useLicense || 'Free license')}</strong><p>${escapeHTML(currentUserData.toolsLicense.licenseCode)} · ${escapeHTML(TOOLS_ACCOUNT_COPY[currentLang]?.[currentUserData.toolsLicense.status] || currentUserData.toolsLicense.status)}</p><a class="btn" href="https://tools.elysiumdr.eu/${currentLang === 'en' ? '' : `${currentLang}/`}">Elysium Tools →</a></div>` : ''}
         ${status && status !== 'active' ? `<div class="portal-alert warning" role="alert">${escapeHTML(t.subscriptionAttention)} ${escapeHTML(t[status] || status)}</div>` : ''}
         <div class="portal-kpi-grid">
             ${kpi(t.currentPlan, sub?.planType ? planLabel(sub.planType) : t.noPlan, status ? `<span class="status-chip ${escapeHTML(status)}">${escapeHTML(t[status] || status)}</span>` : '', true)}

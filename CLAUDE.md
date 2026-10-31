@@ -393,6 +393,23 @@ el del libro. Ocho cosas que no se ven abriéndola:
    `ai-train=no`: los libros son de terceros y Elysium no puede autorizarlo.
 
 **`tools/` es tools.elysiumdr.eu (Elysium Tools), no una carpeta del sitio.**
+
+El catálogo es público, pero usar las herramientas exige cuenta Firebase con
+correo verificado y licencia gratuita aprobada manualmente en CRM → Licencias
+→ Elysium Tools. `JS/tools-account.js` gestiona la cuenta y la solicitud;
+`backend/tools-license-routes.js` registra perfiles, solicitudes y licencias sin
+tocar suscripciones pagadas. `tools_requests/{uid}` y `tools_access/{uid}` son
+escritos solo por el backend; la concesión también queda en `licenses` y en
+`members.toolsLicense`. Suspender o desactivar el perfil bloquea el acceso.
+
+Las páginas generadas no contienen paneles operativos ni cargan sus módulos.
+El generador guarda los paneles en `worker/tools-workspaces.js`, excluido de
+los assets públicos. `/api/tools/workspace` solo los entrega con licencia.
+El Worker comprueba el acceso en el backend antes de cada operación y descarga;
+la sesión viaja en una cookie HttpOnly, Secure y SameSite=Lax. Turnstile y los
+límites anteriores siguen activos. La pantalla pública y el texto indexable
+son iguales para visitantes y rastreadores: no se distingue por User-Agent.
+
 El descargador de videos, el editor de PDF y «Documento de identidad» del CRM,
 abiertos al público, gratis y sin anuncios, en un subdominio a propósito: un
 descargador público atrae avisos de copyright, y Google castiga al dominio
@@ -414,11 +431,11 @@ entero que los acumula. La cabecera y el pie de todas las páginas lo enlazan
    Nunca borra: una página retirada se quita con `git rm`.
 3. **Las herramientas son los módulos del CRM**, no una copia:
    `<body data-public-tools="true">` pone `JS/admin-tools.js` y `JS/admin-pdf.js`
-   en modo público, que carga `JS/tools-public.js` (Turnstile y los textos para
-   quien no tiene cuenta). Ese `await import()` hace que el módulo termine
+   en modo Tools con licencia, que carga `JS/tools-public.js` (Turnstile y los textos para
+   las cuentas con licencia de Tools). Ese `await import()` hace que el módulo termine
    después de DOMContentLoaded: en modo público arranca sin esperarlo, o no
    arrancaría nunca. Un cambio en esos módulos afecta a los dos sitios.
-4. **La API pública solo existe en el subdominio**, y cada POST pasa por
+4. **La API de usuarios con licencia solo existe en el subdominio**, y cada POST pasa por
    Cloudflare Turnstile y por la comprobación del `Origin`. Necesita la
    variable `TURNSTILE_SITE_KEY` (`wrangler.jsonc`) y dos secretos del Worker,
    `TURNSTILE_SECRET_KEY` y `TOOLS_PUBLIC_GATEWAY_KEY` (este último, el mismo

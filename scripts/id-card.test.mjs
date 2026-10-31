@@ -371,31 +371,35 @@ test('la marca de agua solo lleva lo que la fuente estándar del PDF puede escri
 const FILES = buildSite();
 const ID_PAGES = ['tools/id-card-to-pdf/index.html', 'tools/es/cedula-dni-pdf/index.html', 'tools/pt/cartao-de-cidadao-pdf/index.html'];
 
-test('las páginas públicas de la cédula abren con su herramienta, sin esperar al JS', () => {
-    for (const file of ID_PAGES) {
-        const html = FILES.get(file);
+test('la herramienta de cédula solo se entrega tras la autorización, con el modo correcto', () => {
+    const workspaces = JSON.parse(FILES.get('worker/tools-workspaces.js').split('export const TOOL_WORKSPACES = ')[1].replace(/;\s*$/, ''));
+    const languages = ['en', 'es', 'pt'];
+    for (const [index, file] of ID_PAGES.entries()) {
+        const html = workspaces[`pdf:idcard:${languages[index]}`];
+        assert.ok(!FILES.get(file).includes('id="idcard"'), file);
         assert.ok(html, `falta ${file}`);
         assert.match(html, /id="pdf-mode-idcard" aria-selected="true"/, file);
         assert.match(html, /<div class="pdf-mode-panel" id="pdf-edit" role="tabpanel" aria-labelledby="pdf-mode-edit" hidden>/, file);
         assert.match(html, /<div class="pdf-mode-panel idcard" id="idcard" role="tabpanel" aria-labelledby="pdf-mode-idcard">/, file);
-        assert.match(html, /<script type="module" src="\/JS\/admin-id-card\.js\?v=[0-9a-f]{10}"><\/script>/, file);
+        assert.match(FILES.get(file), /data-modules="[^\n]*admin-id-card\.js/);
         assert.match(html, /data-mode="idcard"/, file);
         // Ni el FAQ de subir PDF ni el de la conversión a Word: aquí no se sube nada.
-        assert.ok(!/Word/.test(html.match(/<section class="ts-block" aria-labelledby="faq">[\s\S]*?<\/section>/)[0]), `${file}: FAQ ajeno`);
+        assert.ok(!/Word/.test(FILES.get(file).match(/<section class="ts-block" aria-labelledby="faq">[\s\S]*?<\/section>/)[0]), `${file}: FAQ ajeno`);
     }
     // Las demás páginas de PDF llevan las dos herramientas, con el editor delante.
-    const merge = FILES.get('tools/es/unir-pdf/index.html');
+    const merge = workspaces['pdf:edit:es'];
     assert.match(merge, /id="pdf-mode-edit" aria-selected="true"/);
-    assert.match(merge, /admin-id-card\.js/);
+    assert.match(FILES.get('tools/es/unir-pdf/index.html'), /admin-id-card\.js/);
 });
 
-test('las páginas en español y portugués llevan la herramienta traducida', () => {
+test('la interfaz autorizada de cédula está traducida al español y portugués', () => {
+    const workspaces = JSON.parse(FILES.get('worker/tools-workspaces.js').split('export const TOOL_WORKSPACES = ')[1].replace(/;\s*$/, ''));
     const english = ['Both sides of your ID on one page', 'Drop the photo of the front here', 'Choose photo', 'Preview of the page', 'Fix light and contrast', 'ID card to PDF</span>', 'aria-label="PDF tools"'];
     for (const file of ID_PAGES.slice(1)) {
         for (const text of english) assert.ok(!FILES.get(file).includes(text), `${file}: «${text}»`);
     }
-    assert.match(FILES.get('tools/es/cedula-dni-pdf/index.html'), /Suelta aquí la foto del frente/);
-    assert.match(FILES.get('tools/pt/cartao-de-cidadao-pdf/index.html'), /Largue aqui a fotografia da frente/);
+    assert.match(workspaces['pdf:idcard:es'], /Suelta aquí la foto del frente/);
+    assert.match(workspaces['pdf:idcard:pt'], /Largue aqui a fotografia da frente/);
 });
 
 test('el CRM la carga, y las fotos nunca se pintan con URL blob: (la CSP del CRM no las deja)', () => {

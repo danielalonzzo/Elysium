@@ -1,7 +1,7 @@
 {
   "name": "Elysium Tools",
   "url": "https://tools.elysiumdr.eu/",
-  "description": "Free online video downloader, PDF editor and ID card to PDF tool, with no ads and no sign-up.",
+  "description": "Free online video downloader, PDF editor and ID card to PDF tool, with no ads and a free license.",
   "publisher": {
     "name": "Elysium λ Development & Research",
     "url": "https://elysiumdr.eu/"
@@ -9,7 +9,7 @@
   "updated": "2026-10-31",
   "price": "free",
   "advertising": false,
-  "account": "not required",
+  "account": "verified account and approved free license required",
   "languages": [
     "en-GB",
     "es",

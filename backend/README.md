@@ -242,3 +242,18 @@ Una versión anterior declaraba índices de `contacts`, `activities` y
 `opportunities` que ninguna consulta pedía: describían un diseño tenant-aware
 paginado que el CRM nunca llegó a implementar. Antes de añadir uno, comprobar
 que la consulta existe en `JS/admin.js` o en `backend/`, no que podría existir.
+
+
+## Licencias gratuitas de Elysium Tools
+
+`tools-license-routes.js` sirve `/api/tools-license`: `GET /access` consulta la
+licencia de la cuenta verificada y `POST /request` registra una solicitud
+idempotente. `GET /admin` pagina las solicitudes; `POST /admin/:uid` permite
+aprobar, rechazar, suspender y reactivar, exclusivamente a administradores.
+
+Una aprobación escribe en una transacción `tools_access/{uid}`, la solicitud,
+`licenses/{code}`, `members.toolsLicense` y el evento del CRM. El código
+`ELY-TOOLS-FREE-*` se conserva al suspender y reactivar; el precio es cero y
+la suscripción pagada existente no se modifica. El backend es el único escritor
+de solicitudes y concesiones. El Worker consulta el acceso antes de entregar
+la interfaz, invocar los motores o entregar una descarga de Tools.

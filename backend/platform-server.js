@@ -18,6 +18,7 @@ const { getAuth } = require('firebase-admin/auth');
 const { createR2FileRouter, r2Configuration } = require('./r2-file-routes');
 const { createResearchRouter } = require('./research-routes');
 const { createPatrimonioRouter } = require('./patrimonio-alerts');
+const { createToolsLicenseRouter } = require('./tools-license-routes');
 
 const defaultFirebaseApp = getApps().find(candidate => candidate.name === '[DEFAULT]')
   || initializeApp({ credential: applicationDefault() });
@@ -201,6 +202,8 @@ app.get('/api/capabilities', requireFirebaseUser, requireFirebaseAdmin, (_reques
 // Firestore operations from the authenticated CRM and are constrained by
 // firestore.rules; keeping them out of Admin SDK preserves those validations.
 app.use('/api/research', createResearchRouter({ db: crmDb }));
+app.use('/api/tools-license', createToolsLicenseRouter({ db: crmDb,
+  requireUser: requireFirebaseUser, requireAdmin: requireFirebaseAdmin }));
 
 // Elysium Patrimonio: alertas por correo del gestor financiero. Lee con Admin
 // SDK los datos de cada persona con licencia activa y calcula las alertas con

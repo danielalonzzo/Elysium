@@ -38,6 +38,7 @@ import {
     CARDS, LABELS, LANGUAGES, LIMITS, LOCALES, MAIN_SITE, NOT_FOUND, OG_LOCALES, ORIGIN, PAGES, PLATFORMS, UI, UPDATED
 } from './tools/content.mjs';
 import { PDF_COPY, PUBLIC_PLATFORMS, VIDEO_COPY, mergeCopy } from '../JS/tools-public.js';
+import { ACCOUNT_COPY } from '../JS/tools-account-copy.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = 'tools';
@@ -494,6 +495,7 @@ function faqEntries(page, language) {
 /* ── Documento ───────────────────────────────────────────────────────────── */
 
 const ASSETS = {
+    account: `/JS/tools-account.js?v=${version('JS/tools-account.js')}`,
     site: `/CSS/tools-site.css?v=${version('CSS/tools-site.css')}`,
     tools: `/CSS/admin-tools.css?v=${version('CSS/admin-tools.css')}`,
     video: `/JS/admin-tools.js?v=${version('JS/admin-tools.js')}`,
@@ -544,7 +546,7 @@ function documentHtml({ language, page, title, description, body, indexable = tr
     // La página de la cédula detecta en cuanto llega la primera foto.
     if (page?.mode === 'idcard') head.push(`<link rel="modulepreload" href="/JS/id-card-scan.js">`);
     if (indexable) head.push(`<script type="application/ld+json">${structuredData(page, language)}</script>`);
-    const scripts = page?.tool === 'pdf' ? [ASSETS.pdf, ASSETS.idcard] : page?.tool ? [ASSETS[page.tool]] : [];
+    const scripts = page && page.type !== 'legal' ? [ASSETS.account] : [];
     const script = scripts.map(src => `\n<script type="module" src="${src}"></script>`).join('');
     return `<!doctype html>
 <html lang="${LOCALES[language]}">
@@ -613,6 +615,11 @@ function block(id, title, inner) {
 }
 
 function workspace(page, language) {
+    const modules = page.tool === 'pdf' ? [ASSETS.pdf, ASSETS.idcard] : [ASSETS.video];
+    return `${accountGate(language)}\n<div data-tools-workspace data-page="${page.tool}:${page.mode || 'edit'}" data-modules="${esc(JSON.stringify(modules))}"></div>`;
+}
+
+function licensedWorkspace(page, language) {
     // En la página de la cédula, el titular de la página ya dice lo que la
     // introducción del panel: `data-mode` la esconde (CSS/tools-site.css).
     const mode = page.mode ? ` data-mode="${page.mode}"` : '';
@@ -621,6 +628,42 @@ function workspace(page, language) {
             ${panelMarkup(page.tool, language, page)}
         </div>
         <noscript><p class="ts-noscript">${esc(UI[language].noscript)}</p></noscript>`;
+}
+
+function accountGate(language) {
+    const t = ACCOUNT_COPY[language];
+    const input = (label, name, type, extra = '') => `<label>${esc(label)}<input name="${name}" type="${type}" required ${extra}></label>`;
+    return `<section class="ts-account" data-tools-account id="account">
+        <span class="ts-eyebrow">${esc(t.useLicense)}</span><h2>${esc(t.title)}</h2><p>${esc(t.intro)}</p>
+        <p data-account-status role="status" aria-live="polite"></p>
+        <div data-account-auth>
+            <div class="ts-account-actions"><button class="btn" type="button" data-account-action="login">${esc(t.signIn)}</button><button class="btn" type="button" data-account-action="register">${esc(t.register)}</button></div>
+            <form data-signin-form class="ts-account-form">
+                ${input(t.email, 'email', 'email', 'autocomplete="username" maxlength="254"')}
+                ${input(t.password, 'password', 'password', 'autocomplete="current-password"')}
+                <div class="ts-account-actions"><button class="btn btn-primary" type="submit">${esc(t.signIn)}</button><button class="btn" type="button" data-account-action="reset">${esc(t.reset)}</button></div>
+            </form>
+            <form data-signup-form class="ts-account-form" hidden>
+                ${input(t.name, 'fullName', 'text', 'autocomplete="name" maxlength="120"')}
+                ${input(t.email, 'email', 'email', 'autocomplete="email" maxlength="254"')}
+                ${input(`${t.password} (${t.passwordHint})`, 'password', 'password', 'autocomplete="new-password" minlength="8" maxlength="128"')}
+                <button class="btn btn-primary" type="submit">${esc(t.register)}</button>
+            </form>
+        </div>
+        <div data-account-profile hidden><p><strong data-account-email></strong></p>
+            <div class="ts-account-actions"><a class="btn" href="https://elysiumdr.eu/profiles?lang=${language}&amp;view=client">${esc(t.profile)}</a><button class="btn" type="button" data-account-action="refresh">${esc(t.refresh)}</button><button class="btn" type="button" data-account-action="logout">${esc(t.signOut)}</button></div>
+        </div>
+        <div data-account-verify hidden><button class="btn" type="button" data-account-action="resend">${esc(t.resend)}</button></div>
+        <form class="ts-account-form" data-account-request hidden>
+            ${input(t.name, 'name', 'text', 'autocomplete="name" maxlength="120"')}
+            <label>${esc(t.note)}<textarea name="note" maxlength="500" rows="3"></textarea></label>
+            <label class="ts-account-check"><input type="checkbox" name="responsibleUse" required><span>${esc(t.agree)}</span></label>
+            <button class="btn btn-primary" type="submit">${esc(t.request)}</button>
+        </form>
+        <div data-account-active hidden><p><strong data-account-license></strong></p><a class="btn btn-primary" href="${urlFor(byId('video'), language)}">${esc(t.open)}</a></div>
+        <p class="ts-account-note">${esc(t.responsible)} <a href="${urlFor(byId('legal'), language)}">${esc(t.privacy)}</a></p>
+        <noscript><p>${esc(t.intro)}</p></noscript>
+    </section>`;
 }
 
 function homeBody(page, language) {
@@ -633,7 +676,7 @@ function homeBody(page, language) {
                 <p>${esc(text)}</p>
                 <a class="ts-button" href="${pathFor(target, language)}">${esc(ui.open)} ${ICONS.arrow}</a>
             </li>`;
-    return `${hero(page, language, { home: true })}
+    return `${hero(page, language, { home: true })}${accountGate(language)}
         <ul class="ts-tools">${tool(byId('video'), 'video', copy.cardVideo)}${tool(byId('pdf'), 'pdf', copy.cardPdf)}
             <li class="ts-tool ts-tool-future">
                 <span class="ts-tool-icon">${ICONS.plus}</span>
@@ -740,7 +783,7 @@ const SOON_LIST = PLATFORMS.filter(platform => !platform.available).map(platform
 
 function facts() {
     return [
-        `- Price: free. No advertising, no subscriptions, no accounts and no analytics or advertising cookies.`,
+        `- Price: free. No advertising, no paid subscriptions; a verified account and an approved free license are required. No analytics or advertising cookies.`,
         `- Publisher: ${PUBLISHER} (Bragança, Portugal), https://elysiumdr.eu/`,
         `- Video downloader: public links from ${PLATFORM_LIST.join(', ')}. Not available yet: ${SOON_LIST.join(', ')} (coming soon). Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.`,
         `- Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.`,
@@ -757,7 +800,7 @@ function llms() {
     const list = language => SITE_PAGES.filter(page => page.type !== 'home').map(page => entry(page, language)).join('\n');
     return `# ${BRAND}
 
-> Free online tools by ${PUBLISHER}, with no ads and no sign-up: a video downloader for public videos from ${PLATFORM_LIST.join(', ')} in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
+> Free online tools by ${PUBLISHER}, with no ads and a free license: a video downloader for public videos from ${PLATFORM_LIST.join(', ')} in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
 
 ${facts().join('\n')}
 
@@ -811,12 +854,12 @@ function catalog() {
     return `${JSON.stringify({
         name: BRAND,
         url: `${ORIGIN}/`,
-        description: 'Free online video downloader, PDF editor and ID card to PDF tool, with no ads and no sign-up.',
+        description: 'Free online video downloader, PDF editor and ID card to PDF tool, with no ads and a free license.',
         publisher: { name: PUBLISHER, url: 'https://elysiumdr.eu/' },
         updated: UPDATED,
         price: 'free',
         advertising: false,
-        account: 'not required',
+        account: 'verified account and approved free license required',
         languages: LANGUAGES.map(language => LOCALES[language]),
         limits: {
             perVisitorPerHour: {
@@ -904,21 +947,21 @@ function mainLlmsBlock(language) {
     const languages = others.map(other => `${names[other]}: ${urlFor(byId('home'), other)}`).join(' · ');
     const lines = {
         en: [
-            `Free online tools by ${PUBLISHER} on their own site, ${home}: no ads, no sign-up, with fair-use limits per hour.`,
+            `Free online tools by ${PUBLISHER} on their own site, ${home}: no ads, with a verified account, an approved free license and fair-use limits per hour.`,
             `- [${LABELS.video.en}](${urlFor(video, 'en')}): public videos from ${list}, in every resolution the platform offers, as MP4, MP3 or M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: coming soon.` : ''}`,
             `- [${LABELS.pdf.en}](${urlFor(pdf, 'en')}): merge PDFs and reorder, rotate, delete or extract pages inside the browser; convert PDF to Word (.docx).`,
             `- [${LABELS['id-card'].en}](${urlFor(idCard, 'en')}): both sides of an ID card, straightened and at real size on one PDF page, without uploading the photos.`,
             `- ${languages} · For language models: ${ORIGIN}/llms.txt`
         ],
         es: [
-            `Herramientas online gratuitas de ${PUBLISHER} en su propio sitio, ${home}: sin anuncios, sin registro y con límites de uso justo por hora.`,
+            `Herramientas online gratuitas de ${PUBLISHER} en su propio sitio, ${home}: sin anuncios, con cuenta verificada, licencia gratuita aprobada y límites de uso justo por hora.`,
             `- [${LABELS.video.es}](${urlFor(video, 'es')}): videos públicos de ${list}, en todas las resoluciones que ofrece la plataforma, en MP4, MP3 o M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: próximamente.` : ''}`,
             `- [${LABELS.pdf.es}](${urlFor(pdf, 'es')}): unir PDF y ordenar, girar, eliminar o extraer páginas dentro del navegador; convertir PDF a Word (.docx).`,
             `- [${LABELS['id-card'].es}](${urlFor(idCard, 'es')}): las dos caras de una cédula o un DNI, enderezadas y a tamaño real en una hoja PDF, sin subir las fotos.`,
             `- ${languages} · Para modelos de lenguaje: ${ORIGIN}/llms.txt`
         ],
         pt: [
-            `Ferramentas online gratuitas da ${PUBLISHER} no seu próprio site, ${home}: sem anúncios, sem registo e com limites de utilização justa por hora.`,
+            `Ferramentas online gratuitas da ${PUBLISHER} no seu próprio site, ${home}: sem anúncios, com conta confirmada, licença gratuita aprovada e limites de utilização justa por hora.`,
             `- [${LABELS.video.pt}](${urlFor(video, 'pt')}): vídeos públicos do ${list}, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: em breve.` : ''}`,
             `- [${LABELS.pdf.pt}](${urlFor(pdf, 'pt')}): juntar PDF e ordenar, rodar, eliminar ou extrair páginas dentro do navegador; converter PDF para Word (.docx).`,
             `- [${LABELS['id-card'].pt}](${urlFor(idCard, 'pt')}): as duas faces de um Cartão de Cidadão, endireitadas e em tamanho real numa folha PDF, sem enviar as fotografias.`,
@@ -952,6 +995,13 @@ function checkConsistency() {
 export function buildSite() {
     checkConsistency();
     const files = new Map();
+    const workspaces = {};
+    for (const page of SITE_PAGES.filter(page => page.tool)) {
+        for (const language of LANGUAGES) {
+            workspaces[`${page.tool}:${page.mode || 'edit'}:${language}`] = licensedWorkspace(page, language);
+        }
+    }
+    files.set('worker/tools-workspaces.js', `// Generated by scripts/build-tools.mjs. Delivered only after server authorization.\nexport const TOOL_WORKSPACES = ${JSON.stringify(workspaces)};\n`);
     for (const page of SITE_PAGES) {
         for (const language of LANGUAGES) {
             files.set(`${OUT}${pathFor(page, language)}index.html`, pageHtml(page, language));

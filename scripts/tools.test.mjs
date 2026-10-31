@@ -252,6 +252,7 @@ const ASSETS = {
 };
 
 const SECRETS = {
+    ELYSIUM_API_ORIGIN: 'https://account-service.test',
     ELYSIUM_TOOLS_ORIGIN: 'https://tools-service.test',
     TOOLS_PUBLIC_GATEWAY_KEY: 'gateway-key-for-tests-0123456789abcdef',
     TURNSTILE_SITE_KEY: '0x4AAAAAAAtestsitekey',
@@ -259,11 +260,14 @@ const SECRETS = {
 };
 
 /** `fetch` de mentira: siteverify y el servicio de herramientas. */
-function stubNetwork(t, { verify = { success: true, hostname: 'tools.elysiumdr.eu' } } = {}) {
+function stubNetwork(t, { verify = { success: true, hostname: 'tools.elysiumdr.eu' }, allowed = true, accessStatus = 200 } = {}) {
     const calls = [];
     const original = globalThis.fetch;
     globalThis.fetch = async (input, init) => {
         const request = input instanceof Request ? input : new Request(input, init);
+        if (request.url.startsWith('https://account-service.test/')) {
+            return Response.json({ allowed, license: allowed ? { licenseCode: 'ELY-TOOLS-FREE-TEST', status: 'active' } : null }, { status: accessStatus });
+        }
         calls.push(request);
         if (request.url.startsWith('https://challenges.cloudflare.com/')) {
             if (verify === 'down') throw new TypeError('network down');
@@ -353,7 +357,7 @@ test('API pública: origen, Turnstile y cabeceras de la pasarela', async t => {
     const calls = stubNetwork(t);
     const post = (headers = {}) => tools('/api/tools/public/video/inspect', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Origin: ORIGIN, 'CF-Connecting-IP': '203.0.113.9', 'X-Turnstile-Token': 'token-ok', ...headers },
+        headers: { Cookie: '__Host-elysium-tools=test-session', 'Content-Type': 'application/json', Origin: ORIGIN, 'CF-Connecting-IP': '203.0.113.9', 'X-Turnstile-Token': 'token-ok', ...headers },
         body: '{"url":"https://www.tiktok.com/@a/video/1"}'
     }, SECRETS);
 
@@ -389,7 +393,7 @@ test('API pública: origen, Turnstile y cabeceras de la pasarela', async t => {
 test('API pública: Turnstile caído, rechazado o de otro host', async t => {
     const post = () => tools('/api/tools/public/pdf/convert', {
         method: 'POST',
-        headers: { Origin: ORIGIN, 'X-Turnstile-Token': 'token' },
+        headers: { Cookie: '__Host-elysium-tools=test-session', Origin: ORIGIN, 'X-Turnstile-Token': 'token' },
         body: '%PDF-1.4'
     }, SECRETS);
     await t.test('caído', async st => {
@@ -410,14 +414,15 @@ test('API pública: Turnstile caído, rechazado o de otro host', async t => {
 
 test('API pública: lo que no necesita Turnstile y lo que no existe aquí', async t => {
     const calls = stubNetwork(t);
-    const capabilities = await tools('/api/tools/public/capabilities', {}, SECRETS);
+    const session = { headers: { Cookie: '__Host-elysium-tools=test-session' } };
+    const capabilities = await tools('/api/tools/public/capabilities', session, SECRETS);
     assert.equal(capabilities.status, 200);
     assert.equal(calls.length, 1, 'un GET no pasa por Turnstile');
     assert.equal(calls[0].headers.get('X-Elysium-Public-Key'), SECRETS.TOOLS_PUBLIC_GATEWAY_KEY);
 
-    const file = await tools('/api/tools/files/abc123', {}, SECRETS);
+    const file = await tools('/api/tools/files/abc123', session, SECRETS);
     assert.equal(file.status, 200);
-    assert.equal(calls[1].headers.get('X-Elysium-Public-Key'), null, 'el fichero no lleva la clave de la pasarela');
+    assert.equal(calls[1].headers.get('X-Elysium-Public-Key'), SECRETS.TOOLS_PUBLIC_GATEWAY_KEY);
     assert.equal((await tools('/api/tools/files/abc123', { method: 'POST' }, SECRETS)).status, 405);
     // La API del CRM no existe en este host.
     assert.equal((await tools('/api/tools/video/inspect', { method: 'POST' }, SECRETS)).status, 404);
@@ -454,4 +459,70 @@ test('dominios de la empresa: la API pública no existe fuera del subdominio', a
         assert.equal(response.status, 404, host);
     }
     assert.equal(calls.length, 0);
+});
+
+test('acceso: el HTML público nunca contiene las herramientas operativas ni sus módulos', () => {
+    for (const path of PAGES) {
+        const html = FILES.get(path);
+        assert.ok(!html.includes('id="tools-video-form"'), path);
+        assert.ok(!html.includes('id="pdf-file-input"'), path);
+        assert.ok(!/<script[^>]*src="[^\"]*admin-(?:tools|pdf|id-card)\.js/.test(html), path);
+        if (!/privacidad|privacy-and-terms|privacidade/.test(path)) assert.match(html, /data-tools-account/, path);
+        assert.ok(!/No sign-up|Sin registro|Sem registo/.test(html), path);
+    }
+    assert.match(FILES.get('worker/tools-workspaces.js'), /tools-video-form/);
+});
+
+test('acceso: sin cuenta o sin licencia no se entregan interfaz, capacidades, operaciones ni archivos', async t => {
+    const calls = stubNetwork(t, { allowed: false });
+    const paths = ['/api/tools/workspace?page=pdf:edit&lang=es', '/api/tools/public/capabilities', '/api/tools/files/token'];
+    for (const path of paths) {
+        assert.equal((await tools(path, {}, SECRETS)).status, 401, path);
+        const denied = await tools(path, { headers: { Cookie: '__Host-elysium-tools=valid-but-unlicensed' } }, SECRETS);
+        assert.equal(denied.status, 403, path);
+        assert.equal((await denied.json()).code, 'license_required');
+    }
+    assert.equal((await tools('/api/tools/public/video/inspect', { method: 'POST',
+        headers: { Authorization: 'Bearer unlicensed', Origin: ORIGIN, 'X-Turnstile-Token': 'valid-turnstile' } }, SECRETS)).status, 403);
+    assert.equal(calls.length, 0, 'nunca se invoca el motor ni Turnstile');
+});
+
+test('acceso: una sesión revocada y un servicio de cuentas caído fallan cerrados', async t => {
+    for (const status of [401, 403, 503]) {
+        await t.test(String(status), async st => {
+            const calls = stubNetwork(st, { accessStatus: status });
+            const response = await tools('/api/tools/workspace?page=video:edit&lang=en', {
+                headers: { Authorization: 'Bearer expired' } }, SECRETS);
+            assert.equal(response.status, status);
+            assert.equal(calls.length, 0);
+        });
+    }
+});
+
+test('acceso: licencia activa entrega la interfaz en su idioma sin caché y solo a través de la API', async t => {
+    stubNetwork(t);
+    const response = await tools('/api/tools/workspace?page=pdf:edit&lang=pt', {
+        headers: { Cookie: '__Host-elysium-tools=licensed' } }, SECRETS);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('Cache-Control'), /private, no-store/);
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex');
+    const html = await response.text();
+    assert.match(html, /id="tools-panel-pdf"/);
+    assert.ok(!html.includes('Choose PDF files'));
+    assert.equal((await tools('/worker/tools-workspaces.js')).status, 404);
+});
+
+test('acceso: sesión HttpOnly exige token verificado y origen propio; la solicitud no admite orígenes ajenos', async t => {
+    stubNetwork(t);
+    const login = { method: 'POST', headers: { Origin: ORIGIN, Authorization: 'Bearer verified' } };
+    const response = await tools('/api/tools/account/session', login, SECRETS);
+    assert.equal(response.status, 200);
+    const cookie = response.headers.get('Set-Cookie');
+    for (const attribute of ['__Host-elysium-tools=verified', 'HttpOnly', 'Secure', 'SameSite=Lax', 'Path=/']) assert.ok(cookie.includes(attribute));
+    const foreign = { ...login, headers: { ...login.headers, Origin: 'https://foreign.example' } };
+    assert.equal((await tools('/api/tools/account/session', foreign, SECRETS)).status, 403);
+    assert.equal((await tools('/api/tools/account/request', foreign, SECRETS)).status, 403);
+    assert.equal((await tools('/api/tools/account/admin', login, SECRETS)).status, 404);
+    const logout = await tools('/api/tools/account/session', { method: 'DELETE', headers: { Origin: ORIGIN } }, SECRETS);
+    assert.match(logout.headers.get('Set-Cookie'), /Max-Age=0/);
 });

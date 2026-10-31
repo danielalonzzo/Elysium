@@ -1,8 +1,8 @@
 # Elysium Tools
 
-> Free online tools by Elysium λ Development & Research, with no ads and no sign-up: a video downloader for public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
+> Free online tools by Elysium λ Development & Research, with no ads and a free license: a video downloader for public videos from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
 
-- Price: free. No advertising, no subscriptions, no accounts and no analytics or advertising cookies.
+- Price: free. No advertising, no paid subscriptions; a verified account and an approved free license are required. No analytics or advertising cookies.
 - Publisher: Elysium λ Development & Research (Bragança, Portugal), https://elysiumdr.eu/
 - Video downloader: public links from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky. Not available yet: YouTube (coming soon). Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.
 - Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.
@@ -15,7 +15,7 @@
 ## Tools (English)
 
 - [Free online video downloader](https://tools.elysiumdr.eu/video-downloader/): Free online video downloader for TikTok, Instagram, Facebook, Pinterest, Twitch and more. Every available resolution up to 4K/8K, MP4, MP3 or M4A. No ads.
-- [Download TikTok videos without watermark](https://tools.elysiumdr.eu/tiktok-video-downloader/): Download TikTok videos without watermark in their original quality, as MP4 or as MP3/M4A audio. Free, no ads, no app and no sign-up.
+- [Download TikTok videos without watermark](https://tools.elysiumdr.eu/tiktok-video-downloader/): Download TikTok videos without watermark in their original quality, as MP4 or as MP3/M4A audio. Free, no ads, no app and a free license.
 - [Download Instagram videos and Reels](https://tools.elysiumdr.eu/instagram-video-downloader/): Download Instagram Reels and videos from public posts in their original quality, including videos inside carousels. Free, no ads and no login.
 - [Download Facebook videos](https://tools.elysiumdr.eu/facebook-video-downloader/): Download public Facebook videos in every quality available, as MP4 or MP3/M4A audio. Free online Facebook video downloader with no ads and no login.
 - [Download Pinterest videos](https://tools.elysiumdr.eu/pinterest-video-downloader/): Download Pinterest video pins in their original resolution, up to 1080p when available, as MP4. Free, no ads, no Pinterest account needed.
@@ -34,7 +34,7 @@
 ## Herramientas (español)
 
 - [Descargar videos online gratis](https://tools.elysiumdr.eu/es/descargar-videos/): Descargador de videos gratis para TikTok, Instagram, Facebook, Pinterest, Twitch y más. Todas las resoluciones hasta 4K/8K, MP4, MP3 o M4A. Sin anuncios.
-- [Descargar videos de TikTok sin marca de agua](https://tools.elysiumdr.eu/es/descargar-videos-tiktok/): Descarga videos de TikTok sin marca de agua y en su calidad original, en MP4 o solo el audio en MP3/M4A. Gratis, sin anuncios, sin app y sin registro.
+- [Descargar videos de TikTok sin marca de agua](https://tools.elysiumdr.eu/es/descargar-videos-tiktok/): Descarga videos de TikTok sin marca de agua y en su calidad original, en MP4 o solo el audio en MP3/M4A. Gratis, sin anuncios, sin app y con licencia gratuita.
 - [Descargar videos y reels de Instagram](https://tools.elysiumdr.eu/es/descargar-videos-instagram/): Descarga reels y videos públicos de Instagram en su calidad original, también de carruseles. Gratis, sin anuncios y sin iniciar sesión.
 - [Descargar videos de Facebook](https://tools.elysiumdr.eu/es/descargar-videos-facebook/): Descarga videos públicos de Facebook en todas las calidades disponibles, en MP4 o el audio en MP3/M4A. Gratis, sin anuncios y sin iniciar sesión.
 - [Descargar videos de Pinterest](https://tools.elysiumdr.eu/es/descargar-videos-pinterest/): Descarga pines de video de Pinterest en su resolución original, hasta 1080p cuando existe, en MP4. Gratis, sin anuncios y sin cuenta de Pinterest.
@@ -53,7 +53,7 @@
 ## Ferramentas (português europeu)
 
 - [Descarregar vídeos online grátis](https://tools.elysiumdr.eu/pt/descarregar-videos/): Descarregador de vídeos grátis para TikTok, Instagram, Facebook, Pinterest, Twitch e mais. Todas as resoluções até 4K/8K, MP4, MP3 ou M4A. Sem anúncios.
-- [Descarregar vídeos do TikTok sem marca de água](https://tools.elysiumdr.eu/pt/descarregar-videos-tiktok/): Descarregue vídeos do TikTok sem marca de água e na qualidade original, em MP4 ou só o áudio em MP3/M4A. Grátis, sem anúncios, sem app e sem registo.
+- [Descarregar vídeos do TikTok sem marca de água](https://tools.elysiumdr.eu/pt/descarregar-videos-tiktok/): Descarregue vídeos do TikTok sem marca de água e na qualidade original, em MP4 ou só o áudio em MP3/M4A. Grátis, sem anúncios, sem app e com licença gratuita.
 - [Descarregar vídeos e reels do Instagram](https://tools.elysiumdr.eu/pt/descarregar-videos-instagram/): Descarregue reels e vídeos públicos do Instagram na qualidade original, também de carrosséis. Grátis, sem anúncios e sem iniciar sessão.
 - [Descarregar vídeos do Facebook](https://tools.elysiumdr.eu/pt/descarregar-videos-facebook/): Descarregue vídeos públicos do Facebook em todas as qualidades disponíveis, em MP4 ou o áudio em MP3/M4A. Grátis, sem anúncios e sem iniciar sessão.
 - [Descarregar vídeos do Pinterest](https://tools.elysiumdr.eu/pt/descarregar-videos-pinterest/): Descarregue pins de vídeo do Pinterest na resolução original, até 1080p quando existe, em MP4. Grátis, sem anúncios e sem conta do Pinterest.

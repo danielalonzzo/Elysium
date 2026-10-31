@@ -8,11 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const oobCode = urlParams.get('oobCode');
 
     // Firebase añade `continueUrl` si el correo lo pidió. Solo se respeta para
-    // Elysium Patrimonio en este mismo sitio: una URL ajena convertiría esta
-    // página en un redirector abierto. Sin ella, se vuelve al CRM como siempre.
+    // Elysium Patrimonio en este sitio o una portada conocida de Elysium Tools.
+    // No se aceptan destinos arbitrarios ni parámetros de redirección.
     function patrimonioContinueUrl() {
         try {
             const target = new URL(urlParams.get('continueUrl') || '', window.location.origin);
+            if (target.origin === 'https://tools.elysiumdr.eu' && ['/', '/es/', '/pt/'].includes(target.pathname)) {
+                return `https://tools.elysiumdr.eu${target.pathname}`;
+            }
             const sameSite = target.origin === window.location.origin || target.hostname === 'elysiumdr.eu';
             return sameSite && target.pathname.startsWith('/Gestor-Patrimonios/')
                 ? `${window.location.origin}/Gestor-Patrimonios/`

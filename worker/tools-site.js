@@ -25,6 +25,8 @@
  * protección.
  */
 
+import { TOOL_WORKSPACES } from './tools-workspaces.js';
+
 export const TOOLS_HOST = 'tools.elysiumdr.eu';
 export const TOOLS_ORIGIN = `https://${TOOLS_HOST}`;
 
@@ -33,6 +35,76 @@ const PUBLIC_API = '/api/tools/public/';
 const CONFIG_PATH = '/api/tools/public/config';
 const FILES_API = '/api/tools/files/';
 const SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const SESSION_COOKIE = '__Host-elysium-tools';
+const ACCOUNT_API = '/api/tools/account/';
+
+function sessionToken(request) {
+    const bearer = /^Bearer\s+(.+)$/i.exec(request.headers.get('Authorization') || '');
+    if (bearer) return bearer[1];
+    const cookie = (request.headers.get('Cookie') || '').split(';').map(part => part.trim())
+        .find(part => part.startsWith(`${SESSION_COOKIE}=`));
+    return cookie ? cookie.slice(SESSION_COOKIE.length + 1) : '';
+}
+
+async function accountRequest(request, env, path = 'access', { method = 'GET', body } = {}) {
+    const token = sessionToken(request);
+    if (!token || token.length > 8192 || /[\s;]/.test(token)) return json({ code: 'unauthenticated' }, 401);
+    if (!env.ELYSIUM_API_ORIGIN) return json({ code: 'account_unavailable' }, 503);
+    try {
+        return await fetch(new URL(`/api/tools-license/${path}`, env.ELYSIUM_API_ORIGIN), {
+            method, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body
+        });
+    } catch { return json({ code: 'account_unavailable' }, 503); }
+}
+
+async function requireLicense(request, env) {
+    const result = await accountRequest(request, env);
+    if (!result.ok) return json({ code: result.status === 401 ? 'unauthenticated' : result.status === 403 ? 'email_not_verified' : 'account_unavailable' }, result.status);
+    const access = await result.json().catch(() => ({}));
+    return access.allowed === true ? null : json({ code: 'license_required' }, 403);
+}
+
+async function requestBody(request, limit = 4096) {
+    if (!request.body) return '';
+    const reader = request.body.getReader();
+    const chunks = []; let size = 0;
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        size += value.byteLength;
+        if (size > limit) { await reader.cancel(); return null; }
+        chunks.push(value);
+    }
+    const bytes = new Uint8Array(size); let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+    return new TextDecoder().decode(bytes);
+}
+
+async function accountApi(request, env, url) {
+    const path = url.pathname.slice(ACCOUNT_API.length);
+    if (path === 'session') {
+        if (!['POST', 'DELETE'].includes(request.method)) return json({ code: 'method_not_allowed' }, 405);
+        if (request.headers.get('Origin') !== url.origin) return json({ code: 'origin_not_allowed' }, 403);
+        if (request.method === 'DELETE') return json({ ok: true }, 200, {
+            'Set-Cookie': `${SESSION_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+        });
+        // The account service verifies signatures, expiry, verified email and token revocation.
+        const access = await accountRequest(request, env);
+        if (!access.ok) return json(await access.json().catch(() => ({ code: 'unauthenticated' })), access.status);
+        return json(await access.json(), 200, {
+            'Set-Cookie': `${SESSION_COOKIE}=${sessionToken(request)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3300`
+        });
+    }
+    if (!['access', 'request'].includes(path)) return json({ code: 'not_found' }, 404);
+    const method = path === 'access' ? 'GET' : 'POST';
+    if (request.method !== method) return json({ code: 'method_not_allowed' }, 405);
+    if (method === 'POST' && request.headers.get('Origin') !== url.origin) return json({ code: 'origin_not_allowed' }, 403);
+    if (Number(request.headers.get('Content-Length')) > 4096) return json({ code: 'payload_too_large' }, 413);
+    const body = method === 'POST' ? await requestBody(request) : undefined;
+    if (body === null) return json({ code: 'payload_too_large' }, 413);
+    const result = await accountRequest(request, env, path, { method, body });
+    return json(await result.json().catch(() => ({ code: 'account_unavailable' })), result.status);
+}
 
 // Lo que este host publica en su raíz además de las páginas.
 const DISCOVERY_FILES = new Map([
@@ -132,6 +204,17 @@ async function forward(request, env, url, { gateway = false } = {}) {
 }
 
 async function handleApi(request, env, url) {
+    if (url.pathname.startsWith(ACCOUNT_API)) return accountApi(request, env, url);
+    if (url.pathname === '/api/tools/workspace') {
+        if (request.method !== 'GET') return json({ code: 'method_not_allowed' }, 405);
+        const denied = await requireLicense(request, env);
+        if (denied) return denied;
+        const key = `${url.searchParams.get('page')}:${url.searchParams.get('lang')}`;
+        const html = TOOL_WORKSPACES[key];
+        if (!html) return json({ code: 'not_found' }, 404);
+        return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'private, no-store', 'X-Robots-Tag': 'noindex', Vary: 'Cookie, Authorization' } });
+    }
     if (url.pathname === CONFIG_PATH) {
         if (!['GET', 'HEAD'].includes(request.method)) return json({ code: 'method_not_allowed' }, 405, { Allow: 'GET, HEAD' });
         return json({ turnstileSiteKey: String(env.TURNSTILE_SITE_KEY || '') }, 200, { 'Cache-Control': 'public, max-age=300' });
@@ -140,7 +223,9 @@ async function handleApi(request, env, url) {
     if (url.pathname.startsWith(FILES_API)) {
         if (!['GET', 'HEAD'].includes(request.method)) return json({ code: 'method_not_allowed' }, 405, { Allow: 'GET, HEAD' });
         if (!serviceOrigin(env)) return json({ code: 'public_tools_disabled' }, 503);
-        return forward(request, env, url);
+        const denied = await requireLicense(request, env);
+        if (denied) return denied;
+        return forward(request, env, url, { gateway: true });
     }
 
     if (url.pathname.startsWith(PUBLIC_API)) {
@@ -148,6 +233,8 @@ async function handleApi(request, env, url) {
         if (!ready) {
             return json({ error: 'The public tools are not enabled yet.', code: 'public_tools_disabled' }, 503);
         }
+        const denied = await requireLicense(request, env);
+        if (denied) return denied;
         if (request.method === 'POST') {
             // Solo desde las propias páginas: otra web no puede usar el servicio
             // con la IP de sus visitantes.

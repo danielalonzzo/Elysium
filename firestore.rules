@@ -510,6 +510,16 @@ service cloud.firestore {
     }
 
     // ── Licenses ──────────────────────────────────────────────────────────────
+    // Tools requests and grants are written transactionally by the trusted account API.
+    match /tools_requests/{uid} {
+      allow read: if isSuperAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if false;
+    }
+    match /tools_access/{uid} {
+      allow read: if isSuperAdmin() || (request.auth != null && request.auth.uid == uid);
+      allow write: if false;
+    }
+
     match /licenses/{licenseId} {
       allow read, write: if isSuperAdmin();
       // Subscription license documents contain CRM metadata. A member may only

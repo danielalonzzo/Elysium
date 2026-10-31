@@ -1,0 +1,53 @@
+export const ACCOUNT_COPY = {
+    en: {
+        title: 'Tools with a free license', intro: 'Create an Elysium account, verify your email and request a free license. Access is enabled after review.',
+        signIn: 'Sign in', register: 'Create an account', name: 'Full name', email: 'Email', password: 'Password',
+        passwordHint: 'At least 8 characters', reset: 'Reset password', signOut: 'Sign out', refresh: 'Check access',
+        profile: 'Your Elysium profile', verify: 'Verify your email before requesting a license.', resend: 'Resend verification email',
+        sent: 'If the address can receive the message, check your inbox and spam folder.',
+        request: 'Request a free license', note: 'Intended use (optional)', responsible: 'Only use content you own or have permission to process. The license does not grant rights over third-party content.',
+        agree: 'The tools will be used only with content I am entitled to process.',
+        pending: 'Your request is in the Elysium CRM and is awaiting review. An account alone does not enable the tools.',
+        rejected: 'Your request was not approved. Contact info@elysiumdr.eu for a review.',
+        suspended: 'Your license is suspended. Contact info@elysiumdr.eu for a review.',
+        active: 'Your free license is active. The tools are available below.', loading: 'Checking your account…',
+        error: 'Access could not be verified. Check your connection and try again.',
+        authError: 'Sign-in failed. Check your details or reset your password.', registered: 'Account created. Verify your email to continue.',
+        emailInUse: 'This email already has an Elysium account. Sign in or reset your password.',
+        useLicense: 'Free license', open: 'Open the tools', privacy: 'Privacy and terms'
+    },
+    es: {
+        title: 'Herramientas con licencia gratuita', intro: 'Crea una cuenta Elysium, verifica tu correo y solicita una licencia gratuita. El acceso se habilita tras la revisión.',
+        signIn: 'Iniciar sesión', register: 'Crear una cuenta', name: 'Nombre completo', email: 'Correo electrónico', password: 'Contraseña',
+        passwordHint: 'Al menos 8 caracteres', reset: 'Restablecer contraseña', signOut: 'Cerrar sesión', refresh: 'Comprobar acceso',
+        profile: 'Tu perfil Elysium', verify: 'Verifica tu correo antes de solicitar una licencia.', resend: 'Reenviar correo de verificación',
+        sent: 'Si la dirección puede recibir el mensaje, revisa tu bandeja de entrada y el correo no deseado.',
+        request: 'Solicitar licencia gratuita', note: 'Uso previsto (opcional)', responsible: 'Utiliza solo contenido propio o con autorización para procesarlo. La licencia no concede derechos sobre contenido de terceros.',
+        agree: 'Las herramientas se utilizarán únicamente con contenido que tenga derecho a procesar.',
+        pending: 'Tu solicitud está en el CRM de Elysium, pendiente de revisión. Tener una cuenta no habilita por sí solo las herramientas.',
+        rejected: 'La solicitud no fue aprobada. Puedes solicitar una revisión en info@elysiumdr.eu.',
+        suspended: 'La licencia está suspendida. Puedes solicitar una revisión en info@elysiumdr.eu.',
+        active: 'Tu licencia gratuita está activa. Las herramientas están disponibles a continuación.', loading: 'Comprobando tu cuenta…',
+        error: 'No se pudo verificar el acceso. Comprueba la conexión y vuelve a intentarlo.',
+        authError: 'No se pudo iniciar sesión. Comprueba tus datos o restablece la contraseña.', registered: 'Cuenta creada. Verifica tu correo para continuar.',
+        emailInUse: 'Este correo ya tiene una cuenta Elysium. Inicia sesión o restablece la contraseña.',
+        useLicense: 'Licencia gratuita', open: 'Abrir las herramientas', privacy: 'Privacidad y condiciones'
+    },
+    pt: {
+        title: 'Ferramentas com licença gratuita', intro: 'Crie uma conta Elysium, confirme o seu e-mail e peça uma licença gratuita. O acesso é ativado após análise.',
+        signIn: 'Iniciar sessão', register: 'Criar uma conta', name: 'Nome completo', email: 'E-mail', password: 'Palavra-passe',
+        passwordHint: 'Pelo menos 8 caracteres', reset: 'Repor palavra-passe', signOut: 'Terminar sessão', refresh: 'Verificar acesso',
+        profile: 'O seu perfil Elysium', verify: 'Confirme o seu e-mail antes de pedir uma licença.', resend: 'Reenviar e-mail de confirmação',
+        sent: 'Se o endereço puder receber a mensagem, consulte a caixa de entrada e o correio não solicitado.',
+        request: 'Pedir licença gratuita', note: 'Utilização prevista (opcional)', responsible: 'Utilize apenas conteúdo próprio ou que tenha autorização para processar. A licença não concede direitos sobre conteúdo de terceiros.',
+        agree: 'As ferramentas serão utilizadas apenas com conteúdo que tenha direito a processar.',
+        pending: 'O seu pedido está no CRM da Elysium, a aguardar análise. Ter uma conta não ativa, por si só, as ferramentas.',
+        rejected: 'O pedido não foi aprovado. Pode solicitar uma revisão através de info@elysiumdr.eu.',
+        suspended: 'A licença está suspensa. Pode solicitar uma revisão através de info@elysiumdr.eu.',
+        active: 'A sua licença gratuita está ativa. As ferramentas estão disponíveis abaixo.', loading: 'A verificar a sua conta…',
+        error: 'Não foi possível verificar o acesso. Verifique a ligação e tente novamente.',
+        authError: 'Não foi possível iniciar sessão. Verifique os dados ou reponha a palavra-passe.', registered: 'Conta criada. Confirme o seu e-mail para continuar.',
+        emailInUse: 'Este e-mail já tem uma conta Elysium. Inicie sessão ou reponha a palavra-passe.',
+        useLicense: 'Licença gratuita', open: 'Abrir as ferramentas', privacy: 'Privacidade e condições'
+    }
+};

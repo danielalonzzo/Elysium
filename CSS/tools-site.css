@@ -894,3 +894,20 @@ a.ts-card:hover {
         animation-iteration-count: 1 !important;
     }
 }
+
+/* Account and manually approved free license. Public HTML contains no workspace. */
+.ts-account { margin: 2rem 0 3rem; padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid var(--ts-line-strong); border-radius: var(--ts-radius); background: var(--ts-surface); }
+.ts-account h2 { margin: .4rem 0 .8rem; font-size: clamp(1.5rem, 4vw, 2rem); }
+.ts-account > p { max-width: 48rem; }
+.ts-account-form { display: grid; gap: 1rem; max-width: 32rem; margin-top: 1.5rem; }
+.ts-account-form label { display: grid; gap: .4rem; font-weight: 600; }
+.ts-account input:not([type=checkbox]), .ts-account textarea { width: 100%; min-height: 2.9rem; padding: .75rem; border: 1px solid var(--ts-line-strong); border-radius: .65rem; color: var(--ts-text); background: var(--ts-bg); font: inherit; }
+.ts-account-actions { display: flex; flex-wrap: wrap; gap: .65rem; margin: 1rem 0; }
+.ts-account .btn { display: inline-flex; justify-content: center; align-items: center; padding: .7rem 1rem; border: 1px solid var(--ts-line-strong); border-radius: .65rem; color: var(--ts-text); background: var(--ts-accent-soft); font: inherit; text-decoration: none; cursor: pointer; }
+.ts-account .btn-primary { background: var(--ts-accent); color: #fff; }
+.ts-account .btn:disabled { opacity: .55; cursor: wait; }
+.ts-account .ts-account-check { display: flex; align-items: flex-start; font-weight: 400; }
+.ts-account-check input { flex: 0 0 auto; margin-top: .4rem; }
+.ts-account-note { margin-top: 1.5rem; color: var(--ts-muted); font-size: .875rem; }
+.ts-account [hidden] { display: none !important; }
+[data-account-license] { overflow-wrap: anywhere; }
