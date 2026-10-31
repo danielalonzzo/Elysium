@@ -19,7 +19,9 @@ export async function loadToolsLicenses({ auth, language, onProfile }) {
     let host = document.getElementById('tools-licenses');
     if (!host) {
         host = document.createElement('section'); host.id = 'tools-licenses'; host.className = 'patrimonio-licenses';
-        document.getElementById('licenses')?.prepend(host);
+        const existing = document.getElementById('patrimonio-licenses');
+        if (existing) existing.before(host);
+        else document.getElementById('licenses')?.append(host);
     }
     const generation = Symbol(); host.generation = generation;
     let rows = [], cursor = null;

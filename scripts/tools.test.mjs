@@ -526,3 +526,12 @@ test('acceso: sesión HttpOnly exige token verificado y origen propio; la solici
     const logout = await tools('/api/tools/account/session', { method: 'DELETE', headers: { Origin: ORIGIN } }, SECRETS);
     assert.match(logout.headers.get('Set-Cookie'), /Max-Age=0/);
 });
+
+test('acceso: cada plataforma conserva su ejemplo de enlace en la interfaz autorizada', () => {
+    const workspaces = JSON.parse(FILES.get('worker/tools-workspaces.js').split('export const TOOL_WORKSPACES = ')[1].replace(/;\s*$/, ''));
+    for (const page of site.SITE_PAGES.filter(page => page.type === 'platform')) {
+        for (const lang of site.LANGUAGES) {
+            assert.ok(workspaces[`video:${page.id}:${lang}`].includes(`placeholder="${page.placeholder}"`), page.id);
+        }
+    }
+});
