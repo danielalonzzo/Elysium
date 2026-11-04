@@ -103,7 +103,7 @@ Cada despliegue (desde la raíz del repositorio):
 gcloud run deploy elysium-tools --source backend/tools --region europe-west1 --project elysiumdr-eu \
   --service-account elysium-tools@elysiumdr-eu.iam.gserviceaccount.com \
   --allow-unauthenticated --execution-environment gen2 \
-  --memory 4Gi --cpu 2 --concurrency 16 --max-instances 1 --timeout 3600 \
+  --memory 32Gi --cpu 8 --concurrency 16 --max-instances 1 --timeout 3600 \
   --update-secrets TOOLS_PUBLIC_GATEWAY_KEY=tools-public-gateway-key:latest \
   --update-env-vars TOOLS_YOUTUBE_BUCKET=elysiumdr-eu-tools-youtube
 ```
@@ -147,9 +147,9 @@ Todas opcionales.
 | Variable | Para qué |
 |---|---|
 | `ADMIN_EMAILS` | Correos administradores, como en `elysium-billing`. Por defecto, `daniel.morales@elysiumdr.eu`. |
-| `TOOLS_MAX_FILE_MB` | Tamaño máximo de un fichero, en MB decimales (como los enseña el CRM). 1000 por defecto. |
+| `TOOLS_MAX_FILE_MB` | Tamaño máximo de un fichero, en MB decimales (como los enseña el CRM). 1000 por defecto; en producción, `1000000`: sin límite práctico (decisión del 4/11/2026). El tope real es la memoria de la instancia, donde esperan las partes y la unión. |
 | `TOOLS_MAX_ACTIVE_DOWNLOADS` | Descargas a la vez; el resto espera en cola. 2 por defecto. |
-| `TOOLS_STORAGE_BUDGET_MB` | Lo que puede esperar en disco a que el navegador lo recoja. 1500 por defecto. |
+| `TOOLS_STORAGE_BUDGET_MB` | Lo que puede esperar en disco a que el navegador lo recoja. 1500 por defecto; en producción, `12000`. |
 | `YTDLP_COOKIES_FILE` | Ruta de un `cookies.txt` (formato Netscape) del servicio, solo para el CRM y solo cuando la persona no tiene sesión propia. En producción no se usa: YouTube va con la sesión de cada cuenta. |
 | `TOOLS_YOUTUBE_BUCKET` | El bucket de las sesiones de YouTube (`elysiumdr-eu-tools-youtube`). Sin él, o sin la clave, «Cuenta de YouTube» no se ofrece. |
 | `TOOLS_YOUTUBE_KEY` | Opcional: 32 bytes en base64 para cifrar las sesiones. Sin ella se derivan de `TOOLS_PUBLIC_GATEWAY_KEY`. Cambiar cualquiera de las dos deja ilegibles las sesiones guardadas (cada cuenta vuelve a conectar la suya). |
@@ -159,8 +159,10 @@ Todas opcionales.
 | `TOOLS_MAX_PDF_MB` | Tamaño máximo de un PDF para convertir. 30 por defecto (Cloud Run no acepta cuerpos de más de 32 MiB). |
 | `TOOLS_PUBLIC_GATEWAY_KEY` | La clave que comparte con el Worker la vía pública. Sin ella, `/api/tools/public/*` responde 503. Va como secreto: `--set-secrets TOOLS_PUBLIC_GATEWAY_KEY=tools-public-gateway-key:latest`. |
 
-Con 4 GiB de memoria, dos descargas de 1 GB uniendo vídeo y audio a la vez
-rozan el límite. Si se suben los máximos, súbase también `--memory`.
+Con 32 GiB (el máximo de Cloud Run, con 8 vCPU) cabe un 4K de unos 5 GB, que
+mientras se une ocupa cerca del doble; el presupuesto de 12 GB deja sitio a una
+descarga así en curso. Por encima de 32 MiB el fichero se entrega en streaming:
+Cloud Run corta las respuestas HTTP/1 más grandes que declaran su tamaño.
 
 ## YouTube: la sesión de cada cuenta
 
