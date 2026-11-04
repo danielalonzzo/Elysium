@@ -2,8 +2,8 @@
 
 // Solo el sitio europeo (`elysiumdr.eu`): inglés en la raíz, español de España en
 // `es/` y portugués de Portugal en `pt/`. El sitio global (`_national/com/`) y los
-// dominios nacionales (`_national/es`, `_national/pt`) tienen sus propias páginas
-// y este script no las toca. Ver «Las cuatro regiones» en CLAUDE.md.
+// sitios nacionales (`_national/es`, `_national/pt`, `_national/cr`) tienen sus
+// propias páginas y este script no las toca. Ver «Las cinco regiones» en CLAUDE.md.
 
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -72,12 +72,13 @@ function normalizeLanguageMenus(html, slug) {
 
 function normalizeRegionItems(html, language) {
   const labels = language === 'es'
-    ? { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
-    : { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' };
+    ? { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' }
+    : { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' };
   const hrefs = {
     EU: 'https://elysiumdr.eu/?region=EU&amp;override=true',
     ES: 'https://elysiumdr.es/?region=ES',
     PT: 'https://elysiumdr.pt/?region=PT',
+    CR: 'https://elysiumdr.com/cr/?region=CR',
     GLOBAL: 'https://elysiumdr.com/'
   };
 
@@ -90,7 +91,7 @@ function normalizeRegionItems(html, language) {
   return html.replace(
     /(<div\s+class="region-switcher-menu"[^>]*>)([\s\S]*?)(<\/div>)/,
     (_m, open, _body, close) => {
-      const order = ['EU', 'ES', 'PT', 'GLOBAL'];
+      const order = ['EU', 'ES', 'PT', 'CR', 'GLOBAL'];
       const items = order.map(region => {
         const active = region === 'EU';
         const indicator = active ? '<span class="region-indicator" aria-hidden="true">●</span> ' : '';

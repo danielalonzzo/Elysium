@@ -174,11 +174,18 @@ function load({ host, pathname = '/', search = '' }) {
     return { api: window.ElysiumTranslate, touched };
 }
 
-test('en .es, .pt y .com el motor no actúa ni toca el documento', () => {
-    for (const host of ['elysiumdr.es', 'elysiumdr.pt', 'elysiumdr.com', 'elysiumdr.cr']) {
-        const { api, touched } = load({ host });
-        assert.equal(api.enabled, false, host);
-        assert.deepEqual(touched, [], `${host}: no debe tocar el documento`);
+test('en .es, .pt, .com y .com/cr/ el motor no actúa ni toca el documento', () => {
+    for (const [host, pathname] of [
+        ['elysiumdr.es', '/'],
+        ['elysiumdr.pt', '/'],
+        ['elysiumdr.com', '/'],
+        ['elysiumdr.com', '/cr/'],
+        ['elysiumdr.com', '/cr/services'],
+        ['elysiumdr.cr', '/']
+    ]) {
+        const { api, touched } = load({ host, pathname });
+        assert.equal(api.enabled, false, `${host}${pathname}`);
+        assert.deepEqual(touched, [], `${host}${pathname}: no debe tocar el documento`);
     }
 });
 
@@ -190,7 +197,9 @@ test('en .eu fuera de las páginas de marketing el motor no actúa', () => {
     }
 });
 
-test('en local, ?national= apaga el motor igual que en .es y .pt', () => {
+test('en local, ?national= y /cr/ apagan el motor igual que en .es, .pt y .com/cr/', () => {
     assert.equal(load({ host: 'localhost', pathname: '/about', search: '?national=es' }).api.enabled, false);
     assert.equal(load({ host: 'localhost', pathname: '/about', search: '?national=pt' }).api.enabled, false);
+    assert.equal(load({ host: 'localhost', pathname: '/about', search: '?national=cr' }).api.enabled, false);
+    assert.equal(load({ host: 'localhost', pathname: '/cr/about' }).api.enabled, false);
 });

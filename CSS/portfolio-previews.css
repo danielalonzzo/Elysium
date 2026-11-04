@@ -1,0 +1,21 @@
+#portfolio-grid .project-image-wrapper {
+    height: auto;
+    aspect-ratio: 16 / 10;
+}
+
+#portfolio-grid .browser-mockup iframe {
+    display: block;
+    width: 1440px;
+    height: 900px;
+    transform: scale(var(--portfolio-preview-scale, 0.25));
+}
+
+@supports (transform: scale(calc(100cqw / 1440px))) {
+    #portfolio-grid .browser-mockup {
+        container-type: inline-size;
+    }
+
+    #portfolio-grid .browser-mockup iframe {
+        transform: scale(calc(100cqw / 1440px));
+    }
+}

@@ -42,16 +42,17 @@ aplica `_headers`. Está versionado a la fuerza, como
 `publish-demo-arbol.sh`: `*.py` y `*.sh` están en `.gitignore` para
 los scripts de usar y tirar, no para las herramientas del repositorio.
 
-## Las cuatro regiones
+## Las cinco regiones
 
-El sitio no es uno solo traducido a tres idiomas: son **cuatro regiones**, cada
-una con su dominio, sus idiomas y su manera de hablar de sí misma.
+El sitio no es uno solo traducido a tres idiomas: son **cinco regiones**, cada
+una con su URL/dominio, sus idiomas y su manera de hablar de sí misma.
 
-| Región | Dominio | Idiomas | Dónde están sus páginas |
+| Región | Dominio / Ruta | Idiomas | Dónde están sus páginas |
 |---|---|---|---|
 | Europa | `elysiumdr.eu` | inglés europeo (`/`), español de España (`/es/`), portugués de Portugal (`/pt/`) | físicas: la raíz, `es/` y `pt/` |
-| España | `elysiumdr.es` | español de España, y traducción en vivo a los otros dos | `_national/es/`, sin prefijo en la URL |
-| Portugal | `elysiumdr.pt` | portugués de Portugal, y traducción en vivo a los otros dos | `_national/pt/`, sin prefijo en la URL |
+| España | `elysiumdr.es` | español de España, y traducción en vivo a `en-GB` y `pt-PT` | `_national/es/`, sin prefijo en la URL |
+| Portugal | `elysiumdr.pt` | portugués de Portugal, y traducción en vivo a `en-GB` y `es-ES` | `_national/pt/`, sin prefijo en la URL |
+| Costa Rica | `elysiumdr.com/cr/` | español de Costa Rica (`es-CR`), y traducción en vivo por función a `en-GB` y `pt-PT` | `_national/cr/`, servida bajo `/cr/` sin subcarpetas `/cr/en/` ni `/cr/pt/` |
 | Global | `elysiumdr.com` | inglés europeo (`/`), español de Costa Rica (`/es/`), portugués de Portugal (`/pt/`) | físicas: `_national/com/`, `_national/com/es/`, `_national/com/pt/` |
 
 Lo que tiene que cumplirse siempre (lo vigila `scripts/regions.test.mjs`, y
@@ -60,28 +61,34 @@ Lo que tiene que cumplirse siempre (lo vigila `scripts/regions.test.mjs`, y
 1. **Cada región abre en SU idioma, sin importar el navegador.** Ningún código
    mira `navigator.language` ni `Accept-Language`. El único reparto es el de la
    portada de `.eu` por país de la IP (ver `worker/index.js`): España → `.es`,
-   Portugal → `.pt`, hispanohablantes del resto del mundo → `.com/es/`,
-   lusófonos → `.com/pt/`.
+   Portugal → `.pt`, Costa Rica → `.com/cr/`, hispanohablantes del resto del
+   mundo → `.com/es/`, lusófonos → `.com/pt/`.
 2. **Cada región habla de sí misma, en todas sus páginas.** El titular de la
    portada es el contrato: «Pan-European digital infrastructure for
    small-businesses and startups:» (Europa), «Infraestructura Digital para
    pequeñas empresas y emprendedores de España:», «Infraestrutura Digital para
-   pequenas empresas e startups de Portugal:» y «Digital infrastructure for
-   small-businesses and startups:» (Global, sin región). Los datos de la
-   empresa (Bragança, NIF, la ley portuguesa) no cambian: son hechos, no mercado.
+   pequenas empresas e startups de Portugal:», «Infraestructura Digital para
+   pequeñas empresas y emprendedores de Costa Rica:» y «Digital infrastructure
+   for small-businesses and startups:» (Global, sin región). Los datos de la
+   empresa (Bragança, NIF, la entidad portuguesa) no cambian: son hechos, no mercado.
 3. **El español lleva la bandera de su región:** España en `.eu` y `.es`, Costa
-   Rica en `.com`. Costa Rica ya no es una región del selector: vive dentro de
-   Global. El selector tiene cuatro entradas —Europa, España, Portugal, Global—
-   y cambiar de región abre la nueva en SU idioma (Europa y Global, en inglés).
+   Rica en `.com` y en `.com/cr/`. El selector tiene cinco entradas —Europa,
+   España, Portugal, Costa Rica, Global— y cambiar de región abre la nueva en SU
+   idioma (Europa y Global en inglés; España y Costa Rica en español; Portugal en
+   portugués).
 4. **La legislación va con la región.** `.eu` solo cita el RGPD y la ley
-   portuguesa; la ley 8968 y el derecho de retracto de Costa Rica viven en
-   `.com/es/`. `.es` y `.pt` citan las suyas.
+   portuguesa; `.com/cr/` (y `.com/es/`) cita la Ley N.º 8968 (PRODHAB) y la Ley
+   N.º 7472 (derecho de retracto de 8 días hábiles, MEIC/CNC) de Costa Rica.
+   `.es` y `.pt` citan las suyas.
 
 Cosas que no se ven abriendo el sitio:
 
-- **`_national/com/` no es una URL.** Como `_national/es` y `_national/pt`, es
-  una base privada que el Worker pide al binding (`serveGlobalPage`). `.com` es
-  físico como `.eu`, no traduce al vuelo: `/__i18n` responde 404 allí.
+- **`_national/com/` y `_national/cr/` no son URLs públicas.** Como `_national/es`
+  y `_national/pt`, son bases privadas que el Worker pide al binding
+  (`serveGlobalPage`, `serveCostaRicaPage`). En `.com` el sitio Global es físico
+  y `/__i18n` responde 404 para rutas globales, pero **sí responde 200** cuando
+  `path` empieza por `/cr` para alimentar la traducción funcional de
+  `elysiumdr.com/cr/` sin crear carpetas físicas `/cr/en/` ni `/cr/pt/`.
 - **`elysiumdr.com` tiene que estar asociado al Worker** (Workers & Pages →
   `elysium` → Settings → Domains & Routes → Add → Custom domain). Sin eso el
   dominio resuelve en Cloudflare pero la conexión TLS falla (`internal error`).
@@ -101,13 +108,14 @@ Cosas que no se ven abriendo el sitio:
   `Cache-Control: immutable` un año: editar uno **con el mismo nombre** deja a
   los navegadores que ya lo tienen con la versión vieja para siempre (así
   siguió «Costa Rica» como bandera del español de `.eu` después de arreglarlo).
-  Se copia con otro nombre, se cambia en las ocho portadas y en `_headers`, y
+  Se copia con otro nombre, se cambia en las nueve portadas, en las nueve páginas
+  `services.html` y en `_headers`, y
   `UPDATE_IMMUTABLE=1 node --test scripts/regions.test.mjs` actualiza el
   manifiesto. Lo mismo vale para `CSS/components.css`: se invalida con el `?v=`
   de todas las páginas. `home.vAAAAMMDD.min.js` es `main.js` minificado con
   esbuild **sin el bloque de GA4** (las portadas cargan `google-analytics.js`
   aparte; con los dos, GA contaría cada visita dos veces).
-- **La barra de navegación está dentro de las ocho portadas** (CSS crítico en
+- **La barra de navegación está dentro de las nueve portadas** (CSS crítico en
   línea) y en `components.css`: cabe en español y portugués hasta 1180 px y por
   debajo pasa al menú móvil. Un cambio de estilos va en los tres sitios.
 - **`.eu` traduce en vivo otros 22 idiomas, y ninguno es un fichero.** Inglés,

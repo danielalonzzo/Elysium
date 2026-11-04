@@ -36,13 +36,14 @@ const PAGES = [
 ];
 const file = page => page === '' ? 'index.html' : `${page}.html`;
 
-// Las ocho carpetas de páginas traducidas: [clave, directorio, <html lang>, región activa, idioma]
+// Las nueve carpetas de páginas traducidas: [clave, directorio, <html lang>, región activa, idioma]
 const TREES = [
     ['eu-en', '', 'en-GB', 'EU', 'en'],
     ['eu-es', 'es', 'es-ES', 'EU', 'es'],
     ['eu-pt', 'pt', 'pt-PT', 'EU', 'pt'],
     ['es', '_national/es', 'es-ES', 'ES', 'es'],
     ['pt', '_national/pt', 'pt-PT', 'PT', 'pt'],
+    ['cr', '_national/cr', 'es-CR', 'CR', 'es'],
     ['com-en', '_national/com', 'en-GB', 'GLOBAL', 'en'],
     ['com-es', '_national/com/es', 'es-CR', 'GLOBAL', 'es'],
     ['com-pt', '_national/com/pt', 'pt-PT', 'GLOBAL', 'pt']
@@ -68,6 +69,7 @@ test('el titular de la portada de cada región habla de sí misma, en su idioma'
         'eu-pt': 'Infraestrutura Digital Pan-Europeia para pequenas empresas e startups:',
         es: 'Infraestructura Digital para pequeñas empresas y emprendedores de España:',
         pt: 'Infraestrutura Digital para pequenas empresas e startups de Portugal:',
+        cr: 'Infraestructura Digital para pequeñas empresas y emprendedores de Costa Rica:',
         'com-en': 'Digital infrastructure for small-businesses and startups:',
         'com-es': 'Infraestructura Digital para pequeñas empresas y emprendedores:',
         'com-pt': 'Infraestrutura Digital para pequenas empresas e startups:'
@@ -92,22 +94,22 @@ test('cada árbol declara el idioma y la región reales de sus páginas', () => 
     }
 });
 
-test('el selector de región ofrece Europa, España, Portugal y Global; ni Costa Rica ni Worldwide', () => {
+test('el selector de región ofrece Europa, España, Portugal, Costa Rica y Global', () => {
     const labels = {
-        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
-        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
-        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
+        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' },
+        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' },
+        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' }
     };
     for (const [key, dir, , region, language] of TREES) {
         for (const page of PAGES) {
             const where = `${key}/${page || 'index'}`;
             const html = read(treeFile(dir, page));
-            assert.doesNotMatch(html, /data-region="CR"|WORLDWIDE|COSTA RICA<\/a>/, where);
+            assert.doesNotMatch(html, /WORLDWIDE/, where);
             const menu = /<div\s+class="region-switcher-menu"[^>]*>([\s\S]*?)<\/div>/.exec(html);
-            if (!menu) continue; // research/*: el selector lo inyecta main.js, que pone las mismas cuatro
+            if (!menu) continue; // research/*: el selector lo inyecta main.js, que pone las mismas cinco
             const items = [...menu[1].matchAll(/<a\b[^>]*class="region-item( active)?"[^>]*data-region="([A-Z]+)"[^>]*>([\s\S]*?)<\/a>/g)]
                 .map(m => ({ active: Boolean(m[1]), code: m[2], text: m[3].replace(/<[^>]+>/g, '').replace(/[●\s]+/g, ' ').trim() }));
-            assert.deepEqual(items.map(i => i.code), ['EU', 'ES', 'PT', 'GLOBAL'], where);
+            assert.deepEqual(items.map(i => i.code), ['EU', 'ES', 'PT', 'CR', 'GLOBAL'], where);
             assert.deepEqual(items.filter(i => i.active).map(i => i.code), [region], where);
             for (const item of items) assert.equal(item.text, labels[language][item.code], `${where} ${item.code}`);
             assert.equal(/<span class="region-tag">([^<]*)<\/span>/.exec(html)[1], labels[language][region], where);
@@ -115,32 +117,32 @@ test('el selector de región ofrece Europa, España, Portugal y Global; ni Costa
     }
 });
 
-test('el español lleva la bandera de su región: España en .eu y .es, Costa Rica en .com', () => {
+test('el español lleva la bandera de su región: España en .eu y .es, Costa Rica en .com y .com/cr/', () => {
     // La imagen tiene que estar dentro de la propia opción, no en la siguiente.
     const spanishFlags = html => [...html.matchAll(/<(a|button)\b[^>]*data-lang="es"[^>]*>((?:(?!<\/\1>)[\s\S])*)<\/\1>/g)]
         .map(m => /<img\b[^>]*src="([^"]+)"/.exec(m[2])?.[1])
         .filter(Boolean)
         .map(src => src.replace(/.*\//, ''));
     for (const [key, dir] of TREES) {
-        const global = key.startsWith('com');
+        const costaRicanSpanish = key.startsWith('com') || key === 'cr';
         for (const page of PAGES) {
             const flags = spanishFlags(read(treeFile(dir, page)));
             for (const flag of flags) {
-                assert.ok(global ? /^(flag-cr-64\.webp|costa-rica\.png)$/.test(flag) : /^(flag-es-64\.webp|espana\.png)$/.test(flag),
+                assert.ok(costaRicanSpanish ? /^(flag-cr-64\.webp|costa-rica\.png)$/.test(flag) : /^(flag-es-64\.webp|espana\.png)$/.test(flag),
                     `${key}/${page || 'index'}: ${flag}`);
             }
         }
     }
-    // El selector que inyecta main.js (y el portal) decide por dominio, con la misma regla.
-    assert.match(read('JS/main.js'), /const SPANISH_FLAG = isGlobalDomain \? 'cr' : 'es';/);
-    assert.match(read('JS/profiles.js'), /isGlobalDomain\s*\?\s*\{ src: '\/Images\/Optimized\/flag-cr-64\.webp'/);
+    // El selector que inyecta main.js (y el portal) decide por región/dominio, con la misma regla.
+    assert.match(read('JS/main.js'), /const SPANISH_FLAG = \(isGlobalDomain \|\| currentRegion === 'CR'\) \? 'cr' : 'es';/);
+    assert.match(read('JS/profiles.js'), /\(isGlobalDomain \|\| currentRegion === 'CR'\)\s*\?\s*\{ src: '\/Images\/Optimized\/flag-cr-64\.webp'/);
 });
 
-test('canonical, hreflang y og:url de cada árbol apuntan a su propio dominio', () => {
+test('canonical, hreflang y og:url de cada árbol apuntan a su propia ruta pública', () => {
     const origin = { 'eu-en': 'https://elysiumdr.eu', 'eu-es': 'https://elysiumdr.eu', 'eu-pt': 'https://elysiumdr.eu',
-        es: 'https://elysiumdr.es', pt: 'https://elysiumdr.pt',
+        es: 'https://elysiumdr.es', pt: 'https://elysiumdr.pt', cr: 'https://elysiumdr.com',
         'com-en': 'https://elysiumdr.com', 'com-es': 'https://elysiumdr.com', 'com-pt': 'https://elysiumdr.com' };
-    const prefix = { 'eu-en': '', 'eu-es': '/es', 'eu-pt': '/pt', es: '', pt: '', 'com-en': '', 'com-es': '/es', 'com-pt': '/pt' };
+    const prefix = { 'eu-en': '', 'eu-es': '/es', 'eu-pt': '/pt', es: '', pt: '', cr: '/cr', 'com-en': '', 'com-es': '/es', 'com-pt': '/pt' };
     for (const [key, dir] of TREES) {
         for (const page of PAGES) {
             const html = read(treeFile(dir, page));
@@ -160,9 +162,15 @@ test('canonical, hreflang y og:url de cada árbol apuntan a su propio dominio', 
                     ['pt-PT', `${host}/pt/${page}`],
                     ['x-default', `${host}/${page}`]
                 ], where);
+            } else {
+                // Los sitios nacionales (es, pt, cr) usan traducción por función en la misma URL: no existen carpetas físicas /en/ ni /pt/ en ellos.
+                assert.deepEqual(alternates, [], where);
             }
         }
     }
+    // En Costa Rica no deben existir carpetas físicas /en/ ni /pt/.
+    assert.equal(existsSync(join(ROOT, '_national/cr/en')), false);
+    assert.equal(existsSync(join(ROOT, '_national/cr/pt')), false);
 });
 
 test('.eu no cita la ley, la autoridad ni los consumidores de Costa Rica', () => {
@@ -185,17 +193,19 @@ test('el español de España no arrastra el léxico de Costa Rica', () => {
     }
 });
 
-test('el sitio global tiene todas las páginas, y lo que el Worker anuncia existe', () => {
-    for (const [, dir] of TREES.filter(([k]) => k.startsWith('com'))) {
+test('el sitio global y el de Costa Rica tienen todas las páginas, y lo que el Worker anuncia existe', () => {
+    for (const [, dir] of TREES.filter(([k]) => k.startsWith('com') || k === 'cr')) {
         for (const page of PAGES) assert.ok(existsSync(join(ROOT, dir, file(page))), `${dir}/${file(page)}`);
         for (const name of ['llms.txt', 'llms-full.txt']) assert.ok(existsSync(join(ROOT, dir, name)), `${dir}/${name}`);
     }
-    assert.ok(existsSync(join(ROOT, '_national/com/es/infraestructura-digital-pymes-costa-rica.html')));
 });
 
 test('los textos para modelos de lenguaje de cada sitio hablan de su región', () => {
     assert.match(read('_national/com/llms.txt'), /https:\/\/elysiumdr\.com\/llms-full\.txt/);
     assert.doesNotMatch(read('_national/com/llms.txt'), /https:\/\/elysiumdr\.eu\/(?!library|Gestor|VALTRIX)/);
+    assert.match(read('_national/cr/llms.txt'), /\(Costa Rica\)/);
+    assert.match(read('_national/cr/llms.txt'), /https:\/\/elysiumdr\.com\/cr\/llms-full\.txt/);
+    assert.doesNotMatch(read('_national/cr/llms.txt'), /elysiumdr\.es/);
     assert.match(read('es/llms.txt'), /\(Europa\)/);
     assert.doesNotMatch(read('es/llms.txt'), /elysiumdr\.es/);
     assert.match(read('pt/llms.txt'), /\(Europa\)/);
@@ -208,6 +218,7 @@ test('los textos para modelos de lenguaje de cada sitio hablan de su región', (
 
 const HOMEPAGES = [
     'index.html', 'es/index.html', 'pt/index.html', '_national/es/index.html', '_national/pt/index.html',
+    '_national/cr/index.html',
     '_national/com/index.html', '_national/com/es/index.html', '_national/com/pt/index.html'
 ];
 
@@ -227,15 +238,21 @@ test('las portadas cargan los mismos bundles versionados, que existen y son inmu
             assert.match(headers, block, `${page}: ${asset} necesita su entrada inmutable en _headers`);
         }
     }
-    assert.equal(used.size, 1, `las ocho portadas cargan el mismo bundle: ${[...used].join(' | ')}`);
+        assert.equal(used.size, 1, `las nueve portadas cargan el mismo bundle: ${[...used].join(' | ')}`);
+    const expectedJs = /src="(?:\.\.\/)?JS\/(home\.v\d+\.min\.js)"/.exec(read('index.html'))[1];
+    for (const page of HOMEPAGES.map(p => p.replace('index.html', 'services.html'))) {
+        const serviceJs = /src="(?:\.\.\/)?JS\/(home\.v\d+\.min\.js)"/.exec(read(page))?.[1];
+        assert.equal(serviceJs, expectedJs, `${page}: debe cargar el mismo bundle JS vigente que las portadas`);
+    }
 });
 
-test('el bundle de portada incluye las regiones nuevas (no se quedó en la versión anterior)', () => {
+test('el bundle de portada incluye las cinco regiones (incluida Costa Rica)', () => {
     const js = /src="(?:\.\.\/)?JS\/(home\.v\d+\.min\.js)"/.exec(read('index.html'))[1];
     const bundle = read(`JS/${js}`);
     assert.match(bundle, /elysiumdr\.com/);
     assert.match(bundle, /flag-\$\{/);
-    assert.doesNotMatch(bundle, /region=CR|COSTA RICA|WORLDWIDE/);
+    assert.match(bundle, /COSTA RICA/);
+    assert.doesNotMatch(bundle, /WORLDWIDE/);
     assert.doesNotMatch(bundle, /G-PY4LMCTNG9/, 'la portada carga GA4 por su cuenta con google-analytics.js; no debe duplicarlo');
 });
 
@@ -243,7 +260,7 @@ test('ningún recurso inmutable se ha editado sin cambiarle el nombre o el ?v=',
     const manifestPath = join(ROOT, 'scripts', 'fixtures', 'immutable-assets.json');
     const tracked = {
         'CSS/home.v20261001.min.css': 'name', 'CSS/home-critical.v20261001.min.css': 'name',
-        'JS/home.v20261001.min.js': 'name', 'CSS/components.css': 'query'
+        'JS/home.v20261001.min.js': 'name', 'JS/home.v20261104.min.js': 'name', 'JS/home.v2026110402.min.js': 'name', 'JS/home.v2026110403.min.js': 'name', 'JS/home.v2026110404.min.js': 'name', 'JS/home.v2026110405.min.js': 'name', 'CSS/components.css': 'query'
     };
     const digest = relative => createHash('sha256').update(readFileSync(join(ROOT, relative))).digest('hex');
     const current = Object.fromEntries(Object.keys(tracked).map(relative => [relative, digest(relative)]));
@@ -317,15 +334,20 @@ test('.com — la portada abre en inglés, sin repartir por país ni mirar el na
     }
 });
 
-test('.com — /es/ y /pt/ son carpetas físicas con sus propias páginas', async () => {
+test('.com — /es/ y /pt/ son carpetas físicas globales, y /cr/ es el sitio nacional de Costa Rica', async () => {
     for (const [from, asset] of [
         ['/es/', '/_national/com/es/'],
         ['/pt/', '/_national/com/pt/'],
+        ['/cr/', '/_national/cr/'],
+        ['/cr/about', '/_national/cr/about'],
+        ['/cr/services', '/_national/cr/services'],
+        ['/cr/research/ontology-research', '/_national/cr/research/ontology-research'],
+        ['/cr/llms.txt', '/_national/cr/llms.txt'],
+        ['/cr/llms-full.txt', '/_national/cr/llms-full.txt'],
         ['/es/about', '/_national/com/es/about'],
         ['/pt/services', '/_national/com/pt/services'],
         ['/es/research/ontology-research', '/_national/com/es/research/ontology-research'],
         ['/about', '/_national/com/about'],
-        ['/es/infraestructura-digital-pymes-costa-rica', '/_national/com/es/infraestructura-digital-pymes-costa-rica'],
         ['/es/llms.txt', '/_national/com/es/llms.txt'],
         ['/llms-full.txt', '/_national/com/llms-full.txt']
     ]) {
@@ -335,10 +357,17 @@ test('.com — /es/ y /pt/ son carpetas físicas con sus propias páginas', asyn
     }
 });
 
-test('.com — las URL se canonizan como en .eu', async () => {
+test('.com — las URL se canonizan como en .eu, y /cr/(en|pt) redirigen por función sin páginas físicas', async () => {
     for (const [from, to, status] of [
         ['/es', '/es/', 307],
         ['/pt', '/pt/', 307],
+        ['/cr', '/cr/', 307],
+        ['/cr/about/', '/cr/about', 307],
+        ['/cr/about.html', '/cr/about', 301],
+        ['/cr/index.html', '/cr/', 301],
+        ['/cr/es/services', '/cr/services', 301],
+        ['/cr/en/services', '/cr/services?lang=en', 302],
+        ['/cr/pt/about', '/cr/about?lang=pt', 302],
         ['/es/about/', '/es/about', 307],
         ['/about/', '/about', 307],
         ['/es/about.html', '/es/about', 301],
@@ -363,35 +392,49 @@ test('.com — lo que no está traducido sale de los assets compartidos', async 
     const legacy = await call(`${COM}/es/profiles`);
     assert.equal(legacy.status, 308);
     assert.equal(legacy.location, `${COM}/profiles?lang=es`);
+
+    const crProfiles = await call(`${COM}/cr/profiles`);
+    assert.equal(crProfiles.status, 308);
+    assert.equal(crProfiles.location, `${COM}/profiles?lang=es&region=CR`);
 });
 
-test('.com — la base interna no es una URL pública, y la traducción en vivo no existe', async () => {
-    for (const path of ['/_national/com/', '/_national/com/es/about', '/%5Fnational/com/']) {
+test('.com — la base interna no es una URL pública; /__i18n solo responde para /cr/', async () => {
+    for (const path of ['/_national/com/', '/_national/com/es/about', '/_national/cr/', '/%5Fnational/com/']) {
         assert.equal((await call(`${COM}${path}`)).status, 404, path);
     }
     assert.equal((await call(`${COM}/__i18n?lang=es&path=/`)).status, 404);
+    assert.equal((await call(`${COM}/__i18n?lang=en&path=/services`)).status, 404);
+    const crEn = await call(`${COM}/__i18n?lang=en&path=/cr/services`);
+    assert.equal(crEn.status, 200);
+    assert.equal(crEn.asset, '/services');
+    const crPt = await call(`${COM}/__i18n?lang=pt&path=/cr/`);
+    assert.equal(crPt.status, 200);
+    assert.equal(crPt.asset, '/pt/');
 });
 
 test('.com — Elysium Patrimonio vive solo en .eu, pero la biblioteca se sirve aquí, en la región', async () => {
     const patrimonio = await call(`${COM}/Gestor-Patrimonios/`);
     assert.equal(patrimonio.status, 301);
     assert.equal(patrimonio.location, 'https://elysiumdr.eu/Gestor-Patrimonios/');
+    const crPatrimonio = await call(`${COM}/cr/Gestor-Patrimonios/`);
+    assert.equal(crPatrimonio.status, 301);
+    assert.equal(crPatrimonio.location, 'https://elysiumdr.eu/Gestor-Patrimonios/');
     // La biblioteca no salta a `.eu`: seguiría en otra región y en otro idioma.
     const library = await call(`${COM}/library`);
     assert.notEqual(library.status, 301);
     assert.equal(library.location, null);
 });
 
-test('.com — su sitemap lista las tres carpetas con sus hreflang y sin páginas noindex', async () => {
+test('.com — su sitemap incluye las tres carpetas globales y las páginas de /cr/, sin páginas noindex', async () => {
     const r = await call(`${COM}/sitemap.xml`);
     assert.equal(r.status, 200);
     assert.equal(r.asset, null);
     const locations = [...r.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
     assert.ok(locations.includes(`${COM}/`) && locations.includes(`${COM}/es/`) && locations.includes(`${COM}/pt/`));
+    assert.ok(locations.includes(`${COM}/cr/`) && locations.includes(`${COM}/cr/services`) && locations.includes(`${COM}/cr/about`));
     assert.ok(locations.includes(`${COM}/es/about`) && locations.includes(`${COM}/pt/research/ontology-research`));
-    assert.ok(locations.includes(`${COM}/es/infraestructura-digital-pymes-costa-rica`));
     assert.ok(locations.every(location => location.startsWith(`${COM}/`)));
-    assert.doesNotMatch(r.body, /elysiumdr\.eu|\.txt<|onboarding|thank-you|_national/);
+    assert.doesNotMatch(r.body, /elysiumdr\.eu|\.txt<|onboarding|thank-you|_national|infraestructura-digital-pymes-costa-rica/);
     assert.match(r.body, /xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/);
     assert.match(r.body, /<xhtml:link rel="alternate" hreflang="es-CR" href="https:\/\/elysiumdr\.com\/es\/about"\/>/);
     assert.match(r.body, /<xhtml:link rel="alternate" hreflang="x-default" href="https:\/\/elysiumdr\.com\/about"\/>/);
@@ -399,7 +442,8 @@ test('.com — su sitemap lista las tres carpetas con sus hreflang y sin página
 
 test('.eu — sus aterrizajes de Costa Rica, España y Portugal ya no se sirven: cada uno va a su región', async () => {
     for (const [from, to] of [
-        ['https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica', `${COM}/es/infraestructura-digital-pymes-costa-rica`],
+        ['https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica', `${COM}/cr/`],
+        ['https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica', `${COM}/cr/`],
         ['https://elysiumdr.eu/es/infraestructura-digital-pymes-espana', 'https://elysiumdr.es/'],
         ['https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal', 'https://elysiumdr.pt/']
     ]) {

@@ -471,6 +471,7 @@ test('dominios de la empresa: /tools lleva al subdominio en su idioma', async ()
         ['elysiumdr.pt', '/tools', `${ORIGIN}/pt/`],
         ['elysiumdr.com', '/tools/', `${ORIGIN}/`],
         ['elysiumdr.com', '/es/tools/', `${ORIGIN}/es/`],
+        ['elysiumdr.com', '/cr/tools/', `${ORIGIN}/es/`],
         ['www.elysiumdr.eu', '/tools/', 'https://elysiumdr.eu/tools/']
     ];
     for (const [host, path, location] of cases) {

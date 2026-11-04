@@ -100,10 +100,10 @@ test('.eu — Portugal va a su dominio', async () => {
     assert.equal(r.location, 'https://elysiumdr.pt/');
 });
 
-test('.eu — Costa Rica va al sitio global, en español de Costa Rica', async () => {
+test('.eu — Costa Rica va a su sitio nacional en elysiumdr.com/cr/', async () => {
     const r = await call(EU, { country: 'CR' });
     assert.equal(r.status, 302);
-    assert.equal(r.location, 'https://elysiumdr.com/es/');
+    assert.equal(r.location, 'https://elysiumdr.com/cr/');
 });
 
 test('.eu — resto de hispanohablantes, sitio global en español', async () => {
@@ -209,7 +209,7 @@ test('.eu — un enlace profundo NO se reparte', async () => {
 
 test('.eu — el reparto conserva el query', async () => {
     const r = await call('https://elysiumdr.eu/?utm_source=li', { country: 'CR' });
-    assert.equal(r.location, 'https://elysiumdr.com/es/?utm_source=li');
+    assert.equal(r.location, 'https://elysiumdr.com/cr/?utm_source=li');
 });
 
 test('.eu — www va al ápice antes de repartir', async () => {
@@ -402,15 +402,23 @@ test('las landings regionales heredadas tienen una sola región canónica', asyn
     for (const [from, to] of [
         [
             'https://elysiumdr.es/infraestructura-digital-pymes-costa-rica?src=old',
-            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica?src=old'
+            'https://elysiumdr.com/cr/?src=old'
         ],
         [
             'https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica',
-            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica'
+            'https://elysiumdr.com/cr/'
         ],
         [
             'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica.html',
-            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica'
+            'https://elysiumdr.com/cr/'
+        ],
+        [
+            'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica',
+            'https://elysiumdr.com/cr/'
+        ],
+        [
+            'https://elysiumdr.com/cr/infraestructura-digital-pymes-costa-rica',
+            'https://elysiumdr.com/cr/'
         ],
         [
             'https://elysiumdr.es/infraestructura-digital-pymes-espana.html?src=old',
@@ -435,10 +443,10 @@ test('las landings regionales heredadas tienen una sola región canónica', asyn
         assert.equal(r.asset, null, from);
     }
 
-    // El aterrizaje de Costa Rica vive en el sitio global, no en el europeo.
-    const costaRica = await call('https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica');
+    // El sitio de Costa Rica vive en /cr/ desde su base privada.
+    const costaRica = await call('https://elysiumdr.com/cr/');
     assert.equal(costaRica.status, 200);
-    assert.equal(costaRica.asset, '/_national/com/es/infraestructura-digital-pymes-costa-rica');
+    assert.equal(costaRica.asset, '/_national/cr/');
 });
 
 test('/p y sus variantes se canonizan a portfolio sin cambiar de región', async () => {
@@ -640,10 +648,17 @@ test('/__i18n no expone páginas arbitrarias ni recursos que no sean HTML', asyn
     }
 });
 
-test('/__i18n solo existe en .es/.pt y solo admite GET o HEAD', async () => {
+test('/__i18n solo existe en .es, .pt y en elysiumdr.com para /cr/, y solo admite GET o HEAD', async () => {
     const query = new URLSearchParams({ lang: 'en', path: '/services' });
     assert.equal((await call(`https://elysiumdr.eu/__i18n?${query}`)).status, 404);
     assert.equal((await call(`https://elysiumdr.es/__i18n/extra?${query}`)).status, 404);
+    assert.equal((await call(`https://elysiumdr.com/__i18n?${query}`)).status, 404);
+
+    const crQuery = new URLSearchParams({ lang: 'en', path: '/cr/services' });
+    const crRes = await call(`https://elysiumdr.com/__i18n?${crQuery}`);
+    assert.equal(crRes.status, 200);
+    assert.equal(crRes.asset, '/services');
+    assert.equal((await call(`https://elysiumdr.com/__i18n?lang=en&path=%2Fcr%2Fservices%2F`)).status, 400);
 
     const post = await call(`https://elysiumdr.es/__i18n?${query}`, { method: 'POST' });
     assert.equal(post.status, 405);

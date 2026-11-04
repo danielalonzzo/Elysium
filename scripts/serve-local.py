@@ -38,7 +38,15 @@ import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8123
-NATIONAL_LANGUAGES = {"es", "pt"}
+# Local-only desktop previews. Each sibling build has its own loopback origin.
+PREVIEW_SITES = {
+    "pmorais": ("https://pmorais.pt/", ROOT.parent / "Paulo Morais/pmorais", {"css", "js", "images", "assets"}),
+    "puravidapets": ("https://puravidapetscr.com/", ROOT.parent / "Pura Vida Pets/puravidapetscr/dist", {"assets", "brand", "elysium-core", "elysium-config.js"}),
+    "oncore": ("https://oncorecrc.eu", ROOT.parent / "ONCORE/ONCORE", {"src", "images", "elysium-core"}),
+}
+PREVIEW_ASSETS = {".css", ".js", ".mjs", ".json", ".svg", ".png", ".jpg", ".jpeg",
+                  ".webp", ".avif", ".gif", ".ico", ".woff", ".woff2", ".mp4", ".webm"}
+NATIONAL_LANGUAGES = {"es": "es", "pt": "pt", "cr": "es"}
 TRANSLATION_LANGUAGES = {"en", "es", "pt"}
 REGIONAL_LANDINGS = {
     "infraestructura-digital-pymes-costa-rica",
@@ -142,6 +150,9 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
+        hostname = self.headers.get("Host", "").partition(":")[0].lower()
+        if hostname.endswith(".localhost"):
+            return self._serve_preview(hostname.removesuffix(".localhost"), path)
 
         def local_target(target_path, updates=None, remove=()):
             updates = updates or {}
@@ -162,6 +173,14 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
         if path == "/_national" or path.startswith("/_national/"):
             self.send_error(404, "Private national asset")
             return None
+        if path in {"/cr/profiles", "/cr/profiles/", "/cr/profiles.html"}:
+            return self._redirect(local_target("/profiles", {"lang": "es", "region": "CR"}))
+        if path in {"/cr/admin", "/cr/admin/", "/cr/admin.html"}:
+            return self._redirect(local_target("/admin", {"lang": "es"}))
+        if path in {"/cr/library", "/cr/library/", "/cr/library.html"}:
+            return self._redirect(local_target("/library", {"region": "CR"}))
+        if path.startswith("/cr/library/"):
+            return self._redirect(local_target(path[3:], {"region": "CR"}))
 
         # Previsualización local de la biblioteca y libros
         if path in {"/library", "/library/"}:
@@ -329,6 +348,11 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
                         return self._serve(book_file)
 
         national = query.get("national", [""])[0]
+        if path == "/cr":
+            return self._redirect(local_target("/cr/"))
+        if path.startswith("/cr/"):
+            national = "cr"
+            path = path[3:] or "/"
         slug = self._canonical_slug(path)
 
         # Igual que el Worker: estos aliases deben fijar inglés europeo antes
@@ -340,41 +364,37 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
             }))
 
         if slug in {"p", "es/p", "pt/p", "en/p"}:
-            suffix = "/portfolio"
+            suffix = "/cr/portfolio" if self.path.startswith("/cr/") else "/portfolio"
             if not national and slug.startswith(("es/", "pt/")):
                 suffix = "/" + slug.split("/", 1)[0] + suffix
             requested_language = slug.split("/", 1)[0] if "/" in slug else ""
             updates = {}
             remove = ()
-            if national and requested_language in TRANSLATION_LANGUAGES:
-                if requested_language == national:
+            if national in NATIONAL_LANGUAGES and requested_language in TRANSLATION_LANGUAGES:
+                if requested_language == NATIONAL_LANGUAGES[national]:
                     remove = ("lang",)
                 else:
                     updates["lang"] = requested_language
             return self._redirect(local_target(suffix, updates, remove))
         if national in NATIONAL_LANGUAGES and slug == "prototype-selva-y-sal":
-            return self._redirect(local_target("/portfolio"))
+            return self._redirect(local_target("/cr/portfolio" if self.path.startswith("/cr/") else "/portfolio"))
 
         landing = slug.rsplit("/", 1)[-1] if slug else ""
         if landing in REGIONAL_LANDINGS:
             if landing == "infraestructura-digital-pymes-costa-rica":
-                if path.rstrip("/").startswith("/es/") and not national:
-                    pass
-                else:
-                    return self._redirect(local_target("/es/" + landing, remove=("national", "lang")))
-            else:
-                target_national = "es" if landing.endswith("-espana") else "pt"
-                return self._redirect(local_target("/", {"national": target_national}))
+                return self._redirect(local_target("/cr/", remove=("national", "lang")))
+            target_national = "es" if landing.endswith("-espana") else "pt"
+            return self._redirect(local_target("/", {"national": target_national}))
 
-        # En preview, `?national=es|pt` representa el host nacional. Un prefijo
-        # viejo se canoniza al mismo path y comunica el idioma por query, sin
-        # saltar de región ni perder la página.
+        # En preview, `?national=es|pt|cr` o `/cr/…` representa el sitio nacional.
+        # Un prefijo viejo se canoniza al mismo path y comunica el idioma por query.
         if national in NATIONAL_LANGUAGES:
             prefixed = re.fullmatch(r"(en|es|pt)(?:/(.*))?", slug or "")
             if prefixed:
                 requested_language, rest = prefixed.groups()
-                target_path = "/" + (rest or "")
-                if requested_language == national:
+                prefix_base = "/cr/" if self.path.startswith("/cr/") else "/"
+                target_path = prefix_base + (rest or "")
+                if requested_language == NATIONAL_LANGUAGES[national]:
                     return self._redirect(local_target(target_path, remove=("lang",)))
                 return self._redirect(local_target(target_path, {"lang": requested_language}))
 
@@ -439,6 +459,9 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(400, "Invalid translation request")
             return None
 
+        if raw_path == "/cr" or raw_path.startswith("/cr/"):
+            raw_path = raw_path[3:] or "/"
+
         slug = self._canonical_slug(raw_path)
         if slug is None:
             self.send_error(400, "Invalid translation path")
@@ -455,6 +478,9 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
         return self._serve(candidate, content_type="text/html; charset=utf-8")
 
     def _proxy_api_or_404(self):
+        if self.headers.get("Host", "").partition(":")[0].lower().endswith(".localhost"):
+            self.send_error(404)
+            return None
         path = urllib.parse.urlparse(self.path).path
         if path != "/api" and not path.startswith("/api/"):
             self.send_error(404, "API route not found")
@@ -496,7 +522,55 @@ class CloudflareAssetsHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         return None
 
+    def _serve_preview(self, site, path):
+        project = PREVIEW_SITES.get(site)
+        slug = self._canonical_slug(path)
+        if project is None or slug is None:
+            self.send_error(404)
+            return None
+        _, directory, public_assets = project
+        target = (directory / (slug or "index.html")).resolve()
+        if (not target.is_relative_to(directory.resolve()) or not target.is_file()
+                or (slug and (slug.split("/")[0] not in public_assets
+                              or target.suffix not in PREVIEW_ASSETS))):
+            self.send_error(404)
+            return None
+        self.send_response(200)
+        self.send_header("Content-Type", self.guess_type(str(target)))
+        self.send_header("Content-Length", str(target.stat().st_size))
+        self.send_header("Content-Security-Policy",
+                         f"frame-ancestors http://localhost:{PORT} http://127.0.0.1:{PORT}; "
+                         "worker-src 'none'; form-action 'none'; object-src 'none'")
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        return target.open("rb")
+
+    def _serve_local_portfolio(self, file_path):
+        html = file_path.read_text(encoding="utf-8")
+        origins = []
+        for site, (public_url, directory, _) in PREVIEW_SITES.items():
+            if (directory / "index.html").is_file():
+                origin = f"http://{site}.localhost:{PORT}"
+                html = html.replace(f'<iframe src="{public_url}"',
+                                    f'<iframe sandbox="allow-scripts allow-same-origin" src="{origin}/"')
+                origins.append(origin)
+        payload = html.encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(payload)))
+        for name, value in headers_for(urllib.parse.urlparse(self.path).path):
+            if name.lower() == "content-security-policy":
+                value = value.replace("frame-src 'self'", "frame-src 'self' " + " ".join(origins))
+            self.send_header(name, value)
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(payload)
+        return None
+
     def _serve(self, file_path, content_type=None):
+        if file_path.name == "portfolio.html":
+            return self._serve_local_portfolio(file_path)
+
         handle = open(file_path, "rb")
         self.send_response(200)
         self.send_header("Content-Type", content_type or self.guess_type(str(file_path)))

@@ -28,6 +28,7 @@ const fs = require('node:fs/promises');
 const os = require('node:os');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
+const { pipeline } = require('node:stream/promises');
 const express = require('express');
 
 const ONE_MIB = 1024 * 1024;
@@ -359,12 +360,40 @@ function createWorkspace({ settings: overrides = {}, now = Date.now } = {}) {
   const sweeper = setInterval(() => { sweep().catch(() => {}); }, 30 * 1000);
   sweeper.unref();
 
-  router.get('/:token', (request, response) => {
+  router.get('/:token', async (request, response, next) => {
     response.set('Cache-Control', 'no-store');
     const token = String(request.params.token || '');
     const entry = TOKEN_PATTERN.test(token) ? files.get(token) : null;
     if (!entry || entry.expiresAt <= now()) {
       return response.status(410).json({ error: 'This file expired. Prepare it again.', code: 'file_expired' });
+    }
+    if (request.method === 'GET' && entry.size > 32 * ONE_MIB) {
+      // Cloud Run limita a 32 MiB las respuestas HTTP/1 sin streaming.
+      // Se entrega el fichero completo aunque el navegador pida un rango.
+      const handle = await fs.open(entry.path, 'r').catch(error => {
+        if (error.code !== 'ENOENT') throw error;
+        return null;
+      });
+      if (!handle) {
+        return response.status(410).json({ error: 'This file expired. Prepare it again.', code: 'file_expired' });
+      }
+      try {
+        if ((await handle.stat()).size !== entry.size) {
+          return response.status(410).json({ error: 'This file is incomplete. Prepare it again.', code: 'file_expired' });
+        }
+        response.attachment(entry.name).set({
+          'Content-Type': entry.type,
+          'Cache-Control': 'no-store, no-transform',
+          'X-Content-Type-Options': 'nosniff'
+        });
+        await pipeline(handle.createReadStream({ autoClose: false }), response);
+        entry.downloads += 1;
+      } catch (error) {
+        if (!response.destroyed) return next(error);
+      } finally {
+        await handle.close();
+      }
+      return;
     }
     return response.download(entry.path, entry.name, {
       dotfiles: 'allow',
@@ -373,6 +402,10 @@ function createWorkspace({ settings: overrides = {}, now = Date.now } = {}) {
       // El CRM promete «disponible hasta las…»: el fichero no se borra antes
       // por haberse descargado, pero es lo primero que sale si falta sitio.
       if (!error) entry.downloads += 1;
+      else if (response.headersSent) response.destroy(error);
+      else if (error.code === 'ENOENT') {
+        response.status(410).json({ error: 'This file expired. Prepare it again.', code: 'file_expired' });
+      } else next(error);
     });
   });
 

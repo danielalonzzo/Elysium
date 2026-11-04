@@ -1,7 +1,7 @@
 /**
  * ══════════════════════════════════════════════════════════════════════════════
  *  Elysium λ — System Info Modal
- *  version-modal.js  |  elysiumOS 1.8.9
+ *  version-modal.js  |  elysiumOS 1.9.0
  *
  *  Design: Matches pmorais.pt reference — clean light modal, row-divider
  *  layout, amber accent links, sectioned with small-caps labels.
@@ -15,7 +15,7 @@
     'use strict';
 
     // ── Configuration ─────────────────────────────────────────────────────────
-    var APP_VERSION       = 'elysiumOS 1.8.9';
+    var APP_VERSION       = 'elysiumOS 1.9.0';
     var APP_VERSION_HTML  = 'elysiumOS 1<span class="ely-ver-sub">.8.9</span>';
     var MODAL_ID          = 'elysium-system-info-modal';
     var VERSION_TAG_CLASS = 'elysium-version-tag';

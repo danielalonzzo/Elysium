@@ -302,6 +302,23 @@ test('el fichero caduca y su carpeta se borra', async t => {
   assert.equal((await fetch(`${base}/api/tools/files/esto-no-es-un-token`)).status, 410);
 });
 
+test('entrega archivos grandes por streaming sin perder bytes', async t => {
+  const { base, app } = await startServer(t);
+  const workspace = app.locals.workspace;
+  const dir = await workspace.createWorkDir();
+  const bytes = Buffer.alloc(33 * 1024 * 1024, 0x5a);
+  const filename = path.join(dir, 'Vídeo de prueba.mp4');
+  fs.writeFileSync(filename, bytes);
+  const file = await workspace.finishedFile(dir, filename);
+  const ready = await workspace.register(file, dir, 'video/mp4');
+  const response = await fetch(base + ready.file.url);
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('transfer-encoding'), 'chunked');
+  assert.equal(response.headers.get('content-length'), null);
+  assert.match(response.headers.get('content-disposition'), /^attachment;/);
+  assert.deepEqual(Buffer.from(await response.arrayBuffer()), bytes);
+});
+
 test('valida la petición antes de abrir el flujo', async t => {
   const { base } = await startServer(t);
   const response = await call(base, '/api/tools/video/download', { body: { url: 'https://youtu.be/abc123def45', option: 'bv*+ba' } });

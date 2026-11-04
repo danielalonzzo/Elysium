@@ -1,15 +1,16 @@
 /**
- * Elysium — traducción dinámica de los dominios nacionales.
+ * Elysium — traducción dinámica de los sitios nacionales.
  *
- * Este fichero tiene un límite deliberado: solo actúa en elysiumdr.es y
- * elysiumdr.pt. El dominio europeo usa documentos físicos (/ , /es/ y /pt/)
- * para sus tres idiomas nativos y no pasa por aquí; sus otros 22 idiomas los
- * traduce en vivo `JS/elysium-translate.js` (Google Website Translator), que a
- * su vez solo actúa en `.eu`.
+ * Este fichero tiene un límite deliberado: solo actúa en elysiumdr.es,
+ * elysiumdr.pt y elysiumdr.com/cr/. El dominio europeo usa documentos físicos
+ * (/ , /es/ y /pt/) para sus tres idiomas nativos y no pasa por aquí; sus otros
+ * 22 idiomas los traduce en vivo `JS/elysium-translate.js` (Google Website
+ * Translator), que a su vez solo actúa en `.eu`.
  *
  * Para pruebas locales se puede activar explícitamente con
- * `?national=es` o `?national=pt`. Sin ese parámetro localhost se comporta
- * igual que el dominio europeo y este motor queda inerte.
+ * `?national=es`, `?national=pt` o `?national=cr` (o visitando `/cr/`). Sin
+ * eso localhost se comporta igual que el dominio europeo y este motor queda
+ * inerte.
  */
 (function () {
     'use strict';
@@ -55,21 +56,21 @@
             switchTo: 'Switch language to',
             selectRegion: 'Select region',
             closeDialog: 'Close dialog',
-            regions: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
+            regions: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' }
         },
         es: {
             selectLanguage: 'Seleccionar idioma',
             switchTo: 'Cambiar idioma a',
             selectRegion: 'Seleccionar región',
             closeDialog: 'Cerrar diálogo',
-            regions: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
+            regions: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' }
         },
         pt: {
             selectLanguage: 'Selecionar idioma',
             switchTo: 'Mudar idioma para',
             selectRegion: 'Selecionar região',
             closeDialog: 'Fechar diálogo',
-            regions: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
+            regions: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' }
         }
     };
 
@@ -150,6 +151,35 @@
                 footer: 'Elysium λ Development & Research<br>Portugal, União Europeia',
                 serviceNote: 'Prestamos serviços a empresas em toda a Europa e nas Américas.',
                 description: 'Infraestrutura digital por subscrição para pequenas empresas e startups em Portugal: sistemas cloud, CRM à medida, cibersegurança e I&D aplicada, sem custos de desenvolvimento.'
+            }
+        },
+        CR: {
+            en: {
+                hero: 'Digital Infrastructure for small businesses and entrepreneurs in Costa Rica:',
+                ctaTitle: 'Elevate Your Digital Presence',
+                ctaText: 'Digital ecosystem for your business. Built to empower businesses in Costa Rica.',
+                ctaButton: 'Schedule a Consultation',
+                footer: 'Elysium λ Development & Research<br>Costa Rica',
+                serviceNote: 'Serving businesses throughout Costa Rica, the Americas, and Europe.',
+                description: 'Subscription-based digital infrastructure for small businesses and entrepreneurs in Costa Rica: cloud systems, bespoke CRM, cybersecurity and applied R&D, with no development costs.'
+            },
+            es: {
+                hero: 'Infraestructura Digital para pequeñas empresas y emprendedores de Costa Rica:',
+                ctaTitle: 'Eleve su Presencia Digital',
+                ctaText: 'Ecosistema digital para su empresa. Construido para impulsar empresas de Costa Rica.',
+                ctaButton: 'Agendar Consulta',
+                footer: 'Elysium λ Development & Research<br>Costa Rica',
+                serviceNote: 'Damos servicio a empresas en toda Costa Rica, Iberoamérica y Europa.',
+                description: 'Infraestructura digital por suscripción para pequeñas empresas y emprendedores en Costa Rica: sistemas cloud, CRM a medida, ciberseguridad e I+D aplicada, sin costos de desarrollo.'
+            },
+            pt: {
+                hero: 'Infraestrutura Digital para pequenas empresas e empreendedores da Costa Rica:',
+                ctaTitle: 'Eleve a sua presença digital',
+                ctaText: 'Ecossistema digital para a sua empresa. Construído para impulsionar empresas na Costa Rica.',
+                ctaButton: 'Agendar consulta',
+                footer: 'Elysium λ Development & Research<br>Costa Rica',
+                serviceNote: 'Prestamos serviços a empresas em toda a Costa Rica, nas Américas e na Europa.',
+                description: 'Infraestrutura digital por subscrição para pequenas empresas e empreendedores na Costa Rica: sistemas cloud, CRM à medida, cibersegurança e I&D aplicada, sem custos de desenvolvimento.'
             }
         }
     };
@@ -482,6 +512,173 @@
                     termsFooter: '© 2026 Elysium λ Development & Research. Todos os direitos reservados. | <a href="https://www.livroreclamacoes.pt/Pedido/Reclamacao" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">Livro de Reclamações</a>'
                 }
             }
+        },
+        CR: {
+            en: {
+                home: {
+                    behaviour: 'We design ergonomic interfaces adapted to people and businesses in Costa Rica.',
+                    governance: 'We implement the highest cybersecurity standards and governance protocols in Costa Rica.',
+                    complianceTitle: 'Legal and Regulatory Compliance:',
+                    compliance: ' We design your infrastructure in accordance with Costa Rica\'s Data Protection Law No. 8968, guidance from PRODHAB, and the European GDPR.',
+                    timeline: 'Testing, validation of security mechanisms (access control), and regulatory compliance audits (Law No. 8968 / GDPR).',
+                    research: 'Elysium λ Development & Research operates as an independent engineering, research, and IT consultancy laboratory in Costa Rica.<br><br>Our purpose is to democratise access to high-level digital infrastructure, enabling small businesses and entrepreneurs in Costa Rica to scale through a technological ecosystem.<br><br>We combine scientific thinking, ergonomic design, and continuous experimentation to deliver software that resolves structural inefficiencies.'
+                },
+                about: {
+                    mission: 'To democratise access to digital infrastructure by equipping small businesses, entrepreneurs, and startups in Costa Rica with accessible technology ecosystems that automate operations and support sustainable growth. We provide infrastructure that evolves with each business.',
+                    vision: 'To become the Elysium λ Institute of Development & Research: an institute devoted to the study, development, and application of digital infrastructure, and to training new generations of scientists and developers. We aim to contribute to an innovative, increasingly digital Costa Rica.',
+                    historyIntro: 'Elysium λ Development & Research was founded with a clear purpose: to work alongside small businesses and entrepreneurs in Costa Rica, strengthen their digital presence, and give them access to infrastructure that can scale with them.',
+                    economy: 'Small businesses and entrepreneurs form the backbone of Costa Rica\'s economy. Many remain excluded from the benefits of technological transformation by barriers of complexity, cost, and digital literacy. Elysium λ researches and develops infrastructure that makes advanced technology more accessible, transparent, and dependable for the people navigating that transformation.',
+                    nameIntro: 'The name Elysium λ reflects the soul of this project:',
+                    aspiration: 'Within this project, <strong>Elysium λ</strong> symbolises the aspiration to contribute to an increasingly digital and connected Costa Rica.',
+                    future: 'Beginning with digital infrastructure for small businesses and entrepreneurs, Elysium λ aims to evolve towards research and the training of scientific developers who support a Costa Rican digital future centred on R&D.',
+                    location: 'Elysium λ Development & Research operates in Costa Rica, providing small businesses and entrepreneurs with accessible digital infrastructure and research.',
+                    description: 'Learn about the mission, vision, and history of Elysium λ Development & Research in Costa Rica and our work on accessible digital infrastructure for small businesses and entrepreneurs.'
+                },
+                contact: {
+                    phoneLabel: 'Telephone / WhatsApp',
+                    phoneSuffix: 'direct service for Costa Rica via WhatsApp',
+                    coverageLabel: 'Coverage',
+                    coverage: 'Remote service across all 7 provinces of Costa Rica.',
+                    description: 'Contact Elysium λ Development & Research in Costa Rica about digital infrastructure, software engineering, cybersecurity, and applied research projects.'
+                },
+                onboarding: {
+                    files: 'If these files contain third-party personal data, they are processed under our <a href="privacy" target="_blank" style="color: var(--color-accent);">Privacy Policy</a> (Law No. 8968 and GDPR) exclusively to build your system.',
+                    health: 'Sensitive health data (Law No. 8968 Art. 9 and GDPR Art. 9)',
+                    consent: 'I authorise the processing of the files and datasets I have uploaded exclusively to develop my system (Law No. 8968 and GDPR Art. 28).',
+                    phonePlaceholder: '+506 8000 0000'
+                },
+                services: {
+                    compliance: 'Compliance with Law No. 8968, GDPR, and up-to-date legal notices',
+                    description: 'Digital infrastructure services for Costa Rica, including website development, cloud systems, bespoke CRM, cybersecurity, and compliance with Law No. 8968 and the GDPR.'
+                },
+                legal: {
+                    privacyLaw: '<strong>Costa Rica\'s Law No. 8968 on the Protection of Individuals with Regard to the Processing of Their Personal Data</strong> and its Regulation (Executive Decree No. 37554-JP)',
+                    territory: 'Costa Rica and the European Union',
+                    authorityName: 'Inhabitants\' Data Protection Agency of Costa Rica (PRODHAB)',
+                    authorityUrl: 'https://www.prodhab.go.cr',
+                    cookieRule: 'Costa Rica\'s <strong>Law No. 8968 and Executive Decree No. 37554-JP</strong>',
+                    scopeBody: 'Elysium λ Development & Research provides professional services in software engineering, web development, systems architecture, digital research, and related technical consulting. These services are delivered under the subscription model published on the Services page and may include, depending on the plan contracted, website development, domain, email and hosting, compliance with Costa Rica\'s Law No. 8968, the GDPR and legal notices, a public agenda with automatic reminders, client records, a private client area with login and history, an administrator CRM, online payments and session packs, and occupancy and no-show reporting. Specific deliverables, deadlines, and pricing are governed by individual service agreements issued separately.',
+                    withdrawalHeading: '3. Right of withdrawal (Costa Rica — Law No. 7472)',
+                    withdrawalBody: 'Where the client is legally a consumer or end user in Costa Rica and enters into a distance or electronic contract under <strong>Costa Rica\'s Law on the Promotion of Competition and Effective Consumer Protection (Law No. 7472, Art. 40)</strong> and its Regulation, the client will generally have <strong>8 working days</strong> from the conclusion of the contract to exercise the right of withdrawal without penalty, subject to the statutory exceptions for bespoke or fully performed services.',
+                    taxBody: 'Quotes and contracts state whether taxes are included. Where transactions are taxable or consumed in Costa Rica, Value Added Tax (VAT / IVA) applies where required under <strong>Law No. 9635 on Strengthening Public Finances</strong> and applicable tax regulations, taking into account the place of supply, the cross-border nature of the digital service, and the client\'s tax status. Each invoice or receipt will state the applicable tax treatment.',
+                    disputeBody: 'We first seek an amicable solution through <a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a>. If no agreement is reached, consumers in Costa Rica may bring a claim before the <strong>National Consumer Commission (CNC)</strong> of the <strong>Ministry of Economy, Industry and Commerce (MEIC)</strong> via <a href="https://www.consumidorenlinea.go.cr" target="_blank" rel="noopener noreferrer">Consumidor en Línea (www.consumidorenlinea.go.cr)</a> and exercise all remedies under Law No. 7472.',
+                    governingBody: 'For services provided to clients in <strong>Costa Rica</strong>, these Terms are governed and interpreted in accordance with the mandatory public-policy rules of the Republic of Costa Rica — in particular Law No. 7472 and Law No. 8968 — without prejudice to European rules applicable to the provider\'s registered office. Where the user is a consumer in Costa Rica, the competent Costa Rican administrative authorities and courts shall have jurisdiction as provided by law.',
+                    privacyDescription: 'How Elysium λ Development & Research processes and protects personal data in Costa Rica under Law No. 8968 (PRODHAB) and the GDPR, including retention, security, and informational self-determination rights.',
+                    termsDescription: 'Terms governing Elysium λ Development & Research services in Costa Rica, including the 8-working-day withdrawal right under Law No. 7472, privacy, taxation, dispute resolution, and applicable law.',
+                    privacyFooter: '© 2026 Elysium λ Development & Research. All rights reserved. | <a href="https://www.prodhab.go.cr" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">PRODHAB Costa Rica</a>',
+                    termsFooter: '© 2026 Elysium λ Development & Research. All rights reserved.'
+                }
+            },
+            es: {
+                home: {
+                    behaviour: 'Diseñamos interfaces ergonómicas adaptadas a las personas y empresas de Costa Rica.',
+                    governance: 'Implementamos los más altos estándares en ciberseguridad y protocolos de gobernanza en Costa Rica.',
+                    complianceTitle: 'Cumplimiento Legal y Normativo:',
+                    compliance: ' Diseñamos su infraestructura conforme a la Ley N.º 8968 de Protección de Datos de Costa Rica, las directrices de la PRODHAB y el Reglamento Europeo (RGPD).',
+                    timeline: 'Realización de pruebas, validación de los mecanismos de seguridad (control de accesos) y auditorías de cumplimiento normativo (Ley N.º 8968 / RGPD).',
+                    research: 'Elysium λ Development & Research opera como un laboratorio independiente de ingeniería, investigación y consultoría informática en Costa Rica.<br><br>Nuestro propósito es democratizar el acceso a infraestructura digital de alto nivel, permitiendo a pequeñas empresas y emprendedores en Costa Rica escalar mediante un ecosistema tecnológico.<br><br>Combinamos pensamiento científico, diseño ergonómico y experimentación continua para entregar software que resuelve ineficiencias estructurales.'
+                },
+                about: {
+                    mission: 'Democratizar el acceso a la infraestructura digital, dotando a las pequeñas empresas, emprendedores y startups de Costa Rica de ecosistemas tecnológicos accesibles que automaticen operaciones y favorezcan un crecimiento sostenible. Proporcionamos infraestructura que evoluciona con cada negocio.',
+                    vision: 'Ser el Elysium λ Institute of Development & Research: un instituto dedicado al estudio, desarrollo y aplicación de infraestructuras digitales, así como a la formación de nuevas generaciones de científicos y desarrolladores. Aspiramos a contribuir a una Costa Rica innovadora y cada vez más digital.',
+                    historyIntro: 'Elysium λ Development & Research fue fundada con un propósito claro: trabajar junto a las pequeñas empresas y emprendedores de Costa Rica, impulsar su presencia digital y facilitarles infraestructura capaz de crecer con ellos.',
+                    economy: 'Las pequeñas empresas y los emprendedores representan la columna vertebral de la economía de Costa Rica. Muchas siguen excluidas de los beneficios de la transformación tecnológica por barreras de complejidad, costo y alfabetización digital. Elysium λ investiga y desarrolla infraestructuras que hacen la tecnología avanzada más accesible, transparente y confiable para quienes atraviesan esa transformación.',
+                    nameIntro: 'El nombre Elysium λ refleja el alma de este proyecto:',
+                    aspiration: 'En el contexto de este proyecto, <strong>Elysium λ</strong> simboliza la aspiración de contribuir a una Costa Rica cada vez más digitalizada y conectada.',
+                    future: 'Comenzando con infraestructura digital para pequeñas empresas y emprendedores, Elysium λ pretende evolucionar hacia la investigación y formación de desarrolladores científicos que apoyen un futuro digital costarricense centrado en I+D.',
+                    location: 'Elysium λ Development & Research opera en Costa Rica ofreciendo a pequeñas empresas y emprendedores infraestructura digital e investigación accesible.',
+                    description: 'Conozca la misión, visión e historia de Elysium λ Development & Research en Costa Rica y nuestro trabajo en infraestructura digital accesible para pequeñas empresas y emprendedores.'
+                },
+                contact: {
+                    phoneLabel: 'Teléfono / WhatsApp',
+                    phoneSuffix: 'atención directa para Costa Rica por WhatsApp',
+                    coverageLabel: 'Cobertura',
+                    coverage: 'Atención remota en las 7 provincias de Costa Rica.',
+                    description: 'Contacte con Elysium λ Development & Research en Costa Rica para proyectos de infraestructura digital, ingeniería de software, ciberseguridad e investigación aplicada.'
+                },
+                onboarding: {
+                    files: 'Si estos archivos contienen datos personales de terceros, se tratan conforme a nuestra <a href="privacy" target="_blank" style="color: var(--color-accent);">Política de Privacidad</a> (Ley N.º 8968 y RGPD) exclusivamente para construir su sistema.',
+                    health: 'Datos sensibles de salud (Art. 9 Ley N.º 8968 y Art. 9 RGPD)',
+                    consent: 'Autorizo el tratamiento de los archivos y datos que he subido exclusivamente para desarrollar mi sistema (Ley N.º 8968 y Art. 28 RGPD).',
+                    phonePlaceholder: '+506 8000 0000'
+                },
+                services: {
+                    compliance: 'Cumplimiento de la Ley N.º 8968, el RGPD y avisos legales al día',
+                    description: 'Servicios de infraestructura digital para Costa Rica: desarrollo web, sistemas cloud, CRM a medida, ciberseguridad y cumplimiento de la Ley N.º 8968 y el RGPD.'
+                },
+                legal: {
+                    privacyLaw: 'la <strong>Ley N.º 8968 de Protección de la Persona frente al Tratamiento de sus Datos Personales de Costa Rica</strong> y su Reglamento (Decreto Ejecutivo N.º 37554-JP)',
+                    territory: 'Costa Rica y la Unión Europea',
+                    authorityName: 'Agencia de Protección de los Datos de los Habitantes de Costa Rica (PRODHAB)',
+                    authorityUrl: 'https://www.prodhab.go.cr',
+                    cookieRule: 'la <strong>Ley N.º 8968 y su Reglamento (Decreto Ejecutivo N.º 37554-JP)</strong> de Costa Rica',
+                    scopeBody: 'Elysium λ Development & Research presta servicios profesionales en ingeniería de software, desarrollo web, arquitectura de sistemas, investigación digital y consultoría técnica afín. Estos servicios se prestan bajo el modelo de suscripción publicado en la página de Servicios y pueden incluir, según el plan contratado, desarrollo de la web, dominio, correo y alojamiento, cumplimiento de la Ley N.º 8968, RGPD y avisos legales, agenda pública con recordatorios automáticos, ficha de cliente, área privada del cliente con acceso e historial, CRM del administrador, cobro online y bonos de sesiones, e informes de ocupación y ausencias. Las condiciones específicas de cada proyecto (entregables, plazos, precios) se rigen por acuerdos de servicio individuales emitidos por separado.',
+                    withdrawalHeading: '3. Derecho de retracto (Costa Rica — Ley N.º 7472)',
+                    withdrawalBody: 'Cuando el cliente tenga la condición legal de consumidor o usuario final en Costa Rica y contrate a distancia o por medios electrónicos conforme a la <strong>Ley de Promoción de la Competencia y Defensa Efectiva del Consumidor (Ley N.º 7472, Art. 40)</strong> y su Reglamento, dispondrá de un plazo de <strong>8 días hábiles</strong> contados desde el perfeccionamiento del contrato para ejercer el derecho de retracto sin penalización, salvo las excepciones previstas por la ley para servicios personalizados o ya ejecutados.',
+                    taxBody: 'Los presupuestos y contratos indicarán si los montos incluyen impuestos. En las operaciones gravadas o consumidas en Costa Rica, el Impuesto sobre el Valor Agregado (IVA) se aplicará cuando corresponda conforme a la <strong>Ley de Fortalecimiento de las Finanzas Públicas (Ley N.º 9635)</strong> y la normativa tributaria aplicable, atendiendo a la localización de la operación, la naturaleza transfronteriza del servicio digital y la condición fiscal del cliente. Cada factura o comprobante reflejará el tratamiento tributario aplicable.',
+                    disputeBody: 'Ante cualquier controversia, promovemos en primer lugar la resolución amistosa mediante contacto directo a <a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a>. Si no se alcanza un acuerdo, las personas consumidoras en Costa Rica podrán acudir ante la <strong>Comisión Nacional del Consumidor (CNC)</strong> del <strong>Ministerio de Economía, Industria y Comercio (MEIC)</strong> a través de la plataforma <a href="https://www.consumidorenlinea.go.cr" target="_blank" rel="noopener noreferrer">Consumidor en Línea (www.consumidorenlinea.go.cr)</a> y ejercer las acciones reconocidas por la Ley N.º 7472.',
+                    governingBody: 'Para los servicios prestados a clientes en <strong>Costa Rica</strong>, estos Términos se rigen e interpretan respetando las normas imperativas y de orden público de la República de Costa Rica —en particular la Ley N.º 7472 y la Ley N.º 8968—, sin perjuicio de las normas europeas aplicables al domicilio social del prestador. Cuando el usuario tenga la condición de consumidor en Costa Rica, serán competentes las autoridades administrativas y los tribunales costarricenses que correspondan conforme a la ley.',
+                    privacyDescription: 'Cómo Elysium λ Development & Research trata y protege datos personales en Costa Rica conforme a la Ley N.º 8968 (PRODHAB) y el RGPD: conservación, seguridad y autodeterminación informativa.',
+                    termsDescription: 'Términos que regulan los servicios de Elysium λ Development & Research en Costa Rica: derecho de retracto (Ley N.º 7472), privacidad, tributación, conflictos y ley aplicable.',
+                    privacyFooter: '© 2026 Elysium λ Development & Research. Todos los derechos reservados. | <a href="https://www.prodhab.go.cr" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">PRODHAB Costa Rica</a>',
+                    termsFooter: '© 2026 Elysium λ Development & Research. Todos los derechos reservados.'
+                }
+            },
+            pt: {
+                home: {
+                    behaviour: 'Concebemos interfaces ergonómicas adaptadas às pessoas e empresas da Costa Rica.',
+                    governance: 'Implementamos os mais elevados padrões de cibersegurança e protocolos de governação na Costa Rica.',
+                    complianceTitle: 'Conformidade legal e regulamentar:',
+                    compliance: ' Concebemos a sua infraestrutura em conformidade com a Lei n.º 8968 de Proteção de Dados da Costa Rica, as orientações da PRODHAB e o RGPD europeu.',
+                    timeline: 'Realização de testes, validação dos mecanismos de segurança (controlo de acessos) e auditorias de conformidade regulamentar (Lei n.º 8968 / RGPD).',
+                    research: 'A Elysium λ Development & Research opera como um laboratório independente de engenharia, investigação e consultoria informática na Costa Rica.<br><br>O nosso propósito é democratizar o acesso a infraestruturas digitais de alto nível, permitindo que pequenas empresas e empreendedores na Costa Rica cresçam através de um ecossistema tecnológico.<br><br>Combinamos pensamento científico, design ergonómico e experimentação contínua para criar software que resolve ineficiências estruturais.'
+                },
+                about: {
+                    mission: 'Democratizar o acesso à infraestrutura digital, dotando pequenas empresas, empreendedores e startups na Costa Rica de ecossistemas tecnológicos acessíveis que automatizam operações e apoiam um crescimento sustentável. Disponibilizamos infraestrutura que evolui com cada negócio.',
+                    vision: 'Tornar-nos o Elysium λ Institute of Development & Research: um instituto dedicado ao estudo, desenvolvimento e aplicação de infraestruturas digitais, bem como à formação de novas gerações de cientistas e programadores. Pretendemos contribuir para uma Costa Rica inovadora e cada vez mais digital.',
+                    historyIntro: 'A Elysium λ Development & Research foi fundada com um propósito claro: trabalhar com pequenas empresas e empreendedores na Costa Rica, reforçar a sua presença digital e dar-lhes acesso a infraestrutura capaz de crescer com eles.',
+                    economy: 'As pequenas empresas e os empreendedores são a espinha dorsal da economia da Costa Rica. Muitos continuam excluídos dos benefícios da transformação tecnológica devido a barreiras de complexidade, custo e literacia digital. A Elysium λ investiga e desenvolve infraestruturas que tornam a tecnologia avançada mais acessível, transparente e fiável para quem atravessa essa transformação.',
+                    nameIntro: 'O nome Elysium λ reflete a alma deste projeto:',
+                    aspiration: 'No contexto deste projeto, <strong>Elysium λ</strong> simboliza a aspiração de contribuir para uma Costa Rica cada vez mais digitalizada e conectada.',
+                    future: 'Começando por infraestrutura digital para pequenas empresas e empreendedores, a Elysium λ pretende evoluir para a investigação e formação de programadores científicos que apoiem um futuro digital costa-riquenho centrado em I&D.',
+                    location: 'A Elysium λ Development & Research opera na Costa Rica, disponibilizando a pequenas empresas e empreendedores infraestrutura digital e investigação acessíveis.',
+                    description: 'Conheça a missão, visão e história da Elysium λ Development & Research na Costa Rica e o nosso trabalho em infraestrutura digital acessível para pequenas empresas e empreendedores.'
+                },
+                contact: {
+                    phoneLabel: 'Telefone / WhatsApp',
+                    phoneSuffix: 'atendimento direto para a Costa Rica por WhatsApp',
+                    coverageLabel: 'Cobertura',
+                    coverage: 'Atendimento remoto nas 7 províncias da Costa Rica.',
+                    description: 'Contacte a Elysium λ Development & Research na Costa Rica para projetos de infraestrutura digital, engenharia de software, cibersegurança e investigação aplicada.'
+                },
+                onboarding: {
+                    files: 'Se estes ficheiros contiverem dados pessoais de terceiros, são tratados ao abrigo da nossa <a href="privacy" target="_blank" style="color: var(--color-accent);">Política de Privacidade</a> (Lei n.º 8968 e RGPD) exclusivamente para construir o seu sistema.',
+                    health: 'Dados sensíveis de saúde (art. 9.º Lei n.º 8968 e art. 9.º RGPD)',
+                    consent: 'Autorizo o tratamento dos ficheiros e dados que carreguei exclusivamente para desenvolver o meu sistema (Lei n.º 8968 e art. 28.º RGPD).',
+                    phonePlaceholder: '+506 8000 0000'
+                },
+                services: {
+                    compliance: 'Conformidade com a Lei n.º 8968, o RGPD e avisos legais atualizados',
+                    description: 'Serviços de infraestrutura digital para a Costa Rica: desenvolvimento web, sistemas cloud, CRM à medida, cibersegurança e conformidade com a Lei n.º 8968 e o RGPD.'
+                },
+                legal: {
+                    privacyLaw: 'a <strong>Lei n.º 8968 de Proteção da Pessoa face ao Tratamento dos seus Dados Pessoais da Costa Rica</strong> e o respetivo Regulamento (Decreto Executivo n.º 37554-JP)',
+                    territory: 'Costa Rica e a União Europeia',
+                    authorityName: 'Agência de Proteção dos Dados dos Habitantes da Costa Rica (PRODHAB)',
+                    authorityUrl: 'https://www.prodhab.go.cr',
+                    cookieRule: 'a <strong>Lei n.º 8968 e o Decreto Executivo n.º 37554-JP</strong> da Costa Rica',
+                    scopeBody: 'A Elysium λ Development & Research presta serviços profissionais nas áreas de engenharia de software, desenvolvimento web, arquitetura de sistemas, investigação digital e consultoria técnica afim. Estes serviços são prestados ao abrigo do modelo de subscrição publicado na página de Serviços e podem incluir, consoante o plano contratado, desenvolvimento web, domínio, e-mail e alojamento, conformidade com a Lei n.º 8968 da Costa Rica, o RGPD e avisos legais, agenda pública com lembretes automáticos, ficha de cliente, área privada do cliente com login e histórico, CRM do administrador, pagamentos online e pacotes de sessões, e relatórios de ocupação e faltas. As condições específicas de cada projeto (entregáveis, prazos, preços) regem-se por acordos de serviço individuais emitidos separadamente.',
+                    withdrawalHeading: '3. Direito de retratação (Costa Rica — Lei n.º 7472)',
+                    withdrawalBody: 'Quando o cliente tiver a qualidade legal de consumidor ou utilizador final na Costa Rica e celebrar um contrato à distância ou por meios eletrónicos ao abrigo da <strong>Lei de Promoção da Concorrência e Defesa Efetiva do Consumidor (Lei n.º 7472, art. 40.º)</strong> e respetivo Regulamento, dispõe, em regra, de um prazo de <strong>8 dias úteis</strong> a contar da celebração do contrato para exercer o direito de retratação sem penalização, salvo as exceções previstas na lei para serviços personalizados ou já executados.',
+                    taxBody: 'Os orçamentos e contratos indicam se os montantes incluem impostos. Nas operações tributáveis ou consumidas na Costa Rica, o Imposto sobre o Valor Acrescentado (IVA) aplica-se quando devido nos termos da <strong>Lei de Fortalecimento das Finanças Públicas (Lei n.º 9635)</strong> e da legislação fiscal aplicável, tendo em conta a localização da operação, a natureza transfronteiriça do serviço digital e a situação fiscal do cliente. Cada fatura ou comprovativo indicará o enquadramento fiscal aplicável.',
+                    disputeBody: 'Procuramos primeiro uma solução amigável através de <a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a>. Não sendo alcançado um acordo, os consumidores na Costa Rica podem recorrer à <strong>Comissão Nacional do Consumidor (CNC)</strong> do <strong>Ministério da Economia, Indústria e Comércio (MEIC)</strong> através da plataforma <a href="https://www.consumidorenlinea.go.cr" target="_blank" rel="noopener noreferrer">Consumidor en Línea (www.consumidorenlinea.go.cr)</a> e exercer todos os meios previstos na Lei n.º 7472.',
+                    governingBody: 'Para os serviços prestados a clientes na <strong>Costa Rica</strong>, os presentes Termos regem-se e interpretam-se no respeito pelas normas imperativas e de ordem pública da República da Costa Rica — em especial a Lei n.º 7472 e a Lei n.º 8968 —, sem prejuízo das normas europeias aplicáveis à sede social do prestador. Quando o utilizador tiver a qualidade de consumidor na Costa Rica, serão competentes as autoridades administrativas e os tribunais costa-riquenhos nos termos da lei.',
+                    privacyDescription: 'Como a Elysium λ Development & Research trata e protege dados pessoais na Costa Rica ao abrigo da Lei n.º 8968 (PRODHAB) e do RGPD: conservação, segurança e autodeterminação informativa.',
+                    termsDescription: 'Termos que regulam os serviços da Elysium λ Development & Research na Costa Rica: direito de retratação (Lei n.º 7472), privacidade, fiscalidade, litígios e lei aplicável.',
+                    privacyFooter: '© 2026 Elysium λ Development & Research. Todos os direitos reservados. | <a href="https://www.prodhab.go.cr" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">PRODHAB Costa Rica</a>',
+                    termsFooter: '© 2026 Elysium λ Development & Research. Todos os direitos reservados.'
+                }
+            }
         }
     };
 
@@ -494,8 +691,12 @@
 
     function getRuntimeConfiguration() {
         const hostname = (window.location.hostname || '').toLowerCase();
+        const pathname = window.location.pathname || '/';
         if (hostname === 'elysiumdr.es') return { nativeLanguage: 'es', region: 'ES', isLocal: false };
         if (hostname === 'elysiumdr.pt') return { nativeLanguage: 'pt', region: 'PT', isLocal: false };
+        if ((hostname === 'elysiumdr.com' || hostname === 'www.elysiumdr.com') && (pathname === '/cr' || pathname.startsWith('/cr/'))) {
+            return { nativeLanguage: 'es', region: 'CR', isLocal: false };
+        }
 
         const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
         if (!isLocalhost) return null;
@@ -509,10 +710,18 @@
 
         if (requestedNational === 'es') return { nativeLanguage: 'es', region: 'ES', isLocal: true };
         if (requestedNational === 'pt') return { nativeLanguage: 'pt', region: 'PT', isLocal: true };
+        if (requestedNational === 'cr' || pathname === '/cr' || pathname.startsWith('/cr/') || pathname.startsWith('/_national/cr/')) {
+            return { nativeLanguage: 'es', region: 'CR', isLocal: true };
+        }
         return null;
     }
 
     const configuration = getRuntimeConfiguration();
+    if (configuration && configuration.region === 'CR') {
+        LANGUAGE_TAGS.es = 'es-CR';
+        LANGUAGE_UI.es.image = '/Images/Optimized/flag-cr-64.webp';
+        LANGUAGE_UI.es.imageAlt = 'CR';
+    }
 
     // A second script tag must not initialise or bind the document twice.
     if (window.ElysiumI18n && window.ElysiumI18n[ENGINE_MARKER]) return;
@@ -580,6 +789,9 @@
         }
 
         if (regionParam === 'ES' || (!queryLanguage && configuration && configuration.region === 'ES' && configuration.isLocal)) {
+            return { language: 'es', source: 'region' };
+        }
+        if (regionParam === 'CR' || (!queryLanguage && configuration && configuration.region === 'CR' && configuration.isLocal)) {
             return { language: 'es', source: 'region' };
         }
         if (regionParam === 'PT' || (!queryLanguage && configuration && configuration.region === 'PT' && configuration.isLocal)) {
@@ -653,7 +865,8 @@
         const href = (element.getAttribute('href') || '').split('#')[0].split('?')[0];
         return href
             .replace(/^(?:\.\.\/|\.\/)+/, '')
-            .replace(/^(?:es|pt)\//, '')
+            .replace(/^\/(?:es|pt|cr)\//, '/')
+            .replace(/^(?:es|pt|cr)\//, '')
             .replace(/\.html$/, '')
             .replace(/\/$/, '');
     }
@@ -673,7 +886,8 @@
         const role = element.getAttribute('role') || '';
         const type = element.getAttribute('type') || '';
         const href = normalizedHref(element);
-        return [element.tagName, stableClassSignature(element), role, type, href].join('|');
+        const optionValue = element.tagName === 'OPTION' ? element.getAttribute('value') || '' : '';
+        return [element.tagName, stableClassSignature(element), role, type, href, optionValue].join('|');
     }
 
     function syncTranslatedAttributes(target, source) {
@@ -929,7 +1143,7 @@
 
         let inferred = null;
         if (/\b(?:english|ingles|en|eu)\b|flag-eu/.test(evidence)) inferred = 'en';
-        else if (/\b(?:espanol|spanish|es)\b|flag-es/.test(evidence)) inferred = 'es';
+        else if (/\b(?:espanol|spanish|es)\b|flag-(?:es|cr)/.test(evidence)) inferred = 'es';
         else if (/\b(?:portugues|portuguese|pt)\b|flag-pt/.test(evidence)) inferred = 'pt';
 
         if (inferred) {
@@ -1015,8 +1229,8 @@
         let page = segments.length ? segments[segments.length - 1] : 'index';
         page = page.replace(/\.html?$/i, '').toLowerCase();
 
-        // En local también admite /es/, /pt/ y las copias bajo _national.
-        if (!page || page === configuration.nativeLanguage || page === '_national') return 'index';
+        // En local también admite /es/, /pt/, /cr/ y las copias bajo _national.
+        if (!page || page === configuration.nativeLanguage || page === 'cr' || page === '_national') return 'index';
         return page;
     }
 
@@ -1165,6 +1379,11 @@
 
         const filesConsent = document.querySelector('input[name="files_consent"] + span');
         if (filesConsent) filesConsent.textContent = copy.consent;
+
+        if (copy.phonePlaceholder) {
+            const phoneInput = document.querySelector('input[name="contact_phone"]');
+            if (phoneInput) phoneInput.setAttribute('placeholder', copy.phonePlaceholder);
+        }
     }
 
     function legalContentSections() {
@@ -1231,7 +1450,7 @@
 
     function buildTermsSections(language, legal) {
         if (language === 'en') {
-            return {
+            const sections = {
                 3: `<h2 class="mb-sm">${legal.withdrawalHeading}</h2><p>${legal.withdrawalBody}</p><p>To exercise this right, send an unequivocal request to <a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a> before the deadline. If you ask us to begin during that period, you may owe a proportionate amount for work already performed; the right may end after full performance where the consent and acknowledgement required by law were given.</p>`,
                 4: `<h2 class="mb-sm">4. Data protection and privacy</h2><p>Personal-data processing is governed by our <a href="privacy">Privacy Policy</a>, incorporated into these Terms by reference. We comply with:</p><ul><li><strong>GDPR (EU 2016/679)</strong>.</li><li>${legal.privacyLaw}.</li></ul><p>Special-category data is processed only where a valid condition under GDPR Article 9 and the applicable national law exists.</p>`,
                 7: `<h2 class="mb-sm">7. Tax obligations</h2><p>${legal.taxBody}</p>`,
@@ -1239,10 +1458,12 @@
                 9: `<h2 class="mb-sm">9. Governing law and jurisdiction</h2><p>${legal.governingBody}</p>`,
                 10: '<h2 class="mb-sm">10. Infrastructure and security certifications</h2><p>Our services use <strong>Google Cloud / Firebase</strong>. Google publishes compliance documentation for eligible services and configurations, including ISO/IEC 27001, 27017 and 27018, SOC reports, and PCI-DSS coverage.</p><p>Those certifications and reports belong to the infrastructure provider and do not constitute certification of Elysium λ Development & Research. Our own controls include HSTS, Content Security Policy, and HMAC-SHA256 token signing.</p>'
             };
+            if (legal.scopeBody) sections[2] = `<h2 class="mb-sm">2. Scope of services</h2><p>${legal.scopeBody}</p>`;
+            return sections;
         }
 
         if (language === 'es') {
-            return {
+            const sections = {
                 3: `<h2 class="mb-sm">${legal.withdrawalHeading}</h2><p>${legal.withdrawalBody}</p><p>Para ejercer este derecho, envíe una solicitud inequívoca a <a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a> antes de que venza el plazo. Si solicita el inicio del servicio durante ese periodo, podrá exigirse el importe proporcional de lo ya ejecutado; el derecho podrá extinguirse tras la ejecución completa cuando se hayan prestado el consentimiento y reconocimiento exigidos por la ley.</p>`,
                 4: `<h2 class="mb-sm">4. Protección de datos personales</h2><p>El tratamiento de datos personales se rige por nuestra <a href="privacy">Política de Privacidad</a>, incorporada por referencia a estos Términos. Cumplimos con:</p><ul><li><strong>RGPD (UE 2016/679)</strong>.</li><li>${legal.privacyLaw}.</li></ul><p>Los datos de categoría especial solo se tratan cuando existe una condición válida conforme al Art. 9 RGPD y a la normativa nacional aplicable.</p>`,
                 7: `<h2 class="mb-sm">7. Obligaciones tributarias</h2><p>${legal.taxBody}</p>`,
@@ -1250,9 +1471,11 @@
                 9: `<h2 class="mb-sm">9. Ley aplicable y jurisdicción</h2><p>${legal.governingBody}</p>`,
                 10: '<h2 class="mb-sm">10. Certificaciones de infraestructura y seguridad</h2><p>Nuestros servicios utilizan <strong>Google Cloud / Firebase</strong>. Google publica documentación de cumplimiento para servicios y configuraciones elegibles, incluidas ISO/IEC 27001, 27017 y 27018, informes SOC y cobertura PCI-DSS.</p><p>Esas certificaciones e informes corresponden al proveedor de infraestructura y no certifican a Elysium λ Development & Research. Nuestros propios controles incluyen HSTS, Política de Seguridad de Contenido y firma de tokens HMAC-SHA256.</p>'
             };
+            if (legal.scopeBody) sections[2] = `<h2 class="mb-sm">2. Alcance de los servicios</h2><p>${legal.scopeBody}</p>`;
+            return sections;
         }
 
-        return {
+        const sections = {
             3: `<h2 class="mb-sm">${legal.withdrawalHeading}</h2><p>${legal.withdrawalBody}</p><p>Para exercer este direito, envie uma declaração inequívoca para <a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a> antes do fim do prazo. Se solicitar o início do serviço durante esse período, poderá ser devido o montante proporcional ao trabalho já realizado; o direito pode cessar após a execução integral quando tenham sido prestados o consentimento e reconhecimento exigidos por lei.</p>`,
             4: `<h2 class="mb-sm">4. Proteção de dados e privacidade</h2><p>O tratamento de dados pessoais rege-se pela nossa <a href="privacy">Política de Privacidade</a>, incorporada por referência nestes Termos. Cumprimos:</p><ul><li><strong>RGPD (UE 2016/679)</strong>.</li><li>${legal.privacyLaw}.</li></ul><p>Os dados de categoria especial só são tratados quando exista uma condição válida nos termos do art. 9.º do RGPD e da lei nacional aplicável.</p>`,
             7: `<h2 class="mb-sm">7. Obrigações fiscais</h2><p>${legal.taxBody}</p>`,
@@ -1260,6 +1483,8 @@
             9: `<h2 class="mb-sm">9. Lei aplicável e jurisdição</h2><p>${legal.governingBody}</p>`,
             10: '<h2 class="mb-sm">10. Certificações de infraestrutura e segurança</h2><p>Os nossos serviços utilizam <strong>Google Cloud / Firebase</strong>. A Google publica documentação de conformidade para serviços e configurações elegíveis, incluindo ISO/IEC 27001, 27017 e 27018, relatórios SOC e cobertura PCI-DSS.</p><p>Essas certificações e relatórios pertencem ao fornecedor de infraestrutura e não certificam a Elysium λ Development & Research. Os nossos próprios controlos incluem HSTS, Content Security Policy e assinatura de tokens HMAC-SHA256.</p>'
         };
+        if (legal.scopeBody) sections[2] = `<h2 class="mb-sm">2. Âmbito dos serviços</h2><p>${legal.scopeBody}</p>`;
+        return sections;
     }
 
     function applyRegionalPrivacyCopy(language, legal) {

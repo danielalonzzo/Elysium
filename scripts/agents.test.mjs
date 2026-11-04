@@ -242,6 +242,7 @@ test('todas las portadas públicas declaran las herramientas WebMCP y el manifie
         ['pt/index.html', '../JS/webmcp.js'],
         ['_national/es/index.html', '../JS/webmcp.js'],
         ['_national/pt/index.html', '../JS/webmcp.js'],
+        ['_national/cr/index.html', '../JS/webmcp.js'],
         ['_national/com/index.html', 'JS/webmcp.js'],
         ['_national/com/es/index.html', '../JS/webmcp.js'],
         ['_national/com/pt/index.html', '../JS/webmcp.js']
@@ -356,6 +357,11 @@ test('el dominio nacional entrega su idioma en Markdown', async () => {
     assert.equal(response.headers.get('Content-Type'), 'text/markdown; charset=utf-8');
     const body = await response.text();
     assert.match(body, /Servicios|Servicio/);
+
+    const crResponse = await call('https://elysiumdr.com/cr/services', { headers: { Accept: 'text/markdown' } });
+    assert.equal(crResponse.headers.get('Content-Type'), 'text/markdown; charset=utf-8');
+    const crBody = await crResponse.text();
+    assert.match(crBody, /Servicios|Ley N\.º 8968/);
 });
 
 test('lo que no es HTML pasa intacto aunque se pida Markdown', async () => {

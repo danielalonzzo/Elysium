@@ -133,9 +133,10 @@ function moved(location) {
  * dominio principal, así que no hay slugs viejos que conservar.
  */
 export function toolsRedirectTarget(pathname, nationalLanguage = null) {
-    const match = /^\/(?:(es|pt)\/)?tools(?:\/|\.html$|$)/.exec(pathname);
+    const match = /^\/(?:(es|pt|cr)\/)?tools(?:\/|\.html$|$)/.exec(pathname);
     if (!match) return null;
-    const language = match[1] || (['es', 'pt'].includes(nationalLanguage) ? nationalLanguage : 'en');
+    const prefix = match[1] === 'cr' ? 'es' : match[1];
+    const language = prefix || (['es', 'pt'].includes(nationalLanguage) ? nationalLanguage : 'en');
     return `${TOOLS_ORIGIN}${language === 'en' ? '/' : `/${language}/`}`;
 }
 

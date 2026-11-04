@@ -256,7 +256,12 @@ img {
     transform: translateY(-160%);
 }
 
-.skip-link:focus {
+.skip-link:not(:focus-visible) {
+    clip-path: inset(50%);
+    pointer-events: none;
+}
+
+.skip-link:focus-visible {
     transform: translateY(0);
 }
 

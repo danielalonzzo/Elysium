@@ -37,19 +37,20 @@ const HERO = {
   eu: { en: 'Pan-European digital infrastructure for small-businesses and startups:', es: 'Infraestructura Digital Paneuropea para pequeñas empresas y emprendedores:', pt: 'Infraestrutura Digital Pan-Europeia para pequenas empresas e startups:' },
   es: { es: 'Infraestructura Digital para pequeñas empresas y emprendedores de España:' },
   pt: { pt: 'Infraestrutura Digital para pequenas empresas e startups de Portugal:' },
+  cr: { es: 'Infraestructura Digital para pequeñas empresas y emprendedores de Costa Rica:' },
   com: { en: 'Digital infrastructure for small-businesses and startups:', es: 'Infraestructura Digital para pequeñas empresas y emprendedores:', pt: 'Infraestrutura Digital para pequenas empresas e startups:' }
 };
-const DOMAIN = { eu: 'https://elysiumdr.eu', es: 'https://elysiumdr.es', pt: 'https://elysiumdr.pt', com: 'https://elysiumdr.com' };
+const DOMAIN = { eu: 'https://elysiumdr.eu', es: 'https://elysiumdr.es', pt: 'https://elysiumdr.pt', cr: 'https://elysiumdr.com/cr', com: 'https://elysiumdr.com' };
 
 const server = await startServer();
 const chrome = await launchChrome({ harnessPort: server.port });
 try {
   // ── 1. Cada región abre en su idioma, sin importar el navegador ─────────────
-  const NATIVE = { eu: { lang: 'en-GB', code: 'en', region: 'EUROPE', flag: 'eu' }, es: { lang: 'es-ES', code: 'es', region: 'ESPAÑA', flag: 'es' }, pt: { lang: 'pt-PT', code: 'pt', region: 'PORTUGAL', flag: 'pt' }, com: { lang: 'en-GB', code: 'en', region: 'GLOBAL', flag: 'eu' } };
+  const NATIVE = { eu: { lang: 'en-GB', code: 'en', region: 'EUROPE', flag: 'eu', host: 'elysiumdr.eu', path: '/' }, es: { lang: 'es-ES', code: 'es', region: 'ESPAÑA', flag: 'es', host: 'elysiumdr.es', path: '/' }, pt: { lang: 'pt-PT', code: 'pt', region: 'PORTUGAL', flag: 'pt', host: 'elysiumdr.pt', path: '/' }, cr: { lang: 'es-CR', code: 'es', region: 'COSTA RICA', flag: 'cr', host: 'elysiumdr.com', path: '/cr/' }, com: { lang: 'en-GB', code: 'en', region: 'GLOBAL', flag: 'eu', host: 'elysiumdr.com', path: '/' } };
   for (const browserLang of ['en-US,en', 'es-ES,es', 'es-CR,es', 'pt-BR,pt', 'pt-PT,pt', 'fr-FR,fr', 'de-DE,de']) {
-    for (const d of ['eu', 'es', 'pt', 'com']) {
+    for (const d of ['eu', 'es', 'pt', 'cr', 'com']) {
       const page = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: browserLang });
-      await page.session.send('Storage.clearDataForOrigin', { origin: DOMAIN[d], storageTypes: 'all' });
+      await page.session.send('Storage.clearDataForOrigin', { origin: new URL(DOMAIN[d]).origin, storageTypes: 'all' });
       await page.goto(DOMAIN[d] + '/');
       const s = await page.eval(SNAP);
       const n = NATIVE[d];
@@ -59,31 +60,31 @@ try {
       eq(s.region, n.region, `${tag} región en la cabecera`);
       eq(s.langLabel, n.code.toUpperCase(), `${tag} idioma activo`);
       eq(s.langFlag, n.flag, `${tag} bandera del idioma activo`);
-      check(new URL(s.href).hostname === `elysiumdr.${d}` && new URL(s.href).pathname === '/', `${tag} se queda en su dominio y en la portada`, s.href);
+      check(new URL(s.href).hostname === n.host && new URL(s.href).pathname === n.path, `${tag} se queda en su ruta de portada`, s.href);
       await page.close();
     }
   }
 
-  // ── 2. Selector de región: cuatro regiones, ninguna Costa Rica / Worldwide ───
-  for (const d of ['eu', 'es', 'pt', 'com']) {
+  // ── 2. Selector de región: cinco regiones (Europa, España, Portugal, Costa Rica, Global) ───
+  for (const d of ['eu', 'es', 'pt', 'cr', 'com']) {
     const page = await newPage(chrome, { width: 1440, height: 900 });
     await page.goto(DOMAIN[d] + '/');
     const s = await page.eval(SNAP);
-    const want = ['EU', 'ES', 'PT', 'GLOBAL'].map(r => r + ({ eu: 'EU', es: 'ES', pt: 'PT', com: 'GLOBAL' }[d] === r ? '*' : '')).sort();
+    const want = ['EU', 'ES', 'PT', 'CR', 'GLOBAL'].map(r => r + ({ eu: 'EU', es: 'ES', pt: 'PT', cr: 'CR', com: 'GLOBAL' }[d] === r ? '*' : '')).sort();
     const got = s.regionItems.map(x => x.split(':')[0]).sort();
-    eq(JSON.stringify(got), JSON.stringify(want), `[${d}] el selector lista Europa, España, Portugal y Global (y activa la suya)`);
-    check(!s.regionItems.some(x => /COSTA|WORLDWIDE/i.test(x)), `[${d}] sin «Costa Rica» ni «Worldwide» como región`, s.regionItems.join(' | '));
+    eq(JSON.stringify(got), JSON.stringify(want), `[${d}] el selector lista Europa, España, Portugal, Costa Rica y Global (y activa la suya)`);
+    check(!s.regionItems.some(x => /WORLDWIDE/i.test(x)), `[${d}] sin «Worldwide» como región`, s.regionItems.join(' | '));
     await page.close();
   }
 
   // ── 3. Banderas del español por región ──────────────────────────────────────
-  for (const [d, path, expectFlag] of [['eu', '/es/', 'es'], ['com', '/es/', 'cr'], ['eu', '/', 'es'], ['com', '/', 'cr'], ['es', '/', 'es'], ['pt', '/', 'es']]) {
+  for (const [d, path, expectFlag] of [['eu', '/es/', 'es'], ['com', '/es/', 'cr'], ['cr', '/', 'cr'], ['eu', '/', 'es'], ['com', '/', 'cr'], ['es', '/', 'es'], ['pt', '/', 'es']]) {
     const page = await newPage(chrome, { width: 1440, height: 900 });
     await page.goto(DOMAIN[d] + path);
     const s = await page.eval(SNAP);
     const spanishOption = s.optionFlags.find(x => x.startsWith('es:'));
     eq(spanishOption, `es:${expectFlag}`, `[${d}${path}] bandera de «Español» en el selector de idioma`);
-    if (path === '/es/') eq(s.langFlag, expectFlag, `[${d}${path}] bandera del idioma activo (español)`);
+    if (path === '/es/' || d === 'cr') eq(s.langFlag, expectFlag, `[${d}${path}] bandera del idioma activo (español)`);
     await page.close();
   }
 
@@ -106,35 +107,37 @@ try {
     await page.close();
   }
 
-  // ── 5. Traducción dinámica en .es y .pt (sin salir del dominio) ─────────────
+  // ── 5. Traducción dinámica en .es, .pt y .com/cr/ (sin cambiar de ruta) ─────
   for (const [d, steps] of [
     ['es', [['en', 'Digital Infrastructure for small businesses and entrepreneurs in Spain:'], ['pt', 'Infraestrutura Digital para pequenas empresas e empreendedores de Espanha:'], ['es', 'Infraestructura Digital para pequeñas empresas y emprendedores de España:']]],
-    ['pt', [['en', 'Digital Infrastructure for small businesses and startups in Portugal:'], ['es', 'Infraestructura Digital para pequeñas empresas y startups de Portugal:'], ['pt', 'Infraestrutura Digital para pequenas empresas e startups de Portugal:']]]
+    ['pt', [['en', 'Digital Infrastructure for small businesses and startups in Portugal:'], ['es', 'Infraestructura Digital para pequeñas empresas y startups de Portugal:'], ['pt', 'Infraestrutura Digital para pequenas empresas e startups de Portugal:']]],
+    ['cr', [['en', 'Digital Infrastructure for small businesses and entrepreneurs in Costa Rica:'], ['pt', 'Infraestrutura Digital para pequenas empresas e empreendedores da Costa Rica:'], ['es', 'Infraestructura Digital para pequeñas empresas y emprendedores de Costa Rica:']]]
   ]) {
     const page = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: 'fr-FR,fr' });
-    await page.session.send('Storage.clearDataForOrigin', { origin: DOMAIN[d], storageTypes: 'all' });
+    await page.session.send('Storage.clearDataForOrigin', { origin: new URL(DOMAIN[d]).origin, storageTypes: 'all' });
     await page.goto(DOMAIN[d] + '/');
     for (const [code, hero] of steps) {
       await page.eval(`(document.querySelector('.navbar .lang-switcher-menu [data-lang="${code}"]'))?.click()`);
       await sleep(2500);
       const s = await page.eval(SNAP);
       eq(s.hero, hero, `[${d}] traducción a ${code}: titular regional`);
-      check(new URL(s.href).hostname === `elysiumdr.${d}`, `[${d}] traducción a ${code}: sigue en su dominio`, s.href);
-      eq(s.region, { es: { en: 'SPAIN', pt: 'ESPANHA', es: 'ESPAÑA' }, pt: { en: 'PORTUGAL', es: 'PORTUGAL', pt: 'PORTUGAL' } }[d][code], `[${d}] traducción a ${code}: etiqueta de región traducida`);
+      check(new URL(s.href).hostname === NATIVE[d].host && new URL(s.href).pathname === NATIVE[d].path, `[${d}] traducción a ${code}: sigue en su ruta sin crear subcarpetas`, s.href);
+      eq(s.region, { es: { en: 'SPAIN', pt: 'ESPANHA', es: 'ESPAÑA' }, pt: { en: 'PORTUGAL', es: 'PORTUGAL', pt: 'PORTUGAL' }, cr: { en: 'COSTA RICA', pt: 'COSTA RICA', es: 'COSTA RICA' } }[d][code], `[${d}] traducción a ${code}: etiqueta de región traducida`);
     }
     await page.close();
   }
 
   // ── 6. Cambio de región: cada una abre en SU idioma ─────────────────────────
   for (const [from, fromPath, region, expectHost, expectLang] of [
-    ['eu', '/es/', 'ES', 'elysiumdr.es', 'es-ES'], ['eu', '/es/', 'PT', 'elysiumdr.pt', 'pt-PT'], ['eu', '/es/', 'GLOBAL', 'elysiumdr.com', 'en-GB'],
-    ['es', '/', 'EU', 'elysiumdr.eu', 'en-GB'], ['es', '/', 'GLOBAL', 'elysiumdr.com', 'en-GB'], ['es', '/', 'PT', 'elysiumdr.pt', 'pt-PT'],
+    ['eu', '/es/', 'ES', 'elysiumdr.es', 'es-ES'], ['eu', '/es/', 'PT', 'elysiumdr.pt', 'pt-PT'], ['eu', '/es/', 'CR', 'elysiumdr.com', 'es-CR'], ['eu', '/es/', 'GLOBAL', 'elysiumdr.com', 'en-GB'],
+    ['es', '/', 'EU', 'elysiumdr.eu', 'en-GB'], ['es', '/', 'CR', 'elysiumdr.com', 'es-CR'], ['es', '/', 'GLOBAL', 'elysiumdr.com', 'en-GB'], ['es', '/', 'PT', 'elysiumdr.pt', 'pt-PT'],
     ['pt', '/', 'ES', 'elysiumdr.es', 'es-ES'], ['pt', '/', 'EU', 'elysiumdr.eu', 'en-GB'],
-    ['com', '/es/', 'EU', 'elysiumdr.eu', 'en-GB'], ['com', '/es/', 'ES', 'elysiumdr.es', 'es-ES'], ['com', '/pt/', 'PT', 'elysiumdr.pt', 'pt-PT']
+    ['cr', '/', 'GLOBAL', 'elysiumdr.com', 'en-GB'], ['cr', '/', 'ES', 'elysiumdr.es', 'es-ES'],
+    ['com', '/es/', 'CR', 'elysiumdr.com', 'es-CR'], ['com', '/es/', 'EU', 'elysiumdr.eu', 'en-GB'], ['com', '/es/', 'ES', 'elysiumdr.es', 'es-ES'], ['com', '/pt/', 'PT', 'elysiumdr.pt', 'pt-PT']
   ]) {
     const page = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: 'es-ES,es' });
     await page.session.send('Network.clearBrowserCookies');
-    await page.goto(DOMAIN[from] + fromPath + (from === 'es' || from === 'pt' ? '' : ''));
+    await page.goto(DOMAIN[from] + fromPath);
     await page.eval(`document.querySelector('.navbar .region-item[data-region="${region}"]').click()`);
     await sleep(2500);
     const s = await page.eval(SNAP);
@@ -145,7 +148,7 @@ try {
   }
 
   // ── 7. Reparto por país en la portada de .eu ────────────────────────────────
-  for (const [country, expected] of [['ES', 'https://elysiumdr.es/'], ['PT', 'https://elysiumdr.pt/'], ['CR', 'https://elysiumdr.com/es/'], ['MX', 'https://elysiumdr.com/es/'], ['BR', 'https://elysiumdr.com/pt/'], ['US', 'https://elysiumdr.eu/'], ['DE', 'https://elysiumdr.eu/']]) {
+  for (const [country, expected] of [['ES', 'https://elysiumdr.es/'], ['PT', 'https://elysiumdr.pt/'], ['CR', 'https://elysiumdr.com/cr/'], ['MX', 'https://elysiumdr.com/es/'], ['BR', 'https://elysiumdr.com/pt/'], ['US', 'https://elysiumdr.eu/'], ['DE', 'https://elysiumdr.eu/']]) {
     const page = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: 'en-US,en', country });
     await page.session.send('Network.clearBrowserCookies');
     const href = await page.goto('https://elysiumdr.eu/');
@@ -154,7 +157,7 @@ try {
   }
 
   // ── 8. Páginas interiores: región, bandera e idioma ─────────────────────────
-  for (const [d, path, lang, flag, region] of [['eu', '/es/about', 'es-ES', 'es', 'EUROPA'], ['com', '/es/about', 'es-CR', 'cr', 'GLOBAL'], ['com', '/pt/services', 'pt-PT', 'pt', 'GLOBAL'], ['eu', '/pt/terms', 'pt-PT', 'pt', 'EUROPA'], ['com', '/privacy', 'en-GB', 'eu', 'GLOBAL'], ['es', '/about', 'es-ES', 'es', 'ESPAÑA'], ['pt', '/contact', 'pt-PT', 'pt', 'PORTUGAL'], ['com', '/es/research/ontology-research', 'es-CR', 'cr', 'GLOBAL'], ['eu', '/es/research/ontology-research', 'es-ES', 'es', 'EUROPA']]) {
+  for (const [d, path, lang, flag, region] of [['eu', '/es/about', 'es-ES', 'es', 'EUROPA'], ['com', '/es/about', 'es-CR', 'cr', 'GLOBAL'], ['com', '/pt/services', 'pt-PT', 'pt', 'GLOBAL'], ['eu', '/pt/terms', 'pt-PT', 'pt', 'EUROPA'], ['com', '/privacy', 'en-GB', 'eu', 'GLOBAL'], ['es', '/about', 'es-ES', 'es', 'ESPAÑA'], ['pt', '/contact', 'pt-PT', 'pt', 'PORTUGAL'], ['cr', '/about', 'es-CR', 'cr', 'COSTA RICA'], ['cr', '/services', 'es-CR', 'cr', 'COSTA RICA'], ['cr', '/privacy', 'es-CR', 'cr', 'COSTA RICA'], ['cr', '/contact', 'es-CR', 'cr', 'COSTA RICA'], ['com', '/es/research/ontology-research', 'es-CR', 'cr', 'GLOBAL'], ['eu', '/es/research/ontology-research', 'es-ES', 'es', 'EUROPA']]) {
     const page = await newPage(chrome, { width: 1440, height: 900 });
     await page.goto(DOMAIN[d] + path);
     const s = await page.eval(SNAP);
@@ -175,6 +178,7 @@ try {
     ['https://elysiumdr.eu/pt/', 'EUROPA', 'pt-PT', 'PT'],
     ['https://elysiumdr.es/', 'ESPAÑA', 'es-ES', 'ES'],
     ['https://elysiumdr.pt/', 'PORTUGAL', 'pt-PT', 'PT'],
+    ['https://elysiumdr.com/cr/', 'COSTA RICA', 'es-CR', 'ES'],
     ['https://elysiumdr.com/', 'GLOBAL', 'en-GB', 'EN'],
     ['https://elysiumdr.com/es/', 'GLOBAL', 'es-CR', 'ES'],
     ['https://elysiumdr.com/pt/', 'GLOBAL', 'pt-PT', 'PT']
@@ -187,7 +191,8 @@ try {
         // Una elección guardada de otra vez, en el idioma contrario al de la región.
         await page.goto(`${origin}/robots.txt`, { settle: 200 });
         const contrary = lang.startsWith('pt') ? 'es' : 'pt';
-        await page.eval(`localStorage.clear(); ${new URL(home).hostname.match(/\.(es|pt)$/) ? '' : `localStorage.setItem('elysium_lang_pref', '${contrary}'); localStorage.setItem('elysium_lang', '${contrary}');`}`);
+        const isNational = /\.(es|pt)$/.test(new URL(home).hostname) || new URL(home).pathname.startsWith('/cr');
+        await page.eval(`localStorage.clear(); ${isNational ? '' : `localStorage.setItem('elysium_lang_pref', '${contrary}'); localStorage.setItem('elysium_lang', '${contrary}');`}`);
         await page.goto(`${home}?override=true`);
         await page.eval(`document.querySelector('${selector}').click()`);
         await sleep(3500);
@@ -202,7 +207,7 @@ try {
   }
 
   // El índice → un libro conserva el idioma; la región, también.
-  for (const [home, lang] of [['https://elysiumdr.es/', 'es-ES'], ['https://elysiumdr.com/es/', 'es-CR'], ['https://elysiumdr.eu/pt/', 'pt-PT'], ['https://elysiumdr.pt/', 'pt-PT'], ['https://elysiumdr.com/', 'en-GB']]) {
+  for (const [home, lang] of [['https://elysiumdr.es/', 'es-ES'], ['https://elysiumdr.com/cr/', 'es-CR'], ['https://elysiumdr.com/es/', 'es-CR'], ['https://elysiumdr.eu/pt/', 'pt-PT'], ['https://elysiumdr.pt/', 'pt-PT'], ['https://elysiumdr.com/', 'en-GB']]) {
     const page = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: 'fr-FR,fr' });
     await page.goto(`${home}?override=true`);
     await page.eval(`document.querySelector('.nav-link[href*="library"]').click()`);

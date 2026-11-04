@@ -56,20 +56,27 @@ const pathParts = window.location.pathname.split('/').filter(Boolean);
 const supportedLanguages = new Set(['en', 'es', 'pt']);
 const languageParams = new URLSearchParams(window.location.search);
 const currentHostname = window.location.hostname.toLowerCase();
-const localNationalLanguage = ['localhost', '127.0.0.1', '::1'].includes(currentHostname)
-    && supportedLanguages.has(languageParams.get('national'))
-    && languageParams.get('national') !== 'en'
+const localNationalSite = ['localhost', '127.0.0.1', '::1'].includes(currentHostname)
+    && ['es', 'pt', 'cr'].includes(languageParams.get('national'))
     ? languageParams.get('national')
     : null;
+const isGlobalDomain = currentHostname === 'elysiumdr.com' || currentHostname === 'www.elysiumdr.com';
+const isCostaRicaRegion = localNationalSite === 'cr' || ((isGlobalDomain || ['localhost', '127.0.0.1', '::1'].includes(currentHostname)) && languageParams.get('region') === 'CR');
 const nationalLanguage = currentHostname === 'elysiumdr.es' || currentHostname === 'www.elysiumdr.es'
     ? 'es'
     : currentHostname === 'elysiumdr.pt' || currentHostname === 'www.elysiumdr.pt'
         ? 'pt'
-        : localNationalLanguage;
+        : isCostaRicaRegion
+            ? 'es'
+            : localNationalSite;
 const isNationalDomain = Boolean(nationalLanguage);
-// `.com` es el sitio global (Inglés, español de Costa Rica y portugués de Portugal).
-const isGlobalDomain = currentHostname === 'elysiumdr.com' || currentHostname === 'www.elysiumdr.com';
-const currentRegion = nationalLanguage === 'es' ? 'ES' : nationalLanguage === 'pt' ? 'PT' : isGlobalDomain ? 'GLOBAL' : 'EU';
+const currentRegion = isCostaRicaRegion
+    ? 'CR'
+    : nationalLanguage === 'es'
+        ? 'ES'
+        : nationalLanguage === 'pt'
+            ? 'PT'
+            : isGlobalDomain ? 'GLOBAL' : 'EU';
 const SHARED_LANGUAGE_STORAGE_KEY = 'elysium_lang_pref';
 const LEGACY_LANGUAGE_STORAGE_KEY = 'elysium_lang';
 const QUERY_OVERRIDE_KEY_PREFIX = 'elysium_portal_lang_query_override:';
@@ -124,8 +131,8 @@ function persistLanguage(language) {
 }
 
 function localeForLanguage(language) {
-    // El español de cada región: España en `.eu` y `.es`, Costa Rica en `.com`.
-    if (language === 'es') return window.location.hostname.toLowerCase() === 'elysiumdr.com' ? 'es-CR' : 'es-ES';
+    // El español de cada región: España en `.eu` y `.es`, Costa Rica en `.com` y `CR`.
+    if (language === 'es') return (isGlobalDomain || currentRegion === 'CR') ? 'es-CR' : 'es-ES';
     if (language === 'pt') return 'pt-PT';
     return 'en-GB';
 }
@@ -146,12 +153,14 @@ let locale = localeForLanguage(currentLang);
 
 function localizedPath(path = '', language = currentLang) {
     const clean = String(path || '').replace(/^\/+|\/+$/g, '');
+    if (currentRegion === 'CR') return clean ? `/cr/${clean}` : '/cr/';
     const base = clean ? `/${clean}` : '/';
     if (isNationalDomain) return base;
     return language === 'en' ? base : `/${language}${base}`;
 }
 
 function localizedProfilePath(language = currentLang) {
+    if (currentRegion === 'CR') return `/profiles?lang=${language}&region=CR`;
     if (isNationalDomain) return '/profiles';
     return language === 'en' ? '/profiles' : `/profiles?lang=${language}`;
 }
@@ -394,7 +403,7 @@ let t = COPY[currentLang];
 
 const LANGUAGE_FLAGS = {
     en: { src: '/Images/Optimized/flag-eu-64.webp', alt: 'EU' },
-    es: isGlobalDomain
+    es: (isGlobalDomain || currentRegion === 'CR')
         ? { src: '/Images/Optimized/flag-cr-64.webp', alt: 'CR' }
         : { src: '/Images/Optimized/flag-es-64.webp', alt: 'ES' },
     pt: { src: '/Images/Optimized/flag-pt-64.webp', alt: 'PT' }
@@ -403,18 +412,18 @@ const LANGUAGE_FLAGS = {
 const REGION_COPY = {
     en: {
         select: 'Select region',
-        labels: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
-        location: { EU: 'Europe', ES: 'Spain, European Union', PT: 'Portugal, European Union', GLOBAL: 'Portugal, European Union' }
+        labels: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' },
+        location: { EU: 'Europe', ES: 'Spain, European Union', PT: 'Portugal, European Union', CR: 'Costa Rica', GLOBAL: 'Portugal, European Union' }
     },
     es: {
         select: 'Seleccionar región',
-        labels: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
-        location: { EU: 'Europa', ES: 'España, Unión Europea', PT: 'Portugal, Unión Europea', GLOBAL: 'Portugal, Unión Europea' }
+        labels: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' },
+        location: { EU: 'Europa', ES: 'España, Unión Europea', PT: 'Portugal, Unión Europea', CR: 'Costa Rica', GLOBAL: 'Portugal, Unión Europea' }
     },
     pt: {
         select: 'Selecionar região',
-        labels: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
-        location: { EU: 'Europa', ES: 'Espanha, União Europeia', PT: 'Portugal, União Europeia', GLOBAL: 'Portugal, União Europeia' }
+        labels: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' },
+        location: { EU: 'Europa', ES: 'Espanha, União Europeia', PT: 'Portugal, União Europeia', CR: 'Costa Rica', GLOBAL: 'Portugal, União Europeia' }
     }
 };
 

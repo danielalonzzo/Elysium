@@ -30,16 +30,25 @@
     var SUPPORTED = ['en', 'es', 'pt'];
     var ADMIN_HINT_KEY = 'elysium_library_admin';
 
-    // La región es la del dominio. `.es` y `.pt` traducen en vivo (sin carpetas
-    // de idioma en la URL); `.eu` y `.com` son físicos (`/`, `/es/`, `/pt/`).
+    // La región es la del dominio (y `/cr/` o `?region=CR` para Costa Rica).
     var HOSTNAME = window.location.hostname.toLowerCase();
     var NATIONAL = /(?:^|\.)elysiumdr\.(es|pt)$/.exec(HOSTNAME);
-    var NATIVE_LANGUAGE = NATIONAL ? NATIONAL[1] : null;
     var IS_GLOBAL = /(?:^|\.)elysiumdr\.com$/.test(HOSTNAME);
+    var IS_COSTA_RICA = (function () {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('region') === 'CR' || params.get('national') === 'cr') return true;
+        try {
+            var referrer = new URL(document.referrer);
+            return referrer.origin === window.location.origin && /^\/cr(?:\/|$)/.test(referrer.pathname);
+        } catch (error) {
+            return false;
+        }
+    })();
+    var NATIVE_LANGUAGE = NATIONAL ? NATIONAL[1] : (IS_COSTA_RICA ? 'es' : null);
     // Solo `.eu` publica y administra: la sesión de administrador y los
     // dominios autorizados de Firebase son suyos.
-    var CAN_ADMINISTER = !NATIONAL && !IS_GLOBAL;
-    var HTML_LANG = { en: 'en-GB', es: IS_GLOBAL ? 'es-CR' : 'es-ES', pt: 'pt-PT' };
+    var CAN_ADMINISTER = !NATIONAL && !IS_GLOBAL && !IS_COSTA_RICA;
+    var HTML_LANG = { en: 'en-GB', es: (IS_GLOBAL || IS_COSTA_RICA) ? 'es-CR' : 'es-ES', pt: 'pt-PT' };
 
     var COPY = {
         en: {
@@ -430,10 +439,11 @@
         try { window.localStorage.setItem(key, value); } catch (error) { /* modo privado */ }
     }
 
-    /** El idioma que pide una página del propio sitio: `?lang=` o la carpeta `/es/`, `/pt/`. */
+    /** El idioma que pide una página del propio sitio: `?lang=` o la carpeta `/es/`, `/pt/`, `/cr/`. */
     function languageOfSitePage(address) {
         var requested = address.searchParams.get('lang');
         if (SUPPORTED.indexOf(requested) !== -1) return requested;
+        if (/^\/cr(?:\/|$)/.test(address.pathname)) return 'es';
         var folder = /^\/(es|pt)(?:\/|$)/.exec(address.pathname);
         return folder ? folder[1] : null;
     }
@@ -476,6 +486,12 @@
     }
 
     function localizedPath(page) {
+        // En Costa Rica (`elysiumdr.com/cr/`), el idioma también se recuerda en
+        // `elysium_lang_pref` y las rutas públicas vuelven a `/cr/…`.
+        if (IS_COSTA_RICA) {
+            if (page === 'profiles') return '/profiles?lang=' + language + '&region=CR';
+            return page ? '/cr/' + page : '/cr/';
+        }
         // En `.es` y `.pt` el idioma no vive en la URL: la traducción del sitio
         // lo recuerda (`elysium_lang_pref`, que `setLanguage` escribe).
         if (NATIONAL) return page ? '/' + page : '/';
@@ -597,7 +613,10 @@
 
     function bookUrl(slug) {
         var url = '/library/' + encodeURIComponent(slug);
-        return language === 'en' ? url : url + '?lang=' + language;
+        var query = [];
+        if (language !== 'en') query.push('lang=' + language);
+        if (IS_COSTA_RICA) query.push('region=CR');
+        return query.length ? url + '?' + query.join('&') : url;
     }
 
     function renderBooks() {

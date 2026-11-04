@@ -9132,7 +9132,7 @@ const MAIL_LETTER_REGIONS = {
    las de la empresa, el sello oscuro, y su nombre es el del equipo en el idioma
    de la carta. Al cambiar de remitente se elige la firma de ese buzón, salvo
    que se haya escogido otra a mano. */
-const MAIL_SIGNATURE_PHOTO = 'https://elysiumdr.eu/Images/daniel-morales-correo.png';
+const MAIL_SIGNATURE_PHOTO = 'https://elysiumdr.eu/Images/daniel-morales-avatar.png';
 const MAIL_SIGNATURE_LOGO = 'https://elysiumdr.eu/Images/elysium-firma-logo.png';
 const MAIL_SIGNATURES = {
     'daniel-morales': { label: 'Sign as Daniel Morales λ', name: 'Daniel Morales', address: 'daniel.morales@elysiumdr.eu', role: 'founder', photo: MAIL_SIGNATURE_PHOTO, page: 'daniel-morales' },

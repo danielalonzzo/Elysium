@@ -102,8 +102,10 @@
     function isEuropeanSite() {
         const host = (window.location.hostname || '').toLowerCase();
         if (host === 'elysiumdr.eu') return true;
-        // En local `.eu` es lo que no lleva `?national=`.
-        if (host === 'localhost' || host === '127.0.0.1') {
+        // En local `.eu` es lo que no lleva `?national=` ni entra por `/cr/` o `/_national/`.
+        if (host === 'localhost' || host === '127.0.0.1' || host === '::1') {
+            const path = window.location.pathname || '/';
+            if (path === '/cr' || path.startsWith('/cr/') || path.startsWith('/_national/')) return false;
             return !new URLSearchParams(window.location.search).get('national');
         }
         return false;

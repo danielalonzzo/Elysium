@@ -916,7 +916,7 @@ function catalog() {
 
 /* ── El bloque «Elysium Tools» de los llms.txt del sitio de la empresa ─────── */
 
-// Los dieciséis llms de las cuatro regiones presentan las herramientas con un
+// Los dieciocho llms de las cinco regiones presentan las herramientas con un
 // bloque entre marcas que escribe este script, en el idioma de cada fichero:
 // si cambian las plataformas o los límites, no se quedan diciendo lo de antes.
 const MAIN_LLMS = {
@@ -925,6 +925,7 @@ const MAIN_LLMS = {
     'pt/llms.txt': 'pt', 'pt/llms-full.txt': 'pt',
     '_national/es/llms.txt': 'es', '_national/es/llms-full.txt': 'es',
     '_national/pt/llms.txt': 'pt', '_national/pt/llms-full.txt': 'pt',
+    '_national/cr/llms.txt': 'es', '_national/cr/llms-full.txt': 'es',
     '_national/com/llms.txt': 'en', '_national/com/llms-full.txt': 'en',
     '_national/com/es/llms.txt': 'es', '_national/com/es/llms-full.txt': 'es',
     '_national/com/pt/llms.txt': 'pt', '_national/com/pt/llms-full.txt': 'pt'

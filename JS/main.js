@@ -166,34 +166,66 @@ window.addEventListener('wheel', loadGoogleTagManager, { once: true, passive: tr
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentHostname = window.location.hostname.toLowerCase();
+    const currentPathname = window.location.pathname || '/';
     const pageParams = new URLSearchParams(window.location.search);
-    const isLocal = ['localhost', '127.0.0.1'].includes(currentHostname);
-    const localNationalDomain = isLocal && ['es', 'pt'].includes(pageParams.get('national'))
+    const isLocal = ['localhost', '127.0.0.1', '::1'].includes(currentHostname);
+    // `.com` en la raíz es el sitio global (`/`, `/es/`, `/pt/`); `/cr/` dentro
+    // de `.com` es el sitio nacional de Costa Rica con traducción dinámica.
+    const isGlobalDomain = currentHostname === 'elysiumdr.com' || currentHostname === 'www.elysiumdr.com';
+    const isCostaRicaSite = ((isGlobalDomain || isLocal) && (
+        currentPathname === '/cr' ||
+        currentPathname.startsWith('/cr/') ||
+        currentPathname.startsWith('/_national/cr/')
+    )) || (isLocal && pageParams.get('national') === 'cr');
+    const localNationalSite = isLocal && ['es', 'pt', 'cr'].includes(pageParams.get('national'))
         ? pageParams.get('national')
-        : null;
+        : (isLocal && isCostaRicaSite ? 'cr' : null);
     const nationalLanguage = currentHostname.endsWith('.es')
         ? 'es'
         : currentHostname.endsWith('.pt')
             ? 'pt'
-            : localNationalDomain;
+            : isCostaRicaSite
+                ? 'es'
+                : localNationalSite === 'cr'
+                    ? 'es'
+                    : localNationalSite;
     const isNationalDomain = Boolean(nationalLanguage);
-    // `.com` es el sitio global: igual que `.eu`, sus tres idiomas son carpetas
-    // físicas (`/`, `/es/`, `/pt/`), no traducción dinámica.
-    const isGlobalDomain = currentHostname === 'elysiumdr.com';
-    const currentRegion = nationalLanguage === 'es' ? 'ES' : nationalLanguage === 'pt' ? 'PT' : isGlobalDomain ? 'GLOBAL' : 'EU';
+    const hasCostaRicaReferrer = (() => {
+        try {
+            const ref = new URL(document.referrer);
+            return ref.origin === window.location.origin && (
+                /^\/cr(?:\/|$)/.test(ref.pathname) ||
+                new URLSearchParams(ref.search).get('region') === 'CR'
+            );
+        } catch {
+            return false;
+        }
+    })();
+    const isCostaRicaSharedRoute = (pageParams.get('region') === 'CR' || hasCostaRicaReferrer) && (
+        currentPathname === '/profiles' ||
+        currentPathname === '/library' ||
+        currentPathname.startsWith('/library/')
+    );
+    const currentRegion = (isCostaRicaSite || isCostaRicaSharedRoute)
+        ? 'CR'
+        : nationalLanguage === 'es'
+            ? 'ES'
+            : nationalLanguage === 'pt'
+                ? 'PT'
+                : isGlobalDomain ? 'GLOBAL' : 'EU';
     // Páginas con una sola URL para los tres idiomas (la biblioteca, `/library`):
     // el idioma lo pone la propia página en `<html lang>` y lo cambia sin
     // recargar, así que aquí no se navega a `/es/…` ni a `/pt/…`.
     const hasInlineLanguage = document.documentElement.dataset.langSwitch === 'inline';
 
     const REGION_LABELS = {
-        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
-        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' },
-        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', GLOBAL: 'GLOBAL' }
+        en: { EU: 'EUROPE', ES: 'SPAIN', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' },
+        es: { EU: 'EUROPA', ES: 'ESPAÑA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' },
+        pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' }
     };
     // El español de cada región lleva su bandera: España en `.eu` y `.es`, Costa
-    // Rica en `.com`. (En `.eu` llevó la de Costa Rica hasta octubre de 2026.)
-    const SPANISH_FLAG = isGlobalDomain ? 'cr' : 'es';
+    // Rica en `.com` y en `elysiumdr.com/cr/`.
+    const SPANISH_FLAG = (isGlobalDomain || currentRegion === 'CR') ? 'cr' : 'es';
     const LANGUAGE_FLAGS = {
         en: '/Images/Optimized/flag-eu-64.webp',
         es: `/Images/Optimized/flag-${SPANISH_FLAG}-64.webp`,
@@ -261,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item" role="menuitem" data-region="EU">EUROPE</a>
                 <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">SPAIN</a>
                 <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
+                <a href="https://elysiumdr.com/cr/?region=CR" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
                 <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">GLOBAL</a>
             </div>`;
         brandContainer.appendChild(dropdown);
@@ -378,8 +411,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pathname.endsWith('.html')) {
             pathname = pathname.slice(0, -5);
         }
-        // Remove leading /es or /pt prefix if present on European domain or local
-        if (pathname.startsWith('/es/') || pathname === '/es') {
+        // Remove leading /_national/cr, /cr, /es or /pt prefix if present
+        if (pathname.startsWith('/_national/cr/') || pathname === '/_national/cr') {
+            pathname = pathname.slice('/_national/cr'.length) || '';
+        } else if (pathname.startsWith('/cr/') || pathname === '/cr') {
+            pathname = pathname.slice(3) || '';
+        } else if (pathname.startsWith('/es/') || pathname === '/es') {
             pathname = pathname.slice(3) || '';
         } else if (pathname.startsWith('/pt/') || pathname === '/pt') {
             pathname = pathname.slice(3) || '';
@@ -491,6 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 EU: 'https://elysiumdr.eu',
                 ES: 'https://elysiumdr.es',
                 PT: 'https://elysiumdr.pt',
+                CR: 'https://elysiumdr.com',
                 GLOBAL: 'https://elysiumdr.com'
             };
             menu.querySelectorAll('a').forEach(link => {
@@ -524,10 +562,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     ].includes(page)) page = '';
 
                     let targetUrl;
-                    if (isLocal && (dataRegion === 'ES' || dataRegion === 'PT')) {
+                    if (isLocal && dataRegion === 'CR') {
+                        targetUrl = `/cr/${page}?region=CR`;
+                    } else if (isLocal && (dataRegion === 'ES' || dataRegion === 'PT')) {
                         targetUrl = `/${page}?national=${dataRegion.toLowerCase()}`;
                     } else if (isLocal && dataRegion === 'EU') {
                         targetUrl = `/${page}`;
+                    } else if (dataRegion === 'CR') {
+                        const target = new URL(`/cr/${page}`, REGION_ORIGINS.CR);
+                        target.searchParams.set('region', 'CR');
+                        targetUrl = target.toString();
                     } else {
                         const target = new URL(`/${page}`, REGION_ORIGINS[dataRegion]);
                         if (dataRegion === 'ES' || dataRegion === 'PT') {
@@ -742,62 +786,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (slides.length < 2) return;
 
         let x = 0;
-        let speed = -1; // Base speed (moving left)
-        let targetSpeed = -1;
         let animationId = 0;
         let isVisible = false;
-        let slideWidth = slides[0].offsetWidth;
+        // Measure the full repeat distance, including inline spacing between slides.
+        const getSlideWidth = () => slides[1].offsetLeft - slides[0].offsetLeft;
+        let slideWidth = getSlideWidth();
 
-        // Resync widths on resize and after images load
-        const updateWidths = () => {
-            slideWidth = slides[0].offsetWidth;
-        };
-
-        window.addEventListener('resize', updateWidths);
-
-        // Also wait for images to load to get correct widths
-        container.querySelectorAll('img').forEach(img => {
-            if (img.complete) updateWidths();
-            else img.addEventListener('load', updateWidths);
+        const resizeObserver = new ResizeObserver(() => {
+            slideWidth = getSlideWidth();
         });
-
-        container.addEventListener('mousemove', (e) => {
-            const rect = container.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const centerX = rect.width / 2;
-
-            // Calculate distance from center (-1 to 1)
-            // -1 = far left, 1 = far right
-            const distFrac = (mouseX - centerX) / centerX;
-
-            // Intensity of movement
-            const maxSpeed = 8;
-            targetSpeed = distFrac * maxSpeed;
-        });
-
-        container.addEventListener('mouseleave', () => {
-            targetSpeed = -1; // Return to idle speed
-        });
+        resizeObserver.observe(slides[0]);
 
         function animate() {
             animationId = 0;
             if (!isVisible || document.hidden) return;
 
-            // Smoothly interpolate speed
-            speed += (targetSpeed - speed) * 0.05;
-
-            // Update position
-            x += speed;
-
-            // Infinite loop logic
-            // Slides are arranged side by side: [Slide 1][Slide 2]
-            // We want to keep x between -slideWidth and 0
-            if (x <= -slideWidth) {
-                x += slideWidth;
-            }
-            if (x >= 0) {
-                x -= slideWidth;
-            }
+            if (slideWidth > 0) x = (x - 1) % slideWidth;
 
             // Apply transform to both slides
             const transformValue = `translateX(${x}px)`;
@@ -1167,6 +1171,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (saved) return saved;
 
+        const path = window.location.pathname || '/';
+        if (
+            path === '/cr' ||
+            path.startsWith('/cr/') ||
+            path.startsWith('/_national/cr/') ||
+            new URLSearchParams(window.location.search).get('national') === 'cr'
+        ) {
+            return 'CRC';
+        }
+
         const locale = Intl.DateTimeFormat().resolvedOptions().locale || navigator.language || '';
         const country = locale.split('-').pop().toUpperCase();
         if (country === 'CR') return 'CRC';
@@ -1384,5 +1398,34 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => {
         const active = document.querySelector('.ios-segment.active');
         if (active) updateSlider(active);
+    });
+});
+
+// Keep the CSS loop and adjust its speed without resetting its position.
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tools-carousel-track').forEach(track => {
+        const viewport = track.parentElement;
+        const setSpeed = speed => {
+            const animation = track.getAnimations().find(item => item.animationName === 'tools-carousel-loop');
+            if (!animation) return;
+            if (speed < 0 && animation.currentTime !== null) {
+                const duration = animation.effect.getComputedTiming().duration;
+                if (animation.currentTime < duration) {
+                    // Leave room to play backwards while keeping the same visible phase.
+                    animation.currentTime += duration * 1000;
+                }
+            }
+            animation.updatePlaybackRate(speed);
+        };
+
+        viewport.addEventListener('pointermove', event => {
+            if (event.pointerType !== 'mouse') return;
+            const bounds = viewport.getBoundingClientRect();
+            if (bounds.width === 0) return;
+            const position = (event.clientX - bounds.left) / bounds.width;
+            const direction = Math.max(-1, Math.min(1, 1 - 2 * position));
+            setSpeed(direction * 8);
+        });
+        viewport.addEventListener('pointerleave', () => setSpeed(1));
     });
 });

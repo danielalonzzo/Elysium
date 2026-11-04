@@ -762,8 +762,9 @@ test('publicar y retirar avisa a IndexNow, solo desde el dominio de verdad', asy
  * inglés en su raíz y español/portugués en sus carpetas.
  */
 function pageLanguage(path) {
-    const match = /^(?:_national\/com\/|_national\/)?(es|pt)\//.exec(path);
-    return match ? match[1] : 'en';
+    const match = /^(?:_national\/com\/|_national\/)?(es|pt|cr)\//.exec(path);
+    if (!match) return 'en';
+    return match[1] === 'cr' ? 'es' : match[1];
 }
 
 /** Las páginas del portafolio: la raíz, las traducciones y las bases nacionales. */
