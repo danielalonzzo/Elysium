@@ -195,10 +195,10 @@ function sharedArguments(settings = {}, cookiesPath = null) {
   }
   if (cookiesPath) args.push('--cookies', cookiesPath);
   if (settings.proxy) args.push('--proxy', settings.proxy);
-  // La vía pública (public-tools.js) no sigue enlaces a cualquier web —sin el
-  // extractor genérico— y descarga DASH y HLS con el descargador propio de
-  // yt-dlp: ffmpeg no pasaría por el proxy que filtra las redes privadas.
-  if (settings.publicOnly) args.push('--use-extractors', 'default,-generic', '--downloader', 'dash,m3u8:native');
+  // La vía de tools.elysiumdr.eu descarga DASH y HLS con el descargador propio
+  // de yt-dlp: ffmpeg no pasaría por el proxy que filtra las redes privadas.
+  // Por lo demás es la misma herramienta que el CRM.
+  if (settings.publicOnly) args.push('--downloader', 'dash,m3u8:native');
   return args;
 }
 

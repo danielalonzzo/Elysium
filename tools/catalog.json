@@ -21,7 +21,7 @@
       "videoDownloads": 10,
       "wordConversions": 10
     },
-    "videoMaxMegabytes": 250,
+    "videoMaxMegabytes": null,
     "pdfEditMaxMegabytes": 200,
     "pdfToWordMaxMegabytes": 30,
     "pdfToWordMaxPages": 500,

@@ -87,7 +87,9 @@ test('los límites que se publican son los del servicio', () => {
     assert.equal(LIMITS.inspectionsPerHour, backend.LIMITS.inspect);
     assert.equal(LIMITS.downloadsPerHour, backend.LIMITS.download);
     assert.equal(LIMITS.conversionsPerHour, backend.LIMITS.convert);
-    assert.match(read('backend/tools/public-tools.js'), new RegExp(`PUBLIC_MAX_BYTES = ${LIMITS.videoMaxMb} \\* 1000 \\* 1000`));
+    // Sin tope de tamaño en Tools, igual que en el CRM.
+    assert.equal(LIMITS.videoMaxMb, null);
+    assert.doesNotMatch(read('backend/tools/public-tools.js'), /PUBLIC_MAX_BYTES/);
     const pdf = read('JS/admin-pdf.js');
     assert.match(pdf, new RegExp(`MAX_FILE_BYTES = ${LIMITS.pdfEditMaxMb} \\* 1000 \\* 1000`));
     assert.match(pdf, new RegExp(`CONVERT_MAX_BYTES = ${LIMITS.pdfConvertMaxMb} \\* 1000 \\* 1000`));

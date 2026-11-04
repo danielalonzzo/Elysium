@@ -236,8 +236,6 @@ function panelMarkup(tool, language, page) {
 
     if (tool === 'video') {
         html = replaceOnce(html, /placeholder="[^"]*"/, `placeholder="${esc(page.placeholder)}"`, 'el ejemplo de enlace');
-        const names = PLATFORMS.filter(platform => platform.available).map(platform => platform.name).join(' · ');
-        html = replaceOnce(html, /<p class="tools-platforms">[\s\S]*?<\/p>/, `<p class="tools-platforms"><span translate="no">${esc(names)}</span></p>`, 'la lista de plataformas');
         html = replaceOnce(html, /\n( *)<\/form>/, (match, indent) => `${match}\n${indent}<div class="tools-human-check" id="tools-human-check"></div>`, 'el final del formulario');
     } else {
         html = replaceOnce(html, /aria-label="Pages of the document"/, `aria-label="${esc(text.pagesAria)}"`, 'la lista de páginas');
@@ -276,6 +274,7 @@ function header(language, page) {
     return `<header class="ts-header">
     <div class="ts-container ts-header-inner">
         <a class="ts-brand" href="${homePath(language)}"><span class="ts-brand-mark" aria-hidden="true">λ</span><span>${BRAND}</span></a>
+        <a class="ts-home-link" href="${MAIN_SITE[language]}">← Elysium</a>
         <nav class="ts-nav" aria-label="${esc(ui.footerTools)}">${navLink('video')}${navLink('pdf')}</nav>
         <nav class="ts-lang" aria-label="${esc(ui.language)}">${languages}</nav>
         <div class="ts-user" data-tools-user hidden></div>
@@ -540,6 +539,9 @@ function documentHtml({ language, page, title, description, body, indexable = tr
         '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
         '<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">',
         '<link rel="apple-touch-icon" href="/Images/apple-touch-icon.png">',
+        // Instalada desde aquí, la app abre siempre en Tools (la del sitio abre el CRM).
+        '<link rel="manifest" href="/Images/pwa/tools.webmanifest">',
+        '<meta name="apple-mobile-web-app-title" content="Elysium Tools">',
         `<link rel="stylesheet" href="${ASSETS.site}">`
     );
     if (page?.tool) {
@@ -673,7 +675,7 @@ function homeBody(page, language) {
                 <a class="ts-button" href="${pathFor(target, language)}">${esc(ui.open)} ${ICONS.arrow}</a>
             </li>`;
     return `${hero(page, language, { home: true })}${accountGate(language)}
-        <ul class="ts-tools">${tool(byId('video'), 'video', copy.cardVideo)}${tool(byId('pdf'), 'pdf', copy.cardPdf)}
+        <ul class="ts-tools">${tool(byId('video'), 'video', copy.cardVideo)}${tool(byId('pdf'), 'pdf', copy.cardPdf)}${tool(byId('id-card'), 'pdf', copy.cardIdCard)}
             <li class="ts-tool ts-tool-future">
                 <span class="ts-tool-icon">${ICONS.plus}</span>
                 <h2>${esc(copy.future)}</h2>
@@ -784,7 +786,7 @@ function facts() {
         `- Publisher: ${PUBLISHER} (Bragança, Portugal), https://elysiumdr.eu/`,
         `- Video downloader: public links from ${PLATFORM_LIST.join(', ')}.${ACCOUNT_LIST.length ? ` ${ACCOUNT_LIST.join(', ')}: only with the user's own ${ACCOUNT_LIST.join(', ')} account connected in the tool (its session is stored encrypted and used only for that user's downloads).` : ''}${SOON_LIST.length ? ` Not available yet: ${SOON_LIST.join(', ')} (coming soon).` : ''} Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.`,
         `- Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.`,
-        `- Video limits: up to ${LIMITS.videoMaxMb} MB per file; the file is deleted ${LIMITS.fileMinutes} minutes after it is ready.`,
+        `- Video limits: no size limit per file; the file is deleted ${LIMITS.fileMinutes} minutes after it is ready.`,
         `- PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to ${LIMITS.pdfEditMaxMb} MB per file. PDF to Word (.docx) runs on the Elysium server: up to ${LIMITS.pdfConvertMaxMb} MB and ${LIMITS.pdfConvertMaxPages} pages; the PDF is deleted as soon as the .docx exists and the .docx after ${LIMITS.fileMinutes} minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.`,
         `- ID card to PDF: photos of the front and back of an identity card, residence permit or driving licence are detected, straightened and cut out from the background, and both sides are placed at real size (ID-1, 85.6 × 54 mm) or 1.5× on one A4 or Letter page, with an optional watermark. Everything runs in the browser: the photos are never uploaded.`,
         `- Fair-use limits per visitor and hour: ${LIMITS.inspectionsPerHour} link checks, ${LIMITS.downloadsPerHour} video downloads and ${LIMITS.conversionsPerHour} Word conversions. Each operation is checked by Cloudflare Turnstile.`,

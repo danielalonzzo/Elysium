@@ -1324,7 +1324,10 @@ async function readYoutubeFile(input) {
     const filtered = chosen.size > 8 * 1024 * 1024 ? { count: -1 } : youtubeOnly(await chosen.text());
     _youtube.file = filtered.count > 0 ? { name: chosen.name, text: filtered.text, count: filtered.count } : null;
     _youtube.error = filtered.count > 0 ? null : filtered.count < 0 ? 'youtube_cookies_invalid' : 'youtube_cookies_missing';
+    // El fichero va por el mismo camino que pegar su contenido: un solo envío.
+    if (_youtube.file) _youtube.pasted = filtered.text;
     renderYoutube();
+    if (_youtube.file) connectYoutube();
 }
 
 async function connectYoutube() {

@@ -477,7 +477,8 @@ test('vía pública: funciona sin Firebase y el CRM sigue cerrado', async t => {
 
   const capabilities = await (await callPublic(base, '/capabilities', { method: 'GET' })).json();
   assert.deepEqual(capabilities.platforms, ['tiktok', 'instagram', 'facebook', 'pinterest', 'twitch', 'linkedin', 'snapchat', 'bluesky']);
-  assert.equal(capabilities.video.maxBytes, 250000000);
+  // Sin tope propio: el mismo que el CRM.
+  assert.equal(capabilities.video.maxBytes, 100000);
   assert.deepEqual(capabilities.limits, { inspectionsPerHour: 30, downloadsPerHour: 10, conversionsPerHour: 10 });
 
   const url = 'https://www.tiktok.com/@elysium/video/7300000000000000000';
@@ -515,26 +516,22 @@ test('vía pública: sin la clave de la pasarela o sin IP no entra nadie', async
   assert.equal((await callPublic(base, '/video/inspect', { method: 'GET' })).status, 404);
 });
 
-test('vía pública: solo las plataformas comprobadas; YouTube, con la sesión de YouTube', async t => {
+test('vía pública: las mismas plataformas que el CRM; YouTube, con la sesión de YouTube', async t => {
   const { base } = await startServer(t);
-  const unsupported = await callPublic(base, '/video/inspect', { body: { url: 'https://example.com/file.mp4' } });
-  assert.equal(unsupported.status, 400);
-  assert.equal((await unsupported.json()).code, 'unsupported');
-  for (const url of ['https://vimeo.com/76979871', 'https://soundcloud.com/a/b', 'https://www.tiktok.com:8443/@a/video/1']) {
-    assert.equal((await (await callPublic(base, '/video/inspect', { body: { url } })).json()).code, 'unsupported', url);
+  for (const url of ['https://vimeo.com/76979871', 'https://soundcloud.com/a/b', 'https://example.com/file.mp4', 'https://pin.it/abc123']) {
+    assert.equal((await callPublic(base, '/video/inspect', { body: { url } })).status, 200, url);
   }
+  assert.equal((await (await callPublic(base, '/video/inspect', { body: { url: 'https://www.tiktok.com:8443/@a/video/1' } })).json()).code, 'unsupported');
   const youtube = await callPublic(base, '/video/inspect', { body: { url: 'https://www.youtube.com/watch?v=abc123def45' } });
   assert.equal(youtube.status, 400);
   assert.deepEqual(await youtube.json(), { code: 'youtube_session_required', platform: 'YouTube' });
-  const shortLink = await callPublic(base, '/video/inspect', { body: { url: 'https://pin.it/abc123' } });
-  assert.deepEqual(await shortLink.json(), { code: 'short_link', platform: 'Pinterest' });
   const pinterest = await callPublic(base, '/video/inspect', { body: { url: 'https://www.pinterest.es/pin/664281013778109217/' } });
   assert.equal(pinterest.status, 200);
 });
 
 test('vía pública: límite por hora y visitante; una IPv6 cuenta por su /64', async t => {
   const { base } = await startServer(t);
-  const body = { url: 'https://example.com/file.mp4' };
+  const body = { url: 'https://www.tiktok.com:8443/@a/video/1' };
   for (let i = 0; i < 30; i += 1) await (await callPublic(base, '/video/inspect', { body, ip: '2001:db8:1:2::1' })).text();
   const limited = await callPublic(base, '/video/inspect', { body, ip: '2001:db8:1:2:aaaa::9' });
   assert.equal(limited.status, 429);

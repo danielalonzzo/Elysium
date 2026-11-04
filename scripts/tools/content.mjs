@@ -27,7 +27,7 @@ export const MAIN_SITE = { en: 'https://elysiumdr.eu/', es: 'https://elysiumdr.e
 
 /** Los límites que aplica de verdad la pasarela pública (backend/tools/public-tools.js). */
 export const LIMITS = {
-    videoMaxMb: 250,
+    videoMaxMb: null, // sin límite: Tools y CRM son la misma herramienta
     pdfEditMaxMb: 200,
     pdfConvertMaxMb: 30,
     pdfConvertMaxPages: 500,
@@ -221,6 +221,7 @@ export const PAGES = [
                 lead: 'Save videos from TikTok, Instagram, Facebook and other platforms in every resolution they offer, and merge, reorder or convert your PDFs to Word. Everything is free and nothing gets in your way.',
                 cardVideo: 'Paste a link and choose the quality: from 360p up to 4K or 8K when the platform has it, or just the audio as MP3 or M4A.',
                 cardPdf: 'Merge PDFs, reorder, rotate or delete pages and extract the ones you need — inside your browser. Convert to Word when you need to edit the text, or put both sides of your ID card on one page.',
+                cardIdCard: 'Photograph both sides of your ID card and get them straightened, at real size, on one PDF page. The photos never leave your device.',
                 cardFuture: 'More everyday tools are on the way. Each one will appear here once it works and its limits are clear.',
                 future: 'More tools',
                 why: 'Why these tools are free',
@@ -241,6 +242,7 @@ export const PAGES = [
                 lead: 'Guarda videos de TikTok, Instagram, Facebook y otras plataformas en todas las resoluciones que ofrecen, y une, ordena o convierte tus PDF a Word. Todo gratis y sin nada que te estorbe.',
                 cardVideo: 'Pega un enlace y elige la calidad: de 360p a 4K u 8K cuando la plataforma la tiene, o solo el audio en MP3 o M4A.',
                 cardPdf: 'Une PDF, ordena, gira o elimina páginas y extrae las que necesitas, dentro de tu navegador. Conviértelo a Word cuando tengas que editar el texto, o pon las dos caras de tu cédula en una hoja.',
+                cardIdCard: 'Fotografía las dos caras de tu cédula o DNI y obtenlas enderezadas, a tamaño real, en una sola hoja PDF. Las fotos no salen de tu dispositivo.',
                 cardFuture: 'Vienen más herramientas para el día a día. Cada una aparecerá aquí cuando funcione y sus límites estén claros.',
                 future: 'Más herramientas',
                 why: 'Por qué estas herramientas son gratis',
@@ -261,6 +263,7 @@ export const PAGES = [
                 lead: 'Guarde vídeos do TikTok, Instagram, Facebook e outras plataformas em todas as resoluções que oferecem, e junte, ordene ou converta os seus PDF para Word. Tudo grátis e sem nada pelo meio.',
                 cardVideo: 'Cole uma ligação e escolha a qualidade: de 360p a 4K ou 8K quando a plataforma a tem, ou só o áudio em MP3 ou M4A.',
                 cardPdf: 'Junte PDF, ordene, rode ou elimine páginas e extraia as que precisa, dentro do seu navegador. Converta para Word quando tiver de editar o texto, ou ponha as duas faces do seu Cartão de Cidadão numa folha.',
+                cardIdCard: 'Fotografe as duas faces do seu Cartão de Cidadão e obtenha-as endireitadas, em tamanho real, numa só folha PDF. As fotografias não saem do seu dispositivo.',
                 cardFuture: 'Estão a caminho mais ferramentas para o dia a dia. Cada uma aparecerá aqui quando funcionar e os seus limites estiverem claros.',
                 future: 'Mais ferramentas',
                 why: 'Porque é que estas ferramentas são grátis',
@@ -300,7 +303,7 @@ export const PAGES = [
                 ],
                 faq: [
                     ['Which platforms are supported?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, always with public links. YouTube works once you connect your own YouTube account in the tool.'],
-                    ['What is the maximum file size?', 'Up to {videoMaxMb} MB per file. For long videos, a lower resolution usually fits.'],
+                    ['What is the maximum file size?', 'There is no size limit per file: you get every quality the platform has, up to 4K or 8K.'],
                     ['Where is the file saved?', 'In your browser’s usual downloads folder. On a phone, in the Files or Downloads app.']
                 ]
             },
@@ -321,7 +324,7 @@ export const PAGES = [
                 ],
                 faq: [
                     ['¿Qué plataformas son compatibles?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, siempre con enlaces públicos. YouTube funciona cuando conectas tu propia cuenta de YouTube en la herramienta.'],
-                    ['¿Cuál es el tamaño máximo?', 'Hasta {videoMaxMb} MB por archivo. En videos largos, una resolución menor suele caber.'],
+                    ['¿Cuál es el tamaño máximo?', 'No hay límite de tamaño por archivo: tienes todas las calidades que ofrezca la plataforma, hasta 4K u 8K.'],
                     ['¿Dónde se guarda el archivo?', 'En la carpeta de descargas habitual de tu navegador. En el teléfono, en la app Archivos o Descargas.']
                 ]
             },
@@ -342,7 +345,7 @@ export const PAGES = [
                 ],
                 faq: [
                     ['Que plataformas são compatíveis?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, sempre com ligações públicas. O YouTube funciona depois de ligar a sua própria conta do YouTube na ferramenta.'],
-                    ['Qual é o tamanho máximo?', 'Até {videoMaxMb} MB por ficheiro. Em vídeos longos, uma resolução menor costuma caber.'],
+                    ['Qual é o tamanho máximo?', 'Não há limite de tamanho por ficheiro: tem todas as qualidades que a plataforma oferecer, até 4K ou 8K.'],
                     ['Onde é guardado o ficheiro?', 'Na pasta de transferências habitual do seu navegador. No telemóvel, na app Ficheiros ou Transferências.']
                 ]
             }
@@ -647,13 +650,13 @@ export const PAGES = [
                     'Press Download and the clip is saved as an MP4.'
                 ],
                 sections: [
-                    ['Clips and past broadcasts', 'Clips are the fastest way: they are short and usually in 1080p. Past broadcasts that the channel keeps public can be downloaded too, within the size limit of {videoMaxMb} MB per file — for long broadcasts, choose a lower quality.'],
+                    ['Clips and past broadcasts', 'Clips are the fastest way: they are short and usually in 1080p. Past broadcasts that the channel keeps public can be downloaded too, at any quality.'],
                     ['What is not supported', 'Streams that are live right now, subscriber-only videos and anything that requires a Twitch login are not available.']
                 ],
                 faq: [
                     ['Can I download a live stream?', 'Not while it is live. When the broadcast ends and the channel saves it, its link can be downloaded.'],
                     ['Can I download clips from any channel?', 'Any public clip can be downloaded. Use the clips of other creators only with their permission.'],
-                    ['Why is a long broadcast refused?', 'Each file can be up to {videoMaxMb} MB. Choose a lower resolution or download a clip instead.']
+                    ['Can I download a long broadcast?', 'Yes. There is no size limit; a long broadcast just takes longer to prepare.']
                 ]
             },
             es: {
@@ -667,13 +670,13 @@ export const PAGES = [
                     'Pulsa Descargar y el clip se guarda en MP4.'
                 ],
                 sections: [
-                    ['Clips y emisiones pasadas', 'Los clips son lo más rápido: son cortos y suelen estar en 1080p. Las emisiones pasadas que el canal mantiene públicas también se pueden descargar, dentro del límite de {videoMaxMb} MB por archivo: en emisiones largas, elige una calidad menor.'],
+                    ['Clips y emisiones pasadas', 'Los clips son lo más rápido: son cortos y suelen estar en 1080p. Las emisiones pasadas que el canal mantiene públicas también se pueden descargar, en cualquier calidad.'],
                     ['Lo que no es compatible', 'Las transmisiones que están en directo, los videos solo para suscriptores y todo lo que exige iniciar sesión en Twitch no están disponibles.']
                 ],
                 faq: [
                     ['¿Puedo descargar un directo?', 'Mientras está en directo, no. Cuando la emisión termina y el canal la guarda, su enlace se puede descargar.'],
                     ['¿Puedo descargar clips de cualquier canal?', 'Cualquier clip público se puede descargar. Usa los clips de otros creadores solo con su permiso.'],
-                    ['¿Por qué se rechaza una emisión larga?', 'Cada archivo puede tener hasta {videoMaxMb} MB. Elige una resolución menor o descarga un clip.']
+                    ['¿Puedo descargar una emisión larga?', 'Sí. No hay límite de tamaño; una emisión larga solo tarda más en prepararse.']
                 ]
             },
             pt: {
@@ -687,13 +690,13 @@ export const PAGES = [
                     'Prima Transferir e o clip é guardado em MP4.'
                 ],
                 sections: [
-                    ['Clips e emissões anteriores', 'Os clips são o mais rápido: são curtos e costumam estar em 1080p. As emissões anteriores que o canal mantém públicas também podem ser descarregadas, dentro do limite de {videoMaxMb} MB por ficheiro: em emissões longas, escolha uma qualidade menor.'],
+                    ['Clips e emissões anteriores', 'Os clips são o mais rápido: são curtos e costumam estar em 1080p. As emissões anteriores que o canal mantém públicas também podem ser descarregadas, em qualquer qualidade.'],
                     ['O que não é compatível', 'As emissões que estão em direto, os vídeos só para subscritores e tudo o que exige sessão iniciada na Twitch não estão disponíveis.']
                 ],
                 faq: [
                     ['Posso descarregar um direto?', 'Enquanto está em direto, não. Quando a emissão termina e o canal a guarda, a ligação pode ser descarregada.'],
                     ['Posso descarregar clips de qualquer canal?', 'Qualquer clip público pode ser descarregado. Use os clips de outros criadores apenas com a sua autorização.'],
-                    ['Porque é recusada uma emissão longa?', 'Cada ficheiro pode ter até {videoMaxMb} MB. Escolha uma resolução menor ou descarregue um clip.']
+                    ['Posso descarregar uma emissão longa?', 'Sim. Não há limite de tamanho; uma emissão longa só demora mais a preparar.']
                 ]
             }
         }

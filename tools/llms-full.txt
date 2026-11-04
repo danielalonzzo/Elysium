@@ -6,7 +6,7 @@
 - Publisher: Elysium λ Development & Research (Bragança, Portugal), https://elysiumdr.eu/
 - Video downloader: public links from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky. YouTube: only with the user's own YouTube account connected in the tool (its session is stored encrypted and used only for that user's downloads). Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.
 - Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.
-- Video limits: up to 250 MB per file; the file is deleted 15 minutes after it is ready.
+- Video limits: no size limit per file; the file is deleted 15 minutes after it is ready.
 - PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to 200 MB per file. PDF to Word (.docx) runs on the Elysium server: up to 30 MB and 500 pages; the PDF is deleted as soon as the .docx exists and the .docx after 15 minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.
 - ID card to PDF: photos of the front and back of an identity card, residence permit or driving licence are detected, straightened and cut out from the background, and both sides are placed at real size (ID-1, 85.6 × 54 mm) or 1.5× on one A4 or Letter page, with an optional watermark. Everything runs in the browser: the photos are never uploaded.
 - Fair-use limits per visitor and hour: 30 link checks, 10 video downloads and 10 Word conversions. Each operation is checked by Cloudflare Turnstile.
@@ -66,7 +66,7 @@ When a link contains several videos — an Instagram carousel or a playlist — 
 TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, always with public links. YouTube works once you connect your own YouTube account in the tool.
 
 **What is the maximum file size?**
-Up to 250 MB per file. For long videos, a lower resolution usually fits.
+There is no size limit per file: you get every quality the platform has, up to 4K or 8K.
 
 **Where is the file saved?**
 In your browser’s usual downloads folder. On a phone, in the Files or Downloads app.
@@ -239,7 +239,7 @@ Save your favourite Twitch clips — or the clips of your own channel — as MP4
 
 ### Clips and past broadcasts
 
-Clips are the fastest way: they are short and usually in 1080p. Past broadcasts that the channel keeps public can be downloaded too, within the size limit of 250 MB per file — for long broadcasts, choose a lower quality.
+Clips are the fastest way: they are short and usually in 1080p. Past broadcasts that the channel keeps public can be downloaded too, at any quality.
 
 ### What is not supported
 
@@ -253,8 +253,8 @@ Not while it is live. When the broadcast ends and the channel saves it, its link
 **Can I download clips from any channel?**
 Any public clip can be downloaded. Use the clips of other creators only with their permission.
 
-**Why is a long broadcast refused?**
-Each file can be up to 250 MB. Choose a lower resolution or download a clip instead.
+**Can I download a long broadcast?**
+Yes. There is no size limit; a long broadcast just takes longer to prepare.
 
 **Is it really free?**
 Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
@@ -683,7 +683,7 @@ Cuando un enlace contiene varios videos —un carrusel de Instagram o una lista�
 TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, siempre con enlaces públicos. YouTube funciona cuando conectas tu propia cuenta de YouTube en la herramienta.
 
 **¿Cuál es el tamaño máximo?**
-Hasta 250 MB por archivo. En videos largos, una resolución menor suele caber.
+No hay límite de tamaño por archivo: tienes todas las calidades que ofrezca la plataforma, hasta 4K u 8K.
 
 **¿Dónde se guarda el archivo?**
 En la carpeta de descargas habitual de tu navegador. En el teléfono, en la app Archivos o Descargas.
@@ -856,7 +856,7 @@ Guarda tus clips favoritos de Twitch —o los de tu propio canal— en MP4 con l
 
 ### Clips y emisiones pasadas
 
-Los clips son lo más rápido: son cortos y suelen estar en 1080p. Las emisiones pasadas que el canal mantiene públicas también se pueden descargar, dentro del límite de 250 MB por archivo: en emisiones largas, elige una calidad menor.
+Los clips son lo más rápido: son cortos y suelen estar en 1080p. Las emisiones pasadas que el canal mantiene públicas también se pueden descargar, en cualquier calidad.
 
 ### Lo que no es compatible
 
@@ -870,8 +870,8 @@ Mientras está en directo, no. Cuando la emisión termina y el canal la guarda, 
 **¿Puedo descargar clips de cualquier canal?**
 Cualquier clip público se puede descargar. Usa los clips de otros creadores solo con su permiso.
 
-**¿Por qué se rechaza una emisión larga?**
-Cada archivo puede tener hasta 250 MB. Elige una resolución menor o descarga un clip.
+**¿Puedo descargar una emisión larga?**
+Sí. No hay límite de tamaño; una emisión larga solo tarda más en prepararse.
 
 **¿De verdad es gratis?**
 Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
@@ -1300,7 +1300,7 @@ Quando uma ligação contém vários vídeos — um carrossel do Instagram ou um
 TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, sempre com ligações públicas. O YouTube funciona depois de ligar a sua própria conta do YouTube na ferramenta.
 
 **Qual é o tamanho máximo?**
-Até 250 MB por ficheiro. Em vídeos longos, uma resolução menor costuma caber.
+Não há limite de tamanho por ficheiro: tem todas as qualidades que a plataforma oferecer, até 4K ou 8K.
 
 **Onde é guardado o ficheiro?**
 Na pasta de transferências habitual do seu navegador. No telemóvel, na app Ficheiros ou Transferências.
@@ -1473,7 +1473,7 @@ Guarde os seus clips favoritos da Twitch — ou os do seu próprio canal — em 
 
 ### Clips e emissões anteriores
 
-Os clips são o mais rápido: são curtos e costumam estar em 1080p. As emissões anteriores que o canal mantém públicas também podem ser descarregadas, dentro do limite de 250 MB por ficheiro: em emissões longas, escolha uma qualidade menor.
+Os clips são o mais rápido: são curtos e costumam estar em 1080p. As emissões anteriores que o canal mantém públicas também podem ser descarregadas, em qualquer qualidade.
 
 ### O que não é compatível
 
@@ -1487,8 +1487,8 @@ Enquanto está em direto, não. Quando a emissão termina e o canal a guarda, a 
 **Posso descarregar clips de qualquer canal?**
 Qualquer clip público pode ser descarregado. Use os clips de outros criadores apenas com a sua autorização.
 
-**Porque é recusada uma emissão longa?**
-Cada ficheiro pode ter até 250 MB. Escolha uma resolução menor ou descarregue um clip.
+**Posso descarregar uma emissão longa?**
+Sim. Não há limite de tamanho; uma emissão longa só demora mais a preparar.
 
 **É mesmo grátis?**
 Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.

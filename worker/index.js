@@ -643,9 +643,22 @@ function prefersMarkdown(request) {
  * pasara por ahí recibiría texto plano en vez de la página. El HTML conserva su
  * `Cache-Control` intacto, así que la negociación no le cuesta caché a nadie.
  */
+// La app instalable del sitio es el CRM: se añada a inicio desde la página que
+// sea, abre en /admin. Tools (su host) y las apps con manifiesto propio quedan fuera.
+const CRM_MANIFEST = '<link rel="manifest" href="/crm.webmanifest"><meta name="apple-mobile-web-app-title" content="Elysium CRM">';
+const OWN_MANIFEST = /^\/(?:library|Gestor-Patrimonios)(?:\/|$)/;
+
+function withCrmManifest(request, response) {
+    if (typeof HTMLRewriter === 'undefined' || !response.ok) return response;
+    if (!(response.headers.get('Content-Type') || '').includes('text/html')) return response;
+    const url = new URL(request.url);
+    if (url.hostname === TOOLS_HOST || OWN_MANIFEST.test(url.pathname)) return response;
+    return new HTMLRewriter().on('head', { element(head) { head.append(CRM_MANIFEST, { html: true }); } }).transform(response);
+}
+
 async function serveAsset(request, env, assetRequest = request) {
     const response = await env.ASSETS.fetch(assetRequest);
-    if (!prefersMarkdown(request) || !response.ok) return response;
+    if (!prefersMarkdown(request) || !response.ok) return withCrmManifest(request, response);
     if (!(response.headers.get('Content-Type') || '').includes('text/html')) return response;
 
     const markdown = htmlToMarkdown(await response.text(), { baseUrl: request.url });

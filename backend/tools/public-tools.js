@@ -65,7 +65,6 @@ const OPERATIONS = Object.freeze({
 });
 const MAX_CLIENTS = 10000;
 const MAX_ACTIVE = 6;
-const PUBLIC_MAX_BYTES = 250 * 1000 * 1000;
 
 function sameSecret(actual, expected) {
   const a = Buffer.from(String(actual || ''));
@@ -119,7 +118,6 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
       ...settings,
       cookiesFile: '',
       proxy: '',
-      maxBytes: PUBLIC_MAX_BYTES,
       maxActiveDownloads: 1,
       maxActiveInspections: 2,
       publicOnly: true
@@ -200,11 +198,10 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
         if (session.state !== 'active') {
           return response.status(400).json({ code: session.state === 'expired' ? 'youtube_session_expired' : 'youtube_session_required', platform: platform.name });
         }
-      } else if (SHORT_LINK_HOSTS.includes(new URL(url).hostname.replace(/^www\./, ''))) {
-        return response.status(400).json({ code: 'short_link', platform: platform.name });
-      } else if (!PUBLIC_PLATFORMS.includes(platform.id)) {
-        return response.status(400).json({ code: 'unsupported' });
       }
+      // Las demás plataformas, como en el CRM: Tools y CRM son la misma
+      // herramienta (decisión del 4/11/2026). El proxy de public-network.js
+      // sigue impidiendo salir a redes privadas.
       if (new URL(url).port) return response.status(400).json({ code: 'unsupported' });
       video.settings.proxy = await network.start();
       return next();
