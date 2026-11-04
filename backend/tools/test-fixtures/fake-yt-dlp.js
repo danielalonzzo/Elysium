@@ -7,6 +7,7 @@
  *
  * Qué pasa lo decide el enlace:
  *   …unsupported… / …login… / …bot…   el `ERROR:` real de cada caso
+ *   …ytgate…                          YouTube que solo deja pasar con sesión
  *   …playlist… / …carousel…           una lista o un carrusel
  *   …tiktok…                          un vídeo vertical
  *   …slow…                            descarga que no termina hasta que la cancelen
@@ -43,9 +44,24 @@ if (url.includes('login')) {
     + 'without being logged-in. If it is not, then use --cookies-from-browser or --cookies for the authentication. '
     + 'See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies.');
 }
-if (url.includes('bot')) {
-  fail('[youtube] abc123def45: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the '
-    + 'authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies.');
+const BOT_CHECK = '[youtube] abc123def45: Sign in to confirm you’re not a bot. Use --cookies-from-browser or --cookies for the '
+  + 'authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies.';
+if (url.includes('bot')) fail(BOT_CHECK);
+
+// …ytgate…: YouTube desde Google Cloud. Sin una sesión iniciada en --cookies
+// pide demostrar que no es un bot; con `SAPISID stale`, la sesión se cerró en
+// el navegador; con una buena, sigue y reescribe el fichero como yt-dlp.
+if (url.includes('ytgate')) {
+  const cookiesFile = valueOf('--cookies');
+  const jar = cookiesFile && fs.existsSync(cookiesFile) ? fs.readFileSync(cookiesFile, 'utf8') : '';
+  if (process.env.FAKE_COOKIES_DUMP) fs.writeFileSync(process.env.FAKE_COOKIES_DUMP, jar);
+  if (/\tSAPISID\tstale$/m.test(jar)) {
+    err('WARNING: [youtube] The provided YouTube account cookies are no longer valid. They have likely been rotated in the browser as a '
+      + 'security measure. For tips on how to effectively export YouTube cookies, refer to  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies .');
+    fail(BOT_CHECK);
+  }
+  if (!/\tSAPISID\t/.test(jar)) fail(BOT_CHECK);
+  fs.writeFileSync(cookiesFile, jar.replace(/(\tYSC\t)[^\n]*/, '$1rotated-by-youtube'));
 }
 
 if (args.includes('--dump-single-json')) {

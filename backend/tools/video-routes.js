@@ -37,6 +37,11 @@ const {
   summarizeMedia
 } = require('./video');
 const { ONE_MB, createLimiter, log, openEventStream, runProcess } = require('./workspace');
+const { INVALID_SESSION } = require('./youtube-session');
+
+// Lo que YouTube contesta a un servidor sin sesión: se arregla conectando la
+// cuenta de YouTube de quien descarga (youtube-session.js).
+const YOUTUBE_SIGN_IN_FAILURES = new Set(['bot_check', 'login_required', 'age_restricted']);
 
 const THUMBNAIL_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif']);
 const BROWSER_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
@@ -91,13 +96,20 @@ function sendFailure(response, error) {
   return response.status(500).json({ error: failureMessage('failed'), code: 'failed' });
 }
 
+/**
+ * `youtube` son las sesiones de YouTube de cada cuenta (youtube-session.js) e
+ * `identify(request)`, de quién es la petición: en el CRM, el uid del token;
+ * en la vía pública, el que comprobó el Worker.
+ */
 function createVideoTools({
   requireAdmin,
   workspace,
   settings: overrides = {},
   lookup = dns.lookup,
   fetchImpl = globalThis.fetch,
-  now = Date.now
+  now = Date.now,
+  youtube = null,
+  identify = request => request.firebaseUser?.uid || null
 } = {}) {
   if (typeof requireAdmin !== 'function') throw new TypeError('createVideoTools needs requireAdmin.');
   if (!workspace) throw new TypeError('createVideoTools needs a workspace.');
@@ -107,16 +119,65 @@ function createVideoTools({
   const inspections = createLimiter(settings.maxActiveInspections);
   const shutdown = new AbortController();
 
-  async function cookiesCopy(dir) {
-    if (!settings.cookiesFile) return null;
+  /**
+   * Las cookies de esta ejecución. Para YouTube, las de la sesión de quien
+   * descarga; si no tiene, las del servicio (`YTDLP_COOKIES_FILE`, solo CRM).
+   * Siempre una copia en la carpeta del trabajo: yt-dlp reescribe el fichero
+   * al terminar y el secreto montado en Cloud Run es de solo lectura.
+   */
+  async function prepareCookies(dir, platform, request) {
+    const uid = identify(request);
+    let state = 'missing';
+    if (platform.id === 'youtube' && youtube?.ready && uid) {
+      try {
+        const session = await youtube.sessionFor(uid);
+        state = session.state;
+        if (session.text) {
+          const target = path.join(dir, 'cookies.txt');
+          await fs.writeFile(target, session.text, { mode: 0o600 });
+          return { path: target, uid, state, personal: true };
+        }
+      } catch (error) {
+        log('WARNING', 'youtube.session_unavailable', { error: error.code || String(error) });
+      }
+    }
+    if (!settings.cookiesFile) return { path: null, uid, state, personal: false };
     const target = path.join(dir, 'cookies.txt');
     try {
       await fs.copyFile(settings.cookiesFile, target);
-      return target;
+      return { path: target, uid, state, personal: false };
     } catch (error) {
       log('WARNING', 'video.cookies_unavailable', { error: error.code || String(error) });
-      return null;
+      return { path: null, uid, state, personal: false };
     }
+  }
+
+  /**
+   * Tras yt-dlp: la sesión personal se actualiza (o se da por caducada) y el
+   * fichero se borra ya, aunque la carpeta espere a que se recoja el video.
+   */
+  async function settleCookies(cookies, result, failed) {
+    if (!cookies?.path || cookies.settled) return;
+    cookies.settled = true;
+    if (cookies.personal) {
+      const cookiesText = await fs.readFile(cookies.path, 'utf8').catch(() => null);
+      await youtube.afterRun(cookies.uid, { cookiesText, lines: result?.lines || [], failed }).catch(error => {
+        log('WARNING', 'youtube.session_not_saved', { error: error.code || String(error) });
+      });
+    }
+    await fs.rm(cookies.path, { force: true }).catch(() => {});
+  }
+
+  /** Un fallo de YouTube que se arregla con la sesión lo dice con su propio código. */
+  function youtubeFailure(failure, platform, cookies, lines = []) {
+    if (platform.id !== 'youtube' || !youtube?.ready) return failure;
+    if (cookies.personal && lines.some(line => INVALID_SESSION.test(String(line)))) {
+      return { ...failure, code: 'youtube_session_expired' };
+    }
+    if (!cookies.personal && YOUTUBE_SIGN_IN_FAILURES.has(failure.code)) {
+      return { ...failure, code: cookies.state === 'expired' ? 'youtube_session_expired' : 'youtube_session_required' };
+    }
+    return failure;
   }
 
   /**
@@ -206,7 +267,9 @@ function createVideoTools({
       ffmpeg: found.ffmpeg,
       maxBytes: settings.maxBytes,
       cookies: Boolean(settings.cookiesFile),
-      proxy: Boolean(settings.proxy)
+      proxy: Boolean(settings.proxy),
+      // Si se puede conectar una cuenta de YouTube (clave y bucket configurados).
+      youtubeSessions: Boolean(youtube?.ready)
     };
   }
 
@@ -229,15 +292,20 @@ function createVideoTools({
     const started = now();
     let release = null;
     let dir = null;
+    let cookies = null;
+    let result = null;
     try {
       release = await inspections.acquire({ signal });
       dir = await workspace.createWorkDir();
-      const cookiesPath = await cookiesCopy(dir);
-      const result = await runProcess(
+      cookies = await prepareCookies(dir, platform, request);
+      result = await runProcess(
         settings.command,
-        [...settings.commandArgs, ...buildInspectArguments(url, settings, cookiesPath)],
+        [...settings.commandArgs, ...buildInspectArguments(url, settings, cookies.path)],
         { signal, timeoutMs: settings.inspectTimeoutMs, collectStdout: true, maxStdoutBytes: settings.maxInspectOutputBytes }
       );
+      // Antes de contestar: quien pregunte por la sesión justo después ya ve
+      // si quedó caducada.
+      await settleCookies(cookies, result, result.code !== 0 || result.timedOut || result.overflow);
       if (client.signal.aborted) return undefined;
       if (result.error) {
         log('ERROR', 'video.engine_missing', { error: String(result.error.message || result.error) });
@@ -247,7 +315,8 @@ function createVideoTools({
         return response.status(504).json({ error: failureMessage('timeout'), code: 'timeout', platform: platform.name });
       }
       if (result.code !== 0 || result.overflow) {
-        const failure = result.overflow ? { code: 'failed', detail: null } : classifyFailure(result.lines);
+        const failure = result.overflow ? { code: 'failed', detail: null }
+          : youtubeFailure(classifyFailure(result.lines), platform, cookies, result.lines);
         log('WARNING', 'video.inspect_failed', { platform: platform.id, code: failure.code, ms: now() - started });
         return response.status(422).json({
           error: failureMessage(failure.code),
@@ -281,6 +350,7 @@ function createVideoTools({
       return sendFailure(response, error);
     } finally {
       release?.();
+      await settleCookies(cookies, result, true);
       await workspace.removeDir(dir);
     }
   });
@@ -310,19 +380,21 @@ function createVideoTools({
     let dir = null;
     let kept = false;
     let tooLarge = false;
+    let cookies = null;
+    let result = null;
     try {
       send({ type: 'accepted', platform: platform.name });
       release = await downloads.acquire({ signal, onPosition: position => send({ type: 'queued', position }) });
       send({ type: 'stage', stage: 'starting' });
       dir = await workspace.createWorkDir();
-      const cookiesPath = await cookiesCopy(dir);
+      cookies = await prepareCookies(dir, platform, request);
       const tracker = new ProgressTracker();
       let lastSentAt = 0;
       let lastPart = 0;
 
-      const result = await runProcess(
+      result = await runProcess(
         settings.command,
-        [...settings.commandArgs, ...buildDownloadArguments({ url, option, item, outputDir: dir, settings, cookiesPath })],
+        [...settings.commandArgs, ...buildDownloadArguments({ url, option, item, outputDir: dir, settings, cookiesPath: cookies.path })],
         {
           signal: engine.signal,
           timeoutMs: settings.downloadTimeoutMs,
@@ -364,10 +436,11 @@ function createVideoTools({
         return undefined;
       }
       const file = result.code === 0 && !tooLarge ? await workspace.finishedFile(dir, tracker.filePath) : null;
+      await settleCookies(cookies, result, !file || file.size > settings.maxBytes);
       if (!file || file.size > settings.maxBytes) {
         const failure = tooLarge || file ? { code: 'too_large', detail: null }
           : result.timedOut ? { code: 'timeout', detail: null }
-            : classifyFailure(result.lines);
+            : youtubeFailure(classifyFailure(result.lines), platform, cookies, result.lines);
         log('WARNING', 'video.download_failed', { platform: platform.id, option, code: failure.code, ms: now() - started });
         send({ type: 'error', code: failure.code, error: failureMessage(failure.code), detail: failure.detail, platform: platform.name });
         return undefined;
@@ -385,6 +458,7 @@ function createVideoTools({
       return undefined;
     } finally {
       release?.();
+      await settleCookies(cookies, result, true);
       if (!kept) await workspace.removeDir(dir);
       stream.end();
     }

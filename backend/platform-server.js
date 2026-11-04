@@ -203,7 +203,7 @@ app.get('/api/capabilities', requireFirebaseUser, requireFirebaseAdmin, (_reques
 // firestore.rules; keeping them out of Admin SDK preserves those validations.
 app.use('/api/research', createResearchRouter({ db: crmDb }));
 app.use('/api/tools-license', createToolsLicenseRouter({ db: crmDb,
-  requireUser: requireFirebaseUser, requireAdmin: requireFirebaseAdmin }));
+  requireUser: requireFirebaseUser, isAdmin: identity => isFirebaseAdmin(identity) }));
 
 // Elysium Patrimonio: alertas por correo del gestor financiero. Lee con Admin
 // SDK los datos de cada persona con licencia activa y calcula las alertas con

@@ -386,9 +386,9 @@ Elysium λ Development & Research | https://elysiumdr.eu | info@elysiumdr.eu
 <!-- BEGIN TOOLS -->
 ## Elysium Tools
 
-Ferramentas online gratuitas da Elysium λ Development & Research no seu próprio site, https://tools.elysiumdr.eu/pt/: sem anúncios, com conta confirmada, licença gratuita aprovada e limites de utilização justa por hora.
+Ferramentas online gratuitas da Elysium λ Development & Research para os seus clientes no seu próprio site, https://tools.elysiumdr.eu/pt/: sem anúncios, com a conta Elysium e limites de utilização justa por hora.
 
-- [Descarregar vídeos](https://tools.elysiumdr.eu/pt/descarregar-videos/): vídeos públicos do TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A. YouTube: em breve.
+- [Descarregar vídeos](https://tools.elysiumdr.eu/pt/descarregar-videos/): vídeos públicos do TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A. YouTube: com a sua própria conta ligada.
 - [Editor de PDF](https://tools.elysiumdr.eu/pt/editor-pdf/): juntar PDF e ordenar, rodar, eliminar ou extrair páginas dentro do navegador; converter PDF para Word (.docx).
 - [Cartão de Cidadão em PDF](https://tools.elysiumdr.eu/pt/cartao-de-cidadao-pdf/): as duas faces de um Cartão de Cidadão, endireitadas e em tamanho real numa folha PDF, sem enviar as fotografias.
 - Inglês: https://tools.elysiumdr.eu/ · Espanhol: https://tools.elysiumdr.eu/es/ · Para modelos de linguagem: https://tools.elysiumdr.eu/llms.txt

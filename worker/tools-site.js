@@ -37,6 +37,8 @@ const FILES_API = '/api/tools/files/';
 const SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const SESSION_COOKIE = '__Host-elysium-tools';
 const ACCOUNT_API = '/api/tools/account/';
+// Un uid de Firebase: hasta 128 caracteres sin barras ni espacios.
+const USER_ID = /^[A-Za-z0-9_-]{1,128}$/;
 
 function sessionToken(request) {
     const bearer = /^Bearer\s+(.+)$/i.exec(request.headers.get('Authorization') || '');
@@ -57,27 +59,19 @@ async function accountRequest(request, env, path = 'access', { method = 'GET', b
     } catch { return json({ code: 'account_unavailable' }, 503); }
 }
 
-async function requireLicense(request, env) {
+/**
+ * Las herramientas son para cuentas Elysium (clientes del CRM y equipo): sin
+ * solicitud ni licencia aparte. `access.uid` es la cuenta que comprobó el
+ * servicio de cuentas, la única que este Worker reenvía como identidad.
+ */
+async function requireAccount(request, env) {
     const result = await accountRequest(request, env);
-    if (!result.ok) return json({ code: result.status === 401 ? 'unauthenticated' : result.status === 403 ? 'email_not_verified' : 'account_unavailable' }, result.status);
-    const access = await result.json().catch(() => ({}));
-    return access.allowed === true ? null : json({ code: 'license_required' }, 403);
-}
-
-async function requestBody(request, limit = 4096) {
-    if (!request.body) return '';
-    const reader = request.body.getReader();
-    const chunks = []; let size = 0;
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        size += value.byteLength;
-        if (size > limit) { await reader.cancel(); return null; }
-        chunks.push(value);
+    if (!result.ok) {
+        return { denied: json({ code: result.status === 401 ? 'unauthenticated' : result.status === 403 ? 'email_not_verified' : 'account_unavailable' }, result.status) };
     }
-    const bytes = new Uint8Array(size); let offset = 0;
-    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
-    return new TextDecoder().decode(bytes);
+    const access = await result.json().catch(() => ({}));
+    if (access.allowed !== true || !USER_ID.test(String(access.uid || ''))) return { denied: json({ code: 'account_required' }, 403) };
+    return { denied: null, access };
 }
 
 async function accountApi(request, env, url) {
@@ -95,14 +89,10 @@ async function accountApi(request, env, url) {
             'Set-Cookie': `${SESSION_COOKIE}=${sessionToken(request)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=3300`
         });
     }
-    if (!['access', 'request'].includes(path)) return json({ code: 'not_found' }, 404);
-    const method = path === 'access' ? 'GET' : 'POST';
-    if (request.method !== method) return json({ code: 'method_not_allowed' }, 405);
-    if (method === 'POST' && request.headers.get('Origin') !== url.origin) return json({ code: 'origin_not_allowed' }, 403);
-    if (Number(request.headers.get('Content-Length')) > 4096) return json({ code: 'payload_too_large' }, 413);
-    const body = method === 'POST' ? await requestBody(request) : undefined;
-    if (body === null) return json({ code: 'payload_too_large' }, 413);
-    const result = await accountRequest(request, env, path, { method, body });
+    // Ya no hay solicitudes: una cuenta Elysium entra sin pedir nada.
+    if (path !== 'access') return json({ code: 'not_found' }, 404);
+    if (request.method !== 'GET') return json({ code: 'method_not_allowed' }, 405);
+    const result = await accountRequest(request, env, path);
     return json(await result.json().catch(() => ({ code: 'account_unavailable' })), result.status);
 }
 
@@ -120,7 +110,9 @@ const DISCOVERY_FILES = new Map([
 const SHARED_ASSET = /^\/(?:CSS|JS|Images|fonts)\/|^\/(?:favicon[\w.-]*|apple-touch-icon[\w.-]*\.png|[0-9a-f]{32}\.txt)$/;
 
 // Cabeceras que solo puede poner el Worker. Si llegan de fuera, se tiran.
-const TRUSTED_HEADERS = ['X-Elysium-Public-Key', 'X-Elysium-Client-IP', 'X-Turnstile-Token'];
+// `X-Elysium-User` es el uid de la cuenta comprobada: con él, el servicio usa
+// la sesión de YouTube de esa persona y de nadie más.
+const TRUSTED_HEADERS = ['X-Elysium-Public-Key', 'X-Elysium-Client-IP', 'X-Elysium-User', 'X-Turnstile-Token'];
 
 // Las claves de prueba de Turnstile (`1x0000…AA` y compañía) firman con el
 // host `example.com`; solo con ellas se acepta ese host.
@@ -180,15 +172,17 @@ async function verifyTurnstile(request, env, url) {
 }
 
 /** Reenvía al servicio sin leer la respuesta: el progreso llega línea a línea. */
-async function forward(request, env, url, { gateway = false } = {}) {
+async function forward(request, env, url, { gateway = false, user = null } = {}) {
     const upstream = new Request(new URL(url.pathname + url.search, serviceOrigin(env)), request);
     for (const header of TRUSTED_HEADERS) upstream.headers.delete(header);
-    // La API pública no conoce sesiones: ni la del CRM ni ninguna otra.
+    // El token de la sesión no sale de aquí: el servicio recibe solo el uid
+    // que ya se comprobó, y ninguna cookie del navegador.
     upstream.headers.delete('Authorization');
     upstream.headers.delete('Cookie');
     if (gateway) {
         upstream.headers.set('X-Elysium-Public-Key', env.TOOLS_PUBLIC_GATEWAY_KEY);
         upstream.headers.set('X-Elysium-Client-IP', request.headers.get('CF-Connecting-IP') || '0.0.0.0');
+        if (user) upstream.headers.set('X-Elysium-User', user);
     }
     upstream.headers.set('X-Forwarded-Host', url.host);
     upstream.headers.set('X-Forwarded-Proto', 'https');
@@ -207,7 +201,7 @@ async function handleApi(request, env, url) {
     if (url.pathname.startsWith(ACCOUNT_API)) return accountApi(request, env, url);
     if (url.pathname === '/api/tools/workspace') {
         if (request.method !== 'GET') return json({ code: 'method_not_allowed' }, 405);
-        const denied = await requireLicense(request, env);
+        const { denied } = await requireAccount(request, env);
         if (denied) return denied;
         const key = `${url.searchParams.get('page')}:${url.searchParams.get('lang')}`;
         const html = TOOL_WORKSPACES[key];
@@ -223,7 +217,7 @@ async function handleApi(request, env, url) {
     if (url.pathname.startsWith(FILES_API)) {
         if (!['GET', 'HEAD'].includes(request.method)) return json({ code: 'method_not_allowed' }, 405, { Allow: 'GET, HEAD' });
         if (!serviceOrigin(env)) return json({ code: 'public_tools_disabled' }, 503);
-        const denied = await requireLicense(request, env);
+        const { denied } = await requireAccount(request, env);
         if (denied) return denied;
         return forward(request, env, url, { gateway: true });
     }
@@ -233,18 +227,22 @@ async function handleApi(request, env, url) {
         if (!ready) {
             return json({ error: 'The public tools are not enabled yet.', code: 'public_tools_disabled' }, 503);
         }
-        const denied = await requireLicense(request, env);
+        const { denied, access } = await requireAccount(request, env);
         if (denied) return denied;
-        if (request.method === 'POST') {
+        if (!['GET', 'HEAD'].includes(request.method)) {
             // Solo desde las propias páginas: otra web no puede usar el servicio
             // con la IP de sus visitantes.
             if (request.headers.get('Origin') !== url.origin) return json({ code: 'origin_not_allowed' }, 403);
-            const human = await verifyTurnstile(request, env, url);
-            if (!human.ok) {
-                return json({ error: 'The human check did not pass. Try again.', code: human.code }, human.code === 'turnstile_unavailable' ? 503 : 403);
+            // Lo que pone a trabajar al servicio o guarda algo (POST, PUT)
+            // pasa por Turnstile; retirar la sesión de YouTube (DELETE), no.
+            if (request.method !== 'DELETE') {
+                const human = await verifyTurnstile(request, env, url);
+                if (!human.ok) {
+                    return json({ error: 'The human check did not pass. Try again.', code: human.code }, human.code === 'turnstile_unavailable' ? 503 : 403);
+                }
             }
         }
-        return forward(request, env, url, { gateway: true });
+        return forward(request, env, url, { gateway: true, user: access.uid });
     }
 
     return json({ error: 'Not found.', code: 'not_found' }, 404);

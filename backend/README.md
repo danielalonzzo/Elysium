@@ -244,16 +244,16 @@ paginado que el CRM nunca llegó a implementar. Antes de añadir uno, comprobar
 que la consulta existe en `JS/admin.js` o en `backend/`, no que podría existir.
 
 
-## Licencias gratuitas de Elysium Tools
+## Acceso a Elysium Tools
 
-`tools-license-routes.js` sirve `/api/tools-license`: `GET /access` consulta la
-licencia de la cuenta verificada y `POST /request` registra una solicitud
-idempotente. `GET /admin` pagina las solicitudes; `POST /admin/:uid` permite
-aprobar, rechazar, suspender y reactivar, exclusivamente a administradores.
-
-Una aprobación escribe en una transacción `tools_access/{uid}`, la solicitud,
-`licenses/{code}`, `members.toolsLicense` y el evento del CRM. El código
-`ELY-TOOLS-FREE-*` se conserva al suspender y reactivar; el precio es cero y
-la suscripción pagada existente no se modifica. El backend es el único escritor
-de solicitudes y concesiones. El Worker consulta el acceso antes de entregar
-la interfaz, invocar los motores o entregar una descarga de Tools.
+`tools-license-routes.js` sirve `/api/tools-license` (el nombre viene del
+modelo anterior, que pedía una licencia gratuita aprobada a mano). Hoy solo
+hay `GET /access`: las herramientas son para quien ya tiene cuenta en Elysium,
+un cliente del CRM (`members/{uid}`) o el equipo (administradores, correos
+@elysiumdr.eu verificados y cuentas con `crmAccess` del tenant). Iniciar
+sesión basta; la ruta no escribe nada. Responde `allowed`, el `uid`, la cuenta
+(`status`: `active`, `no_account` o `suspended`; `kind`: `client` o `team`) y
+el nombre. Un perfil desactivado en el CRM pierde el acceso, salvo un
+administrador. El Worker consulta el acceso antes de entregar la interfaz,
+invocar los motores o entregar una descarga de Tools, y reenvía el `uid` al
+servicio de herramientas.

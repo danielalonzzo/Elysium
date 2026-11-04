@@ -1256,7 +1256,7 @@ export default {
         const upstream = new Request(target, request);
         // Las cabeceras de la pasarela pública solo las pone `tools-site.js`;
         // si llegan por aquí, son de fuera y se tiran.
-        for (const header of ['X-Elysium-Public-Key', 'X-Elysium-Client-IP', 'X-Turnstile-Token']) {
+        for (const header of ['X-Elysium-Public-Key', 'X-Elysium-Client-IP', 'X-Elysium-User', 'X-Turnstile-Token']) {
             upstream.headers.delete(header);
         }
         upstream.headers.set('X-Forwarded-Host', url.host);

@@ -2,9 +2,9 @@
 
 > Every page of https://tools.elysiumdr.eu, in English, Spanish and European Portuguese. Generated from the same source as the pages.
 
-- Price: free. No advertising, no paid subscriptions; a verified account and an approved free license are required. No analytics or advertising cookies.
+- Price: free. No advertising, no paid subscriptions. For Elysium clients: sign in with an existing Elysium account, with nothing to request. No analytics or advertising cookies.
 - Publisher: Elysium λ Development & Research (Bragança, Portugal), https://elysiumdr.eu/
-- Video downloader: public links from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky. Not available yet: YouTube (coming soon). Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.
+- Video downloader: public links from TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat, Bluesky. YouTube: only with the user's own YouTube account connected in the tool (its session is stored encrypted and used only for that user's downloads). Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.
 - Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.
 - Video limits: up to 250 MB per file; the file is deleted 15 minutes after it is ready.
 - PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to 200 MB per file. PDF to Word (.docx) runs on the Elysium server: up to 30 MB and 500 pages; the PDF is deleted as soon as the .docx exists and the .docx after 15 minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.
@@ -22,7 +22,7 @@ Save videos from TikTok, Instagram, Facebook and other platforms in every resolu
 
 ### Why these tools are free
 
-Elysium builds digital infrastructure for small businesses. These tools come from that work and we keep them open for anyone: no ads or analytics trackers, with a verified account and a free license approved in the CRM.
+Elysium builds digital infrastructure for small businesses. These tools come from that work and we keep them for our clients: no ads or analytics trackers, and they open with the same Elysium account.
 They are fast because they do as little as possible on our side. PDF pages are edited in your own browser; videos are fetched from the platform, delivered to you and deleted after 15 minutes.
 
 ### Frequently asked questions
@@ -63,7 +63,7 @@ When a link contains several videos — an Instagram carousel or a playlist — 
 ### Frequently asked questions
 
 **Which platforms are supported?**
-TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, always with public links. YouTube is coming soon.
+TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, always with public links. YouTube works once you connect your own YouTube account in the tool.
 
 **What is the maximum file size?**
 Up to 250 MB per file. For long videos, a lower resolution usually fits.
@@ -72,7 +72,7 @@ Up to 250 MB per file. For long videos, a lower resolution usually fits.
 In your browser’s usual downloads folder. On a phone, in the Files or Downloads app.
 
 **Is it really free?**
-Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
+Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
 
 **Can I download any video?**
 Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.
@@ -109,7 +109,7 @@ Not yet. The downloader works with videos; posts made only of photos are not sup
 Yes. Choose MP3 or M4A and you will get the audio of that video.
 
 **Is it really free?**
-Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
+Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
 
 **Can I download any video?**
 Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.
@@ -146,7 +146,7 @@ No. Downloading a public Reel does not notify anyone. Only download content you 
 The account may be private, the post may have been deleted, or Instagram may be limiting anonymous requests at that moment. Try again a little later.
 
 **Is it really free?**
-Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
+Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
 
 **Can I download any video?**
 Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.
@@ -183,7 +183,7 @@ It may be private, deleted, region-restricted or require signing in. Try another
 It is the best version Facebook makes available publicly for that video, without re-encoding when MP4 is possible.
 
 **Is it really free?**
-Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
+Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
 
 **Can I download any video?**
 Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.
@@ -220,7 +220,7 @@ No. Public video pins can be downloaded without signing in.
 Yes, choose MP3 or M4A if the pin has sound.
 
 **Is it really free?**
-Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
+Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
 
 **Can I download any video?**
 Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.
@@ -257,7 +257,7 @@ Any public clip can be downloaded. Use the clips of other creators only with the
 Each file can be up to 250 MB. Choose a lower resolution or download a clip instead.
 
 **Is it really free?**
-Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
+Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
 
 **Can I download any video?**
 Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.
@@ -294,7 +294,7 @@ No. It works with videos uploaded to LinkedIn itself.
 Never. The downloader does not sign in to LinkedIn, which is why only public posts work.
 
 **Is it really free?**
-Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
+Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: 30 link checks, 10 downloads and 10 Word conversions per hour.
 
 **Can I download any video?**
 Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.
@@ -334,7 +334,7 @@ No. The PDF you download contains only your pages.
 Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.
 
 **Is it free?**
-Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows 10 documents per hour per visitor so the service stays available.
+Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
 ## Merge PDF files
 
@@ -354,7 +354,7 @@ You are not limited to putting one file after another: you can interleave pages 
 
 ### Private by design
 
-Merging happens on your device; the workspace requires a verified account and an active license. Your PDF files are not uploaded.
+Merging happens on your device; the workspace opens with your Elysium account. Your PDF files are not uploaded.
 
 ### Frequently asked questions
 
@@ -371,7 +371,7 @@ Yes. On a touch screen, hold a page for a moment and drag it to reorder.
 Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.
 
 **Is it free?**
-Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows 10 documents per hour per visitor so the service stays available.
+Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
 ## Convert PDF to Word
 
@@ -408,7 +408,7 @@ Up to 30 MB and 500 pages per PDF, and 10 conversions per hour.
 Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.
 
 **Is it free?**
-Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows 10 documents per hour per visitor so the service stays available.
+Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
 ## Rotate PDF pages
 
@@ -445,7 +445,7 @@ Yes, with Undo, or by rotating the page three more times.
 Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.
 
 **Is it free?**
-Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows 10 documents per hour per visitor so the service stays available.
+Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
 ## Delete pages from a PDF
 
@@ -482,7 +482,7 @@ Yes, with Undo, as long as you have not reset the editor.
 Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.
 
 **Is it free?**
-Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows 10 documents per hour per visitor so the service stays available.
+Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
 ## Reorder the pages of a PDF
 
@@ -519,7 +519,7 @@ Yes. Undo goes back step by step.
 Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.
 
 **Is it free?**
-Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows 10 documents per hour per visitor so the service stays available.
+Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
 ## Extract pages from a PDF
 
@@ -556,7 +556,7 @@ No fixed limit; files can be up to 200 MB each.
 Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.
 
 **Is it free?**
-Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows 10 documents per hour per visitor so the service stays available.
+Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows 10 documents per hour per visitor so the service stays available.
 
 ## ID card to PDF, both sides on one page
 
@@ -594,10 +594,10 @@ Yes. Print at 100 % (“Actual size”) and each side measures 85.6 × 54 mm on 
 Drag the four corners onto the corners of the document. With a plain background, even light and the photo taken from above, it usually gets them right the first time.
 
 **Are my photos uploaded?**
-No. Everything happens in your browser and nothing is sent to any server. An active session and license are required to open the workspace.
+No. Everything happens in your browser and nothing is sent to any server. The workspace opens once you sign in with your Elysium account.
 
 **Is it free?**
-Yes, with no ads, no watermark of ours; a verified account and an approved free license are required.
+Yes, with no ads and no watermark of ours, for Elysium clients signed in with their account.
 
 ## Privacy and terms of use
 
@@ -613,9 +613,9 @@ To download a video, the server receives the link you paste, fetches the video f
 
 To keep the service free and available, each operation is checked by Cloudflare Turnstile, which helps tell people from automated abuse, and counted against hourly limits. The limits use a one-way, keyed hash of your IP address that is kept in memory for one hour and never stored with your links or files. Cloudflare processes connection data as our infrastructure provider.
 
-### Accounts, free licenses and privacy
+### Accounts and privacy
 
-The tools have no advertising, no advertising or analytics cookies and no analytics tracking. A verified Elysium account and a free license approved in the CRM are required. Firebase Authentication manages sign-in. The name, email address, request, license status and administrative decisions are stored in the Elysium profile and CRM. An essential secure session cookie is used to authorize operations. We do not sell personal data. The legal basis for the processing described is your request to use the tool and our legitimate interest in preventing abuse (Article 6(1)(b) and (f) GDPR). You can exercise your rights of access, erasure, objection and the others in the GDPR by writing to info@elysiumdr.eu, and complain to the Portuguese data-protection authority (CNPD).
+The tools have no advertising, no advertising or analytics cookies and no analytics tracking. They are for Elysium clients and team: you sign in with your existing Elysium account, managed by Firebase Authentication, and nothing is requested or registered here. To decide access, the name, email address and status of your Elysium profile are read from the CRM. An essential secure session cookie is used to authorize operations. If you connect a YouTube account to download from YouTube, only the youtube.com cookies of that session leave your browser: they are stored encrypted, used only for your own YouTube downloads, never shown again and deleted when you disconnect the account. We do not sell personal data. The legal basis for the processing described is your request to use the tool and our legitimate interest in preventing abuse (Article 6(1)(b) and (f) GDPR). You can exercise your rights of access, erasure, objection and the others in the GDPR by writing to info@elysiumdr.eu, and complain to the Portuguese data-protection authority (CNPD).
 
 ### Acceptable use and copyright
 
@@ -639,7 +639,7 @@ Guarda videos de TikTok, Instagram, Facebook y otras plataformas en todas las re
 
 ### Por qué estas herramientas son gratis
 
-Elysium crea infraestructura digital para pequeñas empresas. Estas herramientas salen de ese trabajo y las dejamos abiertas para cualquiera: sin anuncios ni rastreadores de analítica, con cuenta verificada y licencia gratuita aprobada en el CRM.
+Elysium crea infraestructura digital para pequeñas empresas. Estas herramientas salen de ese trabajo y las dejamos para nuestros clientes: sin anuncios ni rastreadores de analítica, y se abren con la misma cuenta de Elysium.
 Son rápidas porque hacen lo mínimo de nuestro lado. Las páginas de los PDF se editan en tu propio navegador; los videos se obtienen de la plataforma, se te entregan y se borran a los 15 minutos.
 
 ### Preguntas frecuentes
@@ -680,7 +680,7 @@ Cuando un enlace contiene varios videos —un carrusel de Instagram o una lista�
 ### Preguntas frecuentes
 
 **¿Qué plataformas son compatibles?**
-TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, siempre con enlaces públicos. YouTube llegará pronto.
+TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, siempre con enlaces públicos. YouTube funciona cuando conectas tu propia cuenta de YouTube en la herramienta.
 
 **¿Cuál es el tamaño máximo?**
 Hasta 250 MB por archivo. En videos largos, una resolución menor suele caber.
@@ -689,7 +689,7 @@ Hasta 250 MB por archivo. En videos largos, una resolución menor suele caber.
 En la carpeta de descargas habitual de tu navegador. En el teléfono, en la app Archivos o Descargas.
 
 **¿De verdad es gratis?**
-Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
+Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
 
 **¿Puedo descargar cualquier video?**
 Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.
@@ -726,7 +726,7 @@ Todavía no. El descargador funciona con videos; las publicaciones hechas solo d
 Sí. Elige MP3 o M4A y tendrás el audio de ese video.
 
 **¿De verdad es gratis?**
-Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
+Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
 
 **¿Puedo descargar cualquier video?**
 Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.
@@ -763,7 +763,7 @@ No. Descargar un reel público no avisa a nadie. Descarga solo contenido propio 
 Puede que la cuenta sea privada, que la publicación se haya borrado o que Instagram esté limitando las peticiones anónimas en ese momento. Inténtalo un poco más tarde.
 
 **¿De verdad es gratis?**
-Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
+Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
 
 **¿Puedo descargar cualquier video?**
 Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.
@@ -800,7 +800,7 @@ Puede ser privado, estar borrado, tener restricción regional o exigir iniciar s
 Es la mejor versión que Facebook ofrece públicamente para ese video, sin recodificar cuando es posible el MP4.
 
 **¿De verdad es gratis?**
-Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
+Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
 
 **¿Puedo descargar cualquier video?**
 Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.
@@ -837,7 +837,7 @@ No. Los pines de video públicos se descargan sin iniciar sesión.
 Sí, elige MP3 o M4A si el pin tiene sonido.
 
 **¿De verdad es gratis?**
-Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
+Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
 
 **¿Puedo descargar cualquier video?**
 Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.
@@ -874,7 +874,7 @@ Cualquier clip público se puede descargar. Usa los clips de otros creadores sol
 Cada archivo puede tener hasta 250 MB. Elige una resolución menor o descarga un clip.
 
 **¿De verdad es gratis?**
-Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
+Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
 
 **¿Puedo descargar cualquier video?**
 Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.
@@ -911,7 +911,7 @@ No. Funciona con videos subidos a LinkedIn.
 Nunca. El descargador no inicia sesión en LinkedIn; por eso solo funcionan las publicaciones públicas.
 
 **¿De verdad es gratis?**
-Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
+Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: 30 análisis, 10 descargas y 10 conversiones a Word por hora.
 
 **¿Puedo descargar cualquier video?**
 Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.
@@ -951,7 +951,7 @@ No. El PDF que descargas solo contiene tus páginas.
 Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
+Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
 ## Unir archivos PDF
 
@@ -971,7 +971,7 @@ No estás limitado a poner un archivo detrás de otro: puedes intercalar página
 
 ### Privado por diseño
 
-La unión se hace en tu dispositivo; abrir la herramienta requiere cuenta verificada y licencia activa. Tus PDF no se suben al servidor.
+La unión se hace en tu dispositivo; la herramienta se abre con tu cuenta de Elysium. Tus PDF no se suben al servidor.
 
 ### Preguntas frecuentes
 
@@ -988,7 +988,7 @@ Sí. En una pantalla táctil, mantén pulsada una página un momento y arrástra
 Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
+Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
 ## Convertir PDF a Word
 
@@ -1025,7 +1025,7 @@ Hasta 30 MB y 500 páginas por PDF, y 10 conversiones por hora.
 Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
+Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
 ## Girar páginas de un PDF
 
@@ -1062,7 +1062,7 @@ Sí, con Deshacer, o girando la página tres veces más.
 Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
+Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
 ## Eliminar páginas de un PDF
 
@@ -1099,7 +1099,7 @@ Sí, con Deshacer, siempre que no hayas reiniciado el editor.
 Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
+Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
 ## Ordenar las páginas de un PDF
 
@@ -1136,7 +1136,7 @@ Sí. Deshacer vuelve atrás paso a paso.
 Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
+Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
 ## Extraer páginas de un PDF
 
@@ -1173,7 +1173,7 @@ No hay un límite fijo; cada archivo puede tener hasta 200 MB.
 Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
+Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite 10 documentos por hora y visitante para que el servicio siga disponible.
 
 ## Cédula o DNI a PDF, las dos caras en una hoja
 
@@ -1211,10 +1211,10 @@ Sí. Imprime al 100 % («Tamaño real») y cada cara mide 85,6 × 54 mm en el pa
 Arrastra las cuatro esquinas a las puntas del documento. Con un fondo liso, luz pareja y la foto tomada desde arriba, suele acertar a la primera.
 
 **¿Se suben mis fotos a algún servidor?**
-No. Todo ocurre en tu navegador y no se envía nada a ningún servidor. Se requieren sesión y licencia activas para abrir la herramienta.
+No. Todo ocurre en tu navegador y no se envía nada a ningún servidor. La herramienta se abre al iniciar sesión con tu cuenta de Elysium.
 
 **¿Es gratis?**
-Sí, sin anuncios, sin marcas de agua nuestras y con licencia gratuita.
+Sí, sin anuncios ni marcas de agua nuestras, para clientes de Elysium con su cuenta.
 
 ## Privacidad y condiciones de uso
 
@@ -1230,9 +1230,9 @@ Para descargar un video, el servidor recibe el enlace que pegas, obtiene el vide
 
 Para que el servicio siga siendo gratis y disponible, cada operación pasa por Cloudflare Turnstile, que ayuda a distinguir a las personas del abuso automatizado, y cuenta para los límites por hora. Los límites usan un resumen cifrado e irreversible de tu dirección IP que se guarda en memoria durante una hora y nunca junto a tus enlaces o archivos. Cloudflare trata los datos de conexión como proveedor de nuestra infraestructura.
 
-### Cuentas, licencias gratuitas y privacidad
+### Cuentas y privacidad
 
-Las herramientas no tienen publicidad, ni cookies publicitarias o de analítica, ni rastreo de analítica. Se requiere cuenta Elysium verificada y licencia gratuita aprobada en el CRM. Firebase Authentication gestiona el inicio de sesión. El nombre, correo, solicitud, estado de licencia y decisiones administrativas se guardan en el perfil y CRM de Elysium. Una cookie esencial de sesión segura autoriza las operaciones. No vendemos datos personales. La base legal del tratamiento descrito es tu solicitud de usar la herramienta y nuestro interés legítimo en evitar abusos (artículo 6.1.b y 6.1.f del RGPD). Puedes ejercer tus derechos de acceso, supresión, oposición y los demás del RGPD escribiendo a info@elysiumdr.eu, y reclamar ante la autoridad portuguesa de protección de datos (CNPD).
+Las herramientas no tienen publicidad, ni cookies publicitarias o de analítica, ni rastreo de analítica. Son para los clientes y el equipo de Elysium: inicias sesión con tu cuenta de Elysium ya existente, que gestiona Firebase Authentication, y aquí no se solicita ni se registra nada. Para decidir el acceso se leen del CRM el nombre, el correo y el estado de tu perfil de Elysium. Una cookie esencial de sesión segura autoriza las operaciones. Si conectas una cuenta de YouTube para descargar de YouTube, solo salen de tu navegador las cookies de youtube.com de esa sesión: se guardan cifradas, se usan solo para tus propias descargas de YouTube, no se vuelven a mostrar y se borran al desconectar la cuenta. No vendemos datos personales. La base legal del tratamiento descrito es tu solicitud de usar la herramienta y nuestro interés legítimo en evitar abusos (artículo 6.1.b y 6.1.f del RGPD). Puedes ejercer tus derechos de acceso, supresión, oposición y los demás del RGPD escribiendo a info@elysiumdr.eu, y reclamar ante la autoridad portuguesa de protección de datos (CNPD).
 
 ### Uso aceptable y derechos de autor
 
@@ -1256,7 +1256,7 @@ Guarde vídeos do TikTok, Instagram, Facebook e outras plataformas em todas as r
 
 ### Porque é que estas ferramentas são grátis
 
-A Elysium cria infraestrutura digital para pequenas empresas. Estas ferramentas nascem desse trabalho e deixamo-las abertas para qualquer pessoa: sem anúncios nem rastreadores de análise, com conta confirmada e licença gratuita aprovada no CRM.
+A Elysium cria infraestrutura digital para pequenas empresas. Estas ferramentas nascem desse trabalho e deixamo-las para os nossos clientes: sem anúncios nem rastreadores de análise, e abrem com a mesma conta Elysium.
 São rápidas porque fazem o mínimo do nosso lado. As páginas dos PDF são editadas no seu próprio navegador; os vídeos são obtidos da plataforma, entregues e apagados ao fim de 15 minutos.
 
 ### Perguntas frequentes
@@ -1297,7 +1297,7 @@ Quando uma ligação contém vários vídeos — um carrossel do Instagram ou um
 ### Perguntas frequentes
 
 **Que plataformas são compatíveis?**
-TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, sempre com ligações públicas. O YouTube chegará em breve.
+TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, sempre com ligações públicas. O YouTube funciona depois de ligar a sua própria conta do YouTube na ferramenta.
 
 **Qual é o tamanho máximo?**
 Até 250 MB por ficheiro. Em vídeos longos, uma resolução menor costuma caber.
@@ -1306,7 +1306,7 @@ Até 250 MB por ficheiro. Em vídeos longos, uma resolução menor costuma caber
 Na pasta de transferências habitual do seu navegador. No telemóvel, na app Ficheiros ou Transferências.
 
 **É mesmo grátis?**
-Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
+Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
 
 **Posso descarregar qualquer vídeo?**
 Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.
@@ -1343,7 +1343,7 @@ Ainda não. O descarregador funciona com vídeos; as publicações feitas só de
 Sim. Escolha MP3 ou M4A e terá o áudio desse vídeo.
 
 **É mesmo grátis?**
-Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
+Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
 
 **Posso descarregar qualquer vídeo?**
 Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.
@@ -1380,7 +1380,7 @@ Não. Descarregar um reel público não avisa ninguém. Descarregue apenas conte
 A conta pode ser privada, a publicação pode ter sido apagada ou o Instagram pode estar a limitar os pedidos anónimos nesse momento. Tente um pouco mais tarde.
 
 **É mesmo grátis?**
-Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
+Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
 
 **Posso descarregar qualquer vídeo?**
 Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.
@@ -1417,7 +1417,7 @@ Pode ser privado, ter sido apagado, ter restrição regional ou exigir sessão i
 É a melhor versão que o Facebook disponibiliza publicamente para esse vídeo, sem recodificar quando o MP4 é possível.
 
 **É mesmo grátis?**
-Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
+Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
 
 **Posso descarregar qualquer vídeo?**
 Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.
@@ -1454,7 +1454,7 @@ Não. Os pins de vídeo públicos são descarregados sem iniciar sessão.
 Sim, escolha MP3 ou M4A se o pin tiver som.
 
 **É mesmo grátis?**
-Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
+Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
 
 **Posso descarregar qualquer vídeo?**
 Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.
@@ -1491,7 +1491,7 @@ Qualquer clip público pode ser descarregado. Use os clips de outros criadores a
 Cada ficheiro pode ter até 250 MB. Escolha uma resolução menor ou descarregue um clip.
 
 **É mesmo grátis?**
-Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
+Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
 
 **Posso descarregar qualquer vídeo?**
 Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.
@@ -1528,7 +1528,7 @@ Não. Funciona com vídeos carregados no próprio LinkedIn.
 Nunca. O descarregador não inicia sessão no LinkedIn; por isso só funcionam as publicações públicas.
 
 **É mesmo grátis?**
-Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
+Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: 30 análises, 10 transferências e 10 conversões para Word por hora.
 
 **Posso descarregar qualquer vídeo?**
 Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.
@@ -1568,7 +1568,7 @@ Não. O PDF que transfere contém apenas as suas páginas.
 Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.
 
 **É grátis?**
-Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
+Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
 ## Juntar ficheiros PDF
 
@@ -1588,7 +1588,7 @@ Não está limitado a pôr um ficheiro atrás do outro: pode intercalar páginas
 
 ### Privado por conceção
 
-A junção é feita no seu dispositivo; abrir a ferramenta exige uma conta confirmada e uma licença ativa. Os seus PDF não são enviados para o servidor.
+A junção é feita no seu dispositivo; a ferramenta abre com a sua conta Elysium. Os seus PDF não são enviados para o servidor.
 
 ### Perguntas frequentes
 
@@ -1605,7 +1605,7 @@ Sim. Num ecrã tátil, mantenha uma página premida por um momento e arraste-a p
 Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.
 
 **É grátis?**
-Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
+Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
 ## Converter PDF para Word
 
@@ -1642,7 +1642,7 @@ Até 30 MB e 500 páginas por PDF, e 10 conversões por hora.
 Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.
 
 **É grátis?**
-Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
+Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
 ## Rodar páginas de um PDF
 
@@ -1679,7 +1679,7 @@ Sim, com Anular, ou rodando a página mais três vezes.
 Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.
 
 **É grátis?**
-Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
+Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
 ## Eliminar páginas de um PDF
 
@@ -1716,7 +1716,7 @@ Sim, com Anular, desde que não tenha recomeçado o editor.
 Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.
 
 **É grátis?**
-Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
+Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
 ## Ordenar as páginas de um PDF
 
@@ -1753,7 +1753,7 @@ Sim. Anular volta atrás passo a passo.
 Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.
 
 **É grátis?**
-Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
+Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
 ## Extrair páginas de um PDF
 
@@ -1790,7 +1790,7 @@ Não há um limite fixo; cada ficheiro pode ter até 200 MB.
 Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.
 
 **É grátis?**
-Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
+Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite 10 documentos por hora e visitante para o serviço continuar disponível.
 
 ## Cartão de Cidadão em PDF, frente e verso numa folha
 
@@ -1828,10 +1828,10 @@ Sim. Imprima a 100 % («Tamanho real») e cada face mede 85,6 × 54 mm no papel,
 Arraste os quatro cantos para as pontas do documento. Com um fundo liso, luz uniforme e a fotografia tirada de cima, costuma acertar à primeira.
 
 **As minhas fotografias são enviadas para algum servidor?**
-Não. Tudo acontece no seu navegador e nada é enviado para nenhum servidor. São necessárias uma sessão e uma licença ativas para abrir a ferramenta.
+Não. Tudo acontece no seu navegador e nada é enviado para nenhum servidor. A ferramenta abre ao iniciar sessão com a sua conta Elysium.
 
 **É grátis?**
-Sim, sem anúncios, sem marcas de água nossas e com licença gratuita.
+Sim, sem anúncios nem marcas de água nossas, para clientes da Elysium com a sua conta.
 
 ## Privacidade e condições de utilização
 
@@ -1847,9 +1847,9 @@ Para descarregar um vídeo, o servidor recebe a ligação que cola, obtém o ví
 
 Para o serviço continuar grátis e disponível, cada operação passa pelo Cloudflare Turnstile, que ajuda a distinguir as pessoas do abuso automatizado, e conta para os limites por hora. Os limites usam um resumo cifrado e irreversível do seu endereço IP, guardado em memória durante uma hora e nunca junto das suas ligações ou ficheiros. A Cloudflare trata os dados de ligação como fornecedora da nossa infraestrutura.
 
-### Contas, licenças gratuitas e privacidade
+### Contas e privacidade
 
-As ferramentas não têm publicidade, nem cookies publicitários ou de análise, nem rastreio de análise. São necessárias uma conta Elysium confirmada e uma licença gratuita aprovada no CRM. O Firebase Authentication gere o início de sessão. O nome, e-mail, pedido, estado da licença e decisões administrativas são guardados no perfil e CRM da Elysium. Um cookie essencial de sessão segura autoriza as operações. Não vendemos dados pessoais. O fundamento jurídico do tratamento descrito é o seu pedido de utilizar a ferramenta e o nosso interesse legítimo em evitar abusos (artigo 6.º, n.º 1, alíneas b) e f), do RGPD). Pode exercer os seus direitos de acesso, apagamento, oposição e os restantes do RGPD escrevendo para info@elysiumdr.eu, e apresentar reclamação à CNPD.
+As ferramentas não têm publicidade, nem cookies publicitários ou de análise, nem rastreio de análise. São para os clientes e a equipa da Elysium: inicia sessão com a sua conta Elysium já existente, gerida pelo Firebase Authentication, e aqui não se pede nem se regista nada. Para decidir o acesso, são lidos do CRM o nome, o e-mail e o estado do seu perfil Elysium. Um cookie essencial de sessão segura autoriza as operações. Se ligar uma conta do YouTube para descarregar do YouTube, só saem do seu navegador os cookies de youtube.com dessa sessão: são guardados cifrados, usados apenas para as suas próprias transferências do YouTube, nunca voltam a ser mostrados e são apagados quando desliga a conta. Não vendemos dados pessoais. O fundamento jurídico do tratamento descrito é o seu pedido de utilizar a ferramenta e o nosso interesse legítimo em evitar abusos (artigo 6.º, n.º 1, alíneas b) e f), do RGPD). Pode exercer os seus direitos de acesso, apagamento, oposição e os restantes do RGPD escrevendo para info@elysiumdr.eu, e apresentar reclamação à CNPD.
 
 ### Utilização aceitável e direitos de autor
 

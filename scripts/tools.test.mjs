@@ -77,8 +77,9 @@ test('las plataformas prometidas son las que acepta el servicio', () => {
     const promised = content.PLATFORMS.filter(platform => platform.available);
     assert.deepEqual(promised.map(platform => platform.name), publicCopy.PUBLIC_PLATFORMS);
     assert.deepEqual(promised.map(platform => platform.id), [...backend.PUBLIC_PLATFORMS]);
-    const soon = content.PLATFORMS.filter(platform => !platform.available).map(platform => platform.id);
-    assert.deepEqual(soon, [...backend.COMING_SOON]);
+    // YouTube no se promete: funciona con la cuenta de YouTube de cada persona.
+    const account = content.PLATFORMS.filter(platform => !platform.available && platform.account).map(platform => platform.id);
+    assert.deepEqual(account, [...backend.SESSION_PLATFORMS]);
 });
 
 test('los límites que se publican son los del servicio', () => {
@@ -103,9 +104,9 @@ test('los textos públicos de las herramientas declaran las mismas claves en los
     }
     // Cada código que pueden devolver el Worker o la pasarela tiene su texto.
     const codes = ['limit_reached', 'busy', 'public_tools_disabled', 'turnstile_required', 'turnstile_failed',
-        'turnstile_unavailable', 'origin_not_allowed'];
+        'turnstile_unavailable', 'origin_not_allowed', 'account_required'];
     for (const language of content.LANGUAGES) {
-        for (const code of [...codes, 'coming_soon', 'short_link', 'unsupported']) assert.ok(publicCopy.VIDEO_COPY[language].errors[code], `${language}: ${code}`);
+        for (const code of [...codes, 'short_link', 'unsupported']) assert.ok(publicCopy.VIDEO_COPY[language].errors[code], `${language}: ${code}`);
         for (const code of codes) assert.ok(publicCopy.PDF_COPY[language].errors[code], `${language}: ${code}`);
     }
 });
@@ -193,13 +194,15 @@ test('las páginas en español y portugués no se quedan con rótulos en inglés
     }
 });
 
-test('nadie promete YouTube: aparece solo como «próximamente»', () => {
+test('nadie promete YouTube: solo con la cuenta de YouTube de cada persona', () => {
     for (const file of PAGES) {
         const html = FILES.get(file);
         assert.ok(!/<p class="tools-platforms">[^<]*<span[^>]*>[^<]*YouTube/.test(html), `${file}: YouTube en la lista de plataformas`);
         assert.ok(!html.includes('youtube.com/watch'), `${file}: ejemplo de enlace de YouTube`);
+        assert.ok(!/YouTube[^<]{0,40}(?:coming soon|próximamente|em breve)/i.test(html), `${file}: YouTube como «próximamente»`);
     }
-    assert.match(FILES.get('tools/llms.txt'), /Not available yet: YouTube \(coming soon\)/);
+    assert.match(FILES.get('tools/llms.txt'), /YouTube: only with the user's own YouTube account connected in the tool/);
+    assert.doesNotMatch(FILES.get('tools/llms.txt'), /Not available yet: YouTube/);
 });
 
 test('el sitemap tiene todas y solo las páginas indexables, con sus alternativas', () => {
@@ -266,7 +269,8 @@ function stubNetwork(t, { verify = { success: true, hostname: 'tools.elysiumdr.e
     globalThis.fetch = async (input, init) => {
         const request = input instanceof Request ? input : new Request(input, init);
         if (request.url.startsWith('https://account-service.test/')) {
-            return Response.json({ allowed, license: allowed ? { licenseCode: 'ELY-TOOLS-FREE-TEST', status: 'active' } : null }, { status: accessStatus });
+            return Response.json({ allowed, ...(allowed ? { uid: 'client-uid' } : {}),
+                account: { status: allowed ? 'active' : 'no_account', kind: allowed ? 'client' : null } }, { status: accessStatus });
         }
         calls.push(request);
         if (request.url.startsWith('https://challenges.cloudflare.com/')) {
@@ -372,7 +376,8 @@ test('API pública: origen, Turnstile y cabeceras de la pasarela', async t => {
         Authorization: 'Bearer sesion-del-crm',
         Cookie: 'sesion=1',
         'X-Elysium-Public-Key': 'inventada',
-        'X-Elysium-Client-IP': '10.0.0.1'
+        'X-Elysium-Client-IP': '10.0.0.1',
+        'X-Elysium-User': 'otra-cuenta'
     });
     assert.equal(response.status, 200);
     assert.equal(response.headers.get('X-Robots-Tag'), 'noindex');
@@ -384,6 +389,8 @@ test('API pública: origen, Turnstile y cabeceras de la pasarela', async t => {
     assert.equal(upstream.url, `${SECRETS.ELYSIUM_TOOLS_ORIGIN}/api/tools/public/video/inspect`);
     assert.equal(upstream.headers.get('X-Elysium-Public-Key'), SECRETS.TOOLS_PUBLIC_GATEWAY_KEY);
     assert.equal(upstream.headers.get('X-Elysium-Client-IP'), '203.0.113.9');
+    // La cuenta es la que comprobó el servicio de cuentas, nunca la que llega de fuera.
+    assert.equal(upstream.headers.get('X-Elysium-User'), 'client-uid');
     assert.equal(upstream.headers.get('Authorization'), null);
     assert.equal(upstream.headers.get('Cookie'), null);
     assert.equal(upstream.headers.get('X-Turnstile-Token'), null);
@@ -410,6 +417,27 @@ test('API pública: Turnstile caído, rechazado o de otro host', async t => {
         stubNetwork(st, { verify: { success: true, hostname: 'otra-web.example' } });
         assert.equal((await (await post()).json()).code, 'turnstile_failed');
     });
+});
+
+test('API pública: la sesión de YouTube se guarda con Turnstile y se retira sin él', async t => {
+    const calls = stubNetwork(t);
+    const youtube = (method, headers = {}) => tools('/api/tools/public/youtube/session', {
+        method, headers: { Cookie: '__Host-elysium-tools=test-session', Origin: ORIGIN, 'Content-Type': 'application/json', ...headers },
+        body: method === 'PUT' ? '{"cookies":"# Netscape HTTP Cookie File"}' : undefined
+    }, SECRETS);
+    assert.equal((await (await youtube('PUT', { Origin: 'https://otra-web.example', 'X-Turnstile-Token': 'token-ok' })).json()).code, 'origin_not_allowed');
+    assert.equal((await (await youtube('PUT')).json()).code, 'turnstile_required');
+    assert.equal((await (await youtube('DELETE', { Origin: 'https://otra-web.example' })).json()).code, 'origin_not_allowed');
+    assert.equal(calls.length, 0);
+    assert.equal((await youtube('PUT', { 'X-Turnstile-Token': 'token-ok' })).status, 200);
+    const [verify, put] = calls;
+    assert.match(verify.url, /challenges\.cloudflare\.com/);
+    assert.equal(put.method, 'PUT');
+    assert.equal(put.headers.get('X-Elysium-User'), 'client-uid');
+    assert.equal((await youtube('DELETE')).status, 200);
+    assert.equal(calls.length, 3, 'retirar la sesión no pasa por Turnstile');
+    assert.equal(calls[2].method, 'DELETE');
+    assert.equal(calls[2].headers.get('X-Elysium-User'), 'client-uid');
 });
 
 test('API pública: lo que no necesita Turnstile y lo que no existe aquí', async t => {
@@ -469,18 +497,20 @@ test('acceso: el HTML público nunca contiene las herramientas operativas ni sus
         assert.ok(!/<script[^>]*src="[^\"]*admin-(?:tools|pdf|id-card)\.js/.test(html), path);
         if (!/privacidad|privacy-and-terms|privacidade/.test(path)) assert.match(html, /data-tools-account/, path);
         assert.ok(!/No sign-up|Sin registro|Sem registo/.test(html), path);
+        // Solo se inicia sesión con una cuenta Elysium: ni registro ni solicitud de licencia.
+        assert.ok(!/data-signup-form|data-account-request|data-account-license/.test(html), path);
     }
     assert.match(FILES.get('worker/tools-workspaces.js'), /tools-video-form/);
 });
 
-test('acceso: sin cuenta o sin licencia no se entregan interfaz, capacidades, operaciones ni archivos', async t => {
+test('acceso: sin cuenta Elysium no se entregan interfaz, capacidades, operaciones ni archivos', async t => {
     const calls = stubNetwork(t, { allowed: false });
     const paths = ['/api/tools/workspace?page=pdf:edit&lang=es', '/api/tools/public/capabilities', '/api/tools/files/token'];
     for (const path of paths) {
         assert.equal((await tools(path, {}, SECRETS)).status, 401, path);
-        const denied = await tools(path, { headers: { Cookie: '__Host-elysium-tools=valid-but-unlicensed' } }, SECRETS);
+        const denied = await tools(path, { headers: { Cookie: '__Host-elysium-tools=valid-but-not-a-client' } }, SECRETS);
         assert.equal(denied.status, 403, path);
-        assert.equal((await denied.json()).code, 'license_required');
+        assert.equal((await denied.json()).code, 'account_required');
     }
     assert.equal((await tools('/api/tools/public/video/inspect', { method: 'POST',
         headers: { Authorization: 'Bearer unlicensed', Origin: ORIGIN, 'X-Turnstile-Token': 'valid-turnstile' } }, SECRETS)).status, 403);
@@ -499,7 +529,7 @@ test('acceso: una sesión revocada y un servicio de cuentas caído fallan cerrad
     }
 });
 
-test('acceso: licencia activa entrega la interfaz en su idioma sin caché y solo a través de la API', async t => {
+test('acceso: una cuenta Elysium entrega la interfaz en su idioma sin caché y solo a través de la API', async t => {
     stubNetwork(t);
     const response = await tools('/api/tools/workspace?page=pdf:edit&lang=pt', {
         headers: { Cookie: '__Host-elysium-tools=licensed' } }, SECRETS);
@@ -512,7 +542,7 @@ test('acceso: licencia activa entrega la interfaz en su idioma sin caché y solo
     assert.equal((await tools('/worker/tools-workspaces.js')).status, 404);
 });
 
-test('acceso: sesión HttpOnly exige token verificado y origen propio; la solicitud no admite orígenes ajenos', async t => {
+test('acceso: sesión HttpOnly exige token verificado y origen propio; ya no hay solicitudes de licencia', async t => {
     stubNetwork(t);
     const login = { method: 'POST', headers: { Origin: ORIGIN, Authorization: 'Bearer verified' } };
     const response = await tools('/api/tools/account/session', login, SECRETS);
@@ -521,8 +551,10 @@ test('acceso: sesión HttpOnly exige token verificado y origen propio; la solici
     for (const attribute of ['__Host-elysium-tools=verified', 'HttpOnly', 'Secure', 'SameSite=Lax', 'Path=/']) assert.ok(cookie.includes(attribute));
     const foreign = { ...login, headers: { ...login.headers, Origin: 'https://foreign.example' } };
     assert.equal((await tools('/api/tools/account/session', foreign, SECRETS)).status, 403);
-    assert.equal((await tools('/api/tools/account/request', foreign, SECRETS)).status, 403);
+    assert.equal((await tools('/api/tools/account/request', login, SECRETS)).status, 404);
     assert.equal((await tools('/api/tools/account/admin', login, SECRETS)).status, 404);
+    const access = await tools('/api/tools/account/access', { headers: { Authorization: 'Bearer verified' } }, SECRETS);
+    assert.equal((await access.json()).account.kind, 'client');
     const logout = await tools('/api/tools/account/session', { method: 'DELETE', headers: { Origin: ORIGIN } }, SECRETS);
     assert.match(logout.headers.get('Set-Cookie'), /Max-Age=0/);
 });

@@ -17,20 +17,19 @@ test('YouTube recovery reconstructs only canonical public watch URLs', () => {
     }
 });
 
-test('YouTube bot checks offer official owner export routes in three languages', () => {
-    for (const language of ['en', 'es', 'pt']) {
-        const recovery = videoRecovery({ code: 'bot_check', platform: 'YouTube' }, { sourceUrl: canonical, language });
-        assert.ok(recovery.explanation.length > 80);
-        assert.deepEqual(recovery.links.map(link => link.url), [canonical, 'https://studio.youtube.com/',
-            'https://takeout.google.com/', `https://support.google.com/youtube/answer/56100?hl=${language}`]);
-        assert.ok(recovery.links.every(link => link.label.length > 5));
+test('YouTube failures that need a session offer to connect the YouTube account', () => {
+    for (const code of ['youtube_session_required', 'youtube_session_expired', 'bot_check', 'login_required', 'age_restricted']) {
+        assert.deepEqual(videoRecovery({ code, platform: 'YouTube' }, { sourceUrl: canonical, youtubeSessions: true }),
+            { connect: true, watchUrl: canonical }, code);
     }
-    assert.equal(videoRecovery({ code: 'network', platform: 'YouTube' }, { sourceUrl: canonical }), null);
-    assert.equal(videoRecovery({ code: 'bot_check', platform: 'Instagram' }, { sourceUrl: 'https://instagram.com/reel/123/' }), null);
+    // Sin sesiones en el servicio, solo queda abrir el video en YouTube.
+    assert.deepEqual(videoRecovery({ code: 'bot_check', platform: 'YouTube' }, { sourceUrl: canonical }), { connect: false, watchUrl: canonical });
+    assert.equal(videoRecovery({ code: 'network', platform: 'YouTube' }, { sourceUrl: canonical, youtubeSessions: true }), null);
+    assert.equal(videoRecovery({ code: 'bot_check', platform: 'Instagram' }, { sourceUrl: 'https://instagram.com/reel/123/', youtubeSessions: true }), null);
+    assert.equal(videoRecovery({ code: 'login_required', platform: 'Instagram' }, { sourceUrl: 'https://instagram.com/reel/123/', youtubeSessions: true }), null);
 });
 
 test('Malformed input never becomes a recovery destination', () => {
-    const recovery = videoRecovery({ code: 'bot_check', platform: 'YouTube' }, { sourceUrl: 'https://attacker.test/', language: 'unknown' });
-    assert.equal(recovery.links.length, 3);
-    assert.ok(recovery.links.every(link => !link.url.includes('attacker')));
+    const recovery = videoRecovery({ code: 'youtube_session_required', platform: 'YouTube' }, { sourceUrl: 'https://attacker.test/', youtubeSessions: true });
+    assert.deepEqual(recovery, { connect: true, watchUrl: null });
 });

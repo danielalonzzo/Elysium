@@ -394,13 +394,16 @@ el del libro. Ocho cosas que no se ven abriéndola:
 
 **`tools/` es tools.elysiumdr.eu (Elysium Tools), no una carpeta del sitio.**
 
-El catálogo es público, pero usar las herramientas exige cuenta Firebase con
-correo verificado y licencia gratuita aprobada manualmente en CRM → Licencias
-→ Elysium Tools. `JS/tools-account.js` gestiona la cuenta y la solicitud;
-`backend/tools-license-routes.js` registra perfiles, solicitudes y licencias sin
-tocar suscripciones pagadas. `tools_requests/{uid}` y `tools_access/{uid}` son
-escritos solo por el backend; la concesión también queda en `licenses` y en
-`members.toolsLicense`. Suspender o desactivar el perfil bloquea el acceso.
+El catálogo es público, pero las herramientas son **para clientes y equipo de
+Elysium, con la cuenta que ya tienen**: un perfil del CRM (`members/{uid}`), un
+administrador, un correo @elysiumdr.eu verificado o una cuenta con `crmAccess`.
+Iniciar sesión basta: no hay solicitud, licencia aparte ni aprobación, y el
+subdominio no crea cuentas (decisión del 4/11/2026; hasta entonces se pedía una
+licencia gratuita aprobada a mano y nadie llegó a tenerla). `JS/tools-account.js`
+solo inicia sesión; `backend/tools-license-routes.js` (`GET /access`, nombre
+heredado) lo decide sin escribir nada. Desactivar el perfil en el CRM corta el
+acceso, salvo a un administrador. El correo tiene que estar verificado, como en
+toda la plataforma.
 
 Las páginas generadas no contienen paneles operativos ni cargan sus módulos.
 El generador guarda los paneles en `worker/tools-workspaces.js`, excluido de
@@ -435,8 +438,10 @@ entero que los acumula. La cabecera y el pie de todas las páginas lo enlazan
    las cuentas con licencia de Tools). Ese `await import()` hace que el módulo termine
    después de DOMContentLoaded: en modo público arranca sin esperarlo, o no
    arrancaría nunca. Un cambio en esos módulos afecta a los dos sitios.
-4. **La API de usuarios con licencia solo existe en el subdominio**, y cada POST pasa por
-   Cloudflare Turnstile y por la comprobación del `Origin`. Necesita la
+4. **La API de las cuentas Elysium solo existe en el subdominio**, y cada POST o PUT pasa por
+   Cloudflare Turnstile y por la comprobación del `Origin` (un DELETE, solo por el `Origin`).
+   El Worker reenvía el uid que comprobó (`X-Elysium-User`): es lo que dice de quién es
+   la sesión de YouTube que se usa. Necesita la
    variable `TURNSTILE_SITE_KEY` (`wrangler.jsonc`) y dos secretos del Worker,
    `TURNSTILE_SECRET_KEY` y `TOOLS_PUBLIC_GATEWAY_KEY` (este último, el mismo
    que el de Cloud Run): sin cualquiera de ellos responde 503 y las páginas lo
@@ -444,9 +449,12 @@ entero que los acumula. La cabecera y el pie de todas las páginas lo enlazan
 5. **Lo que se promete tiene que funcionar.** Las plataformas salieron de una
    sonda desde Cloud Run y están en tres listas que tienen que coincidir
    (`content.mjs`, `tools-public.js`, `backend/tools/public-tools.js`); los
-   límites que citan las páginas son los del servicio. YouTube no tiene descarga automática disponible. Si el CRM recibe
-   `bot_check`, ofrece accesos oficiales a YouTube Studio y Takeout para
-   vídeos propios, sin pedir cookies ni proponer eludir el bloqueo. Lo vigila
+   límites que citan las páginas son los del servicio. **YouTube va con la cuenta de
+   YouTube de cada persona** (decisión del usuario, 4/11/2026): desde Google Cloud pide
+   «confirmar que no es un bot», y la sección «Cuenta de YouTube» del descargador sube
+   el cookies.txt de una sesión iniciada (ver `backend/tools/youtube-session.js`). No se
+   promete como plataforma pública ni tiene página: las páginas dicen «con tu cuenta de
+   YouTube» (`account: true` en `content.mjs`). Lo vigila
    `scripts/tools.test.mjs`, que además revisa el SEO de cada página (un `h1`,
    canónica, `hreflang` recíprocos, datos estructurados con las mismas
    preguntas que se ven) y el enrutado del Worker.
@@ -512,10 +520,16 @@ Worker. `_redirects` lleva con 301 `/ONCORE/*` a la misma ruta en
      última versión, y cuando una plataforma deja de funcionar es lo primero.
      La versión en uso sale en el pie del descargador.
   3. **Desde las IP de Google, YouTube pide «confirmar que no es un bot»**
-     (comprobado el 29/10/2026; TikTok e Instagram públicos sí funcionan): el
-     CRM lo dice con su código, y se resuelve con cookies de una cuenta
-     secundaria o un proxy (`YTDLP_COOKIES_FILE`, `YTDLP_PROXY`). El
-     despliegue, la cuenta de servicio y las variables están en
+     (comprobado el 29/10/2026; TikTok e Instagram públicos sí funcionan). Se
+     resuelve con la sesión de YouTube **de quien descarga**, nunca con una
+     compartida: cada cuenta Elysium conecta la suya en «Cuenta de YouTube»
+     (CRM y tools.elysiumdr.eu, la misma por uid). Solo se guardan las cookies
+     de youtube.com (el navegador ya filtra el fichero), cifradas con
+     AES-256-GCM y atadas al uid, en el bucket `elysiumdr-eu-tools-youtube`,
+     que solo lee la cuenta de servicio `elysium-tools`; la clave está en
+     Secret Manager (`tools-youtube-key`). Nunca vuelven al navegador. Si
+     yt-dlp avisa de que ya no valen, la sesión pasa a «caducada» y se pide
+     otra. El despliegue, la cuenta de servicio y las variables están en
      `backend/tools/README.md`.
   4. **PyMuPDF, debajo de pdf2docx, es AGPL**, y desde el 30/10/2026 la
      conversión es pública (tools.elysiumdr.eu). Se usa sin modificar, la página

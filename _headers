@@ -150,9 +150,6 @@
 /JS/admin.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
-/JS/admin-tools-licenses.js
-  Cache-Control: no-cache, max-age=0, must-revalidate
-
 /JS/tools-account.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 

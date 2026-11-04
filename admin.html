@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="CSS/customer-portal.css?v=2026082609">
     <link rel="stylesheet" href="CSS/admin-portal.css?v=2026102601">
     <link rel="stylesheet" href="CSS/admin-research.css?v=2026082601">
-    <link rel="stylesheet" href="CSS/admin-tools.css?v=2026103103">
+    <link rel="stylesheet" href="CSS/admin-tools.css?v=2026110401">
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
@@ -1211,6 +1211,12 @@
                     <p class="tools-platforms"><span translate="no">YouTube · TikTok · Instagram · X · Facebook · Vimeo · Reddit · LinkedIn</span> <span id="tools-video-platforms-more" data-i18n-dynamic="admin-tools.js:applyCopy">and 1,800+ more sites</span></p>
                 </form>
 
+                <!-- La cuenta de YouTube de quien descarga: desde el servidor,
+                     YouTube solo deja descargar con una sesión iniciada
+                     (backend/tools/youtube-session.js). Se enseña cuando el
+                     servicio la admite. -->
+                <div class="tools-youtube" id="tools-youtube" data-i18n-dynamic="admin-tools.js:renderYoutube" hidden></div>
+
                 <div class="portal-alert is-warning" id="tools-service-alert" role="status" data-i18n-dynamic="admin-tools.js:renderService" hidden></div>
                 <div class="portal-alert is-error" id="tools-video-alert" role="alert" aria-live="polite" data-i18n-dynamic="admin-tools.js:showAlert" hidden></div>
 
@@ -1603,9 +1609,9 @@
          Served under /api on this same origin; set window.ELYSIUM_API_URL
          instead if it ever moves to its own host (and add it to connect-src). -->
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
-    <script type="module" src="JS/admin.js?v=2026102601"></script>
+    <script type="module" src="JS/admin.js?v=2026110401"></script>
     <script type="module" src="JS/admin-research.js?v=2026082602"></script>
-    <script type="module" src="JS/admin-tools.js?v=2026103103"></script>
+    <script type="module" src="JS/admin-tools.js?v=2026110401"></script>
     <script type="module" src="JS/admin-pdf.js?v=2026103101"></script>
     <script type="module" src="JS/admin-id-card.js?v=2026103101"></script>
     <script defer src="JS/version-modal.js"></script>

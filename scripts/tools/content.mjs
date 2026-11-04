@@ -9,8 +9,10 @@
  * los modelos de lenguaje lo citan tal cual. Las plataformas salen de una sonda
  * desde Cloud Run (29/10/2026 y 30/10/2026); una que deje de funcionar se marca
  * `available: false` y desaparece de las promesas, de las listas y del
- * sitemap, no solo del menú. YouTube está así hasta que el servicio salga por
- * un proxy residencial: desde las IP de Google pide «confirmar que no es un bot».
+ * sitemap, no solo del menú. YouTube va aparte (`account: true`): desde las IP
+ * de Google pide «confirmar que no es un bot», así que solo descarga con la
+ * cuenta de YouTube que cada persona conecta en la herramienta. No se promete
+ * como plataforma pública ni tiene página propia.
  *
  * Registro: en español se trata de tú (es una herramienta de consumo, como el
  * propio interfaz de las herramientas); en portugués, el europeo formal del
@@ -45,7 +47,7 @@ export const PLATFORMS = [
     { id: 'linkedin', name: 'LinkedIn', available: true },
     { id: 'snapchat', name: 'Snapchat', available: true },
     { id: 'bluesky', name: 'Bluesky', available: true },
-    { id: 'youtube', name: 'YouTube', available: false }
+    { id: 'youtube', name: 'YouTube', available: false, account: true }
 ];
 
 /** La fecha que se publica como `lastmod`. Se cambia al cambiar el contenido. */
@@ -93,7 +95,7 @@ export const UI = {
         navPdf: 'PDF editor',
         navAll: 'All tools',
         language: 'Language',
-        badges: ['100% free', 'No ads', 'Free license'],
+        badges: ['100% free', 'No ads', 'For Elysium clients'],
         crumbHome: 'Tools',
         breadcrumb: 'Breadcrumb',
         how: 'How it works',
@@ -108,18 +110,18 @@ export const UI = {
         legal: 'Privacy and terms',
         mainSite: 'Elysium λ Development & Research',
         aboutText: 'Elysium Tools is made by Elysium λ Development & Research, a digital-infrastructure company based in Portugal. The tools are free and carry no advertising.',
-        pending: names => `Coming soon: ${names}.`,
         open: 'Open the tool',
         soon: 'Coming soon',
+        withAccount: 'With your YouTube account',
         noscript: 'This tool needs JavaScript. Everything else on this page works without it.',
         responsible: 'Download only content you own or have permission to use. Respect the rights of creators and the terms of each platform.',
         sharedFaqVideo: [
-            ['Is it really free?', 'Yes. There are no ads or paid subscriptions; a verified account and an approved free license are required. Fair-use limits keep the service available for everyone: {inspections} link checks, {downloads} downloads and {conversions} Word conversions per hour.'],
+            ['Is it really free?', 'Yes. There are no ads or paid subscriptions. The tools are for Elysium clients: sign in with your Elysium account, with nothing to request. Fair-use limits keep the service available for everyone: {inspections} link checks, {downloads} downloads and {conversions} Word conversions per hour.'],
             ['Can I download any video?', 'Only public videos. Content that is private, requires signing in, is age-restricted or is a live stream in progress cannot be downloaded. Download only videos you own or have permission to use.']
         ],
         sharedFaqPdf: [
             ['Are my PDF files uploaded?', 'Not to edit them: merging, reordering, rotating, deleting and extracting pages happen inside your browser and the file never leaves your device. Only “Convert to Word” sends the edited PDF to the Elysium server, which deletes it as soon as the Word file exists.'],
-            ['Is it free?', 'Yes, with no ads, watermarks; a verified account and an approved free license are required. Word conversion allows {conversions} documents per hour per visitor so the service stays available.']
+            ['Is it free?', 'Yes, with no ads or watermarks, for Elysium clients signed in with their account. Word conversion allows {conversions} documents per hour per visitor so the service stays available.']
         ]
     },
     es: {
@@ -129,7 +131,7 @@ export const UI = {
         navPdf: 'Editor de PDF',
         navAll: 'Todas las herramientas',
         language: 'Idioma',
-        badges: ['100 % gratis', 'Sin anuncios', 'Licencia gratuita'],
+        badges: ['100 % gratis', 'Sin anuncios', 'Para clientes de Elysium'],
         crumbHome: 'Herramientas',
         breadcrumb: 'Ruta de navegación',
         how: 'Cómo funciona',
@@ -144,18 +146,18 @@ export const UI = {
         legal: 'Privacidad y condiciones',
         mainSite: 'Elysium λ Development & Research',
         aboutText: 'Elysium Tools es un proyecto de Elysium λ Development & Research, empresa de infraestructura digital con sede en Portugal. Las herramientas son gratis y no llevan publicidad.',
-        pending: names => `Próximamente: ${names}.`,
         open: 'Abrir la herramienta',
         soon: 'Próximamente',
+        withAccount: 'Con tu cuenta de YouTube',
         noscript: 'Esta herramienta necesita JavaScript. El resto de la página funciona sin él.',
         responsible: 'Descarga solo contenido propio o que tengas permiso para usar. Respeta los derechos de quien lo creó y las condiciones de cada plataforma.',
         sharedFaqVideo: [
-            ['¿De verdad es gratis?', 'Sí. No hay anuncios ni suscripciones de pago. Se requieren cuenta verificada y licencia gratuita aprobada. Para que el servicio siga disponible para todos hay límites de uso justo: {inspections} análisis, {downloads} descargas y {conversions} conversiones a Word por hora.'],
+            ['¿De verdad es gratis?', 'Sí. No hay anuncios ni suscripciones de pago. Las herramientas son para clientes de Elysium: inicias sesión con tu cuenta de Elysium y no hay nada que solicitar. Para que el servicio siga disponible para todos hay límites de uso justo: {inspections} análisis, {downloads} descargas y {conversions} conversiones a Word por hora.'],
             ['¿Puedo descargar cualquier video?', 'Solo videos públicos. No se puede descargar contenido privado, que exija iniciar sesión, con restricción de edad o una transmisión en directo que no ha terminado. Descarga solo videos propios o que tengas permiso para usar.']
         ],
         sharedFaqPdf: [
             ['¿Se suben mis PDF a algún servidor?', 'Para editarlos, no: unir, ordenar, girar, eliminar y extraer páginas ocurre dentro de tu navegador y el archivo no sale de tu dispositivo. Solo «Convertir a Word» envía el PDF editado al servidor de Elysium, que lo borra en cuanto existe el Word.'],
-            ['¿Es gratis?', 'Sí, sin anuncios, sin marcas de agua y con licencia gratuita. La conversión a Word admite {conversions} documentos por hora y visitante para que el servicio siga disponible.']
+            ['¿Es gratis?', 'Sí, sin anuncios ni marcas de agua, para clientes de Elysium con su cuenta. La conversión a Word admite {conversions} documentos por hora y visitante para que el servicio siga disponible.']
         ]
     },
     pt: {
@@ -165,7 +167,7 @@ export const UI = {
         navPdf: 'Editor de PDF',
         navAll: 'Todas as ferramentas',
         language: 'Idioma',
-        badges: ['100% grátis', 'Sem anúncios', 'Licença gratuita'],
+        badges: ['100% grátis', 'Sem anúncios', 'Para clientes da Elysium'],
         crumbHome: 'Ferramentas',
         breadcrumb: 'Caminho de navegação',
         how: 'Como funciona',
@@ -180,18 +182,18 @@ export const UI = {
         legal: 'Privacidade e condições',
         mainSite: 'Elysium λ Development & Research',
         aboutText: 'A Elysium Tools é um projeto da Elysium λ Development & Research, empresa de infraestrutura digital sediada em Portugal. As ferramentas são grátis e não têm publicidade.',
-        pending: names => `Em breve: ${names}.`,
         open: 'Abrir a ferramenta',
         soon: 'Em breve',
+        withAccount: 'Com a sua conta do YouTube',
         noscript: 'Esta ferramenta precisa de JavaScript. O resto da página funciona sem ele.',
         responsible: 'Descarregue apenas conteúdo próprio ou que tenha autorização para usar. Respeite os direitos de quem o criou e as condições de cada plataforma.',
         sharedFaqVideo: [
-            ['É mesmo grátis?', 'Sim. Não há anúncios nem subscrições pagas. São necessárias uma conta confirmada e uma licença gratuita aprovada. Para o serviço continuar disponível para todos, há limites de utilização justa: {inspections} análises, {downloads} transferências e {conversions} conversões para Word por hora.'],
+            ['É mesmo grátis?', 'Sim. Não há anúncios nem subscrições pagas. As ferramentas são para clientes da Elysium: inicia sessão com a sua conta Elysium e não há nada a pedir. Para o serviço continuar disponível para todos, há limites de utilização justa: {inspections} análises, {downloads} transferências e {conversions} conversões para Word por hora.'],
             ['Posso descarregar qualquer vídeo?', 'Apenas vídeos públicos. Não é possível descarregar conteúdo privado, que exija sessão iniciada, com restrição de idade ou uma emissão em direto ainda a decorrer. Descarregue apenas vídeos próprios ou que tenha autorização para usar.']
         ],
         sharedFaqPdf: [
             ['Os meus PDF são enviados para algum servidor?', 'Para os editar, não: juntar, ordenar, rodar, eliminar e extrair páginas acontece dentro do seu navegador e o ficheiro não sai do seu dispositivo. Só «Converter para Word» envia o PDF editado para o servidor da Elysium, que o apaga assim que o Word existe.'],
-            ['É grátis?', 'Sim, sem anúncios, marcas de água; são necessárias uma conta confirmada e uma licença gratuita aprovada. A conversão para Word admite {conversions} documentos por hora e visitante para o serviço continuar disponível.']
+            ['É grátis?', 'Sim, sem anúncios nem marcas de água, para clientes da Elysium com a sua conta. A conversão para Word admite {conversions} documentos por hora e visitante para o serviço continuar disponível.']
         ]
     }
 };
@@ -223,7 +225,7 @@ export const PAGES = [
                 future: 'More tools',
                 why: 'Why these tools are free',
                 whyText: [
-                    'Elysium builds digital infrastructure for small businesses. These tools come from that work and we keep them open for anyone: no ads or analytics trackers, with a verified account and a free license approved in the CRM.',
+                    'Elysium builds digital infrastructure for small businesses. These tools come from that work and we keep them for our clients: no ads or analytics trackers, and they open with the same Elysium account.',
                     'They are fast because they do as little as possible on our side. PDF pages are edited in your own browser; videos are fetched from the platform, delivered to you and deleted after {fileMinutes} minutes.'
                 ],
                 faq: [
@@ -243,7 +245,7 @@ export const PAGES = [
                 future: 'Más herramientas',
                 why: 'Por qué estas herramientas son gratis',
                 whyText: [
-                    'Elysium crea infraestructura digital para pequeñas empresas. Estas herramientas salen de ese trabajo y las dejamos abiertas para cualquiera: sin anuncios ni rastreadores de analítica, con cuenta verificada y licencia gratuita aprobada en el CRM.',
+                    'Elysium crea infraestructura digital para pequeñas empresas. Estas herramientas salen de ese trabajo y las dejamos para nuestros clientes: sin anuncios ni rastreadores de analítica, y se abren con la misma cuenta de Elysium.',
                     'Son rápidas porque hacen lo mínimo de nuestro lado. Las páginas de los PDF se editan en tu propio navegador; los videos se obtienen de la plataforma, se te entregan y se borran a los {fileMinutes} minutos.'
                 ],
                 faq: [
@@ -263,7 +265,7 @@ export const PAGES = [
                 future: 'Mais ferramentas',
                 why: 'Porque é que estas ferramentas são grátis',
                 whyText: [
-                    'A Elysium cria infraestrutura digital para pequenas empresas. Estas ferramentas nascem desse trabalho e deixamo-las abertas para qualquer pessoa: sem anúncios nem rastreadores de análise, com conta confirmada e licença gratuita aprovada no CRM.',
+                    'A Elysium cria infraestrutura digital para pequenas empresas. Estas ferramentas nascem desse trabalho e deixamo-las para os nossos clientes: sem anúncios nem rastreadores de análise, e abrem com a mesma conta Elysium.',
                     'São rápidas porque fazem o mínimo do nosso lado. As páginas dos PDF são editadas no seu próprio navegador; os vídeos são obtidos da plataforma, entregues e apagados ao fim de {fileMinutes} minutos.'
                 ],
                 faq: [
@@ -297,7 +299,7 @@ export const PAGES = [
                     ['Posts with several videos', 'When a link contains several videos — an Instagram carousel or a playlist — you see the list and choose which one to download.']
                 ],
                 faq: [
-                    ['Which platforms are supported?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, always with public links. YouTube is coming soon.'],
+                    ['Which platforms are supported?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat and Bluesky, always with public links. YouTube works once you connect your own YouTube account in the tool.'],
                     ['What is the maximum file size?', 'Up to {videoMaxMb} MB per file. For long videos, a lower resolution usually fits.'],
                     ['Where is the file saved?', 'In your browser’s usual downloads folder. On a phone, in the Files or Downloads app.']
                 ]
@@ -318,7 +320,7 @@ export const PAGES = [
                     ['Publicaciones con varios videos', 'Cuando un enlace contiene varios videos —un carrusel de Instagram o una lista—, verás la lista y elegirás cuál descargar.']
                 ],
                 faq: [
-                    ['¿Qué plataformas son compatibles?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, siempre con enlaces públicos. YouTube llegará pronto.'],
+                    ['¿Qué plataformas son compatibles?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky, siempre con enlaces públicos. YouTube funciona cuando conectas tu propia cuenta de YouTube en la herramienta.'],
                     ['¿Cuál es el tamaño máximo?', 'Hasta {videoMaxMb} MB por archivo. En videos largos, una resolución menor suele caber.'],
                     ['¿Dónde se guarda el archivo?', 'En la carpeta de descargas habitual de tu navegador. En el teléfono, en la app Archivos o Descargas.']
                 ]
@@ -339,7 +341,7 @@ export const PAGES = [
                     ['Publicações com vários vídeos', 'Quando uma ligação contém vários vídeos — um carrossel do Instagram ou uma lista —, verá a lista e escolherá qual descarregar.']
                 ],
                 faq: [
-                    ['Que plataformas são compatíveis?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, sempre com ligações públicas. O YouTube chegará em breve.'],
+                    ['Que plataformas são compatíveis?', 'TikTok, Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat e Bluesky, sempre com ligações públicas. O YouTube funciona depois de ligar a sua própria conta do YouTube na ferramenta.'],
                     ['Qual é o tamanho máximo?', 'Até {videoMaxMb} MB por ficheiro. Em vídeos longos, uma resolução menor costuma caber.'],
                     ['Onde é guardado o ficheiro?', 'Na pasta de transferências habitual do seu navegador. No telemóvel, na app Ficheiros ou Transferências.']
                 ]
@@ -356,7 +358,7 @@ export const PAGES = [
         copy: {
             en: {
                 title: 'TikTok video downloader without watermark',
-                description: 'Download TikTok videos without watermark in their original quality, as MP4 or as MP3/M4A audio. Free, no ads, no app and a free license.',
+                description: 'Download TikTok videos without watermark in their original quality, as MP4 or as MP3/M4A audio. Free, no ads and no app, for Elysium clients.',
                 h1: 'Download TikTok videos without watermark',
                 lead: 'Save public TikTok videos as the original file the platform serves: no TikTok logo moving across the screen and no username stamped on top.',
                 steps: [
@@ -376,7 +378,7 @@ export const PAGES = [
             },
             es: {
                 title: 'Descargar videos de TikTok sin marca de agua',
-                description: 'Descarga videos de TikTok sin marca de agua y en su calidad original, en MP4 o solo el audio en MP3/M4A. Gratis, sin anuncios, sin app y con licencia gratuita.',
+                description: 'Descarga videos de TikTok sin marca de agua y en su calidad original, en MP4 o solo el audio en MP3/M4A. Gratis y sin app, para clientes de Elysium.',
                 h1: 'Descargar videos de TikTok sin marca de agua',
                 lead: 'Guarda videos públicos de TikTok tal como los sirve la plataforma: sin el logotipo de TikTok moviéndose por la pantalla y sin el nombre de usuario encima.',
                 steps: [
@@ -396,7 +398,7 @@ export const PAGES = [
             },
             pt: {
                 title: 'Descarregar vídeos do TikTok sem marca de água',
-                description: 'Descarregue vídeos do TikTok sem marca de água e na qualidade original, em MP4 ou só o áudio em MP3/M4A. Grátis, sem anúncios, sem app e com licença gratuita.',
+                description: 'Descarregue vídeos do TikTok sem marca de água e na qualidade original, em MP4 ou só o áudio em MP3/M4A. Grátis e sem app, para clientes da Elysium.',
                 h1: 'Descarregar vídeos do TikTok sem marca de água',
                 lead: 'Guarde vídeos públicos do TikTok tal como a plataforma os serve: sem o logótipo do TikTok a mexer-se no ecrã e sem o nome de utilizador por cima.',
                 steps: [
@@ -852,7 +854,7 @@ export const PAGES = [
                 ],
                 sections: [
                     ['Order exactly as you want', 'You are not limited to putting one file after another: you can interleave pages from different files, remove covers or blank pages and rotate scanned sheets before saving.'],
-                    ['Private by design', 'Merging happens on your device; the workspace requires a verified account and an active license. Your PDF files are not uploaded.']
+                    ['Private by design', 'Merging happens on your device; the workspace opens with your Elysium account. Your PDF files are not uploaded.']
                 ],
                 faq: [
                     ['How many PDFs can I merge?', 'As many as your device can handle; each file can be up to {pdfEditMaxMb} MB.'],
@@ -872,7 +874,7 @@ export const PAGES = [
                 ],
                 sections: [
                     ['El orden exacto que quieras', 'No estás limitado a poner un archivo detrás de otro: puedes intercalar páginas de distintos archivos, quitar portadas o páginas en blanco y girar hojas escaneadas antes de guardar.'],
-                    ['Privado por diseño', 'La unión se hace en tu dispositivo; abrir la herramienta requiere cuenta verificada y licencia activa. Tus PDF no se suben al servidor.']
+                    ['Privado por diseño', 'La unión se hace en tu dispositivo; la herramienta se abre con tu cuenta de Elysium. Tus PDF no se suben al servidor.']
                 ],
                 faq: [
                     ['¿Cuántos PDF puedo unir?', 'Tantos como aguante tu dispositivo; cada archivo puede tener hasta {pdfEditMaxMb} MB.'],
@@ -892,7 +894,7 @@ export const PAGES = [
                 ],
                 sections: [
                     ['A ordem exata que quiser', 'Não está limitado a pôr um ficheiro atrás do outro: pode intercalar páginas de ficheiros diferentes, retirar capas ou páginas em branco e rodar folhas digitalizadas antes de guardar.'],
-                    ['Privado por conceção', 'A junção é feita no seu dispositivo; abrir a ferramenta exige uma conta confirmada e uma licença ativa. Os seus PDF não são enviados para o servidor.']
+                    ['Privado por conceção', 'A junção é feita no seu dispositivo; a ferramenta abre com a sua conta Elysium. Os seus PDF não são enviados para o servidor.']
                 ],
                 faq: [
                     ['Quantos PDF posso juntar?', 'Tantos quantos o seu dispositivo aguentar; cada ficheiro pode ter até {pdfEditMaxMb} MB.'],
@@ -1268,8 +1270,8 @@ export const PAGES = [
                     ['Which documents does it work with?', 'Any card-sized document (ID-1, 85.6 × 54 mm): national identity cards such as the Costa Rican cédula, the Spanish DNI or the Portuguese Cartão de Cidadão, residence permits, driving licences and health cards.'],
                     ['Will it print at the real size?', 'Yes. Print at 100 % (“Actual size”) and each side measures 85.6 × 54 mm on paper, like a photocopy. Choose “Larger” if it has to be easier to read.'],
                     ['What if the edges are not found?', 'Drag the four corners onto the corners of the document. With a plain background, even light and the photo taken from above, it usually gets them right the first time.'],
-                    ['Are my photos uploaded?', 'No. Everything happens in your browser and nothing is sent to any server. An active session and license are required to open the workspace.'],
-                    ['Is it free?', 'Yes, with no ads, no watermark of ours; a verified account and an approved free license are required.']
+                    ['Are my photos uploaded?', 'No. Everything happens in your browser and nothing is sent to any server. The workspace opens once you sign in with your Elysium account.'],
+                    ['Is it free?', 'Yes, with no ads and no watermark of ours, for Elysium clients signed in with their account.']
                 ]
             },
             es: {
@@ -1291,8 +1293,8 @@ export const PAGES = [
                     ['¿Con qué documentos funciona?', 'Con cualquier documento del tamaño de una tarjeta (ID-1, 85,6 × 54 mm): cédulas de identidad como la de Costa Rica, el DNI español o el Cartão de Cidadão portugués, tarjetas de residencia, licencias de conducir y carnés de salud.'],
                     ['¿Se imprime a tamaño real?', 'Sí. Imprime al 100 % («Tamaño real») y cada cara mide 85,6 × 54 mm en el papel, como una fotocopia. Elige «Más grande» si tiene que leerse mejor.'],
                     ['¿Y si no encuentra los bordes?', 'Arrastra las cuatro esquinas a las puntas del documento. Con un fondo liso, luz pareja y la foto tomada desde arriba, suele acertar a la primera.'],
-                    ['¿Se suben mis fotos a algún servidor?', 'No. Todo ocurre en tu navegador y no se envía nada a ningún servidor. Se requieren sesión y licencia activas para abrir la herramienta.'],
-                    ['¿Es gratis?', 'Sí, sin anuncios, sin marcas de agua nuestras y con licencia gratuita.']
+                    ['¿Se suben mis fotos a algún servidor?', 'No. Todo ocurre en tu navegador y no se envía nada a ningún servidor. La herramienta se abre al iniciar sesión con tu cuenta de Elysium.'],
+                    ['¿Es gratis?', 'Sí, sin anuncios ni marcas de agua nuestras, para clientes de Elysium con su cuenta.']
                 ]
             },
             pt: {
@@ -1314,8 +1316,8 @@ export const PAGES = [
                     ['Com que documentos funciona?', 'Com qualquer documento do tamanho de um cartão (ID-1, 85,6 × 54 mm): o Cartão de Cidadão, o DNI espanhol ou a cédula costa-riquenha, títulos de residência, cartas de condução e cartões de saúde.'],
                     ['É impresso em tamanho real?', 'Sim. Imprima a 100 % («Tamanho real») e cada face mede 85,6 × 54 mm no papel, como uma fotocópia. Escolha «Maior» se tiver de se ler melhor.'],
                     ['E se não encontrar os bordos?', 'Arraste os quatro cantos para as pontas do documento. Com um fundo liso, luz uniforme e a fotografia tirada de cima, costuma acertar à primeira.'],
-                    ['As minhas fotografias são enviadas para algum servidor?', 'Não. Tudo acontece no seu navegador e nada é enviado para nenhum servidor. São necessárias uma sessão e uma licença ativas para abrir a ferramenta.'],
-                    ['É grátis?', 'Sim, sem anúncios, sem marcas de água nossas e com licença gratuita.']
+                    ['As minhas fotografias são enviadas para algum servidor?', 'Não. Tudo acontece no seu navegador e nada é enviado para nenhum servidor. A ferramenta abre ao iniciar sessão com a sua conta Elysium.'],
+                    ['É grátis?', 'Sim, sem anúncios nem marcas de água nossas, para clientes da Elysium com a sua conta.']
                 ]
             }
         }
@@ -1333,7 +1335,7 @@ export const PAGES = [
                 sections: [
                     ['What we process', 'To download a video, the server receives the link you paste, fetches the video from the platform and keeps the resulting file for {fileMinutes} minutes so your browser can save it; then it is deleted. To convert a PDF to Word, the server receives the edited PDF, deletes it as soon as the Word file exists and deletes the Word file after {fileMinutes} minutes. PDF pages edited in the browser (merge, reorder, rotate, delete, extract) and the photos used in “ID card to PDF” never reach our servers.'],
                     ['IP address, limits and protection against abuse', 'To keep the service free and available, each operation is checked by Cloudflare Turnstile, which helps tell people from automated abuse, and counted against hourly limits. The limits use a one-way, keyed hash of your IP address that is kept in memory for one hour and never stored with your links or files. Cloudflare processes connection data as our infrastructure provider.'],
-                    ['Accounts, free licenses and privacy', 'The tools have no advertising, no advertising or analytics cookies and no analytics tracking. A verified Elysium account and a free license approved in the CRM are required. Firebase Authentication manages sign-in. The name, email address, request, license status and administrative decisions are stored in the Elysium profile and CRM. An essential secure session cookie is used to authorize operations. We do not sell personal data. The legal basis for the processing described is your request to use the tool and our legitimate interest in preventing abuse (Article 6(1)(b) and (f) GDPR). You can exercise your rights of access, erasure, objection and the others in the GDPR by writing to info@elysiumdr.eu, and complain to the Portuguese data-protection authority (CNPD).'],
+                    ['Accounts and privacy', 'The tools have no advertising, no advertising or analytics cookies and no analytics tracking. They are for Elysium clients and team: you sign in with your existing Elysium account, managed by Firebase Authentication, and nothing is requested or registered here. To decide access, the name, email address and status of your Elysium profile are read from the CRM. An essential secure session cookie is used to authorize operations. If you connect a YouTube account to download from YouTube, only the youtube.com cookies of that session leave your browser: they are stored encrypted, used only for your own YouTube downloads, never shown again and deleted when you disconnect the account. We do not sell personal data. The legal basis for the processing described is your request to use the tool and our legitimate interest in preventing abuse (Article 6(1)(b) and (f) GDPR). You can exercise your rights of access, erasure, objection and the others in the GDPR by writing to info@elysiumdr.eu, and complain to the Portuguese data-protection authority (CNPD).'],
                     ['Acceptable use and copyright', 'Use the tools only with content you own or have permission to use, and respect the terms of each platform. Do not use the tools to infringe copyright or for automated bulk downloading. Rights holders can report misuse to info@elysiumdr.eu. The tools do not store or republish content.'],
                     ['No warranty', 'The tools are provided free of charge, as they are, without guarantees of availability or results. Platforms change constantly and a link that works today may stop working. To the extent permitted by law, Elysium is not liable for losses arising from their use. These terms are governed by Portuguese law.'],
                     ['Open-source software', 'The PDF editor runs pdf.js (Apache 2.0) and pdf-lib (MIT) in your browser. On the server, the video downloader uses yt-dlp (Unlicense) and FFmpeg (LGPL/GPL), and Word conversion uses pdf2docx (MIT) with PyMuPDF (GNU AGPL v3), all without modifications. The source code of the Elysium components that work with them is available on request at info@elysiumdr.eu.']
@@ -1347,7 +1349,7 @@ export const PAGES = [
                 sections: [
                     ['Qué procesamos', 'Para descargar un video, el servidor recibe el enlace que pegas, obtiene el video de la plataforma y guarda el archivo resultante {fileMinutes} minutos para que tu navegador lo descargue; después se borra. Para convertir un PDF a Word, el servidor recibe el PDF editado, lo borra en cuanto existe el Word y borra el Word a los {fileMinutes} minutos. Las páginas de PDF que editas en el navegador (unir, ordenar, girar, eliminar, extraer) y las fotos de «Cédula o DNI a PDF» nunca llegan a nuestros servidores.'],
                     ['Dirección IP, límites y protección contra abusos', 'Para que el servicio siga siendo gratis y disponible, cada operación pasa por Cloudflare Turnstile, que ayuda a distinguir a las personas del abuso automatizado, y cuenta para los límites por hora. Los límites usan un resumen cifrado e irreversible de tu dirección IP que se guarda en memoria durante una hora y nunca junto a tus enlaces o archivos. Cloudflare trata los datos de conexión como proveedor de nuestra infraestructura.'],
-                    ['Cuentas, licencias gratuitas y privacidad', 'Las herramientas no tienen publicidad, ni cookies publicitarias o de analítica, ni rastreo de analítica. Se requiere cuenta Elysium verificada y licencia gratuita aprobada en el CRM. Firebase Authentication gestiona el inicio de sesión. El nombre, correo, solicitud, estado de licencia y decisiones administrativas se guardan en el perfil y CRM de Elysium. Una cookie esencial de sesión segura autoriza las operaciones. No vendemos datos personales. La base legal del tratamiento descrito es tu solicitud de usar la herramienta y nuestro interés legítimo en evitar abusos (artículo 6.1.b y 6.1.f del RGPD). Puedes ejercer tus derechos de acceso, supresión, oposición y los demás del RGPD escribiendo a info@elysiumdr.eu, y reclamar ante la autoridad portuguesa de protección de datos (CNPD).'],
+                    ['Cuentas y privacidad', 'Las herramientas no tienen publicidad, ni cookies publicitarias o de analítica, ni rastreo de analítica. Son para los clientes y el equipo de Elysium: inicias sesión con tu cuenta de Elysium ya existente, que gestiona Firebase Authentication, y aquí no se solicita ni se registra nada. Para decidir el acceso se leen del CRM el nombre, el correo y el estado de tu perfil de Elysium. Una cookie esencial de sesión segura autoriza las operaciones. Si conectas una cuenta de YouTube para descargar de YouTube, solo salen de tu navegador las cookies de youtube.com de esa sesión: se guardan cifradas, se usan solo para tus propias descargas de YouTube, no se vuelven a mostrar y se borran al desconectar la cuenta. No vendemos datos personales. La base legal del tratamiento descrito es tu solicitud de usar la herramienta y nuestro interés legítimo en evitar abusos (artículo 6.1.b y 6.1.f del RGPD). Puedes ejercer tus derechos de acceso, supresión, oposición y los demás del RGPD escribiendo a info@elysiumdr.eu, y reclamar ante la autoridad portuguesa de protección de datos (CNPD).'],
                     ['Uso aceptable y derechos de autor', 'Usa las herramientas solo con contenido propio o que tengas permiso para usar, y respeta las condiciones de cada plataforma. No las uses para infringir derechos de autor ni para descargas masivas automatizadas. Quien tenga derechos sobre un contenido puede comunicar un uso indebido a info@elysiumdr.eu. Las herramientas no almacenan ni republican contenido.'],
                     ['Sin garantía', 'Las herramientas se ofrecen gratis, tal como son, sin garantías de disponibilidad ni de resultados. Las plataformas cambian constantemente y un enlace que funciona hoy puede dejar de hacerlo. En la medida en que la ley lo permite, Elysium no responde de los perjuicios derivados de su uso. Estas condiciones se rigen por la ley portuguesa.'],
                     ['Software de código abierto', 'El editor de PDF usa pdf.js (Apache 2.0) y pdf-lib (MIT) en tu navegador. En el servidor, el descargador de videos usa yt-dlp (Unlicense) y FFmpeg (LGPL/GPL), y la conversión a Word usa pdf2docx (MIT) con PyMuPDF (GNU AGPL v3), todos sin modificar. El código de los componentes de Elysium que trabajan con ellos está disponible a petición en info@elysiumdr.eu.']
@@ -1361,7 +1363,7 @@ export const PAGES = [
                 sections: [
                     ['O que processamos', 'Para descarregar um vídeo, o servidor recebe a ligação que cola, obtém o vídeo da plataforma e guarda o ficheiro resultante {fileMinutes} minutos para o seu navegador o transferir; depois é apagado. Para converter um PDF para Word, o servidor recebe o PDF editado, apaga-o assim que o Word existe e apaga o Word ao fim de {fileMinutes} minutos. As páginas de PDF que edita no navegador (juntar, ordenar, rodar, eliminar, extrair) e as fotografias de «Cartão de Cidadão em PDF» nunca chegam aos nossos servidores.'],
                     ['Endereço IP, limites e proteção contra abusos', 'Para o serviço continuar grátis e disponível, cada operação passa pelo Cloudflare Turnstile, que ajuda a distinguir as pessoas do abuso automatizado, e conta para os limites por hora. Os limites usam um resumo cifrado e irreversível do seu endereço IP, guardado em memória durante uma hora e nunca junto das suas ligações ou ficheiros. A Cloudflare trata os dados de ligação como fornecedora da nossa infraestrutura.'],
-                    ['Contas, licenças gratuitas e privacidade', 'As ferramentas não têm publicidade, nem cookies publicitários ou de análise, nem rastreio de análise. São necessárias uma conta Elysium confirmada e uma licença gratuita aprovada no CRM. O Firebase Authentication gere o início de sessão. O nome, e-mail, pedido, estado da licença e decisões administrativas são guardados no perfil e CRM da Elysium. Um cookie essencial de sessão segura autoriza as operações. Não vendemos dados pessoais. O fundamento jurídico do tratamento descrito é o seu pedido de utilizar a ferramenta e o nosso interesse legítimo em evitar abusos (artigo 6.º, n.º 1, alíneas b) e f), do RGPD). Pode exercer os seus direitos de acesso, apagamento, oposição e os restantes do RGPD escrevendo para info@elysiumdr.eu, e apresentar reclamação à CNPD.'],
+                    ['Contas e privacidade', 'As ferramentas não têm publicidade, nem cookies publicitários ou de análise, nem rastreio de análise. São para os clientes e a equipa da Elysium: inicia sessão com a sua conta Elysium já existente, gerida pelo Firebase Authentication, e aqui não se pede nem se regista nada. Para decidir o acesso, são lidos do CRM o nome, o e-mail e o estado do seu perfil Elysium. Um cookie essencial de sessão segura autoriza as operações. Se ligar uma conta do YouTube para descarregar do YouTube, só saem do seu navegador os cookies de youtube.com dessa sessão: são guardados cifrados, usados apenas para as suas próprias transferências do YouTube, nunca voltam a ser mostrados e são apagados quando desliga a conta. Não vendemos dados pessoais. O fundamento jurídico do tratamento descrito é o seu pedido de utilizar a ferramenta e o nosso interesse legítimo em evitar abusos (artigo 6.º, n.º 1, alíneas b) e f), do RGPD). Pode exercer os seus direitos de acesso, apagamento, oposição e os restantes do RGPD escrevendo para info@elysiumdr.eu, e apresentar reclamação à CNPD.'],
                     ['Utilização aceitável e direitos de autor', 'Use as ferramentas apenas com conteúdo próprio ou que tenha autorização para usar, e respeite as condições de cada plataforma. Não as use para violar direitos de autor nem para descargas massivas automatizadas. Quem tenha direitos sobre um conteúdo pode comunicar uma utilização indevida para info@elysiumdr.eu. As ferramentas não armazenam nem republicam conteúdo.'],
                     ['Sem garantia', 'As ferramentas são oferecidas gratuitamente, tal como são, sem garantias de disponibilidade nem de resultados. As plataformas mudam constantemente e uma ligação que funciona hoje pode deixar de funcionar. Na medida permitida por lei, a Elysium não responde por prejuízos decorrentes da sua utilização. Estas condições regem-se pela lei portuguesa.'],
                     ['Software de código aberto', 'O editor de PDF usa o pdf.js (Apache 2.0) e o pdf-lib (MIT) no seu navegador. No servidor, o descarregador de vídeos usa o yt-dlp (Unlicense) e o FFmpeg (LGPL/GPL), e a conversão para Word usa o pdf2docx (MIT) com o PyMuPDF (GNU AGPL v3), todos sem modificações. O código dos componentes da Elysium que trabalham com eles está disponível a pedido em info@elysiumdr.eu.']

@@ -1,5 +1,8 @@
 import { ACCOUNT_COPY } from './tools-account-copy.js';
 
+// Las herramientas son para cuentas Elysium que ya existen (clientes del CRM y
+// equipo): aquí solo se inicia sesión. No se crean cuentas ni se pide nada; el
+// servicio de cuentas decide y el Worker lo vuelve a comprobar en cada operación.
 const SDK = 'https://www.gstatic.com/firebasejs/10.8.0/';
 const language = String(document.documentElement.lang).slice(0, 2);
 const copy = ACCOUNT_COPY[language] || ACCOUNT_COPY.en;
@@ -11,11 +14,9 @@ const show = (selector, visible) => { const element = gate.querySelector(selecto
 const message = text => { status.textContent = text; };
 const removeWorkspace = () => { if (workspace) workspace.replaceChildren(); loaded = false; };
 
-async function api(path, { method = 'GET', body } = {}) {
-    const headers = { Authorization: `Bearer ${await user.getIdToken()}` };
-    if (body) headers['Content-Type'] = 'application/json';
-    const response = await fetch(`/api/tools/account/${path}`, { method, headers,
-        body: body ? JSON.stringify(body) : undefined, cache: 'no-store' });
+async function api(path, { method = 'GET' } = {}) {
+    const response = await fetch(`/api/tools/account/${path}`, { method,
+        headers: { Authorization: `Bearer ${await user.getIdToken()}` }, cache: 'no-store' });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw Object.assign(new Error(data.code || 'account_error'), { code: data.code });
     return data;
@@ -41,7 +42,6 @@ async function refresh() {
     sessionUid = user?.uid;
     show('[data-account-auth]', !user);
     show('[data-account-profile]', Boolean(user));
-    show('[data-account-request]', false);
     show('[data-account-verify]', false);
     show('[data-account-active]', false);
     if (!user) { removeWorkspace(); message(''); return; }
@@ -57,17 +57,14 @@ async function refresh() {
     try {
         const data = await api('session', { method: 'POST' });
         if (id !== refreshId) return;
-        const state = data.license?.status || data.request?.status;
         if (data.allowed === true) {
             show('[data-account-active]', true);
-            gate.querySelector('[data-account-license]').textContent = data.license.licenseCode;
+            gate.querySelector('[data-account-kind]').textContent = data.account?.kind === 'team' ? copy.kindTeam : copy.kindClient;
             message(copy.active);
             await mountWorkspace(id, user.uid);
         } else {
             removeWorkspace();
-            show('[data-account-request]', !state);
-            gate.querySelector('[name="name"]').value = data.profile?.name || user.displayName || '';
-            message(copy[state] || copy.intro);
+            message(copy[data.account?.status] || copy.no_account);
         }
     } catch {
         if (id !== refreshId) return;
@@ -80,7 +77,7 @@ async function action(operation) {
     busy = true;
     gate.querySelectorAll('button').forEach(button => { button.disabled = true; });
     try { await operation(); }
-    catch (error) { message(error.code === 'auth/email-already-in-use' ? copy.emailInUse : error.code?.startsWith('auth/') ? copy.authError : copy.error); }
+    catch (error) { message(error.code?.startsWith('auth/') ? copy.authError : copy.error); }
     finally { busy = false; gate.querySelectorAll('button').forEach(button => { button.disabled = false; }); }
 }
 
@@ -101,27 +98,10 @@ if (gate) {
             event.preventDefault(); const form = event.currentTarget;
             action(async () => { await sdk.signInWithEmailAndPassword(auth, form.email.value.trim(), form.password.value); form.reset(); });
         });
-        gate.querySelector('[data-signup-form]').addEventListener('submit', event => {
-            event.preventDefault(); const form = event.currentTarget;
-            action(async () => {
-                const credential = await sdk.createUserWithEmailAndPassword(auth, form.email.value.trim(), form.password.value);
-                await sdk.updateProfile(credential.user, { displayName: form.fullName.value.trim() });
-                await sdk.sendEmailVerification(credential.user, returnUrl());
-                form.reset(); message(copy.registered);
-            });
-        });
-        gate.querySelector('[data-account-request]').addEventListener('submit', event => {
-            event.preventDefault(); const form = event.currentTarget;
-            action(async () => { await api('request', { method: 'POST', body: { name: form.elements.name.value,
-                note: form.note.value, language, responsibleUse: form.responsibleUse.checked } }); await refresh(); });
-        });
         gate.addEventListener('click', event => {
             const button = event.target.closest('[data-account-action]');
             if (!button) return;
             const kind = button.dataset.accountAction;
-            if (kind === 'login' || kind === 'register') {
-                show('[data-signin-form]', kind === 'login'); show('[data-signup-form]', kind === 'register'); message(''); return;
-            }
             action(async () => {
                 if (kind === 'logout') {
                     await fetch('/api/tools/account/session', { method: 'DELETE' });
@@ -138,7 +118,7 @@ if (gate) {
                 }
             });
         });
-        // A suspended license is enforced on every server request; this also removes an idle workspace.
+        // Un perfil desactivado se corta en cada petición al servidor; esto además retira un espacio de trabajo inactivo.
         setInterval(() => { if (document.visibilityState === 'visible' && auth.currentUser && !busy) refresh(); }, 60000);
         window.addEventListener('focus', () => { if (!busy) refresh(); });
     } catch { message(copy.error); }

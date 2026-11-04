@@ -346,8 +346,10 @@ function platformCards(language, exclude = null) {
     const ui = UI[language];
     const linked = platformPages().filter(page => page.id !== exclude).map(page => card(page, language, CARDS[page.id][language]));
     const plain = PLATFORMS.filter(platform => platform.available && !SITE_PAGES.some(page => page.platform === platform.id));
+    // YouTube no es una promesa pública: funciona con la cuenta de YouTube de
+    // cada persona, y así se dice. Lo que no funciona, «próximamente».
     const soon = PLATFORMS.filter(platform => !platform.available);
-    const pending = soon.map(platform => `<li><div class="ts-card ts-card-soon" aria-disabled="true"><strong>${esc(platform.name)}</strong><em>${esc(ui.soon)}</em></div></li>`);
+    const pending = soon.map(platform => `<li><div class="ts-card ts-card-soon" aria-disabled="true"><strong>${esc(platform.name)}</strong><em>${esc(platform.account ? ui.withAccount : ui.soon)}</em></div></li>`);
     return `<ul class="ts-cards">${[...linked, ...pending].join('')}</ul>${plain.length ? `
         <ul class="ts-chips" aria-label="${esc(ui.relatedVideo)}">${plain.map(platform => `<li translate="no">${esc(platform.name)}</li>`).join('')}</ul>` : ''}`;
 }
@@ -634,37 +636,26 @@ function licensedWorkspace(page, language) {
         <noscript><p class="ts-noscript">${esc(UI[language].noscript)}</p></noscript>`;
 }
 
+// Solo se inicia sesión: las cuentas Elysium ya existen (clientes del CRM y
+// equipo), aquí no se crean ni se pide una licencia (JS/tools-account.js).
 function accountGate(language) {
     const t = ACCOUNT_COPY[language];
     const input = (label, name, type, extra = '') => `<label>${esc(label)}<input name="${name}" type="${type}" required ${extra}></label>`;
     return `<section class="ts-account" data-tools-account id="account">
-        <span class="ts-eyebrow">${esc(t.useLicense)}</span><h2>${esc(t.title)}</h2><p>${esc(t.intro)}</p>
+        <span class="ts-eyebrow">${esc(t.eyebrow)}</span><h2>${esc(t.title)}</h2><p>${esc(t.intro)}</p>
         <p data-account-status role="status" aria-live="polite"></p>
         <div data-account-auth>
-            <div class="ts-account-actions"><button class="btn" type="button" data-account-action="login">${esc(t.signIn)}</button><button class="btn" type="button" data-account-action="register">${esc(t.register)}</button></div>
             <form data-signin-form class="ts-account-form">
                 ${input(t.email, 'email', 'email', 'autocomplete="username" maxlength="254"')}
                 ${input(t.password, 'password', 'password', 'autocomplete="current-password"')}
                 <div class="ts-account-actions"><button class="btn btn-primary" type="submit">${esc(t.signIn)}</button><button class="btn" type="button" data-account-action="reset">${esc(t.reset)}</button></div>
-            </form>
-            <form data-signup-form class="ts-account-form" hidden>
-                ${input(t.name, 'fullName', 'text', 'autocomplete="name" maxlength="120"')}
-                ${input(t.email, 'email', 'email', 'autocomplete="email" maxlength="254"')}
-                ${input(`${t.password} (${t.passwordHint})`, 'password', 'password', 'autocomplete="new-password" minlength="8" maxlength="128"')}
-                <button class="btn btn-primary" type="submit">${esc(t.register)}</button>
             </form>
         </div>
         <div data-account-profile hidden><p><strong data-account-email></strong></p>
             <div class="ts-account-actions"><a class="btn" href="https://elysiumdr.eu/profiles?lang=${language}&amp;view=client">${esc(t.profile)}</a><button class="btn" type="button" data-account-action="refresh">${esc(t.refresh)}</button><button class="btn" type="button" data-account-action="logout">${esc(t.signOut)}</button></div>
         </div>
         <div data-account-verify hidden><button class="btn" type="button" data-account-action="resend">${esc(t.resend)}</button></div>
-        <form class="ts-account-form" data-account-request hidden>
-            ${input(t.name, 'name', 'text', 'autocomplete="name" maxlength="120"')}
-            <label>${esc(t.note)}<textarea name="note" maxlength="500" rows="3"></textarea></label>
-            <label class="ts-account-check"><input type="checkbox" name="responsibleUse" required><span>${esc(t.agree)}</span></label>
-            <button class="btn btn-primary" type="submit">${esc(t.request)}</button>
-        </form>
-        <div data-account-active hidden><p><strong data-account-license></strong></p><a class="btn btn-primary" href="${urlFor(byId('video'), language)}">${esc(t.open)}</a></div>
+        <div data-account-active hidden><p><strong data-account-kind></strong></p><a class="btn btn-primary" href="${urlFor(byId('video'), language)}">${esc(t.open)}</a></div>
         <p class="ts-account-note">${esc(t.responsible)} <a href="${urlFor(byId('legal'), language)}">${esc(t.privacy)}</a></p>
         <noscript><p>${esc(t.intro)}</p></noscript>
     </section>`;
@@ -783,13 +774,14 @@ Sitemap: ${ORIGIN}/sitemap.xml
 }
 
 const PLATFORM_LIST = PLATFORMS.filter(platform => platform.available).map(platform => platform.name);
-const SOON_LIST = PLATFORMS.filter(platform => !platform.available).map(platform => platform.name);
+const ACCOUNT_LIST = PLATFORMS.filter(platform => !platform.available && platform.account).map(platform => platform.name);
+const SOON_LIST = PLATFORMS.filter(platform => !platform.available && !platform.account).map(platform => platform.name);
 
 function facts() {
     return [
-        `- Price: free. No advertising, no paid subscriptions; a verified account and an approved free license are required. No analytics or advertising cookies.`,
+        `- Price: free. No advertising, no paid subscriptions. For Elysium clients: sign in with an existing Elysium account, with nothing to request. No analytics or advertising cookies.`,
         `- Publisher: ${PUBLISHER} (Bragança, Portugal), https://elysiumdr.eu/`,
-        `- Video downloader: public links from ${PLATFORM_LIST.join(', ')}. Not available yet: ${SOON_LIST.join(', ')} (coming soon). Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.`,
+        `- Video downloader: public links from ${PLATFORM_LIST.join(', ')}.${ACCOUNT_LIST.length ? ` ${ACCOUNT_LIST.join(', ')}: only with the user's own ${ACCOUNT_LIST.join(', ')} account connected in the tool (its session is stored encrypted and used only for that user's downloads).` : ''}${SOON_LIST.length ? ` Not available yet: ${SOON_LIST.join(', ')} (coming soon).` : ''} Private posts, content behind a login, age-restricted videos and live streams in progress cannot be downloaded.`,
         `- Video quality: the resolutions the platform publishes for each video (up to 4K or 8K when they exist); nothing is upscaled. MP4 with H.264/AAC up to 1080p where the platform offers it, VP9 or AV1 above that on some platforms. Audio only as MP3 or M4A. Posts with several videos: the user chooses one.`,
         `- Video limits: up to ${LIMITS.videoMaxMb} MB per file; the file is deleted ${LIMITS.fileMinutes} minutes after it is ready.`,
         `- PDF editor: merge PDFs, reorder, rotate, delete and extract pages inside the browser (files are not uploaded for these tasks), up to ${LIMITS.pdfEditMaxMb} MB per file. PDF to Word (.docx) runs on the Elysium server: up to ${LIMITS.pdfConvertMaxMb} MB and ${LIMITS.pdfConvertMaxPages} pages; the PDF is deleted as soon as the .docx exists and the .docx after ${LIMITS.fileMinutes} minutes. The .docx opens in Microsoft Word, Apple Pages, Google Docs and LibreOffice. Scanned PDFs become page images (no OCR). Password-protected PDFs are not supported.`,
@@ -804,7 +796,7 @@ function llms() {
     const list = language => SITE_PAGES.filter(page => page.type !== 'home').map(page => entry(page, language)).join('\n');
     return `# ${BRAND}
 
-> Free online tools by ${PUBLISHER}, with no ads and a free license: a video downloader for public videos from ${PLATFORM_LIST.join(', ')} in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
+> Free online tools by ${PUBLISHER} for its clients, with no ads: a video downloader for public videos from ${PLATFORM_LIST.join(', ')} in every resolution the platform offers (MP4, MP3 or M4A), a PDF editor that merges, reorders, rotates, deletes and extracts pages in the browser and converts PDF to Word, and a tool that puts both sides of an ID card on one PDF page without uploading the photos.
 
 ${facts().join('\n')}
 
@@ -858,12 +850,12 @@ function catalog() {
     return `${JSON.stringify({
         name: BRAND,
         url: `${ORIGIN}/`,
-        description: 'Free online video downloader, PDF editor and ID card to PDF tool, with no ads and a free license.',
+        description: 'Free online video downloader, PDF editor and ID card to PDF tool for Elysium clients, with no ads.',
         publisher: { name: PUBLISHER, url: 'https://elysiumdr.eu/' },
         updated: UPDATED,
         price: 'free',
         advertising: false,
-        account: 'verified account and approved free license required',
+        account: 'existing Elysium client account required',
         languages: LANGUAGES.map(language => LOCALES[language]),
         limits: {
             perVisitorPerHour: {
@@ -884,7 +876,7 @@ function catalog() {
                 urls: urls(byId('video')),
                 status: 'available',
                 processing: 'server',
-                platforms: { available: PLATFORM_LIST, comingSoon: SOON_LIST },
+                platforms: { available: PLATFORM_LIST, withOwnAccount: ACCOUNT_LIST, comingSoon: SOON_LIST },
                 platformPages: Object.fromEntries(platformPages().map(page => [platformName(page.platform), urls(page)])),
                 formats: ['MP4', 'MP3', 'M4A'],
                 resolutions: 'every resolution the platform publishes for the video, up to 4320p; no upscaling'
@@ -951,22 +943,22 @@ function mainLlmsBlock(language) {
     const languages = others.map(other => `${names[other]}: ${urlFor(byId('home'), other)}`).join(' · ');
     const lines = {
         en: [
-            `Free online tools by ${PUBLISHER} on their own site, ${home}: no ads, with a verified account, an approved free license and fair-use limits per hour.`,
-            `- [${LABELS.video.en}](${urlFor(video, 'en')}): public videos from ${list}, in every resolution the platform offers, as MP4, MP3 or M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: coming soon.` : ''}`,
+            `Free online tools by ${PUBLISHER} for its clients on their own site, ${home}: no ads, signing in with an Elysium account and fair-use limits per hour.`,
+            `- [${LABELS.video.en}](${urlFor(video, 'en')}): public videos from ${list}, in every resolution the platform offers, as MP4, MP3 or M4A.${ACCOUNT_LIST.length ? ` ${ACCOUNT_LIST.join(', ')}: with your own account connected.` : ''}${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: coming soon.` : ''}`,
             `- [${LABELS.pdf.en}](${urlFor(pdf, 'en')}): merge PDFs and reorder, rotate, delete or extract pages inside the browser; convert PDF to Word (.docx).`,
             `- [${LABELS['id-card'].en}](${urlFor(idCard, 'en')}): both sides of an ID card, straightened and at real size on one PDF page, without uploading the photos.`,
             `- ${languages} · For language models: ${ORIGIN}/llms.txt`
         ],
         es: [
-            `Herramientas online gratuitas de ${PUBLISHER} en su propio sitio, ${home}: sin anuncios, con cuenta verificada, licencia gratuita aprobada y límites de uso justo por hora.`,
-            `- [${LABELS.video.es}](${urlFor(video, 'es')}): videos públicos de ${list}, en todas las resoluciones que ofrece la plataforma, en MP4, MP3 o M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: próximamente.` : ''}`,
+            `Herramientas online gratuitas de ${PUBLISHER} para sus clientes en su propio sitio, ${home}: sin anuncios, con la cuenta de Elysium y límites de uso justo por hora.`,
+            `- [${LABELS.video.es}](${urlFor(video, 'es')}): videos públicos de ${list}, en todas las resoluciones que ofrece la plataforma, en MP4, MP3 o M4A.${ACCOUNT_LIST.length ? ` ${ACCOUNT_LIST.join(', ')}: con tu propia cuenta conectada.` : ''}${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: próximamente.` : ''}`,
             `- [${LABELS.pdf.es}](${urlFor(pdf, 'es')}): unir PDF y ordenar, girar, eliminar o extraer páginas dentro del navegador; convertir PDF a Word (.docx).`,
             `- [${LABELS['id-card'].es}](${urlFor(idCard, 'es')}): las dos caras de una cédula o un DNI, enderezadas y a tamaño real en una hoja PDF, sin subir las fotos.`,
             `- ${languages} · Para modelos de lenguaje: ${ORIGIN}/llms.txt`
         ],
         pt: [
-            `Ferramentas online gratuitas da ${PUBLISHER} no seu próprio site, ${home}: sem anúncios, com conta confirmada, licença gratuita aprovada e limites de utilização justa por hora.`,
-            `- [${LABELS.video.pt}](${urlFor(video, 'pt')}): vídeos públicos do ${list}, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A.${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: em breve.` : ''}`,
+            `Ferramentas online gratuitas da ${PUBLISHER} para os seus clientes no seu próprio site, ${home}: sem anúncios, com a conta Elysium e limites de utilização justa por hora.`,
+            `- [${LABELS.video.pt}](${urlFor(video, 'pt')}): vídeos públicos do ${list}, em todas as resoluções que a plataforma oferece, em MP4, MP3 ou M4A.${ACCOUNT_LIST.length ? ` ${ACCOUNT_LIST.join(', ')}: com a sua própria conta ligada.` : ''}${SOON_LIST.length ? ` ${SOON_LIST.join(', ')}: em breve.` : ''}`,
             `- [${LABELS.pdf.pt}](${urlFor(pdf, 'pt')}): juntar PDF e ordenar, rodar, eliminar ou extrair páginas dentro do navegador; converter PDF para Word (.docx).`,
             `- [${LABELS['id-card'].pt}](${urlFor(idCard, 'pt')}): as duas faces de um Cartão de Cidadão, endireitadas e em tamanho real numa folha PDF, sem enviar as fotografias.`,
             `- ${languages} · Para modelos de linguagem: ${ORIGIN}/llms.txt`

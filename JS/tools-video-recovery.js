@@ -1,11 +1,10 @@
-const COPY = {
-    en: { explanation: 'A YouTube account does not enable server downloads through this bot check. For videos uploaded to your own channel, use YouTube Studio or export them with Google Takeout.',
-        watch: 'Open in YouTube', studio: 'My videos in YouTube Studio', export: 'Export my videos', help: 'YouTube download instructions' },
-    es: { explanation: 'Una cuenta de YouTube no habilita las descargas del servidor a través de esta comprobación. Si el vídeo pertenece a tu canal, recupéralo desde YouTube Studio o expórtalo con Google Takeout.',
-        watch: 'Abrir en YouTube', studio: 'Mis vídeos en YouTube Studio', export: 'Exportar mis vídeos', help: 'Instrucciones de descarga de YouTube' },
-    pt: { explanation: 'Uma conta do YouTube não ativa as transferências do servidor através desta verificação. Se o vídeo pertence ao seu canal, obtenha-o no YouTube Studio ou exporte-o com o Google Takeout.',
-        watch: 'Abrir no YouTube', studio: 'Os meus vídeos no YouTube Studio', export: 'Exportar os meus vídeos', help: 'Instruções de transferência do YouTube' }
-};
+/**
+ * Qué se ofrece cuando YouTube no deja descargar al servidor: conectar la
+ * cuenta de YouTube de quien descarga (si el servicio lo admite, ver
+ * `backend/tools/youtube-session.js`) y abrir el video en YouTube. Los textos
+ * están en el diccionario de `admin-tools.js`; aquí solo se decide.
+ */
+const CONNECTABLE = new Set(['youtube_session_required', 'youtube_session_expired', 'bot_check', 'login_required', 'age_restricted']);
 
 /** Only reconstruct a public watch URL; never forward credentials or arbitrary destinations. */
 export function youtubeWatchUrl(rawUrl) {
@@ -25,16 +24,11 @@ export function youtubeWatchUrl(rawUrl) {
     } catch { return null; }
 }
 
-export function videoRecovery(error, { sourceUrl = '', language = 'en' } = {}) {
-    if (error?.code !== 'bot_check') return null;
-    const watch = youtubeWatchUrl(sourceUrl);
-    if (!watch && String(error.platform || '').toLowerCase() !== 'youtube') return null;
-    const lang = Object.hasOwn(COPY, language) ? language : 'en';
-    const t = COPY[lang];
-    return { explanation: t.explanation, links: [
-        ...(watch ? [{ label: t.watch, url: watch }] : []),
-        { label: t.studio, url: 'https://studio.youtube.com/' },
-        { label: t.export, url: 'https://takeout.google.com/' },
-        { label: t.help, url: `https://support.google.com/youtube/answer/56100?hl=${lang}` }
-    ] };
+/** `{ connect, watchUrl }` para un fallo de YouTube que pide sesión; `null` para todo lo demás. */
+export function videoRecovery(error, { sourceUrl = '', youtubeSessions = false } = {}) {
+    if (!CONNECTABLE.has(error?.code)) return null;
+    const watchUrl = youtubeWatchUrl(sourceUrl);
+    const youtube = Boolean(watchUrl) || String(error.platform || '').toLowerCase() === 'youtube' || String(error.code).startsWith('youtube_');
+    if (!youtube) return null;
+    return { connect: youtubeSessions === true, watchUrl };
 }

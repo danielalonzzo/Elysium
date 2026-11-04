@@ -1867,3 +1867,211 @@ body.pdf-is-dragging * {
 .customer-portal.is-admin .tools-recovery { margin-top: .9rem; }
 .customer-portal.is-admin .tools-recovery-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; margin-top: .9rem; }
 .customer-portal.is-admin .tools-recovery-actions a { white-space: normal; text-align: center; text-decoration: none; }
+
+/* Cuenta de YouTube (JS/admin-tools.js: renderYoutube) --------------------- */
+
+.customer-portal.is-admin .tools-youtube {
+    margin-top: 0.9rem;
+}
+
+.customer-portal.is-admin .tools-youtube-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid var(--crm-line);
+    border-radius: 0.9rem;
+    background: var(--crm-panel);
+}
+
+.customer-portal.is-admin .tools-youtube-card.is-expired {
+    border-color: rgba(255, 196, 92, 0.34);
+}
+
+.customer-portal.is-admin .tools-youtube-icon {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    border-radius: 0.65rem;
+    color: #ff4e45;
+    background: color-mix(in srgb, #ff4e45 14%, transparent);
+}
+
+.customer-portal.is-admin .tools-youtube-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.customer-portal.is-admin .tools-youtube-text {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.customer-portal.is-admin .tools-youtube-text strong {
+    color: var(--crm-text);
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+
+.customer-portal.is-admin .tools-youtube-text span {
+    color: var(--crm-muted);
+    font-size: 0.74rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.customer-portal.is-admin .tools-youtube-card.is-active .tools-youtube-text span {
+    color: var(--crm-mint);
+}
+
+.customer-portal.is-admin .tools-youtube-card.is-expired .tools-youtube-text span {
+    color: #ffd38a;
+}
+
+.customer-portal.is-admin .tools-youtube-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4rem;
+}
+
+.customer-portal.is-admin .tools-youtube-connect {
+    display: grid;
+    gap: 0.85rem;
+    margin-top: 0.6rem;
+    padding: 1.15rem 1.25rem;
+    border: 1px solid var(--crm-line-strong);
+    border-radius: var(--tools-radius);
+    background: linear-gradient(180deg, var(--crm-panel-raised), var(--crm-panel));
+}
+
+.customer-portal.is-admin .tools-youtube-connect h3 {
+    margin: 0;
+    color: var(--crm-text);
+    font-size: 0.95rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+}
+
+.customer-portal.is-admin .tools-youtube-connect h3:focus {
+    outline: none;
+}
+
+.customer-portal.is-admin .tools-youtube-connect p {
+    margin: 0;
+    color: var(--crm-muted);
+    font-size: 0.78rem;
+    line-height: 1.55;
+}
+
+.customer-portal.is-admin .tools-youtube-steps {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--crm-text);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.customer-portal.is-admin .tools-youtube-connect a {
+    color: #8cc1ff;
+    text-underline-offset: 0.15em;
+}
+
+.customer-portal.is-admin .tools-youtube-file {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+}
+
+.customer-portal.is-admin .tools-youtube-file label {
+    color: var(--crm-text);
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.customer-portal.is-admin .tools-youtube-file input[type="file"] {
+    flex: 1 1 18rem;
+    min-width: 0;
+    max-width: 100%;
+    color: var(--crm-muted);
+    font-size: 0.74rem;
+}
+
+.customer-portal.is-admin .tools-youtube-file input[type="file"]::file-selector-button {
+    margin-right: 0.6rem;
+    padding: 0.42rem 0.85rem;
+    border: 1px solid var(--crm-line-strong);
+    border-radius: var(--radius-pill, 9999px);
+    color: var(--crm-text);
+    background: rgba(255, 255, 255, 0.04);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .tools-youtube-file small {
+    flex-basis: 100%;
+    color: var(--crm-mint);
+    font-size: 0.72rem;
+}
+
+.customer-portal.is-admin .tools-youtube-paste summary {
+    color: var(--crm-muted);
+    font-size: 0.76rem;
+    cursor: pointer;
+}
+
+.customer-portal.is-admin .tools-youtube-paste textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 5.5rem;
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--crm-line-strong);
+    border-radius: 0.6rem;
+    color: var(--crm-text);
+    background: rgba(2, 6, 16, 0.55);
+    font: 0.72rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    resize: vertical;
+}
+
+.customer-portal.is-admin .tools-youtube-connect .tools-youtube-note {
+    font-size: 0.72rem;
+}
+
+.customer-portal.is-admin .tools-youtube-connect .tools-youtube-error {
+    color: #ffaaaa;
+    font-size: 0.76rem;
+}
+
+.customer-portal.is-admin .tools-youtube-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+@media (max-width: 760px) {
+    .customer-portal.is-admin .tools-youtube-card {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .customer-portal.is-admin .tools-youtube-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    .customer-portal.is-admin .tools-youtube-connect {
+        padding: 1rem;
+    }
+
+    .customer-portal.is-admin .tools-youtube-form-actions .btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}

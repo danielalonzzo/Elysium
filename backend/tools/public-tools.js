@@ -9,11 +9,18 @@
  *   POST /video/download PUBLIC_PLATFORMS y por un proxy que no deja salir a
  *                        redes privadas (public-network.js).
  *   POST /pdf/convert    PDF a Word, igual que en el CRM.
+ *   GET|PUT|DELETE /youtube/session
+ *                        La sesión de YouTube de quien usa la herramienta
+ *                        (youtube-session.js). YouTube solo se descarga con
+ *                        ella: desde Google Cloud, sin sesión, pide demostrar
+ *                        que no es un bot.
  *
  * Nadie llega aquí directamente. El Worker comprueba Turnstile, el origen de
  * la página y añade dos cabeceras: la clave compartida de la pasarela
  * (`X-Elysium-Public-Key`, el secreto TOOLS_PUBLIC_GATEWAY_KEY a los dos
  * lados) y la IP de quien pregunta (`X-Elysium-Client-IP`). Sin la clave, 403.
+ * Con la cuenta comprobada añade también su uid (`X-Elysium-User`): es lo
+ * único que dice de quién es la sesión de YouTube que se usa.
  *
  * Los límites son por visitante y por hora, y la IP no se guarda: se cuenta
  * por un HMAC con la clave de la pasarela, en memoria, que caduca a la hora.
@@ -28,27 +35,33 @@ const { normalizeVideoUrl, platformFor } = require('./video');
 const { createPublicNetwork } = require('./public-network');
 const { createVideoTools } = require('./video-routes');
 const { createPdfTools } = require('./pdf-routes');
+const { USER_ID, createYoutubeRouter } = require('./youtube-session');
 
 // Comprobadas desde Cloud Run. Las páginas solo prometen estas
 // (`scripts/tools/content.mjs`) y `JS/tools-public.js` las nombra en sus
 // mensajes: si cambia una lista, cambian las tres (hay prueba).
 const PUBLIC_PLATFORMS = Object.freeze(['tiktok', 'instagram', 'facebook', 'pinterest', 'twitch', 'linkedin', 'snapchat', 'bluesky']);
 
-// Las que se anuncian como «próximamente». YouTube pide demostrar que no es un
-// bot a cualquier IP de Google Cloud: hará falta un proxy residencial.
-const COMING_SOON = Object.freeze(['youtube']);
+// Las que solo se descargan con la sesión de la propia persona. YouTube pide
+// demostrar que no es un bot a cualquier IP de Google Cloud; con la cuenta de
+// YouTube conectada, la petición va como esa cuenta. No se anuncian en las
+// páginas (no están en PUBLIC_PLATFORMS): las ofrece la herramienta.
+const SESSION_PLATFORMS = Object.freeze(['youtube']);
 
 // Enlaces cortos que solo redirigen. En el CRM los sigue el extractor
 // genérico; aquí no está, así que se pide la dirección completa del pin.
 const SHORT_LINK_HOSTS = Object.freeze(['pin.it']);
 
 const HOUR_MS = 60 * 60 * 1000;
-const LIMITS = Object.freeze({ inspect: 30, download: 10, convert: 10, capabilities: 120 });
+const LIMITS = Object.freeze({ inspect: 30, download: 10, convert: 10, capabilities: 120, session: 20 });
 const OPERATIONS = Object.freeze({
   'GET /capabilities': 'capabilities',
   'POST /video/inspect': 'inspect',
   'POST /video/download': 'download',
-  'POST /pdf/convert': 'convert'
+  'POST /pdf/convert': 'convert',
+  'GET /youtube/session': 'capabilities',
+  'PUT /youtube/session': 'session',
+  'DELETE /youtube/session': 'session'
 });
 const MAX_CLIENTS = 10000;
 const MAX_ACTIVE = 6;
@@ -77,8 +90,14 @@ function clientAddress(value) {
   return `${groups.slice(0, 4).map(group => group.padStart(4, '0')).join(':')}::/64`;
 }
 
+/** El uid que puso el Worker; solo cuenta tras comprobar la clave de la pasarela. */
+function publicUser(request) {
+  const uid = String(request.get('X-Elysium-User') || '');
+  return USER_ID.test(uid) ? uid : null;
+}
+
 function createPublicTools({ workspace, settings, lookup, now = Date.now,
-  gatewayKey = process.env.TOOLS_PUBLIC_GATEWAY_KEY || '' } = {}) {
+  gatewayKey = process.env.TOOLS_PUBLIC_GATEWAY_KEY || '', youtube = null } = {}) {
   const router = express.Router();
   const buckets = new Map();
   const running = new Set();
@@ -86,13 +105,16 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
   const network = createPublicNetwork({ lookup });
   const pass = (_request, _response, next) => next();
 
-  // Lo mismo que el CRM con otros ajustes: sin cookies ni proxy propios, sin
-  // el extractor genérico, un fichero menor y una descarga a la vez. La
-  // miniatura no se pide (`fetchImpl` vacío): esa petición no pasaría por el
-  // proxy que filtra las redes privadas.
+  // Lo mismo que el CRM con otros ajustes: sin las cookies ni el proxy del
+  // servicio (solo la sesión de YouTube de cada persona), sin el extractor
+  // genérico, un fichero menor y una descarga a la vez. La miniatura no se
+  // pide (`fetchImpl` vacío): esa petición no pasaría por el proxy que filtra
+  // las redes privadas.
   const video = createVideoTools({
     requireAdmin: pass,
     workspace,
+    youtube,
+    identify: publicUser,
     settings: {
       ...settings,
       cookiesFile: '',
@@ -122,7 +144,7 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
     const at = now();
     for (const [key, bucket] of buckets) if (bucket.expires <= at) buckets.delete(key);
     if (!buckets.has(client) && buckets.size >= MAX_CLIENTS) return response.status(503).json({ code: 'busy' });
-    const bucket = buckets.get(client) || { expires: at + HOUR_MS, inspect: 0, download: 0, convert: 0, capabilities: 0 };
+    const bucket = buckets.get(client) || { expires: at + HOUR_MS, inspect: 0, download: 0, convert: 0, capabilities: 0, session: 0 };
     buckets.set(client, bucket);
     if (bucket[operation] >= LIMITS[operation]) {
       response.set('Retry-After', String(Math.max(1, Math.ceil((bucket.expires - at) / 1000))));
@@ -157,7 +179,7 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
     const [videoEngine, pdfEngine] = await Promise.all([video.capabilities(), pdf.capabilities()]);
     response.json({
       public: true,
-      video: { ready: videoEngine.ready, maxBytes: videoEngine.maxBytes },
+      video: { ready: videoEngine.ready, maxBytes: videoEngine.maxBytes, youtubeSessions: videoEngine.youtubeSessions },
       pdf: { ready: pdfEngine.ready, maxBytes: pdfEngine.maxBytes },
       platforms: PUBLIC_PLATFORMS,
       limits: {
@@ -172,11 +194,18 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
     try {
       const url = normalizeVideoUrl(request.body?.url);
       const platform = platformFor(url);
-      if (COMING_SOON.includes(platform.id)) return response.status(400).json({ code: 'coming_soon', platform: platform.name });
-      if (SHORT_LINK_HOSTS.includes(new URL(url).hostname.replace(/^www\./, ''))) {
+      if (SESSION_PLATFORMS.includes(platform.id)) {
+        // Sin sesión no se intenta: desde aquí, YouTube contestaría que es un bot.
+        const session = youtube?.ready ? await youtube.sessionFor(publicUser(request)) : { state: 'missing' };
+        if (session.state !== 'active') {
+          return response.status(400).json({ code: session.state === 'expired' ? 'youtube_session_expired' : 'youtube_session_required', platform: platform.name });
+        }
+      } else if (SHORT_LINK_HOSTS.includes(new URL(url).hostname.replace(/^www\./, ''))) {
         return response.status(400).json({ code: 'short_link', platform: platform.name });
+      } else if (!PUBLIC_PLATFORMS.includes(platform.id)) {
+        return response.status(400).json({ code: 'unsupported' });
       }
-      if (!PUBLIC_PLATFORMS.includes(platform.id) || new URL(url).port) return response.status(400).json({ code: 'unsupported' });
+      if (new URL(url).port) return response.status(400).json({ code: 'unsupported' });
       video.settings.proxy = await network.start();
       return next();
     } catch (error) {
@@ -185,6 +214,7 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
   }, video.router);
 
   router.use('/pdf', pdf.router);
+  if (youtube) router.use('/youtube', createYoutubeRouter({ sessions: youtube, identify: publicUser }));
 
   return {
     router,
@@ -195,4 +225,4 @@ function createPublicTools({ workspace, settings, lookup, now = Date.now,
   };
 }
 
-module.exports = { createPublicTools, sameSecret, clientAddress, PUBLIC_PLATFORMS, COMING_SOON, LIMITS };
+module.exports = { createPublicTools, sameSecret, clientAddress, PUBLIC_PLATFORMS, SESSION_PLATFORMS, LIMITS };

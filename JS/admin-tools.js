@@ -15,6 +15,11 @@
  * analizar el siguiente enlace mientras baja el anterior. «Cancelar» o cerrar
  * la pestaña cortan la conexión, y el servicio detiene yt-dlp.
  *
+ * YouTube, desde el servidor, solo descarga con una sesión iniciada: «Cuenta
+ * de YouTube» (`/youtube/session`) sube el cookies.txt de quien descarga, ya
+ * filtrado aquí a youtube.com, y el servicio lo guarda cifrado. El navegador
+ * nunca vuelve a ver esas cookies: solo de qué cuenta son y cuándo se usaron.
+ *
  * El texto sigue el patrón de `admin-research.js`: diccionario propio, idioma
  * de `<html lang>` y repintado con el evento `elysium:language` de `admin.js`.
  */
@@ -121,9 +126,58 @@ const COPY = {
             unauthenticated: 'Your session expired. Sign in again.',
             admin_required: 'Only administrators can use the tools.',
             connection: 'The connection was lost. Check your internet and try again.',
-            failed: 'The video could not be downloaded.'
+            failed: 'The video could not be downloaded.',
+            youtube_session_required: 'YouTube only lets the server download with a signed-in account. Connect your YouTube account and try again.',
+            youtube_session_expired: 'The connected YouTube session is no longer valid: it was closed or renewed in the browser. Connect it again.',
+            youtube_still_blocked: 'YouTube kept blocking the request even with your account connected. Export the session again from a private window, or try later.'
         },
-        thePlatform: 'The platform'
+        thePlatform: 'The platform',
+        youtube: {
+            title: 'YouTube account',
+            none: 'Not connected. From the server, YouTube only allows downloads with a signed-in account.',
+            connectedAs: (who, date) => `Connected: ${who} · since ${date}`,
+            connected: date => `Connected since ${date}`,
+            lastUsed: when => `last used ${when}`,
+            expired: 'The session expired: YouTube closed it or the browser renewed it. Connect it again.',
+            unknownAccount: 'YouTube account',
+            connect: 'Connect',
+            replace: 'Replace',
+            disconnect: 'Disconnect',
+            reconnect: 'Connect again',
+            confirmDisconnect: 'Disconnect this YouTube account? The saved session will be deleted.',
+            formTitle: 'Connect your YouTube account',
+            why: 'Google does not offer a sign-in button that lets a server download videos, so the session comes from your browser in a cookies.txt file, the one yt-dlp uses.',
+            steps: [
+                'On a computer, open a private window in Chrome or Firefox and sign in to YouTube. A secondary account is best: YouTube may limit accounts that download from servers.',
+                'Install the “Get cookies.txt LOCALLY” extension and allow it in private windows:',
+                'With youtube.com open, click the extension and choose “Export”: a cookies.txt file is saved.',
+                'Close the private window without signing out: signing out ends the exported session.',
+                'Upload the file here.'
+            ],
+            phone: 'Cookies cannot be exported from an iPhone or iPad: do it once from a computer, then download from any device.',
+            choose: 'cookies.txt file',
+            found: count => `${count} youtube.com cookie${count === 1 ? '' : 's'} ready`,
+            paste: 'Or paste the file content',
+            privacy: 'Only the youtube.com cookies leave your browser. Elysium stores them encrypted, uses them only for your YouTube downloads and never shows them again. Disconnecting deletes them; to revoke them completely, sign that session out in your Google account (Security → Your devices).',
+            submit: 'Connect',
+            submitting: 'Checking with YouTube…',
+            cancel: 'Cancel',
+            guide: 'yt-dlp guide',
+            recoveryConnect: 'Connect YouTube account',
+            recoveryReconnect: 'Connect YouTube again',
+            watch: 'Open in YouTube',
+            errors: {
+                empty: 'Choose the cookies.txt file or paste its content.',
+                youtube_cookies_missing: 'The file has no youtube.com cookies. Export them with youtube.com open.',
+                youtube_cookies_invalid: 'This is not a cookies.txt (Netscape) file or a JSON cookie export.',
+                youtube_cookies_signed_out: 'The file has no signed-in YouTube session. Export the cookies with your session open on youtube.com.',
+                youtube_session_rejected: 'YouTube does not recognize this session: it was probably closed or renewed in the browser. Repeat the export in a new private window.',
+                youtube_check_failed: 'YouTube could not be reached to check the session. Try again in a moment.',
+                youtube_cookies_too_large: 'The file is too large. Export only the youtube.com cookies.',
+                youtube_unavailable: 'Connecting YouTube accounts is not available right now.',
+                failed: 'The account could not be connected. Try again.'
+            }
+        }
     },
     es: {
         title: 'Herramientas',
@@ -213,9 +267,58 @@ const COPY = {
             unauthenticated: 'Tu sesión caducó. Vuelve a iniciar sesión.',
             admin_required: 'Solo los administradores pueden usar las herramientas.',
             connection: 'Se perdió la conexión. Revisa tu internet e inténtalo de nuevo.',
-            failed: 'No se pudo descargar el video.'
+            failed: 'No se pudo descargar el video.',
+            youtube_session_required: 'YouTube solo deja descargar al servidor con una cuenta con la sesión iniciada. Conecta tu cuenta de YouTube y vuelve a intentarlo.',
+            youtube_session_expired: 'La sesión de YouTube conectada ya no es válida: se cerró o se renovó en el navegador. Vuelve a conectarla.',
+            youtube_still_blocked: 'YouTube siguió bloqueando la solicitud aunque tu cuenta está conectada. Vuelve a exportar la sesión desde una ventana privada o inténtalo más tarde.'
         },
-        thePlatform: 'La plataforma'
+        thePlatform: 'La plataforma',
+        youtube: {
+            title: 'Cuenta de YouTube',
+            none: 'Sin conectar. Desde el servidor, YouTube solo deja descargar con una cuenta con la sesión iniciada.',
+            connectedAs: (who, date) => `Conectada: ${who} · desde el ${date}`,
+            connected: date => `Conectada desde el ${date}`,
+            lastUsed: when => `último uso: ${when}`,
+            expired: 'La sesión caducó: YouTube la cerró o el navegador la renovó. Vuelve a conectarla.',
+            unknownAccount: 'Cuenta de YouTube',
+            connect: 'Conectar',
+            replace: 'Reemplazar',
+            disconnect: 'Desconectar',
+            reconnect: 'Volver a conectar',
+            confirmDisconnect: '¿Desconectar esta cuenta de YouTube? Se borrará la sesión guardada.',
+            formTitle: 'Conecta tu cuenta de YouTube',
+            why: 'Google no ofrece un botón de inicio de sesión que permita a un servidor descargar videos, así que la sesión se trae desde tu navegador en un archivo cookies.txt, el que usa yt-dlp.',
+            steps: [
+                'En una computadora, abre una ventana privada de Chrome o Firefox e inicia sesión en YouTube. Mejor con una cuenta secundaria: YouTube puede limitar las cuentas que descargan desde servidores.',
+                'Instala la extensión «Get cookies.txt LOCALLY» y permite que funcione en ventanas privadas:',
+                'Con youtube.com abierto, pulsa la extensión y elige «Export»: se guarda un archivo cookies.txt.',
+                'Cierra la ventana privada sin cerrar sesión: si cierras sesión, la sesión exportada deja de valer.',
+                'Sube aquí el archivo.'
+            ],
+            phone: 'Desde un iPhone o un iPad no se pueden exportar cookies: hazlo una vez desde una computadora y después descarga desde cualquier dispositivo.',
+            choose: 'Archivo cookies.txt',
+            found: count => `${count} cookie${count === 1 ? '' : 's'} de youtube.com ${count === 1 ? 'lista' : 'listas'}`,
+            paste: 'O pega el contenido del archivo',
+            privacy: 'Solo salen de tu navegador las cookies de youtube.com. Elysium las guarda cifradas, las usa solo para tus descargas de YouTube y no vuelve a mostrarlas. Desconectar las borra; para revocarlas del todo, cierra esa sesión en tu cuenta de Google (Seguridad → Tus dispositivos).',
+            submit: 'Conectar',
+            submitting: 'Comprobando con YouTube…',
+            cancel: 'Cancelar',
+            guide: 'Guía de yt-dlp',
+            recoveryConnect: 'Conectar cuenta de YouTube',
+            recoveryReconnect: 'Volver a conectar YouTube',
+            watch: 'Abrir en YouTube',
+            errors: {
+                empty: 'Elige el archivo cookies.txt o pega su contenido.',
+                youtube_cookies_missing: 'El archivo no trae cookies de youtube.com. Expórtalas con youtube.com abierto.',
+                youtube_cookies_invalid: 'No es un archivo cookies.txt (Netscape) ni una exportación de cookies en JSON.',
+                youtube_cookies_signed_out: 'El archivo no trae una sesión de YouTube iniciada. Exporta las cookies con la sesión abierta en youtube.com.',
+                youtube_session_rejected: 'YouTube no reconoce esta sesión: probablemente se cerró o se renovó en el navegador. Repite la exportación en una ventana privada nueva.',
+                youtube_check_failed: 'No se pudo contactar con YouTube para comprobar la sesión. Inténtalo en un momento.',
+                youtube_cookies_too_large: 'El archivo es demasiado grande. Exporta solo las cookies de youtube.com.',
+                youtube_unavailable: 'La conexión de cuentas de YouTube no está disponible en este momento.',
+                failed: 'No se pudo conectar la cuenta. Inténtalo de nuevo.'
+            }
+        }
     },
     pt: {
         title: 'Ferramentas',
@@ -305,9 +408,58 @@ const COPY = {
             unauthenticated: 'A sua sessão expirou. Inicie sessão de novo.',
             admin_required: 'Só os administradores podem usar as ferramentas.',
             connection: 'A ligação perdeu-se. Verifique a internet e tente de novo.',
-            failed: 'Não foi possível transferir o vídeo.'
+            failed: 'Não foi possível transferir o vídeo.',
+            youtube_session_required: 'O YouTube só deixa o servidor transferir com uma conta com sessão iniciada. Ligue a sua conta do YouTube e tente novamente.',
+            youtube_session_expired: 'A sessão do YouTube ligada já não é válida: foi terminada ou renovada no navegador. Volte a ligá-la.',
+            youtube_still_blocked: 'O YouTube continuou a bloquear o pedido, mesmo com a sua conta ligada. Volte a exportar a sessão numa janela privada ou tente mais tarde.'
         },
-        thePlatform: 'A plataforma'
+        thePlatform: 'A plataforma',
+        youtube: {
+            title: 'Conta do YouTube',
+            none: 'Sem ligação. A partir do servidor, o YouTube só deixa transferir com uma conta com sessão iniciada.',
+            connectedAs: (who, date) => `Ligada: ${who} · desde ${date}`,
+            connected: date => `Ligada desde ${date}`,
+            lastUsed: when => `última utilização: ${when}`,
+            expired: 'A sessão expirou: o YouTube terminou-a ou o navegador renovou-a. Volte a ligá-la.',
+            unknownAccount: 'Conta do YouTube',
+            connect: 'Ligar',
+            replace: 'Substituir',
+            disconnect: 'Desligar',
+            reconnect: 'Voltar a ligar',
+            confirmDisconnect: 'Desligar esta conta do YouTube? A sessão guardada será apagada.',
+            formTitle: 'Ligue a sua conta do YouTube',
+            why: 'A Google não oferece um botão de início de sessão que permita a um servidor transferir vídeos, por isso a sessão vem do seu navegador num ficheiro cookies.txt, o que o yt-dlp utiliza.',
+            steps: [
+                'Num computador, abra uma janela privada do Chrome ou do Firefox e inicie sessão no YouTube. De preferência com uma conta secundária: o YouTube pode limitar as contas que transferem a partir de servidores.',
+                'Instale a extensão «Get cookies.txt LOCALLY» e permita que funcione em janelas privadas:',
+                'Com youtube.com aberto, clique na extensão e escolha «Export»: é guardado um ficheiro cookies.txt.',
+                'Feche a janela privada sem terminar sessão: se terminar sessão, a sessão exportada deixa de valer.',
+                'Carregue aqui o ficheiro.'
+            ],
+            phone: 'Num iPhone ou iPad não é possível exportar cookies: faça-o uma vez num computador e depois transfira a partir de qualquer dispositivo.',
+            choose: 'Ficheiro cookies.txt',
+            found: count => `${count} cookie${count === 1 ? '' : 's'} de youtube.com ${count === 1 ? 'pronto' : 'prontos'}`,
+            paste: 'Ou cole o conteúdo do ficheiro',
+            privacy: 'Só saem do seu navegador os cookies de youtube.com. A Elysium guarda-os cifrados, usa-os apenas para as suas transferências do YouTube e não os volta a mostrar. Desligar apaga-os; para os revogar por completo, termine essa sessão na sua conta Google (Segurança → Os seus dispositivos).',
+            submit: 'Ligar',
+            submitting: 'A verificar com o YouTube…',
+            cancel: 'Cancelar',
+            guide: 'Guia do yt-dlp',
+            recoveryConnect: 'Ligar conta do YouTube',
+            recoveryReconnect: 'Voltar a ligar o YouTube',
+            watch: 'Abrir no YouTube',
+            errors: {
+                empty: 'Escolha o ficheiro cookies.txt ou cole o seu conteúdo.',
+                youtube_cookies_missing: 'O ficheiro não traz cookies de youtube.com. Exporte-os com youtube.com aberto.',
+                youtube_cookies_invalid: 'Não é um ficheiro cookies.txt (Netscape) nem uma exportação de cookies em JSON.',
+                youtube_cookies_signed_out: 'O ficheiro não traz uma sessão do YouTube iniciada. Exporte os cookies com a sessão aberta em youtube.com.',
+                youtube_session_rejected: 'O YouTube não reconhece esta sessão: provavelmente foi terminada ou renovada no navegador. Repita a exportação numa nova janela privada.',
+                youtube_check_failed: 'Não foi possível contactar o YouTube para verificar a sessão. Tente dentro de momentos.',
+                youtube_cookies_too_large: 'O ficheiro é demasiado grande. Exporte apenas os cookies de youtube.com.',
+                youtube_unavailable: 'A ligação de contas do YouTube não está disponível neste momento.',
+                failed: 'Não foi possível ligar a conta. Tente novamente.'
+            }
+        }
     }
 };
 
@@ -325,6 +477,17 @@ let _alert = null;
 const _jobs = [];
 const _paintQueue = new Set();
 let _paintFrame = 0;
+// La cuenta de YouTube de quien usa la herramienta. `enabled` lo dice el
+// servicio (`/capabilities`): sin clave ni bucket, la sección no se enseña.
+const _youtube = { enabled: false, loaded: false, connected: false, status: null, account: null, connectedAt: null,
+    lastUsedAt: null, open: false, busy: false, error: null, file: null, retryUrl: null };
+const YOUTUBE_SESSION_CODES = new Set(['youtube_session_required', 'youtube_session_expired']);
+const YOUTUBE_MAX_UPLOAD = 48 * 1024;
+const YOUTUBE_LINKS = Object.freeze({
+    chrome: 'https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc',
+    firefox: 'https://addons.mozilla.org/firefox/addon/get-cookies-txt-locally/',
+    guide: 'https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies'
+});
 
 /* ── Utilidades ──────────────────────────────────────────────────────────── */
 
@@ -405,9 +568,16 @@ function thumbnailMarkup(media, className) {
         : `<span aria-hidden="true">${esc(initial(media))}</span>`}</div>`;
 }
 
+function isYoutubeError(error = {}) {
+    return String(error.platform || '').toLowerCase() === 'youtube' || YOUTUBE_SESSION_CODES.has(error.code);
+}
+
 function errorMessage(error = {}) {
     const text = copy();
-    const entry = text.errors[error.code] || text.errors.failed;
+    // Con la cuenta conectada, un bloqueo de YouTube no se arregla conectándola.
+    const code = error.code === 'bot_check' && _youtube.connected && _youtube.status === 'active' && isYoutubeError(error)
+        ? 'youtube_still_blocked' : error.code;
+    const entry = text.errors[code] || text.errors.failed;
     return typeof entry === 'function'
         ? entry({
             platform: error.platform || text.thePlatform,
@@ -436,8 +606,8 @@ function errorInfo(error) {
 async function toolsFetch(path, { method = 'POST', body, signal } = {}) {
     const headers = body ? { 'Content-Type': 'application/json' } : {};
     if (PUBLIC) {
-        // La sesión de Tools viaja en cookie HttpOnly; cada POST añade Turnstile.
-        if (method === 'POST') headers['X-Turnstile-Token'] = await PUBLIC.humanToken({ signal });
+        // La sesión de Tools viaja en cookie HttpOnly; cada POST o PUT añade Turnstile.
+        if (method === 'POST' || method === 'PUT') headers['X-Turnstile-Token'] = await PUBLIC.humanToken({ signal });
     } else {
         const user = auth?.currentUser;
         if (!user) throw toolsError({ code: 'unauthenticated' }, 401);
@@ -466,6 +636,9 @@ async function checkService({ force = false } = {}) {
         } else {
             _engine = payload.video || null;
             _service = _engine?.ready ? 'ready' : 'degraded';
+            _youtube.enabled = _engine?.youtubeSessions === true;
+            if (_youtube.enabled && !_youtube.loaded) loadYoutube();
+            renderYoutube();
             // Si el análisis llegó antes que el límite, la tarjeta se repinta
             // con las calidades que no caben ya marcadas.
             if (_media?.options) {
@@ -554,6 +727,7 @@ async function inspect(rawUrl, { parent = null } = {}) {
         if (controller !== _inspecting) return;
         if (controller.signal.aborted && controller.signal.reason !== 'timeout') return;
         showAlert(controller.signal.reason === 'timeout' ? { code: 'timeout' } : { ...errorInfo(error), sourceUrl: rawUrl });
+        if (error?.code === 'youtube_session_expired') loadYoutube();
     } finally {
         window.clearTimeout(timer);
         if (controller === _inspecting) {
@@ -596,21 +770,34 @@ function chooseEntry(index) {
 
 /* ── Pintar ──────────────────────────────────────────────────────────────── */
 
+/** Un fallo de YouTube que se arregla con la sesión ofrece conectarla ahí mismo. */
 function recoveryMarkup(error, sourceUrl) {
-    const recovery = videoRecovery(error, { sourceUrl, language: String(document.documentElement.lang || 'en').slice(0, 2) });
+    const recovery = videoRecovery(error, { sourceUrl, youtubeSessions: _youtube.enabled });
     if (!recovery) return '';
-    return `<div class="tools-recovery"><p>${esc(recovery.explanation)}</p><div class="tools-recovery-actions">${recovery.links.map(link => `<a class="btn btn-secondary tools-btn-compact" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.label)} ↗</a>`).join('')}</div></div>`;
+    const text = copy().youtube;
+    const connect = recovery.connect
+        ? `<button type="button" class="btn btn-primary tools-btn-compact" data-youtube-action="open">${esc(_youtube.connected ? text.recoveryReconnect : text.recoveryConnect)}</button>`
+        : '';
+    const watch = recovery.watchUrl
+        ? `<a class="btn btn-secondary tools-btn-compact" href="${esc(recovery.watchUrl)}" target="_blank" rel="noopener noreferrer">${esc(text.watch)} ↗</a>`
+        : '';
+    return connect || watch ? `<div class="tools-recovery"><div class="tools-recovery-actions">${connect}${watch}</div></div>` : '';
 }
 
 function showAlert(error) {
     _alert = error;
     const element = document.getElementById('tools-video-alert');
     if (!element) return;
-    const detail = error.detail && error.code !== 'bot_check'
+    const detail = error.detail && !hidesDetail(error)
         ? `<details class="tools-alert-detail"><summary>${esc(copy().detail)}</summary><code translate="no">${esc(error.detail)}</code></details>`
         : '';
     element.innerHTML = `<p>${esc(errorMessage(error))}</p>${recoveryMarkup(error, error.sourceUrl)}${detail}`;
     element.hidden = false;
+}
+
+// El texto de yt-dlp para estos casos pide «--cookies»: aquí no ayuda a nadie.
+function hidesDetail(error) {
+    return error?.code === 'bot_check' || YOUTUBE_SESSION_CODES.has(error?.code);
 }
 
 function hideAlert() {
@@ -762,7 +949,8 @@ function jobActions(job) {
         buttons.push(`<button type="button" class="btn btn-secondary tools-btn-compact" data-job-action="cancel">${esc(text.cancel)}</button>`);
     } else if (job.state === 'ready' && job.expiresAt > Date.now()) {
         buttons.push(`<a class="btn btn-primary tools-btn-compact" data-job-action="save" href="${esc(job.file.url)}" download="${esc(job.file.name)}">${esc(text.save)}</a>`);
-    } else if (job.error?.code !== 'bot_check') {
+    } else if (job.error?.code !== 'bot_check' || isYoutubeError(job.error)) {
+        // Con YouTube, tras conectar la cuenta, reintentar sí sirve.
         buttons.push(`<button type="button" class="btn btn-secondary tools-btn-compact" data-job-action="retry">${esc(text.retry)}</button>`);
     }
     if (job.state !== 'running') {
@@ -776,7 +964,7 @@ function jobMarkup(job) {
     const running = job.state === 'running';
     const percent = running && job.stage === 'downloading' && Number.isFinite(job.progress?.percent) ? job.progress.percent : null;
     const indeterminate = running && percent === null;
-    const detail = job.state === 'error' && job.error?.detail && job.error?.code !== 'bot_check'
+    const detail = job.state === 'error' && job.error?.detail && !hidesDetail(job.error)
         ? `<details class="tools-alert-detail"><summary>${esc(text.detail)}</summary><code translate="no">${esc(job.error.detail)}</code></details>`
         : '';
     return `${thumbnailMarkup(job.media, 'tools-job-thumb')}
@@ -787,7 +975,7 @@ function jobMarkup(job) {
             </div>
             ${running ? `<div class="tools-job-bar${indeterminate ? ' is-indeterminate' : ''}" role="progressbar" aria-label="${esc(text.progressAria(job.media.title || text.untitled))}" aria-valuemin="0" aria-valuemax="100"${percent === null ? '' : ` aria-valuenow="${Math.round(percent)}"`}><span style="width: ${percent === null ? 0 : percent}%"></span></div>` : ''}
             <p class="tools-job-status">${esc(jobStatus(job))}</p>
-            ${job.state === 'error' ? recoveryMarkup(job.error, job.media.url) : ''}
+            ${job.state === 'error' ? recoveryMarkup(job.error, job.media.url || job.request?.url) : ''}
             ${detail}
         </div>
         <div class="tools-job-actions">${jobActions(job)}</div>`;
@@ -880,11 +1068,14 @@ function handleJobEvent(job, event) {
             job.expiresAt = Date.parse(event.expiresAt) || Date.now() + 15 * 60 * 1000;
             announce(copy().announceReady(job.media.title || copy().untitled));
             saveFile(job);
+            // La sesión de YouTube acaba de usarse: la tarjeta lo dice.
+            if (job.media.platform?.id === 'youtube' && _youtube.connected) loadYoutube();
             break;
         case 'error':
             job.state = 'error';
             job.error = { code: event.code, detail: event.detail || null, platform: event.platform || job.media.platform?.name };
             announce(copy().announceError(job.media.title || copy().untitled));
+            if (event.code === 'youtube_session_expired') loadYoutube();
             break;
         default:
             return;
@@ -980,6 +1171,234 @@ function handleJobAction(event) {
     }
 }
 
+/* ── Cuenta de YouTube ───────────────────────────────────────────────────── */
+
+const YOUTUBE_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.25 5 12 5 12 5s-6.25 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.76 1.77C5.75 19 12 19 12 19s6.25 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8ZM10 15V9l5.2 3Z"/></svg>';
+
+function isYoutubeHost(domain) {
+    const host = String(domain || '').trim().toLowerCase().replace(/^\./, '');
+    return host === 'youtube.com' || host.endsWith('.youtube.com');
+}
+
+/**
+ * Del fichero elegido solo sale lo de youtube.com: una exportación del
+ * navegador entero lleva las sesiones de todas las webs, y esas no se suben.
+ * `count` es -1 si no parece una exportación de cookies.
+ */
+function youtubeOnly(raw) {
+    const text = String(raw || '').replace(/^﻿/, '').trim();
+    if (/^[[{]/.test(text)) {
+        try {
+            const data = JSON.parse(text);
+            const list = Array.isArray(data) ? data : Array.isArray(data?.cookies) ? data.cookies : null;
+            if (!list) return { text: '', count: -1 };
+            const kept = list.filter(entry => entry && isYoutubeHost(entry.domain));
+            return { text: JSON.stringify(kept), count: kept.length };
+        } catch {
+            return { text: '', count: -1 };
+        }
+    }
+    // Las HttpOnly llevan `#HttpOnly_` delante: no son comentarios.
+    const rows = text.split(/\r?\n/)
+        .filter(line => line.startsWith('#HttpOnly_') || !line.startsWith('#'))
+        .filter(line => line.split('\t').length >= 6);
+    if (!rows.length) return { text: '', count: -1 };
+    const kept = rows.filter(line => isYoutubeHost(line.replace(/^#HttpOnly_/, '').split('\t')[0]));
+    return { text: ['# Netscape HTTP Cookie File', ...kept, ''].join('\n'), count: kept.length };
+}
+
+function applyYoutube(payload = {}) {
+    Object.assign(_youtube, {
+        loaded: true,
+        enabled: _youtube.enabled && payload.ready !== false,
+        connected: payload.connected === true,
+        status: payload.status || null,
+        account: payload.account || null,
+        connectedAt: payload.connectedAt || null,
+        lastUsedAt: payload.lastUsedAt || null
+    });
+}
+
+async function loadYoutube() {
+    if (!_authorized || !_youtube.enabled) return;
+    try {
+        const response = await toolsFetch('/youtube/session', { method: 'GET' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw toolsError(payload, response.status);
+        applyYoutube(payload);
+    } catch {
+        // Sin respuesta, la sección se queda como estaba; el próximo /capabilities lo reintenta.
+    }
+    renderYoutube();
+}
+
+function formatDay(value) {
+    return new Intl.DateTimeFormat(locale(), { day: 'numeric', month: 'short' }).format(new Date(value));
+}
+
+function formatWhen(value) {
+    return new Date(value).toDateString() === new Date().toDateString() ? formatClock(value) : formatDay(value);
+}
+
+function youtubeStatusLine(text) {
+    if (!_youtube.connected) return text.none;
+    if (_youtube.status !== 'active') return text.expired;
+    const { name, handle } = _youtube.account || {};
+    const who = [name, handle && handle !== name ? `(${handle})` : ''].filter(Boolean).join(' ');
+    const since = _youtube.connectedAt ? formatDay(_youtube.connectedAt) : '';
+    const line = who ? text.connectedAs(who, since) : text.connected(since);
+    return _youtube.lastUsedAt ? `${line} · ${text.lastUsed(formatWhen(_youtube.lastUsedAt))}` : line;
+}
+
+function youtubeFormMarkup(text) {
+    const { busy, file } = _youtube;
+    const error = _youtube.error ? text.errors[_youtube.error] || copy().errors[_youtube.error] || text.errors.failed : '';
+    const disabled = busy ? ' disabled' : '';
+    const link = (url, label) => `<a href="${url}" target="_blank" rel="noopener noreferrer" translate="no">${esc(label)} ↗</a>`;
+    return `<form class="tools-youtube-connect" id="tools-youtube-form" novalidate aria-labelledby="tools-youtube-form-title" aria-busy="${busy ? 'true' : 'false'}">
+        <h3 id="tools-youtube-form-title" tabindex="-1">${esc(text.formTitle)}</h3>
+        <p>${esc(text.why)}</p>
+        <ol class="tools-youtube-steps">
+            ${text.steps.map((step, index) => `<li>${esc(step)}${index === 1 ? ` ${link(YOUTUBE_LINKS.chrome, 'Chrome')} · ${link(YOUTUBE_LINKS.firefox, 'Firefox')}` : ''}</li>`).join('')}
+        </ol>
+        <p class="tools-youtube-note">${esc(text.phone)} <a href="${YOUTUBE_LINKS.guide}" target="_blank" rel="noopener noreferrer">${esc(text.guide)} ↗</a></p>
+        <div class="tools-youtube-file">
+            <label for="tools-youtube-file">${esc(text.choose)}</label>
+            <input type="file" id="tools-youtube-file" accept=".txt,.json,text/plain,application/json"${disabled}>
+            ${file ? `<small translate="no">${esc(file.name)} · ${esc(text.found(file.count))}</small>` : ''}
+        </div>
+        <details class="tools-youtube-paste"${_youtube.pasted ? ' open' : ''}>
+            <summary>${esc(text.paste)}</summary>
+            <textarea id="tools-youtube-text" rows="4" spellcheck="false" autocomplete="off" translate="no" aria-label="${esc(text.paste)}"${disabled}>${esc(_youtube.pasted)}</textarea>
+        </details>
+        <p class="tools-youtube-note">${esc(text.privacy)}</p>
+        <p class="tools-youtube-error" role="alert"${error ? '' : ' hidden'}>${esc(error)}</p>
+        <div class="tools-youtube-form-actions">
+            <button type="submit" class="btn btn-primary"${disabled}>${esc(busy ? text.submitting : text.submit)}</button>
+            <button type="button" class="btn btn-secondary" data-youtube-action="cancel"${disabled}>${esc(text.cancel)}</button>
+        </div>
+    </form>`;
+}
+
+function renderYoutube() {
+    const host = document.getElementById('tools-youtube');
+    if (!host) return;
+    const visible = _authorized && _youtube.enabled && _youtube.loaded;
+    host.hidden = !visible;
+    if (!visible) {
+        host.innerHTML = '';
+        return;
+    }
+    const text = copy().youtube;
+    const state = !_youtube.connected ? 'none' : _youtube.status === 'active' ? 'active' : 'expired';
+    const button = (action, label, kind = 'secondary') => `<button type="button" class="btn btn-${kind} tools-btn-compact" data-youtube-action="${action}"${_youtube.busy ? ' disabled' : ''}>${esc(label)}</button>`;
+    const actions = state === 'none' ? [button('open', text.connect, 'primary')]
+        : state === 'active' ? [button('open', text.replace), button('disconnect', text.disconnect)]
+            : [button('open', text.reconnect, 'primary'), button('disconnect', text.disconnect)];
+    host.innerHTML = `<div class="tools-youtube-card is-${state}">
+            <span class="tools-youtube-icon">${YOUTUBE_ICON}</span>
+            <div class="tools-youtube-text"><strong>${esc(text.title)}</strong><span>${esc(youtubeStatusLine(text))}</span></div>
+            <div class="tools-youtube-actions">${_youtube.open ? '' : actions.join('')}</div>
+        </div>${_youtube.open ? youtubeFormMarkup(text) : ''}`;
+}
+
+function openYoutube() {
+    if (!_youtube.enabled) return;
+    Object.assign(_youtube, { open: true, error: null });
+    renderYoutube();
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById('tools-youtube')?.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+    document.getElementById('tools-youtube-form-title')?.focus({ preventScroll: true });
+}
+
+function closeYoutube() {
+    Object.assign(_youtube, { open: false, busy: false, error: null, file: null, pasted: '' });
+    renderYoutube();
+}
+
+async function readYoutubeFile(input) {
+    const chosen = input.files?.[0];
+    if (!chosen) return;
+    // Una exportación del navegador entero puede pesar varios megas: se lee aquí
+    // y solo sube lo de youtube.com.
+    const filtered = chosen.size > 8 * 1024 * 1024 ? { count: -1 } : youtubeOnly(await chosen.text());
+    _youtube.file = filtered.count > 0 ? { name: chosen.name, text: filtered.text, count: filtered.count } : null;
+    _youtube.error = filtered.count > 0 ? null : filtered.count < 0 ? 'youtube_cookies_invalid' : 'youtube_cookies_missing';
+    renderYoutube();
+}
+
+async function connectYoutube() {
+    if (_youtube.busy) return;
+    // Lo pegado manda sobre el fichero: es lo último que se ha tocado.
+    const source = _youtube.pasted.trim() ? youtubeOnly(_youtube.pasted) : _youtube.file;
+    const problem = !source ? 'empty' : source.count < 0 ? 'youtube_cookies_invalid' : source.count === 0 ? 'youtube_cookies_missing'
+        : source.text.length > YOUTUBE_MAX_UPLOAD ? 'youtube_cookies_too_large' : null;
+    if (problem) {
+        _youtube.error = problem;
+        renderYoutube();
+        return;
+    }
+    Object.assign(_youtube, { busy: true, error: null });
+    renderYoutube();
+    try {
+        const response = await toolsFetch('/youtube/session', { method: 'PUT', body: { cookies: source.text } });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw toolsError(payload, response.status);
+        applyYoutube(payload);
+        closeYoutube();
+        // El enlace que pedía la cuenta se vuelve a analizar solo.
+        if (_alert?.sourceUrl && isYoutubeError(_alert)) inspect(_alert.sourceUrl);
+    } catch (error) {
+        Object.assign(_youtube, { busy: false, error: errorInfo(error).code });
+        renderYoutube();
+    }
+}
+
+async function disconnectYoutube() {
+    if (_youtube.busy || !window.confirm(copy().youtube.confirmDisconnect)) return;
+    _youtube.busy = true;
+    renderYoutube();
+    try {
+        const response = await toolsFetch('/youtube/session', { method: 'DELETE' });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw toolsError(payload, response.status);
+        applyYoutube(payload);
+    } catch (error) {
+        showAlert(errorInfo(error));
+    } finally {
+        _youtube.busy = false;
+        renderYoutube();
+    }
+}
+
+function bindYoutube() {
+    const host = document.getElementById('tools-youtube');
+    if (!host) return;
+    host.addEventListener('click', event => {
+        const action = event.target.closest('[data-youtube-action]')?.dataset.youtubeAction;
+        if (action === 'open') openYoutube();
+        else if (action === 'cancel') closeYoutube();
+        else if (action === 'disconnect') disconnectYoutube();
+    });
+    host.addEventListener('change', event => {
+        if (event.target.id === 'tools-youtube-file') readYoutubeFile(event.target);
+    });
+    host.addEventListener('input', event => {
+        if (event.target.id === 'tools-youtube-text') _youtube.pasted = event.target.value;
+    });
+    host.addEventListener('submit', event => {
+        if (event.target.id !== 'tools-youtube-form') return;
+        event.preventDefault();
+        connectYoutube();
+    });
+    // «Conectar cuenta de YouTube» también sale en el aviso y en cada descarga fallida.
+    for (const id of ['tools-video-alert', 'tools-video-job-list']) {
+        document.getElementById(id)?.addEventListener('click', event => {
+            if (event.target.closest('[data-youtube-action="open"]')) openYoutube();
+        });
+    }
+}
+
 /* ── Texto y arranque ────────────────────────────────────────────────────── */
 
 function applyCopy() {
@@ -1002,6 +1421,7 @@ function applyCopy() {
     document.getElementById('tools-tabs')?.setAttribute('aria-label', text.tabsAria);
     setFinding(Boolean(_inspecting));
     renderService();
+    renderYoutube();
     renderMedia();
     renderJobs();
     if (_alert) showAlert(_alert);
@@ -1118,6 +1538,7 @@ function bindToolsUi() {
     });
 
     document.getElementById('tools-video-job-list')?.addEventListener('click', handleJobAction);
+    bindYoutube();
     bindTabs();
     document.addEventListener('elysium:language', () => queueMicrotask(applyCopy));
 }

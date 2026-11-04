@@ -43,6 +43,7 @@ const COMMON = {
     en: {
         limit_reached: 'You have reached the free hourly limit for this tool. It resets within the hour.',
         busy: 'Another request of yours is still running, or the service is at capacity. Wait a moment and try again.',
+        account_required: 'Sign in with your Elysium account to use the tools.',
         public_tools_disabled: 'This tool is not open to the public yet. Try again later.',
         turnstile_required: 'The security check did not complete. Try again.',
         turnstile_failed: 'The security check did not pass. Reload the page and try again.',
@@ -52,6 +53,7 @@ const COMMON = {
     es: {
         limit_reached: 'Alcanzaste el límite gratuito por hora de esta herramienta. Se renueva dentro de la hora.',
         busy: 'Todavía tienes otra operación en curso o el servicio está al límite. Espera un momento e inténtalo de nuevo.',
+        account_required: 'Inicia sesión con tu cuenta de Elysium para usar las herramientas.',
         public_tools_disabled: 'Esta herramienta todavía no está abierta al público. Inténtalo más tarde.',
         turnstile_required: 'La verificación de seguridad no terminó. Inténtalo de nuevo.',
         turnstile_failed: 'La verificación de seguridad no se superó. Recarga la página e inténtalo de nuevo.',
@@ -61,6 +63,7 @@ const COMMON = {
     pt: {
         limit_reached: 'Atingiu o limite gratuito por hora desta ferramenta. Renova-se dentro da hora.',
         busy: 'Ainda tem outra operação em curso ou o serviço está no limite. Aguarde um momento e tente novamente.',
+        account_required: 'Inicie sessão com a sua conta Elysium para usar as ferramentas.',
         public_tools_disabled: 'Esta ferramenta ainda não está aberta ao público. Tente mais tarde.',
         turnstile_required: 'A verificação de segurança não terminou. Tente novamente.',
         turnstile_failed: 'A verificação de segurança não foi superada. Recarregue a página e tente novamente.',
@@ -79,7 +82,6 @@ export const VIDEO_COPY = {
         errors: {
             ...COMMON.en,
             unsupported: () => `This site is not supported yet. Paste a public link from ${platformList('en')}.`,
-            coming_soon: ({ platform }) => `${platform} downloads are coming soon. For now, paste a link from ${platformList('en')}.`,
             short_link: ({ platform }) => `Short ${platform} links cannot be opened here. Open the link in your browser and paste the full address.`,
             bot_check: ({ platform }) => `${platform} is blocking automated downloads right now. Try again later.`,
             login_required: ({ platform }) => `${platform} only shows this post to signed-in accounts. Only public posts can be downloaded.`,
@@ -98,7 +100,6 @@ export const VIDEO_COPY = {
         errors: {
             ...COMMON.es,
             unsupported: () => `Este sitio todavía no es compatible. Pega un enlace público de ${platformList('es')}.`,
-            coming_soon: ({ platform }) => `Las descargas de ${platform} llegarán pronto. Por ahora, pega un enlace de ${platformList('es')}.`,
             short_link: ({ platform }) => `Los enlaces cortos de ${platform} no se pueden abrir aquí. Abre el enlace en el navegador y pega la dirección completa.`,
             bot_check: ({ platform }) => `${platform} está bloqueando las descargas automáticas en este momento. Inténtalo más tarde.`,
             login_required: ({ platform }) => `${platform} solo muestra esta publicación a cuentas con sesión iniciada. Solo se pueden descargar publicaciones públicas.`,
@@ -117,7 +118,6 @@ export const VIDEO_COPY = {
         errors: {
             ...COMMON.pt,
             unsupported: () => `Este site ainda não é compatível. Cole uma ligação pública do ${platformList('pt')}.`,
-            coming_soon: ({ platform }) => `As transferências do ${platform} chegarão em breve. Por agora, cole uma ligação do ${platformList('pt')}.`,
             short_link: ({ platform }) => `As ligações curtas do ${platform} não podem ser abertas aqui. Abra a ligação no navegador e cole o endereço completo.`,
             bot_check: ({ platform }) => `O ${platform} está a bloquear as transferências automáticas neste momento. Tente mais tarde.`,
             login_required: ({ platform }) => `O ${platform} só mostra esta publicação a contas com sessão iniciada. Só é possível descarregar publicações públicas.`,

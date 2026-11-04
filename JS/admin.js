@@ -39,7 +39,6 @@ import {
     CURRENCY_SYMBOLS
 } from './elysium-domain.js';
 import { ADMIN_COPY, applyStaticCopy } from './admin-i18n.js';
-import { loadToolsLicenses } from './admin-tools-licenses.js';
 
 const SUPER_ADMIN_EMAIL = 'daniel.morales@elysiumdr.eu';
 
@@ -5502,10 +5501,8 @@ async function handlePatrimonioAction(event) {
 }
 
 async function loadLicenses() {
-    loadToolsLicenses({ auth, language: currentLang, onProfile: async uid => {
-        const profile = await getDoc(doc(db, 'members', uid));
-        if (profile.exists()) showClientDetail(uid, { id: uid, ...profile.data() });
-    } });
+    // Elysium Tools no tiene licencias aparte: entra cualquier cuenta Elysium
+    // (backend/tools-license-routes.js), así que aquí no hay nada que aprobar.
     loadPatrimonioAccess();
     const licensesList = document.getElementById('licenses-list');
     const summary = document.getElementById('licenses-summary');

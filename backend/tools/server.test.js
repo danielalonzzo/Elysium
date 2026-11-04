@@ -10,7 +10,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { createApp, isFirebaseAdmin } = require('./server');
+const { createMemoryStore, createYoutubeSessions } = require('./youtube-session');
 
 const FAKE_YT_DLP = path.join(__dirname, 'test-fixtures', 'fake-yt-dlp.js');
 const FAKE_PDF2DOCX = path.join(__dirname, 'test-fixtures', 'fake-pdf2docx.js');
@@ -23,7 +25,7 @@ const IDENTITIES = {
   unverified: { uid: 'u-new', email: 'daniel.morales@elysiumdr.eu', email_verified: false }
 };
 
-async function startServer(t, settings = {}, { lookup } = {}) {
+async function startServer(t, settings = {}, { lookup, youtube } = {}) {
   const workRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'elysium-tools-test-'));
   const thumbnails = [];
   const app = createApp({
@@ -45,6 +47,7 @@ async function startServer(t, settings = {}, { lookup } = {}) {
       ...settings
     },
     lookup: lookup || (async () => [{ address: '93.184.216.34', family: 4 }]),
+    ...(youtube ? { youtube } : {}),
     fetchImpl: async url => {
       thumbnails.push(String(url));
       return new Response(JPEG, { headers: { 'Content-Type': 'image/jpeg' } });
@@ -451,12 +454,13 @@ test('/capabilities también dice si hay motor para PDF', async t => {
 const PUBLIC_KEY = 'test-public-gateway-key-with-32-characters';
 const PUBLIC_HEADERS = { 'X-Elysium-Public-Key': PUBLIC_KEY, 'X-Elysium-Client-IP': '198.51.100.8' };
 
-function callPublic(base, pathname, { body, method = 'POST', ip, signal } = {}) {
+function callPublic(base, pathname, { body, method = 'POST', ip, user, signal } = {}) {
   return fetch(`${base}/api/tools/public${pathname}`, {
     method,
     headers: {
       ...PUBLIC_HEADERS,
       ...(ip ? { 'X-Elysium-Client-IP': ip } : {}),
+      ...(user ? { 'X-Elysium-User': user } : {}),
       ...(body !== undefined ? { 'Content-Type': 'application/json' } : {})
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -511,7 +515,7 @@ test('vía pública: sin la clave de la pasarela o sin IP no entra nadie', async
   assert.equal((await callPublic(base, '/video/inspect', { method: 'GET' })).status, 404);
 });
 
-test('vía pública: solo las plataformas comprobadas; YouTube, «próximamente»', async t => {
+test('vía pública: solo las plataformas comprobadas; YouTube, con la sesión de YouTube', async t => {
   const { base } = await startServer(t);
   const unsupported = await callPublic(base, '/video/inspect', { body: { url: 'https://example.com/file.mp4' } });
   assert.equal(unsupported.status, 400);
@@ -521,7 +525,7 @@ test('vía pública: solo las plataformas comprobadas; YouTube, «próximamente�
   }
   const youtube = await callPublic(base, '/video/inspect', { body: { url: 'https://www.youtube.com/watch?v=abc123def45' } });
   assert.equal(youtube.status, 400);
-  assert.deepEqual(await youtube.json(), { code: 'coming_soon', platform: 'YouTube' });
+  assert.deepEqual(await youtube.json(), { code: 'youtube_session_required', platform: 'YouTube' });
   const shortLink = await callPublic(base, '/video/inspect', { body: { url: 'https://pin.it/abc123' } });
   assert.deepEqual(await shortLink.json(), { code: 'short_link', platform: 'Pinterest' });
   const pinterest = await callPublic(base, '/video/inspect', { body: { url: 'https://www.pinterest.es/pin/664281013778109217/' } });
@@ -554,4 +558,126 @@ test('vía pública: una descarga a la vez por visitante, pero puede seguir anal
   const other = await callPublic(base, '/video/inspect', { body: { url: 'https://www.tiktok.com/@a/video/4' }, ip: '198.51.100.20' });
   assert.equal(other.status, 200);
   controller.abort();
+});
+
+/* ── La sesión de YouTube de cada cuenta ────────────────────────────────── */
+
+const YOUTUBE_KEY = crypto.randomBytes(32).toString('base64');
+const YOUTUBE_URL = 'https://www.youtube.com/watch?v=ytgate12345';
+const YOUTUBE_COOKIES = [
+  '# Netscape HTTP Cookie File',
+  '.youtube.com\tTRUE\t/\tTRUE\t1893456000\tSAPISID\tsapisid-value',
+  '#HttpOnly_.youtube.com\tTRUE\t/\tTRUE\t1893456000\tSID\tsid-value',
+  '.youtube.com\tTRUE\t/\tTRUE\t0\tYSC\tysc-value',
+  '.google.com\tTRUE\t/\tTRUE\t1893456000\tSID\tgoogle-sid'
+].join('\n');
+
+function youtubeSessions() {
+  return createYoutubeSessions({ key: YOUTUBE_KEY, store: createMemoryStore(),
+    check: async () => ({ state: 'signed_in', account: { name: 'Canal de prueba', handle: '@prueba' } }) });
+}
+
+const session = (base, method, options = {}) => call(base, '/api/tools/youtube/session', { method, ...options });
+
+test('YouTube: cada cuenta conecta su sesión y yt-dlp descarga con ella', async t => {
+  const sessions = youtubeSessions();
+  const { base, workRoot } = await startServer(t, {}, { youtube: sessions });
+  const dump = path.join(os.tmpdir(), `elysium-cookies-${process.pid}.txt`);
+  process.env.FAKE_COOKIES_DUMP = dump;
+  t.after(() => { delete process.env.FAKE_COOKIES_DUMP; fs.rmSync(dump, { force: true }); });
+
+  assert.equal((await (await call(base, '/api/tools/capabilities', { method: 'GET' })).json()).video.youtubeSessions, true);
+  // Sin sesión, YouTube pide demostrar que no es un bot: el CRM lo dice con su código.
+  const blocked = await call(base, '/api/tools/video/inspect', { body: { url: YOUTUBE_URL } });
+  assert.equal(blocked.status, 422);
+  assert.equal((await blocked.json()).code, 'youtube_session_required');
+
+  assert.equal((await session(base, 'GET', { token: 'member' })).status, 403);
+  assert.equal((await session(base, 'GET', { token: null })).status, 401);
+  assert.deepEqual(await (await session(base, 'GET')).json(), { ready: true, connected: false });
+  const connected = await session(base, 'PUT', { body: { cookies: YOUTUBE_COOKIES } });
+  assert.equal(connected.status, 200);
+  const summary = await connected.json();
+  assert.equal(summary.connected, true);
+  assert.deepEqual(summary.account, { name: 'Canal de prueba', handle: '@prueba' });
+  // Las cookies no vuelven nunca al navegador.
+  assert.ok(!JSON.stringify(summary).includes('sid-value'));
+  assert.ok(!JSON.stringify(await (await session(base, 'GET')).json()).includes('sid-value'));
+
+  const inspected = await call(base, '/api/tools/video/inspect', { body: { url: YOUTUBE_URL } });
+  assert.equal(inspected.status, 200);
+  const jar = fs.readFileSync(dump, 'utf8');
+  assert.match(jar, /^#HttpOnly_\.youtube\.com\tTRUE\t\/\tTRUE\t1893456000\tSID\tsid-value$/m);
+  assert.doesNotMatch(jar, /google-sid/);
+
+  const media = await inspected.json();
+  const events = await readEvents(await call(base, '/api/tools/video/download', { body: { url: YOUTUBE_URL, option: media.options[0].id } }));
+  assert.ok(events.find(event => event.type === 'ready'));
+  // La carpeta guarda el video hasta que se recoge, pero no el cookies.txt.
+  assert.equal(jobDirs(workRoot).length, 1);
+  for (const dir of jobDirs(workRoot)) assert.equal(fs.existsSync(path.join(workRoot, dir, 'cookies.txt')), false);
+  // Lo que YouTube renovó durante la descarga queda guardado.
+  assert.match((await sessions.sessionFor('u-admin')).text, /\tYSC\trotated-by-youtube$/m);
+  assert.ok((await (await session(base, 'GET')).json()).lastUsedAt);
+
+  // Otra cuenta no descarga con la sesión de esta.
+  assert.equal((await (await call(base, '/api/tools/video/inspect', { token: 'claim', body: { url: YOUTUBE_URL } })).json()).code, 'youtube_session_required');
+
+  assert.deepEqual(await (await session(base, 'DELETE')).json(), { ready: true, connected: false });
+  assert.equal((await (await call(base, '/api/tools/video/inspect', { body: { url: YOUTUBE_URL } })).json()).code, 'youtube_session_required');
+});
+
+test('YouTube: una sesión que el navegador cerró se da por caducada', async t => {
+  const { base } = await startServer(t, {}, { youtube: youtubeSessions() });
+  await session(base, 'PUT', { body: { cookies: YOUTUBE_COOKIES.replace('sapisid-value', 'stale') } });
+  const first = await call(base, '/api/tools/video/inspect', { body: { url: YOUTUBE_URL } });
+  assert.equal((await first.json()).code, 'youtube_session_expired');
+  const status = await (await session(base, 'GET')).json();
+  assert.equal(status.status, 'expired');
+  assert.ok(status.expiredAt);
+  // Hasta que se conecte otra, cada intento lo dice igual.
+  assert.equal((await (await call(base, '/api/tools/video/inspect', { body: { url: YOUTUBE_URL } })).json()).code, 'youtube_session_expired');
+  assert.equal((await (await session(base, 'PUT', { body: { cookies: YOUTUBE_COOKIES } })).json()).status, 'active');
+  assert.equal((await call(base, '/api/tools/video/inspect', { body: { url: YOUTUBE_URL } })).status, 200);
+});
+
+test('YouTube: rechaza ficheros que no traen una sesión o que pesan demasiado', async t => {
+  const { base } = await startServer(t, {}, { youtube: youtubeSessions() });
+  const code = async body => (await (await session(base, 'PUT', { body })).json()).code;
+  assert.equal(await code({}), 'youtube_cookies_invalid');
+  assert.equal(await code({ cookies: 'esto no es un cookies.txt' }), 'youtube_cookies_invalid');
+  assert.equal(await code({ cookies: '.google.com\tTRUE\t/\tTRUE\t1893456000\tSID\tx' }), 'youtube_cookies_missing');
+  assert.equal(await code({ cookies: '.youtube.com\tTRUE\t/\tTRUE\t1893456000\tPREF\tx' }), 'youtube_cookies_signed_out');
+  const large = await session(base, 'PUT', { body: { cookies: 'x'.repeat(50 * 1024) } });
+  assert.equal(large.status, 413);
+  assert.equal((await large.json()).code, 'youtube_cookies_too_large');
+  assert.equal((await session(base, 'PUT', { body: { cookies: 'x'.repeat(70 * 1024) } })).status, 413);
+  // Sin clave ni bucket, la sesión no se ofrece.
+  const disabled = await startServer(t);
+  assert.deepEqual(await (await session(disabled.base, 'GET')).json(), { ready: false, connected: false });
+  assert.equal((await (await session(disabled.base, 'PUT', { body: { cookies: YOUTUBE_COOKIES } })).json()).code, 'youtube_unavailable');
+});
+
+test('vía pública: YouTube solo con la sesión de YouTube de esa persona', async t => {
+  const { base } = await startServer(t, {}, { youtube: youtubeSessions() });
+  assert.equal((await (await callPublic(base, '/capabilities', { method: 'GET' })).json()).video.youtubeSessions, true);
+  assert.deepEqual(await (await callPublic(base, '/video/inspect', { body: { url: YOUTUBE_URL } })).json(),
+    { code: 'youtube_session_required', platform: 'YouTube' });
+  assert.equal((await callPublic(base, '/youtube/session', { method: 'GET' })).status, 401);
+  // Un uid sin la clave de la pasarela no abre nada.
+  assert.equal((await fetch(`${base}/api/tools/public/youtube/session`, { headers: { 'X-Elysium-User': 'client-a' } })).status, 403);
+  assert.deepEqual(await (await callPublic(base, '/youtube/session', { method: 'GET', user: 'client-a' })).json(), { ready: true, connected: false });
+  const connected = await callPublic(base, '/youtube/session', { method: 'PUT', user: 'client-a', body: { cookies: YOUTUBE_COOKIES } });
+  assert.equal((await connected.json()).connected, true);
+
+  const inspected = await callPublic(base, '/video/inspect', { user: 'client-a', body: { url: YOUTUBE_URL } });
+  assert.equal(inspected.status, 200);
+  const media = await inspected.json();
+  const events = await readEvents(await callPublic(base, '/video/download', { user: 'client-a', body: { url: YOUTUBE_URL, option: media.options[0].id } }));
+  assert.ok(events.find(event => event.type === 'ready'));
+
+  assert.deepEqual(await (await callPublic(base, '/video/inspect', { user: 'client-b', body: { url: YOUTUBE_URL } })).json(),
+    { code: 'youtube_session_required', platform: 'YouTube' });
+  await callPublic(base, '/youtube/session', { method: 'DELETE', user: 'client-a' });
+  assert.equal((await (await callPublic(base, '/video/inspect', { user: 'client-a', body: { url: YOUTUBE_URL } })).json()).code, 'youtube_session_required');
 });

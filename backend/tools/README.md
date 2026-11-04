@@ -78,9 +78,10 @@ Ojo: `*.py` está en el `.gitignore` de la raíz; `pdf_to_docx.py` se añade con
 3. **No sale a la red interna.** Se rechazan IP privadas, `localhost`, nombres
    sin dominio y nombres que resuelven a una dirección privada (el servidor de
    metadatos de Google incluido). Además solo atiende a administradores, y corre
-   con una cuenta de servicio propia sin más permiso que leer usuarios de
-   Firebase Auth: ffmpeg procesa vídeos de Internet, y no conviene que lo haga
-   con la cuenta por defecto, que es editora del proyecto entero.
+   con una cuenta de servicio propia sin más permisos que leer usuarios de
+   Firebase Auth, leer sus dos secretos y escribir en su propio bucket de
+   sesiones de YouTube: ffmpeg procesa vídeos de Internet, y no conviene que lo
+   haga con la cuenta por defecto, que es editora del proyecto entero.
 
 ## Despliegue
 
@@ -103,10 +104,13 @@ gcloud run deploy elysium-tools --source backend/tools --region europe-west1 --p
   --service-account elysium-tools@elysiumdr-eu.iam.gserviceaccount.com \
   --allow-unauthenticated --execution-environment gen2 \
   --memory 4Gi --cpu 2 --concurrency 16 --max-instances 1 --timeout 3600 \
-  --set-secrets TOOLS_PUBLIC_GATEWAY_KEY=tools-public-gateway-key:latest
+  --update-secrets TOOLS_PUBLIC_GATEWAY_KEY=tools-public-gateway-key:latest,TOOLS_YOUTUBE_KEY=tools-youtube-key:latest \
+  --update-env-vars TOOLS_YOUTUBE_BUCKET=elysiumdr-eu-tools-youtube
 ```
 
-El secreto se crea una vez, con la misma clave que el Worker
+`--update-*` y no `--set-*`: los `--set-*` borran lo que no se mencione.
+
+El secreto de la pasarela se crea una vez, con la misma clave que el Worker
 (`npx wrangler secret put TOOLS_PUBLIC_GATEWAY_KEY`), y la cuenta del servicio
 necesita leerlo:
 
@@ -115,6 +119,20 @@ openssl rand -base64 48 | tr -d '\n' | gcloud secrets create tools-public-gatewa
 gcloud secrets add-iam-policy-binding tools-public-gateway-key --project elysiumdr-eu \
   --member serviceAccount:elysium-tools@elysiumdr-eu.iam.gserviceaccount.com \
   --role roles/secretmanager.secretAccessor
+```
+
+Las sesiones de YouTube, también una vez: un bucket propio en el que solo
+escribe la cuenta de servicio de este servicio, sin acceso público ni papelera
+(una sesión desconectada se borra de verdad), y la clave con la que se cifran:
+
+```bash
+gcloud storage buckets create gs://elysiumdr-eu-tools-youtube --project elysiumdr-eu --location europe-west1 \
+  --uniform-bucket-level-access --public-access-prevention --soft-delete-duration 0
+gcloud storage buckets add-iam-policy-binding gs://elysiumdr-eu-tools-youtube \
+  --member serviceAccount:elysium-tools@elysiumdr-eu.iam.gserviceaccount.com --role roles/storage.objectAdmin
+openssl rand -base64 32 | tr -d '\n' | gcloud secrets create tools-youtube-key --project elysiumdr-eu --data-file=-
+gcloud secrets add-iam-policy-binding tools-youtube-key --project elysiumdr-eu \
+  --member serviceAccount:elysium-tools@elysiumdr-eu.iam.gserviceaccount.com --role roles/secretmanager.secretAccessor
 ```
 
 `--allow-unauthenticated` porque quien llama es el Worker; la autorización la
@@ -135,7 +153,9 @@ Todas opcionales.
 | `TOOLS_MAX_FILE_MB` | Tamaño máximo de un fichero, en MB decimales (como los enseña el CRM). 1000 por defecto. |
 | `TOOLS_MAX_ACTIVE_DOWNLOADS` | Descargas a la vez; el resto espera en cola. 2 por defecto. |
 | `TOOLS_STORAGE_BUDGET_MB` | Lo que puede esperar en disco a que el navegador lo recoja. 1500 por defecto. |
-| `YTDLP_COOKIES_FILE` | Ruta de un `cookies.txt` (formato Netscape). Ver abajo. |
+| `YTDLP_COOKIES_FILE` | Ruta de un `cookies.txt` (formato Netscape) del servicio, solo para el CRM y solo cuando la persona no tiene sesión propia. En producción no se usa: YouTube va con la sesión de cada cuenta. |
+| `TOOLS_YOUTUBE_BUCKET` | El bucket de las sesiones de YouTube (`elysiumdr-eu-tools-youtube`). Sin él, o sin la clave, «Cuenta de YouTube» no se ofrece. |
+| `TOOLS_YOUTUBE_KEY` | 32 bytes en base64 con los que se cifran las sesiones. Va como secreto: `--update-secrets TOOLS_YOUTUBE_KEY=tools-youtube-key:latest`. Cambiarla deja ilegibles las sesiones guardadas (cada cuenta vuelve a conectar la suya). |
 | `YTDLP_PROXY` | Configuración de red opcional de yt-dlp para usos autorizados; no resuelve por sí sola un bloqueo de la plataforma. |
 | `YTDLP_JS_RUNTIMES` | Motor de JavaScript para YouTube. En la imagen, Deno; en local, `node`. |
 | `PDF_PYTHON` | El Python que tiene pdf2docx. En la imagen, `/opt/pdf/bin/python`. |
@@ -145,19 +165,37 @@ Todas opcionales.
 Con 4 GiB de memoria, dos descargas de 1 GB uniendo vídeo y audio a la vez
 rozan el límite. Si se suben los máximos, súbase también `--memory`.
 
-## Cuando YouTube bloquea una solicitud
+## YouTube: la sesión de cada cuenta
 
-`bot_check` significa que la plataforma rechazó una solicitud automatizada.
-No es un fallo del inicio de sesión de Elysium. El CRM muestra el motivo sin
-recomendar transferir cookies ni utilizar proxies para superar el bloqueo.
-Ofrece el vídeo en YouTube y los accesos oficiales a YouTube Studio, Google
-Takeout y las instrucciones para descargar vídeos del propio canal. Estos
-accesos no habilitan una descarga automática desde el servidor.
+Desde las IP de Google Cloud, YouTube contesta «Sign in to confirm you're not a
+bot» (`bot_check`). Lo que resuelve ese aviso es lo que pide, una sesión
+iniciada, y Google no ofrece a terceros un inicio de sesión que sirva para
+descargar (el OAuth que usaba yt-dlp dejó de funcionar en 2024). Por eso la
+sesión llega como la entiende yt-dlp: el cookies.txt de un navegador con la
+sesión de YouTube iniciada. Lo explica `youtube-session.js`; en resumen:
 
-No hacen falta credenciales de YouTube dentro de Elysium para utilizar esos
-accesos. El inicio de sesión ocurre en las páginas oficiales de Google.
-`login_required` y `age_restricted` remiten a la plataforma original, con una
-cuenta autorizada. Las demás descargas y los límites existentes no cambian.
+1. **Cada cuenta Elysium conecta la suya**, en «Cuenta de YouTube» del
+   descargador (CRM y tools.elysiumdr.eu, la misma por uid): `GET`, `PUT` y
+   `DELETE` en `/api/tools/youtube/session` (CRM, con el token de un
+   administrador) y en `/api/tools/public/youtube/session` (con el uid que
+   comprobó el Worker). Nadie descarga con la sesión de otra persona.
+2. **Solo cookies de youtube.com.** El navegador filtra el fichero antes de
+   subirlo y el servicio vuelve a filtrar. Al conectar se comprueba con la
+   portada de YouTube (`LOGGED_IN`) y se guarda el nombre y el @ de la cuenta.
+3. **Cifradas y atadas al uid** (AES-256-GCM, el uid como dato autenticado) en
+   `gs://elysiumdr-eu-tools-youtube/youtube/<uid>.json`. Nunca vuelven al
+   navegador; yt-dlp las recibe en un `cookies.txt` de la carpeta del trabajo,
+   con permisos 0600, que se borra al terminar. Lo que YouTube renueva en ese
+   fichero se guarda.
+4. **Los códigos:** `youtube_session_required` (YouTube sin sesión conectada),
+   `youtube_session_expired` (yt-dlp avisó de que ya no vale: se marca
+   caducada y se pide otra) y, con sesión y aun así bloqueado, `bot_check`.
+   En la vía pública, sin sesión ni se intenta.
+
+YouTube puede limitar las cuentas que descargan desde servidores: la interfaz
+recomienda una cuenta secundaria y exportar desde una ventana privada (si el
+navegador sigue usando esa sesión, la renueva y la exportada deja de valer).
+`login_required` y `age_restricted` de las demás plataformas no cambian.
 
 ## Pruebas
 
@@ -199,7 +237,8 @@ maquetación que pdf2docx no usa. pdf.js (Apache-2.0) y pdf-lib (MIT) van en
 
 ## La vía pública: tools.elysiumdr.eu
 
-Las mismas herramientas, sin cuenta, para cualquiera: `public-tools.js` monta
+Las mismas herramientas para las cuentas Elysium (el Worker comprueba la
+cuenta en `elysium-billing` antes de cada operación): `public-tools.js` monta
 `/api/tools/public/*` con su propia instancia del descargador y del conversor.
 Las rutas del CRM siguen detrás de `requireAdmin`. Quién llega y cómo:
 
@@ -221,15 +260,16 @@ Las rutas del CRM siguen detrás de `requireAdmin`. Quién llega y cómo:
    IP no se guarda. Una IPv6 cuenta por su /64. Con una sola instancia, la
    cuenta es una, y empieza de cero al reiniciar.
 4. **Solo las plataformas comprobadas** (`PUBLIC_PLATFORMS`): TikTok,
-   Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky. YouTube
-   responde `coming_soon` (desde las IP de Google pide demostrar que no es un
-   bot. Solo se habilitará con una vía autorizada que se haya verificado; entonces se podrá mover a
-   la lista). Los enlaces cortos `pin.it` responden `short_link`. Esa lista, la
-   de `scripts/tools/content.mjs` (lo que prometen las páginas) y la de
-   `JS/tools-public.js` (los mensajes) tienen que coincidir: lo comprueba
+   Instagram, Facebook, Pinterest, Twitch, LinkedIn, Snapchat y Bluesky.
+   YouTube (`SESSION_PLATFORMS`) solo con la sesión de YouTube de esa persona;
+   sin ella responde `youtube_session_required` sin lanzar yt-dlp. No se
+   promete en las páginas. Los enlaces cortos `pin.it` responden `short_link`.
+   Esa lista, la de `scripts/tools/content.mjs` (lo que prometen las páginas) y
+   la de `JS/tools-public.js` (los mensajes) tienen que coincidir: lo comprueba
    `scripts/tools.test.mjs`.
 5. **Una red sin atajos.** El motor público no usa las cookies ni el proxy del
-   CRM, ni el extractor genérico de yt-dlp. Sale por `public-network.js`, un
+   servicio (solo la sesión de YouTube de cada persona), ni el extractor
+   genérico de yt-dlp. Sale por `public-network.js`, un
    proxy local que resuelve y fija una IP pública en cada conexión, también
    tras las redirecciones: nada de redes privadas, metadatos ni puertos que no
    sean 80/443. DASH y HLS van con el descargador propio de yt-dlp, porque

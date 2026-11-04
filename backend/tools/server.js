@@ -5,6 +5,8 @@
  *
  * Hoy, el descargador de vídeos de la sección Herramientas: recibe un enlace
  * de YouTube, TikTok, Instagram… y entrega el fichero, con yt-dlp y ffmpeg.
+ * YouTube, desde aquí, solo descarga con la sesión de YouTube de quien lo pide
+ * (`youtube-session.js`, rutas `/api/tools/youtube/*`).
  *
  * Es un servicio de Cloud Run aparte de `elysium-billing` a propósito. Necesita
  * Python, ffmpeg y Deno en la imagen, gigas de memoria mientras une vídeo y
@@ -25,6 +27,7 @@ const { createWorkspace } = require('./workspace');
 const video = require('./video-routes');
 const pdf = require('./pdf-routes');
 const { createPublicTools } = require('./public-tools');
+const { createBucketStore, createYoutubeRouter, createYoutubeSessions } = require('./youtube-session');
 
 const DEFAULT_ADMIN_EMAILS = 'daniel.morales@elysiumdr.eu';
 
@@ -59,6 +62,8 @@ function createApp({
   lookup,
   fetchImpl,
   publicGatewayKey = process.env.TOOLS_PUBLIC_GATEWAY_KEY || '',
+  // Sin clave ni bucket, las sesiones de YouTube no se ofrecen (`ready: false`).
+  youtube = createYoutubeSessions(),
   now = Date.now
 } = {}) {
   if (typeof verifyIdToken !== 'function') throw new TypeError('createApp needs verifyIdToken.');
@@ -93,11 +98,12 @@ function createApp({
     workspace,
     settings,
     now,
+    youtube,
     ...(lookup ? { lookup } : {}),
     ...(fetchImpl ? { fetchImpl } : {})
   });
   const pdfTools = pdf.createPdfTools({ requireAdmin, workspace, settings, now });
-  const publicTools = createPublicTools({ workspace, settings, lookup, now, gatewayKey: publicGatewayKey });
+  const publicTools = createPublicTools({ workspace, settings, lookup, now, gatewayKey: publicGatewayKey, youtube });
   app.locals.workspace = workspace;
   app.locals.video = videoTools;
   app.locals.pdf = pdfTools;
@@ -106,7 +112,9 @@ function createApp({
     await workspace.close();
   };
 
-  // JSON compacto para todo menos /pdf/convert, que trae el PDF en crudo.
+  // JSON compacto para todo menos /pdf/convert, que trae el PDF en crudo, y la
+  // sesión de YouTube, que trae el cookies.txt (ya filtrado a youtube.com).
+  app.use(['/api/tools/youtube', '/api/tools/public/youtube'], express.json({ limit: '64kb' }));
   app.use('/api/tools', express.json({ limit: '16kb' }));
   app.use('/api/tools/public', publicTools.router);
 
@@ -121,6 +129,7 @@ function createApp({
   });
 
   app.use('/api/tools/files', workspace.router);
+  app.use('/api/tools/youtube', requireAdmin, createYoutubeRouter({ sessions: youtube, identify: request => request.firebaseUser?.uid }));
   app.use('/api/tools/video', videoTools.router);
   app.use('/api/tools/pdf', pdfTools.router);
 
@@ -150,11 +159,19 @@ if (require.main === module) {
     projectId: process.env.FIREBASE_PROJECT_ID || 'elysiumdr-eu'
   });
   const firebaseAuth = getAuth(firebaseApp);
+  // Las sesiones de YouTube: un bucket que solo lee esta cuenta de servicio y
+  // la clave con la que se cifran, de Secret Manager (ver README.md).
+  const bucketName = String(process.env.TOOLS_YOUTUBE_BUCKET || '').trim();
+  const youtube = createYoutubeSessions({
+    key: process.env.TOOLS_YOUTUBE_KEY,
+    store: bucketName ? createBucketStore(require('firebase-admin/storage').getStorage(firebaseApp).bucket(bucketName)) : null
+  });
   const app = createApp({
     // `true` comprueba además que la sesión no se haya revocado; por eso la
     // cuenta de servicio necesita `roles/firebaseauth.viewer` (ver README.md).
     verifyIdToken: token => firebaseAuth.verifyIdToken(token, true),
-    settings: settingsFromEnv()
+    settings: settingsFromEnv(),
+    youtube
   });
   const port = Number(process.env.PORT || 8080);
   const server = app.listen(port, error => {
