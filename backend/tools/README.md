@@ -79,7 +79,7 @@ Ojo: `*.py` está en el `.gitignore` de la raíz; `pdf_to_docx.py` se añade con
    sin dominio y nombres que resuelven a una dirección privada (el servidor de
    metadatos de Google incluido). Además solo atiende a administradores, y corre
    con una cuenta de servicio propia sin más permisos que leer usuarios de
-   Firebase Auth, leer sus dos secretos y escribir en su propio bucket de
+   Firebase Auth, leer su secreto y escribir en su propio bucket de
    sesiones de YouTube: ffmpeg procesa vídeos de Internet, y no conviene que lo
    haga con la cuenta por defecto, que es editora del proyecto entero.
 
@@ -104,7 +104,7 @@ gcloud run deploy elysium-tools --source backend/tools --region europe-west1 --p
   --service-account elysium-tools@elysiumdr-eu.iam.gserviceaccount.com \
   --allow-unauthenticated --execution-environment gen2 \
   --memory 4Gi --cpu 2 --concurrency 16 --max-instances 1 --timeout 3600 \
-  --update-secrets TOOLS_PUBLIC_GATEWAY_KEY=tools-public-gateway-key:latest,TOOLS_YOUTUBE_KEY=tools-youtube-key:latest \
+  --update-secrets TOOLS_PUBLIC_GATEWAY_KEY=tools-public-gateway-key:latest \
   --update-env-vars TOOLS_YOUTUBE_BUCKET=elysiumdr-eu-tools-youtube
 ```
 
@@ -123,16 +123,13 @@ gcloud secrets add-iam-policy-binding tools-public-gateway-key --project elysium
 
 Las sesiones de YouTube, también una vez: un bucket propio en el que solo
 escribe la cuenta de servicio de este servicio, sin acceso público ni papelera
-(una sesión desconectada se borra de verdad), y la clave con la que se cifran:
+(una sesión desconectada se borra de verdad):
 
 ```bash
 gcloud storage buckets create gs://elysiumdr-eu-tools-youtube --project elysiumdr-eu --location europe-west1 \
   --uniform-bucket-level-access --public-access-prevention --soft-delete-duration 0
 gcloud storage buckets add-iam-policy-binding gs://elysiumdr-eu-tools-youtube \
   --member serviceAccount:elysium-tools@elysiumdr-eu.iam.gserviceaccount.com --role roles/storage.objectAdmin
-openssl rand -base64 32 | tr -d '\n' | gcloud secrets create tools-youtube-key --project elysiumdr-eu --data-file=-
-gcloud secrets add-iam-policy-binding tools-youtube-key --project elysiumdr-eu \
-  --member serviceAccount:elysium-tools@elysiumdr-eu.iam.gserviceaccount.com --role roles/secretmanager.secretAccessor
 ```
 
 `--allow-unauthenticated` porque quien llama es el Worker; la autorización la
@@ -155,7 +152,7 @@ Todas opcionales.
 | `TOOLS_STORAGE_BUDGET_MB` | Lo que puede esperar en disco a que el navegador lo recoja. 1500 por defecto. |
 | `YTDLP_COOKIES_FILE` | Ruta de un `cookies.txt` (formato Netscape) del servicio, solo para el CRM y solo cuando la persona no tiene sesión propia. En producción no se usa: YouTube va con la sesión de cada cuenta. |
 | `TOOLS_YOUTUBE_BUCKET` | El bucket de las sesiones de YouTube (`elysiumdr-eu-tools-youtube`). Sin él, o sin la clave, «Cuenta de YouTube» no se ofrece. |
-| `TOOLS_YOUTUBE_KEY` | 32 bytes en base64 con los que se cifran las sesiones. Va como secreto: `--update-secrets TOOLS_YOUTUBE_KEY=tools-youtube-key:latest`. Cambiarla deja ilegibles las sesiones guardadas (cada cuenta vuelve a conectar la suya). |
+| `TOOLS_YOUTUBE_KEY` | Opcional: 32 bytes en base64 para cifrar las sesiones. Sin ella se derivan de `TOOLS_PUBLIC_GATEWAY_KEY`. Cambiar cualquiera de las dos deja ilegibles las sesiones guardadas (cada cuenta vuelve a conectar la suya). |
 | `YTDLP_PROXY` | Configuración de red opcional de yt-dlp para usos autorizados; no resuelve por sí sola un bloqueo de la plataforma. |
 | `YTDLP_JS_RUNTIMES` | Motor de JavaScript para YouTube. En la imagen, Deno; en local, `node`. |
 | `PDF_PYTHON` | El Python que tiene pdf2docx. En la imagen, `/opt/pdf/bin/python`. |
@@ -183,7 +180,9 @@ sesión de YouTube iniciada. Lo explica `youtube-session.js`; en resumen:
    subirlo y el servicio vuelve a filtrar. Al conectar se comprueba con la
    portada de YouTube (`LOGGED_IN`) y se guarda el nombre y el @ de la cuenta.
 3. **Cifradas y atadas al uid** (AES-256-GCM, el uid como dato autenticado) en
-   `gs://elysiumdr-eu-tools-youtube/youtube/<uid>.json`. Nunca vuelven al
+   `gs://elysiumdr-eu-tools-youtube/youtube/<uid>.json`. La clave se deriva con
+   HKDF de `TOOLS_PUBLIC_GATEWAY_KEY` (otra clave, independiente), así que no
+   hace falta un secreto más; `TOOLS_YOUTUBE_KEY`, si se define, manda. Nunca vuelven al
    navegador; yt-dlp las recibe en un `cookies.txt` de la carpeta del trabajo,
    con permisos 0600, que se borra al terminar. Lo que YouTube renueva en ese
    fichero se guarda.

@@ -216,6 +216,87 @@ p {
     background: var(--ts-text);
 }
 
+/* La cuenta, cuando ya dio acceso (JS/tools-account.js): un menú y nada más. */
+.ts-user {
+    position: relative;
+}
+
+.ts-user[hidden] {
+    display: none;
+}
+
+.ts-user-menu > summary {
+    display: grid;
+    width: 2.4rem;
+    height: 2.4rem;
+    place-items: center;
+    border: 1px solid var(--ts-line-strong);
+    border-radius: 999px;
+    color: var(--ts-text);
+    background: var(--ts-accent-soft);
+    font-weight: 700;
+    list-style: none;
+    cursor: pointer;
+}
+
+.ts-user-menu > summary::-webkit-details-marker {
+    display: none;
+}
+
+.ts-user-menu > summary:hover,
+.ts-user-menu[open] > summary {
+    border-color: var(--ts-accent);
+}
+
+.ts-user-panel {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    z-index: 60;
+    display: grid;
+    gap: 0.55rem;
+    width: max-content;
+    min-width: 15rem;
+    max-width: min(20rem, calc(100vw - 2rem));
+    padding: 1rem;
+    border: 1px solid var(--ts-line-strong);
+    border-radius: 0.9rem;
+    background: var(--ts-surface-solid);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.ts-user-panel strong {
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+}
+
+.ts-user-panel span {
+    margin-bottom: 0.35rem;
+    color: var(--ts-muted);
+    font-size: 0.8rem;
+}
+
+.ts-user-panel a,
+.ts-user-panel button {
+    display: flex;
+    align-items: center;
+    min-height: 2.4rem;
+    padding: 0.45rem 0.8rem;
+    border: 1px solid var(--ts-line-strong);
+    border-radius: 0.65rem;
+    color: var(--ts-text);
+    background: transparent;
+    font: inherit;
+    font-size: 0.875rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.ts-user-panel a:hover,
+.ts-user-panel button:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
 @media (max-width: 720px) {
     .ts-header-inner {
         flex-wrap: wrap;

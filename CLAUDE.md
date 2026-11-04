@@ -403,7 +403,9 @@ licencia gratuita aprobada a mano y nadie llegó a tenerla). `JS/tools-account.j
 solo inicia sesión; `backend/tools-license-routes.js` (`GET /access`, nombre
 heredado) lo decide sin escribir nada. Desactivar el perfil en el CRM corta el
 acceso, salvo a un administrador. El correo tiene que estar verificado, como en
-toda la plataforma.
+toda la plataforma. Con acceso, el bloque de la cuenta no se enseña: la página
+es solo la herramienta y la cuenta (correo, perfil, salir) vive en el menú de la
+cabecera (`[data-tools-user]`).
 
 Las páginas generadas no contienen paneles operativos ni cargan sus módulos.
 El generador guarda los paneles en `worker/tools-workspaces.js`, excluido de
@@ -526,8 +528,9 @@ Worker. `_redirects` lleva con 301 `/ONCORE/*` a la misma ruta en
      (CRM y tools.elysiumdr.eu, la misma por uid). Solo se guardan las cookies
      de youtube.com (el navegador ya filtra el fichero), cifradas con
      AES-256-GCM y atadas al uid, en el bucket `elysiumdr-eu-tools-youtube`,
-     que solo lee la cuenta de servicio `elysium-tools`; la clave está en
-     Secret Manager (`tools-youtube-key`). Nunca vuelven al navegador. Si
+     que solo lee la cuenta de servicio `elysium-tools`; la clave se deriva
+     con HKDF del secreto de la pasarela que el servicio ya tiene (o sale de
+     `TOOLS_YOUTUBE_KEY` si se define). Nunca vuelven al navegador. Si
      yt-dlp avisa de que ya no valen, la sesión pasa a «caducada» y se pide
      otra. El despliegue, la cuenta de servicio y las variables están en
      `backend/tools/README.md`.

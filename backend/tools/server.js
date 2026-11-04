@@ -27,7 +27,7 @@ const { createWorkspace } = require('./workspace');
 const video = require('./video-routes');
 const pdf = require('./pdf-routes');
 const { createPublicTools } = require('./public-tools');
-const { createBucketStore, createYoutubeRouter, createYoutubeSessions } = require('./youtube-session');
+const { createBucketStore, createYoutubeRouter, createYoutubeSessions, deriveKey } = require('./youtube-session');
 
 const DEFAULT_ADMIN_EMAILS = 'daniel.morales@elysiumdr.eu';
 
@@ -160,10 +160,10 @@ if (require.main === module) {
   });
   const firebaseAuth = getAuth(firebaseApp);
   // Las sesiones de YouTube: un bucket que solo lee esta cuenta de servicio y
-  // la clave con la que se cifran, de Secret Manager (ver README.md).
+  // una clave propia, o derivada del secreto de la pasarela (ver README.md).
   const bucketName = String(process.env.TOOLS_YOUTUBE_BUCKET || '').trim();
   const youtube = createYoutubeSessions({
-    key: process.env.TOOLS_YOUTUBE_KEY,
+    key: process.env.TOOLS_YOUTUBE_KEY || deriveKey(process.env.TOOLS_PUBLIC_GATEWAY_KEY),
     store: bucketName ? createBucketStore(require('firebase-admin/storage').getStorage(firebaseApp).bucket(bucketName)) : null
   });
   const app = createApp({

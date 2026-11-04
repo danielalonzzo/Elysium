@@ -12,6 +12,7 @@ const {
   checkYoutubeSession,
   createMemoryStore,
   createYoutubeSessions,
+  deriveKey,
   hasSignedInSession,
   openSession,
   parseCookieFile,
@@ -113,6 +114,18 @@ test('la sesión cifrada solo se abre con su clave y para su cuenta', () => {
   assert.throws(() => openSession(key, 'user-a', JSON.stringify(tampered)));
   assert.equal(parseKey(crypto.randomBytes(16).toString('base64')), null);
   assert.equal(parseKey(''), null);
+});
+
+test('sin secreto propio, la clave se deriva del de la pasarela y es otra', () => {
+  const gateway = crypto.randomBytes(48).toString('base64');
+  const derived = deriveKey(gateway);
+  assert.equal(parseKey(derived).length, 32);
+  assert.equal(deriveKey(gateway), derived, 'siempre la misma para el mismo secreto');
+  assert.notEqual(derived, Buffer.from(gateway).subarray(0, 32).toString('base64'));
+  assert.notEqual(deriveKey(crypto.randomBytes(48).toString('base64')), derived);
+  assert.equal(deriveKey('corto'), null);
+  assert.equal(deriveKey(''), null);
+  assert.equal(createYoutubeSessions({ key: derived, store: createMemoryStore() }).ready, true);
 });
 
 test('firma las peticiones a la API de YouTube como su web', () => {

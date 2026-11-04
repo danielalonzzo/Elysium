@@ -278,6 +278,7 @@ function header(language, page) {
         <a class="ts-brand" href="${homePath(language)}"><span class="ts-brand-mark" aria-hidden="true">λ</span><span>${BRAND}</span></a>
         <nav class="ts-nav" aria-label="${esc(ui.footerTools)}">${navLink('video')}${navLink('pdf')}</nav>
         <nav class="ts-lang" aria-label="${esc(ui.language)}">${languages}</nav>
+        <div class="ts-user" data-tools-user hidden></div>
     </div>
 </header>`;
 }
@@ -637,7 +638,8 @@ function licensedWorkspace(page, language) {
 }
 
 // Solo se inicia sesión: las cuentas Elysium ya existen (clientes del CRM y
-// equipo), aquí no se crean ni se pide una licencia (JS/tools-account.js).
+// equipo), aquí no se crean ni se pide una licencia (JS/tools-account.js). Con
+// acceso, este bloque se esconde y la cuenta pasa al menú de la cabecera.
 function accountGate(language) {
     const t = ACCOUNT_COPY[language];
     const input = (label, name, type, extra = '') => `<label>${esc(label)}<input name="${name}" type="${type}" required ${extra}></label>`;
@@ -655,7 +657,6 @@ function accountGate(language) {
             <div class="ts-account-actions"><a class="btn" href="https://elysiumdr.eu/profiles?lang=${language}&amp;view=client">${esc(t.profile)}</a><button class="btn" type="button" data-account-action="refresh">${esc(t.refresh)}</button><button class="btn" type="button" data-account-action="logout">${esc(t.signOut)}</button></div>
         </div>
         <div data-account-verify hidden><button class="btn" type="button" data-account-action="resend">${esc(t.resend)}</button></div>
-        <div data-account-active hidden><p><strong data-account-kind></strong></p><a class="btn btn-primary" href="${urlFor(byId('video'), language)}">${esc(t.open)}</a></div>
         <p class="ts-account-note">${esc(t.responsible)} <a href="${urlFor(byId('legal'), language)}">${esc(t.privacy)}</a></p>
         <noscript><p>${esc(t.intro)}</p></noscript>
     </section>`;

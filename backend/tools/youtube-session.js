@@ -20,10 +20,12 @@
  * 1. **Solo se guardan las cookies de youtube.com.** El navegador ya filtra el
  *    fichero antes de subirlo y aquí se vuelve a filtrar: una exportación del
  *    navegador entero no deja nada más en el servidor.
- * 2. **Cifradas y atadas a su cuenta.** AES-256-GCM con la clave
- *    `TOOLS_YOUTUBE_KEY` (Secret Manager), y el uid como dato autenticado: un
- *    objeto copiado a otra cuenta no se descifra. Viven en un bucket propio que
- *    solo puede leer la cuenta de servicio de este servicio.
+ * 2. **Cifradas y atadas a su cuenta.** AES-256-GCM, y el uid como dato
+ *    autenticado: un objeto copiado a otra cuenta no se descifra. La clave sale
+ *    de `TOOLS_YOUTUBE_KEY` si existe y, si no, se deriva con HKDF del secreto
+ *    de la pasarela que el servicio ya tiene montado (`deriveKey`): no hace
+ *    falta otro secreto. Viven en un bucket propio que solo puede leer la
+ *    cuenta de servicio de este servicio.
  * 3. **Nunca vuelven al navegador.** La API dice si hay sesión, de qué cuenta
  *    y cuándo se usó; las cookies solo salen hacia yt-dlp, en un fichero de la
  *    carpeta del trabajo que se borra al terminar.
@@ -171,6 +173,19 @@ function sameCookies(left, right) {
 }
 
 /* ── Cifrado ─────────────────────────────────────────────────────────────── */
+
+/**
+ * La clave de las sesiones a partir de otro secreto del servicio (el de la
+ * pasarela, 48 bytes al azar), con HKDF y una etiqueta propia: otra clave,
+ * independiente de la original, sin tener que guardar una más. Si ese secreto
+ * cambia, las sesiones guardadas dejan de abrirse y cada cuenta conecta la suya.
+ */
+function deriveKey(secret) {
+  const material = String(secret || '');
+  if (material.length < 32) return null;
+  return Buffer.from(crypto.hkdfSync('sha256', Buffer.from(material, 'utf8'), Buffer.from('elysium-tools', 'utf8'),
+    Buffer.from('youtube-sessions/v1', 'utf8'), 32)).toString('base64');
+}
 
 /** 32 bytes en base64, o nada: sin clave, la sesión de YouTube no se ofrece. */
 function parseKey(value) {
@@ -521,6 +536,7 @@ module.exports = {
   createMemoryStore,
   createYoutubeRouter,
   createYoutubeSessions,
+  deriveKey,
   hasSignedInSession,
   isYoutubeDomain,
   openSession,
