@@ -240,8 +240,11 @@ The project has its own domain and repository; there is no case study or review
 page for it on elysiumdr.eu.
 
 ONCORE — https://oncorecrc.eu (Portugal)
-Type: Cancer recovery and survivorship centre in Lisbon: clinical exercise,
-oncology physiotherapy, nutrition and psycho-oncology.
+Type: Cancer recovery and survivorship centre in Lisbon: oncology
+physiotherapy, oncology physical activity, psycho-oncology and oncology nutrition.
+Built by Elysium: website, portal and digital infrastructure designed, developed
+and maintained by Elysium λ Development & Research. ONCORE owns the brand and
+the clinical content; Elysium's role is technical authorship.
 Tagline shown: "Cancer Recovery & Survivorship Center"
 The project has its own domain and repository; there is no case study or review
 page for it on elysiumdr.eu.
