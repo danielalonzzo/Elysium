@@ -1,0 +1,1547 @@
+<!doctype html>
+<html lang="es-CR"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, follow">
+<title>Valeria CV | Cuenta VALTRIX</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+        /* Tokens locales: solo viven dentro del perfil. */
+        .profile-layout-grid {
+            --pf-muted: #64748B;
+            --pf-line: rgba(6, 10, 19, 0.09);
+            --pf-accent-soft: rgba(0, 119, 182, 0.09);
+            --pf-accent-line: rgba(0, 119, 182, 0.28);
+        }
+
+        /* ---------------------------------------------------------------- Rejilla */
+
+        .profile-layout-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        @media (min-width: 992px) {
+            .profile-layout-grid {
+                grid-template-columns: minmax(0, 1fr) 320px;
+                align-items: start;
+                gap: 1.75rem;
+            }
+        }
+
+        .profile-main,
+        .profile-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            min-width: 0;
+        }
+
+        @media (min-width: 992px) {
+            .profile-sidebar {
+                position: sticky;
+                top: calc(var(--nav-height) + 24px);
+                max-height: calc(100vh - var(--nav-height) - 48px);
+                overflow-y: auto;
+                scrollbar-width: thin;
+                overscroll-behavior: contain;
+            }
+        }
+
+        /* ------------------------------------------------- Sistema de tarjetas */
+
+        .profile-card {
+            position: relative;
+            z-index: 1;
+            padding: 0;
+            background: var(--color-card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: var(--card-blur);
+            -webkit-backdrop-filter: var(--card-blur);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                inset 0 -1px 1px rgba(255, 255, 255, 0.05),
+                0 8px 32px rgba(6, 10, 19, 0.12);
+            transition: box-shadow var(--transition-normal);
+        }
+
+        .profile-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: var(--chrome-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            opacity: 0.35;
+            pointer-events: none;
+            transition: opacity var(--transition-normal);
+        }
+
+        .profile-card:hover::before {
+            opacity: 1;
+        }
+
+        .profile-card-padding {
+            padding: 1.5rem 1.25rem;
+        }
+
+        @media (min-width: 768px) {
+            .profile-card-padding {
+                padding: 1.85rem 2rem;
+            }
+        }
+
+        .profile-card-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.35rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--pf-line);
+        }
+
+        .profile-card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .profile-card-note {
+            font-size: 0.78rem;
+            color: var(--pf-muted);
+            margin: 0;
+        }
+
+        /* --------------------------------------------------------- Portada */
+
+        /* Sin imagen de fondo a propósito: el degradado y la escala graduada
+           inferior son puro CSS y repiten el bisel del avatar. */
+        .profile-intro-cover {
+            aspect-ratio: 1640 / 340;
+            /* El `min-height` no es decorativo: a 375 px la proporción deja la
+               portada en 68 px, y el avatar —138 px con -72 de margen— se salía
+               por arriba de la tarjeta, que lo recorta con `overflow: hidden`. */
+            min-height: 116px;
+            position: relative;
+            border-bottom: 1px solid var(--pf-line);
+            background:
+                linear-gradient(115deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 48%),
+                linear-gradient(135deg, #063E5E 0%, #0077B6 52%, #0596D6 100%);
+            overflow: hidden;
+        }
+
+        /* Escala graduada: las mismas marcas del avatar, tumbadas. */
+        .profile-intro-cover::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 26px;
+            background: repeating-linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.55) 0 1.5px,
+                    transparent 1.5px 15px);
+            -webkit-mask-image: linear-gradient(to top, #000, transparent);
+            mask-image: linear-gradient(to top, #000, transparent);
+        }
+
+        /* Aclarado hacia la esquina del avatar, para que su bisel claro apoye. */
+        .profile-intro-cover::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 13% 125%, rgba(255, 255, 255, 0.6) 0%, transparent 44%);
+            pointer-events: none;
+        }
+
+        .profile-intro-body {
+            padding: 0 1.25rem 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .profile-intro-body {
+                padding: 0 2rem 1.85rem;
+            }
+        }
+
+        .profile-intro-avatar-wrapper {
+            margin-top: -72px;
+            margin-bottom: 0.9rem;
+            position: relative;
+            display: inline-block;
+            line-height: 0;
+        }
+
+        /* Ver nota 1 de la cabecera: el marco ya viene en el PNG. */
+        .profile-intro-avatar {
+            width: 138px;
+            height: 138px;
+            display: block;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 24px rgba(6, 10, 19, 0.22));
+        }
+
+        @media (min-width: 768px) {
+            .profile-intro-avatar-wrapper {
+                margin-top: -86px;
+            }
+
+            .profile-intro-avatar {
+                width: 164px;
+                height: 164px;
+            }
+        }
+
+        .profile-intro-name-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.45rem;
+        }
+
+        .profile-intro-name {
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--color-primary);
+            margin: 0;
+            line-height: 1.12;
+            text-transform: none;
+        }
+
+        @media (min-width: 768px) {
+            .profile-intro-name {
+                font-size: 2.1rem;
+            }
+        }
+
+        .profile-intro-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.7rem;
+            border-radius: 50px;
+            background: var(--pf-accent-soft);
+            border: 1px solid var(--pf-accent-line);
+            color: var(--color-accent);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+
+        a.profile-intro-badge:hover {
+            background: rgba(0, 119, 182, 0.16);
+            border-color: var(--color-accent);
+        }
+
+        .profile-intro-headline {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-accent);
+            margin: 0 0 0.55rem 0;
+            line-height: 1.4;
+        }
+
+        .profile-intro-location {
+            font-size: 0.88rem;
+            color: var(--pf-muted);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-intro-location a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .profile-intro-location a:hover {
+            text-decoration: underline;
+        }
+
+        /* Al partirse la línea, el «·» se quedaba solo al principio de la
+           segunda: en vertical sobra. */
+        @media (max-width: 559px) {
+            .profile-intro-location {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .profile-intro-location [aria-hidden="true"] {
+                display: none;
+            }
+
+            .profile-intro-actions {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.6rem;
+            }
+
+            .profile-intro-actions .btn-profile-primary {
+                grid-column: 1 / -1;
+                justify-content: center;
+                width: 100%;
+                padding: 0.65rem 1rem;
+            }
+
+            .profile-intro-actions .btn-profile-secondary {
+                justify-content: center;
+                width: 100%;
+                padding: 0.6rem 0.75rem;
+                font-size: 0.78rem;
+            }
+        }
+
+        .profile-intro-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 1.35rem;
+        }
+
+        .btn-profile-primary,
+        .btn-profile-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1.25rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-profile-primary {
+            background: var(--color-accent);
+            color: var(--btn-text);
+            border: 1px solid var(--color-accent);
+            box-shadow: 0 6px 18px rgba(0, 119, 182, 0.25);
+        }
+
+        .btn-profile-primary:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .btn-profile-secondary {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-profile-secondary:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .btn-profile-primary svg,
+        .btn-profile-secondary svg {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Bloque de identidad: va abierto siempre, no detrás de un clic. */
+        .profile-identity {
+            margin-top: 1.6rem;
+            padding-top: 1.4rem;
+            border-top: 1px solid var(--pf-line);
+        }
+
+        .profile-identity-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin: 0 0 1.1rem 0;
+        }
+
+        .profile-identity-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem 1.75rem;
+            margin: 0;
+        }
+
+        /* Dos columnas y no tres: a tres, las etiquetas largas se parten a
+           mitad de palabra. */
+        @media (min-width: 560px) {
+            .profile-identity-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* El icono es un ::before para que <dl> solo contenga <div>, <dt> y <dd>:
+           un <span> ahí dentro es HTML inválido. */
+        .profile-identity-item {
+            display: grid;
+            grid-template-columns: 32px minmax(0, 1fr);
+            column-gap: 0.75rem;
+            align-items: start;
+            min-width: 0;
+        }
+
+        .profile-identity-item::before {
+            content: attr(data-icon);
+            grid-column: 1;
+            grid-row: 1 / span 2;
+            width: 32px;
+            height: 32px;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            background: var(--pf-accent-soft);
+            border: 1px solid var(--pf-accent-line);
+            color: var(--color-accent);
+            font-size: 0.85rem;
+            line-height: 1;
+        }
+
+        .profile-identity-label {
+            grid-column: 2;
+            grid-row: 1;
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin-bottom: 0.15rem;
+        }
+
+        .profile-identity-value {
+            grid-column: 2;
+            grid-row: 2;
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            line-height: 1.35;
+            overflow-wrap: break-word;
+        }
+
+        .profile-identity-value a {
+            color: var(--color-primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--pf-accent-line);
+        }
+
+        .profile-identity-value a:hover {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        .profile-identity-value .mono {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            color: var(--color-spark);
+            letter-spacing: 0.05em;
+        }
+
+        /* -------------------------------------------------------- Texto corrido */
+
+        .profile-text-body {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--color-text-secondary);
+        }
+
+        .profile-text-body p {
+            margin: 0 0 1rem 0;
+        }
+
+        .profile-text-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .profile-text-body strong {
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .profile-quote {
+            margin: 1.5rem 0 0 0;
+            padding: 1.1rem 1.25rem;
+            border-left: 3px solid var(--color-accent);
+            border-radius: 0 10px 10px 0;
+            background: var(--pf-accent-soft);
+            font-style: italic;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--color-primary);
+        }
+
+        .profile-quote footer {
+            display: block;
+            margin-top: 0.6rem;
+            font-style: normal;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+        }
+
+        /* ------------------------------------------- Entradas desplegables */
+
+        .profile-feed-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-entry {
+            border-bottom: 1px solid var(--pf-line);
+        }
+
+        .profile-entry:last-child {
+            border-bottom: none;
+        }
+
+        .profile-entry-head {
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+            padding: 1.15rem 0;
+            cursor: pointer;
+            list-style: none;
+            transition: opacity var(--transition-fast);
+        }
+
+        .profile-entry:first-child > .profile-entry-head {
+            padding-top: 0;
+        }
+
+        .profile-entry:last-child:not([open]) > .profile-entry-head {
+            padding-bottom: 0;
+        }
+
+        .profile-entry-head::-webkit-details-marker {
+            display: none;
+        }
+
+        .profile-entry-head:hover .profile-entry-title,
+        .profile-entry-head:focus-visible .profile-entry-title {
+            color: var(--color-accent);
+        }
+
+        .profile-entry-head:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 4px;
+            border-radius: 8px;
+        }
+
+        .profile-entry-logo {
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid var(--color-border);
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            color: var(--color-accent);
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            overflow: hidden;
+        }
+
+        .profile-entry-heading {
+            flex: 1;
+            min-width: 0;
+            display: block;
+        }
+
+        .profile-entry-title {
+            display: block;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.35;
+            letter-spacing: -0.01em;
+            transition: color var(--transition-fast);
+        }
+
+        .profile-entry-subtitle {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            line-height: 1.4;
+            margin-top: 0.15rem;
+        }
+
+        .profile-entry-meta {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--color-spark);
+            line-height: 1.4;
+            margin-top: 0.2rem;
+        }
+
+        .profile-entry-teaser {
+            display: block;
+            font-size: 0.86rem;
+            color: var(--pf-muted);
+            line-height: 1.55;
+            margin-top: 0.55rem;
+        }
+
+        .profile-entry[open] .profile-entry-teaser {
+            display: none;
+        }
+
+        .profile-entry-chevron {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: var(--pf-muted);
+            border: 1px solid transparent;
+            transition: transform var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+        }
+
+        .profile-entry-chevron::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: translateY(-2px) rotate(45deg);
+        }
+
+        .profile-entry-head:hover .profile-entry-chevron {
+            color: var(--color-accent);
+            border-color: var(--pf-accent-line);
+        }
+
+        .profile-entry[open] > .profile-entry-head .profile-entry-chevron {
+            transform: rotate(180deg);
+            color: var(--color-accent);
+        }
+
+        .profile-entry-body {
+            padding: 0 0 1.35rem 0;
+        }
+
+        @media (min-width: 560px) {
+            .profile-entry-body {
+                padding-left: calc(46px + 0.9rem);
+            }
+        }
+
+        .profile-entry-points {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .profile-entry-points li {
+            position: relative;
+            padding-left: 1.15rem;
+            font-size: 0.89rem;
+            line-height: 1.65;
+            color: var(--color-text-secondary);
+        }
+
+        .profile-entry-points li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.62em;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--color-accent);
+        }
+
+        .profile-entry-points strong {
+            color: var(--color-primary);
+            font-weight: 700;
+        }
+
+        .profile-entry-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 1rem;
+        }
+
+        /* Animación de apertura donde el navegador la soporta; donde no, abre y
+           cierra de golpe, que es el comportamiento nativo correcto. */
+        @supports selector(::details-content) {
+            /* Acotado a la entrada, no en :root: `interpolate-size` es heredable
+               y afectaría a las transiciones de todo el sitio. */
+            .profile-entry {
+                interpolate-size: allow-keywords;
+            }
+
+            .profile-entry::details-content {
+                block-size: 0;
+                overflow: hidden;
+                opacity: 0;
+                content-visibility: hidden;
+                transition: block-size var(--transition-normal), opacity var(--transition-fast), content-visibility var(--transition-normal) allow-discrete;
+            }
+
+            .profile-entry[open]::details-content {
+                block-size: auto;
+                opacity: 1;
+                content-visibility: visible;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .profile-entry::details-content,
+            .profile-entry-chevron {
+                transition: none;
+            }
+        }
+
+        /* ------------------------------------------------ Entradas sin detalle */
+
+        /* Formación y certificaciones no tienen nada que desplegar: los títulos
+           no se publican, se enseñan a quien los pida al contratar. Son <div>,
+           no <details>, así que no deben parecer pulsables. */
+        div.profile-entry > .profile-entry-head {
+            cursor: default;
+        }
+
+        div.profile-entry > .profile-entry-head:hover .profile-entry-title {
+            color: var(--color-primary);
+        }
+
+        /* ------------------------------------------------------- Competencias */
+
+        .profile-skill-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-secondary);
+            font-size: 0.77rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .profile-skill-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .profile-skill-group-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin: 0 0 0.75rem 0;
+        }
+
+        .profile-skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* --------------------------------------------------------- Referencias */
+
+        .profile-references {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 700px) {
+            .profile-references {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        .profile-reference {
+            padding: 1rem 1.1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .profile-reference-name {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            line-height: 1.35;
+        }
+
+        .profile-reference-role {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--pf-muted);
+            line-height: 1.5;
+            margin-top: 0.2rem;
+        }
+
+        .profile-reference-tel {
+            display: inline-block;
+            margin-top: 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-accent);
+            text-decoration: none;
+        }
+
+        .profile-reference-tel:hover {
+            text-decoration: underline;
+        }
+
+        /* ------------------------------------------------------ Barra lateral */
+
+        .profile-widget {
+            position: relative;
+            z-index: 1;
+            background: var(--color-card-bg);
+            border-radius: 12px;
+            padding: 1.35rem 1.25rem;
+            backdrop-filter: var(--card-blur);
+            -webkit-backdrop-filter: var(--card-blur);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.2),
+                0 8px 32px rgba(6, 10, 19, 0.1);
+        }
+
+        .profile-widget::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: var(--chrome-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            z-index: -1;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .profile-widget-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--pf-muted);
+            margin: 0 0 1.1rem 0;
+        }
+
+        .profile-authority {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .profile-authority-item {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            column-gap: 0.75rem;
+            align-items: baseline;
+            padding-bottom: 0.9rem;
+            border-bottom: 1px solid var(--pf-line);
+        }
+
+        .profile-authority-item:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .profile-authority-value {
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: var(--color-accent);
+            white-space: nowrap;
+        }
+
+        .profile-authority-label {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            line-height: 1.45;
+        }
+
+        .profile-quick-facts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .profile-fact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-fact-item a {
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--pf-accent-line);
+        }
+
+        .profile-fact-item a:hover {
+            color: var(--color-accent);
+            border-bottom-color: var(--color-accent);
+        }
+
+        .profile-fact-icon {
+            flex-shrink: 0;
+            width: 18px;
+            color: var(--color-accent);
+            line-height: 1.5;
+        }
+
+        .profile-fact-icon svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+        }
+
+        .profile-widget-cta {
+            display: block;
+            margin-top: 1.25rem;
+            padding: 0.7rem 1rem;
+            border-radius: 50px;
+            background: var(--color-accent);
+            border: 1px solid var(--color-accent);
+            color: var(--btn-text);
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            text-align: center;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            box-shadow: 0 6px 18px rgba(0, 119, 182, 0.25);
+        }
+
+        .profile-widget-cta:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .profile-service-links {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-service-link {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid var(--pf-line);
+            color: var(--color-primary);
+            font-size: 0.87rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .profile-service-link:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .profile-service-link:hover {
+            color: var(--color-accent);
+        }
+
+        .profile-service-link span {
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: var(--pf-muted);
+            white-space: nowrap;
+        }
+
+        /* ---------------------------------------------------------- Impresión */
+
+        /* El perfil es un CV: tiene que salir entero en papel. */
+        @media print {
+            .navbar,
+            .footer,
+            .fab-wrapper,
+            #loader,
+            .profile-sidebar,
+            .profile-intro-actions,
+            .profile-entry-chevron {
+                display: none !important;
+            }
+
+            body::before,
+            body::after {
+                display: none !important;
+            }
+
+            .profile-entry-body,
+            .profile-entry::details-content {
+                display: block !important;
+                block-size: auto !important;
+                opacity: 1 !important;
+                content-visibility: visible !important;
+            }
+
+            .profile-entry-teaser {
+                display: none !important;
+            }
+
+            .profile-card {
+                background: none;
+                border: 1px solid #ccc;
+                box-shadow: none;
+                backdrop-filter: none;
+                break-inside: avoid;
+            }
+        }
+    </style>
+<link rel="stylesheet" href="css/valtrix.css">
+<script src="js/valtrix.js" defer></script>
+</head>
+<body class="crm">
+<div class="vtx-loader" aria-hidden="true"><div>VALTRIX <span>Engineering</span></div></div>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="top"><div class="wrap top-inner">
+<a class="brand" href="cuenta.html"><span aria-hidden="true">V</span> VALTRIX<small>CRM</small></a>
+<div class="top-actions"><div class="currency" role="group" aria-label="Moneda de visualización" hidden>
+<button type="button" data-currency="CRC" aria-pressed="false">₡ CRC</button>
+<button type="button" data-currency="USD" aria-pressed="true">US$ USD</button>
+</div><a class="button compact outline" href="index.html">Volver al sitio ↗</a></div>
+</div></header>
+<div class="wrap crm-layout">
+<aside class="crm-side"><p class="eyebrow">Espacio de trabajo</p>
+<p class="crm-account"><span aria-hidden="true">VD</span><strong>VALTRIX Demo</strong></p>
+<nav aria-label="Secciones del CRM"><a href="cuenta.html"><span aria-hidden="true">▦</span> Resumen</a><a href="cuenta.html#clientes"><span aria-hidden="true">◎</span> Clientes</a><a href="cuenta.html#incorporacion"><span aria-hidden="true">◷</span> Incorporación</a><a href="cuenta-valeria.html" aria-current="page"><span aria-hidden="true">◇</span> Valeria CV</a></nav></aside>
+<main id="contenido" class="crm-main"><p class="eyebrow">Cuenta demostrativa / Valeria CV</p>
+        <div class="profile-layout-grid">
+
+            <!-- Columna principal -->
+            <div class="profile-main">
+
+                <!-- Portada -->
+                <section class="profile-card">
+                    <div class="profile-intro-cover" role="img" aria-label="VALTRIX Engineering"></div>
+                    <div class="profile-intro-body">
+                        <div class="profile-intro-avatar-wrapper">
+                            <img src="Images/avatar/AVATAR-VALTRIX-VALERIA-VXe-TITANIO-TRANSPARENTE-512.png"
+                                 alt="Valeria Vargas Ávila" class="profile-intro-avatar" width="164" height="164">
+                        </div>
+                        <div class="profile-intro-name-row">
+                            <h1 class="profile-intro-name">Valeria Vargas Ávila</h1>
+                            <a class="profile-intro-badge" href="index.html">VALTRIX Engineering</a>
+                        </div>
+                        <p class="profile-intro-headline">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; flex-shrink: 0;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
+                            Ingeniera Industrial &amp; Fundadora
+                        </p>
+                        <p class="profile-intro-location">
+                            <span>Toda Costa Rica</span>
+                            <span aria-hidden="true">·</span>
+                            <a href="contacto.html">Datos de contacto</a>
+                        </p>
+
+                        <div class="profile-intro-actions">
+                            <a href="contacto.html" class="btn-profile-primary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                Agende su cita sin costo
+                            </a>
+                            <a href="https://wa.me/50684880406" target="_blank" rel="noopener noreferrer" class="btn-profile-secondary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                WhatsApp
+                            </a>
+                            <a href="mailto:info@valtrix.com" class="btn-profile-secondary">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                Correo
+                            </a>
+                        </div>
+
+                        <div class="profile-identity">
+                            <h2 class="profile-identity-title">Datos profesionales</h2>
+                            <dl class="profile-identity-grid">
+                                <div class="profile-identity-item" data-icon="✔">
+                                    <dt class="profile-identity-label">Colegiatura</dt>
+                                    <dd class="profile-identity-value">Miembro activa CFIA desde 2025</dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="▤">
+                                    <dt class="profile-identity-label">Carné</dt>
+                                    <dd class="profile-identity-value"><span class="mono">000000</span></dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="◎">
+                                    <dt class="profile-identity-label">Certificación</dt>
+                                    <dd class="profile-identity-value">Auditora interna ISO 9001:2015</dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="⧗">
+                                    <dt class="profile-identity-label">Trayectoria</dt>
+                                    <dd class="profile-identity-value"><span data-anios>9</span> años en diferentes áreas de la industria y la ingeniería</dd>
+                                </div>
+                                <div class="profile-identity-item" data-icon="✆">
+                                    <dt class="profile-identity-label">WhatsApp</dt>
+                                    <dd class="profile-identity-value"><a href="https://wa.me/50684880406" target="_blank" rel="noopener noreferrer">(+506) 8488-0406</a></dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sobre mí -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Sobre mí</h2>
+                        </div>
+                        <div class="profile-text-body">
+                            <p>Ingeniera Industrial con <strong><span data-anios>9</span> años de experiencia</strong> en las industrias electrónica, médica, construcción e infraestructura, además de auditora certificada en la norma internacional <strong>ISO 9001:2015</strong>. A lo largo de mi carrera he trabajado optimizando operaciones, estandarizando procesos y transformando información dispersa en sistemas claros, medibles y documentados.</p>
+                            <p>Fundé VALTRIX Engineering para llevar ese mismo enfoque a pequeñas y medianas empresas que necesitan orden y control, pero que no cuentan con un ingeniero industrial dentro de su estructura. Trabajamos con talleres, consultorios, distribuidoras, sodas y microfábricas que operan día a día sin visibilidad real de sus procesos porque la información se encuentra repartida entre hojas de cálculo, formularios y registros manuales.</p>
+                            <p>Nuestro propósito es simple: convertir datos dispersos en información útil para tomar mejores decisiones. En muchos casos, esto no requiere un sistema corporativo complejo, sino criterio técnico, metodologías probadas y una implementación práctica. Cada proyecto es atendido personalmente, garantizando un acompañamiento directo, soluciones a la medida y resultados concretos en poco tiempo.</p>
+                            <blockquote class="profile-quote">
+                                “La experiencia me ha enseñado que los procesos no fallan en el papel, fallan en la operación. Por eso diseño soluciones que las personas realmente pueden ejecutar. Cada intervención es atendida personalmente.”
+                                <footer>Valeria Vargas Ávila — Fundadora</footer>
+                            </blockquote>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Experiencia laboral -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Experiencia laboral</h2>
+                            <p class="profile-card-note">Pulse cualquier entrada para desplegarla</p>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <details class="profile-entry" open>
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">A</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Ingeniera Industrial</span>
+                                        <span class="profile-entry-subtitle">AERIS Holding Costa Rica</span>
+                                        <span class="profile-entry-meta">Ene 2024 – Actualidad</span>
+                                        <span class="profile-entry-teaser">Gestión integral de proyectos de infraestructura aeroportuaria: cronograma, costos, alcance y calidad en obra.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li>Soporte estratégico en la gestión integral de proyectos de infraestructura aeroportuaria.</li>
+                                        <li>Coordinación de equipos multidisciplinarios (ingeniería civil, electromecánica, pavimentos e industrial), asegurando alineación con los objetivos del proyecto.</li>
+                                        <li>Planificación, seguimiento y control de cronograma, costos y alcance, garantizando cumplimiento de hitos establecidos.</li>
+                                        <li>Elaboración de reportes ejecutivos y análisis de indicadores clave de desempeño para la toma de decisiones gerenciales.</li>
+                                        <li>Gestión y control de documentación técnica y contractual, asegurando trazabilidad y cumplimiento normativo.</li>
+                                        <li>Implementación y seguimiento de estándares de calidad en obra, verificando cumplimiento de especificaciones técnicas y buenas prácticas constructivas.</li>
+                                        <li>Apoyo en procesos de aseguramiento y control de calidad mediante inspecciones, revisión de entregables y validación de actividades ejecutadas.</li>
+                                        <li>Articulación entre áreas técnicas y administrativas para optimizar la eficiencia operativa de los proyectos.</li>
+                                        <li>Soporte en la supervisión de campo, asegurando cumplimiento de plazos, calidad y requisitos técnicos.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Gestión de proyectos</span>
+                                        <span class="profile-skill-chip">Cronograma, costos y alcance</span>
+                                        <span class="profile-skill-chip">Indicadores de desempeño</span>
+                                        <span class="profile-skill-chip">Control documental</span>
+                                        <span class="profile-skill-chip">Calidad en obra</span>
+                                        <span class="profile-skill-chip">Supervisión de campo</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">S</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Asistente Administrativa</span>
+                                        <span class="profile-entry-subtitle">Grupo SEAR</span>
+                                        <span class="profile-entry-meta">Jun 2022 – May 2023</span>
+                                        <span class="profile-entry-teaser">Mejora de procesos y control documental bajo la Norma Internacional de Calidad, con levantamiento de datos e indicadores.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li>Realizar mejora en proceso realizando y controlando documentos bajo la Norma Internacional de Calidad.</li>
+                                        <li>Controlar, revisar, archivar, cuestionar y estandarizar documentos tanto digital como físicamente, creando distintos respaldos por cualquier eventualidad en el sistema tecnológico.</li>
+                                        <li>Realizar observaciones, seguimiento, cuestionamientos, análisis para establecer idea en la mejora continua de los procesos, con levantamiento de datos, para ser expuestos por medio de indicadores.</li>
+                                        <li>Realización de diagrama de flujos, disminución de tiempos de respuesta en los distintos servicios ya sea cliente interno y externo.</li>
+                                        <li>Proponer ideas de innovación, eficientes, optimas y confiables en los distintos procesos.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Mejora continua</span>
+                                        <span class="profile-skill-chip">Control documental</span>
+                                        <span class="profile-skill-chip">Estandarización</span>
+                                        <span class="profile-skill-chip">Diagramas de flujo</span>
+                                        <span class="profile-skill-chip">Indicadores</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">P</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Técnico de Procesos y Operaria</span>
+                                        <span class="profile-entry-subtitle">Philips</span>
+                                        <span class="profile-entry-meta">Jul 2020 – Jul 2022</span>
+                                        <span class="profile-entry-teaser">Control de más de 1000 equipos de medición y su calibración, bajo cumplimiento regulatorio internacional.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li><strong>Técnico de procesos (Jul 2021 – Jun 2022):</strong> Controlar más de 1000 equipos de medición (Tool, reglas, termómetros, hornos, etc.).</li>
+                                        <li>Controlar el seguimiento de la calibración y qué tipo de calibración, implicando el orden y cuestionamiento del proceso.</li>
+                                        <li>Contar con criterio propio y respuesta inmediata ante situaciones del día a día (cumplimiento regulatorio internacional).</li>
+                                        <li>Uso de SAP para la identificación de inventarios, productos, costos, inversión en equipos, verificar fechas y fabricantes.</li>
+                                        <li>Seguimiento y realización de documentos controlados con sus respectivas revisiones y mejoras para cumplir la Norma Internacional de Calidad.</li>
+                                        <li><strong>Operaria (Jul 2020 – Jul 2021):</strong> Uso de microscopios y soldadoras en líneas de producción, con seguimiento de ayudas visuales, diagramas de flujos y estándares de calidad.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Control de calibración</span>
+                                        <span class="profile-skill-chip">Metrología</span>
+                                        <span class="profile-skill-chip">SAP</span>
+                                        <span class="profile-skill-chip">Cumplimiento regulatorio</span>
+                                        <span class="profile-skill-chip">Documentos controlados</span>
+                                        <span class="profile-skill-chip">Dispositivos médicos</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="profile-entry">
+                                <summary class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">T</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Técnico de Producción y Operaria</span>
+                                        <span class="profile-entry-subtitle">Trimpot Electrónica</span>
+                                        <span class="profile-entry-meta">May 2017 – May 2020</span>
+                                        <span class="profile-entry-teaser">Control estadístico de producción con SAP, Excel y Minitab, e interpretación de planos y simbología.</span>
+                                    </span>
+                                    <span class="profile-entry-chevron" aria-hidden="true"></span>
+                                </summary>
+                                <div class="profile-entry-body">
+                                    <ul class="profile-entry-points">
+                                        <li><strong>Técnico de producción (May 2018 – May 2020):</strong> Seguimiento y control de gráficas con interpretación de variaciones, medias, límites, usando herramientas como SAP, Excel y minitab.</li>
+                                        <li>Análisis de recolección de datos de forma precisa y óptima, con programación de tiempos establecidos.</li>
+                                        <li>Interpretar los planos y su simbología para tomar decisiones con criterio sólido.</li>
+                                        <li>Realización de documentos controlados bajo la Norma Internacional de Calidad.</li>
+                                        <li><strong>Operaria (May 2017 – May 2018):</strong> Uso de microscopios y soldadoras. Cumplimiento de metas con análisis crítico visual si el producto pasaba o no pasaba.</li>
+                                    </ul>
+                                    <div class="profile-entry-skills">
+                                        <span class="profile-skill-chip">Gráficas de control</span>
+                                        <span class="profile-skill-chip">Minitab</span>
+                                        <span class="profile-skill-chip">Excel</span>
+                                        <span class="profile-skill-chip">SAP</span>
+                                        <span class="profile-skill-chip">Lectura de planos</span>
+                                    </div>
+                                </div>
+                            </details>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Formación académica.
+                     Sin documentos adjuntos a propósito: los títulos no se
+                     publican, se enseñan a quien los pida al contratar. -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Formación académica</h2>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">F</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Licenciatura en Ingeniería Industrial</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">2026</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">F</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Bachillerato en Ingeniería Industrial</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">2023</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">F</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Ingeniería en Cadena de Suministros y Logística</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">75 % de la malla curricular</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Certificaciones -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Certificaciones</h2>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">◎</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Auditor en la Norma Internacional de Calidad 9001-2015</span>
+                                        <span class="profile-entry-subtitle">SHERPA Consultores</span>
+                                        <span class="profile-entry-meta">2023</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">▦</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Power BI</span>
+                                        <span class="profile-entry-subtitle">UTN — Universidad Técnica Nacional</span>
+                                        <span class="profile-entry-meta">2023</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Habilidades (formación complementaria) -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Habilidades</h2>
+                        </div>
+                        <div class="profile-feed-list">
+
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">▤</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Excel Intermedio</span>
+                                        <span class="profile-entry-subtitle">Universidad Fidélitas</span>
+                                        <span class="profile-entry-meta">2022</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="profile-entry">
+                                <div class="profile-entry-head">
+                                    <span class="profile-entry-logo" aria-hidden="true">EN</span>
+                                    <span class="profile-entry-heading">
+                                        <span class="profile-entry-title">Inglés Ejecutivo</span>
+                                        <span class="profile-entry-subtitle">Academia Líder</span>
+                                        <span class="profile-entry-meta">Nivel A2</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Competencias -->
+                <section class="profile-card">
+                    <div class="profile-card-padding">
+                        <div class="profile-card-header">
+                            <h2 class="profile-card-title">Competencias</h2>
+                        </div>
+                        <div class="profile-skill-groups">
+                            <div>
+                                <h3 class="profile-skill-group-title">Gestión de proyectos</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Gestión de riesgos</span>
+                                    <span class="profile-skill-chip">Control presupuestario</span>
+                                    <span class="profile-skill-chip">Gestión de interesados (stakeholders)</span>
+                                    <span class="profile-skill-chip">Planificación estratégica</span>
+                                    <span class="profile-skill-chip">Seguimiento de hitos</span>
+                                    <span class="profile-skill-chip">Gestión documental</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Mejora continua y procesos</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Lean Management</span>
+                                    <span class="profile-skill-chip">BPM (Business Process Management)</span>
+                                    <span class="profile-skill-chip">Optimización de procesos</span>
+                                    <span class="profile-skill-chip">Análisis de causa raíz</span>
+                                    <span class="profile-skill-chip">Mapeo de procesos</span>
+                                    <span class="profile-skill-chip">Gestión del cambio</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Datos y análisis</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Análisis de datos</span>
+                                    <span class="profile-skill-chip">Dashboards ejecutivos</span>
+                                    <span class="profile-skill-chip">KPIs</span>
+                                    <span class="profile-skill-chip">Automatización de reportes</span>
+                                    <span class="profile-skill-chip">Inteligencia de negocio (Business Intelligence)</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Calidad</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Acciones correctivas y preventivas (CAPA)</span>
+                                    <span class="profile-skill-chip">Gestión de no conformidades</span>
+                                    <span class="profile-skill-chip">Sistemas de gestión</span>
+                                    <span class="profile-skill-chip">Auditorías de cumplimiento</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Herramientas colaborativas</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Smartsheet</span>
+                                    <span class="profile-skill-chip">Microsoft Project</span>
+                                    <span class="profile-skill-chip">SharePoint</span>
+                                    <span class="profile-skill-chip">OneDrive</span>
+                                    <span class="profile-skill-chip">Microsoft 365</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="profile-skill-group-title">Liderazgo</h3>
+                                <div class="profile-skills-grid">
+                                    <span class="profile-skill-chip">Liderazgo y coordinación de equipos multidisciplinarios</span>
+                                    <span class="profile-skill-chip">Comunicación ejecutiva</span>
+                                    <span class="profile-skill-chip">Gestión y supervisión de proyectos en campo</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+
+            </div>
+
+            <!-- Barra lateral -->
+            <div class="profile-sidebar">
+
+                <div class="profile-widget">
+                    <h2 class="profile-widget-title">Credenciales</h2>
+                    <div class="profile-authority">
+                        <div class="profile-authority-item">
+                            <span class="profile-authority-value">CFIA</span>
+                            <span class="profile-authority-label">Ingeniera Industrial colegiada</span>
+                        </div>
+                        <div class="profile-authority-item">
+                            <span class="profile-authority-value">ISO 9001:2015</span>
+                            <span class="profile-authority-label">Auditora interna certificada</span>
+                        </div>
+                        <div class="profile-authority-item">
+                            <span class="profile-authority-value"><span data-anios>9</span> años</span>
+                            <span class="profile-authority-label">Diferentes áreas de la industria y la ingeniería</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-widget">
+                    <h2 class="profile-widget-title">Contacto</h2>
+                    <div class="profile-quick-facts">
+                        <div class="profile-fact-item">
+                            <span class="profile-fact-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            </span>
+                            <span><a href="mailto:info@valtrix.com">info@valtrix.com</a></span>
+                        </div>
+                        <div class="profile-fact-item">
+                            <span class="profile-fact-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                            </span>
+                            <span><a href="https://wa.me/50684880406" target="_blank" rel="noopener noreferrer">(+506) 8488-0406</a></span>
+                        </div>
+                        <div class="profile-fact-item">
+                            <span class="profile-fact-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            </span>
+                            <span>Toda Costa Rica</span>
+                        </div>
+                    </div>
+                    <a class="profile-widget-cta" href="contacto.html">Agende su cita sin costo</a>
+                </div>
+
+                <div class="profile-widget">
+                    <h2 class="profile-widget-title">Servicios</h2>
+                    <div class="profile-service-links">
+                        <a class="profile-service-link" href="panel-de-control.html">Panel de Control <span>ERP</span></a>
+                        <a class="profile-service-link" href="orden-operativo.html">Orden Operativo <span>QMS</span></a>
+                        <a class="profile-service-link" href="precios.html">Suscripción <span><span data-usd="US$120" data-crc="≈ ₡62 000">US$120</span>/mes</span></a>
+                        <a class="profile-service-link" href="metodologia.html">Cómo trabajamos <span>Calendario</span></a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+</div>
+<footer class="wrap footer"><p class="credit">Desarrollado por <a href="https://elysiumdr.eu/" target="_blank" rel="noopener">Elysium λ Development &amp; Research</a></p><nav aria-label="Pie de página"><a href="cookies.html">Cookies</a><a href="contacto.html">Contacto</a></nav></footer>
+<script src="js/anios-experiencia.js" defer></script>
+</body></html>

@@ -1,12 +1,12 @@
 # VALTRIX Engineering — Constitución Corporativa
 
-**Documento rector · v2.0 · Agosto 2026**
+**Documento histórico · v2.0 · Agosto 2026**
+
+> El modelo de suscripción vigente desde noviembre de 2026 se define en [Modelo de suscripción](01-modelo-pricing.md). Las condiciones comerciales y la estrategia de la v2.0 se conservan como registro histórico.
+
 **Clasificación: interno.** No se publica. Reside en `_comercial/`, excluido de las
 tres listas de despliegue (`firebase.json`, `.assetsignore`, `.cloudflareignore`).
 
-> Este documento define qué es VALTRIX, qué vende, a quién, a qué precio y bajo qué
-> estándares. Cuando una decisión operativa contradiga lo escrito aquí, gana este
-> documento o se modifica este documento. No hay tercera opción.
 
 > **v2.0 — Pivote de mercado.** La v1.0 posicionaba a VALTRIX como consultora
 > boutique para el Tier 2/3 de la industria regulada: proveedores de zona franca,

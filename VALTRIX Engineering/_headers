@@ -1,0 +1,17 @@
+# Cabeceras del sitio de VALTRIX servido por su propio Worker.
+#
+# Hacen falta aquí porque una petición que coincide con un fichero se sirve
+# SIN ejecutar el Worker: lo que pone `src/index.js` solo llega al portal, que
+# es la única ruta con `run_worker_first`.
+#
+# El portal (`/cuenta`) NO se configura aquí: su política la escribe el Worker,
+# que es quien sabe si hay un emulador de autenticación configurado.
+#
+# Cuando estas páginas se sirven desde `elysiumdr.eu/VALTRIX`, manda el
+# `_headers` de la raíz de Elysium y este fichero no interviene.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'

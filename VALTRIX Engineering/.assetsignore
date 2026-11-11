@@ -1,0 +1,13 @@
+# Lo que el Worker de VALTRIX NO publica.
+#
+# Cloudflare lee este fichero en la raíz de la carpeta de assets, que aquí es
+# «VALTRIX Engineering» entera. Si estuviera junto al wrangler.jsonc no haría
+# nada, y se publicarían el modelo de precios y los scripts del avatar.
+#
+# Elysium excluye lo mismo por su cuenta («**/_comercial/», «*.py» en
+# .assetsignore y .cloudflareignore): son dos despliegues distintos de la
+# misma carpeta y cada uno tiene que excluirlo por separado.
+_comercial/
+_avatar/
+.DS_Store
+_headers

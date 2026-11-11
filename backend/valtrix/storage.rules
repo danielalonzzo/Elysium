@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// VALTRIX — igual que Firestore: el navegador no sube ni descarga nada
+// directamente. Las evidencias de tareas, los comprobantes y los informes
+// pasan por `/api/valtrix/`, que comprueba el permiso y firma la descarga.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

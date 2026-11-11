@@ -34,7 +34,9 @@
       "storage.rules",
       "firestore.rules",
       "firestore.indexes.json",
-      "sounds/*.wav"
+      "sounds/*.wav",
+      "Estandares/**",
+      "**/Estandares/**"
     ],
     "redirects": [
       {

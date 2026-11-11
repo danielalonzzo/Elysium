@@ -685,6 +685,66 @@ function withCrmManifest(request, response) {
     return new HTMLRewriter().on('head', { element(head) { head.append(CRM_MANIFEST, { html: true }); } }).transform(response);
 }
 
+const VALTRIX_PATH = '/VALTRIX';
+const VALTRIX_ASSETS = '/VALTRIX%20Engineering';
+
+/**
+ * El portal de VALTRIX vive en SU Worker, no en este.
+ *
+ * Las páginas de marketing se sirven aquí desde los mismos ficheros, pero la
+ * cuenta necesita el API (`/api/valtrix…`), que solo existe allá: servida
+ * desde `elysiumdr.eu` pediría `/api/` a Elysium, que es otra cosa, y el
+ * portal fallaría sin decir por qué. Así que se redirige.
+ *
+ * Cuando VALTRIX tenga dominio propio, esto es lo único que cambia aquí.
+ */
+const VALTRIX_PORTAL_ORIGIN = 'https://valtrix.danielalonzzo.workers.dev';
+const VALTRIX_PORTAL_PAGE = /^\/cuenta(?:\.html)?(?:\/.*)?$/;
+
+async function serveValtrix(request, env, url) {
+    const page = url.pathname.slice(VALTRIX_PATH.length);
+    if (/^\/(?:index(?:\.html)?)?$/.test(page)) {
+        return redirect(`${url.origin}${VALTRIX_PATH}${url.search}`, 308);
+    }
+
+    // 302 y no 301: el día que el portal se mueva a su dominio, un 301 se
+    // habría quedado guardado en los navegadores de quienes ya entraron.
+    if (VALTRIX_PORTAL_PAGE.test(page)) {
+        return redirect(`${VALTRIX_PORTAL_ORIGIN}/cuenta${url.search}`, 302);
+    }
+
+    const asset = new URL(url);
+    asset.pathname = VALTRIX_ASSETS + (page || '/');
+    const response = await serveAsset(request, env, new Request(asset, request));
+    const location = response.headers.get('Location');
+    if (location && response.status >= 300 && response.status < 400) {
+        const target = new URL(location, asset);
+        if (target.origin === url.origin && target.pathname.startsWith(VALTRIX_ASSETS + '/')) {
+            target.pathname = VALTRIX_PATH + target.pathname.slice(VALTRIX_ASSETS.length);
+            return redirect(target.href, response.status);
+        }
+    }
+
+    if (page || !response.ok || !response.headers.get('Content-Type')?.includes('text/html')) {
+        return response;
+    }
+
+    // La portada no lleva barra final. Sus enlaces relativos se resuelven
+    // dentro de VALTRIX y las anclas siguen apuntando al documento actual.
+    const rewriteRelative = attribute => ({
+        element(element) {
+            const value = element.getAttribute(attribute);
+            if (value && !/^(?:[a-z][a-z\d+.-]*:|[\/#?])/i.test(value)) {
+                element.setAttribute(attribute, `${VALTRIX_PATH}/${value}`);
+            }
+        }
+    });
+    return new HTMLRewriter()
+        .on('[href]', rewriteRelative('href'))
+        .on('[src]', rewriteRelative('src'))
+        .transform(response);
+}
+
 async function serveAsset(request, env, assetRequest = request) {
     const response = await env.ASSETS.fetch(assetRequest);
     if (!prefersMarkdown(request) || !response.ok) return withCrmManifest(request, response);
@@ -1108,6 +1168,15 @@ export default {
         // Elysium Tools tiene su propio host, con sus páginas, su sitemap y su
         // API pública (ver `tools-site.js`).
         if (host === TOOLS_HOST) return handleToolsSite(request, env, url, { serveAsset });
+
+        if (host === 'elysiumdr.eu') {
+            if (url.pathname === VALTRIX_PATH || url.pathname.startsWith(VALTRIX_PATH + '/')) {
+                return serveValtrix(request, env, url);
+            }
+            if (url.pathname === VALTRIX_ASSETS || url.pathname === VALTRIX_ASSETS + '/') {
+                return redirect(`${url.origin}${VALTRIX_PATH}${url.search}`, 308);
+            }
+        }
 
         const nationalLanguage = LOCALIZED_HOSTS.get(host) || null;
         const isPublicHost = host === 'elysiumdr.eu' || Boolean(nationalLanguage);

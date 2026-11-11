@@ -1,0 +1,37 @@
+{
+  // Worker propio de VALTRIX, aparte del de Elysium.
+  //
+  // Los assets son la carpeta «VALTRIX Engineering» del repositorio, la misma
+  // que sirve Elysium en /VALTRIX: son los mismos ficheros, no una copia. Lo
+  // que solo existe aquí es el API.
+  //
+  // Mientras no haya dominio propio, se publica en
+  // valtrix.danielalonzzo.workers.dev. Cuando se compre el dominio, se añade
+  // como Custom domain en Workers & Pages → valtrix → Domains & Routes y no
+  // hay nada más que mover.
+  //
+  // Secretos (nunca en el repositorio):
+  //   npx wrangler secret put GOOGLE_SERVICE_ACCOUNT   // JSON de la cuenta de servicio
+  //   npx wrangler secret put FIREBASE_API_KEY         // clave web del proyecto VALTRIX
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "valtrix",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "../../VALTRIX Engineering",
+    "binding": "ASSETS",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // Por omisión, una petición que coincide con un fichero se sirve SIN
+    // ejecutar el Worker, así que la política de contenido del portal y su
+    // «noindex» nunca llegaban a ponerse. El portal tiene que pasar por el
+    // Worker; el resto del sitio no lo necesita y va directo.
+    "run_worker_first": ["/cuenta", "/cuenta/*"]
+  },
+  "vars": {
+    "FIREBASE_PROJECT_ID": "valtrix",
+    "ALLOWED_ORIGINS": "https://valtrix.danielalonzzo.workers.dev"
+  }
+}

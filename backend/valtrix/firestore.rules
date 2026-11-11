@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// VALTRIX — proyecto Firebase propio.
+//
+// Nadie entra a Firestore desde el navegador. El portal habla con
+// `/api/valtrix/`, y el Worker, con la cuenta de servicio, es la única
+// credencial que atraviesa estas reglas. Cada ruta vuelve a comprobar la
+// identidad, el papel, la pertenencia al negocio y la suscripción.
+//
+// Se niega todo a propósito, no por falta de reglas: una regla de Firestore
+// decide documento a documento y no puede garantizar que confirmar una venta
+// descuente existencias, cree la obligación de cobro y deje el evento
+// pendiente en la misma transacción o en ninguna. Esa garantía vive en el
+// Worker, y dejar una puerta abierta aquí la haría inútil.
+//
+// Desplegar:  firebase deploy --only firestore:rules --project <proyecto>
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

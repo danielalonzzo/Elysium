@@ -1,276 +1,33 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html lang="es-CR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contacto | VALTRIX Engineering</title>
-    <meta name="description" content="Agende una videollamada de 30 minutos sin costo. Miramos sus archivos y le decimos qué se puede hacer, cuánto cuesta y cuánto tarda. Costa Rica.">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://elysiumdr.eu/VALTRIX%20Engineering/contacto">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Contacto | VALTRIX Engineering">
-    <meta property="og:description" content="Agende una videollamada de 30 minutos sin costo. Miramos sus archivos y le decimos qué se puede hacer, cuánto cuesta y cuánto tarda. Costa Rica.">
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solicitar demo | VALTRIX Engineering</title>
+<meta name="description" content="Contacte con VALTRIX para conocer el sistema de gestión.">
+<meta name="theme-color" content="#101c2a">
+<link rel="stylesheet" href="css/valtrix.css">
+<script src="js/valtrix.js" defer></script>
 </head>
-<body class="loading">
-
-    <!-- Loading Page -->
-    <div id="loader" class="loader">
-        <div class="loader-content">
-            <div class="loader-logo" data-text="VALTRIX Engineering">VALTRIX <span class="brand-accent">Engineering</span></div>
-        </div>
-    </div>
-    <script>
-        // Immediate scroll prevention
-        document.body.style.overflow = 'hidden';
-    </script>
-
-
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container navbar-container">
-            <a href="index.html" class="brand-logo">VALTRIX <span class="brand-accent">Engineering</span></a>
-
-            <ul class="nav-menu">
-                <li><a href="panel-de-control.html" class="nav-link">Panel de Control</a></li>
-                <li><a href="orden-operativo.html" class="nav-link">Orden Operativo</a></li>
-                <li><a href="precios.html" class="nav-link">Precios</a></li>
-                <li><a href="valeria-vargas.html" class="nav-link">Nosotros</a></li>
-                <li><a href="contacto.html" class="btn btn-primary nav-btn" aria-current="page">Contacto</a></li>
-            </ul>
-
-            <button class="hamburger">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-            </button>
-        </div>
-    </nav>
-
-
-    <section class="page-hero">
-        <div class="container">
-            <span class="eyebrow">Sin costo</span>
-            <h1>Evite gastar dinero en la solución equivocada</h1>
-            <p class="lede">Agende una reunión sin costo donde evaluaremos su necesidad y le diremos exactamente qué podemos construir, cuánto podría costar y cuánto tiempo tomaría.</p>
-        </div>
-    </section>
-
-    <section class="section section-tight section-light">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Una reunión gratuita que le ahorra tiempo y dinero</h2>
-                <p class="section-subtitle">Revisamos sus archivos, validamos la viabilidad de la solución y le brindamos una estimación preliminar de costo, alcance y plazo. Si no somos la solución adecuada, se lo diremos con total transparencia.</p>
-            </div>
-
-            <div class="pain-grid">
-                <div class="pain-card">
-                    <span class="pain-cost">Qué es</span>
-                    <h3>Una evaluación sin costo</h3>
-                    <p>Revisamos su situación, los archivos que ya tiene y lo que desea lograr. La reunión se realiza en el horario que mejor le funcione.</p>
-                </div>
-                <div class="pain-card">
-                    <span class="pain-cost">Qué recibe</span>
-                    <h3>Un plan claro y una estimación realista</h3>
-                    <p>Le indicamos qué se puede construir con la información disponible, cuál solución se adapta mejor a su necesidad, cuánto podría costar y el tiempo estimado de implementación. Todo por escrito en un plazo máximo de dos días hábiles.</p>
-                </div>
-                <div class="pain-card">
-                    <span class="pain-cost">Qué no es</span>
-                    <h3>No es una llamada de ventas</h3>
-                    <p>No intentaremos venderle algo que no necesita. Si consideramos que su problema no se resuelve con nuestros servicios, se lo diremos de forma transparente y sin ningún costo.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section section-gray" id="formulario">
-        <div class="container">
-            <div class="contact-section">
-                <div class="section-header">
-                    <h2 class="section-title">Cuéntenos de su negocio</h2>
-                    <p class="section-subtitle">Entre más concreto sea, más útil será la llamada.</p>
-                </div>
-
-                <form id="contact-form" class="contact-form">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="name">Su nombre *</label>
-                            <input type="text" id="name" name="name" placeholder="Ej. Juan Pérez" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="company">Nombre del negocio *</label>
-                            <input type="text" id="company" name="company" placeholder="Ej. Taller Pérez" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Correo *</label>
-                            <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">WhatsApp *</label>
-                            <input type="tel" id="phone" name="phone" placeholder="+506 0000-0000" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="canton">Cantón o zona</label>
-                            <input type="text" id="canton" name="canton" placeholder="Ej. Desamparados">
-                        </div>
-                        <div class="form-group">
-                            <label for="sector">A qué se dedica *</label>
-                            <input type="text" id="sector" name="sector" list="sectores" placeholder="Ej. Taller mecánico" required>
-                            <datalist id="sectores">
-                                <option value="Taller mecánico o de servicio"></option>
-                                <option value="Clínica o consultorio"></option>
-                                <option value="Comercio o distribuidora"></option>
-                                <option value="Restaurante, soda o panadería"></option>
-                                <option value="Producción de alimentos"></option>
-                                <option value="Servicios profesionales"></option>
-                                <option value="Otro"></option>
-                            </datalist>
-                        </div>
-                        <div class="form-group">
-                            <label for="size">Cuántas personas trabajan *</label>
-                            <input type="text" id="size" name="size" list="tamanos" placeholder="Ej. 6" required>
-                            <datalist id="tamanos">
-                                <option value="Solo yo"></option>
-                                <option value="2 a 5"></option>
-                                <option value="6 a 10"></option>
-                                <option value="11 a 20"></option>
-                                <option value="Más de 20"></option>
-                            </datalist>
-                        </div>
-                        <div class="form-group">
-                            <label for="interest">Qué le interesa *</label>
-                            <input type="text" id="interest" name="interest" list="intereses" placeholder="Ej. Panel de control" required>
-                            <datalist id="intereses">
-                                <option value="Panel de control de ventas e inventario"></option>
-                                <option value="Orden operativo (procesos)"></option>
-                                <option value="Los dos servicios"></option>
-                                <option value="Todavía no lo tengo claro"></option>
-                            </datalist>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 1.5rem;">
-                        <label for="trigger">¿Qué lo trae hoy? *</label>
-                        <textarea id="trigger" name="trigger" rows="5" placeholder="Ej. Llevo el inventario en tres Excel distintos y nunca me cuadra con lo que hay en bodega. O: no sé cuál de mis productos me está generando plata de verdad." required></textarea>
-                    </div>
-
-                    <div class="form-checkbox-group">
-                        <input type="checkbox" id="privacy" name="privacy" required>
-                        <span class="custom-checkbox"></span>
-                        <label for="privacy" style="margin-bottom: 0; cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 500; font-size: 0.85rem;">Autorizo el uso de estos datos para responder a mi solicitud. No se comparten con terceros.</label>
-                    </div>
-
-                    <div class="form-footer">
-                        <button type="submit" class="btn btn-primary">Preparar la solicitud <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span></button>
-                        <p class="form-privacy">
-                            Al enviar, se abre su programa de correo con la solicitud ya redactada para que usted la revise y la envíe. Si prefiere no usar correo, escriba directamente por WhatsApp.
-                        </p>
-                    </div>
-                </form>
-
-                <div class="contact-whatsapp-alternative">
-                    <p>O escríbanos por WhatsApp:</p>
-                    <a href="https://wa.me/50684880406" target="_blank" rel="noopener" class="btn btn-accent">
-                        Contactar vía WhatsApp <span class="btn-arrow-wrapper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section section-tight section-light">
-        <div class="container">
-            <div class="section-header">
-                <span class="eyebrow">Dónde atendemos</span>
-                <h2 class="section-title">Toda Costa Rica, en gran medida remoto</h2>
-            </div>
-
-            <div class="pain-grid">
-                <div class="pain-card">
-                    <span class="pain-cost">Correo</span>
-                    <h3>info@valtrix.com</h3>
-                </div>
-                <div class="pain-card">
-                    <span class="pain-cost">WhatsApp</span>
-                    <h3>+506 8488 0406</h3>
-                </div>
-                <div class="pain-card">
-                    <span class="pain-cost">Confidencialidad</span>
-                    <p>Le ofrecemos acuerdo de confidencialidad antes de que nos mande un solo archivo.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-brand">
-                    <div class="brand-logo">VALTRIX <span>Engineering</span></div>
-                    <p class="footer-desc">Ingeniería industrial para micro y pequeñas empresas, emprendedores y startups de Costa Rica.</p>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Servicios</h4>
-                    <ul class="footer-links">
-                        <li><a href="panel-de-control.html">Panel de Control</a></li>
-                        <li><a href="orden-operativo.html">Orden Operativo</a></li>
-                        <li><a href="precios.html">Precios y alcance</a></li>
-                        <li><a href="metodologia.html">Cómo trabajamos</a></li>
-                        <li><a href="valeria-vargas.html">Valeria Vargas</a></li>
-                        <li><a href="https://elysiumdr.eu/es/profiles">Su cuenta</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="footer-title">Detalles de Contacto</h4>
-                    <ul class="footer-meta">
-                        <li>info@valtrix.com</li>
-                        <li><a href="https://wa.me/50684880406" target="_blank" rel="noopener">WhatsApp</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="footer-bottom">
-                <div class="footer-bottom-group">
-                    <div>VALTRIX Engineering © 2026</div>
-                    <div class="footer-bottom-links">
-                        <a href="contacto.html">Contacto</a>
-                        <a href="metodologia.html">Cómo trabajamos</a>
-                    </div>
-                </div>
-                <div class="footer-credits">
-                    <a href="https://elysiumdr.eu" target="_blank" rel="noopener" style="color: inherit; text-decoration: none; letter-spacing: 0.05em;">Elysium λ Development &amp; Research</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Floating Action Button (FAB) -->
-    <div class="fab-wrapper" id="fab-wrapper">
-        <div class="fab-options">
-            <div class="fab-option-item">
-                <span class="fab-label">WhatsApp</span>
-                <a href="https://wa.me/50684880406" class="fab-option-btn whatsapp-btn" target="_blank" rel="noopener" aria-label="WhatsApp">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-                </a>
-            </div>
-            <div class="fab-option-item">
-                <span class="fab-label">Email</span>
-                <a href="mailto:info@valtrix.com" class="fab-option-btn email-btn" aria-label="Email">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                </a>
-            </div>
-        </div>
-        <button class="fab-main" id="fab-main" aria-label="Más opciones">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-    </div>
-
-    <script src="js/main.js"></script>
-    <script src="js/version-modal.js"></script>
-
+<body>
+<div class="vtx-loader" aria-hidden="true"><div>VALTRIX <span>Engineering</span></div></div>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="top"><div class="wrap top-inner">
+<a class="brand" href="index.html"><span aria-hidden="true">V</span> VALTRIX<small>ENGINEERING</small></a>
+<nav aria-label="Principal"><a href="index.html#sistema">Sistema</a><a href="metodologia.html">Implementación</a><a href="precios.html">Suscripción</a></nav>
+<div class="top-actions"><div class="currency" role="group" aria-label="Moneda de visualización" hidden>
+<button type="button" data-currency="CRC" aria-pressed="false">₡ CRC</button>
+<button type="button" data-currency="USD" aria-pressed="true">US$ USD</button>
+</div><a class="button compact" href="cuenta.html">Cuenta <span aria-hidden="true">↗</span></a></div>
+</div></header>
+<main id="contenido"><section class="wrap subhero"><p class="eyebrow">Contacto · Costa Rica</p><h1>Solicite una demo guiada</h1><p class="lead">Cuéntenos qué tipo de negocio tiene y qué necesita ordenar. En la demo podrá ver ejemplos de inventario, cobros, tareas y cierre mensual.</p></section>
+<section class="wrap section split"><article class="card"><p class="eyebrow">Canal directo</p><h2>Escribir por WhatsApp</h2><p>Se abrirá una conversación con un mensaje que puede editar antes de enviarlo.</p><a class="button" href="https://wa.me/50684880406?text=Hola%2C%20me%20interesa%20conocer%20la%20demo%20de%20VALTRIX%20para%20mi%20negocio.">+506 8488 0406 ↗</a></article>
+<article class="card"><p class="eyebrow">Correo</p><h2>Contactar a VALTRIX</h2><p>Indique el tipo de negocio y el módulo que le interesa conocer.</p><a class="text-link" href="mailto:info@valtrix.com?subject=Demo%20VALTRIX">info@valtrix.com ↗</a></article></section></main>
+<footer class="wrap footer">
+<a class="brand" href="index.html"><span aria-hidden="true">V</span> VALTRIX</a>
+<p>Software de gestión para negocios en Costa Rica</p>
+<nav aria-label="Pie de página"><a href="cookies.html">Cookies</a><a href="contacto.html">Contacto</a></nav>
+<p class="credit">Desarrollado por <a href="https://elysiumdr.eu/" target="_blank" rel="noopener">Elysium λ Development &amp; Research</a></p>
+</footer>
 </body>
 </html>

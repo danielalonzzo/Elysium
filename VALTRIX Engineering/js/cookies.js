@@ -26,12 +26,13 @@
 (function () {
     'use strict';
 
-    // Las dos únicas claves que el sitio escribe (ver version-modal.js).
-    var PREF_KEYS = ['vtx-pref-motion', 'vtx-pref-fab'];
+    // Preferencias de interfaz declaradas por VALTRIX.
+    var PREF_KEYS = ['vtx-pref-motion', 'vtx-pref-fab', 'vtx-pref-currency'];
 
     var NOMBRES = {
         'vtx-pref-motion': 'animaciones de fondo',
-        'vtx-pref-fab':    'botón de contacto'
+        'vtx-pref-fab':    'botón de contacto',
+        'vtx-pref-currency': 'moneda de visualización'
     };
 
     function $(id) { return document.getElementById(id); }

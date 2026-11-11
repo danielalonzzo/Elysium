@@ -47,3 +47,15 @@ wrangler.jsonc
 worker/
 .claude/
 .idx/
+
+VALTRIX Engineering/.assetsignore
+
+# «Estandares/» es material interno: contratos editables, los estándares, el
+# sello original y las grabaciones de publicidad. Entró entera sin excluirse y
+# se estuvo sirviendo en abierto («elysiumdr.eu/Estandares/ELYSIUM-CONTRATO-
+# SUSCRIPCION-v1.4.0.pdf» respondía 200). Nada del sitio la enlaza: el sello de
+# los correos es «Images/elysium-email-seal.svg», no el de aquí.
+Estandares/
+Estandares/**
+**/Estandares/
+VALTRIX Engineering/_headers

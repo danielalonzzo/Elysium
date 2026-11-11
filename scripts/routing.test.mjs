@@ -835,3 +835,23 @@ test('www — nunca sirve contenido: no hay dos URLs para la misma página', asy
         assert.equal((await call(url)).asset, null, url);
     }
 });
+
+test('/VALTRIX — el portal vive en su propio Worker, las páginas no', async () => {
+    // La cuenta necesita el API de VALTRIX, que solo existe en su Worker.
+    // Servida desde elysiumdr.eu pediría `/api/` a Elysium, que es otra cosa,
+    // y fallaría sin decir por qué.
+    for (const path of ['/VALTRIX/cuenta', '/VALTRIX/cuenta.html']) {
+        const r = await call(`https://elysiumdr.eu${path}`);
+        assert.equal(r.status, 302, path);
+        assert.equal(r.location, 'https://valtrix.danielalonzzo.workers.dev/cuenta', path);
+    }
+
+    const conQuery = await call('https://elysiumdr.eu/VALTRIX/cuenta?x=1');
+    assert.equal(conQuery.location, 'https://valtrix.danielalonzzo.workers.dev/cuenta?x=1');
+
+    // El resto del sitio se sigue sirviendo aquí, desde los mismos ficheros.
+    for (const path of ['/VALTRIX/precios.html', '/VALTRIX/metodologia.html']) {
+        const r = await call(`https://elysiumdr.eu${path}`);
+        assert.notEqual(r.status, 302, path);
+    }
+});

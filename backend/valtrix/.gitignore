@@ -1,0 +1,5 @@
+.wrangler/
+firestore-debug.log
+ui-debug.log
+.firebase/
+.dev.vars
