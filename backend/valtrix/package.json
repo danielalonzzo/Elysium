@@ -1,0 +1,15 @@
+{
+  "name": "valtrix",
+  "private": true,
+  "description": "VALTRIX Engineering — sistema unificado de control financiero, orden operativo y auditoría mensual. Worker de Cloudflare sobre Firebase.",
+  "author": "Elysium λ Development & Research (https://elysiumdr.eu)",
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:core && npm run test:api",
+    "test:core": "node --test test/*.test.mjs",
+    "test:api": "firebase emulators:exec --only auth,firestore --project demo-valtrix \"node --test --test-concurrency=1 test/*.emulator.mjs\"",
+    "dev": "firebase emulators:exec --only auth,firestore --project demo-valtrix \"node scripts/dev.mjs\"",
+    "check:worker": "npx --yes wrangler@4.158.0 deploy --dry-run --outdir .wrangler/dry-run"
+  },
+  "engines": { "node": ">=22.12" }
+}

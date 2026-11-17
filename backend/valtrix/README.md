@@ -1,57 +1,128 @@
 # VALTRIX — Worker y API (fase 2)
 
-Worker propio, aparte del de Elysium. Sirve el sitio de VALTRIX desde
-`VALTRIX Engineering/` y el API bajo `/api/`. La arquitectura y el modelo de
-datos están en `MODELO.md`; esto es cómo se monta y se prueba.
+El sistema unificado de VALTRIX: control financiero (ERP), orden operativo
+(QMS), auditoría mensual y, para VALTRIX, la captación, la incorporación y las
+suscripciones. Worker propio, aparte del de Elysium, contra un proyecto
+Firebase propio. La arquitectura y el modelo de datos están en `MODELO.md`;
+esto es cómo está repartido, cómo se prueba y qué falta para producción.
 
-## Por qué es un Worker aparte
+## La regla que lo explica todo
 
-Dos razones, y la segunda es la que decidió:
+**El motor vive en el sitio, no aquí.** Todo lo que calcula —una venta, un
+cobro, la lista del día, el cierre del mes, la carga de la incorporación— está
+en `VALTRIX Engineering/js/core/`, y lo ejecutan tres anfitriones:
 
-1. Una caída de VALTRIX no se lleva por delante `elysiumdr.eu`, que sirve cinco
-   regiones, la biblioteca, Tools y el CRM.
-2. **La mudanza.** El día que VALTRIX tenga dominio propio, transferirlo es
-   apuntar el dominio a este Worker. Sacarlo del Worker de Elysium sería
-   separar rutas de un `index.js` compartido, repartir secretos y dejar
-   redirecciones, con clientes de pago ya operando. Eso ya se hizo dos veces
-   (Pura Vida Pets, ONCORE) y no hace falta una tercera.
+| Anfitrión | Almacén | Para qué |
+|---|---|---|
+| Este Worker | Firestore, con la cuenta de servicio | Los negocios de verdad |
+| `demo.html`, en el navegador | Memoria | La demo, con un taller ficticio |
+| Las pruebas, en Node | Memoria, o los emuladores | Comprobar lo anterior |
 
-Mientras tanto, `elysiumdr.eu/VALTRIX` sigue sirviendo las mismas páginas desde
-el Worker de Elysium. Son los mismos ficheros, no una copia: lo que solo existe
-aquí es el API.
+El motor no sabe de Firestore: recibe un almacén **ya encerrado en un negocio**
+(`tenants/{id}/…`) con seis operaciones (`js/core/store.js`). Por eso la demo
+no es una maqueta: es el sistema con otra base debajo. Y por eso el aislamiento
+entre negocios no depende de que una función recuerde filtrar.
 
-**El portal no.** `elysiumdr.eu/VALTRIX/cuenta` redirige (302) a
-`valtrix.danielalonzzo.workers.dev/cuenta`, porque la cuenta necesita el API:
-servida desde `elysiumdr.eu` pediría `/api/` a Elysium, que es otra cosa, y
-fallaría sin decir por qué. La redirección está en `worker/index.js` de
-Elysium (`VALTRIX_PORTAL_ORIGIN`) y es 302, no 301, para que el día que el
-portal se mude a su dominio no se haya quedado guardada en los navegadores de
-quienes ya entraron. La vigila `scripts/routing.test.mjs`.
+Lo que el motor no decide es **quién puede**. Eso lo hace este Worker antes de
+llamarlo, en cada petición: identidad, membresía, módulo abierto, capacidad y
+suscripción (`src/lib/tenant-route.js`). La tabla de rutas de los módulos es
+una sola (`js/core/routes.js`): el Worker la monta con esas comprobaciones y la
+demo la despacha en el navegador. Una ruta nueva existe en los dos a la vez.
+
+## Dónde está cada cosa
+
+```
+VALTRIX Engineering/
+├── js/core/            el motor, sin DOM ni red (lo importa también el Worker)
+│   ├── erp.js          productos, existencias, ventas, clientes, cobros
+│   ├── qms.js          listas de tareas, el día, equipos y mantenimiento
+│   ├── audit.js        el cierre del mes: recoger (`collect`) y redactar (`compose`)
+│   ├── intake.js       leer el formulario de incorporación y cargarlo
+│   ├── routes.js       la tabla de rutas de los módulos
+│   ├── demo-data.js    el taller ficticio, generado con el propio motor
+│   └── …               dinero, calendario, catálogos, errores, almacén
+├── js/portal/          el portal (cuenta y demo) y el formulario
+├── cuenta.html         la cuenta: necesita este Worker
+├── demo.html           la demo: no necesita servidor
+└── incorporacion.html  el formulario del dueño: necesita este Worker
+
+backend/valtrix/
+├── src/index.js        sitio, API, cabeceras de las páginas y cron
+├── src/api.js          enrutador
+├── src/routes/         cuenta, negocios, módulos, administración, prospectos, incorporación
+├── src/scheduled.js    la pasada diaria
+├── src/lib/            Firestore e Identity Toolkit sin SDK, contexto, correo
+├── scripts/dev.mjs     el Worker servido por Node, para probar en local
+├── scripts/seed.mjs    datos de demostración para los emuladores
+└── test/               en memoria (`*.test.mjs`) y contra emuladores (`*.emulator.mjs`)
+```
+
+`src/core.js` es el único sitio donde está escrita la ruta larga hasta
+`VALTRIX Engineering/js/core/`. El día que VALTRIX tenga su repositorio, la
+carpeta del sitio pasa a ser la raíz y esa ruta se acorta; nada más cambia.
+
+## Probar
+
+```
+npm test            # motor en memoria y API contra los emuladores
+npm run test:core   # solo el motor, sin Java ni emuladores (un segundo)
+npm run dev         # emuladores + datos de demostración + el Worker en :8799
+node scripts/dev.mjs   # solo sitio y demo, sin emuladores
+```
+
+- **`test/*.test.mjs`** prueban el motor en memoria con el reloj en la mano:
+  la última unidad no se vende dos veces, una venta entra entera o no entra,
+  un mes cerrado no se reescribe, el cierre dice lo mismo cada vez.
+- **`test/store.emulator.mjs`** corre el mismo examen contra el almacén de
+  memoria y contra Firestore. Todo lo que se prueba en memoria vale para
+  producción solo si los dos se comportan igual.
+- **`test/api.emulator.mjs`** recorre el servicio como lo vive un negocio, mes
+  a mes, y comprueba quién alcanza qué: el negocio de al lado no existe, un
+  colaborador no ve el dinero, quien despacha no recibe costos, la
+  administración de VALTRIX no lee la operación de nadie.
+- **`npm run dev`** deja montados un taller con semanas de historia y su gente
+  con papeles distintos, una panadería recién activada, una incorporación a
+  medio llenar y otra enviada, y prospectos. Imprime las cuentas (todas con la
+  contraseña `valtrix-demo-1234`) y el enlace del formulario.
+
+`scripts/dev.mjs` importa `src/index.js` —el módulo que se despliega— y le
+da un `ASSETS` que lee la carpeta del sitio aplicando lo que hace Cloudflare:
+`html_handling`, `.assetsignore` y `_headers`. `wrangler dev` sirve para
+comprobar el empaquetado (`npm run check:worker`); esto arranca en un segundo
+y no necesita red.
 
 ## Lo que hay que saber antes de tocarlo
 
-- **`.assetsignore` vive en `VALTRIX Engineering/`, no aquí.** Cloudflare lo lee
-  en la raíz de la carpeta de assets; junto al `wrangler.jsonc` no hace nada y
-  se publicarían `_comercial/` (el modelo de precios) y `_avatar/`. Son dos
-  despliegues distintos de la misma carpeta —este y el de Elysium— y **cada uno
-  excluye por su cuenta**.
-- **El mensaje «Read N files» de wrangler es anterior al filtro.** No sirve para
-  comprobar que algo quedó fuera; hay que pedirlo (`wrangler dev` y un `curl`).
-- **`route` vive en `src/lib/route.js`, no en `src/api.js`.** Exportarla desde
-  el enrutador, que importa los módulos de rutas, crea un ciclo: `route` no
-  existe aún cuando esos módulos se evalúan y el Worker cae al arrancar con
-  «route is not a function». Pasó.
-- **Los clientes de Firebase se montan al primer uso.** Si se construyeran con
-  el contexto, una variable ausente respondería con la traza del servidor en
-  vez de un 503 con su código.
+- **Los importes son enteros.** Dinero en la unidad menor (`…Minor`),
+  cantidades en milésimas (`…Milli`). El portal convierte lo que escribe la
+  persona antes de enviar; el API rechaza un decimal en vez de redondearlo.
+- **Los acumulados del mes se suman, no se recalculan.** Cada venta suma en
+  `stats/{período}` y `productStats/…` en la misma escritura. Un cambio que
+  toque cómo se registra una venta tiene que tocar también lo que descuenta su
+  anulación (`saleStatsWrites` con signo −1).
+- **Una fusión con incrementos tiene que nombrar al menos un campo.** En
+  Firestore, una máscara vacía se parece demasiado a reemplazar el documento
+  entero. Los dos almacenes lo rechazan igual.
+- **El token del formulario no va en ninguna dirección.** El enlace lo lleva
+  en el fragmento y la página lo manda en `x-intake-token`: las direcciones
+  quedan en los registros del Worker, las cabeceras no. En la base, su huella.
+- **`.assetsignore` vive en `VALTRIX Engineering/`, no aquí.** Cloudflare lo
+  lee en la raíz de la carpeta de assets. Son dos despliegues de la misma
+  carpeta —este y el de Elysium— y **cada uno excluye por su cuenta**.
+- **`route` vive en `src/lib/route.js`**, no en `src/api.js`: el ciclo de
+  importaciones hacía caer el Worker al arrancar. Pasó.
+- **En Elysium**, `/VALTRIX/cuenta` y `/VALTRIX/incorporacion` redirigen
+  (302) a este Worker, porque necesitan su API. La demo se sirve allí tal
+  cual. Lo vigila `scripts/routing.test.mjs` de Elysium.
 
-## Configuración
+## Configuración en producción
+
+Pendiente. Nada de esto está hecho todavía:
 
 1. **App web en la consola de Firebase** (proyecto `VALTRIX` → Agregar app →
    Web). De ahí sale la clave web, que no es secreta pero tampoco va en el
    repositorio.
-2. **Cuenta de servicio.** Necesita `roles/datastore.user` (datos) y
-   `roles/firebaseauth.admin` (crear cuentas y fijar el claim `role`):
+2. **Cuenta de servicio** con `roles/datastore.user` y `roles/firebaseauth.admin`:
 
    ```
    gcloud projects add-iam-policy-binding valtrix \
@@ -69,65 +140,22 @@ quienes ya entraron. La vigila `scripts/routing.test.mjs`.
    npx wrangler@4.158.0 secret put FIREBASE_API_KEY         # la clave web
    ```
 
-4. **Reglas**, que niegan todo acceso del navegador:
+4. **Reglas e índices**, que niegan todo acceso del navegador:
 
    ```
-   firebase deploy --only firestore:rules,storage:rules --project valtrix
+   firebase deploy --only firestore:rules,firestore:indexes,storage:rules --project valtrix
    ```
 
-5. **Publicar:** `npx wrangler@4.158.0 deploy`.
+5. **Correo.** Hoy VALTRIX no tiene buzón: `valtrix.com` es de otra empresa.
+   Sin transporte, cada envío (el cierre del mes, los avisos de
+   mantenimiento) queda en `mailLog` como omitido y el informe se sigue viendo
+   en la cuenta. Cuando haya buzón: `SMTP_USER`, `SMTP_PASSWORD` y `MAIL_FROM`.
+   El cliente SMTP es el de ONCORE y **aquí no ha enviado nada todavía**: el
+   primer envío hay que comprobarlo de verdad.
+6. **Publicar:** `npx wrangler@4.158.0 deploy`. El cron (`15 9 * * *`) y el
+   limitador del formulario van en `wrangler.jsonc`.
+7. **La primera cuenta de administración** se crea a mano (claim `role:
+   admin`), como en ONCORE.
 
-El proyecto está en **plan Spark**, que no da Cloud Functions ni salida de red.
-No hace falta: el backend es este Worker. Lo que sí hará falta antes de los
-trabajos programados (cierres mensuales, avisos) son los Cron Triggers, que sí
-existen en el plan gratuito, con un tope de cinco por cuenta.
-
-## El portal
-
-`cuenta.html` es el portal, y es lo único del sitio que el Worker sirve
-pasando por su código (`run_worker_first`). Son módulos ES sin compilación,
-como Elysium Patrimonio: `js/portal/` y `css/portal.css`.
-
-- **El SDK de Firebase se usa solo para identificar a la persona.** No toca
-  Firestore ni Storage, que las reglas niegan enteros; los datos vienen del
-  API. Por eso se carga únicamente `firebase-auth`.
-- **La configuración la sirve `/api/config`**, no va escrita en el HTML: el
-  portal funciona igual contra los emuladores que contra producción, y si
-  falta un secreto lo dice con un mensaje en vez de romperse.
-- **Una sección cuyo módulo todavía no está habilitado se enseña apagada**,
-  diciendo cuándo se abre. Esconderla haría creer que el sistema no lo hace.
-- **El negocio activo se recuerda en `localStorage` solo como comodidad.** Al
-  arrancar se comprueba contra la lista del API; un identificador guardado en
-  el navegador no autoriza nada.
-
-Para verlo con datos:
-
-```
-firebase emulators:start --only auth,firestore --project demo-valtrix
-node test/seed.mjs          # un administrador, tres negocios y sus dueños
-npx wrangler@4.158.0 dev --port 8799
-```
-
-Las credenciales de demostración las imprime el propio `seed.mjs`. Hace falta
-`.dev.vars` apuntando a los emuladores; no está en el repositorio.
-
-## Pruebas
-
-```
-firebase emulators:exec --only auth,firestore --project demo-valtrix \
-  "node --test test/isolation.emulator.mjs"
-```
-
-No levanta el Worker: importa `handleApi` y le pasa `Request` de verdad contra
-los emuladores. Cubre lo que de verdad protege la fase 2 —que una identidad
-autorizada para un negocio no alcance otro— y, de paso, que un negocio ajeno
-responda **igual que uno inventado**: un 403 distinto del 404 confirmaría que
-existe un cliente con ese nombre.
-
-## Lo que falta
-
-- El portal (`cuenta.html`) sigue siendo la demostración de la fase 1, con
-  datos escritos en el HTML. Todavía no llama al API.
-- ERP, QMS y auditoría: ninguno existe. Lo construido son los fundamentos —
-  identidad, negocios, membresías, capacidades y suscripción— que es lo único
-  que no se puede añadir después sin rehacer los datos.
+El proyecto está en plan Spark, que no da Cloud Functions. No hace falta: el
+backend es este Worker, y los Cron Triggers existen en el plan gratuito.

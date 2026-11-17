@@ -7,7 +7,7 @@
  */
 
 import { route } from '../lib/route.js';
-import { activeMemberships, entitlementsFor, requireUser, stamp } from '../lib/context.js';
+import { DEFAULT_CAPABILITIES, activeMemberships, entitlementsOf, requireUser, stamp } from '../lib/context.js';
 import { fail, phone, readJson, text } from '../lib/http.js';
 
 /** Lo que el portal necesita saber de un negocio para enseñarlo en el selector. */
@@ -26,7 +26,12 @@ function tenantSummary(tenant, membership) {
         },
         // Se recalcula en vez de servir el campo guardado: si alguna vez
         // divergen, manda la regla, no la copia.
-        entitlements: { ...entitlementsFor(subscription), ...(subscription.entitlements || {}) }
+        entitlements: entitlementsOf(subscription),
+        // Lo que esa persona puede hacer en ese negocio. El portal lo usa para
+        // no ofrecer un botón que va a responder que no; decidir, decide el API.
+        capabilities: membership.role === 'owner'
+            ? ['*']
+            : [...new Set([...(DEFAULT_CAPABILITIES[membership.role] || []), ...(membership.capabilities || [])])]
     };
 }
 

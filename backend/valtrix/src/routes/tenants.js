@@ -9,16 +9,18 @@
 
 import { route } from '../lib/route.js';
 import {
-    DEFAULT_CAPABILITIES, TENANT_ROLES, can, entitlementsFor, membersPath,
+    DEFAULT_CAPABILITIES, TENANT_ROLES, can, entitlementsOf, membersPath,
     requireCapability, resolveTenant, stamp
 } from '../lib/context.js';
 import { fail, oneOf, readJson, text } from '../lib/http.js';
+import { addMember } from '../lib/members.js';
 
 function publicMember(row) {
     return {
         uid: row.id,
         name: row.name || '',
         email: row.email || '',
+        position: row.position || '',
         role: row.role,
         status: row.status,
         capabilities: row.role === 'owner' ? ['*'] : (row.capabilities || DEFAULT_CAPABILITIES[row.role] || []),
@@ -44,7 +46,7 @@ export const tenantRoutes = [
                 paidPeriods: scope.subscription.paidPeriods || 0,
                 currentPeriodEnd: scope.subscription.currentPeriodEnd || null
             },
-            entitlements: { ...entitlementsFor(scope.subscription), ...(scope.subscription.entitlements || {}) }
+            entitlements: entitlementsOf(scope.subscription)
         };
     }),
 
@@ -53,6 +55,23 @@ export const tenantRoutes = [
         // Ver con quién se comparte el negocio no necesita administrarlo.
         const rows = await ctx.db.query(membersPath(scope.id), { limit: 200 });
         return { members: rows.map(publicMember).sort((a, b) => a.name.localeCompare(b.name, 'es')) };
+    }),
+
+    /**
+     * Da acceso a una persona. La cuenta se crea aquí si no existía, sin
+     * contraseña: la define ella desde la pantalla de acceso, con «¿Olvidó su
+     * contraseña?», y de paso confirma el correo.
+     *
+     * El papel decide qué puede hacer. Un colaborador (`staff`) solo ve las
+     * listas de tareas que le tocan: es el papel por omisión a propósito.
+     */
+    route('POST', '/tenants/:tenantId/members', async ctx => {
+        const scope = await resolveTenant(ctx, ctx.params.tenantId);
+        requireCapability(scope, 'members.manage');
+        const body = await readJson(ctx.request);
+        const role = oneOf(body.role, [...TENANT_ROLES], 'staff');
+        const member = await addMember(ctx, scope.id, { email: body.email, name: body.name, role, position: body.position });
+        return { ok: true, member };
     }),
 
     /**

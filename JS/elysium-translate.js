@@ -84,7 +84,7 @@
     // biblioteca— no se hace nada. `translate.test.mjs` vigila que coincidan.
     const PAGES = new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'onboarding', 'portfolio', 'privacy',
+        'danielalonzzo', 'onboarding', 'portfolio', 'privacy',
         'prototype-moyra', 'prototype-pmorais', 'prototype-valtrix',
         'research', 'research/data-driven-sme-intelligence',
         'research/ontology-research', 'review-pmorais', 'services', 'terms',

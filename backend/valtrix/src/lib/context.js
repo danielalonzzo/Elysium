@@ -15,6 +15,7 @@
  * protege nada: este módulo vuelve a decidir, aunque el botón no se viera.
  */
 
+import { catalog } from '../core.js';
 import { sha256 } from './firebase.js';
 import { fail } from './http.js';
 
@@ -24,19 +25,17 @@ export const ROLES = Object.freeze(['developer', 'admin', 'business']);
 export const STAFF = Object.freeze(['developer', 'admin']);
 export const isStaff = role => STAFF.includes(role);
 
-/** Rol dentro de un negocio. `owner` tiene toda capacidad sin enumerarla. */
-export const TENANT_ROLES = Object.freeze(['owner', 'operations', 'collections', 'staff', 'viewer']);
-
-export const DEFAULT_CAPABILITIES = Object.freeze({
-    owner: ['*'],
-    operations: ['inventory.adjust', 'inventory.read', 'process.run', 'process.manage', 'equipment.manage', 'product.manage', 'sale.record', 'customer.read'],
-    collections: ['payment.record', 'customer.read', 'customer.manage', 'sale.read'],
-    staff: ['process.run'],
-    viewer: []
-});
+/**
+ * Roles y capacidades dentro de un negocio. La lista vive en el catálogo del
+ * núcleo porque la leen también el portal (para no ofrecer un botón que va a
+ * responder que no) y la demo; aquí solo se reexporta. `owner` tiene toda
+ * capacidad sin enumerarla.
+ */
+export const TENANT_ROLES = catalog.TENANT_ROLES;
+export const DEFAULT_CAPABILITIES = catalog.DEFAULT_CAPABILITIES;
 
 /** Capacidades que solo tienen sentido leyendo: las conserva un negocio suspendido. */
-export const READ_CAPABILITIES = Object.freeze(['inventory.read', 'customer.read', 'sale.read', 'report.read']);
+export const READ_CAPABILITIES = catalog.READ_CAPABILITIES;
 
 const nowIso = () => new Date().toISOString();
 
@@ -203,6 +202,16 @@ export function requireCapability(scope, capability) {
 }
 
 /**
+ * Para LEER basta con una de varias capacidades: la lista de productos la
+ * necesita quien lleva el inventario y también quien registra ventas. No mira
+ * la suscripción —un negocio suspendido sigue consultando—, y por eso solo la
+ * usan las rutas GET; una escritura pasa siempre por `requireCapability`.
+ */
+export function requireAny(scope, capabilities) {
+    if (!capabilities.some(capability => can(scope, capability))) fail(403, 'FORBIDDEN');
+}
+
+/**
  * Módulos habilitados por períodos liquidados, no por transacciones bancarias
  * contadas: un pago dividido, duplicado o anticipado no debe adelantar una
  * activación. El resultado se guarda en `subscription.entitlements` y esta
@@ -210,16 +219,17 @@ export function requireCapability(scope, capability) {
  */
 export function entitlementsFor({ state, paidPeriods = 0 }) {
     const enabled = ['active', 'past_due', 'cancel_at_period_end', 'suspended'].includes(state);
-    return {
-        erp: enabled && paidPeriods >= 1,
-        qms: enabled && paidPeriods >= 2,
-        audit: enabled && paidPeriods >= 3
-    };
+    return Object.fromEntries(catalog.MODULES.map(module => [module, enabled && paidPeriods >= catalog.MODULE_PERIODS[module]]));
+}
+
+/** Los módulos abiertos de un negocio: manda la regla, y el campo guardado solo la afina. */
+export function entitlementsOf(subscription) {
+    const current = subscription || { state: 'pending_activation', paidPeriods: 0 };
+    return { ...entitlementsFor(current), ...(current.entitlements || {}) };
 }
 
 export function requireModule(scope, module) {
-    const entitlements = { ...entitlementsFor(scope.subscription), ...(scope.subscription.entitlements || {}) };
-    if (!entitlements[module]) fail(402, 'MODULE_LOCKED', { module });
+    if (!entitlementsOf(scope.subscription)[module]) fail(402, 'MODULE_LOCKED', { module });
 }
 
 /** Transiciones admitidas de la suscripción. Cualquier otra es un error, no un salto. */

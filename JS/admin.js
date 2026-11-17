@@ -9135,8 +9135,8 @@ const MAIL_LETTER_REGIONS = {
 const MAIL_SIGNATURE_PHOTO = 'https://elysiumdr.eu/Images/daniel-morales-avatar.png';
 const MAIL_SIGNATURE_LOGO = 'https://elysiumdr.eu/Images/elysium-firma-logo.png';
 const MAIL_SIGNATURES = {
-    'daniel-morales': { label: 'Sign as Daniel Morales λ', name: 'Daniel Morales', address: 'daniel.morales@elysiumdr.eu', role: 'founder', photo: MAIL_SIGNATURE_PHOTO, page: 'daniel-morales' },
-    'daniel-avila': { label: 'Sign as Daniel Ávila λ', name: 'Daniel Ávila', address: 'daniel.avila@elysiumdr.eu', role: 'founder', photo: MAIL_SIGNATURE_PHOTO, page: 'daniel-morales' },
+    'daniel-morales': { label: 'Sign as Daniel Morales λ', name: 'Daniel Morales', address: 'daniel.morales@elysiumdr.eu', role: 'founder', photo: MAIL_SIGNATURE_PHOTO, page: 'danielalonzzo' },
+    'daniel-avila': { label: 'Sign as Daniel Ávila λ', name: 'Daniel Ávila', address: 'daniel.avila@elysiumdr.eu', role: 'founder', photo: MAIL_SIGNATURE_PHOTO, page: 'danielalonzzo' },
     social: { label: 'Sign as Social Media λ', team: 'social', address: 'social.media@elysiumdr.eu' },
     info: { label: 'Sign as Info λ', team: 'info', address: 'info@elysiumdr.eu' },
     consultant: { label: 'Sign as Consultant λ', team: 'consultant', address: 'consultant@elysiumdr.eu' }

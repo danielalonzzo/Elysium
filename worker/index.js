@@ -161,21 +161,21 @@ const LOCALIZED_PAGES = new Map([
     // Las del sitio global, iguales en sus tres carpetas (`/`, `/es/`, `/pt/`).
     ['com', new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
+        'danielalonzzo', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
         'prototype-moyra', 'prototype-pmorais', 'prototype-valtrix', 'research',
         'research/data-driven-sme-intelligence', 'research/ontology-research',
         'review-pmorais', 'services', 'terms', 'thank-you'
     ])],
     ['cr', new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
+        'danielalonzzo', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
         'prototype-moyra', 'prototype-pmorais', 'prototype-valtrix', 'research',
         'research/data-driven-sme-intelligence', 'research/ontology-research',
         'review-pmorais', 'services', 'terms', 'thank-you'
     ])],
     ['es', new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'llms-full.txt', 'llms.txt',
+        'danielalonzzo', 'llms-full.txt', 'llms.txt',
         'onboarding', 'portfolio', 'privacy', 'prototype-moyra',
         'prototype-pmorais', 'prototype-valtrix', 'research',
         'research/data-driven-sme-intelligence', 'research/ontology-research',
@@ -183,7 +183,7 @@ const LOCALIZED_PAGES = new Map([
     ])],
     ['pt', new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
+        'danielalonzzo', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
         'prototype-moyra', 'prototype-pmorais', 'prototype-valtrix', 'research',
         'research/data-driven-sme-intelligence', 'research/ontology-research',
         'review-pmorais', 'services', 'terms', 'thank-you'
@@ -699,7 +699,11 @@ const VALTRIX_ASSETS = '/VALTRIX%20Engineering';
  * Cuando VALTRIX tenga dominio propio, esto es lo único que cambia aquí.
  */
 const VALTRIX_PORTAL_ORIGIN = 'https://valtrix.danielalonzzo.workers.dev';
-const VALTRIX_PORTAL_PAGE = /^\/cuenta(?:\.html)?(?:\/.*)?$/;
+/**
+ * Las páginas de VALTRIX que necesitan su API: la cuenta y el formulario de
+ * incorporación. La demo no: corre entera en el navegador y se sirve aquí.
+ */
+const VALTRIX_PORTAL_PAGE = /^\/(cuenta|incorporacion)(?:\.html)?(?:\/.*)?$/;
 
 async function serveValtrix(request, env, url) {
     const page = url.pathname.slice(VALTRIX_PATH.length);
@@ -709,8 +713,12 @@ async function serveValtrix(request, env, url) {
 
     // 302 y no 301: el día que el portal se mueva a su dominio, un 301 se
     // habría quedado guardado en los navegadores de quienes ya entraron.
-    if (VALTRIX_PORTAL_PAGE.test(page)) {
-        return redirect(`${VALTRIX_PORTAL_ORIGIN}/cuenta${url.search}`, 302);
+    const portalPage = VALTRIX_PORTAL_PAGE.exec(page)?.[1];
+    if (portalPage) {
+        // El enlace del formulario lleva su token en el fragmento (#…). No
+        // viaja al servidor, pero el navegador lo conserva al seguir una
+        // redirección sin fragmento propio: el enlace sigue sirviendo.
+        return redirect(`${VALTRIX_PORTAL_ORIGIN}/${portalPage}${url.search}`, 302);
     }
 
     const asset = new URL(url);
@@ -1185,6 +1193,18 @@ export default {
         // idioma. Las páginas viven en `tools/` pero solo se sirven allí.
         const toolsTarget = toolsRedirectTarget(url.pathname, nationalLanguage);
         if (toolsTarget) return redirect(toolsTarget, 301);
+
+        // La página personal se llamaba `/daniel-morales` y pasó a
+        // `/danielalonzzo` (17/11/2026). La vieja está enlazada desde correos ya
+        // enviados e indexada, así que se conserva con un 301 en los cinco
+        // sitios, con el prefijo de carpeta que traiga (`/es`, `/pt`, `/cr`).
+        // Va aquí y no en `_redirects` porque en `.es`, `.pt` y `.com` el Worker
+        // sirve las páginas sin pasar por los assets.
+        const legacyProfile = isPublicHost
+            && /^((?:\/(?:es|pt|cr))?)\/daniel-morales(?:\.html)?\/?$/.exec(url.pathname);
+        if (legacyProfile) {
+            return redirect(`${url.origin}${legacyProfile[1]}/danielalonzzo${url.search}`, 301);
+        }
 
         // Este prototipo administrativo solo existe como documento de trabajo
         // en español de Costa Rica. No se publica como si fuera una página

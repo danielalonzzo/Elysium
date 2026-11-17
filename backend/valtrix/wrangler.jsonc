@@ -28,10 +28,28 @@
     // ejecutar el Worker, así que la política de contenido del portal y su
     // «noindex» nunca llegaban a ponerse. El portal tiene que pasar por el
     // Worker; el resto del sitio no lo necesita y va directo.
-    "run_worker_first": ["/cuenta", "/cuenta/*"]
+    "run_worker_first": ["/cuenta", "/cuenta/*", "/incorporacion", "/incorporacion/*"]
   },
   "vars": {
     "FIREBASE_PROJECT_ID": "valtrix",
-    "ALLOWED_ORIGINS": "https://valtrix.danielalonzzo.workers.dev"
-  }
+    "ALLOWED_ORIGINS": "https://valtrix.danielalonzzo.workers.dev",
+    // De dónde cuelgan los enlaces que viajan en los correos (el informe del
+    // mes, los avisos de mantenimiento). Cambia el día que haya dominio.
+    "PUBLIC_ORIGIN": "https://valtrix.danielalonzzo.workers.dev"
+    // Remitente del correo. Sin él —y sin SMTP_USER/SMTP_PASSWORD o el binding
+    // EMAIL— cada envío queda registrado como omitido en `mailLog`. No se
+    // rellena todavía: VALTRIX no tiene buzón propio.
+    // "MAIL_FROM": "",
+    // "MAIL_REPLY_TO": ""
+  },
+  // La pasada diaria: cierre del mes anterior, avisos de mantenimiento y pagos
+  // vencidos (`src/scheduled.js`). 09:15 UTC son las 03:15 en Costa Rica. La
+  // hora no decide nada: cada negocio se evalúa en su zona horaria, y repetir
+  // la pasada no duplica ni cierres ni avisos.
+  "triggers": { "crons": ["15 9 * * *"] },
+  // Limitador del formulario de incorporación, que es la única escritura
+  // pública del API. Lo protege su token; esto frena a quien pruebe tokens.
+  "ratelimits": [
+    { "name": "INTAKE_LIMITER", "namespace_id": "7201", "simple": { "limit": 60, "period": 60 } }
+  ]
 }

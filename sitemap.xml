@@ -55,10 +55,10 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://elysiumdr.eu/daniel-morales</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/daniel-morales"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/daniel-morales"/>
-    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/daniel-morales"/>
+    <loc>https://elysiumdr.eu/danielalonzzo</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://elysiumdr.eu/danielalonzzo"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://elysiumdr.eu/es/danielalonzzo"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://elysiumdr.eu/pt/danielalonzzo"/>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -141,7 +141,7 @@
   <url><loc>https://elysiumdr.eu/es/research</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://elysiumdr.eu/es/about</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://elysiumdr.eu/es/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://elysiumdr.eu/es/daniel-morales</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/es/danielalonzzo</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://elysiumdr.eu/es/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://elysiumdr.eu/es/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://elysiumdr.eu/es/case-pmorais</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
@@ -160,7 +160,7 @@
   <url><loc>https://elysiumdr.eu/pt/research</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://elysiumdr.eu/pt/about</loc><lastmod>2026-07-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://elysiumdr.eu/pt/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://elysiumdr.eu/pt/daniel-morales</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://elysiumdr.eu/pt/danielalonzzo</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://elysiumdr.eu/pt/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://elysiumdr.eu/pt/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
   <url><loc>https://elysiumdr.eu/pt/case-pmorais</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>

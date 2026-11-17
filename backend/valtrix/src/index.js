@@ -12,27 +12,38 @@
  */
 
 import { handleApi } from './api.js';
+import { runScheduled } from './scheduled.js';
 
 const API_PREFIX = '/api';
 
 /**
- * La política de contenido del portal.
+ * Las dos páginas que son aplicación y no sitio: la cuenta y el formulario de
+ * incorporación. Llevan datos de un negocio, así que no se indexan, no se
+ * guardan en ninguna caché compartida y tienen su propia política de contenido.
+ */
+const APP_PAGE = /^\/(cuenta|incorporacion)(?:[/.]|$)/;
+
+/**
+ * La política de contenido de esas páginas.
  *
  * Va aquí y no en un `_headers` porque el host del emulador solo se permite
  * cuando está configurado: en producción la política no lleva ni una línea
  * de desarrollo, y en local se puede probar el inicio de sesión de verdad.
  *
- * `script-src` abre `www.gstatic.com` porque de ahí viene el SDK de Firebase,
- * y solo el módulo de autenticación: el portal no habla con Firestore, que las
- * reglas niegan entero.
+ * La cuenta abre `www.gstatic.com` en `script-src` porque de ahí viene el SDK
+ * de Firebase, y solo el módulo de autenticación: el portal no habla con
+ * Firestore, que las reglas niegan entero. El formulario de incorporación no
+ * inicia sesión —se entra con el enlace—, así que ni eso.
  */
-function portalCsp(env) {
-    const connect = ["'self'", 'https://*.googleapis.com', 'https://securetoken.googleapis.com'];
+function appCsp(env, page) {
+    const signsIn = page === 'cuenta';
+    const connect = ["'self'"];
+    if (signsIn) connect.push('https://*.googleapis.com', 'https://securetoken.googleapis.com');
     const emulator = env.FIREBASE_AUTH_EMULATOR_HOST;
-    if (emulator) connect.push(`http://${emulator}`, `http://localhost:${emulator.split(':')[1] || '9099'}`);
+    if (signsIn && emulator) connect.push(`http://${emulator}`, `http://localhost:${emulator.split(':')[1] || '9099'}`);
     return [
         "default-src 'self'",
-        "script-src 'self' https://www.gstatic.com",
+        signsIn ? "script-src 'self' https://www.gstatic.com" : "script-src 'self'",
         "style-src 'self'",
         "img-src 'self' data:",
         "font-src 'self'",
@@ -53,25 +64,39 @@ const BASE_HEADERS = {
 };
 
 export default {
-    async fetch(request, env) {
+    async fetch(request, env, executionCtx) {
         const url = new URL(request.url);
 
         if (url.pathname === API_PREFIX || url.pathname.startsWith(`${API_PREFIX}/`)) {
-            return handleApi(request, env, url, API_PREFIX);
+            return handleApi(request, env, url, API_PREFIX, executionCtx);
         }
 
         const response = await env.ASSETS.fetch(request);
         const headers = new Headers(response.headers);
         for (const [key, value] of Object.entries(BASE_HEADERS)) headers.set(key, value);
 
-        // `cuenta*` es el portal: lleva datos de un negocio, no se indexa y no
-        // se guarda en ninguna caché compartida.
-        if (/^\/cuenta/.test(url.pathname)) {
-            headers.set('content-security-policy', portalCsp(env));
+        const page = APP_PAGE.exec(url.pathname)?.[1];
+        if (page) {
+            headers.set('content-security-policy', appCsp(env, page));
             headers.set('x-robots-tag', 'noindex, nofollow');
             headers.set('cache-control', 'no-store');
+            // El enlace de incorporación lleva su token en el fragmento. El
+            // fragmento no viaja en el Referer, pero la página tampoco tiene
+            // por qué decirle a nadie de dónde viene quien la abre.
+            if (page === 'incorporacion') headers.set('referrer-policy', 'no-referrer');
         }
 
         return new Response(response.body, { status: response.status, headers });
+    },
+
+    /**
+     * El cron: cierres del mes, avisos de mantenimiento y pagos vencidos. Ver
+     * `scheduled.js`. `waitUntil` deja terminar la pasada aunque el evento
+     * devuelva antes.
+     */
+    async scheduled(controller, env, executionCtx) {
+        const pass = runScheduled(env).then(summary => console.log('valtrix cron', JSON.stringify(summary)));
+        if (executionCtx?.waitUntil) executionCtx.waitUntil(pass);
+        else await pass;
     }
 };

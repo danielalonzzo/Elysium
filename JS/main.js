@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const flagAlt = language => language === 'en' ? 'EU' : language === 'es' ? SPANISH_FLAG.toUpperCase() : 'PT';
     const SWITCHABLE_MARKETING_PAGES = new Set([
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'onboarding', 'portfolio', 'privacy',
+        'danielalonzzo', 'onboarding', 'portfolio', 'privacy',
         'prototype-moyra', 'prototype-pmorais', 'prototype-valtrix',
         'research', 'research/data-driven-sme-intelligence',
         'research/ontology-research', 'review-pmorais', 'services', 'terms',

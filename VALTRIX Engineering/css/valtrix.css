@@ -64,6 +64,7 @@ nav a:hover, nav a[aria-current] { text-decoration: underline; text-underline-of
 #view-erp:checked ~ #panel-erp, #view-qms:checked ~ #panel-qms, #view-audit:checked ~ #panel-audit { display: block; animation: enter .25s ease-out; }
 @keyframes enter { from { opacity: .4; transform: translateY(5px); } }
 .demo-panel h2 { font-size: 1.25rem; }
+.demo-link { margin: .9rem 0 0; padding-top: .7rem; border-top: 1px solid var(--line); font-size: .9rem; }
 .metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; margin-block: .85rem; }
 .metrics div { background: white; border: 1px solid var(--line); border-radius: .65rem; padding: .6rem; }
 .metrics span, .metrics strong { display: block; }

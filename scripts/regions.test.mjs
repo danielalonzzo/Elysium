@@ -29,7 +29,7 @@ const read = relative => readFileSync(join(ROOT, relative), 'utf8');
 const worker = (await import(`file://${join(ROOT, 'worker', 'index.js')}`)).default;
 
 const PAGES = [
-    '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact', 'daniel-morales',
+    '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact', 'danielalonzzo',
     'onboarding', 'portfolio', 'privacy', 'prototype-moyra', 'prototype-pmorais',
     'prototype-valtrix', 'research', 'research/data-driven-sme-intelligence',
     'research/ontology-research', 'review-pmorais', 'services', 'terms', 'thank-you'

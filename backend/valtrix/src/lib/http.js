@@ -6,49 +6,13 @@
  * pruebas comparan el código, nunca la frase. Así se puede reescribir un
  * mensaje sin romper una prueba, y traducirlo el día que haga falta sin tocar
  * ninguna ruta.
+ *
+ * Las frases viven en el núcleo (`VALTRIX Engineering/js/core/errors.js`), no
+ * aquí: la demo corre el mismo motor en el navegador, sin servidor que le
+ * redacte nada, y tiene que decir lo mismo con las mismas palabras.
  */
 
-const MESSAGES = {
-    BAD_ORIGIN: 'Origen inválido.',
-    BAD_FORMAT: 'El formato de la solicitud no es válido.',
-    TOO_LARGE: 'La solicitud es demasiado grande.',
-    BAD_JSON: 'El contenido enviado no es JSON válido.',
-    NOT_FOUND: 'No encontramos lo que busca.',
-    ROUTE_NOT_FOUND: 'Esa ruta no existe.',
-    METHOD_NOT_ALLOWED: 'Ese método no se admite en esta ruta.',
-    UNAUTHENTICATED: 'Inicie sesión para continuar.',
-    EMAIL_NOT_VERIFIED: 'Confirme su correo electrónico antes de entrar.',
-    ACCOUNT_DISABLED: 'Esta cuenta está desactivada. Comuníquese con VALTRIX.',
-    NO_ROLE: 'Su cuenta todavía no tiene acceso asignado. Comuníquese con VALTRIX.',
-    FORBIDDEN: 'No tiene permiso para esta operación.',
-    RATE_LIMITED: 'Demasiados intentos. Espere un minuto y vuelva a probar.',
-    UNAVAILABLE: 'Servicio temporalmente no disponible.',
-    INVALID_INPUT: 'Revise los datos indicados.',
-    CONFLICT: 'Los datos cambiaron mientras tanto. Actualice y vuelva a intentarlo.',
-    NOT_CONFIGURED: 'El servicio todavía no está configurado.',
-
-    // Negocio y membresía
-    TENANT_REQUIRED: 'Indique con cuál negocio está trabajando.',
-    TENANT_NOT_FOUND: 'Ese negocio no existe.',
-    NOT_A_MEMBER: 'No pertenece a ese negocio.',
-    MEMBERSHIP_SUSPENDED: 'Su acceso a este negocio está suspendido.',
-    LAST_OWNER: 'Un negocio no puede quedarse sin propietario.',
-
-    // Suscripción y módulos
-    SUBSCRIPTION_INACTIVE: 'La suscripción de este negocio no está activa.',
-    SUBSCRIPTION_SUSPENDED: 'La suscripción está suspendida: puede consultar sus datos, pero no registrar movimientos.',
-    MODULE_LOCKED: 'Este módulo se habilita más adelante en la suscripción.',
-    INVALID_TRANSITION: 'Ese cambio de estado no es posible desde el estado actual.',
-
-    // ERP
-    PRODUCT_CODE_TAKEN: 'Ya existe un producto con ese código en este negocio.',
-    STOCK_CHANGED: 'Las existencias cambiaron mientras registraba. Revise y confirme de nuevo.',
-    STOCK_INSUFFICIENT: 'No hay existencias suficientes para esa salida.',
-    DOCUMENT_CLOSED: 'Este documento ya no se puede modificar.',
-    PAYMENT_OVER_ALLOCATED: 'No puede asignar más de lo que suma el pago.',
-    CURRENCY_MISMATCH: 'La moneda del cobro no coincide con la de la obligación.',
-    PERIOD_CLOSED: 'Ese período ya está cerrado.'
-};
+import { MESSAGES } from '../core.js';
 
 export class ApiError extends Error {
     constructor(status, code, extra = {}) {
@@ -77,7 +41,10 @@ export function json(data, status = 200, headers = {}) {
 }
 
 export function errorResponse(error) {
-    return json({ error: message(error.code), code: error.code, ...error.extra }, error.status);
+    // Los datos adicionales van primero: ninguno puede pisar el código ni la
+    // frase. (Pasó: un error que traía `code: 'fil 001'` respondía con ese
+    // código en vez de PRODUCT_CODE_TAKEN.)
+    return json({ ...error.extra, error: message(error.code), code: error.code }, error.status);
 }
 
 /** Respuesta binaria privada (informes, exportaciones, evidencias). */

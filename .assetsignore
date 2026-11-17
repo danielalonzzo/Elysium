@@ -31,6 +31,11 @@ CLAUDE.md
 
 # Herramientas y estado local — nunca deben servirse en la web pública.
 .claude/**
+# También las que viven dentro de un subsitio: el panel de vista previa busca
+# su `launch.json` en la carpeta de trabajo, que puede ser una carpeta publicada
+# («VALTRIX Engineering/.claude/»). Están fuera de git, pero un despliegue hecho
+# desde el disco las subiría.
+**/.claude/**
 .firebase/**
 .wrangler/**
 .idx/**

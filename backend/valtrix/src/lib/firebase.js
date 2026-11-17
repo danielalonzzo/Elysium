@@ -335,7 +335,28 @@ export function firestore(env) {
                     document: documentName(collection, id),
                     fieldTransforms: [{ fieldPath: field, appendMissingElements: { values: values.map(encodeValue) } }]
                 }
-            })
+            }),
+            /**
+             * Crea el documento si no existe, fusiona los campos dados y suma
+             * enteros **sin leer antes**. Es lo que permite que dos ventas
+             * simultáneas acumulen en el mismo mes sin pisarse ni reintentar.
+             *
+             * `data` no puede venir vacío. La máscara dice qué campos se
+             * tocan; una máscara vacía se parece demasiado a «sin máscara»,
+             * que es reemplazar el documento entero, y no es un riesgo que
+             * valga la pena correr por ahorrarse un campo.
+             */
+            merge: (collection, id, data, { increments = {} } = {}) => {
+                const fieldPaths = Object.keys(data || {}).filter(key => data[key] !== undefined);
+                if (!fieldPaths.length) throw new Error(`STORE_EMPTY_MERGE: ${collection}/${id}`);
+                const write = { update: { name: documentName(collection, id), fields: encodeFields(data) }, updateMask: { fieldPaths } };
+                const transforms = Object.entries(increments).map(([fieldPath, amount]) => {
+                    if (!Number.isSafeInteger(amount)) throw new Error(`STORE_BAD_INCREMENT: ${fieldPath}`);
+                    return { fieldPath, increment: { integerValue: String(amount) } };
+                });
+                if (transforms.length) write.updateTransforms = transforms;
+                return write;
+            }
         }
     };
     return api;

@@ -11,3 +11,6 @@ _comercial/
 _avatar/
 .DS_Store
 _headers
+# Configuración local del entorno de desarrollo. Está fuera de git, pero este
+# Worker sube la carpeta desde el disco: sin esta línea se publicaría.
+.claude/

@@ -11,15 +11,31 @@
  * día guarde la sesión en una cookie.
  */
 
+import { DomainError } from './core.js';
 import { ApiError, errorResponse, fail, json } from './lib/http.js';
 import { resolveUser } from './lib/context.js';
 import { firebaseAuth, firestore } from './lib/firebase.js';
 import { accountRoutes } from './routes/account.js';
-import { tenantRoutes } from './routes/tenants.js';
 import { adminRoutes } from './routes/admin.js';
 import { configRoutes } from './routes/config.js';
+import { intakeRoutes } from './routes/intake.js';
+import { leadRoutes } from './routes/leads.js';
+import { moduleRoutes } from './routes/modules.js';
+import { tenantRoutes } from './routes/tenants.js';
 
-const ROUTES = [...configRoutes, ...accountRoutes, ...tenantRoutes, ...adminRoutes];
+/**
+ * El orden importa solo donde un tramo fijo compite con uno variable
+ * («/reports/preview» antes que «/reports/:period»); cada lista lo cuida
+ * dentro de sí misma.
+ */
+const ROUTES = [
+    ...configRoutes, ...accountRoutes,
+    ...tenantRoutes, ...moduleRoutes,
+    ...adminRoutes, ...leadRoutes, ...intakeRoutes
+];
+
+/** Para las pruebas: la tabla de rutas declaradas. */
+export const routeTable = () => ROUTES.map(route => ({ method: route.method, path: route.path }));
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
@@ -49,7 +65,7 @@ function checkOrigin(request, env) {
     if (allowed.length && !allowed.includes(origin)) fail(403, 'BAD_ORIGIN');
 }
 
-export async function handleApi(request, env, url, prefix) {
+export async function handleApi(request, env, url, prefix, executionCtx = null) {
     const path = url.pathname.slice(prefix.length) || '/';
 
     if (request.method === 'OPTIONS') {
@@ -70,6 +86,8 @@ export async function handleApi(request, env, url, prefix) {
         params: {},
         get db() { return (dbClient ??= firestore(env)); },
         get auth() { return (authClient ??= firebaseAuth(env)); },
+        /** Trabajo que sigue después de responder, sin perderlo si el aislamiento se cierra. */
+        waitUntil: executionCtx?.waitUntil ? executionCtx.waitUntil.bind(executionCtx) : null,
         user: null
     };
 
@@ -92,7 +110,8 @@ export async function handleApi(request, env, url, prefix) {
         const result = await handler.run(ctx);
         return result instanceof Response ? result : json(result ?? {});
     } catch (error) {
-        if (error instanceof ApiError) return errorResponse(error);
+        // Un error del motor trae su código y su estado, igual que uno del API.
+        if (error instanceof ApiError || error instanceof DomainError) return errorResponse(error);
         if (error?.code === 'CONFLICT') return errorResponse(new ApiError(409, 'CONFLICT'));
         if (error?.message === 'FIREBASE_SERVICE_ACCOUNT_MISSING' || /_MISSING$/.test(error?.message || '')) {
             return errorResponse(new ApiError(503, 'NOT_CONFIGURED'));

@@ -253,7 +253,7 @@ código va a `Prototipos/` y lo que aterriza en la raíz es el resultado.
 ## Qué hay en Elysium
 
 **Páginas del portafolio** — HTML escrito a mano: `index.html`, `about.html`,
-`contact.html`, `daniel-morales.html`, `portfolio.html`, `case-*.html`,
+`contact.html`, `danielalonzzo.html`, `portfolio.html`, `case-*.html`,
 `admin.html`. Traducciones en `es/` y `pt/`. Recursos compartidos en `CSS/`,
 `JS/`, `Images/`, `sounds/`.
 
@@ -270,6 +270,15 @@ su nombre, y `portfolio.html` los enlaza:
 
 Las tres primeras son HTML plano: la carpeta es a la vez el proyecto y el
 sitio, y se trabaja directamente ahí.
+
+**`VALTRIX Engineering/` es además un sistema.** Sus páginas siguen siendo
+HTML plano, pero `js/core/` es el motor de su fase 2 (control financiero,
+orden operativo, auditoría mensual) y lo importa también su propio Worker,
+`backend/valtrix/`, que no es el de Elysium: cambiar un fichero de `js/core/`
+cambia el servidor. Las pruebas están allí (`npm test`). La cuenta (`/cuenta`)
+y el formulario de incorporación (`/incorporacion`) necesitan ese Worker y
+Elysium los redirige a él; la demo (`/demo`) corre entera en el navegador y se
+sirve en los dos. Detalle en `backend/valtrix/README.md`.
 
 Las dos últimas son **producto compilado**. Editarlas a mano no sirve de nada,
 se pierde en la siguiente publicación: `Demo-arbol/` la genera entera

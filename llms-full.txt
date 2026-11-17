@@ -396,7 +396,7 @@ ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
 
 --- DANIEL MORALES PAGE ---
-URL: https://elysiumdr.eu/daniel-morales
+URL: https://elysiumdr.eu/danielalonzzo
 
 Title: Daniel Morales — Full-Stack & Cloud Developer | Elysium λ
 Full name: Daniel Alonso Morales Ávila
@@ -974,7 +974,7 @@ ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Libro de Reclamaciones; Google.
 
 --- DANIEL MORALES ---
-URL: https://elysiumdr.eu/es/daniel-morales
+URL: https://elysiumdr.eu/es/danielalonzzo
 
 Nombre completo: Daniel Alonso Morales Ávila
 Cargo en la portada y en Nosotros: Fundador e Ingeniero Informático
@@ -1352,7 +1352,7 @@ ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
 
 --- DANIEL MORALES ---
-URL: https://elysiumdr.eu/pt/daniel-morales
+URL: https://elysiumdr.eu/pt/danielalonzzo
 
 Nome completo: Daniel Alonso Morales Ávila
 Cargo na página inicial e em Sobre nós: Fundador e Engenheiro Informático

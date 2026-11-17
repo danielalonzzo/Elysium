@@ -4,7 +4,7 @@
 
    La fuente única de los proyectos es `#portfolio-grid` en portfolio.html (y
    sus traducciones en es/ y pt/). Este script lo lee en tiempo de carga y
-   vuelve a pintar las tarjetas dentro de /daniel-morales, así que **añadir un
+   vuelve a pintar las tarjetas dentro de /danielalonzzo, así que **añadir un
    proyecto al portafolio lo añade también al perfil sin tocar nada más**.
 
    El contrato con portfolio.html es exactamente este, y romperlo deja el

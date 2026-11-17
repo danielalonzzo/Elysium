@@ -314,7 +314,7 @@ ULACIT; Universidad Nacional de Costa Rica (UNA); Instituto Politécnico de
 Bragança (IPB); Autoridade Tributária; Made in EU; Livro de Reclamações; Google.
 
 --- DANIEL MORALES ---
-URL: https://elysiumdr.eu/pt/daniel-morales
+URL: https://elysiumdr.eu/pt/danielalonzzo
 
 Nome completo: Daniel Alonso Morales Ávila
 Cargo na página inicial e em Sobre nós: Fundador e Engenheiro Informático

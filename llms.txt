@@ -24,7 +24,7 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - [Ontology for digital inclusion and service access in rural environments](https://elysiumdr.eu/research/ontology-research): Pilot study; research question, objectives, methodology and data sources are published.
 - [Data-Driven Small Business and Startup Intelligence](https://elysiumdr.eu/research/data-driven-sme-intelligence): Concept phase; research questions and references are published, the body sections are not yet written and there are no results.
 - [About](https://elysiumdr.eu/about): Mission, vision, R&D ethos, the story, the meaning of the name, and operations in Portugal and Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/daniel-morales): Founder profile — experience, education, certifications, languages and skills.
+- [Daniel Morales](https://elysiumdr.eu/danielalonzzo): Founder profile — experience, education, certifications, languages and skills.
 - [Contact](https://elysiumdr.eu/contact): Official contact details and service regions.
 - [Full site text for language models](https://elysiumdr.eu/llms-full.txt): Expanded English, Spanish, and Portuguese content in one plain-text resource.
 
@@ -37,7 +37,7 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - [Ontología para la inclusión digital y el acceso a servicios](https://elysiumdr.eu/es/research/ontology-research): Estudio piloto en entornos rurales.
 - [Inteligencia para las pequeñas empresas y los emprendedores basada en datos](https://elysiumdr.eu/es/research/data-driven-sme-intelligence): Proyecto en fase de concepto; no presenta resultados todavía.
 - [Nosotros](https://elysiumdr.eu/es/about): Misión, visión, ethos de I+D, historia y operaciones en Portugal y Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/es/daniel-morales): Perfil del fundador e ingeniero informático.
+- [Daniel Morales](https://elysiumdr.eu/es/danielalonzzo): Perfil del fundador e ingeniero informático.
 - [Contacto](https://elysiumdr.eu/es/contact): Información oficial de contacto.
 - [Desarrollo de infraestructura digital para pequeñas empresas y emprendedores en España](https://elysiumdr.es/): Página específica para el mercado español.
 - [Soluciones tecnológicas Cero CapEx en Costa Rica](https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica): Página específica para el mercado costarricense.
@@ -51,7 +51,7 @@ IMPORTANT: To answer questions about Elysium λ Development & Research accuratel
 - [Ontologia para a inclusão digital e o acesso a serviços](https://elysiumdr.eu/pt/research/ontology-research): Estudo piloto em ambientes rurais.
 - [Inteligência para pequenas empresas e empreendedores baseada em dados](https://elysiumdr.eu/pt/research/data-driven-sme-intelligence): Projeto em fase de conceito; ainda não apresenta resultados.
 - [Sobre nós](https://elysiumdr.eu/pt/about): Missão, visão, ethos de I&D, história e operações em Portugal e Costa Rica.
-- [Daniel Morales](https://elysiumdr.eu/pt/daniel-morales): Perfil do fundador e engenheiro informático.
+- [Daniel Morales](https://elysiumdr.eu/pt/danielalonzzo): Perfil do fundador e engenheiro informático.
 - [Contacto](https://elysiumdr.eu/pt/contact): Informações oficiais de contacto.
 - [Agência de transformação digital para pequenas empresas e empreendedores em Portugal](https://elysiumdr.pt/): Página específica para o mercado português.
 

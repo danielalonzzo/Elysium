@@ -28,7 +28,7 @@ IMPORTANTE: Para responder consultas sobre Elysium λ Development & Research en 
 - [Ontología para la inclusión digital y el acceso a servicios](https://elysiumdr.es/research/ontology-research): Estudio piloto en entornos rurales.
 - [Inteligencia para pequeñas empresas y emprendedores basada en datos](https://elysiumdr.es/research/data-driven-sme-intelligence): Proyecto en fase conceptual.
 - [Nosotros](https://elysiumdr.es/about): Misión, visión, ethos de I+D, historia del proyecto y significado del nombre λ.
-- [Daniel Morales](https://elysiumdr.es/daniel-morales): Perfil del fundador, ingeniero informático, experiencia y habilidades.
+- [Daniel Morales](https://elysiumdr.es/danielalonzzo): Perfil del fundador, ingeniero informático, experiencia y habilidades.
 - [Contacto](https://elysiumdr.es/contact): Canales oficiales de comunicación y consulta de proyectos.
 - [Texto completo para modelos de lenguaje](https://elysiumdr.es/llms-full.txt): Contenido completo y detallado de todas las secciones en español de España.
 

@@ -223,7 +223,7 @@ test('.eu — www va al ápice antes de repartir', async () => {
 const NATIONAL_PAGES = new Map([
     ['es', [
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'llms-full.txt', 'llms.txt',
+        'danielalonzzo', 'llms-full.txt', 'llms.txt',
         'onboarding', 'portfolio', 'privacy', 'prototype-moyra',
         'prototype-pmorais', 'prototype-valtrix', 'research',
         'research/data-driven-sme-intelligence', 'research/ontology-research',
@@ -231,7 +231,7 @@ const NATIONAL_PAGES = new Map([
     ]],
     ['pt', [
         '', 'about', 'case-moyra', 'case-pmorais', 'case-valtrix', 'contact',
-        'daniel-morales', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
+        'danielalonzzo', 'llms-full.txt', 'llms.txt', 'onboarding', 'portfolio', 'privacy',
         'prototype-moyra', 'prototype-pmorais', 'prototype-valtrix', 'research',
         'research/data-driven-sme-intelligence', 'research/ontology-research',
         'review-pmorais', 'services', 'terms', 'thank-you'
@@ -849,9 +849,56 @@ test('/VALTRIX — el portal vive en su propio Worker, las páginas no', async (
     const conQuery = await call('https://elysiumdr.eu/VALTRIX/cuenta?x=1');
     assert.equal(conQuery.location, 'https://valtrix.danielalonzzo.workers.dev/cuenta?x=1');
 
+    // El formulario de incorporación también usa el API de VALTRIX.
+    for (const path of ['/VALTRIX/incorporacion', '/VALTRIX/incorporacion.html']) {
+        const r = await call(`https://elysiumdr.eu${path}`);
+        assert.equal(r.status, 302, path);
+        assert.equal(r.location, 'https://valtrix.danielalonzzo.workers.dev/incorporacion', path);
+    }
+
     // El resto del sitio se sigue sirviendo aquí, desde los mismos ficheros.
-    for (const path of ['/VALTRIX/precios.html', '/VALTRIX/metodologia.html']) {
+    // La demo también: corre entera en el navegador, sin API.
+    for (const path of ['/VALTRIX/precios.html', '/VALTRIX/metodologia.html', '/VALTRIX/demo']) {
         const r = await call(`https://elysiumdr.eu${path}`);
         assert.notEqual(r.status, 302, path);
+    }
+});
+
+// ── La página personal cambió de dirección ───────────────────────────────────
+
+test('/daniel-morales redirige (301) a /danielalonzzo en los cinco sitios, con su carpeta', async () => {
+    const cases = [
+        ['https://elysiumdr.eu/daniel-morales', 'https://elysiumdr.eu/danielalonzzo'],
+        ['https://elysiumdr.eu/daniel-morales.html', 'https://elysiumdr.eu/danielalonzzo'],
+        ['https://elysiumdr.eu/es/daniel-morales', 'https://elysiumdr.eu/es/danielalonzzo'],
+        ['https://elysiumdr.eu/pt/daniel-morales/', 'https://elysiumdr.eu/pt/danielalonzzo'],
+        ['https://elysiumdr.es/daniel-morales', 'https://elysiumdr.es/danielalonzzo'],
+        ['https://elysiumdr.pt/daniel-morales.html', 'https://elysiumdr.pt/danielalonzzo'],
+        ['https://elysiumdr.com/daniel-morales', 'https://elysiumdr.com/danielalonzzo'],
+        ['https://elysiumdr.com/es/daniel-morales', 'https://elysiumdr.com/es/danielalonzzo'],
+        ['https://elysiumdr.com/cr/daniel-morales', 'https://elysiumdr.com/cr/danielalonzzo'],
+        ['https://elysiumdr.eu/daniel-morales?ref=correo', 'https://elysiumdr.eu/danielalonzzo?ref=correo']
+    ];
+    for (const [from, to] of cases) {
+        const r = await call(from, { country: 'ES' });
+        assert.equal(r.status, 301, from);
+        assert.equal(r.location, to, from);
+    }
+    // Las fotos conservan su nombre: no se tocan.
+    const foto = await call('https://elysiumdr.eu/Images/daniel-morales-avatar.png');
+    assert.notEqual(foto.status, 301);
+});
+
+test('/danielalonzzo se sirve en los cinco sitios', async () => {
+    for (const [url, asset] of [
+        ['https://elysiumdr.eu/danielalonzzo', null],
+        ['https://elysiumdr.es/danielalonzzo', '/_national/es/danielalonzzo'],
+        ['https://elysiumdr.pt/danielalonzzo', '/_national/pt/danielalonzzo'],
+        ['https://elysiumdr.com/danielalonzzo', '/_national/com/danielalonzzo'],
+        ['https://elysiumdr.com/cr/danielalonzzo', '/_national/cr/danielalonzzo']
+    ]) {
+        const r = await call(url);
+        assert.equal(r.status, 200, url);
+        if (asset) assert.equal(r.asset, asset, url);
     }
 });
