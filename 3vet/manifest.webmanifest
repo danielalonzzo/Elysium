@@ -1,0 +1,30 @@
+{
+  "name": "3VET Saúde Animal – Macedo de Cavaleiros e Mirandela",
+  "short_name": "3VET",
+  "description": "Três veterinários, duas clínicas e urgências 24 horas: Centro Veterinário Dr. Nuno Morais e Clínica Veterinária de Mirandela.",
+  "lang": "pt-PT",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fffdf7",
+  "theme_color": "#f39323",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

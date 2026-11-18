@@ -435,6 +435,9 @@ export const ADMIN_COPY = {
             novavetOverlay: 'Visit Novavet',
             novavetDesc: 'Veterinary practice and animal health store in Bragança, with appointments, client portal and clinic CRM demo.',
             novavetAlt: 'Novavet preview',
+            vet3Overlay: 'Visit 3VET',
+            vet3Desc: 'Three vets, two clinics in Macedo de Cavaleiros and Mirandela: brand-traced 3D logo, 24 h emergencies, appointments, client portal and clinic CRM demo.',
+            vet3Alt: '3VET Saúde Animal preview',
             arbolOverlay: 'View Demo-arbol',
             arbolDesc: 'Content-free demo: cinematic 3D scroll, store, header and dock ready to take on a client brand.'
         },
@@ -1012,6 +1015,9 @@ export const ADMIN_COPY = {
             novavetOverlay: 'Visitar Novavet',
             novavetDesc: 'Consultorio veterinario y tienda de salud animal en Bragança, con citas, portal de clientes y demo de CRM clínico.',
             novavetAlt: 'Vista previa de Novavet',
+            vet3Overlay: 'Visitar 3VET',
+            vet3Desc: 'Tres veterinarios y dos clínicas en Macedo de Cavaleiros y Mirandela: logotipo 3D calcado de su marca, urgencias 24 h, citas, portal de clientes y demo de CRM clínico.',
+            vet3Alt: 'Vista previa de 3VET Saúde Animal',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sin contenido: scroll cinemático en 3D, tienda, cabecera y dock listos para recibir la marca de un cliente.'
         },
@@ -1589,6 +1595,9 @@ export const ADMIN_COPY = {
             novavetOverlay: 'Visitar a Novavet',
             novavetDesc: 'Consultório veterinário e loja de saúde animal em Bragança, com marcações, portal de clientes e demonstração do CRM clínico.',
             novavetAlt: 'Pré-visualização da Novavet',
+            vet3Overlay: 'Visitar a 3VET',
+            vet3Desc: 'Três veterinários e duas clínicas em Macedo de Cavaleiros e Mirandela: logótipo 3D decalcado da marca, urgências 24 h, marcações, portal de clientes e demonstração do CRM clínico.',
+            vet3Alt: 'Pré-visualização da 3VET Saúde Animal',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sem conteúdo: scroll cinemático em 3D, loja, cabeçalho e dock prontos para receber a marca de um cliente.'
         },

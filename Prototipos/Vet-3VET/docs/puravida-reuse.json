@@ -1,0 +1,26 @@
+[
+  {
+    "source": "src/core/seasonalEffects.js",
+    "target": "src/core/seasonalEffects.js",
+    "source_sha256": "75b5b0370a65c63bb6658836a36b7929877898754070c74e6ad1fce29dde24a7",
+    "adapted": false
+  },
+  {
+    "source": "src/core/time.js",
+    "target": "src/core/time.js",
+    "source_sha256": "b42f6c7403c976eb328b902411edbb612dff261a0237418b6b0bc34d658bc42f",
+    "adapted": false
+  },
+  {
+    "source": "src/crm/components/SectionTabs.jsx",
+    "target": "src/features/crm/components/SectionTabs.jsx",
+    "source_sha256": "52063371fef35a546ec7f45e4b357c1ab12207f0e84e21a52d7da94595618085",
+    "adapted": false
+  },
+  {
+    "source": "src/crm/components/ui.jsx",
+    "target": "src/features/crm/components/ui.jsx",
+    "source_sha256": "42085c4782f827608ca4a0d708ac7f286cd4054e2bcd454440a22e43c697e94d",
+    "adapted": true
+  }
+]

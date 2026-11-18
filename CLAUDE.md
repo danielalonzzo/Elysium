@@ -267,6 +267,7 @@ su nombre, y `portfolio.html` los enlaza:
 | `proyecto/` | `/proyecto/` | la propia carpeta |
 | `Demo-arbol/` | `/Demo-arbol/` | `Prototipos/Demo-arbol/` |
 | `Vet-Dr-Valladares/` | `/Vet-Dr-Valladares/` | `Prototipos/Vet-Dr-Valladares/clinica/` |
+| `3vet/` | `elysiumdr.pt/3vet/` (y `.eu/3vet/`) | `Prototipos/Vet-3VET/` |
 
 Las tres primeras son HTML plano: la carpeta es a la vez el proyecto y el
 sitio, y se trabaja directamente ahí.
@@ -284,7 +285,9 @@ Las dos últimas son **producto compilado**. Editarlas a mano no sirve de nada,
 se pierde en la siguiente publicación: `Demo-arbol/` la genera entera
 `scripts/publish-demo-arbol.sh` desde `Prototipos/Demo-arbol/` (Next 16), y
 `Vet-Dr-Valladares/` la genera `scripts/publish-vet-dr-valladares.sh` desde
-`Prototipos/Vet-Dr-Valladares/clinica/`. Esta última no la enlaza el portafolio:
+`Prototipos/Vet-Dr-Valladares/clinica/`, y `3vet/` la genera
+`scripts/publish-3vet.sh` desde `Prototipos/Vet-3VET/` (en `.pt` el Worker la
+sirve desde la raíz compartida, como cualquier subsitio). Esta última no la enlaza el portafolio:
 solo la tarjeta de Prototipos del CRM.
 
 **`Gestor-Patrimonios/` no es un subsitio: es una app.** Es Elysium

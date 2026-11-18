@@ -1,0 +1,181 @@
+{
+  "_GLTFLoader-DlrN7o10.js": {
+    "file": "3vet/_next/static/chunks/GLTFLoader-DlrN7o10.js",
+    "name": "GLTFLoader"
+  },
+  "_chevron-right-CIZs-636.js": {
+    "file": "3vet/_next/static/chunks/chevron-right-CIZs-636.js",
+    "name": "chevron-right",
+    "imports": [
+      "_config-CHfN66yP.js"
+    ]
+  },
+  "_config-CHfN66yP.js": {
+    "file": "3vet/_next/static/chunks/config-CHfN66yP.js",
+    "name": "config",
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "_framework-DHr6G3rt.js"
+    ]
+  },
+  "_framework-DHr6G3rt.js": {
+    "file": "3vet/_next/static/chunks/framework-DHr6G3rt.js",
+    "name": "framework",
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js"
+    ]
+  },
+  "_navigation-errors-BU0-3Xye.js": {
+    "file": "3vet/_next/static/chunks/navigation-errors-BU0-3Xye.js",
+    "name": "navigation-errors",
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "_framework-DHr6G3rt.js"
+    ]
+  },
+  "_phone-CZEUpk59.js": {
+    "file": "3vet/_next/static/chunks/phone-CZEUpk59.js",
+    "name": "phone",
+    "imports": [
+      "_config-CHfN66yP.js"
+    ]
+  },
+  "_rolldown-runtime-DM_UJrUL.js": {
+    "file": "3vet/_next/static/chunks/rolldown-runtime-DM_UJrUL.js",
+    "name": "rolldown-runtime"
+  },
+  "_x-CsjcX0HN.js": {
+    "file": "3vet/_next/static/chunks/x-CsjcX0HN.js",
+    "name": "x",
+    "imports": [
+      "_config-CHfN66yP.js"
+    ]
+  },
+  "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js": {
+    "file": "3vet/_next/static/chunks/app-route-prefetch-policy-BWSH8ktA.js",
+    "name": "app-route-prefetch-policy",
+    "src": "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "virtual:vinext-app-browser-entry"
+    ]
+  },
+  "node_modules/vinext/dist/shims/layout-segment-context.js": {
+    "file": "3vet/_next/static/chunks/layout-segment-context-2GW0nR41.js",
+    "name": "layout-segment-context",
+    "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "virtual:vinext-app-browser-entry",
+      "_framework-DHr6G3rt.js",
+      "_navigation-errors-BU0-3Xye.js"
+    ]
+  },
+  "node_modules/vinext/dist/shims/streamed-icons.js": {
+    "file": "3vet/_next/static/chunks/streamed-icons-BM2jhsY7.js",
+    "name": "streamed-icons",
+    "src": "node_modules/vinext/dist/shims/streamed-icons.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "_framework-DHr6G3rt.js"
+    ]
+  },
+  "src/features/booking/Booking.tsx": {
+    "file": "3vet/_next/static/chunks/Booking-DaErqBYN.js",
+    "name": "Booking",
+    "src": "src/features/booking/Booking.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "_config-CHfN66yP.js",
+      "_phone-CZEUpk59.js",
+      "_chevron-right-CIZs-636.js",
+      "_framework-DHr6G3rt.js"
+    ]
+  },
+  "src/features/crm/ClinicApp.tsx": {
+    "file": "3vet/_next/static/chunks/ClinicApp-Dd8fRk1L.js",
+    "name": "ClinicApp",
+    "src": "src/features/crm/ClinicApp.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "virtual:vinext-app-browser-entry",
+      "_config-CHfN66yP.js",
+      "_chevron-right-CIZs-636.js",
+      "_x-CsjcX0HN.js",
+      "_framework-DHr6G3rt.js"
+    ]
+  },
+  "src/ui/MagicMouse.tsx": {
+    "file": "3vet/_next/static/chunks/MagicMouse-CAQXZsLG.js",
+    "name": "MagicMouse",
+    "src": "src/ui/MagicMouse.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "_framework-DHr6G3rt.js"
+    ]
+  },
+  "src/ui/PublicPage.tsx": {
+    "file": "3vet/_next/static/chunks/PublicPage-DZmddgRK.js",
+    "name": "PublicPage",
+    "src": "src/ui/PublicPage.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "virtual:vinext-app-browser-entry",
+      "_config-CHfN66yP.js",
+      "_phone-CZEUpk59.js",
+      "_x-CsjcX0HN.js",
+      "_framework-DHr6G3rt.js"
+    ],
+    "dynamicImports": [
+      "src/ui/mascotEngine.js",
+      "src/ui/heroLogoEngine.js"
+    ]
+  },
+  "src/ui/heroLogoEngine.js": {
+    "file": "3vet/_next/static/chunks/heroLogoEngine-BdVCIOgY.js",
+    "name": "heroLogoEngine",
+    "src": "src/ui/heroLogoEngine.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_config-CHfN66yP.js",
+      "_GLTFLoader-DlrN7o10.js"
+    ]
+  },
+  "src/ui/mascotEngine.js": {
+    "file": "3vet/_next/static/chunks/mascotEngine-CoeqhsYP.js",
+    "name": "mascotEngine",
+    "src": "src/ui/mascotEngine.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_config-CHfN66yP.js",
+      "_GLTFLoader-DlrN7o10.js"
+    ]
+  },
+  "virtual:vinext-app-browser-entry": {
+    "file": "3vet/_next/static/chunks/index-gqjqdl-O.js",
+    "name": "index",
+    "src": "virtual:vinext-app-browser-entry",
+    "isEntry": true,
+    "imports": [
+      "_rolldown-runtime-DM_UJrUL.js",
+      "_framework-DHr6G3rt.js",
+      "_navigation-errors-BU0-3Xye.js"
+    ],
+    "dynamicImports": [
+      "node_modules/vinext/dist/shims/internal/app-route-prefetch-policy.js",
+      "virtual:vinext-app-browser-entry",
+      "src/ui/PublicPage.tsx",
+      "node_modules/vinext/dist/shims/layout-segment-context.js",
+      "src/ui/MagicMouse.tsx",
+      "node_modules/vinext/dist/shims/streamed-icons.js",
+      "src/features/booking/Booking.tsx",
+      "src/features/crm/ClinicApp.tsx"
+    ]
+  }
+}

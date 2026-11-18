@@ -1,0 +1,24 @@
+# 3VET Saúde Animal
+
+> Três veterinários e duas clínicas na Terra Quente Transmontana (Portugal): o Centro Veterinário Dr. Nuno Morais, em Macedo de Cavaleiros, e a Clínica Veterinária de Mirandela. Cães, gatos e animais de produção (bovinos, suínos, ovinos e caprinos), com urgências 24 horas.
+
+## Equipa e linhas diretas (urgências 24 h)
+- Dr. Nuno Morais — 963 057 504
+- Dra. Ália Santos — 917 788 992
+- Dr. Francisco Morais — 961 544 749
+
+## Clínicas
+- Clínica Veterinária de Mirandela — Rua Joaquim Teófilo Braga, n.º 754, R/C Dto., 5370-309 Mirandela. Segunda a sexta 09:00–12:00 e 14:00–19:00; sábado 09:00–12:00; domingo fechado (urgências pelas três linhas).
+- Centro Veterinário Dr. Nuno Morais — Avenida D. Nuno Álvares Pereira, 5340-202 Macedo de Cavaleiros. Horário a confirmar pelo 963 057 504.
+
+## Redes
+- Instagram: https://www.instagram.com/3vet_macedo.mirandela/
+- Facebook: https://www.facebook.com/p/3Vet-Cl%C3%ADnica-Veterin%C3%A1ria-de-Mirandela-61556171763506/
+
+## Páginas
+- [Início](/): equipa, clínicas, serviços e contactos
+- [Orientador de sintomas](/orientador)
+- [Check-up de cuidados](/diagnostico)
+- [Marcação online](/citas)
+
+Protótipo desenvolvido por Elysium λ Development & Research (https://elysiumdr.eu).
