@@ -9440,14 +9440,10 @@ function syncMailEditAvailability() {
     }
 }
 
+/* La vista previa enseña la plantilla tal como sale: sin pie añadido. Las
+   plantillas traen su propio sello y el backend ya no pone otro debajo. */
 function mailPreviewHtml(html) {
-    const sealUrl = mailSealPreviewUrl();
-    let preview = String(html || '').replaceAll('cid:elysium-email-seal', sealUrl);
-    if (preview.includes(sealUrl) || preview.includes(MAIL_SEAL_PUBLIC_URL)) return preview;
-    const seal = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-top:28px"><tr><td align="center" style="padding:24px 12px 8px"><img src="${sealUrl}" width="78" height="78" alt="Sello Elysium" style="display:block;width:78px;height:78px;margin:0 auto 10px;border:0"><p style="margin:0;color:#687c8d;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">Elysium λ Development &amp; Research</p></td></tr></table>`;
-    return /<\/body\s*>/i.test(preview)
-        ? preview.replace(/<\/body\s*>/i, `${seal}</body>`)
-        : `${preview}${seal}`;
+    return String(html || '').replaceAll('cid:elysium-email-seal', mailSealPreviewUrl());
 }
 
 /** Pinta el marco conservando el desplazamiento: se repinta a cada tecla. */

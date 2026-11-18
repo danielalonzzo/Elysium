@@ -556,15 +556,9 @@ function emailTheme(content, preheader = '') {
 </html>`;
 }
 
-/** Adds the official seal to an uploaded CRM template without a signature. */
-function withElysiumSeal(html) {
-  const source = String(html || '');
-  if (!source.trim() || source.includes('cid:elysium-email-seal')) return source;
-  const footer = `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;margin-top:28px"><tr><td align="center" style="padding:24px 12px 8px"><img src="cid:elysium-email-seal" width="78" height="78" alt="Sello Elysium" style="display:block;width:78px;height:78px;margin:0 auto 10px;border:0"><p style="margin:0;color:#687c8d;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5">Elysium λ Development &amp; Research</p></td></tr></table>`;
-  return /<\/body\s*>/i.test(source)
-    ? source.replace(/<\/body\s*>/i, `${footer}</body>`)
-    : `${source}${footer}`;
-}
+/* El CRM envía las plantillas tal cual: ya no se les añade un pie con sello.
+   Las de `Estandares/` traen el suyo, y un segundo sello debajo (con la URL
+   del PNG no se reconocía el primero) se veía duplicado en los correos. */
 
 /* Los tres avisos automáticos de la agenda. Todos salen del buzón de
    MEETING_FROM_EMAIL —info@elysiumdr.eu— y comparten claim, idempotencia y
@@ -2354,7 +2348,6 @@ app.post(
         return response.status(400).json({ error: 'Reply-To is invalid.', code: 'reply_to_invalid' });
       }
       const text = String(body.text || '').trim() || htmlToPlainText(html);
-      const sealedHtml = withElysiumSeal(html);
       const idempotencyKey = crmMailIdempotencyKey(request);
       const fingerprint = crmMailFingerprint({
         actorUid: request.firebaseUser.uid,
@@ -2421,7 +2414,7 @@ app.post(
           cc: unit.cc,
           bcc: unit.bcc,
           subject,
-          html: sealedHtml,
+          html,
           text,
           replyTo: replyTo || undefined,
           attachments
@@ -2576,7 +2569,6 @@ module.exports = {
   buildMeetingAdminEmail,
   emailTheme,
   normalizeCrmMailRecipients,
-  withElysiumSeal,
   elysiumSealAttachment,
   adminNotificationEmail,
   buildMeetingIcs,

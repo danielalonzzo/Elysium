@@ -29,7 +29,6 @@ const {
   buildMeetingEmail,
   buildMeetingAdminEmail,
   emailTheme,
-  withElysiumSeal,
   elysiumSealAttachment,
   buildMeetingIcs,
   meetingEmailPayload,
@@ -505,11 +504,6 @@ test('CRM email theming stays light and embeds the official seal once', () => {
   assert.match(themed, /color-scheme" content="light only"/);
   assert.doesNotMatch(themed, /prefers-color-scheme:\s*dark/);
   assert.match(themed, /cid:elysium-email-seal/);
-
-  const uploaded = '<!doctype html><html><body><p>Hola</p></body></html>';
-  const sealed = withElysiumSeal(uploaded);
-  assert.equal((sealed.match(/cid:elysium-email-seal/g) || []).length, 1);
-  assert.equal(withElysiumSeal(sealed), sealed);
 
   const seal = elysiumSealAttachment();
   assert.equal(seal.contentType, 'image/png');
