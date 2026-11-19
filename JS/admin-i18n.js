@@ -438,6 +438,9 @@ export const ADMIN_COPY = {
             vet3Overlay: 'Visit 3VET',
             vet3Desc: 'Three vets, two clinics in Macedo de Cavaleiros and Mirandela: brand-traced 3D logo, 24 h emergencies, appointments, client portal and clinic CRM demo.',
             vet3Alt: '3VET Saúde Animal preview',
+            valeDalvaroOverlay: 'Visit Vale d\'Álvaro',
+            valeDalvaroDesc: 'Veterinary clinic in Bragança and practice in Vimioso, with online booking, a client portal and a clinic CRM demo.',
+            valeDalvaroAlt: 'Clínica Veterinária Vale d\'Álvaro preview',
             arbolOverlay: 'View Demo-arbol',
             arbolDesc: 'Content-free demo: cinematic 3D scroll, store, header and dock ready to take on a client brand.'
         },
@@ -1018,6 +1021,9 @@ export const ADMIN_COPY = {
             vet3Overlay: 'Visitar 3VET',
             vet3Desc: 'Tres veterinarios y dos clínicas en Macedo de Cavaleiros y Mirandela: logotipo 3D calcado de su marca, urgencias 24 h, citas, portal de clientes y demo de CRM clínico.',
             vet3Alt: 'Vista previa de 3VET Saúde Animal',
+            valeDalvaroOverlay: 'Visitar Vale d\'Álvaro',
+            valeDalvaroDesc: 'Clínica veterinaria en Bragança y consultorio en Vimioso, con citas en línea, portal de clientes y demo del CRM clínico.',
+            valeDalvaroAlt: 'Vista previa de la Clínica Veterinária Vale d\'Álvaro',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sin contenido: scroll cinemático en 3D, tienda, cabecera y dock listos para recibir la marca de un cliente.'
         },
@@ -1598,6 +1604,9 @@ export const ADMIN_COPY = {
             vet3Overlay: 'Visitar a 3VET',
             vet3Desc: 'Três veterinários e duas clínicas em Macedo de Cavaleiros e Mirandela: logótipo 3D decalcado da marca, urgências 24 h, marcações, portal de clientes e demonstração do CRM clínico.',
             vet3Alt: 'Pré-visualização da 3VET Saúde Animal',
+            valeDalvaroOverlay: 'Visitar a Vale d\'Álvaro',
+            valeDalvaroDesc: 'Clínica veterinária em Bragança e consultório em Vimioso, com marcações online, área de clientes e demonstração do CRM clínico.',
+            valeDalvaroAlt: 'Pré-visualização da Clínica Veterinária Vale d\'Álvaro',
             arbolOverlay: 'Ver Demo-arbol',
             arbolDesc: 'Demo sem conteúdo: scroll cinemático em 3D, loja, cabeçalho e dock prontos para receber a marca de um cliente.'
         },
