@@ -1,0 +1,27 @@
+{
+  "name": "Clínica Veterinária Vale d'Álvaro · Bragança & Vimioso",
+  "short_name": "Vale d'Álvaro",
+  "description": "Clínica e cirurgia de pequenos animais, tosquias e banhos, hotel, espécies pecuárias e suiniculturas em Bragança e Vimioso.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f2ea",
+  "theme_color": "#1e4d7b",
+  "lang": "pt-PT",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

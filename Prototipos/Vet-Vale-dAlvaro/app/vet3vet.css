@@ -1,0 +1,24 @@
+/* ==========================================================================
+   IDENTIDADE VISUAL: CLÍNICA VETERINÁRIA VALE D'ÁLVARO (DGAV PT10089CL)
+   Verde Montesinho (#163d2d) + Bronze Pecuário (#9e6b32) + Creme Montesinho
+   ========================================================================== */
+
+:root {
+  --teal: #163d2d;
+  --green: #0f2b20;
+  --sage-glow: #e3b26f;
+  --crm-accent: #163d2d;
+  --crm-accent-fill: #0f2b20;
+  --crm-accent-text: #163d2d;
+  --crm-sidebar: #0e1d16;
+}
+
+.novavet-hero {
+  background: radial-gradient(circle at 84% 16%, rgba(158, 107, 50, 0.16), transparent 46%),
+              linear-gradient(180deg, #faf7f0 0%, #f1eadf 100%);
+}
+
+[data-theme="dark"] .novavet-hero {
+  background: radial-gradient(circle at 84% 16%, rgba(227, 178, 111, 0.16), transparent 46%),
+              linear-gradient(180deg, #101714 0%, #0b100e 100%);
+}

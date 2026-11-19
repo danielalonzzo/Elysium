@@ -345,3 +345,11 @@
   ! Content-Signal
   Content-Signal: search=no, ai-input=no, ai-train=no
   X-Robots-Tag: noindex, nofollow
+
+# Protótipo Vale d'Álvaro servido pelo export estático de Elysium.
+/vet-vale-dalvaro/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' blob: data:; worker-src 'self' blob:; frame-src https://maps.google.com https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self';
+  ! Content-Signal
+  Content-Signal: search=no, ai-input=no, ai-train=no
+  X-Robots-Tag: noindex, nofollow
