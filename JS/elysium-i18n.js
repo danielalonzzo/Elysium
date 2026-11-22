@@ -875,6 +875,11 @@
 
     function strongElementKey(element) {
         if (element.id) return `id:${element.id}`;
+        if (element.tagName === 'A' && element.parentElement?.classList.contains('nav-links')) {
+            // The account and contact links switch position and classes with the session.
+            const route = normalizedHref(element).replace(/^\//, '');
+            if (route === 'profiles' || route === 'contact') return `nav:${route}`;
+        }
         const i18nKey = element.getAttribute('data-i18n');
         if (i18nKey) return `i18n:${i18nKey}`;
         const name = element.getAttribute('name');

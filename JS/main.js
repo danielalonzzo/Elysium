@@ -626,8 +626,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Close menu when clicking a link
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', closeMobileMenu);
+        navLinks.addEventListener('click', event => {
+            if (event.target.closest('a')) closeMobileMenu();
         });
 
         document.addEventListener('keydown', (event) => {

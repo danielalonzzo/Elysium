@@ -151,6 +151,9 @@
 /JS/main.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
+/JS/header-account.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 # La traducción en vivo de `.eu` (22 idiomas con Google Website Translator) se
 # pide con un nombre estable desde las 60 páginas de marketing; si se cacheara,
 # una página nueva podría emparejarse con una lista de idiomas vieja.
@@ -181,6 +184,9 @@
   Cache-Control: no-cache, max-age=0, must-revalidate
 
 /JS/firebase-config.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/JS/firebase-auth.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
 # Reglas de negocio compartidas por el CRM, el portal y el onboarding. Si se

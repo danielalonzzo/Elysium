@@ -1,25 +1,13 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { app } from './firebase-auth.js';
 import {
     getFirestore,
     initializeFirestore,
     persistentLocalCache,
     persistentMultipleTabManager
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
-// Tu configuración de Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyABcv1SqIHF78JqU5QVkLd3I94pI2YNPoE",
-    authDomain: "elysiumdr-eu.firebaseapp.com",
-    projectId: "elysiumdr-eu",
-    storageBucket: "elysiumdr-eu.firebasestorage.app",
-    messagingSenderId: "392918383359",
-    appId: "1:392918383359:web:b4c661f025f9162d4d6aca",
-    measurementId: "G-HCL71PXYX9"
-};
-
-const app = initializeApp(firebaseConfig);
+export { auth } from './firebase-auth.js';
 
 // La caché en disco se decide por página, no aquí. Este módulo lo comparten el
 // portal de socios, el CRM, el onboarding y el modal de versión: activarla de
@@ -38,7 +26,6 @@ export const db = wantsPersistentCache
         localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
     })
     : getFirestore(app);
-export const auth = getAuth(app);
 export const storage = getStorage(app);
 
 // Analytics is deliberately optional. Authentication and the client portal
