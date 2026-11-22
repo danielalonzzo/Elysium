@@ -84,92 +84,72 @@ async function call(url, { country = null, cookie = null, method = 'GET', header
     };
 }
 
-// ── Reparto por país en la portada de .eu ────────────────────────────────────
+// ── Sugerencia de región ─────────────────────────────────────────────────────
 
 const EU = 'https://elysiumdr.eu/';
+const HOMES = {
+    EU,
+    ES: 'https://elysiumdr.es/',
+    PT: 'https://elysiumdr.pt/',
+    CR: 'https://elysiumdr.com/cr/',
+    GLOBAL: 'https://elysiumdr.com/'
+};
 
-test('.eu — España va a su dominio', async () => {
-    const r = await call(EU, { country: 'ES' });
-    assert.equal(r.status, 302);
-    assert.equal(r.location, 'https://elysiumdr.es/');
-});
+function regionLookup(page) {
+    const source = new URL(page);
+    const endpoint = new URL('/__region', source);
+    endpoint.searchParams.set('path', source.pathname);
+    return endpoint.href;
+}
 
-test('.eu — Portugal va a su dominio', async () => {
-    const r = await call(EU, { country: 'PT' });
-    assert.equal(r.status, 302);
-    assert.equal(r.location, 'https://elysiumdr.pt/');
-});
+test('cada sitio sirve su propia portada y solo sugiere la región correspondiente', async () => {
+    for (const [from, page] of Object.entries(HOMES)) {
+        for (const [country, destination] of [
+            ['PL', 'EU'], ['GB', 'EU'], ['NO', 'EU'], ['CH', 'EU'], ['CY', 'EU'],
+            ['ES', 'ES'], ['PT', 'PT'], ['CR', 'CR'], ['CA', 'GLOBAL'], ['MX', 'GLOBAL'], ['BR', 'GLOBAL']
+        ]) {
+            const context = `${country} en ${page}`;
+            const html = await call(page, { country });
+            assert.equal(html.status, 200, context);
+            assert.equal(html.location, null, context);
 
-test('.eu — Costa Rica va a su sitio nacional en elysiumdr.com/cr/', async () => {
-    const r = await call(EU, { country: 'CR' });
-    assert.equal(r.status, 302);
-    assert.equal(r.location, 'https://elysiumdr.com/cr/');
-});
-
-test('.eu — resto de hispanohablantes, sitio global en español', async () => {
-    for (const country of ['MX', 'AR', 'CO', 'PE', 'CL', 'GQ', 'PR']) {
-        const r = await call(EU, { country });
-        assert.equal(r.location, 'https://elysiumdr.com/es/', country);
-    }
-});
-
-test('.eu — lusófonos que no son Portugal, sitio global en portugués', async () => {
-    for (const country of ['BR', 'AO', 'MZ', 'CV', 'TL', 'GW', 'ST', 'MO']) {
-        const r = await call(EU, { country });
-        assert.equal(r.location, 'https://elysiumdr.com/pt/', country);
-    }
-});
-
-test('.eu — cualquier otro país se queda en inglés, sin redirección', async () => {
-    for (const country of ['US', 'GB', 'DE', 'FR', 'IT', 'JP', 'NL', 'PL']) {
-        const r = await call(EU, { country });
-        assert.equal(r.status, 200, country);
-        assert.equal(r.asset, '/', country);
-    }
-});
-
-test('.eu — sin país conocido, inglés', async () => {
-    const r = await call(EU);
-    assert.equal(r.status, 200);
-});
-
-test('.eu — la cookie del selector de región anula el reparto', async () => {
-    const r = await call(EU, { country: 'PT', cookie: 'elysium_region_override=true' });
-    assert.equal(r.status, 200);
-});
-
-test('.eu — el parámetro override anula el reparto por país y fija la cookie', async () => {
-    const r = await call('https://elysiumdr.eu/?override=true', { country: 'PT' });
-    assert.equal(r.status, 200);
-    assert.match(r.setCookie || '', /elysium_region_override=true/);
-});
-
-test('.eu — un enlace /?lang=<idioma en vivo> anula el reparto por país', async () => {
-    // `JS/elysium-translate.js` traduce 22 idiomas en el navegador. Quien abre
-    // `/?lang=de` desde España no debe acabar en `.es` y perder el alemán.
-    for (const lang of ['de', 'fr', 'la', 'ga', 'mt', 'bg']) {
-        for (const country of ['ES', 'PT', 'MX']) {
-            const r = await call(`https://elysiumdr.eu/?lang=${lang}`, { country });
-            assert.equal(r.status, 200, `${lang} desde ${country}`);
-            assert.match(r.setCookie || '', /elysium_region_override=true/, `${lang} desde ${country}`);
+            const result = await call(regionLookup(page), { country });
+            assert.equal(result.status, from === destination ? 204 : 200, context);
+            assert.equal(result.location, null, context);
+            assert.equal(result.cacheControl, 'private, no-store', context);
+            if (from !== destination) {
+                assert.deepEqual(JSON.parse(result.body), { region: destination, url: HOMES[destination] }, context);
+            }
         }
     }
 });
 
-test('.eu — ?lang=es y ?lang=pt no anulan el reparto por país', async () => {
-    // El español y el portugués nativos son carpetas (/es/, /pt/): no hay
-    // motivo para saltarse el reparto con un parámetro suelto.
-    for (const lang of ['es', 'pt', 'xx']) {
-        const r = await call(`https://elysiumdr.eu/?lang=${lang}`, { country: 'ES' });
-        assert.equal(r.status, 302, lang);
-        assert.equal(r.location, `https://elysiumdr.es/?lang=${lang}`, lang);
+test('sin un país disponible se mantiene el sitio sin sugerir otro', async () => {
+    for (const country of [null, 'XX', 'T1']) {
+        const r = await call(regionLookup(EU), { country });
+        assert.equal(r.status, 204);
     }
 });
 
-test('.eu — el parámetro region anula el reparto por país y fija la cookie', async () => {
-    const r = await call('https://elysiumdr.eu/?region=EU', { country: 'ES' });
-    assert.equal(r.status, 200);
-    assert.match(r.setCookie || '', /elysium_region_override=true/);
+test('la sugerencia enlaza a la misma página pública en la región recomendada', async () => {
+    const source = 'https://elysiumdr.eu/es/research/ontology-research?lang=es';
+    assert.equal((await call(source, { country: 'CR' })).location, null);
+    const r = await call(regionLookup(source), { country: 'CR' });
+    assert.deepEqual(JSON.parse(r.body), {
+        region: 'CR',
+        url: 'https://elysiumdr.com/cr/research/ontology-research'
+    });
+    assert.equal((await call(regionLookup('https://elysiumdr.com/cr/admin'), { country: 'PT' })).status, 404);
+    assert.equal((await call(regionLookup(EU), { country: 'PT', method: 'POST' })).status, 405);
+});
+
+test('los enlaces explícitos de idioma no cambian de dominio ni crean una cookie de región', async () => {
+    for (const query of ['lang=de', 'lang=es', 'lang=pt', 'lang=en', 'override=true', 'region=EU']) {
+        const r = await call(`${EU}?${query}`, { country: 'ES' });
+        assert.equal(r.status, 200, query);
+        assert.equal(r.location, null, query);
+        assert.equal(r.setCookie, null, query);
+    }
 });
 
 test('.eu — /en/services se canoniza a /services', async () => {
@@ -178,7 +158,7 @@ test('.eu — /en/services se canoniza a /services', async () => {
     assert.equal(r.location, 'https://elysiumdr.eu/services');
 });
 
-test('.eu — los aliases de la portada inglesa fijan Europa antes de volver a la raíz', async () => {
+test('.eu — los alias de la portada inglesa conservan el idioma sin cambiar de dominio', async () => {
     for (const from of [
         'https://elysiumdr.eu/en',
         'https://elysiumdr.eu/en/',
@@ -187,32 +167,11 @@ test('.eu — los aliases de la portada inglesa fijan Europa antes de volver a l
     ]) {
         const r = await call(from, { country: 'ES' });
         assert.equal(r.status, 301, from);
-        assert.equal(r.location, 'https://elysiumdr.eu/?lang=en&region=EU&override=true', from);
+        assert.equal(r.location, 'https://elysiumdr.eu/?lang=en', from);
     }
 });
 
-test('.eu — la redirección por país nunca se cachea', async () => {
-    const r = await call(EU, { country: 'PT' });
-    assert.equal(r.cacheControl, 'no-store');
-});
-
-test('.eu — /index.html también reparte', async () => {
-    const r = await call('https://elysiumdr.eu/index.html', { country: 'ES' });
-    assert.equal(r.location, 'https://elysiumdr.es/');
-});
-
-test('.eu — un enlace profundo NO se reparte', async () => {
-    const r = await call('https://elysiumdr.eu/services', { country: 'PT' });
-    assert.equal(r.status, 200);
-    assert.equal(r.asset, '/services');
-});
-
-test('.eu — el reparto conserva el query', async () => {
-    const r = await call('https://elysiumdr.eu/?utm_source=li', { country: 'CR' });
-    assert.equal(r.location, 'https://elysiumdr.com/cr/?utm_source=li');
-});
-
-test('.eu — www va al ápice antes de repartir', async () => {
+test('.eu — www va al ápice', async () => {
     const r = await call('https://www.elysiumdr.eu/', { country: 'ES' });
     assert.equal(r.status, 301);
     assert.equal(r.location, 'https://elysiumdr.eu/');

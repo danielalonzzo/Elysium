@@ -788,13 +788,13 @@
             regionParam = null;
         }
 
-        if (regionParam === 'ES' || (!queryLanguage && configuration && configuration.region === 'ES' && configuration.isLocal)) {
+        if (configuration.isLocal && (regionParam === 'ES' || (!queryLanguage && configuration.region === 'ES'))) {
             return { language: 'es', source: 'region' };
         }
-        if (regionParam === 'CR' || (!queryLanguage && configuration && configuration.region === 'CR' && configuration.isLocal)) {
+        if (configuration.isLocal && (regionParam === 'CR' || (!queryLanguage && configuration.region === 'CR'))) {
             return { language: 'es', source: 'region' };
         }
-        if (regionParam === 'PT' || (!queryLanguage && configuration && configuration.region === 'PT' && configuration.isLocal)) {
+        if (configuration.isLocal && (regionParam === 'PT' || (!queryLanguage && configuration.region === 'PT'))) {
             return { language: 'pt', source: 'region' };
         }
 
@@ -806,8 +806,10 @@
         }
         if (storedLanguage) return { language: storedLanguage, source: 'storage' };
 
-        // Deliberadamente no se consulta navigator.language: cada dominio
-        // nacional abre primero en su idioma nativo.
+        const deviceLanguage = window.ElysiumSitePreferences?.deviceLanguage;
+        if (deviceLanguage !== undefined) {
+            return { language: normalizeLanguage(deviceLanguage) || 'en', source: 'device' };
+        }
         return { language: configuration.nativeLanguage, source: 'native' };
     }
 
@@ -1633,7 +1635,6 @@
             applyDocumentSource(state.nativeSnapshot);
             state.activeLanguage = configuration.nativeLanguage;
             updateDocumentLanguage(configuration.nativeLanguage);
-            persistLanguage(configuration.nativeLanguage);
             closeLanguageMenus();
             dispatchLanguageChange(configuration.nativeLanguage, previousLanguage, 'fallback', {
                 requestedLanguage: language,

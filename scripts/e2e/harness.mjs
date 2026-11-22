@@ -29,6 +29,30 @@ const isFile = path => { try { return statSync(path).isFile(); } catch { return 
 const isDirectory = path => { try { return statSync(path).isDirectory(); } catch { return false; } };
 const send = file => new Response(readFileSync(file), { status: 200, headers: { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream' } });
 
+// El Worker solo inserta contenido en el head de estas páginas. Node no tiene
+// HTMLRewriter, así que el arnés reproduce esa operación para el navegador.
+class HeadRewriter {
+    on(selector, handler) {
+        if (selector !== 'head') throw new Error(`El arnés no transforma ${selector}`);
+        this.handler = handler;
+        return this;
+    }
+
+    transform(response) {
+        const chunks = [];
+        this.handler.element({ append: html => chunks.push(html) });
+        const headers = new Headers(response.headers);
+        headers.delete('Content-Length');
+        return new Response(new ReadableStream({
+            async start(controller) {
+                const html = await response.text();
+                controller.enqueue(new TextEncoder().encode(html.replace('</head>', chunks.join('') + '</head>')));
+                controller.close();
+            }
+        }), { status: response.status, headers });
+    }
+}
+
 function assets() {
     return {
         async fetch(request) {
@@ -77,6 +101,7 @@ function demoLibrary(bookMetadata) {
 
 /** Arranca el Worker por HTTPS. El país simulado llega en la cabecera `X-Test-Country`. */
 export async function startServer({ port = 0 } = {}) {
+    globalThis.HTMLRewriter ??= HeadRewriter;
     const dir = mkdtempSync(join(tmpdir(), 'elysium-e2e-'));
     const alt = HOSTS.map(host => `DNS:${host}`).join(',');
     execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', join(dir, 'key.pem'), '-out', join(dir, 'cert.pem'),
@@ -178,11 +203,18 @@ export async function newPage(chrome, { width = 1440, height = 900, acceptLangua
     const session = new Session(socket);
     for (const method of ['Page.enable', 'Runtime.enable', 'Network.enable']) await session.send(method);
     await session.send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
-    const extra = {};
-    if (acceptLanguage) extra['Accept-Language'] = acceptLanguage;
-    if (country) extra['X-Test-Country'] = country;
-    if (Object.keys(extra).length) await session.send('Network.setExtraHTTPHeaders', { headers: extra });
+    if (country) {
+        // La cabecera de simulación solo debe llegar a los dominios del arnés.
+        session.listeners.push(({ method, params }) => {
+            if (method !== 'Fetch.requestPaused') return;
+            const headers = Object.entries(params.request.headers).map(([name, value]) => ({ name, value }));
+            headers.push({ name: 'X-Test-Country', value: country });
+            session.send('Fetch.continueRequest', { requestId: params.requestId, headers }).catch(() => {});
+        });
+        await session.send('Fetch.enable', { patterns: HOSTS.map(host => ({ urlPattern: `https://${host}/*` })) });
+    }
     if (acceptLanguage) {
+        await session.send('Network.setExtraHTTPHeaders', { headers: { 'Accept-Language': acceptLanguage } });
         // `navigator.language` también sigue al navegador de quien visita.
         const { userAgent } = await session.send('Browser.getVersion');
         await session.send('Emulation.setUserAgentOverride', { userAgent, acceptLanguage });

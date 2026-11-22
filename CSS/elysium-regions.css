@@ -1,0 +1,71 @@
+.elysium-region-notice {
+    --notice-left: max(1rem, env(safe-area-inset-left));
+    --notice-right: max(1rem, env(safe-area-inset-right));
+    position: fixed;
+    z-index: 1101;
+    right: var(--notice-right);
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    width: min(24rem, calc(100% - var(--notice-left) - var(--notice-right)));
+    box-sizing: border-box;
+    padding: 1rem 1.125rem;
+    border: 1px solid #375471;
+    border-radius: 1rem;
+    background: #0e1929;
+    color: #f0f4fa;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .4);
+    font-size: .95rem;
+    line-height: 1.45;
+}
+
+.elysium-region-notice h2 {
+    margin: 0 0 .3rem;
+    color: inherit;
+    font-size: 1.05rem;
+    line-height: 1.3;
+}
+
+.elysium-region-notice p {
+    margin: 0 0 .85rem;
+    color: #c6d3e3;
+}
+
+.elysium-region-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
+.elysium-region-actions :is(a, button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    padding: .4rem .7rem;
+    border: 1px solid #596f88;
+    border-radius: .5rem;
+    background: transparent;
+    color: #f0f4fa;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.elysium-region-actions a {
+    border-color: #a8daff;
+    background: #a8daff;
+    color: #091b2d;
+}
+
+.elysium-region-actions :is(a, button):focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+}
+
+@media (max-width: 60rem) {
+    html[data-machine-translation] .elysium-region-notice {
+        top: max(5rem, env(safe-area-inset-top));
+        bottom: auto;
+    }
+}

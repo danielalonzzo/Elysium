@@ -12,16 +12,14 @@
  *
  * Reglas que no se ven abriendo el sitio:
  *
- *  - **Nunca por el navegador.** `.eu` abre en su idioma aunque el navegador esté
- *    en otro. La traducción solo existe tras una elección explícita: la cookie
- *    `googtrans` (de sesión) o `?lang=xx` en un enlace compartido.
+ *  - El idioma se elige a partir de la URL, el selector o la configuración del
+ *    navegador, según la preferencia calculada por `elysium-regions.js`.
  *  - **Se traduce desde la página en la que se está** (inglés, español o
  *    portugués, según `<html lang>`). No cambia la URL.
  *  - **Volver al original es recargar.** Se borra la cookie y se recarga: es lo
  *    único que no falla, porque el widget no sabe deshacerse sin su barra.
  *  - **Es traducción automática de Google** y el aviso de abajo lo dice. El texto
- *    de la página se envía a Google al traducir (está en la política de
- *    privacidad). El widget solo se descarga si alguien lo pide.
+ *    de la página se envía a Google si está activo uno de los idiomas adicionales.
  *  - Solo actúa en las páginas de marketing de `.eu`. En `.es`, `.pt` y `.com` no
  *    hace nada: sus idiomas los gestiona `elysium-i18n.js` o son carpetas.
  *
@@ -34,7 +32,6 @@
     if (window.ElysiumTranslate) return;
 
     const COOKIE = 'googtrans';
-    const REGION_OVERRIDE_COOKIE = 'elysium_region_override=true; path=/; max-age=31536000; SameSite=Lax';
     const WIDGET_URL = 'https://translate.google.com/translate_a/element.js';
     const WIDGET_CALLBACK = 'elysiumTranslateInit';
     const WIDGET_HOLDER_ID = 'elysium-google-translate';
@@ -173,6 +170,12 @@
     }
 
     function requestedLanguage() {
+        const preferences = window.ElysiumSitePreferences;
+        if (preferences) {
+            const preferred = preferences.preferredLanguage([...LANGUAGE_CODES]);
+            return LANGUAGE_CODES.has(preferred) ? preferred : null;
+        }
+
         let queryLanguage = null;
         try {
             queryLanguage = new URLSearchParams(window.location.search).get('lang');
@@ -425,13 +428,6 @@
         if (state.active === target) return Promise.resolve(true);
 
         writeCookie(target);
-        try {
-            // Como el cambio de idioma físico de `main.js`: quien elige a mano
-            // no debe ser repartido por país si vuelve a la portada.
-            document.cookie = REGION_OVERRIDE_COOKIE;
-        } catch (error) {
-            // El reparto solo afecta a la portada; la traducción sigue.
-        }
         setActive(target);
         return selectLanguage(target).catch(() => {
             abandon();
@@ -440,6 +436,7 @@
     }
 
     function restore() {
+        window.ElysiumSitePreferences?.rememberLanguage(sourceLanguage);
         clearCookie();
         try {
             window.sessionStorage.removeItem(NOTICE_DISMISSED_KEY);
@@ -469,6 +466,7 @@
             event.stopPropagation();
             event.stopImmediatePropagation();
             closeMenus();
+            window.ElysiumSitePreferences?.rememberLanguage(option.dataset.translateLang);
             translate(option.dataset.translateLang);
             return;
         }

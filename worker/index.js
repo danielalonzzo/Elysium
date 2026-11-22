@@ -4,7 +4,7 @@
  * El sitio entero son ficheros estáticos y así sigue. Este Worker hace cuatro
  * cosas, y nada más:
  *
- *   1. Reparte a quien entra por `elysiumdr.eu` según su país (ver «Entrada»).
+ *   1. Sugiere una región según el país en los cinco sitios públicos.
  *   2. Sirve los dominios nacionales (`.es`, `.pt`) en su idioma sin que la URL
  *      lleve prefijo: `elysiumdr.es/services` entrega la base interna
  *      `_national/es/services.html`, separada del español de Europa en
@@ -37,87 +37,14 @@
 import { htmlToMarkdown, estimateTokens } from './html-to-markdown.js';
 import { handleLibrary, isLibraryPath, LIBRARY_ORIGIN, LIBRARY_PREFIX } from './library.js';
 import { handleToolsSite, toolsRedirectTarget, TOOLS_HOST } from './tools-site.js';
+import { REGION_PATH, regionForCountry, regionForUrl, regionalPage, regionalUrl } from './regions.js';
 
 const API_PREFIX = '/api/';
 const TOOLS_API_PREFIX = '/api/tools/';
 
-// ── Entrada: el reparto por país en elysiumdr.eu ──────────────────────────────
-
-/**
- * `.eu` es la puerta de entrada y el sitio europeo a la vez. Quien llega a su
- * portada se va a donde le corresponde:
- *
- *   España                         → elysiumdr.es
- *   Portugal                       → elysiumdr.pt
- *   Costa Rica                     → elysiumdr.com/cr/
- *   Resto de hispanohablantes      → elysiumdr.com/es/
- *   Resto de lusófonos             → elysiumdr.com/pt/
- *   Cualquier otro país            → elysiumdr.eu/ (inglés)
- *
- * Costa Rica cuenta con su propia sección regional (`elysiumdr.com/cr/`) con
- * traducción dinámica in-place a inglés británico y portugués europeo. El resto
- * de hispanohablantes de fuera de España y los lusófonos de fuera de Portugal
- * van al sitio global (`elysiumdr.com/es/` y `elysiumdr.com/pt/`). El idioma lo
- * decide el país de quien llega, nunca el del navegador.
- *
- * Mientras `elysiumdr.com` no esté asociado al Worker como dominio
- * personalizado, esas redirecciones llevan a un dominio que no resuelve;
- * es lo primero que hay que comprobar antes de desplegar.
- *
- * Dos límites deliberados:
- *
- *  - **Solo la portada.** Un enlace profundo compartido tiene que abrir la
- *    página que se compartió, no la portada de otro dominio.
- *  - **La cookie manda.** Quien usa el selector de región del encabezado deja
- *    `elysium_region_override=true` (lo escriben `JS/main.js` y
- *    `JS/elysium-i18n.js`) y a partir de ahí nadie le vuelve a mover.
- */
-/** El sitio global: inglés europeo, español de Costa Rica y portugués de Portugal. */
-const GLOBAL_ORIGIN = 'https://elysiumdr.com';
-
-const NATIONAL_DOMAINS = new Map([
-    ['ES', 'https://elysiumdr.es'],
-    ['PT', 'https://elysiumdr.pt']
-]);
-
-/** Hispanohablantes salvo España y Costa Rica: sitio global, en español de Costa Rica. */
-const SPANISH_SPEAKING = new Set([
-    'AR', 'BO', 'CL', 'CO', 'CU', 'DO', 'EC', 'GQ', 'GT',
-    'HN', 'MX', 'NI', 'PA', 'PE', 'PR', 'PY', 'SV', 'UY', 'VE'
-]);
-
-/**
- * Lusófonos salvo Portugal: sitio global, en portugués. Guinea Ecuatorial
- * (`GQ`) tiene el portugués como cooficial pero se atiende en español, que es
- * la lengua real del país; por eso está en la lista de arriba y no en esta.
- */
-const PORTUGUESE_SPEAKING = new Set([
-    'AO', 'BR', 'CV', 'GW', 'MO', 'MZ', 'ST', 'TL'
-]);
-
-/** A dónde mandar a quien entra por la portada de `.eu`; `null` = se queda. */
-function entryTargetFor(country) {
-    if (!country) return null;
-    const national = NATIONAL_DOMAINS.get(country);
-    if (national) return national + '/';
-    if (country === 'CR') return `${GLOBAL_ORIGIN}/cr/`;
-    if (SPANISH_SPEAKING.has(country)) return `${GLOBAL_ORIGIN}/es/`;
-    if (PORTUGUESE_SPEAKING.has(country)) return `${GLOBAL_ORIGIN}/pt/`;
-    return null;
-}
-
 // ── Dominios nacionales ───────────────────────────────────────────────────────
 
-/**
- * Los 22 idiomas que `JS/elysium-translate.js` traduce en vivo en `.eu` (los
- * demás de la Unión Europea y el latín). Un enlace `/?lang=de` es una elección
- * explícita: tiene que anular el reparto por país, o quien lo abra desde
- * España o Portugal acabaría en `.es`/`.pt` y perdería el idioma.
- */
-const LIVE_TRANSLATION_LANGUAGES = new Set([
-    'de', 'bg', 'cs', 'hr', 'da', 'sk', 'sl', 'et', 'fi', 'fr', 'el',
-    'hu', 'ga', 'it', 'lv', 'lt', 'mt', 'nl', 'pl', 'ro', 'sv', 'la'
-]);
+const GLOBAL_ORIGIN = 'https://elysiumdr.com';
 
 /** Solo el ápice: los `www.` se redirigen antes de llegar hasta aquí (paso 0). */
 const LOCALIZED_HOSTS = new Map([
@@ -213,6 +140,33 @@ const EUROPEAN_HTML_PAGES = new Map([
     ['pt', NATIONAL_HTML_PAGES.get('pt')]
 ]);
 
+const REGION_HTML_PAGES = {
+    EU: EUROPEAN_HTML_PAGES.get('en'),
+    ES: NATIONAL_HTML_PAGES.get('es'),
+    PT: NATIONAL_HTML_PAGES.get('pt'),
+    CR: NATIONAL_HTML_PAGES.get('cr'),
+    GLOBAL: NATIONAL_HTML_PAGES.get('com')
+};
+
+function regionForPage(url) {
+    const region = regionForUrl(url);
+    return REGION_HTML_PAGES[region]?.has(regionalPage(url.pathname, region)) ? region : null;
+}
+
+function serveRegionSuggestion(request, url) {
+    if (request.method !== 'GET') return plainError(request, 405, 'Method not allowed.', 'GET');
+    const pathname = url.searchParams.get('path') || '/';
+    const current = regionForUrl(url, pathname);
+    const suggested = regionForCountry(request.cf?.country);
+    const page = regionalPage(pathname, current);
+    const headers = { 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff' };
+    if (!REGION_HTML_PAGES[current]?.has(page)) return new Response(null, { status: 404, headers });
+    if (!suggested || suggested === current) return new Response(null, { status: 204, headers });
+
+    const destination = REGION_HTML_PAGES[suggested].has(page) ? page : '';
+    return Response.json({ region: suggested, url: regionalUrl(suggested, destination) }, { headers });
+}
+
 /**
  * `elysiumdr.com` (el sitio global) es físico, como `.eu`: tres carpetas con las
  * mismas páginas (`/`, `/es/`, `/pt/`), mientras que Costa Rica vive bajo `/cr/`
@@ -273,11 +227,7 @@ const LEGACY_ADMIN_LANGUAGES = new Map([
 
 // ── Utilidades ────────────────────────────────────────────────────────────────
 
-/**
- * Una redirección que no se guarda en ninguna caché. La del reparto por país
- * depende de quién pregunta, así que una copia cacheada mandaría a todo el
- * mundo al país del primero que pasó por ahí.
- */
+/** Las redirecciones temporales de idioma se sirven con `no-store`. */
 function redirect(location, status, { cacheable = true } = {}) {
     const headers = new Headers({ Location: location });
     if (!cacheable) {
@@ -677,12 +627,18 @@ function prefersMarkdown(request) {
 const CRM_MANIFEST = '<link rel="manifest" href="/crm.webmanifest"><meta name="apple-mobile-web-app-title" content="Elysium CRM">';
 const OWN_MANIFEST = /^\/(?:library|Gestor-Patrimonios)(?:\/|$)/;
 
-function withCrmManifest(request, response) {
-    if (typeof HTMLRewriter === 'undefined' || !response.ok) return response;
+function withPublicPageEnhancements(request, response, region) {
+    if (typeof HTMLRewriter === 'undefined' || request.method !== 'GET' || !response.ok) return response;
     if (!(response.headers.get('Content-Type') || '').includes('text/html')) return response;
     const url = new URL(request.url);
     if (url.hostname === TOOLS_HOST || OWN_MANIFEST.test(url.pathname)) return response;
-    return new HTMLRewriter().on('head', { element(head) { head.append(CRM_MANIFEST, { html: true }); } }).transform(response);
+
+    const regionalScript = region
+        ? `<script src="/JS/elysium-regions.js" data-region="${region}" defer></script>`
+        : '';
+    return new HTMLRewriter().on('head', {
+        element(head) { head.append(CRM_MANIFEST + regionalScript, { html: true }); }
+    }).transform(response);
 }
 
 const VALTRIX_PATH = '/VALTRIX';
@@ -754,8 +710,19 @@ async function serveValtrix(request, env, url) {
 }
 
 async function serveAsset(request, env, assetRequest = request) {
-    const response = await env.ASSETS.fetch(assetRequest);
-    if (!prefersMarkdown(request) || !response.ok) return withCrmManifest(request, response);
+    const markdownRequested = prefersMarkdown(request);
+    const region = request.method === 'GET' && !markdownRequested && typeof HTMLRewriter !== 'undefined'
+        ? regionForPage(new URL(request.url))
+        : null;
+    let response = await env.ASSETS.fetch(assetRequest);
+    if (region && response.status === 304) {
+        // La caché anterior al Worker puede contener una página sin el script.
+        const headers = new Headers(assetRequest.headers);
+        headers.delete('If-None-Match');
+        headers.delete('If-Modified-Since');
+        response = await env.ASSETS.fetch(new Request(assetRequest, { headers }));
+    }
+    if (!markdownRequested || !response.ok) return withPublicPageEnhancements(request, response, region);
     if (!(response.headers.get('Content-Type') || '').includes('text/html')) return response;
 
     const markdown = htmlToMarkdown(await response.text(), { baseUrl: request.url });
@@ -1189,6 +1156,10 @@ export default {
         const nationalLanguage = LOCALIZED_HOSTS.get(host) || null;
         const isPublicHost = host === 'elysiumdr.eu' || Boolean(nationalLanguage);
 
+        if (url.pathname === REGION_PATH) {
+            return isPublicHost ? serveRegionSuggestion(request, url) : plainError(request, 404, 'Not found.');
+        }
+
         // `/tools` en cualquier dominio de la empresa lleva al subdominio, en su
         // idioma. Las páginas viven en `tools/` pero solo se sirven allí.
         const toolsTarget = toolsRedirectTarget(url.pathname, nationalLanguage);
@@ -1301,42 +1272,17 @@ export default {
         }
 
         // 0.b Descubrimiento para agentes y servidor MCP. Van antes que nada:
-        //      son los mismos en los tres dominios, no llevan prefijo de idioma
-        //      y no deben pasar por el reparto por país ni por la reescritura de
-        //      los dominios nacionales.
+        //      son comunes a los dominios públicos y no llevan prefijo de idioma.
         const agentFile = await serveAgentFile(url, request, env);
         if (agentFile) return agentFile;
         if (url.pathname === MCP_PATH) return handleMcp(request, env, url);
 
-        // 1. Reparto por país en la portada de .eu.
+        // Inglés vive en la raíz del sitio europeo.
         const isEuropeanHost = host === 'elysiumdr.eu';
-        const isHomepage = url.pathname === '/' || url.pathname === '/index.html';
-        const requestedLang = url.searchParams.get('lang');
-        const hasParamOverride = url.searchParams.has('override') || url.searchParams.has('region')
-            || requestedLang === 'en' || LIVE_TRANSLATION_LANGUAGES.has(requestedLang);
-        if (isEuropeanHost && isHomepage) {
-            const cookieHeader = request.headers.get('Cookie') || '';
-            const hasManualOverride = cookieHeader.includes('elysium_region_override=true');
-
-            if (!hasManualOverride && !hasParamOverride) {
-                // Código ISO de dos letras que pone Cloudflare (p. ej. 'ES', 'PT', 'CR').
-                const target = entryTargetFor(request.cf?.country);
-                if (target) {
-                    const location = new URL(target + url.search, url).toString();
-                    return redirect(location, 302, { cacheable: false });
-                }
-            }
-        }
-
-        // Inglés vive en la raíz de `.eu`. El alias exacto necesita además
-        // fijar el override: si se redirigiera a `/` sin él, el segundo request
-        // podría volver a repartir por país y cambiar de región.
         if (isEuropeanHost && /^\/en(?:\/index(?:\.html)?)?\/?$/.test(url.pathname)) {
             const target = new URL('/', url.origin);
             url.searchParams.forEach((value, key) => target.searchParams.append(key, value));
             target.searchParams.set('lang', 'en');
-            target.searchParams.set('region', 'EU');
-            target.searchParams.set('override', 'true');
             return redirect(target.toString(), 301);
         }
         if (isEuropeanHost && url.pathname.startsWith('/en/')) {
@@ -1405,13 +1351,6 @@ export default {
             // Todo lo demás —subsitios, `/profiles`, `/admin`, CSS, imágenes—
             // se sirve desde la raíz, compartido entre todos los dominios.
             return serveAsset(request, env);
-        }
-
-        if (isEuropeanHost && isHomepage && hasParamOverride) {
-            const response = await serveAsset(request, env);
-            const headers = new Headers(response.headers);
-            headers.set('Set-Cookie', 'elysium_region_override=true; Path=/; Max-Age=31536000; SameSite=Lax');
-            return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
         }
 
         // Durante la consolidación existió una SPA separada en /admin/.

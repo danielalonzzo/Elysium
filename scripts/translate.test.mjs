@@ -21,7 +21,6 @@ const read = path => readFileSync(join(ROOT, path), 'utf8');
 
 const ENGINE = read('JS/elysium-translate.js');
 const MAIN = read('JS/main.js');
-const WORKER = read('worker/index.js');
 const HEADERS = read('_headers');
 
 /** Los 22 idiomas de Daniel, en su orden. */
@@ -57,11 +56,6 @@ test('cada idioma en vivo tiene su bandera optimizada de 64 px', () => {
     for (const code of LANGUAGES) {
         assert.ok(existsSync(join(ROOT, 'Images', 'Optimized', `flag-${code}-64.webp`)), `falta flag-${code}-64.webp`);
     }
-});
-
-test('el Worker conoce los mismos 22 idiomas (el enlace /?lang= anula el reparto por país)', () => {
-    const inWorker = setAfter(WORKER, 'const LIVE_TRANSLATION_LANGUAGES');
-    assert.deepEqual(inWorker, LANGUAGES);
 });
 
 test('las páginas que traduce el motor son las que main.js da por conmutables', () => {
@@ -147,12 +141,6 @@ test('el motor y su CSS se revalidan en cada visita (nombre estable)', () => {
 });
 
 // ── El motor ─────────────────────────────────────────────────────────────────
-
-test('el idioma del navegador no decide nada', () => {
-    assert.doesNotMatch(ENGINE, /navigator\.language/);
-    assert.doesNotMatch(ENGINE, /navigator\.languages/);
-    assert.doesNotMatch(ENGINE, /Accept-Language/i);
-});
 
 /** Carga el motor en un «navegador» mínimo y devuelve lo que publica. */
 function load({ host, pathname = '/', search = '' }) {

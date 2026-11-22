@@ -122,14 +122,29 @@ try {
   eq(await page.eval(googtrans), 0, '[.eu/es → EN] y la cookie de traducción desaparece');
   eq(await page.eval(`/translated-/.test(document.documentElement.className)`), false, '[.eu/es → EN] la página inglesa no se traduce sola');
 
-  // ── 7. El idioma del navegador no traduce nada ─────────────────────────────
+  // ── 7. El idioma del navegador activa la traducción ─────────────────────────────
   {
     const german = await newPage(chrome, { width: 1440, height: 900, acceptLanguage: 'de-DE,de' });
+    await german.session.send('Storage.clearDataForOrigin', { origin: EU, storageTypes: 'all' });
     await open(german, `${EU}/about`);
-    await sleep(2500);
-    eq(await german.eval(h1), 'Our Ethos', '[navegador en alemán] .eu abre en inglés, sin traducir');
-    eq(await german.eval(`!!document.getElementById('elysium-google-translate')`), false, '[navegador en alemán] ni siquiera se descarga el widget');
+    check(await translated(german), '[navegador en alemán] .eu traduce automáticamente');
+    eq(await german.eval(h1), 'Unser Ethos', '[navegador en alemán] el título está en alemán');
     await german.close();
+  }
+
+  {
+    const polish = await newPage(chrome, { width: 390, height: 844, acceptLanguage: 'pl-PL,pl', country: 'PL' });
+    await polish.session.send('Storage.clearDataForOrigin', { origin: EU, storageTypes: 'all' });
+    await open(polish, 'https://elysiumdr.com/about');
+    eq(await polish.eval('location.hostname'), 'elysiumdr.com', '[Polonia en Global] espera a que el usuario acepte');
+    eq(await polish.eval('document.documentElement.lang'), 'en-GB', '[Polonia en Global] muestra inglés si el polaco no está disponible');
+    await polish.eval(`document.querySelector('.elysium-region-notice a').click()`);
+    await sleep(1250);
+    eq(await polish.eval('location.hostname'), 'elysiumdr.eu', '[Polonia en Global] abre Europa al aceptar');
+    check(await translated(polish), '[Polonia en Europa] se activa la traducción');
+    eq(await polish.eval('window.ElysiumTranslate.language'), 'pl', '[Polonia en Europa] selecciona polaco');
+    check(await polish.eval(h1) !== 'Our Ethos', '[Polonia en Europa] el título se traduce al polaco');
+    await polish.close();
   }
 
   // ── 8. Fuera de .eu no hay traducción en vivo ──────────────────────────────

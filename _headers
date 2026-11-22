@@ -142,6 +142,12 @@
 /JS/elysium-i18n.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 
+/JS/elysium-regions.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/CSS/elysium-regions.css
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
 /JS/main.js
   Cache-Control: no-cache, max-age=0, must-revalidate
 

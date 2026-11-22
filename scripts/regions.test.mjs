@@ -9,7 +9,7 @@
  *   Portugal · elysiumdr.pt  · portugués de Portugal, más traducción a los otros idiomas
  *   Global   · elysiumdr.com · inglés europeo (`/`), español de Costa Rica (`/es/`) y portugués de Portugal (`/pt/`)
  *
- * Cada región abre en SU idioma, sin importar el del navegador. Estas pruebas
+ * El HTML de origen conserva el idioma de cada ruta. Estas pruebas
  * leen los ficheros y ejecutan el Worker; lo que solo se ve en un navegador
  * (banderas pintadas, el selector funcionando, la traducción en vivo) lo cubre
  * `scripts/e2e/regions.e2e.mjs`, que usa un Chrome real.
@@ -326,7 +326,7 @@ async function call(url, { country = null, cookie = null } = {}) {
 
 const COM = 'https://elysiumdr.com';
 
-test('.com — la portada abre en inglés, sin repartir por país ni mirar el navegador', async () => {
+test('.com — el Worker sirve la portada base en inglés con cualquier país', async () => {
     for (const country of [null, 'ES', 'PT', 'CR', 'BR', 'FR', 'US']) {
         const r = await call(`${COM}/`, { country });
         assert.equal(r.status, 200, String(country));
@@ -453,7 +453,7 @@ test('.eu — sus aterrizajes de Costa Rica, España y Portugal ya no se sirven:
     }
 });
 
-test('el reparto por país nunca decide por el navegador: ni Accept-Language ni cookies de idioma', async () => {
+test('el idioma se resuelve en el cliente, sin variar el HTML del Worker por Accept-Language', async () => {
     const request = new Request('https://elysiumdr.eu/', {
         headers: { 'Accept-Language': 'es-ES,es;q=0.9,pt;q=0.8', Cookie: 'elysium_lang_pref=es; langOverride=true' }
     });
