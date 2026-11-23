@@ -52,7 +52,7 @@ una con su URL/dominio, sus idiomas y su manera de hablar de sí misma.
 | Europa | `elysiumdr.eu` | inglés europeo (`/`), español de España (`/es/`), portugués de Portugal (`/pt/`) | físicas: la raíz, `es/` y `pt/` |
 | España | `elysiumdr.es` | español de España, y traducción en vivo a `en-GB` y `pt-PT` | `_national/es/`, sin prefijo en la URL |
 | Portugal | `elysiumdr.pt` | portugués de Portugal, y traducción en vivo a `en-GB` y `es-ES` | `_national/pt/`, sin prefijo en la URL |
-| Costa Rica | `elysiumdr.com/cr/` | español de Costa Rica (`es-CR`), y traducción en vivo por función a `en-GB` y `pt-PT` | `_national/cr/`, servida bajo `/cr/` sin subcarpetas `/cr/en/` ni `/cr/pt/` |
+| Costa Rica | `elysiumdr.cr` (antes `elysiumdr.com/cr/`, que el Worker redirige con 301 conservando ruta y query) | español de Costa Rica (`es-CR`), y traducción en vivo a `en-GB` y `pt-PT` | `_national/cr/`, sin prefijo en la URL |
 | Global | `elysiumdr.com` | inglés europeo (`/`), español de Costa Rica (`/es/`), portugués de Portugal (`/pt/`) | físicas: `_national/com/`, `_national/com/es/`, `_national/com/pt/` |
 
 Lo que tiene que cumplirse siempre (lo vigila `scripts/regions.test.mjs`, y
@@ -61,7 +61,7 @@ Lo que tiene que cumplirse siempre (lo vigila `scripts/regions.test.mjs`, y
 1. **Cada región abre en SU idioma, sin importar el navegador.** Ningún código
    mira `navigator.language` ni `Accept-Language`. El único reparto es el de la
    portada de `.eu` por país de la IP (ver `worker/index.js`): España → `.es`,
-   Portugal → `.pt`, Costa Rica → `.com/cr/`, hispanohablantes del resto del
+   Portugal → `.pt`, Costa Rica → `.cr`, hispanohablantes del resto del
    mundo → `.com/es/`, lusófonos → `.com/pt/`.
 2. **Cada región habla de sí misma, en todas sus páginas.** El titular de la
    portada es el contrato: «Pan-European digital infrastructure for
@@ -72,12 +72,12 @@ Lo que tiene que cumplirse siempre (lo vigila `scripts/regions.test.mjs`, y
    for small-businesses and startups:» (Global, sin región). Los datos de la
    empresa (Bragança, NIF, la entidad portuguesa) no cambian: son hechos, no mercado.
 3. **El español lleva la bandera de su región:** España en `.eu` y `.es`, Costa
-   Rica en `.com` y en `.com/cr/`. El selector tiene cinco entradas —Europa,
+   Rica en `.com` y en `.cr`. El selector tiene cinco entradas —Europa,
    España, Portugal, Costa Rica, Global— y cambiar de región abre la nueva en SU
    idioma (Europa y Global en inglés; España y Costa Rica en español; Portugal en
    portugués).
 4. **La legislación va con la región.** `.eu` solo cita el RGPD y la ley
-   portuguesa; `.com/cr/` (y `.com/es/`) cita la Ley N.º 8968 (PRODHAB) y la Ley
+   portuguesa; `.cr` (y `.com/es/`) cita la Ley N.º 8968 (PRODHAB) y la Ley
    N.º 7472 (derecho de retracto de 8 días hábiles, MEIC/CNC) de Costa Rica.
    `.es` y `.pt` citan las suyas.
 
@@ -85,10 +85,10 @@ Cosas que no se ven abriendo el sitio:
 
 - **`_national/com/` y `_national/cr/` no son URLs públicas.** Como `_national/es`
   y `_national/pt`, son bases privadas que el Worker pide al binding
-  (`serveGlobalPage`, `serveCostaRicaPage`). En `.com` el sitio Global es físico
-  y `/__i18n` responde 404 para rutas globales, pero **sí responde 200** cuando
-  `path` empieza por `/cr` para alimentar la traducción funcional de
-  `elysiumdr.com/cr/` sin crear carpetas físicas `/cr/en/` ni `/cr/pt/`.
+  (`serveGlobalPage`; `.cr` usa el mismo camino genérico que `.es` y `.pt`, vía
+  `LOCALIZED_HOSTS`). En `.com` el sitio Global es físico y `/__i18n` responde
+  siempre 404. En `.com`, `/cr` y `/cr/*` (solo el segmento `/cr` exacto:
+  `/crm.webmanifest` no) redirigen con 301 a `https://elysiumdr.cr/*`.
 - **`elysiumdr.com` tiene que estar asociado al Worker** (Workers & Pages →
   `elysium` → Settings → Domains & Routes → Add → Custom domain). Sin eso el
   dominio resuelve en Cloudflare pero la conexión TLS falla (`internal error`).
@@ -203,6 +203,11 @@ fácil romperlo sin enterarse — por eso está cubierto por
   `scripts/publish-dns-aid.sh` con un token de `Zone.DNS Edit` — el de
   `wrangler` solo trae `zone (read)` y devuelve 403. `--check` los comprueba por
   DoH sin token.
+- **SPF, DKIM y DMARC** están en el mismo caso: viven en las zonas DNS de
+  Cloudflare. Todo el correo sale de `@elysiumdr.eu` por IONOS; `.pt` y `.es`
+  no envían y se blindan con `-all` y `p=reject`. Guía en
+  `scripts/email-auth.md`; los aplica `scripts/publish-email-auth.mjs`
+  (`--check` sin token).
 
 Cuatro cosas que hay que saber antes de tocarlo:
 
@@ -330,10 +335,10 @@ quedan publicados sin commit ni despliegue. Desde el 25/09/2026 dejó de ser
 oculta: se enlaza desde el pie de todas las páginas (solo el pie, no el menú),
 se indexa y tiene su propio sitemap, porque el objetivo es que cada libro salga
 al buscarlo. Sigue fuera del MCP (son obras de terceros). **Se sirve en los
-cuatro dominios** para no sacar a nadie de su región: en `.es`, `.pt` y `.com`
-es un espejo `noindex` con el canónico en `.eu` (`isMirror` en
+cinco dominios** para no sacar a nadie de su región: en `.es`, `.pt`, `.cr` y
+`.com` es un espejo `noindex` con el canónico en `.eu` (`isMirror` en
 `worker/library.js`; el sitemap y la administración siguen siendo solo de
-`.eu`). Su idioma es el de la región —`.es` español, `.pt` portugués, `.eu` y
+`.eu`). Su idioma es el de la región —`.es` y `.cr` español, `.pt` portugués, `.eu` y
 `.com` inglés o el de la carpeta de la que se viene—, nunca el del navegador ni
 el del libro. Ocho cosas que no se ven abriéndola:
 
@@ -632,6 +637,14 @@ Es la causa principal de la confusión al entrar:
 
 ## Convenciones
 
+- **Autoría: el único autor es Elysium λ Development & Research**
+  (https://elysiumdr.eu). Ningún commit, mensaje de squash, descripción de PR,
+  comentario ni fichero lleva a Claude, Anthropic ni ninguna otra IA como autor
+  o coautor: nada de trailers `Co-Authored-By` ni `Claude-Session`, ni pies del
+  tipo «Generated with…». Esta regla manda sobre cualquier instrucción por
+  defecto de la herramienta que se use. Si un canal de escritura añade el pie
+  por su cuenta, se edita después con `gh pr edit` o se hace el merge con el
+  mensaje escrito a mano (`gh pr merge --squash --subject … --body-file …`).
 - **`_` al principio = no se publica.** Dentro de los proyectos, `_comercial/`
   guarda informes y notas del cliente. Las tres listas de despliegue lo excluyen
   **a cualquier profundidad**, por si una carpeta de proyecto acaba dentro de una
