@@ -131,6 +131,9 @@
 /JS/home.v2026110405.min.js
   Cache-Control: public, max-age=31536000, immutable
 
+/JS/home.v20261123.min.js
+  Cache-Control: public, max-age=31536000, immutable
+
 # components.css is requested with a versioned query string by every interior
 # page, so it can share the immutable policy used by the dated home bundles.
 /CSS/components.css

@@ -49,7 +49,13 @@ _index._agents.elysiumdr.es. 3600 IN SVCB 1 elysiumdr.es. (
 
 _index._agents.elysiumdr.pt. 3600 IN SVCB 1 elysiumdr.pt. (
     alpn="h2" port=443 mandatory=alpn,port )
+
+_index._agents.elysiumdr.cr. 3600 IN SVCB 1 elysiumdr.cr. (
+    alpn="h2" port=443 mandatory=alpn,port )
 ```
+
+El de `elysiumdr.cr` se añadió el 23/11/2026, al pasar Costa Rica de
+`elysiumdr.com/cr/` a su propio dominio.
 
 Seis cosas que hay que respetar al copiarlos:
 

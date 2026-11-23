@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-export const HOSTS = ['elysiumdr.eu', 'elysiumdr.es', 'elysiumdr.pt', 'elysiumdr.com', 'www.elysiumdr.eu'];
+export const HOSTS = ['elysiumdr.eu', 'elysiumdr.es', 'elysiumdr.pt', 'elysiumdr.cr', 'elysiumdr.com', 'www.elysiumdr.eu'];
 
 const TYPES = {
     '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',

@@ -2,7 +2,7 @@
  * Elysium — traducción dinámica de los sitios nacionales.
  *
  * Este fichero tiene un límite deliberado: solo actúa en elysiumdr.es,
- * elysiumdr.pt y elysiumdr.com/cr/. El dominio europeo usa documentos físicos
+ * elysiumdr.pt y elysiumdr.cr. El dominio europeo usa documentos físicos
  * (/ , /es/ y /pt/) para sus tres idiomas nativos y no pasa por aquí; sus otros
  * 22 idiomas los traduce en vivo `JS/elysium-translate.js` (Google Website
  * Translator), que a su vez solo actúa en `.eu`.
@@ -694,6 +694,7 @@
         const pathname = window.location.pathname || '/';
         if (hostname === 'elysiumdr.es') return { nativeLanguage: 'es', region: 'ES', isLocal: false };
         if (hostname === 'elysiumdr.pt') return { nativeLanguage: 'pt', region: 'PT', isLocal: false };
+        if (hostname === 'elysiumdr.cr') return { nativeLanguage: 'es', region: 'CR', isLocal: false };
         if ((hostname === 'elysiumdr.com' || hostname === 'www.elysiumdr.com') && (pathname === '/cr' || pathname.startsWith('/cr/'))) {
             return { nativeLanguage: 'es', region: 'CR', isLocal: false };
         }

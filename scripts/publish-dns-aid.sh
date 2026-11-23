@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Publica los registros DNS-AID (`_index._agents`) en las tres zonas de Elysium.
+# Publica los registros DNS-AID (`_index._agents`) en las zonas de Elysium (.eu, .es, .pt y .cr).
 #
 # Es la única pieza del descubrimiento por agentes que NO viaja en el push: los
 # registros viven en la zona DNS de Cloudflare, no en el repositorio, así que un
@@ -8,10 +8,10 @@
 # trampas de la RFC 9460— están en «scripts/dns-aid.md»; este script es solo la
 # forma de aplicarlo sin copiar tres veces a mano el mismo valor en el panel.
 #
-# Hace falta un token de API con **Zone.DNS Edit** sobre las tres zonas. El de
+# Hace falta un token de API con **Zone.DNS Edit** sobre las cuatro zonas. El de
 # `wrangler` NO vale: solo trae `zone (read)`, y la creación devuelve 403.
 # Se saca en Cloudflare → My Profile → API Tokens → Create Token → «Edit zone
-# DNS», y se le añaden las tres zonas en «Zone Resources».
+# DNS», y se le añaden las cuatro zonas en «Zone Resources».
 #
 # Uso:
 #   CF_DNS_TOKEN=… ./scripts/publish-dns-aid.sh          # crea o corrige
@@ -25,10 +25,10 @@
 #
 set -euo pipefail
 
-ZONES=(elysiumdr.eu elysiumdr.es elysiumdr.pt)
+ZONES=(elysiumdr.eu elysiumdr.es elysiumdr.pt elysiumdr.cr)
 TTL=3600
 
-# El valor es idéntico en las tres zonas salvo el destino, que es el ápice de
+# El valor es idéntico en todas las zonas salvo el destino, que es el ápice de
 # cada una. Se construye por zona, no como constante, para que no se cuele el
 # destino europeo en la zona portuguesa.
 #

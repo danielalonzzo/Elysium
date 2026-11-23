@@ -136,7 +136,8 @@ export function toolsRedirectTarget(pathname, nationalLanguage = null) {
     const match = /^\/(?:(es|pt|cr)\/)?tools(?:\/|\.html$|$)/.exec(pathname);
     if (!match) return null;
     const prefix = match[1] === 'cr' ? 'es' : match[1];
-    const language = prefix || (['es', 'pt'].includes(nationalLanguage) ? nationalLanguage : 'en');
+    const native = nationalLanguage === 'cr' ? 'es' : nationalLanguage;
+    const language = prefix || (['es', 'pt'].includes(native) ? native : 'en');
     return `${TOOLS_ORIGIN}${language === 'en' ? '/' : `/${language}/`}`;
 }
 

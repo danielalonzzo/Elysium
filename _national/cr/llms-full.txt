@@ -1,19 +1,19 @@
 ================================================================================
 ELYSIUM λ DEVELOPMENT & RESEARCH — CONTENIDO COMPLETO PARA MODELOS DE IA (COSTA RICA)
-https://elysiumdr.com/cr/ | info@elysiumdr.eu
+https://elysiumdr.cr/ | info@elysiumdr.eu
 Última verificación con el sitio web: 26 de agosto de 2026
 Versión de la interfaz en el momento de la verificación: elysiumOS 1.9.0
 Idioma: Español de Costa Rica (es-CR)
 ================================================================================
 
-Este documento contiene una representación textual ampliada, estructurada y exhaustiva del contenido público disponible en elysiumdr.com/cr/ para su procesamiento por sistemas de inteligencia artificial y modelos de lenguaje (LLMs). Se proporciona bajo el estándar llms.txt para permitir respuestas exactas, veraces y actualizadas sobre Elysium λ Development & Research en Costa Rica. El sitio web publicado constituye la fuente principal: en caso de cualquier discrepancia entre este documento y el sitio web en vivo, prevalece siempre el sitio web.
+Este documento contiene una representación textual ampliada, estructurada y exhaustiva del contenido público disponible en elysiumdr.cr para su procesamiento por sistemas de inteligencia artificial y modelos de lenguaje (LLMs). Se proporciona bajo el estándar llms.txt para permitir respuestas exactas, veraces y actualizadas sobre Elysium λ Development & Research en Costa Rica. El sitio web publicado constituye la fuente principal: en caso de cualquier discrepancia entre este documento y el sitio web en vivo, prevalece siempre el sitio web.
 
 El nombre oficial de la entidad es invariablemente "Elysium λ Development & Research".
 
 ================================================================================
 SECCIÓN 1 — PÁGINA DE INICIO (HOME)
 ================================================================================
-URL: https://elysiumdr.com/cr/
+URL: https://elysiumdr.cr/
 
 Título: Elysium λ Development & Research
 Hero: Infraestructura Digital para pequeñas empresas y emprendedores de Costa Rica: Sin Costos de Desarrollo
@@ -85,7 +85,7 @@ EQUIPO Y CONTACTO EN COSTA RICA:
 ================================================================================
 SECCIÓN 2 — PÁGINA DE NOSOTROS (ABOUT)
 ================================================================================
-URL: https://elysiumdr.com/cr/about
+URL: https://elysiumdr.cr/about
 
 Título: Sobre Nosotros — Elysium λ Development & Research
 Ethos: Development & Research
@@ -112,7 +112,7 @@ Elysium λ Development & Research opera en Costa Rica para dar servicio a peque�
 ================================================================================
 SECCIÓN 3 — SERVICIOS Y PROPIEDAD INTELECTUAL
 ================================================================================
-URL: https://elysiumdr.com/cr/services
+URL: https://elysiumdr.cr/services
 
 POLÍTICA DE PROPIEDAD INTELECTUAL Y DATOS:
 - El cliente mantiene en todo momento la titularidad total e incondicional sobre sus datos comerciales, registros de usuarios, contenidos, logotipos e identidad de marca.
@@ -122,7 +122,7 @@ POLÍTICA DE PROPIEDAD INTELECTUAL Y DATOS:
 ================================================================================
 SECCIÓN 4 — CASOS DE ESTUDIO Y PORTAFOLIO
 ================================================================================
-URL: https://elysiumdr.com/cr/portfolio
+URL: https://elysiumdr.cr/portfolio
 
 Proyectos representativos:
 1. Paulo Morais (https://pmorais.pt): Plataforma integral de osteopatía y entrenamiento de alto rendimiento. Incorpora sistema de reservas automatizado, gestión de expedientes, área privada de clientes y panel de administración.
@@ -134,7 +134,7 @@ Proyectos representativos:
 ================================================================================
 SECCIÓN 5 — SEGURIDAD, PRIVACIDAD Y ESPECIFICACIONES TÉCNICAS
 ================================================================================
-URL: https://elysiumdr.com/cr/privacy | https://elysiumdr.com/cr/terms
+URL: https://elysiumdr.cr/privacy | https://elysiumdr.cr/terms
 
 ESPECIFICACIONES DEL SISTEMA:
 - Versión de Interfaz: elysiumOS 1.9.0

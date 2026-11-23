@@ -30,11 +30,12 @@
     var SUPPORTED = ['en', 'es', 'pt'];
     var ADMIN_HINT_KEY = 'elysium_library_admin';
 
-    // La región es la del dominio (y `/cr/` o `?region=CR` para Costa Rica).
+    // La región es la del dominio (y, en `.com`, `/cr/` o `?region=CR` para Costa Rica).
     var HOSTNAME = window.location.hostname.toLowerCase();
     var NATIONAL = /(?:^|\.)elysiumdr\.(es|pt)$/.exec(HOSTNAME);
     var IS_GLOBAL = /(?:^|\.)elysiumdr\.com$/.test(HOSTNAME);
-    var IS_COSTA_RICA = (function () {
+    var IS_COSTA_RICA_DOMAIN = /(?:^|\.)elysiumdr\.cr$/.test(HOSTNAME);
+    var IS_COSTA_RICA = IS_COSTA_RICA_DOMAIN || (function () {
         var params = new URLSearchParams(window.location.search);
         if (params.get('region') === 'CR' || params.get('national') === 'cr') return true;
         try {
@@ -486,8 +487,14 @@
     }
 
     function localizedPath(page) {
-        // En Costa Rica (`elysiumdr.com/cr/`), el idioma también se recuerda en
-        // `elysium_lang_pref` y las rutas públicas vuelven a `/cr/…`.
+        // En `elysiumdr.cr` el idioma no vive en la URL, como en `.es` y `.pt`.
+        if (IS_COSTA_RICA_DOMAIN) {
+            if (page === 'profiles') return '/profiles';
+            return page ? '/' + page : '/';
+        }
+        // En la sección antigua de Costa Rica (`.com` con `?region=CR`), el
+        // idioma también se recuerda en `elysium_lang_pref` y las rutas
+        // públicas vuelven a `/cr/…`.
         if (IS_COSTA_RICA) {
             if (page === 'profiles') return '/profiles?lang=' + language + '&region=CR';
             return page ? '/cr/' + page : '/cr/';
@@ -615,7 +622,7 @@
         var url = '/library/' + encodeURIComponent(slug);
         var query = [];
         if (language !== 'en') query.push('lang=' + language);
-        if (IS_COSTA_RICA) query.push('region=CR');
+        if (IS_COSTA_RICA && !IS_COSTA_RICA_DOMAIN) query.push('region=CR');
         return query.length ? url + '?' + query.join('&') : url;
     }
 

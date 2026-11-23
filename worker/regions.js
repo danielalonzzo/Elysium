@@ -4,7 +4,7 @@ const HOMES = {
     EU: 'https://elysiumdr.eu/',
     ES: 'https://elysiumdr.es/',
     PT: 'https://elysiumdr.pt/',
-    CR: 'https://elysiumdr.com/cr/',
+    CR: 'https://elysiumdr.cr/',
     GLOBAL: 'https://elysiumdr.com/'
 };
 
@@ -28,7 +28,8 @@ export function regionForUrl(url, pathname = url.pathname) {
         case 'elysiumdr.eu': return 'EU';
         case 'elysiumdr.es': return 'ES';
         case 'elysiumdr.pt': return 'PT';
-        case 'elysiumdr.com': return /^\/cr(?:\/|$)/.test(pathname) ? 'CR' : 'GLOBAL';
+        case 'elysiumdr.cr': return 'CR';
+        case 'elysiumdr.com': return 'GLOBAL';
         default: return null;
     }
 }
