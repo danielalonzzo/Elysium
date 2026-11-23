@@ -61,7 +61,8 @@ const localNationalSite = ['localhost', '127.0.0.1', '::1'].includes(currentHost
     ? languageParams.get('national')
     : null;
 const isGlobalDomain = currentHostname === 'elysiumdr.com' || currentHostname === 'www.elysiumdr.com';
-const isCostaRicaRegion = localNationalSite === 'cr' || ((isGlobalDomain || ['localhost', '127.0.0.1', '::1'].includes(currentHostname)) && languageParams.get('region') === 'CR');
+const isCostaRicaDomain = currentHostname === 'elysiumdr.cr' || currentHostname === 'www.elysiumdr.cr';
+const isCostaRicaRegion = isCostaRicaDomain || localNationalSite === 'cr' || ((isGlobalDomain || ['localhost', '127.0.0.1', '::1'].includes(currentHostname)) && languageParams.get('region') === 'CR');
 const nationalLanguage = currentHostname === 'elysiumdr.es' || currentHostname === 'www.elysiumdr.es'
     ? 'es'
     : currentHostname === 'elysiumdr.pt' || currentHostname === 'www.elysiumdr.pt'
@@ -153,14 +154,14 @@ let locale = localeForLanguage(currentLang);
 
 function localizedPath(path = '', language = currentLang) {
     const clean = String(path || '').replace(/^\/+|\/+$/g, '');
-    if (currentRegion === 'CR') return clean ? `/cr/${clean}` : '/cr/';
+    if (currentRegion === 'CR' && !isCostaRicaDomain) return clean ? `/cr/${clean}` : '/cr/';
     const base = clean ? `/${clean}` : '/';
     if (isNationalDomain) return base;
     return language === 'en' ? base : `/${language}${base}`;
 }
 
 function localizedProfilePath(language = currentLang) {
-    if (currentRegion === 'CR') return `/profiles?lang=${language}&region=CR`;
+    if (currentRegion === 'CR' && !isCostaRicaDomain) return `/profiles?lang=${language}&region=CR`;
     if (isNationalDomain) return '/profiles';
     return language === 'en' ? '/profiles' : `/profiles?lang=${language}`;
 }

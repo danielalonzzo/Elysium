@@ -239,14 +239,14 @@ export function isLibraryPath(pathname) {
 }
 
 /**
- * La biblioteca se sirve en los cuatro dominios para que quien la abre desde
- * España, Portugal o el sitio global siga en SU región y en su idioma. Pero
+ * La biblioteca se sirve en los cinco dominios para que quien la abre desde
+ * España, Portugal, Costa Rica o el sitio global siga en SU región y en su idioma. Pero
  * existe en un solo origen a efectos de buscadores y de administración: los
  * libros son los mismos, y `.eu` es el canónico (las plantillas ya lo declaran)
  * y el único que publica, avisa a IndexNow y anuncia su sitemap. Las páginas de
- * los otros tres dominios son un espejo: `noindex`.
+ * los otros cuatro dominios son un espejo: `noindex`.
  */
-const MIRROR_HOSTS = new Set(['elysiumdr.es', 'elysiumdr.pt', 'elysiumdr.com']);
+const MIRROR_HOSTS = new Set(['elysiumdr.es', 'elysiumdr.pt', 'elysiumdr.cr', 'elysiumdr.com']);
 
 export function isMirror(url) {
     return MIRROR_HOSTS.has(url.hostname.toLowerCase());

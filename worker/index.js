@@ -5,7 +5,7 @@
  * cosas, y nada más:
  *
  *   1. Sugiere una región según el país en los cinco sitios públicos.
- *   2. Sirve los dominios nacionales (`.es`, `.pt`) en su idioma sin que la URL
+ *   2. Sirve los dominios nacionales (`.es`, `.pt`, `.cr`) en su idioma sin que la URL
  *      lleve prefijo: `elysiumdr.es/services` entrega la base interna
  *      `_national/es/services.html`, separada del español de Europa en
  *      `es/services.html` que publica el dominio europeo. `elysiumdr.com`, el
@@ -44,13 +44,25 @@ const TOOLS_API_PREFIX = '/api/tools/';
 
 // ── Dominios nacionales ───────────────────────────────────────────────────────
 
-const GLOBAL_ORIGIN = 'https://elysiumdr.com';
+const COSTA_RICA_ORIGIN = 'https://elysiumdr.cr';
 
 /** Solo el ápice: los `www.` se redirigen antes de llegar hasta aquí (paso 0). */
 const LOCALIZED_HOSTS = new Map([
     ['elysiumdr.com', 'com'],
     ['elysiumdr.es', 'es'],
-    ['elysiumdr.pt', 'pt']
+    ['elysiumdr.pt', 'pt'],
+    ['elysiumdr.cr', 'cr']
+]);
+
+/**
+ * El idioma propio de cada dominio nacional. `.cr` es el único cuya clave no
+ * es su idioma: publica español de Costa Rica, así que `/es/…` es su idioma
+ * nativo y no una traducción.
+ */
+const NATIVE_LANGUAGES = new Map([
+    ['es', 'es'],
+    ['pt', 'pt'],
+    ['cr', 'es']
 ]);
 
 /**
@@ -169,8 +181,8 @@ function serveRegionSuggestion(request, url) {
 
 /**
  * `elysiumdr.com` (el sitio global) es físico, como `.eu`: tres carpetas con las
- * mismas páginas (`/`, `/es/`, `/pt/`), mientras que Costa Rica vive bajo `/cr/`
- * con una única versión física en español de Costa Rica y traducción dinámica.
+ * mismas páginas (`/`, `/es/`, `/pt/`). Costa Rica, con una única versión física
+ * en español de Costa Rica y traducción dinámica, vive en `elysiumdr.cr`.
  */
 const GLOBAL_FOLDERS = ['', 'es', 'pt'];
 const GLOBAL_PAGES = new Map(GLOBAL_FOLDERS.map(folder => [
@@ -197,7 +209,7 @@ const NATIONAL_SITEMAP_EXCLUSIONS = new Map([
 /**
  * Las landings regionales heredadas duplicaban la portada nacional y no
  * disponían de traducciones completas. Se conservan como redirecciones
- * canónicas: Costa Rica vive en `elysiumdr.com/cr/`; España y Portugal, en sus dominios.
+ * canónicas: España, Portugal y Costa Rica viven en sus dominios.
  */
 const COSTA_RICA_LANDING = 'infraestructura-digital-pymes-costa-rica';
 const REGIONAL_LANDING_SLUGS = new Set([
@@ -261,13 +273,6 @@ function canonicalI18nPage(rawPath) {
     return rawPath.slice(1);
 }
 
-function canonicalCostaRicaI18nPage(rawPath) {
-    if (typeof rawPath !== 'string') return null;
-    if (rawPath === '/cr/' || rawPath === '/cr') return '';
-    if (!rawPath.startsWith('/cr/')) return null;
-    return canonicalI18nPage(rawPath.slice(3));
-}
-
 function isPrivateNationalPath(pathname) {
     let decoded = pathname;
     try {
@@ -287,18 +292,14 @@ function isPrivateNationalPath(pathname) {
 
 /**
  * Entrega a `elysium-i18n.js` una versión física europea de la página
- * nacional actual (`.es`, `.pt` o la sección `/cr/` de `.com`). La llamada
+ * nacional actual (`.es`, `.pt` o `.cr`). La llamada
  * sigue siendo same-origin y no redirige: solo la petición interna al binding
  * apunta a `/`, `/es/` o `/pt/`.
  */
 async function serveI18nPage(request, env, url, nationalLanguage) {
     const paths = url.searchParams.getAll('path');
-    if (nationalLanguage === 'com') {
-        const targetsCostaRica = paths.some(p => p === '/cr' || p.startsWith('/cr/'));
-        if (!targetsCostaRica) {
-            return plainError(request, 404, 'Not found.');
-        }
-    }
+    // `.com` es físico: su selector navega entre carpetas y no traduce.
+    if (nationalLanguage === 'com') return plainError(request, 404, 'Not found.');
 
     if (request.method !== 'GET' && request.method !== 'HEAD') {
         return plainError(request, 405, 'Method not allowed.', 'GET, HEAD');
@@ -311,10 +312,8 @@ async function serveI18nPage(request, env, url, nationalLanguage) {
         return plainError(request, 400, 'Expected one valid lang and one canonical path.');
     }
 
-    const effectiveLanguage = nationalLanguage === 'com' ? 'cr' : nationalLanguage;
-    const page = effectiveLanguage === 'cr'
-        ? canonicalCostaRicaI18nPage(paths[0])
-        : canonicalI18nPage(paths[0]);
+    const effectiveLanguage = nationalLanguage;
+    const page = canonicalI18nPage(paths[0]);
     if (page === null) {
         return plainError(request, 400, 'The path is not canonical.');
     }
@@ -367,7 +366,7 @@ function seoResponse(request, body, contentType) {
     });
 }
 
-/** Sitemap propio de `.es`/`.pt`/`.com` (y `/cr/sitemap.xml`): jamás publica canónicas de otro dominio. */
+/** Sitemap propio de `.es`/`.pt`/`.cr`/`.com`: jamás publica canónicas de otro dominio. */
 function serveNationalSitemap(request, url, language) {
     if (request.method !== 'GET' && request.method !== 'HEAD') {
         return plainError(request, 405, 'Method not allowed.', 'GET, HEAD');
@@ -396,15 +395,9 @@ function serveNationalSitemap(request, url, language) {
                 }
                 return `  <url><loc>${location(folder, page)}</loc>${links.join('')}</url>`;
             }));
-        const crExcluded = NATIONAL_SITEMAP_EXCLUSIONS.get('cr');
-        const crEntries = [...LOCALIZED_PAGES.get('cr')]
-            .filter(page => !page.endsWith('.txt') && !NATIONAL_NOINDEX_PAGES.has(page) && !crExcluded.has(page))
-            .map(page => `  <url><loc>${page ? `${origin}/cr/${page}` : `${origin}/cr/`}</loc></url>`);
-        entries = [...globalEntries, ...crEntries];
-    } else if (language === 'cr') {
-        entries = [...LOCALIZED_PAGES.get('cr')]
-            .filter(page => !NATIONAL_NOINDEX_PAGES.has(page) && !excluded.has(page))
-            .map(page => `  <url><loc>${page ? `${origin}/cr/${page}` : `${origin}/cr/`}</loc></url>`);
+        // Costa Rica ya no vive en `.com/cr/`: sus URL las publica el sitemap
+        // de `elysiumdr.cr`.
+        entries = globalEntries;
     } else {
         entries = [...LOCALIZED_PAGES.get(language)]
             .filter(page => !NATIONAL_NOINDEX_PAGES.has(page) && !excluded.has(page))
@@ -996,86 +989,9 @@ async function serveNationalAsset(request, env, url, target, { isText = false } 
 }
 
 /**
- * La sección regional de Costa Rica (`elysiumdr.com/cr/`): igual que `.es` y
- * `.pt`, vive en una única versión física en español de Costa Rica bajo
- * `/_national/cr/`, mientras que inglés británico (`en-GB`) y portugués europeo
- * (`pt-PT`) funcionan dinámicamente in-place sobre la misma URL (`/cr/...`).
- */
-async function serveCostaRicaPage(request, env, url) {
-    const pathname = url.pathname;
-    if (pathname === '/cr') {
-        return redirect(`${url.origin}/cr/${url.search}`, 307);
-    }
-    if (pathname === '/cr/sitemap.xml') {
-        return serveNationalSitemap(request, url, 'cr');
-    }
-    if (pathname === '/cr/profiles' || pathname === '/cr/profiles/' || pathname === '/cr/profiles.html') {
-        const target = new URL('/profiles', url.origin);
-        url.searchParams.forEach((value, key) => target.searchParams.append(key, value));
-        if (!target.searchParams.has('lang')) target.searchParams.set('lang', 'es');
-        if (!target.searchParams.has('region')) target.searchParams.set('region', 'CR');
-        return Response.redirect(target, 308);
-    }
-    if (pathname === '/cr/admin' || pathname === '/cr/admin/' || pathname === '/cr/admin.html') {
-        const target = new URL('/admin', url.origin);
-        url.searchParams.forEach((value, key) => target.searchParams.append(key, value));
-        if (!target.searchParams.has('lang')) target.searchParams.set('lang', 'es');
-        return Response.redirect(target, 308);
-    }
-    if (/^\/cr\/library(?:\.html)?(?:\/|$)/.test(pathname)) {
-        const target = new URL(pathname.slice(3), url.origin);
-        url.searchParams.forEach((value, key) => target.searchParams.append(key, value));
-        if (!target.searchParams.has('region')) target.searchParams.set('region', 'CR');
-        return redirect(target.toString(), 301);
-    }
-    if (pathname === '/cr/index' || pathname === '/cr/index.html') {
-        return redirect(`${url.origin}/cr/${url.search}`, 301);
-    }
-
-    const restPath = pathname.slice(3); // starts with '/'
-    const pages = LOCALIZED_PAGES.get('cr');
-    const hasTrailingSlash = restPath.length > 1 && restPath.endsWith('/');
-    const page = restPath.replace(/^\//, '').replace(/\/$/, '');
-
-    if (page.endsWith('.html')) {
-        const extensionless = page.slice(0, -5);
-        if (pages.has(extensionless)) {
-            return redirect(`${url.origin}/cr/${extensionless}${url.search}`, 301);
-        }
-    }
-
-    if (pages.has(page)) {
-        if (hasTrailingSlash) {
-            return redirect(`${url.origin}${pathname.slice(0, -1)}${url.search}`, 307);
-        }
-        const base = NATIONAL_ASSET_BASES.get('cr');
-        return serveNationalAsset(request, env, url, page === '' ? `${base}/` : `${base}/${page}`, {
-            isText: page.endsWith('.txt')
-        });
-    }
-
-    // En Costa Rica (`elysiumdr.com/cr/`) el inglés británico y el portugués
-    // europeo no tienen carpetas físicas: se resuelven por función (`?lang=`).
-    const prefixed = /^\/(en|es|pt)(?:\/|$)/.exec(restPath);
-    if (prefixed) {
-        const prefix = prefixed[1];
-        const inner = restPath.slice(prefix.length + 1) || '/';
-        const target = new URL(`/cr${inner}`, url.origin);
-        url.searchParams.forEach((value, key) => target.searchParams.append(key, value));
-        if (prefix === 'es') target.searchParams.delete('lang');
-        else target.searchParams.set('lang', prefix);
-        return redirect(target.toString(), prefix === 'es' ? 301 : 302, {
-            cacheable: prefix === 'es'
-        });
-    }
-
-    return null;
-}
-
-/**
  * El sitio global (`elysiumdr.com`): inglés europeo en `/`, español de Costa
- * Rica en `/es/`, portugués de Portugal en `/pt/`, y la sección regional de
- * Costa Rica en `/cr/` (`/_national/cr/`). Las mismas URL y la misma
+ * Rica en `/es/` y portugués de Portugal en `/pt/` (`/cr/` redirige a
+ * `elysiumdr.cr` antes de llegar aquí). Las mismas URL y la misma
  * canonización que `.eu` (`/es` → `/es/`, sin `.html`, sin barra final), pero
  * con sus páginas propias bajo `/_national/com/`.
  *
@@ -1084,10 +1000,6 @@ async function serveCostaRicaPage(request, env, url) {
  */
 async function serveGlobalPage(request, env, url) {
     const pathname = url.pathname;
-
-    if (pathname === '/cr' || pathname.startsWith('/cr/')) {
-        return serveCostaRicaPage(request, env, url);
-    }
 
     // El inglés vive en la raíz: `/en/...` es un alias heredado.
     if (pathname === '/en' || pathname.startsWith('/en/')) {
@@ -1160,6 +1072,16 @@ export default {
             return isPublicHost ? serveRegionSuggestion(request, url) : plainError(request, 404, 'Not found.');
         }
 
+        // Costa Rica vivía en `elysiumdr.com/cr/` y desde el 23/11/2026 tiene
+        // dominio propio, `elysiumdr.cr`. `/cr` y `/cr/*` de `.com` van allí
+        // con 301, con la misma ruta sin el prefijo y el mismo query string;
+        // en `.cr`, un enlace viejo que conserve el prefijo se resuelve igual.
+        // Solo el segmento `cr` exacto: `/crm.webmanifest` o `/cr-algo` no
+        // son la sección y siguen su camino.
+        if ((host === 'elysiumdr.com' || host === 'elysiumdr.cr') && /^\/cr(?:\/|$)/.test(url.pathname)) {
+            return redirect(`${COSTA_RICA_ORIGIN}${url.pathname.slice(3) || '/'}${url.search}`, 301);
+        }
+
         // `/tools` en cualquier dominio de la empresa lleva al subdominio, en su
         // idioma. Las páginas viven en `tools/` pero solo se sirven allí.
         const toolsTarget = toolsRedirectTarget(url.pathname, nationalLanguage);
@@ -1168,11 +1090,11 @@ export default {
         // La página personal se llamaba `/daniel-morales` y pasó a
         // `/danielalonzzo` (17/11/2026). La vieja está enlazada desde correos ya
         // enviados e indexada, así que se conserva con un 301 en los cinco
-        // sitios, con el prefijo de carpeta que traiga (`/es`, `/pt`, `/cr`).
+        // sitios, con el prefijo de carpeta que traiga (`/es`, `/pt`).
         // Va aquí y no en `_redirects` porque en `.es`, `.pt` y `.com` el Worker
         // sirve las páginas sin pasar por los assets.
         const legacyProfile = isPublicHost
-            && /^((?:\/(?:es|pt|cr))?)\/daniel-morales(?:\.html)?\/?$/.exec(url.pathname);
+            && /^((?:\/(?:es|pt))?)\/daniel-morales(?:\.html)?\/?$/.exec(url.pathname);
         if (legacyProfile) {
             return redirect(`${url.origin}${legacyProfile[1]}/danielalonzzo${url.search}`, 301);
         }
@@ -1180,44 +1102,39 @@ export default {
         // Este prototipo administrativo solo existe como documento de trabajo
         // en español de Costa Rica. No se publica como si fuera una página
         // nacional española o portuguesa.
-        if (nationalLanguage && /^(?:\/cr)?\/prototype-selva-y-sal(?:\.html)?\/?$/.test(url.pathname)) {
-            const crPrefix = nationalLanguage === 'com' && url.pathname.startsWith('/cr/') ? '/cr' : '';
-            return redirect(`${url.origin}${crPrefix}/portfolio${url.search}`, 301);
+        if (nationalLanguage && /^\/prototype-selva-y-sal(?:\.html)?\/?$/.test(url.pathname)) {
+            return redirect(`${url.origin}/portfolio${url.search}`, 301);
         }
 
         // Elysium Patrimonio vive en un solo origen. En `.es` o `.pt` sería otra
         // app a ojos del navegador: otro service worker, otra caché sin conexión
         // y otra sesión de Firebase, y el dominio tendría que estar autorizado en
         // Auth. El fragmento (`#/metas`) lo conserva el navegador al redirigir.
-        if (nationalLanguage && /^(?:\/cr)?\/Gestor-Patrimonios(?:\/|$)/.test(url.pathname)) {
-            const patrimonioPath = url.pathname.startsWith('/cr/') ? url.pathname.slice(3) : url.pathname;
-            return redirect(`https://elysiumdr.eu${patrimonioPath}${url.search}`, 301);
+        if (nationalLanguage && /^\/Gestor-Patrimonios(?:\/|$)/.test(url.pathname)) {
+            return redirect(`https://elysiumdr.eu${url.pathname}${url.search}`, 301);
         }
 
         // La biblioteca (`/library`, ver `worker/library.js`) se sirve en los
-        // cuatro dominios: quien la abre desde `.es`, `.pt` o `.com` sigue en su
+        // cinco dominios: quien la abre desde `.es`, `.pt`, `.cr` o `.com` sigue en su
         // región y en su idioma (antes saltaba a `.eu`, en la región y el idioma
         // equivocados). Va antes que la localización para que ningún dominio
         // nacional la busque en `_national/`. Los libros son los mismos y `.eu`
-        // sigue siendo el canónico; los otros tres son un espejo `noindex`.
+        // sigue siendo el canónico; los otros cuatro son un espejo `noindex`.
         if (isLibraryPath(url.pathname)) return handleLibrary(request, env, url, ctx);
 
         // `/p` fue un duplicado temporal de portfolio. Canonizarlo en el mismo
         // host evita que los dominios nacionales sirvan la copia inglesa y que
         // el selector de idioma quede sin propietario.
-        const legacyPortfolio = /^\/(cr\/)?(?:(en|es|pt)\/)?p(?:\.html)?\/?$/.exec(url.pathname);
-        if (isPublicHost && legacyPortfolio && (!legacyPortfolio[1] || host === 'elysiumdr.com')) {
-            const isCostaRicaSection = Boolean(legacyPortfolio[1]);
-            const requestedPrefix = legacyPortfolio[2];
-            const prefix = isCostaRicaSection
-                ? '/cr'
-                : host === 'elysiumdr.eu' && ['es', 'pt'].includes(requestedPrefix)
-                    ? `/${requestedPrefix}`
-                    : '';
+        const legacyPortfolio = /^\/(?:(en|es|pt)\/)?p(?:\.html)?\/?$/.exec(url.pathname);
+        if (isPublicHost && legacyPortfolio) {
+            const requestedPrefix = legacyPortfolio[1];
+            const prefix = host === 'elysiumdr.eu' && ['es', 'pt'].includes(requestedPrefix)
+                ? `/${requestedPrefix}`
+                : '';
             const target = new URL(`${prefix}/portfolio`, url.origin);
             url.searchParams.forEach((value, key) => target.searchParams.append(key, value));
-            const nativeLang = isCostaRicaSection ? 'es' : nationalLanguage;
-            const isForeignNationalLanguage = (isCostaRicaSection || (Boolean(nationalLanguage) && nationalLanguage !== 'com'))
+            const nativeLang = NATIVE_LANGUAGES.get(nationalLanguage) || nationalLanguage;
+            const isForeignNationalLanguage = Boolean(nationalLanguage) && nationalLanguage !== 'com'
                 && ['en', 'es', 'pt'].includes(requestedPrefix)
                 && requestedPrefix !== nativeLang;
             if (isForeignNationalLanguage) target.searchParams.set('lang', requestedPrefix);
@@ -1232,7 +1149,7 @@ export default {
             const landing = landingMatch && landingMatch[1];
             if (landing && REGIONAL_LANDING_SLUGS.has(landing)) {
                 if (landing === COSTA_RICA_LANDING) {
-                    const target = new URL(`${GLOBAL_ORIGIN}/cr/`);
+                    const target = new URL(`${COSTA_RICA_ORIGIN}/`);
                     target.search = url.search;
                     return redirect(target.toString(), 301);
                 }
@@ -1260,8 +1177,8 @@ export default {
             return plainError(request, 404, 'Not found.');
         }
 
-        // Fuente HTML para la traducción dinámica de `.es`, `.pt` y la sección
-        // `/cr/` de `.com`. En `.eu` y en el resto de `.com` no existe porque
+        // Fuente HTML para la traducción dinámica de `.es`, `.pt` y `.cr`. En
+        // `.eu` y en `.com` no existe porque
         // sus idiomas son páginas físicas y el selector navega entre carpetas.
         if (url.pathname === I18N_PATH) {
             if (!nationalLanguage) return plainError(request, 404, 'Not found.');
@@ -1338,13 +1255,14 @@ export default {
             const prefixed = /^\/(en|es|pt)(?:\/|$)/.exec(url.pathname);
             if (prefixed) {
                 const prefix = prefixed[1];
+                const nativeLanguage = NATIVE_LANGUAGES.get(language);
                 const rest = url.pathname.slice(prefix.length + 1) || '/';
                 const target = new URL(rest, url.origin);
                 url.searchParams.forEach((value, key) => target.searchParams.append(key, value));
-                if (prefix === language) target.searchParams.delete('lang');
+                if (prefix === nativeLanguage) target.searchParams.delete('lang');
                 else target.searchParams.set('lang', prefix);
-                return redirect(target.toString(), prefix === language ? 301 : 302, {
-                    cacheable: prefix === language
+                return redirect(target.toString(), prefix === nativeLanguage ? 301 : 302, {
+                    cacheable: prefix === nativeLanguage
                 });
             }
 

@@ -358,7 +358,7 @@ test('el dominio nacional entrega su idioma en Markdown', async () => {
     const body = await response.text();
     assert.match(body, /Servicios|Servicio/);
 
-    const crResponse = await call('https://elysiumdr.com/cr/services', { headers: { Accept: 'text/markdown' } });
+    const crResponse = await call('https://elysiumdr.cr/services', { headers: { Accept: 'text/markdown' } });
     assert.equal(crResponse.headers.get('Content-Type'), 'text/markdown; charset=utf-8');
     const crBody = await crResponse.text();
     assert.match(crBody, /Servicios|Ley N\.º 8968/);

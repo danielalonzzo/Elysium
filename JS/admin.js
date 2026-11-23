@@ -1948,7 +1948,9 @@ const nativeAdminLanguage = adminHostname === 'elysiumdr.es' || adminHostname ==
     ? 'es'
     : adminHostname === 'elysiumdr.pt' || adminHostname === 'www.elysiumdr.pt'
         ? 'pt'
-        : localAdminNationalLanguage;
+        : adminHostname === 'elysiumdr.cr' || adminHostname === 'www.elysiumdr.cr'
+            ? 'es'
+            : localAdminNationalLanguage;
 const isNationalAdmin = Boolean(nativeAdminLanguage);
 const adminPathLanguage = !isNationalAdmin
     ? window.location.pathname.split('/').filter(Boolean)[0]

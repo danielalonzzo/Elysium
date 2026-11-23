@@ -140,9 +140,9 @@ test('el español lleva la bandera de su región: España en .eu y .es, Costa Ri
 
 test('canonical, hreflang y og:url de cada árbol apuntan a su propia ruta pública', () => {
     const origin = { 'eu-en': 'https://elysiumdr.eu', 'eu-es': 'https://elysiumdr.eu', 'eu-pt': 'https://elysiumdr.eu',
-        es: 'https://elysiumdr.es', pt: 'https://elysiumdr.pt', cr: 'https://elysiumdr.com',
+        es: 'https://elysiumdr.es', pt: 'https://elysiumdr.pt', cr: 'https://elysiumdr.cr',
         'com-en': 'https://elysiumdr.com', 'com-es': 'https://elysiumdr.com', 'com-pt': 'https://elysiumdr.com' };
-    const prefix = { 'eu-en': '', 'eu-es': '/es', 'eu-pt': '/pt', es: '', pt: '', cr: '/cr', 'com-en': '', 'com-es': '/es', 'com-pt': '/pt' };
+    const prefix = { 'eu-en': '', 'eu-es': '/es', 'eu-pt': '/pt', es: '', pt: '', cr: '', 'com-en': '', 'com-es': '/es', 'com-pt': '/pt' };
     for (const [key, dir] of TREES) {
         for (const page of PAGES) {
             const html = read(treeFile(dir, page));
@@ -204,7 +204,8 @@ test('los textos para modelos de lenguaje de cada sitio hablan de su región', (
     assert.match(read('_national/com/llms.txt'), /https:\/\/elysiumdr\.com\/llms-full\.txt/);
     assert.doesNotMatch(read('_national/com/llms.txt'), /https:\/\/elysiumdr\.eu\/(?!library|Gestor|VALTRIX)/);
     assert.match(read('_national/cr/llms.txt'), /\(Costa Rica\)/);
-    assert.match(read('_national/cr/llms.txt'), /https:\/\/elysiumdr\.com\/cr\/llms-full\.txt/);
+    assert.match(read('_national/cr/llms.txt'), /https:\/\/elysiumdr\.cr\/llms-full\.txt/);
+    assert.doesNotMatch(read('_national/cr/llms.txt'), /elysiumdr\.com\/cr/);
     assert.doesNotMatch(read('_national/cr/llms.txt'), /elysiumdr\.es/);
     assert.match(read('es/llms.txt'), /\(Europa\)/);
     assert.doesNotMatch(read('es/llms.txt'), /elysiumdr\.es/);
@@ -260,7 +261,7 @@ test('ningún recurso inmutable se ha editado sin cambiarle el nombre o el ?v=',
     const manifestPath = join(ROOT, 'scripts', 'fixtures', 'immutable-assets.json');
     const tracked = {
         'CSS/home.v20261001.min.css': 'name', 'CSS/home-critical.v20261001.min.css': 'name',
-        'JS/home.v20261001.min.js': 'name', 'JS/home.v20261104.min.js': 'name', 'JS/home.v2026110402.min.js': 'name', 'JS/home.v2026110403.min.js': 'name', 'JS/home.v2026110404.min.js': 'name', 'JS/home.v2026110405.min.js': 'name', 'CSS/components.css': 'query'
+        'JS/home.v20261001.min.js': 'name', 'JS/home.v20261104.min.js': 'name', 'JS/home.v2026110402.min.js': 'name', 'JS/home.v2026110403.min.js': 'name', 'JS/home.v2026110404.min.js': 'name', 'JS/home.v2026110405.min.js': 'name', 'JS/home.v20261123.min.js': 'name', 'CSS/components.css': 'query'
     };
     const digest = relative => createHash('sha256').update(readFileSync(join(ROOT, relative))).digest('hex');
     const current = Object.fromEntries(Object.keys(tracked).map(relative => [relative, digest(relative)]));
@@ -334,16 +335,10 @@ test('.com — el Worker sirve la portada base en inglés con cualquier país', 
     }
 });
 
-test('.com — /es/ y /pt/ son carpetas físicas globales, y /cr/ es el sitio nacional de Costa Rica', async () => {
+test('.com — /es/ y /pt/ son carpetas físicas globales (Costa Rica vive en elysiumdr.cr)', async () => {
     for (const [from, asset] of [
         ['/es/', '/_national/com/es/'],
         ['/pt/', '/_national/com/pt/'],
-        ['/cr/', '/_national/cr/'],
-        ['/cr/about', '/_national/cr/about'],
-        ['/cr/services', '/_national/cr/services'],
-        ['/cr/research/ontology-research', '/_national/cr/research/ontology-research'],
-        ['/cr/llms.txt', '/_national/cr/llms.txt'],
-        ['/cr/llms-full.txt', '/_national/cr/llms-full.txt'],
         ['/es/about', '/_national/com/es/about'],
         ['/pt/services', '/_national/com/pt/services'],
         ['/es/research/ontology-research', '/_national/com/es/research/ontology-research'],
@@ -357,17 +352,10 @@ test('.com — /es/ y /pt/ son carpetas físicas globales, y /cr/ es el sitio na
     }
 });
 
-test('.com — las URL se canonizan como en .eu, y /cr/(en|pt) redirigen por función sin páginas físicas', async () => {
+test('.com — las URL se canonizan como en .eu', async () => {
     for (const [from, to, status] of [
         ['/es', '/es/', 307],
         ['/pt', '/pt/', 307],
-        ['/cr', '/cr/', 307],
-        ['/cr/about/', '/cr/about', 307],
-        ['/cr/about.html', '/cr/about', 301],
-        ['/cr/index.html', '/cr/', 301],
-        ['/cr/es/services', '/cr/services', 301],
-        ['/cr/en/services', '/cr/services?lang=en', 302],
-        ['/cr/pt/about', '/cr/about?lang=pt', 302],
         ['/es/about/', '/es/about', 307],
         ['/about/', '/about', 307],
         ['/es/about.html', '/es/about', 301],
@@ -394,22 +382,17 @@ test('.com — lo que no está traducido sale de los assets compartidos', async 
     assert.equal(legacy.location, `${COM}/profiles?lang=es`);
 
     const crProfiles = await call(`${COM}/cr/profiles`);
-    assert.equal(crProfiles.status, 308);
-    assert.equal(crProfiles.location, `${COM}/profiles?lang=es&region=CR`);
+    assert.equal(crProfiles.status, 301);
+    assert.equal(crProfiles.location, 'https://elysiumdr.cr/profiles');
 });
 
-test('.com — la base interna no es una URL pública; /__i18n solo responde para /cr/', async () => {
+test('.com — la base interna no es una URL pública y /__i18n no existe', async () => {
     for (const path of ['/_national/com/', '/_national/com/es/about', '/_national/cr/', '/%5Fnational/com/']) {
         assert.equal((await call(`${COM}${path}`)).status, 404, path);
     }
     assert.equal((await call(`${COM}/__i18n?lang=es&path=/`)).status, 404);
     assert.equal((await call(`${COM}/__i18n?lang=en&path=/services`)).status, 404);
-    const crEn = await call(`${COM}/__i18n?lang=en&path=/cr/services`);
-    assert.equal(crEn.status, 200);
-    assert.equal(crEn.asset, '/services');
-    const crPt = await call(`${COM}/__i18n?lang=pt&path=/cr/`);
-    assert.equal(crPt.status, 200);
-    assert.equal(crPt.asset, '/pt/');
+    assert.equal((await call(`${COM}/__i18n?lang=en&path=/cr/services`)).status, 404);
 });
 
 test('.com — Elysium Patrimonio vive solo en .eu, pero la biblioteca se sirve aquí, en la región', async () => {
@@ -418,20 +401,20 @@ test('.com — Elysium Patrimonio vive solo en .eu, pero la biblioteca se sirve 
     assert.equal(patrimonio.location, 'https://elysiumdr.eu/Gestor-Patrimonios/');
     const crPatrimonio = await call(`${COM}/cr/Gestor-Patrimonios/`);
     assert.equal(crPatrimonio.status, 301);
-    assert.equal(crPatrimonio.location, 'https://elysiumdr.eu/Gestor-Patrimonios/');
+    assert.equal(crPatrimonio.location, 'https://elysiumdr.cr/Gestor-Patrimonios/');
     // La biblioteca no salta a `.eu`: seguiría en otra región y en otro idioma.
     const library = await call(`${COM}/library`);
     assert.notEqual(library.status, 301);
     assert.equal(library.location, null);
 });
 
-test('.com — su sitemap incluye las tres carpetas globales y las páginas de /cr/, sin páginas noindex', async () => {
+test('.com — su sitemap incluye las tres carpetas globales, sin /cr/ (ya es elysiumdr.cr) ni páginas noindex', async () => {
     const r = await call(`${COM}/sitemap.xml`);
     assert.equal(r.status, 200);
     assert.equal(r.asset, null);
     const locations = [...r.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
     assert.ok(locations.includes(`${COM}/`) && locations.includes(`${COM}/es/`) && locations.includes(`${COM}/pt/`));
-    assert.ok(locations.includes(`${COM}/cr/`) && locations.includes(`${COM}/cr/services`) && locations.includes(`${COM}/cr/about`));
+    assert.ok(!locations.some(location => location.startsWith(`${COM}/cr/`)), 'Costa Rica se publica en el sitemap de elysiumdr.cr');
     assert.ok(locations.includes(`${COM}/es/about`) && locations.includes(`${COM}/pt/research/ontology-research`));
     assert.ok(locations.every(location => location.startsWith(`${COM}/`)));
     assert.doesNotMatch(r.body, /elysiumdr\.eu|\.txt<|onboarding|thank-you|_national|infraestructura-digital-pymes-costa-rica/);
@@ -442,8 +425,8 @@ test('.com — su sitemap incluye las tres carpetas globales y las páginas de /
 
 test('.eu — sus aterrizajes de Costa Rica, España y Portugal ya no se sirven: cada uno va a su región', async () => {
     for (const [from, to] of [
-        ['https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica', `${COM}/cr/`],
-        ['https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica', `${COM}/cr/`],
+        ['https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica', 'https://elysiumdr.cr/'],
+        ['https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica', 'https://elysiumdr.cr/'],
         ['https://elysiumdr.eu/es/infraestructura-digital-pymes-espana', 'https://elysiumdr.es/'],
         ['https://elysiumdr.eu/pt/infraestrutura-digital-pme-portugal', 'https://elysiumdr.pt/']
     ]) {

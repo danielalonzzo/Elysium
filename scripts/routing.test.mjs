@@ -91,7 +91,7 @@ const HOMES = {
     EU,
     ES: 'https://elysiumdr.es/',
     PT: 'https://elysiumdr.pt/',
-    CR: 'https://elysiumdr.com/cr/',
+    CR: 'https://elysiumdr.cr/',
     GLOBAL: 'https://elysiumdr.com/'
 };
 
@@ -137,7 +137,7 @@ test('la sugerencia enlaza a la misma página pública en la región recomendada
     const r = await call(regionLookup(source), { country: 'CR' });
     assert.deepEqual(JSON.parse(r.body), {
         region: 'CR',
-        url: 'https://elysiumdr.com/cr/research/ontology-research'
+        url: 'https://elysiumdr.cr/research/ontology-research'
     });
     assert.equal((await call(regionLookup('https://elysiumdr.com/cr/admin'), { country: 'PT' })).status, 404);
     assert.equal((await call(regionLookup(EU), { country: 'PT', method: 'POST' })).status, 405);
@@ -361,23 +361,29 @@ test('las landings regionales heredadas tienen una sola región canónica', asyn
     for (const [from, to] of [
         [
             'https://elysiumdr.es/infraestructura-digital-pymes-costa-rica?src=old',
-            'https://elysiumdr.com/cr/?src=old'
+            'https://elysiumdr.cr/?src=old'
         ],
         [
             'https://elysiumdr.eu/es/infraestructura-digital-pymes-costa-rica',
-            'https://elysiumdr.com/cr/'
+            'https://elysiumdr.cr/'
         ],
         [
             'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica.html',
-            'https://elysiumdr.com/cr/'
+            'https://elysiumdr.cr/'
         ],
         [
             'https://elysiumdr.com/es/infraestructura-digital-pymes-costa-rica',
-            'https://elysiumdr.com/cr/'
+            'https://elysiumdr.cr/'
         ],
         [
+            // Primero la sección vieja pasa al dominio nuevo conservando la ruta…
             'https://elysiumdr.com/cr/infraestructura-digital-pymes-costa-rica',
-            'https://elysiumdr.com/cr/'
+            'https://elysiumdr.cr/infraestructura-digital-pymes-costa-rica'
+        ],
+        [
+            // …y allí la landing heredada va a la portada.
+            'https://elysiumdr.cr/infraestructura-digital-pymes-costa-rica',
+            'https://elysiumdr.cr/'
         ],
         [
             'https://elysiumdr.es/infraestructura-digital-pymes-espana.html?src=old',
@@ -402,10 +408,119 @@ test('las landings regionales heredadas tienen una sola región canónica', asyn
         assert.equal(r.asset, null, from);
     }
 
-    // El sitio de Costa Rica vive en /cr/ desde su base privada.
-    const costaRica = await call('https://elysiumdr.com/cr/');
+    // Costa Rica vive en su dominio, desde su base privada y sin prefijo.
+    const costaRica = await call('https://elysiumdr.cr/');
     assert.equal(costaRica.status, 200);
     assert.equal(costaRica.asset, '/_national/cr/');
+});
+
+test('elysiumdr.cr se sirve como .es y .pt: base privada sin prefijo, idioma nativo español', async () => {
+    for (const [url, asset] of [
+        ['https://elysiumdr.cr/services', '/_national/cr/services'],
+        ['https://elysiumdr.cr/research/ontology-research', '/_national/cr/research/ontology-research'],
+        ['https://elysiumdr.cr/llms.txt', '/_national/cr/llms.txt'],
+        ['https://elysiumdr.cr/llms-full.txt', '/_national/cr/llms-full.txt'],
+        ['https://elysiumdr.cr/danielalonzzo', '/_national/cr/danielalonzzo']
+    ]) {
+        const r = await call(url);
+        assert.equal(r.status, 200, url);
+        assert.equal(r.asset, asset, url);
+    }
+    // Lo que no es una página traducida sale de la raíz compartida.
+    for (const [url, asset] of [
+        ['https://elysiumdr.cr/CSS/base.css', '/CSS/base.css'],
+        ['https://elysiumdr.cr/favicon-32.png', '/favicon-32.png'],
+        ['https://elysiumdr.cr/crm.webmanifest', '/crm.webmanifest']
+    ]) {
+        const r = await call(url);
+        assert.equal(r.status, 200, url);
+        assert.equal(r.asset, asset, url);
+    }
+    for (const [from, to, status] of [
+        // `/es/` es el idioma nativo de `.cr`: se quita, sin `?lang=`.
+        ['https://elysiumdr.cr/es/services?x=1', 'https://elysiumdr.cr/services?x=1', 301],
+        ['https://elysiumdr.cr/en/services', 'https://elysiumdr.cr/services?lang=en', 302],
+        ['https://elysiumdr.cr/pt/', 'https://elysiumdr.cr/?lang=pt', 302],
+        ['https://elysiumdr.cr/services.html', 'https://elysiumdr.cr/services', 301],
+        ['https://elysiumdr.cr/index.html', 'https://elysiumdr.cr/', 301],
+        // Un enlace viejo con el prefijo de `.com/cr/` pegado sobre el dominio nuevo.
+        ['https://elysiumdr.cr/cr/services?x=1', 'https://elysiumdr.cr/services?x=1', 301],
+        ['https://elysiumdr.cr/cr', 'https://elysiumdr.cr/', 301],
+        ['https://www.elysiumdr.cr/about', 'https://elysiumdr.cr/about', 301],
+        ['https://elysiumdr.cr/es/p', 'https://elysiumdr.cr/portfolio', 301],
+        ['https://elysiumdr.cr/tools', 'https://tools.elysiumdr.eu/es/', 301],
+        ['https://elysiumdr.com/cr/sitemap.xml', 'https://elysiumdr.cr/sitemap.xml', 301]
+    ]) {
+        const r = await call(from);
+        assert.equal(r.status, status, from);
+        assert.equal(r.location, to, from);
+    }
+    const internal = await call('https://elysiumdr.cr/_national/cr/services');
+    assert.equal(internal.status, 404);
+});
+
+test('elysiumdr.com/cr y /cr/* redirigen (301) a elysiumdr.cr con la misma ruta y el mismo query string', async () => {
+    for (const [from, to] of [
+        ['https://elysiumdr.com/cr', 'https://elysiumdr.cr/'],
+        ['https://elysiumdr.com/cr/', 'https://elysiumdr.cr/'],
+        ['https://elysiumdr.com/cr/services?x=1', 'https://elysiumdr.cr/services?x=1'],
+        ['https://elysiumdr.com/cr/?region=CR', 'https://elysiumdr.cr/?region=CR'],
+        ['https://elysiumdr.com/cr/research/ontology-research', 'https://elysiumdr.cr/research/ontology-research'],
+        ['https://elysiumdr.com/cr/llms.txt', 'https://elysiumdr.cr/llms.txt'],
+        ['https://elysiumdr.com/cr/sitemap.xml', 'https://elysiumdr.cr/sitemap.xml'],
+        ['https://elysiumdr.com/cr/library?region=CR', 'https://elysiumdr.cr/library?region=CR'],
+        ['https://www.elysiumdr.com/cr/about', 'https://elysiumdr.com/cr/about']
+    ]) {
+        for (const method of ['GET', 'HEAD']) {
+            const r = await call(from, { method });
+            assert.equal(r.status, 301, `${method} ${from}`);
+            assert.equal(r.location, to, `${method} ${from}`);
+            assert.equal(r.asset, null, `${method} ${from}: no debe tocar los assets`);
+        }
+    }
+});
+
+test('solo el segmento /cr exacto se redirige: /crm.webmanifest y las rutas que empiezan por «cr» sin barra no', async () => {
+    for (const path of ['/crm.webmanifest', '/cr-test', '/crx', '/cr.html', '/crm', '/CR/']) {
+        const r = await call(`https://elysiumdr.com${path}`);
+        assert.ok(!(r.status === 301 && (r.location || '').startsWith('https://elysiumdr.cr')), `${path} no debe ir a elysiumdr.cr`);
+    }
+    const manifest = await call('https://elysiumdr.com/crm.webmanifest');
+    assert.equal(manifest.status, 200);
+    assert.equal(manifest.asset, '/crm.webmanifest');
+    // En .es, .pt y .eu `/cr` no es nada especial.
+    for (const origin of ['https://elysiumdr.es', 'https://elysiumdr.pt', 'https://elysiumdr.eu']) {
+        const r = await call(`${origin}/cr/services`);
+        assert.notEqual(r.location, 'https://elysiumdr.cr/services', origin);
+    }
+});
+
+test('elysiumdr.cr publica su propio sitemap y robots sin prefijo /cr/', async () => {
+    const sitemap = await call('https://elysiumdr.cr/sitemap.xml');
+    assert.equal(sitemap.status, 200);
+    assert.match(sitemap.body, /<loc>https:\/\/elysiumdr\.cr\/<\/loc>/);
+    assert.match(sitemap.body, /<loc>https:\/\/elysiumdr\.cr\/services<\/loc>/);
+    assert.doesNotMatch(sitemap.body, /\/cr\//);
+    assert.doesNotMatch(sitemap.body, /elysiumdr\.com/);
+    assert.doesNotMatch(sitemap.body, /onboarding|thank-you/);
+
+    const robots = await call('https://elysiumdr.cr/robots.txt');
+    assert.equal(robots.status, 200);
+    assert.match(robots.body, /Sitemap: https:\/\/elysiumdr\.cr\/sitemap\.xml/);
+
+    const global = await call('https://elysiumdr.com/sitemap.xml');
+    assert.doesNotMatch(global.body, /elysiumdr\.com\/cr\//, 'Costa Rica ya no se publica en el sitemap de .com');
+});
+
+test('la traducción dinámica de elysiumdr.cr pide la página sin prefijo', async () => {
+    const ok = await call('https://elysiumdr.cr/__i18n?lang=en&path=%2Fservices');
+    assert.equal(ok.status, 200);
+    assert.equal(ok.asset, '/services');
+    const pt = await call('https://elysiumdr.cr/__i18n?lang=pt&path=%2F');
+    assert.equal(pt.status, 200);
+    assert.equal(pt.asset, '/pt/');
+    const prefixed = await call('https://elysiumdr.cr/__i18n?lang=en&path=%2Fcr%2Fservices');
+    assert.equal(prefixed.status, 404);
 });
 
 test('/p y sus variantes se canonizan a portfolio sin cambiar de región', async () => {
@@ -607,17 +722,18 @@ test('/__i18n no expone páginas arbitrarias ni recursos que no sean HTML', asyn
     }
 });
 
-test('/__i18n solo existe en .es, .pt y en elysiumdr.com para /cr/, y solo admite GET o HEAD', async () => {
+test('/__i18n solo existe en .es, .pt y .cr, y solo admite GET o HEAD', async () => {
     const query = new URLSearchParams({ lang: 'en', path: '/services' });
     assert.equal((await call(`https://elysiumdr.eu/__i18n?${query}`)).status, 404);
     assert.equal((await call(`https://elysiumdr.es/__i18n/extra?${query}`)).status, 404);
     assert.equal((await call(`https://elysiumdr.com/__i18n?${query}`)).status, 404);
 
     const crQuery = new URLSearchParams({ lang: 'en', path: '/cr/services' });
-    const crRes = await call(`https://elysiumdr.com/__i18n?${crQuery}`);
+    assert.equal((await call(`https://elysiumdr.com/__i18n?${crQuery}`)).status, 404);
+    const crRes = await call(`https://elysiumdr.cr/__i18n?${query}`);
     assert.equal(crRes.status, 200);
     assert.equal(crRes.asset, '/services');
-    assert.equal((await call(`https://elysiumdr.com/__i18n?lang=en&path=%2Fcr%2Fservices%2F`)).status, 400);
+    assert.equal((await call(`https://elysiumdr.cr/__i18n?lang=en&path=%2Fservices%2F`)).status, 400);
 
     const post = await call(`https://elysiumdr.es/__i18n?${query}`, { method: 'POST' });
     assert.equal(post.status, 405);
@@ -835,7 +951,7 @@ test('/daniel-morales redirige (301) a /danielalonzzo en los cinco sitios, con s
         ['https://elysiumdr.pt/daniel-morales.html', 'https://elysiumdr.pt/danielalonzzo'],
         ['https://elysiumdr.com/daniel-morales', 'https://elysiumdr.com/danielalonzzo'],
         ['https://elysiumdr.com/es/daniel-morales', 'https://elysiumdr.com/es/danielalonzzo'],
-        ['https://elysiumdr.com/cr/daniel-morales', 'https://elysiumdr.com/cr/danielalonzzo'],
+        ['https://elysiumdr.cr/daniel-morales', 'https://elysiumdr.cr/danielalonzzo'],
         ['https://elysiumdr.eu/daniel-morales?ref=correo', 'https://elysiumdr.eu/danielalonzzo?ref=correo']
     ];
     for (const [from, to] of cases) {
@@ -854,7 +970,7 @@ test('/danielalonzzo se sirve en los cinco sitios', async () => {
         ['https://elysiumdr.es/danielalonzzo', '/_national/es/danielalonzzo'],
         ['https://elysiumdr.pt/danielalonzzo', '/_national/pt/danielalonzzo'],
         ['https://elysiumdr.com/danielalonzzo', '/_national/com/danielalonzzo'],
-        ['https://elysiumdr.com/cr/danielalonzzo', '/_national/cr/danielalonzzo']
+        ['https://elysiumdr.cr/danielalonzzo', '/_national/cr/danielalonzzo']
     ]) {
         const r = await call(url);
         assert.equal(r.status, 200, url);

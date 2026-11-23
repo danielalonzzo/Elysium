@@ -78,7 +78,7 @@ function normalizeRegionItems(html, language) {
     EU: 'https://elysiumdr.eu/?region=EU&amp;override=true',
     ES: 'https://elysiumdr.es/?region=ES',
     PT: 'https://elysiumdr.pt/?region=PT',
-    CR: 'https://elysiumdr.com/cr/?region=CR',
+    CR: 'https://elysiumdr.cr/?region=CR',
     GLOBAL: 'https://elysiumdr.com/'
   };
 

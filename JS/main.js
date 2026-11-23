@@ -169,10 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentPathname = window.location.pathname || '/';
     const pageParams = new URLSearchParams(window.location.search);
     const isLocal = ['localhost', '127.0.0.1', '::1'].includes(currentHostname);
-    // `.com` en la raíz es el sitio global (`/`, `/es/`, `/pt/`); `/cr/` dentro
-    // de `.com` es el sitio nacional de Costa Rica con traducción dinámica.
+    // `.com` en la raíz es el sitio global (`/`, `/es/`, `/pt/`). Costa Rica es
+    // `elysiumdr.cr`, sitio nacional con traducción dinámica como `.es` y `.pt`;
+    // `/cr/` dentro de `.com` es su dirección antigua (y la de pruebas en local).
     const isGlobalDomain = currentHostname === 'elysiumdr.com' || currentHostname === 'www.elysiumdr.com';
-    const isCostaRicaSite = ((isGlobalDomain || isLocal) && (
+    const isCostaRicaDomain = currentHostname === 'elysiumdr.cr' || currentHostname === 'www.elysiumdr.cr';
+    const isCostaRicaSite = isCostaRicaDomain || ((isGlobalDomain || isLocal) && (
         currentPathname === '/cr' ||
         currentPathname.startsWith('/cr/') ||
         currentPathname.startsWith('/_national/cr/')
@@ -224,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pt: { EU: 'EUROPA', ES: 'ESPANHA', PT: 'PORTUGAL', CR: 'COSTA RICA', GLOBAL: 'GLOBAL' }
     };
     // El español de cada región lleva su bandera: España en `.eu` y `.es`, Costa
-    // Rica en `.com` y en `elysiumdr.com/cr/`.
+    // Rica en `.com` y en `elysiumdr.cr`.
     const SPANISH_FLAG = (isGlobalDomain || currentRegion === 'CR') ? 'cr' : 'es';
     const LANGUAGE_FLAGS = {
         en: '/Images/Optimized/flag-eu-64.webp',
@@ -293,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item" role="menuitem" data-region="EU">EUROPE</a>
                 <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">SPAIN</a>
                 <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
-                <a href="https://elysiumdr.com/cr/?region=CR" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
+                <a href="https://elysiumdr.cr/?region=CR" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
                 <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">GLOBAL</a>
             </div>`;
         brandContainer.appendChild(dropdown);
@@ -528,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 EU: 'https://elysiumdr.eu',
                 ES: 'https://elysiumdr.es',
                 PT: 'https://elysiumdr.pt',
-                CR: 'https://elysiumdr.com',
+                CR: 'https://elysiumdr.cr',
                 GLOBAL: 'https://elysiumdr.com'
             };
             menu.querySelectorAll('a').forEach(link => {
@@ -568,13 +570,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         targetUrl = `/${page}?national=${dataRegion.toLowerCase()}`;
                     } else if (isLocal && dataRegion === 'EU') {
                         targetUrl = `/${page}`;
-                    } else if (dataRegion === 'CR') {
-                        const target = new URL(`/cr/${page}`, REGION_ORIGINS.CR);
-                        target.searchParams.set('region', 'CR');
-                        targetUrl = target.toString();
                     } else {
                         const target = new URL(`/${page}`, REGION_ORIGINS[dataRegion]);
-                        if (dataRegion === 'ES' || dataRegion === 'PT') {
+                        if (dataRegion === 'ES' || dataRegion === 'PT' || dataRegion === 'CR') {
                             target.searchParams.set('region', dataRegion);
                         } else if (dataRegion === 'EU') {
                             target.searchParams.set('region', 'EU');
@@ -1172,7 +1170,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (saved) return saved;
 
         const path = window.location.pathname || '/';
+        const host = (window.location.hostname || '').toLowerCase();
         if (
+            host === 'elysiumdr.cr' ||
+            host === 'www.elysiumdr.cr' ||
             path === '/cr' ||
             path.startsWith('/cr/') ||
             path.startsWith('/_national/cr/') ||
