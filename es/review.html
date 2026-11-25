@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-NDDNWMFH');</script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Comparta su experiencia de trabajo con Elysium λ Development &amp; Research.">
+    <title>Valoración de cliente | Elysium</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../CSS/base.css">
+    <link rel="stylesheet" href="../CSS/components.css?v=20261001">
+    <link rel="stylesheet" href="../CSS/pages.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+
+    <link rel="canonical" href="https://elysiumdr.eu/es/review">
+    <link rel="alternate" hreflang="en-GB" href="https://elysiumdr.eu/review">
+    <link rel="alternate" hreflang="es-ES" href="https://elysiumdr.eu/es/review">
+    <link rel="alternate" hreflang="pt-PT" href="https://elysiumdr.eu/pt/review">
+    <link rel="alternate" hreflang="x-default" href="https://elysiumdr.eu/review">
+    <meta property="og:url" content="https://elysiumdr.eu/es/review">
+
+    <meta name="robots" content="noindex, follow">
+    <style>
+        .rv-hero { min-height: 0 !important; padding: 6.5rem 0 1.5rem !important; }
+        .rv-hero .parallax-lambda { display: none; }
+        .rv-hero h1 { font-size: clamp(1.8rem, 4.5vw, 2.6rem); margin-bottom: .35rem; }
+        .rv-hero .hero-subtitle { margin: 0; }
+        .rv-wrap { max-width: 760px; }
+        .rv-wrap [hidden] { display: none !important; }
+        .rv-progress { height: 4px; border-radius: 4px; background: var(--glass-border); overflow: hidden; margin-bottom: 1.5rem; }
+        .rv-progress span { display: block; height: 100%; width: 16.66%; background: var(--color-accent); transition: width .35s ease; }
+        .rv-form { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: clamp(1.25rem, 4vw, 2.25rem); }
+        .rv-step { border: 0; margin: 0; padding: 0; min-width: 0; }
+        .rv-step legend { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--color-text-primary); padding: 0; }
+        .rv-count { display: block; font-family: 'Manrope', sans-serif; font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-accent); margin-bottom: .35rem; }
+        .rv-lead { color: var(--color-text-secondary); margin: .35rem 0 1.25rem; }
+        .rv-field { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; flex: 1; min-width: 0; }
+        .rv-field > span { font-weight: 600; font-size: .92rem; color: var(--color-text-primary); }
+        .rv-field input[type=text], .rv-field input[type=url], .rv-field textarea {
+            width: 100%; box-sizing: border-box; font: inherit; color: var(--color-text-primary); background: rgba(0,0,0,.18);
+            border: 1px solid var(--glass-border); border-radius: 10px; padding: .75rem .9rem; resize: vertical; }
+        .rv-field input:focus, .rv-field textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px rgba(41,151,255,.18); }
+        .rv-field .is-invalid { border-color: #ff6b6b; }
+        .rv-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .rv-row > * { flex: 1 1 240px; }
+        .rv-logo { display: flex; gap: 1rem; align-items: center; }
+        .rv-logo-preview { width: 64px; height: 64px; flex-shrink: 0; border-radius: 12px; border: 1px dashed var(--glass-border); display: grid; place-items: center; color: var(--color-text-secondary); font-size: 1.5rem; overflow: hidden; background: #fff1; }
+        .rv-logo-preview img { width: 100%; height: 100%; object-fit: contain; background: #fff; }
+        .rv-logo-actions { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; }
+        .rv-logo-actions small { color: var(--color-text-secondary); font-size: .8rem; }
+        .rv-btn-ghost { background: transparent; border-color: var(--glass-border); }
+        .rv-link { background: none; border: 0; padding: 0; color: var(--color-accent); cursor: pointer; font: inherit; font-size: .85rem; }
+        .rv-stars { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: .25rem; }
+        .rv-stars input { position: absolute; opacity: 0; pointer-events: none; }
+        .rv-stars label { font-size: 2rem; line-height: 1; cursor: pointer; color: var(--glass-border); transition: color .15s, transform .15s; }
+        .rv-stars label:hover, .rv-stars label:hover ~ label, .rv-stars input:checked ~ label { color: #f5c451; }
+        .rv-stars input:focus-visible + label { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
+        .rv-consent { display: flex; gap: .6rem; align-items: flex-start; font-size: .85rem; color: var(--color-text-secondary); margin-top: .5rem; }
+        .rv-consent input { margin-top: .2rem; accent-color: var(--color-accent); }
+        .rv-error { color: #ff8a8a; font-size: .9rem; margin: .5rem 0 0; }
+        .rv-nav { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.25rem; }
+        .rv-nav [data-next], .rv-nav [data-submit] { margin-left: auto; }
+        .rv-done { text-align: center; padding: 3rem 1rem; }
+        .rv-done-mark { font-size: 3rem; color: var(--color-accent); }
+        .rv-done p { color: var(--color-text-secondary); max-width: 520px; margin: .75rem auto 1.75rem; }
+        @media (max-width: 600px) {
+            .rv-hero { padding-bottom: 1.5rem; }
+            .rv-step legend { font-size: 1.3rem; }
+            .rv-field textarea { min-height: 6.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDDNWMFH"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <!-- Premium Preloader -->
+    <div id="elysium-preloader">
+        <div class="preloader-content">
+            <span class="preloader-lambda">λ</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand-container">
+                <a href="./" class="nav-brand" data-localized-route=""><span class="brand-symbol">λ</span> ELYSIUM</a>
+                <!-- Region Switcher Dropdown -->
+                <div class="region-switcher-dropdown" id="regionSwitcher">
+                    <button type="button" class="region-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Seleccionar región">
+                        <span class="region-tag">EUROPA</span>
+                        <span class="region-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="region-switcher-menu" role="menu">
+                        <a href="https://elysiumdr.eu/?region=EU&amp;override=true" class="region-item active" role="menuitem" data-region="EU" aria-current="true"><span class="region-indicator" aria-hidden="true">●</span> EUROPA</a>
+                        <a href="https://elysiumdr.es/?region=ES" class="region-item" role="menuitem" data-region="ES">ESPAÑA</a>
+                        <a href="https://elysiumdr.pt/?region=PT" class="region-item" role="menuitem" data-region="PT">PORTUGAL</a>
+                        <a href="https://elysiumdr.cr/?region=CR" class="region-item" role="menuitem" data-region="CR">COSTA RICA</a>
+                        <a href="https://elysiumdr.com/" class="region-item" role="menuitem" data-region="GLOBAL">GLOBAL</a>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="services" class="nav-link">Servicios</a>
+                <a href="portfolio" class="nav-link active">Portafolio</a>
+                <a href="about" class="nav-link">Nosotros</a>
+                <a href="/Gestor-Patrimonios/" class="nav-link">Gestor de Patrimonio</a>
+                <a href="/library" class="nav-link">Biblioteca</a>
+                <a href="https://tools.elysiumdr.eu/es/" class="nav-link">Tools</a>
+                <a href="research" class="nav-link">Investigación</a>
+                <a href="profiles" class="nav-link">Cuenta</a>
+                <a href="contact" class="btn btn-primary">Contacto</a>
+                <div class="lang-switcher-dropdown">
+                    <button type="button" class="lang-switcher-trigger" aria-expanded="false" aria-haspopup="true"
+                        aria-label="Seleccionar idioma" data-i18n-aria="authLanguage"><span class="lang-current-label">ES</span> <img src="../Images/Optimized/flag-es-64.webp" alt="ES" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span
+                            class="lang-arrow" aria-hidden="true">▼</span></button>
+                    <div class="lang-switcher-menu" role="menu">
+                        <a href="/review" class="lang-select" role="menuitem" data-lang="en">English <img src="../Images/Optimized/flag-eu-64.webp" alt="EU" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/es/review" class="lang-select" role="menuitem" data-lang="es">Español <img src="../Images/Optimized/flag-es-64.webp" alt="ES" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                        <a href="/pt/review" class="lang-select" role="menuitem" data-lang="pt">Português <img src="../Images/Optimized/flag-pt-64.webp" alt="PT" width="64" height="64" decoding="async" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-toggle">☰</div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="page-header case-study-hero rv-hero">
+        <div class="parallax-lambda">λ</div>
+        <div class="container">
+            <h1>Valoración de cliente</h1>
+            <p class="hero-subtitle">Cuéntenos cómo fue el proyecto. Le llevará unos cinco minutos.</p>
+        </div>
+    </header>
+
+    <!-- Formulario: cada respuesta sigue un bloque de la historia de Paulo Morais
+         (review-pmorais). Se guarda en Firestore `reviews/` y se revisa en el CRM;
+         nada se publica solo. -->
+    <section class="section pt-0">
+        <div class="container rv-wrap">
+            <div class="rv-progress" aria-hidden="true"><span data-progress></span></div>
+            <form class="rv-form" id="review-form" novalidate data-lang="es">
+                
+            <fieldset class="rv-step" data-step="1">
+                <legend><span class="rv-count">Paso 1 de 6</span>Sobre usted</legend>
+                <p class="rv-lead">Quién escribe esta valoración.</p>
+                <label class="rv-field"><span>Nombre completo</span><input type="text" name="name" maxlength="120" required autocomplete="name"></label><div class="rv-row"><label class="rv-field"><span>Cargo</span><input type="text" name="role" maxlength="120" required placeholder="p. ej. Fundador, Osteópata y formador especialista" autocomplete="organization-title"></label><label class="rv-field"><span>Empresa</span><input type="text" name="company" maxlength="120" required autocomplete="organization"></label></div><div class="rv-row"><label class="rv-field"><span>Sitio web</span><input type="url" name="website" maxlength="300" placeholder="https://" autocomplete="url"></label><div class="rv-field"><span>Logotipo de la empresa</span>
+                    <div class="rv-logo">
+                        <div class="rv-logo-preview" data-logo-preview aria-hidden="true">λ</div>
+                        <div class="rv-logo-actions">
+                            <label class="btn rv-btn-ghost">Elegir archivo<input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden></label>
+                            <button type="button" class="rv-link" data-logo-remove hidden>Quitar</button>
+                            <small>PNG, JPG, WebP o SVG. Opcional.</small>
+                        </div>
+                    </div></div></div>
+            </fieldset>
+            <fieldset class="rv-step" data-step="2" hidden>
+                <legend><span class="rv-count">Paso 2 de 6</span>El punto de partida</legend>
+                <p class="rv-lead">Antes del proyecto.</p>
+                <label class="rv-field"><span>¿Qué dificultades tenían antes del proyecto?</span><textarea name="startingPoint" rows="4" maxlength="4000" required placeholder="Cómo comunicaban su oferta, cómo les encontraban los clientes, cómo se presentaba la información…"></textarea></label><label class="rv-field"><span>¿Cuál era el objetivo principal?</span><textarea name="objective" rows="3" maxlength="4000" required placeholder="¿Qué querían conseguir con la nueva web o el nuevo sistema?"></textarea></label>
+            </fieldset>
+            <fieldset class="rv-step" data-step="3" hidden>
+                <legend><span class="rv-count">Paso 3 de 6</span>Expectativas</legend>
+                <p class="rv-lead">El resultado final.</p>
+                <label class="rv-field"><span>¿El resultado cumplió sus expectativas? ¿En qué aspectos las superó?</span><textarea name="expectations" rows="7" maxlength="4000" required placeholder="Organización de la información, imagen de marca, navegación, diseño…"></textarea></label>
+            </fieldset>
+            <fieldset class="rv-step" data-step="4" hidden>
+                <legend><span class="rv-count">Paso 4 de 6</span>Impacto y resultados</legend>
+                <p class="rv-lead">Qué cambia para su negocio.</p>
+                <label class="rv-field"><span>¿Qué impacto ha notado o espera notar?</span><textarea name="impact" rows="4" maxlength="4000" required placeholder="Visibilidad, contactos, clientes nuevos, credibilidad…"></textarea></label><label class="rv-field"><span>¿Y de puertas adentro, en qué le ayuda a su equipo?</span><textarea name="internalImpact" rows="3" maxlength="4000" required placeholder="Centralizar la información, los procesos comerciales y de comunicación…"></textarea></label>
+            </fieldset>
+            <fieldset class="rv-step" data-step="5" hidden>
+                <legend><span class="rv-count">Paso 5 de 6</span>La experiencia de trabajo</legend>
+                <p class="rv-lead">Cómo trabajamos juntos.</p>
+                <label class="rv-field"><span>¿Cómo fue la experiencia a lo largo del proyecto?</span><textarea name="experience" rows="7" maxlength="4000" required placeholder="Comunicación, profesionalidad, capacidad de adaptarse a sus necesidades, acompañamiento en cada fase…"></textarea></label>
+            </fieldset>
+            <fieldset class="rv-step" data-step="6" hidden>
+                <legend><span class="rv-count">Paso 6 de 6</span>Recomendación</legend>
+                <p class="rv-lead">Último paso.</p>
+                <label class="rv-field"><span>¿Recomendaría Elysium a otras personas? ¿Por qué?</span><textarea name="recommendation" rows="4" maxlength="4000" required placeholder="Calidad del servicio, atención al detalle, valor que aporta al negocio…"></textarea></label><div class="rv-field"><span>Valoración general</span><div class="rv-stars" role="radiogroup"><input type="radio" name="rating" id="rv-star-5" value="5" required><label for="rv-star-5" title="5/5">★</label><input type="radio" name="rating" id="rv-star-4" value="4"><label for="rv-star-4" title="4/5">★</label><input type="radio" name="rating" id="rv-star-3" value="3"><label for="rv-star-3" title="3/5">★</label><input type="radio" name="rating" id="rv-star-2" value="2"><label for="rv-star-2" title="2/5">★</label><input type="radio" name="rating" id="rv-star-1" value="1"><label for="rv-star-1" title="1/5">★</label></div></div><label class="rv-consent"><input type="checkbox" name="consent" required> <span>Autorizo a Elysium λ Development &amp; Research a publicar esta valoración, entera o en parte, con mi nombre, cargo, empresa y logotipo en su sitio web. Puedo pedir que se retire en cualquier momento escribiendo a info@elysiumdr.eu. <a href="/es/privacy" target="_blank" rel="noopener">Política de privacidad</a>.</span></label>
+            </fieldset>
+                <p class="rv-error" role="alert" aria-live="polite" hidden></p>
+                <div class="rv-nav">
+                    <button type="button" class="btn rv-btn-ghost" data-prev hidden>← Atrás</button>
+                    <button type="button" class="btn btn-primary" data-next>Siguiente →</button>
+                    <button type="submit" class="btn btn-primary" data-submit hidden>Enviar valoración</button>
+                </div>
+            </form>
+            <div class="rv-done" id="review-done" hidden tabindex="-1">
+                <div class="rv-done-mark" aria-hidden="true">λ</div>
+                <h2 data-done-title></h2>
+                <p data-done-text></p>
+                <a href="/es/" class="btn btn-primary" data-done-home></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="footer-brand-wrapper">
+                        <a href="./" class="nav-brand " style="display:inline-block;"><span
+                                class="brand-symbol">λ</span> ELYSIUM</a>
+                        <div class="lang-switcher-dropdown footer-lang-switcher">
+                            <button type="button" class="lang-switcher-trigger" aria-expanded="false"
+                                aria-haspopup="true" aria-label="Seleccionar idioma"><span
+                                    class="lang-current-label">ES</span> <img src="../Images/Optimized/flag-es-64.webp" alt="ES" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"> <span class="lang-arrow"
+                                    aria-hidden="true">▼</span></button>
+                            <div class="lang-switcher-menu" role="menu">
+                                <a href="/review" role="menuitem" data-lang="en">English <img src="../Images/Banderas/union-europea.png" alt="EU" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/es/review" role="menuitem" data-lang="es">Español <img src="../Images/Banderas/espana.png" alt="ES" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                                <a href="/pt/review" role="menuitem" data-lang="pt">Português <img src="../Images/Banderas/portugal.png" alt="PT" class="flag-icon" style="width: 1.2em; height: auto; vertical-align: middle; display: inline-block;"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.9rem;">Elysium λ Development & Research<br>Portugal, Unión Europea</p>
+                    
+                </div>
+                <div class="footer-col">
+                    <h4>Empresa</h4>
+                    <ul class="footer-links">
+                        <li><a href="about">Nosotros</a></li>
+                        <li><a href="services">Servicios</a></li>
+                        <li><a href="portfolio">Portafolio</a></li>
+                        <li><a href="research">Investigación</a></li>
+                        <li class="footer-library"><a href="/library">Biblioteca</a></li>
+                        <li class="footer-library"><a href="/Gestor-Patrimonios/">Gestor de Patrimonio</a></li>
+            <li class="footer-library footer-tools"><a href="https://tools.elysiumdr.eu/es/">Tools</a></li>
+                        <li><a href="contact">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="privacy">Política de Privacidad</a></li>
+                        <li><a href="terms">Términos de Servicio</a></li>
+                        <li><a href="https://www.livroreclamacoes.pt/Pedido/Reclamacao" target="_blank"
+                                rel="noopener noreferrer">Libro de Reclamaciones</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Conectar</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://www.linkedin.com/company/elysiumdr" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                        <li><a href="https://x.com/elysiumdr?s=21">Twitter</a></li>
+                        <li><a
+                                href="https://www.instagram.com/elysium.dr?igsh=YmFhNnlqbWttM3h0&utm_source=qr">Instagram</a>
+                        </li>
+                        <li><a href="https://api.whatsapp.com/send/?phone=351934086075&amp;text&amp;type=phone_number&amp;app_absent=0" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+                        <li><a href="https://www.tiktok.com/@elysium.dr?_r=1&amp;_t=ZS-992i4U8ZNje" target="_blank" rel="noopener noreferrer">TikTok</a></li>
+                        <li><a href="mailto:info@elysiumdr.eu">info@elysiumdr.eu</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Elysium λ Development & Research. Todos los derechos reservados.</span>
+                <span class="brand-symbol footer-lambda">λ</span>
+            </div>
+        </div>
+    </footer>
+    <script src="../JS/main.js"></script>
+    <script type="module" src="/JS/review-form.js?v=20261125"></script>
+    <script type="module" src="/JS/header-account.js"></script>
+    <script src="../JS/elysium-mouse.js"></script>
+    <script src="../JS/elysium-audio.js"></script>
+    <script src="../JS/version-modal.js"></script>
+</body>
+
+</html>

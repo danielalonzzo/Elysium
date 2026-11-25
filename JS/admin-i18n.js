@@ -46,6 +46,7 @@ export const ADMIN_COPY = {
             prototypes: 'Secrets Prototypes',
             research: 'Research',
             library: 'Library',
+            reviews: 'Reviews',
             tools: 'Tools'
         },
         platform: {
@@ -629,6 +630,7 @@ export const ADMIN_COPY = {
             prototypes: 'Prototipos Secretos',
             research: 'Research',
             library: 'Biblioteca',
+            reviews: 'Reviews',
             tools: 'Herramientas'
         },
         platform: {
@@ -1212,6 +1214,7 @@ export const ADMIN_COPY = {
             prototypes: 'Protótipos Secretos',
             research: 'Research',
             library: 'Biblioteca',
+            reviews: 'Reviews',
             tools: 'Ferramentas'
         },
         platform: {

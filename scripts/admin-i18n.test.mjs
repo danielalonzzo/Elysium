@@ -31,6 +31,7 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const html = readFileSync(join(ROOT, 'admin.html'), 'utf8');
 const adminSource = readFileSync(join(ROOT, 'JS', 'admin.js'), 'utf8');
 const researchSource = readFileSync(join(ROOT, 'JS', 'admin-research.js'), 'utf8');
+const reviewsSource = readFileSync(join(ROOT, 'JS', 'admin-reviews.js'), 'utf8');
 const toolsSource = readFileSync(join(ROOT, 'JS', 'admin-tools.js'), 'utf8');
 const pdfSource = readFileSync(join(ROOT, 'JS', 'admin-pdf.js'), 'utf8');
 const idCardSource = readFileSync(join(ROOT, 'JS', 'admin-id-card.js'), 'utf8');
@@ -200,7 +201,7 @@ const found = readVisibleCopy(html);
 const SHARED_TERMS = {
     ADMIN_COPY: new Set([
         'shell.menu', 'shell.groupCrm',                         // siglas y préstamo
-        'nav.pipeline', 'nav.agenda', 'nav.research',            // nombres de sección
+        'nav.pipeline', 'nav.agenda', 'nav.research', 'nav.reviews', // nombres de sección
         'pipeline.title', 'dialogs.opportunityEyebrow',
         'contacts.sortAZ',                                       // «A → Z»
         'contacts.pillLeads', 'contacts.lifecycle.lead',         // «lead» es préstamo
@@ -277,6 +278,10 @@ test('V2_LABELS del onboarding declara las mismas claves en los tres idiomas', (
 
 test('COPY de admin-research.js declara las mismas claves en los tres idiomas', () => {
     assertParity('COPY', extractObject(researchSource, 'COPY'));
+});
+
+test('COPY de admin-reviews.js declara las mismas claves en los tres idiomas', () => {
+    assertParity('COPY', extractObject(reviewsSource, 'COPY'));
 });
 
 test('COPY de admin-tools.js declara las mismas claves en los tres idiomas', () => {

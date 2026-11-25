@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="CSS/customer-portal.css?v=2026082609">
     <link rel="stylesheet" href="CSS/admin-portal.css?v=2026102601">
     <link rel="stylesheet" href="CSS/admin-research.css?v=2026082601">
+    <link rel="stylesheet" href="CSS/admin-reviews.css?v=20261125">
     <link rel="stylesheet" href="CSS/admin-tools.css?v=2026110401">
 
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -189,6 +190,14 @@
                 </svg>
                 <span class="portal-nav-text" data-i18n="nav.library">Library</span>
                 <span class="portal-nav-badge" id="sidebar-library-count" translate="no">0</span>
+            </button>
+
+            <button type="button" class="portal-nav-item" data-target="reviews" id="nav-reviews">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                <span class="portal-nav-text" data-i18n="nav.reviews">Reviews</span>
+                <span class="portal-nav-badge" id="sidebar-reviews-count" translate="no" hidden>0</span>
             </button>
         </nav>
 
@@ -1149,6 +1158,35 @@
             </div>
         </section>
 
+        <!-- ─── REVIEWS ────────────────────────────────────────── -->
+        <!-- Valoraciones que llegan desde /review (Firestore `reviews/`).
+             Las pinta `JS/admin-reviews.js`; publicarlas es trabajo manual. -->
+        <section id="reviews" class="portal-section" aria-labelledby="reviews-title">
+            <div class="portal-header">
+                <div>
+                    <span class="crm-section-eyebrow" translate="no">elysiumdr.eu/review</span>
+                    <h1 id="reviews-title" data-i18n="nav.reviews">Reviews</h1>
+                    <p class="color-text-secondary" id="reviews-description" data-i18n-dynamic="admin-reviews.js:applyCopy">Client reviews sent from the public form.</p>
+                </div>
+                <div class="research-header-actions">
+                    <button type="button" class="btn btn-outline" id="reviews-copy-link" data-i18n-dynamic="admin-reviews.js:applyCopy">Copy form link</button>
+                    <button type="button" class="btn btn-primary" id="reviews-refresh" data-i18n-dynamic="admin-reviews.js:applyCopy">Refresh</button>
+                </div>
+            </div>
+            <div class="portal-alert is-error" id="reviews-alert" role="alert" aria-live="polite" hidden></div>
+            <div class="reviews-filters" role="group" id="reviews-filters">
+                <button type="button" class="reviews-filter is-active" data-filter="active" data-i18n-dynamic="admin-reviews.js:applyCopy">Inbox</button>
+                <button type="button" class="reviews-filter" data-filter="selected" data-i18n-dynamic="admin-reviews.js:applyCopy">Selected</button>
+                <button type="button" class="reviews-filter" data-filter="archived" data-i18n-dynamic="admin-reviews.js:applyCopy">Archived</button>
+            </div>
+            <div class="reviews-layout">
+                <div class="reviews-list" id="reviews-list" aria-live="polite">
+                    <div class="loader-container"><div class="premium-loader"></div></div>
+                </div>
+                <article class="reviews-detail" id="reviews-detail" hidden></article>
+            </div>
+        </section>
+
         <!-- ─── LIBRARY ────────────────────────────────────────── -->
         <section id="library" class="portal-section" aria-labelledby="library-crm-title">
             <div class="portal-header">
@@ -1647,6 +1685,7 @@
     <script>window.ELYSIUM_API_SAME_ORIGIN = true;</script>
     <script type="module" src="JS/admin.js?v=2026110402"></script>
     <script type="module" src="JS/admin-research.js?v=2026082602"></script>
+    <script type="module" src="JS/admin-reviews.js?v=20261125"></script>
     <script type="module" src="JS/admin-tools.js?v=2026110401"></script>
     <script type="module" src="JS/admin-pdf.js?v=2026103101"></script>
     <script type="module" src="JS/admin-id-card.js?v=2026103101"></script>

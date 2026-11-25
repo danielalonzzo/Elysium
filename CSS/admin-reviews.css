@@ -1,0 +1,57 @@
+/* Sección Reviews del CRM (JS/admin-reviews.js). */
+.reviews-filters { display: flex; gap: .5rem; flex-wrap: wrap; margin: 0 0 1.25rem; }
+.reviews-filter { font: inherit; font-size: .85rem; padding: .45rem .9rem; border-radius: 999px; cursor: pointer;
+    background: transparent; color: var(--color-text-secondary); border: 1px solid var(--glass-border); }
+.reviews-filter.is-active { color: var(--color-text-primary); border-color: var(--color-accent); background: rgba(41, 151, 255, .12); }
+
+.reviews-layout { display: grid; grid-template-columns: minmax(260px, 360px) 1fr; gap: 1.25rem; align-items: start; }
+.reviews-list { display: flex; flex-direction: column; gap: .6rem; }
+.reviews-empty { color: var(--color-text-secondary); padding: 1rem 0; }
+
+.reviews-card { display: flex; gap: .85rem; align-items: flex-start; text-align: left; width: 100%; font: inherit; cursor: pointer;
+    padding: .9rem; border-radius: 14px; background: var(--glass-bg); border: 1px solid var(--glass-border); color: inherit;
+    transition: border-color .2s, transform .2s; }
+.reviews-card:hover { border-color: rgba(41, 151, 255, .5); }
+.reviews-card.is-open { border-color: var(--color-accent); }
+.reviews-card.is-new { box-shadow: inset 3px 0 0 var(--color-accent); }
+.reviews-card-body { display: flex; flex-direction: column; gap: .2rem; min-width: 0; flex: 1; }
+.reviews-card-head { display: flex; justify-content: space-between; gap: .5rem; align-items: baseline; }
+.reviews-card-meta, .reviews-card-date { font-size: .78rem; color: var(--color-text-secondary); }
+.reviews-card-quote { font-size: .85rem; color: var(--color-text-primary); opacity: .85; overflow-wrap: anywhere; }
+
+.reviews-logo { flex-shrink: 0; border-radius: 12px; overflow: hidden; display: grid; place-items: center;
+    background: #fff; color: #111; font-weight: 700; font-size: 1.1rem; border: 1px solid var(--glass-border); }
+.reviews-logo img { width: 100%; height: 100%; object-fit: contain; }
+.reviews-stars { color: #f5c451; letter-spacing: .05em; white-space: nowrap; }
+
+.reviews-detail { position: relative; padding: clamp(1.25rem, 3vw, 2rem); border-radius: var(--radius-lg, 18px);
+    background: var(--glass-bg); border: 1px solid var(--glass-border); }
+.reviews-close { position: absolute; top: .75rem; right: .75rem; background: transparent; border: 0; font-size: 1.5rem;
+    color: var(--color-text-secondary); cursor: pointer; padding: .25rem .5rem; }
+.reviews-profile { display: flex; gap: 1.25rem; align-items: center; margin-bottom: 1rem; }
+.reviews-who h2 { margin: 0; font-size: 1.4rem; }
+.reviews-role { color: var(--color-accent); font-weight: 600; font-size: .9rem; }
+.reviews-company { color: var(--color-text-secondary); font-size: .85rem; }
+.reviews-website { font-size: .85rem; color: var(--color-accent); overflow-wrap: anywhere; }
+.reviews-meta { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; font-size: .82rem; color: var(--color-text-secondary);
+    padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+.reviews-status { padding: .15rem .55rem; border-radius: 999px; border: 1px solid var(--glass-border); }
+.reviews-status.is-new { color: var(--color-accent); border-color: var(--color-accent); }
+.reviews-status.is-selected { color: #4ade80; border-color: #4ade80; }
+.reviews-quote { font-family: 'Playfair Display', serif; font-size: 1.2rem; line-height: 1.5; margin: 1.25rem 0; padding: 0;
+    color: var(--color-text-primary); white-space: pre-line; }
+.reviews-block { margin-bottom: 1.1rem; }
+.reviews-block h3 { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--color-accent); margin: 0 0 .35rem; }
+.reviews-block p { margin: 0; white-space: pre-line; color: var(--color-text-primary); line-height: 1.6; }
+.reviews-consent { font-size: .8rem; color: #4ade80; margin: 1rem 0; }
+.reviews-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; }
+.reviews-danger { background: transparent; color: #ff8a8a; border: 1px solid rgba(255, 107, 107, .5); }
+.reviews-note { display: flex; flex-direction: column; gap: .4rem; font-size: .85rem; color: var(--color-text-secondary); }
+.reviews-note textarea { font: inherit; color: var(--color-text-primary); background: rgba(0, 0, 0, .18); border: 1px solid var(--glass-border);
+    border-radius: 10px; padding: .65rem .8rem; resize: vertical; }
+.reviews-note .btn { align-self: flex-start; }
+
+@media (max-width: 900px) {
+    .reviews-layout { grid-template-columns: 1fr; }
+    .reviews-detail { order: -1; }
+}
